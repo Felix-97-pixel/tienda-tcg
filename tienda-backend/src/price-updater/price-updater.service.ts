@@ -9,7 +9,7 @@ const JSONStream = require('JSONStream');
 export class PriceUpdaterService {
   private readonly logger = new Logger(PriceUpdaterService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async checkExpansionExists(expansion: string): Promise<boolean> {
     const count = await this.prisma.product.count({

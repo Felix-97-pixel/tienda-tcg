@@ -54,11 +54,17 @@ export class ProductsService {
     }));
   }
 
-  async getAttributes(categoryName?: string) {
+  async getAttributes(categoryName?: string, expansionName?: string) {
+    const where: any = {};
+    if (categoryName) {
+      where.product = { category: { name: categoryName } };
+    }
+    if (expansionName) {
+      where.expansion = expansionName;
+    }
+
     const cardDetails = await this.prisma.cardDetail.findMany({
-      where: categoryName ? {
-        product: { category: { name: categoryName } }
-      } : undefined,
+      where: Object.keys(where).length > 0 ? where : undefined,
       select: { attributes: true }
     });
 

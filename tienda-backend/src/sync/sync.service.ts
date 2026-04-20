@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import axios from 'axios';
+import { GameType as PrismaGameType } from '@prisma/client';
 import { GameType } from '../common/enums/game-type.enum';
 
 interface CardToSync {
@@ -17,9 +18,19 @@ interface CardToSync {
 export class SyncService {
   constructor(private prisma: PrismaService) { }
 
+  /**
+   * Convierte el nombre de categoría (ej: "Singles Magic The Gathering")
+   * al enum que Prisma espera internamente (ej: PrismaGameType.MAGIC).
+   */
+  private resolveGameType(game: string): PrismaGameType {
+    if (game === GameType.POKEMON) return PrismaGameType.POKEMON;
+    if (game === GameType.MAGIC)   return PrismaGameType.MAGIC;
+    if (game === GameType.YUGIOH)  return PrismaGameType.YUGIOH;
+    return PrismaGameType.MAGIC;
+  }
+
   async syncSet(game: string, setId: string) {
-    // La categoría se deriva directamente del juego (game === nombre de categoría)
-    let category = await this.prisma.category.findFirst({
+    const category = await this.prisma.category.findFirst({
       where: { name: { equals: game, mode: 'insensitive' } }
     });
 
@@ -28,25 +39,25 @@ export class SyncService {
     }
 
     const categoryId = category.id;
+    const gameType = this.resolveGameType(game);
     let totalProcessed = 0;
     let url = game === GameType.POKEMON
       ? `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}`
       : `https://api.scryfall.com/cards/search?q=set:${setId}+-is:digital&unique=prints`;
 
     let hasMore = true;
-    const CONCURRENCY_LIMIT = 15; // "Hilos" virtuales: cuántas cartas procesar a la vez
+    const CONCURRENCY_LIMIT = 15;
 
     while (hasMore) {
       const res = await axios.get(url);
       const data = res.data;
 
-      const pageCards = data.data.map((c: any) => {
+      const pageCards: CardToSync[] = data.data.map((c: any) => {
         let attrs: string[] = [];
         if (game === GameType.POKEMON) {
           attrs = c.types ? [...c.types] : [];
           if (c.supertype === 'Energy' && !attrs.includes('Energy')) attrs.push('Energy');
         } else {
-          // Magic
           attrs = c.colors || c.card_faces?.[0]?.colors || [];
           if (c.oracle_text?.includes('{E}')) attrs.push('Energy');
           if (c.oracle_text?.toLowerCase().includes('devotion')) attrs.push('Devotion');
@@ -55,7 +66,9 @@ export class SyncService {
         return {
           externalId: c.id,
           name: c.name,
-          image: game === GameType.POKEMON ? c.images?.large : (c.image_uris?.normal || c.card_faces?.[0]?.image_uris?.normal || ''),
+          image: game === GameType.POKEMON
+            ? c.images?.large
+            : (c.image_uris?.normal || c.card_faces?.[0]?.image_uris?.normal || ''),
           expansion: game === GameType.POKEMON ? c.set.name : c.set_name,
           rarity: c.rarity || 'Common',
           number: game === GameType.POKEMON ? c.number : c.collector_number,
@@ -63,7 +76,6 @@ export class SyncService {
         };
       });
 
-      // AHORA PROCESAMOS LA PÁGINA INMEDIATAMENTE ANTES DE PEDIR LA SIGUIENTE
       for (let i = 0; i < pageCards.length; i += CONCURRENCY_LIMIT) {
         const chunk = pageCards.slice(i, i + CONCURRENCY_LIMIT);
 
@@ -82,8 +94,8 @@ export class SyncService {
                     expansion: card.expansion,
                     rarity: card.rarity,
                     collectorNum: card.number,
-                    game: game as GameType,
-                  } as any
+                    game: gameType,
+                  }
                 },
                 items: { create: { price: 0, stock: 0, condition: 'New' } }
               }
@@ -122,5 +134,3 @@ export class SyncService {
     `;
   }
 }
-
-

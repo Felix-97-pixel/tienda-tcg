@@ -82,10 +82,15 @@ const ShopWithSidebar = () => {
       return;
     }
 
+    let attributesUrl = `${API_URL}/products/meta/attributes?category=${encodeURIComponent(selectedCategory)}`;
+    if (selectedExpansion) {
+      attributesUrl += `&expansion=${encodeURIComponent(selectedExpansion)}`;
+    }
+
     const fetchExpansions = fetch(`${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
       .then((res) => res.json());
 
-    const fetchAttributes = fetch(`${API_URL}/products/meta/attributes?category=${encodeURIComponent(selectedCategory)}`)
+    const fetchAttributes = fetch(attributesUrl)
       .then((res) => res.json());
 
     Promise.all([fetchExpansions, fetchAttributes])
@@ -94,7 +99,7 @@ const ShopWithSidebar = () => {
         if (Array.isArray(attributesResponse)) setAttributesData(attributesResponse);
       })
       .catch((err) => console.error("Error fetching category meta:", err));
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedExpansion]);
 
   // Fetch products only when BOTH category AND expansion are selected
   useEffect(() => {

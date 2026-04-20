@@ -23,8 +23,11 @@ export class ProductsController {
   }
 
   @Get('meta/attributes')
-  getAttributes(@Query('category') category?: string) {
-    return this.productsService.getAttributes(category);
+  getAttributes(
+    @Query('category') category?: string,
+    @Query('expansion') expansion?: string,
+  ) {
+    return this.productsService.getAttributes(category, expansion);
   }
 
   @Get()

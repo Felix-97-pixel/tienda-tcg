@@ -4,13 +4,8 @@ import { PriceUpdaterService } from './price-updater.service';
 @Controller('price-updater')
 export class PriceUpdaterController {
   constructor(private readonly priceUpdaterService: PriceUpdaterService) { }
-  /*EJEMPLO DE CONSULTA PARA POSTMAN 
-    METHOD: POST
-    URL: http://localhost:3000/price-updater/sync-set
-    BODY: 
-    {
-      "expansion": "Bloomburrow"
-    }
+  /*EJEMPLO DE CONSULTA
+    Invoke-RestMethod -Method POST -Uri "http://localhost:3000/price-updater/sync-set" -ContentType "application/json" -Body '{"expansion": "Avatar: The Last Airbender"}'
   */
   @Post('sync-set')
   @HttpCode(200)
