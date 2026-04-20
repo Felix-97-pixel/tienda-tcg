@@ -152,8 +152,11 @@ const SingleGridItem = ({ item }: { item: Product }) => {
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">${item.discountedPrice}</span>
-        <span className="text-dark-4 line-through">${item.price}</span>
+        {item.price > 0 ? (
+          <span className="text-dark">${item.price.toFixed(2)} <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
+        ) : (
+          <span className="text-gray-400 text-sm italic">Sin precio</span>
+        )}
       </span>
     </div>
   );
