@@ -13,6 +13,10 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  captchaToken!: string;
 }
 
 export class LoginDto {
@@ -23,4 +27,8 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   password!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  captchaToken!: string;
 }
