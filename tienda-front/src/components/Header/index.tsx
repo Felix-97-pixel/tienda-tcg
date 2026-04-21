@@ -29,9 +29,9 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       const apiUrl = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "undefined") ? process.env.NEXT_PUBLIC_API_URL : `http://${window.location.hostname}:3001`;
-      await fetch(`${apiUrl}/auth/logout`, { 
-        method: 'POST', 
-        credentials: 'include' 
+      await fetch(`${apiUrl}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
       });
     } catch (e) {
       console.error("Logout error", e);
@@ -85,12 +85,11 @@ const Header = () => {
               />
             </Link>
 
-            <div className="max-w-[475px] w-full">
+            <div className="max-w-[400px] w-full">
               <form>
                 <div className="flex items-center">
                   <CustomSelect options={options} />
-
-                  <div className="relative max-w-[333px] sm:min-w-[333px] w-full">
+                  <div className="relative max-w-[280px] sm:min-w-[250px] w-full">
                     {/* <!-- divider --> */}
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-4"></span>
                     <input
@@ -178,8 +177,8 @@ const Header = () => {
                       <span className="block text-2xs text-dark-4 uppercase">
                         account
                       </span>
-                      <p 
-                        className="font-medium text-custom-sm text-dark truncate max-w-[80px] xl:max-w-[110px]" 
+                      <p
+                        className="font-medium text-custom-sm text-dark truncate max-w-[80px] xl:max-w-[110px]"
                         title={user?.name || user?.email}
                       >
                         {user?.name || user?.email}
