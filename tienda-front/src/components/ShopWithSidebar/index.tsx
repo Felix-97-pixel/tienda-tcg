@@ -4,7 +4,7 @@ import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
 import CategoryDropdown from "./CategoryDropdown";
 import GenderDropdown from "./GenderDropdown";
-import AttributeDropdown from "./AttributeDropdown";
+//import AttributeDropdown from "./AttributeDropdown";
 import SizeDropdown from "./SizeDropdown";
 import ColorsDropdwon from "./ColorsDropdwon";
 import PriceDropdown from "./PriceDropdown";
@@ -42,24 +42,6 @@ const ShopWithSidebar = () => {
     { label: "Latest Products", value: "0" },
     { label: "Best Selling", value: "1" },
     { label: "Old Products", value: "2" },
-  ];
-
-  // categories array is now dynamic, we can remove the hardcoded one.
-
-
-  const genders = [
-    {
-      name: "Men",
-      products: 10,
-    },
-    {
-      name: "Women",
-      products: 23,
-    },
-    {
-      name: "Unisex",
-      products: 8,
-    },
   ];
 
   // Initial fetch for categories
