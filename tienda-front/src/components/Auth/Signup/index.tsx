@@ -29,6 +29,7 @@ const Signup = () => {
       const res = await fetch(`${apiUrl}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Necesario para enviar y recibir la cookie
         body: JSON.stringify({ name, email, password }),
       });
       
@@ -38,7 +39,7 @@ const Signup = () => {
         throw new Error(data.message || "Registration failed");
       }
       
-      dispatch(loginSuccess({ user: data.user, token: data.access_token }));
+      dispatch(loginSuccess({ user: data.user }));
       router.push("/");
     } catch (err: any) {
       setError(err.message);

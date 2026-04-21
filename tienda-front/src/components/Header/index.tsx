@@ -26,6 +26,19 @@ const Header = () => {
     openCartModal();
   };
 
+  const handleLogout = async () => {
+    try {
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "undefined") ? process.env.NEXT_PUBLIC_API_URL : `http://${window.location.hostname}:3001`;
+      await fetch(`${apiUrl}/auth/logout`, { 
+        method: 'POST', 
+        credentials: 'include' 
+      });
+    } catch (e) {
+      console.error("Logout error", e);
+    }
+    dispatch(logout());
+  };
+
   // Sticky menu
   const handleStickyMenu = () => {
     if (window.scrollY >= 80) {
@@ -169,7 +182,7 @@ const Header = () => {
                         {user?.name || user?.email}
                       </p>
                     </div>
-                    <button onClick={() => dispatch(logout())} className="text-custom-sm font-medium hover:text-blue bg-gray-2 py-1 px-3 rounded-md">
+                    <button onClick={handleLogout} className="text-custom-sm font-medium hover:text-blue bg-gray-2 py-1 px-3 rounded-md">
                       Logout
                     </button>
                   </div>
