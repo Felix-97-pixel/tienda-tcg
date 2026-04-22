@@ -21,6 +21,8 @@ const Header = () => {
   const totalPrice = useSelector(selectTotalPrice);
   const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
   const dispatch = useDispatch();
+  const [categoriesData, setCategoriesData] = useState<any[]>([]);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
   const handleOpenCartModal = () => {
     openCartModal();
@@ -28,8 +30,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "undefined") ? process.env.NEXT_PUBLIC_API_URL : `http://${window.location.hostname}:3001`;
-      await fetch(`${apiUrl}/auth/logout`, {
+      await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -52,16 +53,17 @@ const Header = () => {
     window.addEventListener("scroll", handleStickyMenu);
   });
 
-  const options = [
-    { label: "All Categories", value: "0" },
-    { label: "Desktop", value: "1" },
-    { label: "Laptop", value: "2" },
-    { label: "Monitor", value: "3" },
-    { label: "Phone", value: "4" },
-    { label: "Watch", value: "5" },
-    { label: "Mouse", value: "6" },
-    { label: "Tablet", value: "7" },
-  ];
+  // Initial fetch for categories
+  useEffect(() => {
+    fetch(`${API_URL}/products/meta/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        const categories = [{ name: "Todas las categorias" }, ...data];
+        setCategoriesData(categories);
+      })
+      .catch((err) => console.error("Error fetching categories:", err));
+  }, []);
+
 
   return (
     <header
@@ -88,7 +90,7 @@ const Header = () => {
             <div className="max-w-[400px] w-full">
               <form>
                 <div className="flex items-center">
-                  <CustomSelect options={options} />
+                  <CustomSelect options={categoriesData} />
                   <div className="relative max-w-[280px] sm:min-w-[250px] w-full">
                     {/* <!-- divider --> */}
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-4"></span>
