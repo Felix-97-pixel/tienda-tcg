@@ -37,11 +37,12 @@ const CustomSelect = ({ options }) => {
   }, []);
 
   return (
-    <div className="dropdown-content custom-select relative" style={{ width: "200px" }}>
+    <div className="dropdown-content custom-select relative w-[160px] sm:w-[220px] flex-shrink-0">
       <div
-        className={`select-selected whitespace-nowrap ${isOpen ? "select-arrow-active" : ""
+        className={`select-selected whitespace-nowrap overflow-hidden text-ellipsis ${isOpen ? "select-arrow-active" : ""
           }`}
         onClick={toggleDropdown}
+        title={selectedOption?.name}
       >
         {selectedOption?.name}
       </div>

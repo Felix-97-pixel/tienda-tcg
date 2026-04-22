@@ -87,11 +87,11 @@ const Header = () => {
               />
             </Link>
 
-            <div className="max-w-[400px] w-full">
+            <div className="max-w-[500px] xl:max-w-[600px] w-full flex-1 min-w-0">
               <form>
                 <div className="flex items-center">
                   <CustomSelect options={categoriesData} />
-                  <div className="relative max-w-[280px] sm:min-w-[250px] w-full">
+                  <div className="relative max-w-[280px] sm:min-w-[200px] w-full">
                     {/* <!-- divider --> */}
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-4"></span>
                     <input
@@ -132,7 +132,7 @@ const Header = () => {
 
           {/* <!-- header top right --> */}
           <div className="flex w-full lg:w-auto items-center gap-4 xl:gap-7.5">
-            <div className="hidden xl:flex items-center gap-3.5">
+            <div className="hidden xl:flex items-center gap-3.5 flex-shrink-0">
               <svg
                 width="24"
                 height="24"
