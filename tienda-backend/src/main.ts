@@ -13,8 +13,17 @@ async function bootstrap() {
   }));
   app.use(cookieParser());
 
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://taptrade.cl',
+    'https://www.taptrade.cl',
+  ];
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
   });
   const port = process.env.PORT || 3001;
