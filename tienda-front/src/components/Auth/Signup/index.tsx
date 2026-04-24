@@ -136,7 +136,7 @@ const Signup = () => {
 
                 <div className="mb-5 flex justify-center">
                   <Turnstile
-                    siteKey="1x00000000000000000000AA"
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                     onSuccess={(token) => setCaptchaToken(token)}
                   />
                 </div>
