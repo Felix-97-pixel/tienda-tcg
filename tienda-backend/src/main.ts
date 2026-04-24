@@ -14,10 +14,10 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: 'http://localhost:3000', // Ajustado al puerto de Next.js
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   });
-  //await app.listen(process.env.PORT ?? 3001);
-  await app.listen(3001);
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
 }
 bootstrap();
