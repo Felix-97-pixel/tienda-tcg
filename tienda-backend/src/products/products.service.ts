@@ -9,13 +9,38 @@ export class ProductsService {
   constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto) {
+    const { price, stock, ...productData } = createProductDto;
+    
     return this.prisma.product.create({
       data: {
-        ...createProductDto,
-        // Si el DTO no trae externalId, generamos uno seguro usando randomUUID nativo
-        externalId: createProductDto.externalId || `manual-${Date.now()}-${randomUUID()}`,
-        // Asegúrate de que las relaciones (category) también estén bien mapeadas
+        ...productData,
+        externalId: productData.externalId || `manual-${Date.now()}-${randomUUID()}`,
+        items: {
+          create: {
+            price: price || 0,
+            stock: stock || 0,
+            condition: "New",
+            isFoil: false
+          }
+        }
       },
+    });
+  }
+
+  async getAdminCategories() {
+    return this.prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+      }
+    });
+  }
+
+  async createCategory(data: { name: string; slug: string; imageUrl?: string }) {
+    return this.prisma.category.create({
+      data
     });
   }
 
@@ -28,9 +53,18 @@ export class ProductsService {
       }
     });
     return categories.map(c => ({
+      id: c.id,
       name: c.name,
+      imageUrl: c.imageUrl,
       products: c._count.products
     }));
+  }
+
+  async updateCategory(id: string, updateData: { imageUrl?: string; name?: string; slug?: string }) {
+    return this.prisma.category.update({
+      where: { id },
+      data: updateData
+    });
   }
 
   async getExpansions(categoryName?: string) {
@@ -84,11 +118,19 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string) {
     const skip = (page - 1) * limit;
 
     // Build where clause
     const whereClause: any = {};
+    
+    if (searchName) {
+      whereClause.name = {
+        contains: searchName,
+        mode: 'insensitive'
+      };
+    }
+
     if (categoryName) {
       whereClause.category = {
         name: categoryName
@@ -157,6 +199,13 @@ export class ProductsService {
   async remove(id: string) {
     return this.prisma.product.delete({
       where: { id },
+    });
+  }
+
+  async updateInventoryItem(itemId: string, data: { price?: number; stock?: number }) {
+    return this.prisma.inventoryItem.update({
+      where: { id: itemId },
+      data
     });
   }
 }

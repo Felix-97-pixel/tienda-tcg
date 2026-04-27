@@ -1,16 +1,18 @@
 "use client";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useCallback, useRef, useEffect } from "react";
-import data from "./categoryData";
-import Image from "next/image";
+import { useCallback, useRef, useEffect, useState } from "react";
+import { Category } from "@/types/category";
 
 // Import Swiper styles
 import "swiper/css/navigation";
 import "swiper/css";
 import SingleItem from "./SingleItem";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 const Categories = () => {
-  const sliderRef = useRef(null);
+  const sliderRef = useRef<any>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const handlePrev = useCallback(() => {
     if (!sliderRef.current) return;
@@ -23,9 +25,25 @@ const Categories = () => {
   }, []);
 
   useEffect(() => {
-    if (sliderRef.current) {
+    if (sliderRef.current && sliderRef.current.swiper) {
       sliderRef.current.swiper.init();
     }
+  }, [categories]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/products/meta/categories`)
+      .then((res) => res.json())
+      .then((data: any[]) => {
+        const formattedCategories: Category[] = data.map((cat, index) => ({
+          id: cat.id || index + 1,
+          title: cat.name,
+          link: `/shop-with-sidebar?category=${encodeURIComponent(cat.name)}`,
+          // Use the imageUrl from DB if exists, else fallback
+          img: cat.imageUrl || `/images/categories/categories-0${(index % 7) + 1}.png`,
+        }));
+        setCategories(formattedCategories);
+      })
+      .catch((err) => console.error("Error fetching categories:", err));
   }, []);
 
   return (
@@ -134,7 +152,7 @@ const Categories = () => {
               },
             }}
           >
-            {data.map((item, key) => (
+            {categories.map((item, key) => (
               <SwiperSlide key={key}>
                 <SingleItem item={item} />
               </SwiperSlide>

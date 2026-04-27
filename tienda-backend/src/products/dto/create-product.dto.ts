@@ -20,4 +20,10 @@ export class CreateProductDto {
   @IsUUID()
   @IsNotEmpty()
   categoryId: string; 
+
+  @IsOptional()
+  price?: number;
+
+  @IsOptional()
+  stock?: number;
 }
