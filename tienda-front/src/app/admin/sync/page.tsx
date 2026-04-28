@@ -252,7 +252,7 @@ export default function AdminSync() {
             <button
               type="submit"
               disabled={loadingCk || expansionsList.length === 0}
-              className="flex w-full justify-center rounded bg-green-600 py-3 px-4 font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="flex w-full justify-center rounded bg-blue py-3 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
             >
               {loadingCk ? "Actualizando precios..." : "Sincronizar Precios CK"}
             </button>
