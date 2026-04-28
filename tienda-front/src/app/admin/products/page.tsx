@@ -445,11 +445,12 @@ export default function AdminProducts() {
 
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">
-                  Precio (CLP)
+                  Precio
                 </label>
                 <input
                   type="number"
                   min="0"
+                  step="any"
                   required
                   value={editingItem.price}
                   onChange={(e) => setEditingItem({ ...editingItem, price: Number(e.target.value) })}
@@ -533,10 +534,11 @@ export default function AdminProducts() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">Precio (CLP)</label>
+                  <label className="mb-2 block text-sm font-medium text-black">Precio</label>
                   <input
                     type="number"
                     min="0"
+                    step="any"
                     required
                     value={creatingProduct.price}
                     onChange={(e) => setCreatingProduct({ ...creatingProduct, price: Number(e.target.value) })}
