@@ -30,10 +30,11 @@ export class AuthController {
   }
 
   private setCookie(res: Response, token: string) {
+    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('access_token', token, {
       httpOnly: true, // Inaccesible para JavaScript en el frontend
-      secure: process.env.NODE_ENV === 'production', // Solo HTTPS en producción
-      sameSite: 'lax', // Protege contra CSRF básico
+      secure: isProduction, // Solo HTTPS en producción (obligatorio para sameSite 'none')
+      sameSite: isProduction ? 'none' : 'lax', // 'none' permite cross-domain en prod, 'lax' para local
       maxAge: 1000 * 60 * 60 * 24, // 1 día
     });
   }
