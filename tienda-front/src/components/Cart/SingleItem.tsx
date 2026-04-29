@@ -75,8 +75,9 @@ const SingleItem = ({ item }) => {
 
           <button
             onClick={() => handleIncreaseQuantity()}
+            disabled={item.quantity >= (item.stock !== undefined ? item.stock : 999)}
             aria-label="button for add product"
-            className="flex items-center justify-center w-11.5 h-11.5 ease-out duration-200 hover:text-blue"
+            className={`flex items-center justify-center w-11.5 h-11.5 ease-out duration-200 ${item.quantity >= (item.stock !== undefined ? item.stock : 999) ? "text-gray-4 cursor-not-allowed" : "hover:text-blue"}`}
           >
             <svg
               className="fill-current"

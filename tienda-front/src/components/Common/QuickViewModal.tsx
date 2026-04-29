@@ -21,6 +21,11 @@ const QuickViewModal = () => {
 
   // get the product data
   const product = useAppSelector((state) => state.quickViewReducer.value);
+  const cartItems = useAppSelector((state) => state.cartReducer.items);
+  const cartItem = cartItems.find((ci) => ci.id === product?.id);
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+  const isMaxStockReached = product?.stock !== undefined && product?.stock !== null ? quantityInCart >= product.stock : false;
+  const availableStock = product?.stock !== undefined ? product.stock - quantityInCart : 999;
 
   const [activePreview, setActivePreview] = useState(0);
 
@@ -33,7 +38,7 @@ const QuickViewModal = () => {
 
   // add to cart
   const handleAddToCart = () => {
-    if (product?.stock === 0) return;
+    if (product?.stock === 0 || isMaxStockReached) return;
     dispatch(
       addItemToCart({
         ...product,
@@ -380,8 +385,12 @@ const QuickViewModal = () => {
                     <button
                       onClick={() => setQuantity(quantity + 1)}
                       aria-label="button for add product"
-                      className="flex items-center justify-center w-10 h-10 rounded-[5px] bg-gray-2 text-dark ease-out duration-200 hover:text-blue"
-                      disabled={product?.stock === 0 || (product?.stock && quantity >= product.stock)}
+                      className={`flex items-center justify-center w-10 h-10 rounded-[5px] bg-gray-2 ease-out duration-200 ${
+                        product?.stock === 0 || quantity >= availableStock
+                          ? "text-gray-4 cursor-not-allowed"
+                          : "text-dark hover:text-blue"
+                      }`}
+                      disabled={product?.stock === 0 || quantity >= availableStock}
                     >
                       <svg
                         className="fill-current"
@@ -411,15 +420,15 @@ const QuickViewModal = () => {
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
-                  disabled={quantity === 0 || product?.stock === 0}
-                  onClick={() => handleAddToCart()}
-                  className={`inline-flex font-medium text-white py-3 px-7 rounded-md ease-out duration-200 ${
-                    product?.stock === 0
+                  onClick={handleAddToCart}
+                  disabled={product?.stock === 0 || isMaxStockReached}
+                  className={`inline-flex py-3 px-6 rounded-md ease-out duration-200 ${
+                    product?.stock === 0 || isMaxStockReached
                       ? "bg-gray-4 cursor-not-allowed text-dark-4"
-                      : "bg-blue hover:bg-blue-dark"
+                      : "text-white bg-blue hover:bg-blue-dark"
                   }`}
                 >
-                  {product?.stock === 0 ? "Sin stock" : "Add to Cart"}
+                  {product?.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
                 </button>
 
                 <button

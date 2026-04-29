@@ -14,6 +14,10 @@ const SingleGridItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
 
   const dispatch = useDispatch<AppDispatch>();
+  const cartItems = useAppSelector((state) => state.cartReducer.items);
+  const cartItem = cartItems.find((ci) => ci.id === item.id);
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+  const isMaxStockReached = item.stock !== undefined && item.stock !== null ? quantityInCart >= item.stock : false;
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
@@ -22,7 +26,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
   // add to cart
   const handleAddToCart = () => {
-    if (item.stock === 0) return;
+    if (item.stock === 0 || isMaxStockReached) return;
     dispatch(
       addItemToCart({
         ...item,
@@ -104,16 +108,16 @@ const SingleGridItem = ({ item }: { item: Product }) => {
           </button>
 
           <button
-            onClick={() => handleAddToCart()}
-            disabled={item.stock === 0}
-            className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${
-              item.stock === 0
-                ? "bg-gray-4 cursor-not-allowed text-dark-4"
-                : "bg-blue hover:bg-blue-dark"
-            }`}
-          >
-            {item.stock === 0 ? "Sin stock" : "Add to cart"}
-          </button>
+          onClick={() => handleAddToCart()}
+          disabled={item.stock === 0 || isMaxStockReached}
+          className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
+            item.stock === 0 || isMaxStockReached
+              ? "bg-gray-4 cursor-not-allowed text-dark-4"
+              : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
+          }`}
+        >
+          {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
+        </button>
 
           <button
             onClick={() => handleItemToWishList()}
