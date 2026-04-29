@@ -1,4 +1,4 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Body, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,5 +19,15 @@ export class UploadController {
     return {
       url: result.secure_url,
     };
+  }
+
+  @Delete('image')
+  @Roles(Role.ADMIN)
+  async deleteImage(@Body('url') url: string) {
+    if (!url) {
+      return { success: false, message: 'URL is required' };
+    }
+    const result = await this.uploadService.deleteImage(url);
+    return { success: true, result };
   }
 }

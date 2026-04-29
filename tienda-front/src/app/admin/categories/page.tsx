@@ -19,6 +19,7 @@ export default function AdminCategories() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryMeta | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -74,6 +75,63 @@ export default function AdminCategories() {
       setFormData({ ...formData, name, slug: handleSlugify(name) });
     } else {
       setFormData({ ...formData, name });
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    if (!formData.imageUrl) return;
+    
+    // Attempt to delete from Cloudinary
+    try {
+      await fetch(`${API_URL}/upload/image`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: formData.imageUrl }),
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Error al borrar la imagen en Cloudinary:", err);
+    }
+    
+    setFormData({ ...formData, imageUrl: "" });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+
+    setUploadingImage(true);
+    try {
+      // If replacing an existing image, delete the old one first
+      if (formData.imageUrl) {
+        await fetch(`${API_URL}/upload/image`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: formData.imageUrl }),
+          credentials: "include",
+        }).catch(err => console.error("No se pudo borrar imagen antigua", err));
+      }
+
+      const res = await fetch(`${API_URL}/upload/image`, {
+        method: "POST",
+        body: uploadData,
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setFormData({ ...formData, imageUrl: data.url });
+      } else {
+        alert("Error al subir la imagen");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error de conexión al subir la imagen");
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -241,15 +299,33 @@ export default function AdminCategories() {
 
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">
-                  Ruta de la Imagen (URL)
+                  Imagen de Categoría
                 </label>
-                <input
-                  type="text"
-                  placeholder="/images/categories/mtg-logo.png"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                />
+                {formData.imageUrl ? (
+                  <div className="mb-3">
+                    <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
+                      <Image src={formData.imageUrl} alt="Vista previa" fill className="object-contain" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="text-sm text-danger hover:underline"
+                    >
+                      Eliminar Imagen
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mb-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                    />
+                    {uploadingImage && <span className="text-sm text-blue">Subiendo...</span>}
+                  </div>
+                )}
               </div>
 
               <div className="mb-6 flex items-center">
