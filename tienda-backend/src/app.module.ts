@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { UploadModule } from './upload/upload.module';
     SyncModule,
     UsersModule,
     AuthModule,
-    UploadModule
+    UploadModule,
+    WishlistModule
   ],
   controllers: [AppController],
   providers: [AppService],

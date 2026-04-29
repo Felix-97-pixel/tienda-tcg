@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { AppDispatch } from "@/redux/store";
 import { useDispatch } from "react-redux";
 import {
@@ -9,8 +9,6 @@ import {
 import Image from "next/image";
 
 const SingleItem = ({ item }) => {
-  const [quantity, setQuantity] = useState(item.quantity);
-
   const dispatch = useDispatch<AppDispatch>();
 
   const handleRemoveFromCart = () => {
@@ -18,16 +16,12 @@ const SingleItem = ({ item }) => {
   };
 
   const handleIncreaseQuantity = () => {
-    setQuantity(quantity + 1);
-    dispatch(updateCartItemQuantity({ id: item.id, quantity: quantity + 1 }));
+    dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity + 1 }));
   };
 
   const handleDecreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-      dispatch(updateCartItemQuantity({ id: item.id, quantity: quantity - 1 }));
-    } else {
-      return;
+    if (item.quantity > 1) {
+      dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity - 1 }));
     }
   };
 
@@ -36,8 +30,8 @@ const SingleItem = ({ item }) => {
       <div className="min-w-[400px]">
         <div className="flex items-center justify-between gap-5">
           <div className="w-full flex items-center gap-5.5">
-            <div className="flex items-center justify-center rounded-[5px] bg-gray-2 max-w-[80px] w-full h-17.5">
-              <Image width={200} height={200} src={item.imgs?.thumbnails[0]} alt="product" />
+            <div className="flex items-center justify-center rounded-[5px] bg-gray-2 max-w-[80px] w-full h-17.5 overflow-hidden p-1">
+              <Image className="max-h-full max-w-full object-contain" width={200} height={200} src={item.imgs?.thumbnails[0]} alt="product" />
             </div>
 
             <div>
@@ -76,7 +70,7 @@ const SingleItem = ({ item }) => {
           </button>
 
           <span className="flex items-center justify-center w-16 h-11.5 border-x border-gray-4">
-            {quantity}
+            {item.quantity}
           </span>
 
           <button
@@ -106,7 +100,7 @@ const SingleItem = ({ item }) => {
       </div>
 
       <div className="min-w-[200px]">
-        <p className="text-dark">${item.discountedPrice * quantity}</p>
+        <p className="text-dark">${item.discountedPrice * item.quantity}</p>
       </div>
 
       <div className="min-w-[50px] flex justify-end">

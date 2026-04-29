@@ -1,11 +1,45 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import { useAppSelector } from "@/redux/store";
 import SingleItem from "./SingleItem";
 
 export const Wishlist = () => {
-  const wishlistItems = useAppSelector((state) => state.wishlistReducer.items);
+  const reduxWishlistItems = useAppSelector((state) => state.wishlistReducer.items);
+  const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
+  const [dbItems, setDbItems] = useState<any[]>([]);
+
+  const fetchWishlist = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
+      const res = await fetch(`${apiUrl}/wishlist`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = data.map((item: any) => ({
+          id: item.id,
+          title: item.name,
+          price: item.items?.[0]?.price || 0,
+          discountedPrice: item.items?.[0]?.price || 0,
+          stock: item.items?.[0]?.stock || 0,
+          quantity: 1,
+          status: (item.items?.[0]?.stock || 0) > 0 ? "In Stock" : "Out of Stock",
+          imgs: {
+            thumbnails: [item.imageUrl || "/images/product/product-01.jpg"],
+            previews: [item.imageUrl || "/images/product/product-01.jpg"],
+          }
+        }));
+        setDbItems(mapped);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchWishlist();
+    }
+  }, [isAuthenticated]);
+
+  const wishlistItems = isAuthenticated ? dbItems : reduxWishlistItems;
 
   return (
     <>
@@ -42,7 +76,7 @@ export const Wishlist = () => {
 
                 {/* <!-- wish item --> */}
                 {wishlistItems.map((item, key) => (
-                  <SingleItem item={item} key={key} />
+                  <SingleItem item={item} key={key} onRemove={isAuthenticated ? fetchWishlist : undefined} />
                 ))}
               </div>
             </div>

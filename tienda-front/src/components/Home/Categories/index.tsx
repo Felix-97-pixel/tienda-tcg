@@ -37,7 +37,7 @@ const Categories = () => {
         const formattedCategories: Category[] = data.map((cat, index) => ({
           id: cat.id || index + 1,
           title: cat.name,
-          link: `/shop-with-sidebar?category=${encodeURIComponent(cat.name)}`,
+          link: `/shop?category=${encodeURIComponent(cat.name)}`,
           // Use the imageUrl from DB if exists, else fallback
           img: cat.imageUrl || `/images/categories/categories-0${(index % 7) + 1}.png`,
         }));

@@ -85,11 +85,6 @@ const ShopWithSidebar = () => {
 
   // Fetch products
   useEffect(() => {
-    if (!selectedCategory && !searchTerm) {
-      setProducts([]);
-      setTotalPages(0);
-      return;
-    }
 
     // Debounce the search term to avoid spamming the API on every keystroke
     const timeoutId = setTimeout(() => {
@@ -117,6 +112,7 @@ const ShopWithSidebar = () => {
 
         const mapped = productList.map((item: any) => {
           const defaultPrice = item.items?.[0]?.price || 0;
+          const defaultStock = item.items?.[0]?.stock || 0;
           const catName = item.category?.name || "Uncategorized";
 
           return {
@@ -126,6 +122,7 @@ const ShopWithSidebar = () => {
             price: parseFloat(defaultPrice),
             discountedPrice: parseFloat(defaultPrice),
             category: catName,
+            stock: parseInt(defaultStock, 10),
             imgs: {
               thumbnails: [item.imageUrl || "/images/product/product-01.jpg"],
               previews: [item.imageUrl || "/images/product/product-01.jpg"],
@@ -427,11 +424,7 @@ const ShopWithSidebar = () => {
                     );
                   }
 
-                  if (!selectedCategory && !searchTerm) {
-                    return (
-                      <p className="col-span-3 text-center py-20 text-lg font-medium">Selecciona un juego del menú o usa el buscador para comenzar.</p>
-                    );
-                  }
+
 
                   if (selectedCategory && categoriesData.find((c: any) => c.name === selectedCategory)?.isTcg && !selectedExpansion && !selectedAttribute && !searchTerm) {
                     return (

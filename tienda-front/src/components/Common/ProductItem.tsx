@@ -23,6 +23,7 @@ const ProductItem = ({ item }: { item: Product }) => {
 
   // add to cart
   const handleAddToCart = () => {
+    if (item.stock === 0) return;
     dispatch(
       addItemToCart({
         ...item,
@@ -50,7 +51,16 @@ const ProductItem = ({ item }: { item: Product }) => {
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] min-h-[270px] mb-4">
         <Image src={item.imgs?.previews?.[0] || "/images/product/product-01.jpg"} alt="" width={250} height={250} />
 
-        <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
+        {/* Out of Stock Overlay */}
+        {item.stock === 0 && (
+          <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
+            <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
+              Sin stock
+            </span>
+          </div>
+        )}
+
+        <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0 z-20">
           <button
             onClick={() => {
               openModal();
@@ -85,9 +95,14 @@ const ProductItem = ({ item }: { item: Product }) => {
 
           <button
             onClick={() => handleAddToCart()}
-            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-blue text-white ease-out duration-200 hover:bg-blue-dark"
+            disabled={item.stock === 0}
+            className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${
+              item.stock === 0
+                ? "bg-gray-4 cursor-not-allowed text-dark-4"
+                : "bg-blue hover:bg-blue-dark"
+            }`}
           >
-            Add to cart
+            {item.stock === 0 ? "Sin stock" : "Add to cart"}
           </button>
 
           <button

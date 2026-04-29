@@ -27,6 +27,7 @@ model Product {
   cardDetail  CardDetail?
   items       InventoryItem[]
   category    Category        @relation(fields: [categoryId], references: [id])
+  wishlistedBy WishlistItem[]
 }
 
 model CardDetail {
@@ -65,9 +66,22 @@ model User {
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  wishlist  WishlistItem[]
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
 }

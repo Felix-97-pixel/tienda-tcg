@@ -12,12 +12,14 @@ export async function getProducts(): Promise<Product[]> {
     
     return productList.map((item: any) => {
       const defaultPrice = item.items?.[0]?.price || 0;
+      const defaultStock = item.items?.[0]?.stock || 0;
       return {
         id: item.id,
         title: item.name,
         reviews: 0,
         price: parseFloat(defaultPrice),
         discountedPrice: parseFloat(defaultPrice),
+        stock: parseInt(defaultStock, 10),
         imgs: {
           thumbnails: [item.imageUrl || "/images/product/product-01.jpg"],
           previews: [item.imageUrl || "/images/product/product-01.jpg"],

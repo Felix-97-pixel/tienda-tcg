@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import Image from "next/image";
+import { updateCartItemQuantity } from "@/redux/features/cart-slice";
 
 const SingleItem = ({ item, removeItemFromCart }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -10,18 +11,78 @@ const SingleItem = ({ item, removeItemFromCart }) => {
     dispatch(removeItemFromCart(item.id));
   };
 
+  const handleIncreaseQuantity = () => {
+    dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity + 1 }));
+  };
+
+  const handleDecreaseQuantity = () => {
+    if (item.quantity > 1) {
+      dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity - 1 }));
+    }
+  };
+
   return (
     <div className="flex items-center justify-between gap-5">
       <div className="w-full flex items-center gap-6">
-        <div className="flex items-center justify-center rounded-[10px] bg-gray-3 max-w-[90px] w-full h-22.5">
-          <Image src={item.imgs?.thumbnails[0]} alt="product" width={100} height={100} />
+        <div className="flex items-center justify-center rounded-[10px] bg-gray-3 max-w-[90px] w-full h-22.5 overflow-hidden p-1">
+          <Image className="max-h-full max-w-full object-contain" src={item.imgs?.thumbnails[0]} alt="product" width={100} height={100} />
         </div>
 
         <div>
           <h3 className="font-medium text-dark mb-1 ease-out duration-200 hover:text-blue">
             <a href="#"> {item.title} </a>
           </h3>
-          <p className="text-custom-sm">Price: ${item.discountedPrice}</p>
+          <p className="text-custom-sm mb-2">Price: ${item.discountedPrice}</p>
+          
+          <div className="w-max flex items-center rounded-md border border-gray-3">
+            <button
+              onClick={() => handleDecreaseQuantity()}
+              aria-label="button for remove product quantity"
+              className="flex items-center justify-center w-8 h-8 ease-out duration-200 hover:text-blue"
+            >
+              <svg
+                className="fill-current"
+                width="14"
+                height="14"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.33301 10.0001C3.33301 9.53984 3.7061 9.16675 4.16634 9.16675H15.833C16.2932 9.16675 16.6663 9.53984 16.6663 10.0001C16.6663 10.4603 16.2932 10.8334 15.833 10.8334H4.16634C3.7061 10.8334 3.33301 10.4603 3.33301 10.0001Z"
+                  fill=""
+                />
+              </svg>
+            </button>
+
+            <span className="flex items-center justify-center w-10 h-8 border-x border-gray-4 text-sm">
+              {item.quantity}
+            </span>
+
+            <button
+              onClick={() => handleIncreaseQuantity()}
+              aria-label="button for add product quantity"
+              className="flex items-center justify-center w-8 h-8 ease-out duration-200 hover:text-blue"
+            >
+              <svg
+                className="fill-current"
+                width="14"
+                height="14"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.33301 10C3.33301 9.5398 3.7061 9.16671 4.16634 9.16671H15.833C16.2932 9.16671 16.6663 9.5398 16.6663 10C16.6663 10.4603 16.2932 10.8334 15.833 10.8334H4.16634C3.7061 10.8334 3.33301 10.4603 3.33301 10Z"
+                  fill=""
+                />
+                <path
+                  d="M9.99967 16.6667C9.53944 16.6667 9.16634 16.2936 9.16634 15.8334L9.16634 4.16671C9.16634 3.70647 9.53944 3.33337 9.99967 3.33337C10.4599 3.33337 10.833 3.70647 10.833 4.16671L10.833 15.8334C10.833 16.2936 10.4599 16.6667 9.99967 16.6667Z"
+                  fill=""
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

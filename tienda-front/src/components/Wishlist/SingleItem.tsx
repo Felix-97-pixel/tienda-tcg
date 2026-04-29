@@ -7,14 +7,25 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 
 import Image from "next/image";
 
-const SingleItem = ({ item }) => {
-  const dispatch = useDispatch<AppDispatch>();
+import { useAppSelector } from "@/redux/store";
 
-  const handleRemoveFromWishlist = () => {
+const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
+
+  const handleRemoveFromWishlist = async () => {
     dispatch(removeItemFromWishlist(item.id));
+    if (isAuthenticated) {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
+        await fetch(`${apiUrl}/wishlist/${item.id}`, { method: 'DELETE', credentials: "include" });
+        if (onRemove) onRemove();
+      } catch (e) {}
+    }
   };
 
   const handleAddToCart = () => {
+    if (item.stock === 0) return;
     dispatch(
       addItemToCart({
         ...item,
@@ -75,39 +86,44 @@ const SingleItem = ({ item }) => {
 
       <div className="min-w-[265px]">
         <div className="flex items-center gap-1.5">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9.99935 14.7917C10.3445 14.7917 10.6243 14.5119 10.6243 14.1667V9.16669C10.6243 8.82151 10.3445 8.54169 9.99935 8.54169C9.65417 8.54169 9.37435 8.82151 9.37435 9.16669V14.1667C9.37435 14.5119 9.65417 14.7917 9.99935 14.7917Z"
-              fill="#F23030"
-            />
-            <path
-              d="M9.99935 5.83335C10.4596 5.83335 10.8327 6.20645 10.8327 6.66669C10.8327 7.12692 10.4596 7.50002 9.99935 7.50002C9.53911 7.50002 9.16602 7.12692 9.16602 6.66669C9.16602 6.20645 9.53911 5.83335 9.99935 5.83335Z"
-              fill="#F23030"
-            />
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M1.04102 10C1.04102 5.05247 5.0518 1.04169 9.99935 1.04169C14.9469 1.04169 18.9577 5.05247 18.9577 10C18.9577 14.9476 14.9469 18.9584 9.99935 18.9584C5.0518 18.9584 1.04102 14.9476 1.04102 10ZM9.99935 2.29169C5.74215 2.29169 2.29102 5.74283 2.29102 10C2.29102 14.2572 5.74215 17.7084 9.99935 17.7084C14.2565 17.7084 17.7077 14.2572 17.7077 10C17.7077 5.74283 14.2565 2.29169 9.99935 2.29169Z"
-              fill="#F23030"
-            />
-          </svg>
-
-          <span className="text-red"> Out of Stock </span>
+          {item.stock > 0 || item.status === "In Stock" || item.status === "available" ? (
+            <>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clipPath="url(#clip0_375_9221)">
+                  <path d="M10 0.5625C4.78125 0.5625 0.5625 4.78125 0.5625 10C0.5625 15.2188 4.78125 19.4688 10 19.4688C15.2188 19.4688 19.4688 15.2188 19.4688 10C19.4688 4.78125 15.2188 0.5625 10 0.5625ZM10 18.0625C5.5625 18.0625 1.96875 14.4375 1.96875 10C1.96875 5.5625 5.5625 1.96875 10 1.96875C14.4375 1.96875 18.0625 5.59375 18.0625 10.0312C18.0625 14.4375 14.4375 18.0625 10 18.0625Z" fill="#22AD5C" />
+                  <path d="M12.6875 7.09374L8.9688 10.7187L7.2813 9.06249C7.00005 8.78124 6.56255 8.81249 6.2813 9.06249C6.00005 9.34374 6.0313 9.78124 6.2813 10.0625L8.2813 12C8.4688 12.1875 8.7188 12.2812 8.9688 12.2812C9.2188 12.2812 9.4688 12.1875 9.6563 12L13.6875 8.12499C13.9688 7.84374 13.9688 7.40624 13.6875 7.12499C13.4063 6.84374 12.9688 6.84374 12.6875 7.09374Z" fill="#22AD5C" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_375_9221">
+                    <rect width="20" height="20" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+              <span className="text-green-500 font-medium text-dark"> In Stock </span>
+            </>
+          ) : (
+            <>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="10" r="9.4375" fill="#DC3545" />
+                <path d="M6 10H14" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <span className="text-red font-medium"> Out of Stock </span>
+            </>
+          )}
         </div>
       </div>
 
       <div className="min-w-[150px] flex justify-end">
         <button
           onClick={() => handleAddToCart()}
-          className="inline-flex text-dark hover:text-white bg-gray-1 border border-gray-3 py-2.5 px-6 rounded-md ease-out duration-200 hover:bg-blue hover:border-gray-3"
+          disabled={item.stock === 0}
+          className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
+            item.stock === 0
+              ? "bg-gray-4 cursor-not-allowed text-dark-4"
+              : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
+          }`}
         >
-          Add to Cart
+          {item.stock === 0 ? "Sin stock" : "Add to Cart"}
         </button>
       </div>
     </div>

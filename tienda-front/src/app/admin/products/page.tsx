@@ -525,7 +525,7 @@ export default function AdminProducts() {
                       </td>
                       <td className="border-b border-[#eee] py-5 px-4">
                         <p className="text-black font-bold">
-                          ${Number(mainItem?.price || 0).toLocaleString('es-CL')}
+                          ${Number(mainItem?.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] py-5 px-4">
@@ -593,14 +593,15 @@ export default function AdminProducts() {
 
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">
-                  Stock Disponible
+                  Precio (USD)
                 </label>
                 <input
                   type="number"
                   min="0"
+                  step="any"
                   required
-                  value={editingItem.stock}
-                  onChange={(e) => setEditingItem({ ...editingItem, stock: Number(e.target.value) })}
+                  value={editingItem.price}
+                  onChange={(e) => setEditingItem({ ...editingItem, price: Number(e.target.value) })}
                   className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
                 />
               </div>

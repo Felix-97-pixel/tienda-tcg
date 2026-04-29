@@ -7,7 +7,7 @@ import { updateQuickView } from "@/redux/features/quickView-slice";
 import { addItemToCart } from "@/redux/features/cart-slice";
 import { addItemToWishlist } from "@/redux/features/wishlist-slice";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import { AppDispatch, useAppSelector } from "@/redux/store";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -22,6 +22,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
   // add to cart
   const handleAddToCart = () => {
+    if (item.stock === 0) return;
     dispatch(
       addItemToCart({
         ...item,
@@ -30,7 +31,9 @@ const SingleListItem = ({ item }: { item: Product }) => {
     );
   };
 
-  const handleItemToWishList = () => {
+  const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
+
+  const handleItemToWishList = async () => {
     dispatch(
       addItemToWishlist({
         ...item,
@@ -38,6 +41,12 @@ const SingleListItem = ({ item }: { item: Product }) => {
         quantity: 1,
       })
     );
+    if (isAuthenticated) {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
+        await fetch(`${apiUrl}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
+      } catch (e) {}
+    }
   };
 
   return (
@@ -53,7 +62,16 @@ const SingleListItem = ({ item }: { item: Product }) => {
             priority={false}
           />
 
-          <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
+          {/* Out of Stock Overlay */}
+          {item.stock === 0 && (
+            <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
+              <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
+                Sin stock
+              </span>
+            </div>
+          )}
+
+          <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0 z-20">
             <button
               onClick={() => {
                 openModal();
@@ -87,9 +105,14 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
             <button
               onClick={() => handleAddToCart()}
-              className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-blue text-white ease-out duration-200 hover:bg-blue-dark"
+              disabled={item.stock === 0}
+              className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${
+                item.stock === 0
+                  ? "bg-gray-4 cursor-not-allowed text-dark-4"
+                  : "bg-blue hover:bg-blue-dark"
+              }`}
             >
-              Add to cart
+              {item.stock === 0 ? "Sin stock" : "Add to cart"}
             </button>
 
             <button
