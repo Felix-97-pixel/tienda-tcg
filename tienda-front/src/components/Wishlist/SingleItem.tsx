@@ -8,6 +8,7 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 import Image from "next/image";
 
 import { useAppSelector } from "@/redux/store";
+import { useProductCart } from "@/hooks/useProductCart";
 
 const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,15 +25,7 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
     }
   };
 
-  const handleAddToCart = () => {
-    if (item.stock === 0) return;
-    dispatch(
-      addItemToCart({
-        ...item,
-        quantity: 1,
-      })
-    );
-  };
+  const { handleAddToCart, isMaxStockReached } = useProductCart(item);
 
   return (
     <div className="flex items-center border-t border-gray-3 py-5 px-10">
@@ -116,14 +109,14 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
       <div className="min-w-[150px] flex justify-end">
         <button
           onClick={() => handleAddToCart()}
-          disabled={item.stock === 0}
+          disabled={item.stock === 0 || isMaxStockReached}
           className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
-            item.stock === 0
+            item.stock === 0 || isMaxStockReached
               ? "bg-gray-4 cursor-not-allowed text-dark-4"
               : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
           }`}
         >
-          {item.stock === 0 ? "Sin stock" : "Add to Cart"}
+          {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
         </button>
       </div>
     </div>

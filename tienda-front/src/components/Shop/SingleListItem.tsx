@@ -10,29 +10,16 @@ import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import Link from "next/link";
 import Image from "next/image";
+import { useProductCart } from "@/hooks/useProductCart";
 
 const SingleListItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
-  const cartItem = cartItems.find((ci) => ci.id === item.id);
-  const quantityInCart = cartItem ? cartItem.quantity : 0;
-  const isMaxStockReached = item.stock !== undefined && item.stock !== null ? quantityInCart >= item.stock : false;
+  const { handleAddToCart, isMaxStockReached } = useProductCart(item);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
-  };
-
-  // add to cart
-  const handleAddToCart = () => {
-    if (item.stock === 0 || isMaxStockReached) return;
-    dispatch(
-      addItemToCart({
-        ...item,
-        quantity: 1,
-      })
-    );
   };
 
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);

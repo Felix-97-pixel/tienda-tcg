@@ -10,6 +10,7 @@ import Image from "next/image";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { resetQuickView } from "@/redux/features/quickView-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
+import { useProductCart } from "@/hooks/useProductCart";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
@@ -21,11 +22,7 @@ const QuickViewModal = () => {
 
   // get the product data
   const product = useAppSelector((state) => state.quickViewReducer.value);
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
-  const cartItem = cartItems.find((ci) => ci.id === product?.id);
-  const quantityInCart = cartItem ? cartItem.quantity : 0;
-  const isMaxStockReached = product?.stock !== undefined && product?.stock !== null ? quantityInCart >= product.stock : false;
-  const availableStock = product?.stock !== undefined ? product.stock - quantityInCart : 999;
+  const { handleAddToCart: addToCart, isMaxStockReached, availableStock } = useProductCart(product);
 
   const [activePreview, setActivePreview] = useState(0);
 
@@ -38,14 +35,7 @@ const QuickViewModal = () => {
 
   // add to cart
   const handleAddToCart = () => {
-    if (product?.stock === 0 || isMaxStockReached) return;
-    dispatch(
-      addItemToCart({
-        ...product,
-        quantity,
-      })
-    );
-
+    addToCart(quantity);
     closeModal();
   };
 
