@@ -34,13 +34,19 @@ export class ProductsService {
         name: true,
         slug: true,
         imageUrl: true,
+        isTcg: true,
       }
     });
   }
 
-  async createCategory(data: { name: string; slug: string; imageUrl?: string }) {
+  async createCategory(data: { name: string; slug: string; imageUrl?: string; isTcg?: boolean }) {
     return this.prisma.category.create({
-      data
+      data: {
+        name: data.name,
+        slug: data.slug,
+        imageUrl: data.imageUrl,
+        isTcg: data.isTcg || false,
+      },
     });
   }
 
@@ -56,14 +62,15 @@ export class ProductsService {
       id: c.id,
       name: c.name,
       imageUrl: c.imageUrl,
+      isTcg: c.isTcg,
       products: c._count.products
     }));
   }
 
-  async updateCategory(id: string, updateData: { imageUrl?: string; name?: string; slug?: string }) {
+  async updateCategory(id: string, updateData: { imageUrl?: string; name?: string; slug?: string; isTcg?: boolean }) {
     return this.prisma.category.update({
       where: { id },
-      data: updateData
+      data: updateData,
     });
   }
 

@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
-import CategoryDropdown from "./CategoryDropdown";
-import GenderDropdown from "./GenderDropdown";
+import SearchableSelect from "../Common/SearchableSelect";
 //import AttributeDropdown from "./AttributeDropdown";
 import SizeDropdown from "./SizeDropdown";
 import ColorsDropdwon from "./ColorsDropdwon";
@@ -27,6 +26,7 @@ const ShopWithSidebar = () => {
   const [attributesData, setAttributesData] = useState<any[]>([]);
   const [selectedExpansion, setSelectedExpansion] = useState<string | null>(null);
   const [selectedAttribute, setSelectedAttribute] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -83,16 +83,24 @@ const ShopWithSidebar = () => {
       .catch((err) => console.error("Error fetching category meta:", err));
   }, [selectedCategory, selectedExpansion]);
 
-  // Fetch products only when BOTH category AND expansion are selected
+  // Fetch products
   useEffect(() => {
-    if (!selectedCategory) {
+    if (!selectedCategory && !searchTerm) {
       setProducts([]);
       setTotalPages(0);
       return;
     }
 
-    let url = `${API_URL}/products?page=${currentPage}&limit=20`;
-    url += `&category=${encodeURIComponent(selectedCategory)}`;
+    // Debounce the search term to avoid spamming the API on every keystroke
+    const timeoutId = setTimeout(() => {
+      let url = `${API_URL}/products?page=${currentPage}&limit=20`;
+      
+      if (selectedCategory) {
+        url += `&category=${encodeURIComponent(selectedCategory)}`;
+      }
+      if (searchTerm) {
+        url += `&search=${encodeURIComponent(searchTerm)}`;
+      }
     if (selectedExpansion) {
       url += `&expansion=${encodeURIComponent(selectedExpansion)}`;
     }
@@ -135,6 +143,7 @@ const ShopWithSidebar = () => {
         setIsFetching(false);
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
+    }, 400); // 400ms debounce
 
     window.addEventListener("scroll", handleStickyMenu);
 
@@ -149,10 +158,11 @@ const ShopWithSidebar = () => {
     }
 
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("scroll", handleStickyMenu);
     };
-  }, [currentPage, selectedCategory, selectedExpansion, selectedAttribute]);
+  }, [currentPage, selectedCategory, selectedExpansion, selectedAttribute, searchTerm]);
 
   // When selecting a category, always reset page to 1 and clear expansion filter
   const handleCategorySelect = (cat: string) => {
@@ -239,24 +249,54 @@ const ShopWithSidebar = () => {
                   {/* <!-- filter box --> */}
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
                     <div className="flex items-center justify-between">
-                      <p>Filters:</p>
-                      <button className="text-blue" onClick={(e) => { e.preventDefault(); setSelectedCategory(null); }}>Clean All</button>
+                      <p>Filtros:</p>
+                      <button className="text-blue" onClick={(e) => { 
+                        e.preventDefault(); 
+                        setSelectedCategory(null);
+                        setSearchTerm("");
+                      }}>Limpiar</button>
                     </div>
                   </div>
 
+                  {/* <!-- search box --> */}
+                  <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                    <h3 className="mb-3 text-lg font-bold text-black">Buscar Producto</h3>
+                    <input
+                      type="text"
+                      placeholder="Escribe para buscar..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary"
+                    />
+                  </div>
+
                   {/* <!-- category box --> */}
-                  <CategoryDropdown
-                    categories={categoriesData}
-                    selectedCategory={selectedCategory}
-                    onSelect={handleCategorySelect}
-                  />
+                  <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                    <h3 className="mb-3 text-lg font-bold text-black">Juego / Categoría</h3>
+                    <SearchableSelect
+                      options={categoriesData.map((c: any) => ({ label: c.name, value: c.name }))}
+                      value={selectedCategory || ""}
+                      onChange={(val) => handleCategorySelect(val)}
+                      placeholder="Seleccionar Categoría"
+                    />
+                  </div>
 
                   {/* <!-- expansions box (formerly gender) --> */}
-                  <GenderDropdown
-                    expansions={expansionsData}
-                    selectedExpansion={selectedExpansion}
-                    onSelect={handleExpansionSelect}
-                  />
+                  {(!selectedCategory || categoriesData.find((c: any) => c.name === selectedCategory)?.isTcg) && (
+                    <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                      <h3 className="mb-3 text-lg font-bold text-black">Expansión</h3>
+                      <SearchableSelect
+                        options={expansionsData.map((e: any) => ({ label: `${e.name} (${e.products})`, value: e.name }))}
+                        value={selectedExpansion || ""}
+                        onChange={(val) => handleExpansionSelect(val)}
+                        placeholder={selectedCategory ? "Seleccionar Expansión" : "Primero selecciona un juego"}
+                        disabled={!selectedCategory}
+                      />
+                    </div>
+                  )}
 
                   {/* // <!-- color / attributes box --> */}
                   {attributesData.length > 0 && (
@@ -387,13 +427,13 @@ const ShopWithSidebar = () => {
                     );
                   }
 
-                  if (!selectedCategory) {
+                  if (!selectedCategory && !searchTerm) {
                     return (
-                      <p className="col-span-3 text-center py-20 text-lg font-medium">Selecciona un juego del menú para comenzar.</p>
+                      <p className="col-span-3 text-center py-20 text-lg font-medium">Selecciona un juego del menú o usa el buscador para comenzar.</p>
                     );
                   }
 
-                  if (!selectedExpansion && !selectedAttribute) {
+                  if (selectedCategory && categoriesData.find((c: any) => c.name === selectedCategory)?.isTcg && !selectedExpansion && !selectedAttribute && !searchTerm) {
                     return (
                       <p className="col-span-3 text-center py-20 text-lg font-medium">Ahora selecciona una edición o un tipo para ver las cartas.</p>
                     );

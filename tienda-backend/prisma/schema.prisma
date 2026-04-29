@@ -9,9 +9,10 @@ datasource db {
 model Category {
   id       String    @id @default(uuid())
   name     String    @unique
-  slug     String    @unique
-  imageUrl String?
-  products Product[]
+  slug              String    @unique
+  imageUrl          String?
+  isTcg             Boolean   @default(false)
+  products          Product[]
 }
 
 model Product {

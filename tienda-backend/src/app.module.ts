@@ -10,6 +10,7 @@ import { SyncModule } from './sync/sync.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { UsersModule } from './users/users.module';
     PriceUpdaterModule,
     SyncModule,
     UsersModule,
-    AuthModule
+    AuthModule,
+    UploadModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -62,8 +62,24 @@ function SearchableSelect({
         onBlur={() => {
           setTimeout(() => setIsOpen(false), 200);
         }}
-        className="w-full rounded border border-stroke bg-white py-2 px-4 text-sm font-medium text-black outline-none transition focus:border-primary active:border-primary disabled:bg-gray-2"
+        className="w-full rounded border border-stroke bg-white py-2 pl-4 pr-10 text-sm font-medium text-black outline-none transition focus:border-primary active:border-primary disabled:bg-gray-2"
       />
+      {value && !disabled && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onChange("");
+            setSearch("");
+            setIsOpen(false);
+          }}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+          title="Limpiar selección"
+        >
+          ✕
+        </button>
+      )}
       {isOpen && !disabled && (
         <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border border-stroke bg-white shadow-default">
           {filteredOptions.length === 0 ? (
@@ -116,6 +132,7 @@ export default function AdminProducts() {
 
   // Create Modal State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [creatingProduct, setCreatingProduct] = useState({
     name: "",
     categoryId: "",
@@ -230,6 +247,34 @@ export default function AdminProducts() {
     } catch (error) {
       console.error(error);
       alert("Hubo un error de conexión");
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setUploadingImage(true);
+    try {
+      const res = await fetch(`${API_URL}/upload/image`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCreatingProduct({ ...creatingProduct, imageUrl: data.url });
+      } else {
+        alert("Error al subir la imagen");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error de conexión al subir la imagen");
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -512,13 +557,22 @@ export default function AdminProducts() {
               </div>
 
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">URL de Imagen (Opcional)</label>
-                <input
-                  type="text"
-                  value={creatingProduct.imageUrl}
-                  onChange={(e) => setCreatingProduct({ ...creatingProduct, imageUrl: e.target.value })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                />
+                <label className="mb-2 block text-sm font-medium text-black">Imagen del Producto (Opcional)</label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  />
+                  {uploadingImage && <span className="text-sm text-blue">Subiendo...</span>}
+                </div>
+                {creatingProduct.imageUrl && (
+                  <div className="mt-3 relative h-24 w-24 rounded border border-stroke overflow-hidden">
+                    <Image src={creatingProduct.imageUrl} alt="Preview" layout="fill" objectFit="cover" />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-4">

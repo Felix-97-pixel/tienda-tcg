@@ -9,6 +9,7 @@ interface CategoryMeta {
   name: string;
   slug: string;
   imageUrl?: string;
+  isTcg?: boolean;
 }
 
 export default function AdminCategories() {
@@ -18,12 +19,13 @@ export default function AdminCategories() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryMeta | null>(null);
-  
+
   // Form State
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
     imageUrl: "",
+    isTcg: false,
   });
 
   const fetchCategories = () => {
@@ -46,7 +48,7 @@ export default function AdminCategories() {
 
   const openCreateModal = () => {
     setEditingCategory(null);
-    setFormData({ name: "", slug: "", imageUrl: "" });
+    setFormData({ name: "", slug: "", imageUrl: "", isTcg: false });
     setIsModalOpen(true);
   };
 
@@ -56,6 +58,7 @@ export default function AdminCategories() {
       name: category.name,
       slug: category.slug,
       imageUrl: category.imageUrl || "",
+      isTcg: !!category.isTcg,
     });
     setIsModalOpen(true);
   };
@@ -148,6 +151,9 @@ export default function AdminCategories() {
                 <th className="min-w-[150px] py-4 px-4 font-medium text-black">
                   Slug
                 </th>
+                <th className="min-w-[150px] py-4 px-4 font-medium text-black">
+                  ¿Es un TCG?
+                </th>
                 <th className="py-4 px-4 font-medium text-black">Acciones</th>
               </tr>
             </thead>
@@ -177,6 +183,11 @@ export default function AdminCategories() {
                     </td>
                     <td className="border-b border-[#eee] py-5 px-4">
                       <p className="text-black text-sm">{category.slug}</p>
+                    </td>
+                    <td className="border-b border-[#eee] py-5 px-4">
+                      <p className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${category.isTcg ? 'bg-success text-success' : 'bg-warning text-warning'}`}>
+                        {category.isTcg ? 'Sí' : 'No'}
+                      </p>
                     </td>
                     <td className="border-b border-[#eee] py-5 px-4">
                       <button
@@ -239,6 +250,24 @@ export default function AdminCategories() {
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                   className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
                 />
+              </div>
+
+              <div className="mb-6 flex items-center">
+                <label className="flex cursor-pointer items-center gap-3">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={formData.isTcg}
+                      onChange={(e) => setFormData({ ...formData, isTcg: e.target.checked })}
+                    />
+                    <div className={`box block h-6 w-10 rounded-full ${formData.isTcg ? 'bg-blue' : 'bg-[#ccc]'}`}></div>
+                    <div className={`absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-white transition ${formData.isTcg ? 'translate-x-full' : ''}`}></div>
+                  </div>
+                  <span className="text-sm font-medium text-black">
+                    Los productos de esta categoría son Cartas Sueltas (Requieren filtrar por expansión)
+                  </span>
+                </label>
               </div>
 
               <div className="flex justify-end gap-3">
