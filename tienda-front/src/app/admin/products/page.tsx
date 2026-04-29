@@ -507,7 +507,7 @@ export default function AdminProducts() {
                       <td className="border-b border-[#eee] py-5 px-4 flex items-center gap-3">
                         <div className="h-12 w-12 rounded overflow-hidden relative flex-shrink-0 bg-gray-2">
                           {product.imageUrl ? (
-                            <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" />
+                            <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
                           ) : (
                             <span className="text-[10px] text-gray-500 flex h-full items-center justify-center">Sin Img</span>
                           )}
@@ -611,7 +611,7 @@ export default function AdminProducts() {
                   {editingItem.imageUrl ? (
                     <div className="mb-3">
                       <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
-                        <Image src={editingItem.imageUrl} alt="Vista previa" fill className="object-contain" />
+                        <Image src={editingItem.imageUrl} alt="Vista previa" width={128} height={96} className="object-contain h-full w-full" />
                       </div>
                       <button
                         type="button"
@@ -695,7 +695,7 @@ export default function AdminProducts() {
                   {creatingProduct.imageUrl ? (
                     <div className="mb-3">
                       <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
-                        <Image src={creatingProduct.imageUrl} alt="Vista previa" fill className="object-contain" />
+                        <Image src={creatingProduct.imageUrl} alt="Vista previa" width={128} height={96} className="object-contain h-full w-full" />
                       </div>
                       <button
                         type="button"

@@ -304,7 +304,7 @@ export default function AdminCategories() {
                 {formData.imageUrl ? (
                   <div className="mb-3">
                     <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
-                      <Image src={formData.imageUrl} alt="Vista previa" fill className="object-contain" />
+                      <Image src={formData.imageUrl} alt="Vista previa" width={128} height={96} className="object-contain h-full w-full" />
                     </div>
                     <button
                       type="button"
