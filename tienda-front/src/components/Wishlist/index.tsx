@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import { useAppSelector } from "@/redux/store";
@@ -11,8 +12,8 @@ export const Wishlist = () => {
 
   const fetchWishlist = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
-      const res = await fetch(`${apiUrl}/wishlist`, { credentials: "include" });
+      
+      const res = await fetch(`${API_URL}/wishlist`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         const mapped = data.map((item: any) => ({

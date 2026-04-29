@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useCallback, useRef, useEffect, useState } from "react";
 import { Category } from "@/types/category";
@@ -8,7 +9,7 @@ import "swiper/css/navigation";
 import "swiper/css";
 import SingleItem from "./SingleItem";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 
 const Categories = () => {
   const sliderRef = useRef<any>(null);

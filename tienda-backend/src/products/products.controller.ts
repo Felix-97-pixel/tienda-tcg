@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } f
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -26,8 +28,8 @@ export class ProductsController {
   @Post('meta/categories')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  createCategory(@Body() body: any) {
-    return this.productsService.createCategory(body);
+  createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.productsService.createCategory(createCategoryDto);
   }
 
   @Get('meta/categories')
@@ -38,8 +40,8 @@ export class ProductsController {
   @Patch('meta/categories/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  updateCategory(@Param('id') id: string, @Body() body: any) {
-    return this.productsService.updateCategory(id, body);
+  updateCategory(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.productsService.updateCategory(id, updateCategoryDto);
   }
 
   @Get('meta/expansions')

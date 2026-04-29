@@ -10,26 +10,17 @@ import { updateproductDetails } from "@/redux/features/product-details";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
+import { useProductCart } from "@/hooks/useProductCart";
 
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
 
   const dispatch = useDispatch<AppDispatch>();
+  const { handleAddToCart, isMaxStockReached } = useProductCart(item);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
-  };
-
-  // add to cart
-  const handleAddToCart = () => {
-    if (item.stock === 0) return;
-    dispatch(
-      addItemToCart({
-        ...item,
-        quantity: 1,
-      })
-    );
   };
 
   const handleItemToWishList = () => {
@@ -95,14 +86,14 @@ const ProductItem = ({ item }: { item: Product }) => {
 
           <button
             onClick={() => handleAddToCart()}
-            disabled={item.stock === 0}
+            disabled={item.stock === 0 || isMaxStockReached}
             className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${
-              item.stock === 0
+              item.stock === 0 || isMaxStockReached
                 ? "bg-gray-4 cursor-not-allowed text-dark-4"
                 : "bg-blue hover:bg-blue-dark"
             }`}
           >
-            {item.stock === 0 ? "Sin stock" : "Add to cart"}
+            {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo" : "Add to cart")}
           </button>
 
           <button

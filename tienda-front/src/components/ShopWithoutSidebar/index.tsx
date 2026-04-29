@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useState } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 
@@ -13,7 +14,7 @@ import { useEffect } from "react";
 const ShopWithoutSidebar = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productStyle, setProductStyle] = useState("grid");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  
 
   const options = [
     { label: "Latest Products", value: "0" },

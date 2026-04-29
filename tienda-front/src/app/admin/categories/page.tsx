@@ -1,8 +1,9 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 
 interface CategoryMeta {
   id: string;

@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React from "react";
 
 import { Product } from "@/types/product";
@@ -34,8 +35,8 @@ const SingleListItem = ({ item }: { item: Product }) => {
     );
     if (isAuthenticated) {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
-        await fetch(`${apiUrl}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
+        
+        await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
     }
   };

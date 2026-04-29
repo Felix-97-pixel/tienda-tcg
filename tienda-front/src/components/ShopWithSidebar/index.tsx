@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
@@ -27,7 +28,7 @@ const ShopWithSidebar = () => {
   const [selectedExpansion, setSelectedExpansion] = useState<string | null>(null);
   const [selectedAttribute, setSelectedAttribute] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  
   const gridRef = React.useRef<HTMLDivElement>(null);
 
   const handleStickyMenu = () => {

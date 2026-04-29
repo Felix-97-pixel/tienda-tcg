@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -31,8 +32,8 @@ const Signup = () => {
     }
 
     try {
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "undefined") ? process.env.NEXT_PUBLIC_API_URL : `http://${window.location.hostname}:3001`;
-      const res = await fetch(`${apiUrl}/auth/register`, {
+      
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Necesario para enviar y recibir la cookie

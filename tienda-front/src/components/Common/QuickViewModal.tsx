@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 
 import { useModalContext } from "@/app/context/QuickViewModalContext";
@@ -49,8 +50,8 @@ const QuickViewModal = () => {
     );
     if (isAuthenticated) {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
-        await fetch(`${apiUrl}/wishlist/${product.id}`, { method: 'POST', credentials: 'include' });
+        
+        await fetch(`${API_URL}/wishlist/${product.id}`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
     }
   };

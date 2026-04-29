@@ -1,7 +1,8 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 
 interface MTGSet {
   code: string;

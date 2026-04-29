@@ -9,24 +9,16 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 import Image from "next/image";
 import Link from "next/link";
 import { addItemToWishlist } from "@/redux/features/wishlist-slice";
+import { useProductCart } from "@/hooks/useProductCart";
 
 const SingleItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
+  const { handleAddToCart, isMaxStockReached } = useProductCart(item);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
-  };
-
-  // add to cart
-  const handleAddToCart = () => {
-    dispatch(
-      addItemToCart({
-        ...item,
-        quantity: 1,
-      })
-    );
   };
 
   const handleItemToWishList = () => {
@@ -129,9 +121,10 @@ const SingleItem = ({ item }: { item: Product }) => {
 
           <button
             onClick={() => handleAddToCart()}
+            disabled={item.stock === 0 || isMaxStockReached}
             aria-label="button for add to cart"
             id="addCartOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-white hover:bg-blue"
+            className={`flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 ${item.stock === 0 || isMaxStockReached ? "bg-gray-4 cursor-not-allowed text-dark-4" : "text-dark bg-white hover:text-white hover:bg-blue"}`}
           >
             <svg
               className="fill-current"

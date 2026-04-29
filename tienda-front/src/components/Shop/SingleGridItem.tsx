@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React from "react";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
@@ -9,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import Link from "next/link";
 import Image from "next/image";
+import { useProductCart } from "@/hooks/useProductCart";
 
 const SingleGridItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
@@ -47,8 +49,8 @@ const SingleGridItem = ({ item }: { item: Product }) => {
     );
     if (isAuthenticated) {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
-        await fetch(`${apiUrl}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
+        
+        await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
     }
   };

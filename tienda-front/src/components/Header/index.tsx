@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import CustomSelect from "./CustomSelect";
@@ -22,7 +23,7 @@ const Header = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
   const dispatch = useDispatch();
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  
 
   const handleOpenCartModal = () => {
     openCartModal();

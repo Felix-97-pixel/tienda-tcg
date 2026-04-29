@@ -1,3 +1,4 @@
+import { API_URL } from "@/utils/api";
 import React from "react";
 import { AppDispatch } from "@/redux/store";
 import { useDispatch } from "react-redux";
@@ -18,8 +19,8 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
     dispatch(removeItemFromWishlist(item.id));
     if (isAuthenticated) {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`;
-        await fetch(`${apiUrl}/wishlist/${item.id}`, { method: 'DELETE', credentials: "include" });
+        
+        await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'DELETE', credentials: "include" });
         if (onRemove) onRemove();
       } catch (e) {}
     }
