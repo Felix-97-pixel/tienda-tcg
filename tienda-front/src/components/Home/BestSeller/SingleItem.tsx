@@ -37,31 +37,31 @@ const SingleItem = ({ item }: { item: Product }) => {
         <div className="text-center px-4 py-7.5">
           <div className="flex items-center justify-center gap-2.5 mb-2">
             <div className="flex items-center gap-1">
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={14}
                 height={14}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={14}
                 height={14}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={14}
                 height={14}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={14}
                 height={14}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={14}
@@ -83,7 +83,7 @@ const SingleItem = ({ item }: { item: Product }) => {
         </div>
 
         <div className="flex justify-center items-center">
-          <Image src={item.imgs?.previews?.[0] || "/images/product/product-01.jpg"} alt="" width={280} height={280} />
+          <Image className="object-contain h-full w-full"  src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} alt="" width={280} height={280} />
         </div>
 
         <div className="absolute right-0 bottom-0 translate-x-full u-w-full flex flex-col gap-2 p-5.5 ease-linear duration-300 group-hover:translate-x-0">

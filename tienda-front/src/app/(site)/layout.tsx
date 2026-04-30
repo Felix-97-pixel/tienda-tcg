@@ -28,7 +28,7 @@ export default function RootLayout({
   }, []);
 
   return (
-    <html lang="en" suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning={true} data-scroll-behavior="smooth">
       <body>
         {loading ? (
           <PreLoader />

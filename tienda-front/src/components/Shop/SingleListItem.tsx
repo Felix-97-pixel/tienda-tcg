@@ -45,12 +45,12 @@ const SingleListItem = ({ item }: { item: Product }) => {
     <div className="group rounded-lg bg-white shadow-1">
       <div className="flex">
         <div className="shadow-list relative overflow-hidden flex items-center justify-center max-w-[270px] w-full sm:min-h-[300px] p-4">
-          <Image 
-            src={item.imgs?.previews?.[0] || "/images/product/product-01.jpg"} 
+          <Image  
+            src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
             alt={item.title || "Product"} 
             width={250} 
             height={350} 
-            className="w-full max-w-[200px] h-auto object-contain" 
+            className="object-contain h-full w-full max-w-[200px]" 
             priority={false}
           />
 
@@ -148,31 +148,31 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
           <div className="flex items-center gap-2.5 mb-2">
             <div className="flex items-center gap-1">
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={15}
                 height={15}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={15}
                 height={15}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={15}
                 height={15}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={15}
                 height={15}
               />
-              <Image
+              <Image className="w-auto h-auto" 
                 src="/images/icons/icon-star.svg"
                 alt="star icon"
                 width={15}

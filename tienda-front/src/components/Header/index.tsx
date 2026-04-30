@@ -80,13 +80,13 @@ const Header = () => {
           {/* <!-- header top left --> */}
           <div className="xl:w-auto flex-col sm:flex-row w-full flex sm:justify-between sm:items-center gap-5 sm:gap-10">
             <Link className="flex-shrink-0" href="/">
-              <Image
+              <img style={{ width: "100%", maxWidth: "219px", height: "auto" }}
                 src="/images/logo/logo.svg"
                 alt="Logo"
                 width={219}
                 height={36}
-                style={{ width: "auto", height: "auto" }}
-                priority
+                
+                
               />
             </Link>
 

@@ -11,12 +11,13 @@ const Hero = () => {
           <div className="xl:max-w-[757px] w-full">
             <div className="relative z-1 rounded-[10px] bg-white overflow-hidden">
               {/* <!-- bg shapes --> */}
-              <Image
+              <Image 
                 src="/images/hero/hero-bg.png"
                 alt="hero bg shapes"
-                className="absolute right-0 bottom-0 -z-1"
+                className="w-auto h-auto absolute right-0 bottom-0 -z-1"
                 width={534}
                 height={520}
+                priority={true}
               />
 
               <HeroCarousel />
@@ -48,7 +49,7 @@ const Hero = () => {
                   </div>
 
                   <div>
-                    <Image
+                    <Image className="w-auto h-auto" 
                       src="/images/hero/hero-02.png"
                       alt="mobile image"
                       width={123}
@@ -80,17 +81,18 @@ const Hero = () => {
                   </div>
 
                   <div>
-                    <Image
+                    <Image className="w-auto h-auto" 
                       src="/images/hero/hero-01.png"
                       alt="mobile image"
                       width={123}
                       height={161}
+                      priority={true}
                     />
                   </div>
                 </div>
               </div>
 
-              
+
             </div>
           </div>
         </div>

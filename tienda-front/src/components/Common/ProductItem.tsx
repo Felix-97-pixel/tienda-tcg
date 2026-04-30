@@ -40,7 +40,7 @@ const ProductItem = ({ item }: { item: Product }) => {
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] min-h-[270px] mb-4">
-        <Image src={item.imgs?.previews?.[0] || "/images/product/product-01.jpg"} alt="" width={250} height={250} />
+        <Image className="object-contain h-full w-full"  src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} alt="" width={250} height={250} />
 
         {/* Out of Stock Overlay */}
         {item.stock === 0 && (
@@ -123,31 +123,31 @@ const ProductItem = ({ item }: { item: Product }) => {
 
       <div className="flex items-center gap-2.5 mb-2">
         <div className="flex items-center gap-1">
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}

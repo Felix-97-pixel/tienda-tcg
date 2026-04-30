@@ -29,9 +29,10 @@ const PromoBanner = () => {
             </a>
           </div>
 
-          <Image
+          <img 
             src="/images/promo/promo-01.png"
             alt="promo img"
+            style={{ width: "100%", maxWidth: "274px", height: "auto" }}
             className="absolute bottom-0 right-4 lg:right-26 -z-1"
             width={274}
             height={350}
@@ -41,9 +42,10 @@ const PromoBanner = () => {
         <div className="grid gap-7.5 grid-cols-1 lg:grid-cols-2">
           {/* <!-- promo banner small --> */}
           <div className="relative z-1 overflow-hidden rounded-lg bg-[#DBF4F3] py-10 xl:py-16 px-4 sm:px-7.5 xl:px-10">
-            <Image
+            <img 
               src="/images/promo/promo-02.png"
               alt="promo img"
+              style={{ width: "100%", maxWidth: "241px", height: "auto" }}
               className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-10 -z-1"
               width={241}
               height={241}
@@ -73,9 +75,10 @@ const PromoBanner = () => {
 
           {/* <!-- promo banner small --> */}
           <div className="relative z-1 overflow-hidden rounded-lg bg-[#FFECE1] py-10 xl:py-16 px-4 sm:px-7.5 xl:px-10">
-            <Image
+            <img 
               src="/images/promo/promo-03.png"
               alt="promo img"
+              style={{ width: "100%", maxWidth: "200px", height: "auto" }}
               className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-8.5 -z-1"
               width={200}
               height={200}

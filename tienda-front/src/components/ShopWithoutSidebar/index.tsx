@@ -35,8 +35,8 @@ const ShopWithoutSidebar = () => {
             price: parseFloat(defaultPrice),
             discountedPrice: parseFloat(defaultPrice),
             imgs: {
-              thumbnails: [item.imageUrl || "/images/product/product-01.jpg"],
-              previews: [item.imageUrl || "/images/product/product-01.jpg"],
+              thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+              previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
             },
           };
         });

@@ -16,7 +16,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <html lang="en" suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning={true} data-scroll-behavior="smooth">
       <body>
         <ReduxProvider>
           <AdminGuard>

@@ -58,12 +58,12 @@ const SingleGridItem = ({ item }: { item: Product }) => {
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-white shadow-1 min-h-[300px] mb-4">
-        <Image 
-          src={item.imgs?.previews?.[0] || "/images/product/product-01.jpg"} 
+        <Image  
+          src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
           alt={item.title || "Product"} 
           width={250} 
           height={350} 
-          className="w-full max-w-[220px] h-auto object-contain" 
+          className="object-contain h-full w-full max-w-[220px]" 
           priority={false}
         />
 
@@ -148,31 +148,31 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
       <div className="flex items-center gap-2.5 mb-2">
         <div className="flex items-center gap-1">
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image
+          <Image className="w-auto h-auto" 
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
