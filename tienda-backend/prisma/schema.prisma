@@ -35,7 +35,7 @@ model CardDetail {
   expansion    String
   rarity       String
   collectorNum String
-  game         GameType
+  game         String
   attributes   String[] @default([])
   productId    String   @unique
   product      Product  @relation(fields: [productId], references: [id])
@@ -51,12 +51,6 @@ model InventoryItem {
   product   Product @relation(fields: [productId], references: [id])
 }
 
-enum GameType {
-  MAGIC     @map("Singles Magic The Gathering")
-  POKEMON   @map("Singles Pokemon")
-  YUGIOH
-  RIFTBOUND
-}
 
 model User {
   id        String   @id @default(uuid())
@@ -75,7 +69,6 @@ enum Role {
 }
 
 model WishlistItem {
-  id        String   @id @default(uuid())
   userId    String
   productId String
   createdAt DateTime @default(now())
@@ -83,5 +76,5 @@ model WishlistItem {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, productId])
+  @@id([userId, productId])
 }

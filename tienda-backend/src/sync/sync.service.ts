@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import axios from 'axios';
-import { GameType as PrismaGameType } from '@prisma/client';
 import { GameType } from '../common/enums/game-type.enum';
 
 interface CardToSync {
@@ -18,16 +17,7 @@ interface CardToSync {
 export class SyncService {
   constructor(private prisma: PrismaService) { }
 
-  /**
-   * Convierte el nombre de categoría (ej: "Singles Magic The Gathering")
-   * al enum que Prisma espera internamente (ej: PrismaGameType.MAGIC).
-   */
-  private resolveGameType(game: string): PrismaGameType {
-    if (game === GameType.POKEMON) return PrismaGameType.POKEMON;
-    if (game === GameType.MAGIC)   return PrismaGameType.MAGIC;
-    if (game === GameType.YUGIOH)  return PrismaGameType.YUGIOH;
-    return PrismaGameType.MAGIC;
-  }
+
 
   async syncSet(game: string, setId: string) {
     const category = await this.prisma.category.findFirst({
@@ -39,7 +29,7 @@ export class SyncService {
     }
 
     const categoryId = category.id;
-    const gameType = this.resolveGameType(game);
+    const gameType = game; // Usamos el nombre del juego directamente ahora que es String
     let totalProcessed = 0;
     let url = game === GameType.POKEMON
       ? `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}`
