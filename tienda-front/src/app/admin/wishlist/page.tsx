@@ -160,7 +160,7 @@ export default function AdminProducts() {
       .catch((err) => console.error(err));
   }, []);
 
-  useEffect(() => {
+  const fetchWishlistData = () => {
     setLoading(true);
     fetch(`${API_URL}/wishlist/count`, {
       credentials: "include",
@@ -179,6 +179,10 @@ export default function AdminProducts() {
         console.error("Error:", err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchWishlistData();
   }, []);
 
   // Fetch Expansions when Category changes
@@ -382,7 +386,7 @@ export default function AdminProducts() {
         alert("Producto creado exitosamente");
         setIsCreateOpen(false);
         setCreatingProduct({ name: "", categoryId: "", price: 0, stock: 0, imageUrl: "", description: "" });
-        fetchProducts(); // Refresh list
+        fetchWishlistData(); // Refresh list
       } else {
         const data = await res.json();
         alert(`Error al crear producto: ${data.message || "Hubo un problema"}`);
