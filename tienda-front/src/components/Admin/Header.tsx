@@ -1,8 +1,14 @@
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAppSelector } from "@/redux/store";
 
 const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const { user } = useAppSelector((state) => state.authReducer);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1">
@@ -57,10 +63,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
 
           <div className="flex items-center gap-4">
             <span className="hidden text-right lg:block">
-              <span className="block text-sm font-medium text-black">
-                {user?.name || user?.email}
-              </span>
-              <span className="block text-xs">{user?.role}</span>
+              {isMounted && (
+                <>
+                  <span className="block text-sm font-medium text-black">
+                    {user?.name || user?.email}
+                  </span>
+                  <span className="block text-xs">{user?.role}</span>
+                </>
+              )}
             </span>
 
             {/* Link back to store */}
