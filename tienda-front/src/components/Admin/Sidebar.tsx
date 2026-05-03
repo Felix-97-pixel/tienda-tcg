@@ -6,9 +6,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   return (
     <aside
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-dark duration-300 ease-linear lg:static lg:translate-x-0 ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-dark duration-300 ease-linear lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
     >
       {/* SIDEBAR HEADER */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
@@ -36,9 +35,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
               <li>
                 <Link
                   href="/admin"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${
-                    pathname === "/admin" && "bg-gray-700"
-                  }`}
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname === "/admin" && "bg-gray-700"
+                    }`}
                 >
                   Dashboard
                 </Link>
@@ -46,9 +44,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
               <li>
                 <Link
                   href="/admin/categories"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${
-                    pathname.includes("/admin/categories") && "bg-gray-700"
-                  }`}
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/categories") && "bg-gray-700"
+                    }`}
                 >
                   Categorías
                 </Link>
@@ -56,9 +53,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
               <li>
                 <Link
                   href="/admin/products"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${
-                    pathname.includes("/admin/products") && "bg-gray-700"
-                  }`}
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/products") && "bg-gray-700"
+                    }`}
                 >
                   Productos
                 </Link>
@@ -66,11 +62,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
               <li>
                 <Link
                   href="/admin/sync"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${
-                    pathname.includes("/admin/sync") && "bg-gray-700"
-                  }`}
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/sync") && "bg-gray-700"
+                    }`}
                 >
                   Sincronización
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/admin/wishlist"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/wishlist") && "bg-gray-700"
+                    }`}
+                >
+                  Wishlist
                 </Link>
               </li>
             </ul>
