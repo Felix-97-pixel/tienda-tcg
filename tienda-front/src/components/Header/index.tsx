@@ -23,8 +23,11 @@ const Header = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
   const dispatch = useDispatch();
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
   
-
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const handleOpenCartModal = () => {
     openCartModal();
   };
@@ -176,7 +179,7 @@ const Header = () => {
 
             <div className="flex w-full lg:w-auto justify-between items-center gap-4 xl:gap-5">
               <div className="flex items-center gap-3 xl:gap-5">
-                {isAuthenticated ? (
+                {isMounted && isAuthenticated ? (
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col items-end">
                       <span className="block text-2xs text-dark-4 uppercase">
