@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UploadService } from '../upload/upload.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private uploadService: UploadService
+  ) { }
 
   async create(createProductDto: CreateProductDto) {
     const { price, stock, ...productData } = createProductDto;
@@ -180,6 +184,63 @@ export class ProductsService {
     });
   }
 
+  async deleteCategory(id: string) {
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+      include: { _count: { select: { products: true } } }
+    });
+    if (!category) throw new Error("Category not found");
+    if (category._count.products > 0) throw new Error("Cannot delete category with products");
+
+    if (category.imageUrl) {
+      await this.uploadService.deleteImage(category.imageUrl);
+    }
+
+    return this.prisma.category.delete({
+      where: { id }
+    });
+  }
+
+  async createBrand(data: { name: string; imageUrl?: string }) {
+    return this.prisma.brand.create({
+      data,
+    });
+  }
+
+  async getBrands() {
+    return this.prisma.brand.findMany({
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      }
+    });
+  }
+
+  async updateBrand(id: string, updateData: { name?: string; imageUrl?: string }) {
+    return this.prisma.brand.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  async deleteBrand(id: string) {
+    const brand = await this.prisma.brand.findUnique({
+      where: { id },
+      include: { _count: { select: { products: true } } }
+    });
+    if (!brand) throw new Error("Brand not found");
+    if (brand._count.products > 0) throw new Error("Cannot delete brand with products");
+
+    if (brand.imageUrl) {
+      await this.uploadService.deleteImage(brand.imageUrl);
+    }
+
+    return this.prisma.brand.delete({
+      where: { id }
+    });
+  }
+
   async getExpansions(categoryName?: string) {
     const cardDetails = await this.prisma.cardDetail.groupBy({
       by: ['expansion'],
@@ -270,6 +331,7 @@ export class ProductsService {
         take: limit,
         include: {
           category: true,
+          brand: true,
           cardDetail: true,
           items: true,
         },
@@ -294,6 +356,7 @@ export class ProductsService {
       where: { id },
       include: {
         category: true,
+        brand: true,
         cardDetail: true,
         items: true,
       },
@@ -310,6 +373,28 @@ export class ProductsService {
 
   // CAMBIO CLAVE: 'id' ahora es 'string'
   async remove(id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: { category: true }
+    });
+    if (!product) throw new Error("Producto no encontrado");
+    if (product.category.isTcg) throw new Error("No se pueden eliminar cartas sueltas (TCG)");
+
+    if (product.imageUrl) {
+      await this.uploadService.deleteImage(product.imageUrl);
+    }
+
+    // Borramos dependencias primero
+    await this.prisma.inventoryItem.deleteMany({
+      where: { productId: id }
+    });
+    await this.prisma.wishlistItem.deleteMany({
+      where: { productId: id }
+    });
+    await this.prisma.cardDetail.deleteMany({
+      where: { productId: id }
+    });
+
     return this.prisma.product.delete({
       where: { id },
     });

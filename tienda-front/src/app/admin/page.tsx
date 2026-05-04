@@ -38,10 +38,12 @@ export default function AdminDashboard() {
           <p className="mb-4">
             Desde este panel podrás gestionar todos los aspectos de tu tienda. Usa el menú lateral para navegar entre:
           </p>
-          <ul className="list-disc pl-5 mb-4">
-            <li><strong>Categorías:</strong> Crea, edita, y asigna imágenes a tus categorías.</li>
-            <li><strong>Productos:</strong> Visualiza y edita los productos de tu tienda.</li>
-            <li><strong>Sincronización:</strong> Ejecuta los scripts de actualización de la base de datos (MTGJSON y Card Kingdom).</li>
+          <ul className="list-disc pl-5 mb-4 space-y-2">
+            <li><strong>Marcas:</strong> Administra las marcas de tus productos, añade logos y mantén organizado el catálogo.</li>
+            <li><strong>Categorías:</strong> Crea, edita, y asigna imágenes a tus categorías (separando productos normales de cartas sueltas/TCG).</li>
+            <li><strong>Productos:</strong> Visualiza, edita el stock, precio, imágenes, o elimina productos de tu tienda.</li>
+            <li><strong>Sincronización:</strong> Ejecuta los scripts de actualización masiva de precios y base de datos (Ej. MTG).</li>
+            <li><strong>Wishlist:</strong> Gestiona y monitorea qué productos tienen tus clientes en sus listas de deseos.</li>
           </ul>
         </div>
       </div>

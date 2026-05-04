@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -59,6 +59,49 @@ export class ProductsController {
     return this.productsService.updateCategory(id, updateCategoryDto);
   }
 
+  @Delete('meta/categories/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async deleteCategory(@Param('id') id: string) {
+    try {
+      await this.productsService.deleteCategory(id);
+      return { success: true };
+    } catch (e: any) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Post('meta/brands')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  createBrand(@Body() body: { name: string; imageUrl?: string }) {
+    return this.productsService.createBrand(body);
+  }
+
+  @Get('meta/brands')
+  getBrands() {
+    return this.productsService.getBrands();
+  }
+
+  @Patch('meta/brands/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  updateBrand(@Param('id') id: string, @Body() body: { name?: string; imageUrl?: string }) {
+    return this.productsService.updateBrand(id, body);
+  }
+
+  @Delete('meta/brands/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async deleteBrand(@Param('id') id: string) {
+    try {
+      await this.productsService.deleteBrand(id);
+      return { success: true };
+    } catch (e: any) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   @Get('meta/expansions')
   getExpansions(@Query('category') category?: string) {
     return this.productsService.getExpansions(category);
@@ -102,8 +145,13 @@ export class ProductsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      await this.productsService.remove(id);
+      return { success: true };
+    } catch (e: any) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Patch('inventory/:id')

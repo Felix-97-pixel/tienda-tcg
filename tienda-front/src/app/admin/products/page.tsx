@@ -119,6 +119,7 @@ export default function AdminProducts() {
 
   // Dropdown Lists
   const [categoriesList, setCategoriesList] = useState<{ id: string, name: string, isTcg?: boolean }[]>([]);
+  const [brandsList, setBrandsList] = useState<{ id: string, name: string }[]>([]);
   const [expansionsList, setExpansionsList] = useState<{ name: string, products: number }[]>([]);
 
   // Pagination
@@ -130,6 +131,7 @@ export default function AdminProducts() {
   const [editingItem, setEditingItem] = useState<{
     productId: string;
     categoryId: string;
+    brandId: string;
     imageUrl: string;
     productName: string;
     itemId: string;
@@ -143,6 +145,7 @@ export default function AdminProducts() {
   const [creatingProduct, setCreatingProduct] = useState({
     name: "",
     categoryId: "",
+    brandId: "",
     price: 0,
     stock: 0,
     imageUrl: "",
@@ -155,11 +158,16 @@ export default function AdminProducts() {
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [isUploadingBulk, setIsUploadingBulk] = useState(false);
 
-  // Fetch Categories on Mount
+  // Fetch Categories and Brands on Mount
   useEffect(() => {
     fetch(`${API_URL}/products/meta/categories/admin`)
       .then((res) => res.json())
       .then((data) => setCategoriesList(data))
+      .catch((err) => console.error(err));
+
+    fetch(`${API_URL}/products/meta/brands`)
+      .then((res) => res.json())
+      .then((data) => setBrandsList(data))
       .catch((err) => console.error(err));
   }, []);
 
@@ -215,10 +223,11 @@ export default function AdminProducts() {
     return () => clearTimeout(timeoutId);
   }, [page, searchTerm, selectedCategory, selectedExpansion]);
 
-  const openEditModal = (product: Product, item: InventoryItem) => {
+  const openEditModal = (product: any, item: any) => {
     setEditingItem({
       productId: product.id,
       categoryId: product.categoryId,
+      brandId: product.brandId || "",
       imageUrl: product.imageUrl || "",
       productName: product.name,
       itemId: item.id,
@@ -248,6 +257,9 @@ export default function AdminProducts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           imageUrl: editingItem.imageUrl,
+          name: editingItem.productName,
+          categoryId: editingItem.categoryId,
+          brandId: editingItem.brandId === "" ? null : editingItem.brandId,
         }),
         credentials: "include",
       });
@@ -395,6 +407,7 @@ export default function AdminProducts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...creatingProduct,
+          brandId: creatingProduct.brandId === "" ? undefined : creatingProduct.brandId,
           price: Number(creatingProduct.price),
           stock: Number(creatingProduct.stock),
         }),
@@ -404,7 +417,7 @@ export default function AdminProducts() {
       if (res.ok) {
         alert("Producto creado exitosamente");
         setIsCreateOpen(false);
-        setCreatingProduct({ name: "", categoryId: "", price: 0, stock: 0, imageUrl: "", description: "" });
+        setCreatingProduct({ name: "", categoryId: "", brandId: "", price: 0, stock: 0, imageUrl: "", description: "" });
         fetchProducts(); // Refresh list
       } else {
         const data = await res.json();
@@ -413,6 +426,25 @@ export default function AdminProducts() {
     } catch (error) {
       console.error(error);
       alert("Hubo un error de red al crear el producto.");
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.")) return;
+    try {
+      const res = await fetch(`${API_URL}/products/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+      } else {
+        const errData = await res.json();
+        alert(errData.message || "Error al eliminar el producto.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error de red");
     }
   };
 
@@ -669,14 +701,24 @@ export default function AdminProducts() {
                         </p>
                       </td>
                       <td className="border-b border-[#eee] py-5 px-4">
-                        {mainItem && (
-                          <button
-                            onClick={() => openEditModal(product, mainItem)}
-                            className="hover:text-blue bg-gray-1 py-1 px-3 rounded text-sm text-black"
-                          >
-                            Editar
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {mainItem && (
+                            <button
+                              onClick={() => openEditModal(product, mainItem)}
+                              className="hover:text-blue bg-gray-1 py-1 px-3 rounded text-sm text-black"
+                            >
+                              Editar
+                            </button>
+                          )}
+                          {!product.category?.isTcg && (
+                            <button
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="hover:text-danger bg-gray-1 py-1 px-3 rounded text-sm text-danger"
+                            >
+                              Eliminar
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -713,10 +755,48 @@ export default function AdminProducts() {
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-default">
             <h3 className="mb-4 text-xl font-bold text-black">
-              Editar Inventario
+              Editar Producto
             </h3>
-            <p className="mb-4 text-sm text-gray-500">{editingItem.productName}</p>
             <form onSubmit={handleUpdateItem}>
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-black">Nombre del Producto</label>
+                <input
+                  type="text"
+                  required
+                  value={editingItem.productName}
+                  onChange={(e) => setEditingItem({ ...editingItem, productName: e.target.value })}
+                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-black">Categoría</label>
+                <select
+                  required
+                  value={editingItem.categoryId}
+                  onChange={(e) => setEditingItem({ ...editingItem, categoryId: e.target.value })}
+                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
+                >
+                  <option value="" disabled>Seleccione Categoría</option>
+                  {categoriesList.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-black">Marca (Opcional)</label>
+                <select
+                  value={editingItem.brandId}
+                  onChange={(e) => setEditingItem({ ...editingItem, brandId: e.target.value })}
+                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
+                >
+                  <option value="">Sin Marca</option>
+                  {brandsList.map((brand) => (
+                    <option key={brand.id} value={brand.id}>{brand.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">
                   Stock Disponible
@@ -826,6 +906,20 @@ export default function AdminProducts() {
                   <option value="" disabled>Selecciona una categoría</option>
                   {createCategoryOptions.map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-black">Marca (Opcional)</label>
+                <select
+                  value={creatingProduct.brandId}
+                  onChange={(e) => setCreatingProduct({ ...creatingProduct, brandId: e.target.value })}
+                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
+                >
+                  <option value="">Sin Marca</option>
+                  {brandsList.map((brand) => (
+                    <option key={brand.id} value={brand.id}>{brand.name}</option>
                   ))}
                 </select>
               </div>

@@ -3,80 +3,62 @@ import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
-
-
-interface CategoryMeta {
+interface BrandMeta {
   id: string;
   name: string;
-  slug: string;
   imageUrl?: string;
-  isTcg?: boolean;
 }
 
-export default function AdminCategories() {
-  const [categories, setCategories] = useState<CategoryMeta[]>([]);
+export default function AdminBrands() {
+  const [brands, setBrands] = useState<BrandMeta[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryMeta | null>(null);
+  const [editingBrand, setEditingBrand] = useState<BrandMeta | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
     name: "",
-    slug: "",
     imageUrl: "",
-    isTcg: false,
   });
 
-  const fetchCategories = () => {
+  const fetchBrands = () => {
     setLoading(true);
-    fetch(`${API_URL}/products/meta/categories/admin`)
+    fetch(`${API_URL}/products/meta/brands`)
       .then((res) => res.json())
       .then((data) => {
-        setCategories(data);
+        setBrands(data);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching categories:", err);
+        console.error("Error fetching brands:", err);
         setLoading(false);
       });
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchBrands();
   }, []);
 
   const openCreateModal = () => {
-    setEditingCategory(null);
-    setFormData({ name: "", slug: "", imageUrl: "", isTcg: false });
+    setEditingBrand(null);
+    setFormData({ name: "", imageUrl: "" });
     setIsModalOpen(true);
   };
 
-  const openEditModal = (category: CategoryMeta) => {
-    setEditingCategory(category);
+  const openEditModal = (brand: BrandMeta) => {
+    setEditingBrand(brand);
     setFormData({
-      name: category.name,
-      slug: category.slug,
-      imageUrl: category.imageUrl || "",
-      isTcg: !!category.isTcg,
+      name: brand.name,
+      imageUrl: brand.imageUrl || "",
     });
     setIsModalOpen(true);
   };
 
-  const handleSlugify = (name: string) => {
-    return name.toLowerCase().trim().replace(/[\s\W-]+/g, '-');
-  };
-
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value;
-    // Auto-generate slug if we are creating a new category or if user hasn't manually altered it much
-    if (!editingCategory) {
-      setFormData({ ...formData, name, slug: handleSlugify(name) });
-    } else {
-      setFormData({ ...formData, name });
-    }
+    setFormData({ ...formData, name: e.target.value });
   };
 
   const handleRemoveImage = async () => {
@@ -140,9 +122,9 @@ export default function AdminCategories() {
     e.preventDefault();
 
     try {
-      if (editingCategory) {
+      if (editingBrand) {
         // UPDATE
-        const res = await fetch(`${API_URL}/products/meta/categories/${editingCategory.id}`, {
+        const res = await fetch(`${API_URL}/products/meta/brands/${editingBrand.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -150,18 +132,18 @@ export default function AdminCategories() {
         });
 
         if (res.ok) {
-          setCategories((prev) =>
-            prev.map((cat) =>
-              cat.id === editingCategory.id ? { ...cat, ...formData } : cat
+          setBrands((prev) =>
+            prev.map((brand) =>
+              brand.id === editingBrand.id ? { ...brand, ...formData } : brand
             )
           );
           setIsModalOpen(false);
         } else {
-          alert("Error al actualizar la categoría");
+          alert("Error al actualizar la marca");
         }
       } else {
         // CREATE
-        const res = await fetch(`${API_URL}/products/meta/categories`, {
+        const res = await fetch(`${API_URL}/products/meta/brands`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -169,11 +151,11 @@ export default function AdminCategories() {
         });
 
         if (res.ok) {
-          const newCategory = await res.json();
-          setCategories((prev) => [...prev, newCategory]);
+          const newBrand = await res.json();
+          setBrands((prev) => [...prev, newBrand]);
           setIsModalOpen(false);
         } else {
-          alert("Error al crear la categoría. Verifica que el nombre o slug no existan ya.");
+          alert("Error al crear la marca. Verifica que el nombre no exista ya.");
         }
       }
     } catch (error) {
@@ -183,17 +165,17 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta categoría? Solo se puede eliminar si no tiene productos asociados.")) return;
+    if (!confirm("¿Estás seguro de que deseas eliminar esta marca? Solo se puede eliminar si no tiene productos asociados.")) return;
     try {
-      const res = await fetch(`${API_URL}/products/meta/categories/${id}`, {
+      const res = await fetch(`${API_URL}/products/meta/brands/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (res.ok) {
-        setCategories((prev) => prev.filter((cat) => cat.id !== id));
+        setBrands((prev) => prev.filter((brand) => brand.id !== id));
       } else {
         const errData = await res.json();
-        alert(errData.message || "Error al eliminar la categoría. Verifica que no tenga productos asociados.");
+        alert(errData.message || "Error al eliminar la marca. Verifica que no tenga productos asociados.");
       }
     } catch (e) {
       console.error(e);
@@ -205,13 +187,13 @@ export default function AdminCategories() {
     <>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-title-md2 font-semibold text-black">
-          Categorías
+          Marcas
         </h2>
         <button
           onClick={openCreateModal}
           className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
         >
-          Crear Categoría
+          Crear Marca
         </button>
       </div>
 
@@ -221,16 +203,10 @@ export default function AdminCategories() {
             <thead>
               <tr className="bg-gray-2 text-left">
                 <th className="min-w-[150px] py-4 px-4 font-medium text-black xl:pl-11">
-                  Imagen
+                  Logo
                 </th>
                 <th className="min-w-[150px] py-4 px-4 font-medium text-black">
                   Nombre
-                </th>
-                <th className="min-w-[150px] py-4 px-4 font-medium text-black">
-                  Slug
-                </th>
-                <th className="min-w-[150px] py-4 px-4 font-medium text-black">
-                  ¿Es un TCG?
                 </th>
                 <th className="py-4 px-4 font-medium text-black">Acciones</th>
               </tr>
@@ -238,17 +214,17 @@ export default function AdminCategories() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="py-5 text-center">
-                    Cargando categorías...
+                  <td colSpan={3} className="py-5 text-center">
+                    Cargando marcas...
                   </td>
                 </tr>
               ) : (
-                categories.map((category, key) => (
+                brands.map((brand, key) => (
                   <tr key={key}>
                     <td className="border-b border-[#eee] py-5 px-4 pl-9 xl:pl-11">
-                      {category.imageUrl ? (
+                      {brand.imageUrl ? (
                         <div className="h-12.5 w-15 rounded-md relative flex items-center justify-center bg-gray-1">
-                          <Image src={category.imageUrl} alt={category.name} width={50} height={40} className="object-contain" />
+                          <Image src={brand.imageUrl} alt={brand.name} width={50} height={40} className="object-contain" />
                         </div>
                       ) : (
                         <div className="h-12.5 w-15 rounded-md bg-gray-3 flex items-center justify-center">
@@ -257,26 +233,18 @@ export default function AdminCategories() {
                       )}
                     </td>
                     <td className="border-b border-[#eee] py-5 px-4">
-                      <p className="text-black font-medium">{category.name}</p>
-                    </td>
-                    <td className="border-b border-[#eee] py-5 px-4">
-                      <p className="text-black text-sm">{category.slug}</p>
-                    </td>
-                    <td className="border-b border-[#eee] py-5 px-4">
-                      <p className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${category.isTcg ? 'bg-success text-success' : 'bg-warning text-warning'}`}>
-                        {category.isTcg ? 'Sí' : 'No'}
-                      </p>
+                      <p className="text-black font-medium">{brand.name}</p>
                     </td>
                     <td className="border-b border-[#eee] py-5 px-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => openEditModal(category)}
+                          onClick={() => openEditModal(brand)}
                           className="hover:text-blue bg-gray-1 py-1 px-3 rounded text-sm"
                         >
                           Editar
                         </button>
                         <button
-                          onClick={() => handleDelete(category.id)}
+                          onClick={() => handleDelete(brand.id)}
                           className="hover:text-danger bg-gray-1 py-1 px-3 rounded text-sm text-danger"
                         >
                           Eliminar
@@ -296,12 +264,12 @@ export default function AdminCategories() {
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-default">
             <h3 className="mb-4 text-xl font-bold text-black">
-              {editingCategory ? `Editar Categoría` : `Nueva Categoría`}
+              {editingBrand ? `Editar Marca` : `Nueva Marca`}
             </h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">
-                  Nombre de la Categoría
+                  Nombre de la Marca
                 </label>
                 <input
                   type="text"
@@ -314,20 +282,7 @@ export default function AdminCategories() {
 
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">
-                  Slug (URL amigable)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Imagen de Categoría
+                  Logo de la Marca
                 </label>
                 {formData.imageUrl ? (
                   <div className="mb-3">
@@ -356,25 +311,7 @@ export default function AdminCategories() {
                 )}
               </div>
 
-              <div className="mb-6 flex items-center">
-                <label className="flex cursor-pointer items-center gap-3">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={formData.isTcg}
-                      onChange={(e) => setFormData({ ...formData, isTcg: e.target.checked })}
-                    />
-                    <div className={`box block h-6 w-10 rounded-full ${formData.isTcg ? 'bg-blue' : 'bg-[#ccc]'}`}></div>
-                    <div className={`absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-white transition ${formData.isTcg ? 'translate-x-full' : ''}`}></div>
-                  </div>
-                  <span className="text-sm font-medium text-black">
-                    Los productos de esta categoría son Cartas Sueltas (Requieren filtrar por expansión)
-                  </span>
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 mt-6">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}

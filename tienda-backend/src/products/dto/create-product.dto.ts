@@ -22,6 +22,9 @@ export class CreateProductDto {
   categoryId: string; 
 
   @IsOptional()
+  brandId?: string | null;
+
+  @IsOptional()
   price?: number;
 
   @IsOptional()
