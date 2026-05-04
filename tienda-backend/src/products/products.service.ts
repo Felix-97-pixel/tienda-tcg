@@ -107,6 +107,44 @@ export class ProductsService {
     });
   }
 
+  async bulkUpdateStock(items: { id: string, stock: number }[]) {
+    const results = { updated: 0, errors: [] as string[] };
+
+    for (const item of items) {
+      try {
+        const product = await this.prisma.product.findUnique({
+          where: { id: item.id },
+          include: { items: true }
+        });
+
+        if (product && product.items.length > 0) {
+          await this.prisma.inventoryItem.update({
+            where: { id: product.items[0].id },
+            data: { stock: product.items[0].stock + item.stock }
+          });
+          results.updated++;
+        } else if (product && product.items.length === 0) {
+          await this.prisma.inventoryItem.create({
+            data: {
+              productId: product.id,
+              price: 0,
+              stock: item.stock,
+              condition: "New",
+              isFoil: false
+            }
+          });
+          results.updated++;
+        } else {
+          results.errors.push(`No se encontró el producto con ID: ${item.id}`);
+        }
+      } catch (err: any) {
+        results.errors.push(`Error con producto ${item.id}: ${err.message}`);
+      }
+    }
+
+    return results;
+  }
+
   async createCategory(data: { name: string; slug: string; imageUrl?: string; isTcg?: boolean }) {
     return this.prisma.category.create({
       data: {

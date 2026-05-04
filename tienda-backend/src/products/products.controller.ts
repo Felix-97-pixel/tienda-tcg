@@ -28,6 +28,13 @@ export class ProductsController {
     return this.productsService.bulkUpload(bulkUploadDto.categoryId, bulkUploadDto.items);
   }
 
+  @Post('bulk-update-stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  bulkUpdateStock(@Body() bulkUpdateStockDto: any) {
+    return this.productsService.bulkUpdateStock(bulkUpdateStockDto.items);
+  }
+
   @Get('meta/categories/admin')
   getAdminCategories() {
     return this.productsService.getAdminCategories();

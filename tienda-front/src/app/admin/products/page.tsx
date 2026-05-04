@@ -416,13 +416,44 @@ export default function AdminProducts() {
     }
   };
 
+  const handleDownloadTemplate = async () => {
+    if (!bulkCategory) return;
+    try {
+      const categoryName = categoriesList.find(c => c.id === bulkCategory)?.name || "";
+      const res = await fetch(`${API_URL}/products?category=${encodeURIComponent(categoryName)}&limit=10000`);
+      if (res.ok) {
+        const data = await res.json();
+        const csvData = data.data.map((p: any) => ({
+          ID: p.id,
+          Nombre: p.name,
+          Stock: ""
+        }));
+        const csv = Papa.unparse(csvData);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `plantilla_${categoryName.replace(/\s+/g, '_')}_${Date.now()}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert("Error al descargar plantilla");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error de red");
+    }
+  };
+
   const handleBulkUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bulkFile || !bulkCategory) return;
 
     const selectedCategoryData = categoriesList.find(c => c.id === bulkCategory);
-    if (!selectedCategoryData?.name.toLowerCase().includes("magic")) {
-      alert("La subida masiva por CSV actualmente solo está soportada para Magic The Gathering. Las lógicas para otros juegos y productos normales se implementarán próximamente.");
+    if (selectedCategoryData?.isTcg !== false && !selectedCategoryData?.name.toLowerCase().includes("magic")) {
+      alert("La subida masiva por CSV actualmente solo está soportada para Magic The Gathering o Productos Normales.");
       return;
     }
 
@@ -432,38 +463,69 @@ export default function AdminProducts() {
       skipEmptyLines: true,
       complete: async (results) => {
         try {
-          const items = results.data.map((row: any) => ({
-            scryfallId: row["Scryfall ID"]?.trim() || undefined,
-            name: row["Name"]?.trim() || "Unknown",
-            expansion: row["Set name"]?.trim() || "Unknown",
-            rarity: row["Rarity"]?.trim() || "Unknown",
-            collectorNum: row["Collector number"]?.trim() || "0",
-            quantity: parseInt(row["Quantity"]) || 1,
-            price: row["Purchase price"] ? parseFloat(row["Purchase price"]) : undefined,
-          }));
+          if (selectedCategoryData?.isTcg !== false) {
+            const items = results.data.map((row: any) => ({
+              scryfallId: row["Scryfall ID"]?.trim() || undefined,
+              name: row["Name"]?.trim() || "Unknown",
+              expansion: row["Set name"]?.trim() || "Unknown",
+              rarity: row["Rarity"]?.trim() || "Unknown",
+              collectorNum: row["Collector number"]?.trim() || "0",
+              quantity: parseInt(row["Quantity"]) || 1,
+              price: row["Purchase price"] ? parseFloat(row["Purchase price"]) : undefined,
+            }));
 
-          const res = await fetch(`${API_URL}/products/bulk-upload`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ categoryId: bulkCategory, items }),
-            credentials: "include",
-          });
+            const res = await fetch(`${API_URL}/products/bulk-upload`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ categoryId: bulkCategory, items }),
+              credentials: "include",
+            });
 
-          if (res.ok) {
-            const data = await res.json();
-            let msg = `Subida masiva completada: ${data.added} agregados, ${data.updated} actualizados.\nErrores: ${data.errors.length}`;
-            if (data.errors.length > 0) {
-              const sampleErrors = data.errors.slice(0, 10).join("\n- ");
-              msg += `\n\nDetalle de errores:\n- ${sampleErrors}`;
-              if (data.errors.length > 10) msg += `\n...y ${data.errors.length - 10} errores más.`;
+            if (res.ok) {
+              const data = await res.json();
+              let msg = `Subida masiva completada: ${data.added} agregados, ${data.updated} actualizados.\nErrores: ${data.errors.length}`;
+              if (data.errors.length > 0) {
+                const sampleErrors = data.errors.slice(0, 10).join("\n- ");
+                msg += `\n\nDetalle de errores:\n- ${sampleErrors}`;
+                if (data.errors.length > 10) msg += `\n...y ${data.errors.length - 10} errores más.`;
+              }
+              alert(msg);
+              setIsBulkOpen(false);
+              setBulkFile(null);
+              setBulkCategory("");
+              fetchProducts();
+            } else {
+              alert("Error al realizar la subida masiva.");
             }
-            alert(msg);
-            setIsBulkOpen(false);
-            setBulkFile(null);
-            setBulkCategory("");
-            fetchProducts();
           } else {
-            alert("Error al realizar la subida masiva.");
+            const items = results.data.map((row: any) => ({
+              id: row["ID"],
+              stock: parseInt(row["Stock"]) || 0
+            })).filter((item: any) => item.id);
+
+            const res = await fetch(`${API_URL}/products/bulk-update-stock`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ items }),
+              credentials: "include",
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              let msg = `Actualización masiva completada: ${data.updated} actualizados.\nErrores: ${data.errors.length}`;
+              if (data.errors.length > 0) {
+                const sampleErrors = data.errors.slice(0, 10).join("\n- ");
+                msg += `\n\nDetalle de errores:\n- ${sampleErrors}`;
+                if (data.errors.length > 10) msg += `\n...y ${data.errors.length - 10} errores más.`;
+              }
+              alert(msg);
+              setIsBulkOpen(false);
+              setBulkFile(null);
+              setBulkCategory("");
+              fetchProducts();
+            } else {
+              alert("Error al realizar la actualización masiva.");
+            }
           }
         } catch (error) {
           console.error(error);
@@ -863,22 +925,34 @@ export default function AdminProducts() {
               Subida Masiva de Cartas (CSV)
             </h3>
             <p className="mb-4 text-sm text-gray-500">
-              Sube un archivo CSV con las columnas: Name, Set name, Rarity, Collector number, Quantity, Purchase price, Scryfall ID.
+              Sube un archivo CSV con tu inventario.
+              Si es Magic, asegúrate de que venga de ManaBox. Si es otra categoría normal, descarga primero la plantilla y rellena la columna de stock.
             </p>
             <form onSubmit={handleBulkUpload}>
               <div className="mb-4">
                 <label className="mb-2 block text-sm font-medium text-black">Juego / Categoría</label>
-                <select
-                  required
-                  value={bulkCategory}
-                  onChange={(e) => setBulkCategory(e.target.value)}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
-                >
-                  <option value="" disabled>Selecciona el juego que estás importando</option>
-                  {createCategoryOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    required
+                    value={bulkCategory}
+                    onChange={(e) => setBulkCategory(e.target.value)}
+                    className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
+                  >
+                    <option value="" disabled>Selecciona la categoría</option>
+                    {createCategoryOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  {bulkCategory && categoriesList.find(c => c.id === bulkCategory)?.isTcg === false && (
+                    <button
+                      type="button"
+                      onClick={handleDownloadTemplate}
+                      className="whitespace-nowrap rounded bg-blue px-4 text-white hover:bg-opacity-90 font-medium"
+                    >
+                      Descargar Plantilla
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="mb-6">
