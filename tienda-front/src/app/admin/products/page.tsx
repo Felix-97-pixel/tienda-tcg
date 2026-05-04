@@ -19,6 +19,7 @@ interface Product {
   imageUrl?: string;
   category?: {
     name: string;
+    isTcg: boolean;
   };
   cardDetail?: {
     expansion: string;
