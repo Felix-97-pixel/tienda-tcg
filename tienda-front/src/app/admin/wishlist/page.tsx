@@ -128,30 +128,6 @@ export default function AdminProducts() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Edit Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<{
-    productId: string;
-    categoryId: string;
-    imageUrl: string;
-    productName: string;
-    itemId: string;
-    price: number;
-    stock: number;
-  } | null>(null);
-
-  // Create Modal State
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [creatingProduct, setCreatingProduct] = useState({
-    name: "",
-    categoryId: "",
-    price: 0,
-    stock: 0,
-    imageUrl: "",
-    description: "",
-  });
-
   // Fetch Categories on Mount
   useEffect(() => {
     fetch(`${API_URL}/products/meta/categories/admin`)
@@ -205,7 +181,7 @@ export default function AdminProducts() {
   useEffect(() => {
     if (!Array.isArray(allWishlistItems)) return;
     let filtered = [...allWishlistItems];
-    
+
     if (searchTerm) {
       filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
@@ -218,191 +194,18 @@ export default function AdminProducts() {
 
     const limit = 20;
     setTotalPages(Math.ceil(filtered.length / limit) || 1);
-    
+
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     setProducts(filtered.slice(startIndex, endIndex));
   }, [allWishlistItems, page, searchTerm, selectedCategory, selectedExpansion]);
 
 
-
-  const handleUpdateItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
-
-    try {
-      const resInv = await fetch(`${API_URL}/products/inventory/${editingItem.itemId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          price: Number(editingItem.price),
-          stock: Number(editingItem.stock),
-        }),
-        credentials: "include",
-      });
-
-      const resProd = await fetch(`${API_URL}/products/${editingItem.productId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageUrl: editingItem.imageUrl,
-        }),
-        credentials: "include",
-      });
-
-      if (resInv.ok && resProd.ok) {
-        setProducts((prev) =>
-          prev.map((p) => {
-            if (p.id === editingItem.productId) {
-              return {
-                ...p,
-                imageUrl: editingItem.imageUrl,
-                items: p.items.map((i) =>
-                  i.id === editingItem.itemId
-                    ? { ...i, price: Number(editingItem.price), stock: Number(editingItem.stock) }
-                    : i
-                ),
-              };
-            }
-            return p;
-          })
-        );
-        setIsModalOpen(false);
-      } else {
-        alert("Error al actualizar el producto");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Hubo un error de conexión");
-    }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setUploadingImage(true);
-    try {
-      if (creatingProduct.imageUrl) {
-        await fetch(`${API_URL}/upload/image`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: creatingProduct.imageUrl }),
-          credentials: "include",
-        }).catch(err => console.error("No se pudo borrar imagen antigua", err));
-      }
-
-      const res = await fetch(`${API_URL}/upload/image`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCreatingProduct({ ...creatingProduct, imageUrl: data.url });
-      } else {
-        alert("Error al subir la imagen");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error de conexión al subir la imagen");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !editingItem) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setUploadingImage(true);
-    try {
-      if (editingItem.imageUrl) {
-        await fetch(`${API_URL}/upload/image`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: editingItem.imageUrl }),
-          credentials: "include",
-        }).catch(err => console.error("No se pudo borrar imagen antigua", err));
-      }
-
-      const res = await fetch(`${API_URL}/upload/image`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEditingItem({ ...editingItem, imageUrl: data.url });
-      } else {
-        alert("Error al subir la imagen");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Hubo un error de conexión");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handleEditRemoveImage = async () => {
-    if (!editingItem?.imageUrl) return;
-
-    try {
-      await fetch(`${API_URL}/upload/image`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: editingItem.imageUrl }),
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Error al borrar la imagen:", err);
-    }
-
-    setEditingItem({ ...editingItem, imageUrl: "" });
-  };
-
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${API_URL}/products`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...creatingProduct,
-          price: Number(creatingProduct.price),
-          stock: Number(creatingProduct.stock),
-        }),
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        alert("Producto creado exitosamente");
-        setIsCreateOpen(false);
-        setCreatingProduct({ name: "", categoryId: "", price: 0, stock: 0, imageUrl: "", description: "" });
-        fetchWishlistData(); // Refresh list
-      } else {
-        const data = await res.json();
-        alert(`Error al crear producto: ${data.message || "Hubo un problema"}`);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Hubo un error de red al crear el producto.");
-    }
-  };
-
   const categoryOptions = [
     { label: "Todas las categorías", value: "" },
     ...categoriesList.map(c => ({ label: c.name, value: c.name }))
   ];
 
-  const createCategoryOptions = categoriesList.map(c => ({ label: c.name, value: c.id }));
 
   const expansionOptions = [
     { label: "Todas las expansiones", value: "" },
@@ -413,14 +216,8 @@ export default function AdminProducts() {
     <>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-title-md2 font-semibold text-black">
-          Inventario de Productos
+          Wishlist
         </h2>
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-        >
-          + Agregar Producto Manual
-        </button>
       </div>
 
       {/* FILTROS AVANZADOS */}
@@ -544,207 +341,6 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* MODAL */}
-      {isModalOpen && editingItem && (
-        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-default">
-            <h3 className="mb-4 text-xl font-bold text-black">
-              Editar Inventario
-            </h3>
-            <p className="mb-4 text-sm text-gray-500">{editingItem.productName}</p>
-            <form onSubmit={handleUpdateItem}>
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Stock Disponible
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  required
-                  value={editingItem.stock}
-                  onChange={(e) => setEditingItem({ ...editingItem, stock: Number(e.target.value) })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Precio (USD)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  required
-                  value={editingItem.price}
-                  onChange={(e) => setEditingItem({ ...editingItem, price: Number(e.target.value) })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                />
-              </div>
-
-              {!categoriesList.find(c => c.id === editingItem.categoryId)?.isTcg && (
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-black">Imagen del Producto (Opcional)</label>
-                  {editingItem.imageUrl ? (
-                    <div className="mb-3">
-                      <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
-                        <Image src={editingItem.imageUrl} alt="Vista previa" width={128} height={96} className="object-contain h-full w-full" />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleEditRemoveImage}
-                        className="text-sm text-danger hover:underline"
-                      >
-                        Eliminar Imagen
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleEditImageUpload}
-                        disabled={uploadingImage}
-                        className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                      />
-                      {uploadingImage && <span className="text-sm text-blue">Subiendo...</span>}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="rounded bg-gray-3 py-2 px-4 font-medium text-black hover:bg-gray-4"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-                >
-                  Guardar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* CREATE MODAL */}
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
-          <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
-            <h3 className="mb-4 text-xl font-bold text-black">
-              Agregar Producto Nuevo
-            </h3>
-            <form onSubmit={handleCreateProduct}>
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Nombre del Producto</label>
-                <input
-                  type="text"
-                  required
-                  value={creatingProduct.name}
-                  onChange={(e) => setCreatingProduct({ ...creatingProduct, name: e.target.value })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Categoría</label>
-                <select
-                  required
-                  value={creatingProduct.categoryId}
-                  onChange={(e) => setCreatingProduct({ ...creatingProduct, categoryId: e.target.value })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
-                >
-                  <option value="" disabled>Selecciona una categoría</option>
-                  {createCategoryOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {!categoriesList.find(c => c.id === creatingProduct.categoryId)?.isTcg && (
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-black">Imagen del Producto (Opcional)</label>
-                  {creatingProduct.imageUrl ? (
-                    <div className="mb-3">
-                      <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
-                        <Image src={creatingProduct.imageUrl} alt="Vista previa" width={128} height={96} className="object-contain h-full w-full" />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        disabled={uploadingImage}
-                        className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                      />
-                      {uploadingImage && <span className="text-sm text-blue">Subiendo...</span>}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">Stock Inicial</label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={creatingProduct.stock}
-                    onChange={(e) => setCreatingProduct({ ...creatingProduct, stock: Number(e.target.value) })}
-                    className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">Precio</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="any"
-                    required
-                    value={creatingProduct.price}
-                    onChange={(e) => setCreatingProduct({ ...creatingProduct, price: Number(e.target.value) })}
-                    className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="mb-2 block text-sm font-medium text-black">Descripción (Opcional)</label>
-                <textarea
-                  value={creatingProduct.description}
-                  onChange={(e) => setCreatingProduct({ ...creatingProduct, description: e.target.value })}
-                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
-                  rows={3}
-                ></textarea>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateOpen(false)}
-                  className="rounded bg-gray-3 py-2 px-4 font-medium text-black hover:bg-gray-4"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-                >
-                  Crear Producto
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </>
   );
 }
