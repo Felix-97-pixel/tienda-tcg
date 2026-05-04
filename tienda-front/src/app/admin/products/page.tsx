@@ -2,8 +2,7 @@
 import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-
-
+import Papa from "papaparse";
 
 interface InventoryItem {
   id: string;
@@ -112,15 +111,15 @@ function SearchableSelect({
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedExpansion, setSelectedExpansion] = useState("");
-  
+
   // Dropdown Lists
-  const [categoriesList, setCategoriesList] = useState<{id: string, name: string, isTcg?: boolean}[]>([]);
-  const [expansionsList, setExpansionsList] = useState<{name: string, products: number}[]>([]);
+  const [categoriesList, setCategoriesList] = useState<{ id: string, name: string, isTcg?: boolean }[]>([]);
+  const [expansionsList, setExpansionsList] = useState<{ name: string, products: number }[]>([]);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -150,6 +149,12 @@ export default function AdminProducts() {
     description: "",
   });
 
+  // Bulk Upload Modal State
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [isUploadingBulk, setIsUploadingBulk] = useState(false);
+
   // Fetch Categories on Mount
   useEffect(() => {
     fetch(`${API_URL}/products/meta/categories/admin`)
@@ -162,12 +167,12 @@ export default function AdminProducts() {
   useEffect(() => {
     setExpansionsList([]);
     setSelectedExpansion(""); // Reset expansion filter
-    
+
     let url = `${API_URL}/products/meta/expansions`;
     if (selectedCategory) {
       url += `?category=${encodeURIComponent(selectedCategory)}`;
     }
-    
+
     fetch(url)
       .then((res) => res.json())
       .then((data) => setExpansionsList(data))
@@ -350,7 +355,7 @@ export default function AdminProducts() {
 
   const handleRemoveImage = async () => {
     if (!creatingProduct.imageUrl) return;
-    
+
     try {
       await fetch(`${API_URL}/upload/image`, {
         method: "DELETE",
@@ -361,13 +366,13 @@ export default function AdminProducts() {
     } catch (err) {
       console.error("Error al borrar la imagen:", err);
     }
-    
+
     setCreatingProduct({ ...creatingProduct, imageUrl: "" });
   };
 
   const handleEditRemoveImage = async () => {
     if (!editingItem?.imageUrl) return;
-    
+
     try {
       await fetch(`${API_URL}/upload/image`, {
         method: "DELETE",
@@ -378,7 +383,7 @@ export default function AdminProducts() {
     } catch (err) {
       console.error("Error al borrar la imagen:", err);
     }
-    
+
     setEditingItem({ ...editingItem, imageUrl: "" });
   };
 
@@ -411,6 +416,70 @@ export default function AdminProducts() {
     }
   };
 
+  const handleBulkUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bulkFile || !bulkCategory) return;
+
+    const selectedCategoryData = categoriesList.find(c => c.id === bulkCategory);
+    if (!selectedCategoryData?.name.toLowerCase().includes("magic")) {
+      alert("La subida masiva por CSV actualmente solo está soportada para Magic The Gathering. Las lógicas para otros juegos y productos normales se implementarán próximamente.");
+      return;
+    }
+
+    setIsUploadingBulk(true);
+    Papa.parse(bulkFile, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const items = results.data.map((row: any) => ({
+            scryfallId: row["Scryfall ID"]?.trim() || undefined,
+            name: row["Name"]?.trim() || "Unknown",
+            expansion: row["Set name"]?.trim() || "Unknown",
+            rarity: row["Rarity"]?.trim() || "Unknown",
+            collectorNum: row["Collector number"]?.trim() || "0",
+            quantity: parseInt(row["Quantity"]) || 1,
+            price: row["Purchase price"] ? parseFloat(row["Purchase price"]) : undefined,
+          }));
+
+          const res = await fetch(`${API_URL}/products/bulk-upload`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ categoryId: bulkCategory, items }),
+            credentials: "include",
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            let msg = `Subida masiva completada: ${data.added} agregados, ${data.updated} actualizados.\nErrores: ${data.errors.length}`;
+            if (data.errors.length > 0) {
+              const sampleErrors = data.errors.slice(0, 10).join("\n- ");
+              msg += `\n\nDetalle de errores:\n- ${sampleErrors}`;
+              if (data.errors.length > 10) msg += `\n...y ${data.errors.length - 10} errores más.`;
+            }
+            alert(msg);
+            setIsBulkOpen(false);
+            setBulkFile(null);
+            setBulkCategory("");
+            fetchProducts();
+          } else {
+            alert("Error al realizar la subida masiva.");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Error procesando el archivo CSV.");
+        } finally {
+          setIsUploadingBulk(false);
+        }
+      },
+      error: (error) => {
+        console.error(error);
+        alert("Error leyendo el archivo CSV.");
+        setIsUploadingBulk(false);
+      }
+    });
+  };
+
   const categoryOptions = [
     { label: "Todas las categorías", value: "" },
     ...categoriesList.map(c => ({ label: c.name, value: c.name }))
@@ -429,12 +498,20 @@ export default function AdminProducts() {
         <h2 className="text-title-md2 font-semibold text-black">
           Inventario de Productos
         </h2>
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-        >
-          + Agregar Producto Manual
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsBulkOpen(true)}
+            className="rounded bg-green py-2 px-4 font-medium text-white hover:bg-opacity-90"
+          >
+            Subida Masiva (CSV)
+          </button>
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
+          >
+            + Agregar Producto Manual
+          </button>
+        </div>
       </div>
 
       {/* FILTROS AVANZADOS */}
@@ -454,7 +531,7 @@ export default function AdminProducts() {
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-black">Filtrar por Categoría / Juego</label>
-          <SearchableSelect 
+          <SearchableSelect
             options={categoryOptions}
             value={selectedCategory}
             onChange={(val) => {
@@ -466,7 +543,7 @@ export default function AdminProducts() {
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-black">Filtrar por Expansión</label>
-          <SearchableSelect 
+          <SearchableSelect
             options={expansionOptions}
             value={selectedExpansion}
             onChange={(val) => {
@@ -771,6 +848,69 @@ export default function AdminProducts() {
                   className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
                 >
                   Crear Producto
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* BULK UPLOAD MODAL */}
+      {isBulkOpen && (
+        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
+          <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
+            <h3 className="mb-4 text-xl font-bold text-black">
+              Subida Masiva de Cartas (CSV)
+            </h3>
+            <p className="mb-4 text-sm text-gray-500">
+              Sube un archivo CSV con las columnas: Name, Set name, Rarity, Collector number, Quantity, Purchase price, Scryfall ID.
+            </p>
+            <form onSubmit={handleBulkUpload}>
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-black">Juego / Categoría</label>
+                <select
+                  required
+                  value={bulkCategory}
+                  onChange={(e) => setBulkCategory(e.target.value)}
+                  className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
+                >
+                  <option value="" disabled>Selecciona el juego que estás importando</option>
+                  {createCategoryOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-medium text-black">Archivo CSV</label>
+                <input
+                  type="file"
+                  accept=".csv"
+                  required
+                  onChange={(e) => setBulkFile(e.target.files?.[0] || null)}
+                  className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsBulkOpen(false);
+                    setBulkFile(null);
+                    setBulkCategory("");
+                  }}
+                  className="rounded bg-gray-3 py-2 px-4 font-medium text-black hover:bg-gray-4"
+                  disabled={isUploadingBulk}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploadingBulk || !bulkFile || !bulkCategory}
+                  className="rounded bg-green py-2 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
+                >
+                  {isUploadingBulk ? "Subiendo..." : "Subir CSV"}
                 </button>
               </div>
             </form>

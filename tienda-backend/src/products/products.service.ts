@@ -27,6 +27,74 @@ export class ProductsService {
     });
   }
 
+  async bulkUpload(categoryId: string, items: any[]) {
+    const category = await this.prisma.category.findUnique({ where: { id: categoryId } });
+    if (!category) throw new Error("Category not found");
+
+    if (category.name !== "Singles Magic The Gathering") {
+      throw new Error("La carga masiva actualmente solo está soportada para Singles Magic The Gathering.");
+    }
+
+    const results = { added: 0, updated: 0, errors: [] as string[] };
+
+    for (const item of items) {
+      try {
+        let product;
+        if (item.scryfallId) {
+          product = await this.prisma.product.findUnique({
+            where: { externalId: item.scryfallId },
+            include: { items: true, cardDetail: true }
+          });
+        }
+        
+        if (!product) {
+          const products = await this.prisma.product.findMany({
+            where: {
+              categoryId: categoryId,
+              name: item.name,
+              cardDetail: {
+                expansion: item.expansion,
+                rarity: item.rarity,
+                collectorNum: item.collectorNum
+              }
+            },
+            include: { items: true, cardDetail: true }
+          });
+          if (products.length > 0) {
+            product = products[0];
+          }
+        }
+
+        if (product) {
+          if (product.items && product.items.length > 0) {
+            await this.prisma.inventoryItem.update({
+              where: { id: product.items[0].id },
+              data: {
+                stock: product.items[0].stock + item.quantity
+              }
+            });
+          } else {
+            await this.prisma.inventoryItem.create({
+              data: {
+                productId: product.id,
+                price: item.price || 0,
+                stock: item.quantity,
+                condition: "New",
+                isFoil: false
+              }
+            });
+          }
+          results.updated++;
+        } else {
+          results.errors.push(`No se encontró la carta '${item.name}' de la edición '${item.expansion}'. Asegúrate de sincronizar la edición primero.`);
+        }
+      } catch (err: any) {
+        results.errors.push(`Error with item ${item.name}: ${err.message}`);
+      }
+    }
+    return results;
+  }
+
   async getAdminCategories() {
     return this.prisma.category.findMany({
       select: {

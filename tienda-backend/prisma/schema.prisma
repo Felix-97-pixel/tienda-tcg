@@ -9,24 +9,24 @@ datasource db {
 model Category {
   id       String    @id @default(uuid())
   name     String    @unique
-  slug              String    @unique
-  imageUrl          String?
-  isTcg             Boolean   @default(false)
-  products          Product[]
+  slug     String    @unique
+  imageUrl String?
+  isTcg    Boolean   @default(false)
+  products Product[]
 }
 
 model Product {
-  id          String          @id @default(uuid())
-  externalId  String          @unique
-  name        String
-  description String?
-  imageUrl    String?
-  categoryId  String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  cardDetail  CardDetail?
-  items       InventoryItem[]
-  category    Category        @relation(fields: [categoryId], references: [id])
+  id           String          @id @default(uuid())
+  externalId   String          @unique
+  name         String
+  description  String?
+  imageUrl     String?
+  categoryId   String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  cardDetail   CardDetail?
+  items        InventoryItem[]
+  category     Category        @relation(fields: [categoryId], references: [id])
   wishlistedBy WishlistItem[]
 }
 
@@ -51,30 +51,28 @@ model InventoryItem {
   product   Product @relation(fields: [productId], references: [id])
 }
 
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String         @id @default(uuid())
+  email     String         @unique
   password  String
   name      String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role           @default(USER)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
   wishlist  WishlistItem[]
-}
-
-enum Role {
-  USER
-  ADMIN
 }
 
 model WishlistItem {
   userId    String
   productId String
   createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, productId])
+}
+
+enum Role {
+  USER
+  ADMIN
 }

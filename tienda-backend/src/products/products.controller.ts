@@ -4,6 +4,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { BulkUploadDto } from './dto/bulk-upload.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -18,6 +19,13 @@ export class ProductsController {
   @Roles(Role.ADMIN)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
+  }
+
+  @Post('bulk-upload')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  bulkUpload(@Body() bulkUploadDto: BulkUploadDto) {
+    return this.productsService.bulkUpload(bulkUploadDto.categoryId, bulkUploadDto.items);
   }
 
   @Get('meta/categories/admin')
