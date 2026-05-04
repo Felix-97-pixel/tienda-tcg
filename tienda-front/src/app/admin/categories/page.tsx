@@ -2,6 +2,7 @@
 import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 
 
@@ -20,7 +21,7 @@ export default function AdminCategories() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryMeta | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const { isUploading: uploadingImage, handleUpload, handleRemove } = useImageUpload();
 
   // Form State
   const [formData, setFormData] = useState({
@@ -80,59 +81,16 @@ export default function AdminCategories() {
   };
 
   const handleRemoveImage = async () => {
-    if (!formData.imageUrl) return;
-    
-    // Attempt to delete from Cloudinary
-    try {
-      await fetch(`${API_URL}/upload/image`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: formData.imageUrl }),
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Error al borrar la imagen en Cloudinary:", err);
+    const success = await handleRemove(formData.imageUrl);
+    if (success) {
+      setFormData({ ...formData, imageUrl: "" });
     }
-    
-    setFormData({ ...formData, imageUrl: "" });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-
-    const file = e.target.files[0];
-    const uploadData = new FormData();
-    uploadData.append("file", file);
-
-    setUploadingImage(true);
-    try {
-      // If replacing an existing image, delete the old one first
-      if (formData.imageUrl) {
-        await fetch(`${API_URL}/upload/image`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: formData.imageUrl }),
-          credentials: "include",
-        }).catch(err => console.error("No se pudo borrar imagen antigua", err));
-      }
-
-      const res = await fetch(`${API_URL}/upload/image`, {
-        method: "POST",
-        body: uploadData,
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setFormData({ ...formData, imageUrl: data.url });
-      } else {
-        alert("Error al subir la imagen");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error de conexión al subir la imagen");
-    } finally {
-      setUploadingImage(false);
+    const newUrl = await handleUpload(e, formData.imageUrl);
+    if (newUrl) {
+      setFormData({ ...formData, imageUrl: newUrl });
     }
   };
 

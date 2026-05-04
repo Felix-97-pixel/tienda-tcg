@@ -3,6 +3,7 @@ import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Papa from "papaparse";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface InventoryItem {
   id: string;
@@ -142,7 +143,7 @@ export default function AdminProducts() {
 
   // Create Modal State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const { isUploading: uploadingImage, handleUpload, handleRemove } = useImageUpload();
   const [creatingProduct, setCreatingProduct] = useState({
     name: "",
     categoryId: "",
@@ -293,111 +294,33 @@ export default function AdminProducts() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setUploadingImage(true);
-    try {
-      if (creatingProduct.imageUrl) {
-        await fetch(`${API_URL}/upload/image`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: creatingProduct.imageUrl }),
-          credentials: "include",
-        }).catch(err => console.error("No se pudo borrar imagen antigua", err));
-      }
-
-      const res = await fetch(`${API_URL}/upload/image`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCreatingProduct({ ...creatingProduct, imageUrl: data.url });
-      } else {
-        alert("Error al subir la imagen");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error de conexión al subir la imagen");
-    } finally {
-      setUploadingImage(false);
+    const newUrl = await handleUpload(e, creatingProduct.imageUrl);
+    if (newUrl) {
+      setCreatingProduct({ ...creatingProduct, imageUrl: newUrl });
     }
   };
 
   const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !editingItem) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setUploadingImage(true);
-    try {
-      if (editingItem.imageUrl) {
-        await fetch(`${API_URL}/upload/image`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: editingItem.imageUrl }),
-          credentials: "include",
-        }).catch(err => console.error("No se pudo borrar imagen antigua", err));
-      }
-
-      const res = await fetch(`${API_URL}/upload/image`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEditingItem({ ...editingItem, imageUrl: data.url });
-      } else {
-        alert("Error al subir la imagen");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Hubo un error de conexión");
-    } finally {
-      setUploadingImage(false);
+    if (!editingItem) return;
+    const newUrl = await handleUpload(e, editingItem.imageUrl);
+    if (newUrl) {
+      setEditingItem({ ...editingItem, imageUrl: newUrl });
     }
   };
 
   const handleRemoveImage = async () => {
-    if (!creatingProduct.imageUrl) return;
-
-    try {
-      await fetch(`${API_URL}/upload/image`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: creatingProduct.imageUrl }),
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Error al borrar la imagen:", err);
+    const success = await handleRemove(creatingProduct.imageUrl);
+    if (success) {
+      setCreatingProduct({ ...creatingProduct, imageUrl: "" });
     }
-
-    setCreatingProduct({ ...creatingProduct, imageUrl: "" });
   };
 
   const handleEditRemoveImage = async () => {
-    if (!editingItem?.imageUrl) return;
-
-    try {
-      await fetch(`${API_URL}/upload/image`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: editingItem.imageUrl }),
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Error al borrar la imagen:", err);
+    if (!editingItem) return;
+    const success = await handleRemove(editingItem.imageUrl);
+    if (success) {
+      setEditingItem({ ...editingItem, imageUrl: "" });
     }
-
-    setEditingItem({ ...editingItem, imageUrl: "" });
   };
 
   const handleCreateProduct = async (e: React.FormEvent) => {
