@@ -64,10 +64,60 @@ model User {
   email     String         @unique
   password  String
   name      String?
+  phone     String?
+  address   String?
+  city      String?
   role      Role           @default(USER)
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   wishlist  WishlistItem[]
+  orders    Order[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  buyOrder    String      @unique
+  userId      String?
+  email       String
+  name        String
+  phone       String?
+  address     String?
+  city        String?
+  notes       String?
+  totalAmount Decimal     @db.Decimal(10, 2)
+  status      OrderStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  items       OrderItem[]
+  payment     Payment?
+  user        User?       @relation(fields: [userId], references: [id])
+}
+
+model OrderItem {
+  id              String  @id @default(uuid())
+  orderId         String
+  productId       String
+  inventoryItemId String?
+  productName     String
+  quantity        Int
+  unitPrice       Decimal @db.Decimal(10, 2)
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  orderId        String        @unique
+  token          String        @unique
+  status         PaymentStatus @default(PENDING)
+  amount         Decimal       @db.Decimal(10, 2)
+  authCode       String?
+  cardLast4      String?
+  paymentType    String?
+  installments   Int?
+  transactionDate DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  order          Order         @relation(fields: [orderId], references: [id])
 }
 
 model WishlistItem {
@@ -83,4 +133,19 @@ model WishlistItem {
 enum Role {
   USER
   ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  FAILED
+  NULLIFIED
 }

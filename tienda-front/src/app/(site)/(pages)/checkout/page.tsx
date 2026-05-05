@@ -1,17 +1,16 @@
 import React from "react";
-import Checkout from "@/components/Checkout";
+import CheckoutWebpay from "@/components/Checkout";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Checkout Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Checkout Page for NextCommerce Template",
-  // other metadata
+  title: "Checkout | TapTrade TCG",
+  description: "Completa tu compra de forma segura con Webpay Plus",
 };
 
 const CheckoutPage = () => {
   return (
     <main>
-      <Checkout />
+      <CheckoutWebpay />
     </main>
   );
 };

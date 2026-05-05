@@ -86,6 +86,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                   Wishlist
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/admin/sales"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/sales") && "bg-gray-700"
+                    }`}
+                >
+                  Ventas
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/admin/orders"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/orders") && "bg-gray-700"
+                    }`}
+                >
+                  Órdenes
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>
