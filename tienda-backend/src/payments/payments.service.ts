@@ -120,7 +120,11 @@ export class PaymentsService {
   async commitTransaction(token: string) {
     const payment = await this.prisma.payment.findUnique({
       where: { token },
-      include: { order: true },
+      include: {
+        order: {
+          include: { items: true },
+        },
+      },
     });
 
     if (!payment) {
@@ -134,25 +138,60 @@ export class PaymentsService {
     const isApproved =
       result.response_code === 0 && result.status === 'AUTHORIZED';
 
-    // Actualizar pago
-    await this.prisma.payment.update({
-      where: { token },
-      data: {
-        status: isApproved ? 'AUTHORIZED' : 'FAILED',
-        authCode: result.authorization_code,
-        cardLast4: result.card_detail?.card_number,
-        paymentType: result.payment_type_code,
-        installments: result.installments_number,
-        transactionDate: result.transaction_date
-          ? new Date(result.transaction_date)
-          : null,
-      },
-    });
+    // Ejecutar todo en una transacción atómica
+    await this.prisma.$transaction(async (tx) => {
+      // 1. Actualizar pago
+      await tx.payment.update({
+        where: { token },
+        data: {
+          status: isApproved ? 'AUTHORIZED' : 'FAILED',
+          authCode: result.authorization_code,
+          cardLast4: result.card_detail?.card_number,
+          paymentType: result.payment_type_code,
+          installments: result.installments_number,
+          transactionDate: result.transaction_date
+            ? new Date(result.transaction_date)
+            : null,
+        },
+      });
 
-    // Actualizar orden
-    await this.prisma.order.update({
-      where: { id: payment.orderId },
-      data: { status: isApproved ? 'PAID' : 'FAILED' },
+      // 2. Actualizar orden
+      await tx.order.update({
+        where: { id: payment.orderId },
+        data: { status: isApproved ? 'PAID' : 'FAILED' },
+      });
+
+      // 3. Descontar stock solo si el pago fue aprobado
+      if (isApproved) {
+        const itemsConInventario = payment.order.items.filter(
+          (i) => i.inventoryItemId,
+        );
+
+        for (const item of itemsConInventario) {
+          const inventory = await tx.inventoryItem.findUnique({
+            where: { id: item.inventoryItemId! },
+          });
+
+          if (!inventory) {
+            this.logger.warn(
+              `InventoryItem ${item.inventoryItemId} no encontrado al descontar stock`,
+            );
+            continue;
+          }
+
+          const newStock = Math.max(0, inventory.stock - item.quantity);
+
+          await tx.inventoryItem.update({
+            where: { id: item.inventoryItemId! },
+            data: { stock: newStock },
+          });
+
+          this.logger.log(
+            `Stock descontado: inventoryItem=${item.inventoryItemId}, ` +
+              `-${item.quantity} → stock=${newStock}`,
+          );
+        }
+      }
     });
 
     return {
