@@ -90,6 +90,7 @@ const CheckoutWebpay = () => {
         notes: billing.notes,
         items: cartItems.map((item) => ({
           productId: String(item.id),
+          inventoryItemId: item.inventoryItemId ?? null,
           productName: item.title,
           quantity: item.quantity,
           unitPrice: item.discountedPrice,

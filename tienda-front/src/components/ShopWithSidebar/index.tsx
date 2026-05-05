@@ -122,6 +122,7 @@ const ShopWithSidebar = () => {
             reviews: 0,
             price: parseFloat(defaultPrice),
             discountedPrice: parseFloat(defaultPrice),
+            inventoryItemId: item.items?.[0]?.id ?? undefined,
             category: catName,
             stock: parseInt(defaultStock, 10),
             imgs: {

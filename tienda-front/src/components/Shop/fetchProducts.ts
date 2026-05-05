@@ -20,6 +20,7 @@ export async function getProducts(): Promise<Product[]> {
         reviews: 0,
         price: parseFloat(defaultPrice),
         discountedPrice: parseFloat(defaultPrice),
+        inventoryItemId: item.items?.[0]?.id ?? undefined,
         stock: parseInt(defaultStock, 10),
         imgs: {
           thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],

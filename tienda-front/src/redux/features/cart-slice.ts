@@ -11,6 +11,7 @@ type CartItem = {
   price: number;
   discountedPrice: number;
   quantity: number;
+  inventoryItemId?: string;
   stock?: number;
   imgs?: {
     thumbnails: string[];
@@ -46,6 +47,7 @@ export const cart = createSlice({
           price,
           quantity: quantity > actualStock ? actualStock : quantity,
           discountedPrice,
+          inventoryItemId: action.payload.inventoryItemId,
           stock: actualStock,
           imgs,
         });
