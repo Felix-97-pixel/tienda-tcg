@@ -185,28 +185,31 @@ export default function AdminSync() {
   }));
 
   return (
-    <>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-title-md2 font-semibold text-black">
-          Panel de Sincronización
-        </h2>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-dark">Sincronización</h1>
+        <p className="text-dark-4 text-sm mt-1">Importa cartas y actualiza precios desde fuentes externas</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* MTGJSON Sync */}
-        <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-6 shadow-default sm:px-7.5">
-          <h4 className="mb-4 text-xl font-bold text-black">
-            1. Importar Cartas (MTGJSON)
-          </h4>
-          <p className="mb-4 text-sm text-gray-500">
-            Descarga y guarda todas las cartas de una expansión específica.
-          </p>
+        <div className="bg-white rounded-2xl shadow-1 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue/10 flex items-center justify-center">
+              <svg className="w-5 h-5 text-blue" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="font-semibold text-dark">1. Importar Cartas (MTGJSON)</h2>
+              <p className="text-dark-4 text-xs mt-0.5">Descarga y guarda todas las cartas de una expansión específica</p>
+            </div>
+          </div>
           <form onSubmit={handleSyncMtgJson}>
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-black">
-                Selecciona la Expansión a Descargar
-              </label>
-              <SearchableSelect 
+              <label className="mb-2 block text-sm font-medium text-dark">Selecciona la Expansión a Descargar</label>
+              <SearchableSelect
                 options={mtgJsonOptions}
                 value={setId}
                 onChange={setSetId}
@@ -217,32 +220,37 @@ export default function AdminSync() {
             <button
               type="submit"
               disabled={loadingMtg || mtgJsonSets.length === 0}
-              className="flex w-full justify-center rounded bg-blue py-3 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
+              className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
             >
               {loadingMtg ? "Sincronizando..." : "Descargar Cartas"}
             </button>
           </form>
           {mtgJsonMessage && (
-            <div className="mt-4 p-3 rounded bg-gray-2 text-black text-sm">
+            <div className={`mt-4 p-3 rounded-lg text-sm ${
+              mtgJsonMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+            }`}>
               {mtgJsonMessage}
             </div>
           )}
         </div>
 
         {/* Card Kingdom Sync */}
-        <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-6 shadow-default sm:px-7.5">
-          <h4 className="mb-4 text-xl font-bold text-black">
-            2. Actualizar Precios (Card Kingdom)
-          </h4>
-          <p className="mb-4 text-sm text-gray-500">
-            Actualiza los precios de todas las cartas de una expansión ya existente en tu inventario.
-          </p>
+        <div className="bg-white rounded-2xl shadow-1 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="font-semibold text-dark">2. Actualizar Precios (Card Kingdom)</h2>
+              <p className="text-dark-4 text-xs mt-0.5">Actualiza los precios de expansiones existentes en tu inventario</p>
+            </div>
+          </div>
           <form onSubmit={handleSyncCardKingdom}>
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-black">
-                Selecciona la Expansión
-              </label>
-              <SearchableSelect 
+              <label className="mb-2 block text-sm font-medium text-dark">Selecciona la Expansión</label>
+              <SearchableSelect
                 options={localExpansionOptions}
                 value={expansion}
                 onChange={setExpansion}
@@ -253,18 +261,20 @@ export default function AdminSync() {
             <button
               type="submit"
               disabled={loadingCk || expansionsList.length === 0}
-              className="flex w-full justify-center rounded bg-blue py-3 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
+              className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
             >
               {loadingCk ? "Actualizando precios..." : "Sincronizar Precios CK"}
             </button>
           </form>
           {ckMessage && (
-            <div className="mt-4 p-3 rounded bg-gray-2 text-black text-sm">
+            <div className={`mt-4 p-3 rounded-lg text-sm ${
+              ckMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+            }`}>
               {ckMessage}
             </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

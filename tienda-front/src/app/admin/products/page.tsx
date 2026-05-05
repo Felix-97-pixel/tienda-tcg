@@ -512,84 +512,76 @@ export default function AdminProducts() {
 
   return (
     <>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-title-md2 font-semibold text-black">
-          Inventario de Productos
-        </h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setIsBulkOpen(true)}
-            className="rounded bg-green py-2 px-4 font-medium text-white hover:bg-opacity-90"
-          >
-            Subida Masiva (CSV)
-          </button>
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-          >
-            + Agregar Producto Manual
-          </button>
+      {/* Header */}
+      <div className="p-6 pb-0">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-dark">Inventario de Productos</h1>
+            <p className="text-dark-4 text-sm mt-1">Gestiona stock, precios e imágenes</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setIsBulkOpen(true)}
+              style={{ backgroundColor: '#16a34a' }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:opacity-90">
+              Subida Masiva (CSV)
+            </button>
+            <button onClick={() => setIsCreateOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue text-white text-sm font-medium hover:bg-blue-dark transition">
+              + Agregar Producto
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* FILTROS AVANZADOS */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3 rounded-sm border border-stroke bg-gray-2 p-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-black">Buscar por Nombre</label>
-          <input
-            type="text"
-            placeholder="Ej. Black Lotus..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded border border-stroke bg-white py-2 px-4 text-sm outline-none focus:border-primary"
-          />
+      {/* FILTROS */}
+      <div className="px-6 pb-4">
+        <div className="bg-white rounded-2xl shadow-1 p-5 mb-6">
+          <p className="text-sm font-medium text-dark mb-3">Filtros</p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">Buscar por Nombre</label>
+              <input type="text" placeholder="Ej. Black Lotus..."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+                className="w-full rounded-lg border border-gray-3 bg-gray-1 py-2 px-4 text-sm outline-none focus:border-blue focus:ring-2 focus:ring-blue/20" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">Categoría / Juego</label>
+              <SearchableSelect options={categoryOptions} value={selectedCategory}
+                onChange={(val) => { setSelectedCategory(val); setPage(1); }}
+                placeholder="Selecciona Categoría" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">Expansión</label>
+              <SearchableSelect options={expansionOptions} value={selectedExpansion}
+                onChange={(val) => { setSelectedExpansion(val); setPage(1); }}
+                placeholder="Selecciona Expansión"
+                disabled={expansionsList.length === 0} />
+            </div>
+          </div>
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-black">Filtrar por Categoría / Juego</label>
-          <SearchableSelect
-            options={categoryOptions}
-            value={selectedCategory}
-            onChange={(val) => {
-              setSelectedCategory(val);
-              setPage(1);
-            }}
-            placeholder="Selecciona Categoría"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-black">Filtrar por Expansión</label>
-          <SearchableSelect
-            options={expansionOptions}
-            value={selectedExpansion}
-            onChange={(val) => {
-              setSelectedExpansion(val);
-              setPage(1);
-            }}
-            placeholder="Selecciona Expansión"
-            disabled={expansionsList.length === 0}
-          />
-        </div>
-      </div>
 
-      <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default sm:px-7.5 xl:pb-1">
-        <div className="max-w-full overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="bg-gray-2 text-left">
-                <th className="py-4 px-4 font-medium text-black">Producto</th>
-                <th className="py-4 px-4 font-medium text-black hidden md:table-cell">Edición</th>
-                <th className="py-4 px-4 font-medium text-black">Stock</th>
-                <th className="py-4 px-4 font-medium text-black">Precio</th>
-                <th className="py-4 px-4 font-medium text-black">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="bg-white rounded-2xl shadow-1 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto">
+              <thead>
+                <tr className="bg-gray-1 text-left">
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Producto</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm hidden md:table-cell">Edición</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Stock</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Precio</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-3">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-5 text-center">Cargando productos...</td>
+                  <td colSpan={5} className="py-12 text-center">
+                    <svg className="animate-spin h-6 w-6 text-blue mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  </td>
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
@@ -599,46 +591,44 @@ export default function AdminProducts() {
                 products.map((product) => {
                   const mainItem = product.items[0]; // For MVP, grab the first inventory item
                   return (
-                    <tr key={product.id}>
-                      <td className="border-b border-[#eee] py-5 px-4 flex items-center gap-3">
-                        <div className="h-12 w-12 rounded overflow-hidden relative flex-shrink-0 bg-gray-2">
+                    <tr key={product.id} className="hover:bg-gray-1 transition">
+                      <td className="py-4 px-6 flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-2">
                           {product.imageUrl ? (
-                            <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
+                            <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="object-cover h-full w-full" />
                           ) : (
-                            <span className="text-[10px] text-gray-500 flex h-full items-center justify-center">Sin Img</span>
+                            <span className="text-[10px] text-dark-4 flex h-full items-center justify-center">Sin Img</span>
                           )}
                         </div>
-                        <p className="text-black font-medium">{product.name}</p>
+                        <p className="text-dark font-medium text-sm">{product.name}</p>
                       </td>
-                      <td className="border-b border-[#eee] py-5 px-4 hidden md:table-cell">
-                        <p className="text-black text-sm">{product.cardDetail?.expansion || "N/A"}</p>
-                        <p className="text-gray-500 text-xs">{product.cardDetail?.rarity}</p>
+                      <td className="py-4 px-6 hidden md:table-cell">
+                        <p className="text-dark text-sm">{product.cardDetail?.expansion || "N/A"}</p>
+                        <p className="text-dark-4 text-xs">{product.cardDetail?.rarity}</p>
                       </td>
-                      <td className="border-b border-[#eee] py-5 px-4">
-                        <p className={`inline-flex rounded-full py-1 px-3 text-sm font-medium ${mainItem?.stock > 0 ? "bg-success text-success bg-opacity-10" : "bg-danger text-danger bg-opacity-10"}`}>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                          mainItem?.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                        }`}>
                           {mainItem?.stock || 0}
-                        </p>
+                        </span>
                       </td>
-                      <td className="border-b border-[#eee] py-5 px-4">
-                        <p className="text-black font-bold">
+                      <td className="py-4 px-6">
+                        <p className="text-dark font-bold text-sm">
                           ${Number(mainItem?.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </td>
-                      <td className="border-b border-[#eee] py-5 px-4">
+                      <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
                           {mainItem && (
-                            <button
-                              onClick={() => openEditModal(product, mainItem)}
-                              className="hover:text-blue bg-gray-1 py-1 px-3 rounded text-sm text-black"
-                            >
+                            <button onClick={() => openEditModal(product, mainItem)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
                               Editar
                             </button>
                           )}
                           {!product.category?.isTcg && (
-                            <button
-                              onClick={() => handleDeleteProduct(product.id)}
-                              className="hover:text-danger bg-gray-1 py-1 px-3 rounded text-sm text-danger"
-                            >
+                            <button onClick={() => handleDeleteProduct(product.id)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
                               Eliminar
                             </button>
                           )}
@@ -648,29 +638,18 @@ export default function AdminProducts() {
                   );
                 })
               )}
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
 
-        {/* Paginación */}
-        <div className="flex justify-between items-center py-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="rounded bg-gray-2 py-1 px-3 text-sm disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="text-sm">
-            Página {page} de {totalPages}
-          </span>
-          <button
-            disabled={page === totalPages || totalPages === 0}
-            onClick={() => setPage(page + 1)}
-            className="rounded bg-gray-2 py-1 px-3 text-sm disabled:opacity-50"
-          >
-            Siguiente
-          </button>
+          {/* Paginación */}
+          <div className="flex justify-between items-center px-6 py-4 border-t border-gray-3">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)}
+              className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">← Anterior</button>
+            <span className="text-sm text-dark-4">Página {page} de {totalPages}</span>
+            <button disabled={page === totalPages || totalPages === 0} onClick={() => setPage(page + 1)}
+              className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">Siguiente →</button>
+          </div>
         </div>
       </div>
 

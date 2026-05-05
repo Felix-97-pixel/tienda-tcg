@@ -161,91 +161,97 @@ export default function AdminCategories() {
 
   return (
     <>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-title-md2 font-semibold text-black">
-          Categorías
-        </h2>
-        <button
-          onClick={openCreateModal}
-          className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-        >
-          Crear Categoría
-        </button>
+      {/* Header */}
+      <div className="p-6 pb-0">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-dark">Categorías</h1>
+            <p className="text-dark-4 text-sm mt-1">Organiza el catálogo de tu tienda</p>
+          </div>
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue text-white text-sm font-medium hover:bg-blue-dark transition"
+          >
+            + Crear Categoría
+          </button>
+        </div>
       </div>
 
-      <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default sm:px-7.5 xl:pb-1">
-        <div className="max-w-full overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="bg-gray-2 text-left">
-                <th className="min-w-[150px] py-4 px-4 font-medium text-black xl:pl-11">
-                  Imagen
-                </th>
-                <th className="min-w-[150px] py-4 px-4 font-medium text-black">
-                  Nombre
-                </th>
-                <th className="min-w-[150px] py-4 px-4 font-medium text-black">
-                  Slug
-                </th>
-                <th className="min-w-[150px] py-4 px-4 font-medium text-black">
-                  ¿Es un TCG?
-                </th>
-                <th className="py-4 px-4 font-medium text-black">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="py-5 text-center">
-                    Cargando categorías...
-                  </td>
+      <div className="px-6 pb-6">
+        <div className="bg-white rounded-2xl shadow-1 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-3">
+            <h2 className="font-semibold text-dark">Todas las categorías ({categories.length})</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto">
+              <thead>
+                <tr className="bg-gray-1 text-left">
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Imagen</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Nombre</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Slug</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">¿Es TCG?</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Acciones</th>
                 </tr>
-              ) : (
-                categories.map((category, key) => (
-                  <tr key={key}>
-                    <td className="border-b border-[#eee] py-5 px-4 pl-9 xl:pl-11">
-                      {category.imageUrl ? (
-                        <div className="h-12.5 w-15 rounded-md relative flex items-center justify-center bg-gray-1">
-                          <Image src={category.imageUrl} alt={category.name} width={50} height={40} className="object-contain" />
-                        </div>
-                      ) : (
-                        <div className="h-12.5 w-15 rounded-md bg-gray-3 flex items-center justify-center">
-                          <span className="text-xs text-gray-500">Sin img</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="border-b border-[#eee] py-5 px-4">
-                      <p className="text-black font-medium">{category.name}</p>
-                    </td>
-                    <td className="border-b border-[#eee] py-5 px-4">
-                      <p className="text-black text-sm">{category.slug}</p>
-                    </td>
-                    <td className="border-b border-[#eee] py-5 px-4">
-                      <p className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${category.isTcg ? 'bg-success text-success' : 'bg-warning text-warning'}`}>
-                        {category.isTcg ? 'Sí' : 'No'}
-                      </p>
-                    </td>
-                    <td className="border-b border-[#eee] py-5 px-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => openEditModal(category)}
-                          className="hover:text-blue bg-gray-1 py-1 px-3 rounded text-sm"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDelete(category.id)}
-                          className="hover:text-danger bg-gray-1 py-1 px-3 rounded text-sm text-danger"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-3">
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center">
+                      <svg className="animate-spin h-6 w-6 text-blue mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  categories.map((category, key) => (
+                    <tr key={key} className="hover:bg-gray-1 transition">
+                      <td className="py-4 px-6">
+                        {category.imageUrl ? (
+                          <div className="h-10 w-14 rounded-lg flex items-center justify-center bg-gray-1 overflow-hidden">
+                            <Image src={category.imageUrl} alt={category.name} width={50} height={40} className="object-contain" />
+                          </div>
+                        ) : (
+                          <div className="h-10 w-14 rounded-lg bg-gray-2 flex items-center justify-center">
+                            <span className="text-xs text-dark-4">Sin img</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-4 px-6">
+                        <p className="text-dark font-medium">{category.name}</p>
+                      </td>
+                      <td className="py-4 px-6">
+                        <code className="text-xs text-dark-4 bg-gray-1 px-2 py-1 rounded">{category.slug}</code>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                          category.isTcg ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {category.isTcg ? '✓ Sí' : '✗ No'}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openEditModal(category)}
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(category.id)}
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
