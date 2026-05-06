@@ -1,0 +1,297 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "save": "Guardar cambios",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "filters": "Filtros",
+    "clearFilters": "Limpiar filtros",
+    "noResults": "No se encontraron resultados",
+    "previous": "← Anterior",
+    "next": "Siguiente →",
+    "page": "Página {current} de {total}",
+    "actions": "Acciones",
+    "image": "Imagen",
+    "name": "Nombre",
+    "status": "Estado",
+    "date": "Fecha",
+    "total": "Total",
+    "confirm": "¿Estás seguro?",
+    "success": "Operación completada exitosamente"
+  },
+
+  "dashboard": {
+    "title": "Panel de Administración",
+    "subtitle": "Gestiona tu tienda TapTrade desde un solo lugar",
+    "welcomeTitle": "Bienvenido al Panel",
+    "welcomeSubtitle": "Desde aquí puedes gestionar todos los aspectos de tu tienda",
+    "quickGuideTitle": "Guía Rápida",
+    "modules": {
+      "brands": "Marcas y Categorías",
+      "brandsDesc": "Crea la estructura del catálogo antes de agregar productos.",
+      "products": "Productos",
+      "productsDesc": "Edita stock, precio e imagen. Soporta subida masiva por CSV para cartas TCG.",
+      "sync": "Sincronización",
+      "syncDesc": "Importa expansiones de MTG desde MTGJSON y actualiza precios desde Card Kingdom.",
+      "sales": "Ventas",
+      "salesDesc": "Monitorea ingresos totales, crecimiento mensual, tasa de aprobación y los productos más vendidos.",
+      "orders": "Órdenes",
+      "ordersDesc": "Revisa el historial de pedidos, filtra por estado y ve los detalles de cada transacción.",
+      "wishlist": "Wishlist",
+      "wishlistDesc": "Descubre qué productos interesan más a tus clientes para tomar decisiones de inventario."
+    },
+    "links": {
+      "brands": "Ir a Marcas",
+      "categories": "Ir a Categorías",
+      "products": "Ir a Productos",
+      "sync": "Ir a Sincronización",
+      "sales": "Ir a Ventas",
+      "orders": "Ir a Órdenes",
+      "wishlist": "Ir a Wishlist"
+    }
+  },
+
+  "products": {
+    "title": "Inventario de Productos",
+    "subtitle": "Gestiona stock, precios e imágenes",
+    "addProduct": "+ Agregar Producto",
+    "bulkUpload": "Subida Masiva (CSV)",
+    "table": {
+      "product": "Producto",
+      "expansion": "Expansión / Rareza",
+      "stock": "Stock",
+      "price": "Precio",
+      "actions": "Acciones"
+    },
+    "filters": {
+      "title": "Filtros",
+      "searchPlaceholder": "Buscar por nombre...",
+      "category": "Categoría",
+      "allCategories": "Todas las categorías",
+      "expansion": "Expansión",
+      "allExpansions": "Todas las expansiones",
+      "stock": "Estado de stock",
+      "allStock": "Todo el inventario",
+      "inStock": "Con stock",
+      "outOfStock": "Sin stock"
+    },
+    "modal": {
+      "editTitle": "Editar Producto",
+      "nameLabel": "Nombre del Producto",
+      "categoryLabel": "Categoría",
+      "categoryPlaceholder": "Seleccione Categoría",
+      "brandLabel": "Marca (Opcional)",
+      "brandPlaceholder": "Sin Marca",
+      "stockLabel": "Stock Disponible",
+      "priceLabel": "Precio (USD)",
+      "imageLabel": "Imagen del Producto",
+      "imageUrlLabel": "URL de imagen actual",
+      "uploadNew": "Subir nueva imagen",
+      "removeImage": "Eliminar imagen",
+      "saving": "Guardando..."
+    },
+    "bulk": {
+      "title": "Subida Masiva de Productos (CSV)",
+      "subtitle": "Sube múltiples productos de una vez mediante un archivo CSV",
+      "formatTitle": "Formato requerido del CSV",
+      "formatDesc": "El archivo CSV debe incluir las siguientes columnas:",
+      "uploadLabel": "Seleccionar archivo CSV",
+      "uploading": "Subiendo...",
+      "uploadButton": "Subir CSV",
+      "successMessage": "productos procesados correctamente",
+      "errorMessage": "Error al procesar el archivo"
+    },
+    "create": {
+      "title": "Agregar Producto",
+      "creating": "Creando..."
+    },
+    "noImage": "Sin Img",
+    "deleteConfirm": "¿Eliminar este producto permanentemente?"
+  },
+
+  "categories": {
+    "title": "Categorías",
+    "subtitle": "Organiza el catálogo de tu tienda por juego o tipo de producto",
+    "addCategory": "+ Nueva Categoría",
+    "table": {
+      "image": "Imagen",
+      "name": "Nombre",
+      "slug": "Slug",
+      "type": "Tipo",
+      "actions": "Acciones"
+    },
+    "types": {
+      "tcg": "TCG",
+      "general": "General"
+    },
+    "modal": {
+      "createTitle": "Crear Categoría",
+      "editTitle": "Editar Categoría",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Ej: Magic: The Gathering",
+      "slugLabel": "Slug (URL)",
+      "slugPlaceholder": "Ej: magic-the-gathering",
+      "isTcgLabel": "¿Es una categoría TCG?",
+      "imageLabel": "Imagen de la Categoría",
+      "saving": "Guardando..."
+    },
+    "deleteConfirm": "¿Eliminar esta categoría? Los productos asociados quedarán sin categoría."
+  },
+
+  "brands": {
+    "title": "Marcas",
+    "subtitle": "Administra las marcas o editoriales de los productos de tu tienda",
+    "addBrand": "+ Nueva Marca",
+    "table": {
+      "image": "Logo",
+      "name": "Nombre",
+      "products": "Productos",
+      "actions": "Acciones"
+    },
+    "modal": {
+      "createTitle": "Crear Marca",
+      "editTitle": "Editar Marca",
+      "nameLabel": "Nombre de la Marca",
+      "namePlaceholder": "Ej: Wizards of the Coast",
+      "imageLabel": "Logo de la Marca",
+      "saving": "Guardando..."
+    },
+    "deleteConfirm": "¿Eliminar esta marca?"
+  },
+
+  "sync": {
+    "title": "Sincronización de Catálogo",
+    "subtitle": "Importa y actualiza productos desde fuentes externas",
+    "mtgjson": {
+      "title": "Importar desde MTGJSON",
+      "subtitle": "Importa cartas de Magic: The Gathering desde la base de datos oficial de MTGJSON",
+      "label": "Código de Expansión MTG",
+      "placeholder": "Ej: MKM, OTJ, BLB...",
+      "button": "Importar Expansión",
+      "importing": "Importando...",
+      "successPrefix": "Importación completada:",
+      "successSuffix": "cartas procesadas",
+      "findCodesLabel": "Buscar códigos de expansión en",
+      "findCodesLink": "MTGJSON Sets"
+    },
+    "cardkingdom": {
+      "title": "Actualizar Precios desde Card Kingdom",
+      "subtitle": "Sincroniza los precios de tus cartas con los precios actuales de Card Kingdom",
+      "button": "Actualizar Precios",
+      "updating": "Actualizando...",
+      "successPrefix": "Precios actualizados:",
+      "successSuffix": "cartas actualizadas"
+    },
+    "pokemon": {
+      "title": "Importar desde PokémonTCG API",
+      "subtitle": "Importa cartas de Pokémon TCG usando el código de la expansión",
+      "label": "Código de Set Pokémon",
+      "placeholder": "Ej: sv1, sv2, sv3pt5...",
+      "button": "Importar Set Pokémon",
+      "importing": "Importando...",
+      "successPrefix": "Set importado:",
+      "successSuffix": "cartas procesadas",
+      "findCodesLabel": "Ver códigos de sets en",
+      "findCodesLink": "PokémonTCG.io"
+    }
+  },
+
+  "orders": {
+    "title": "Órdenes",
+    "subtitle": "Historial completo de pedidos de la tienda",
+    "table": {
+      "order": "Orden",
+      "customer": "Cliente",
+      "items": "Productos",
+      "total": "Total",
+      "status": "Estado",
+      "date": "Fecha",
+      "actions": "Acciones"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar por orden, cliente o email...",
+      "status": "Estado",
+      "allStatuses": "Todos los estados"
+    },
+    "status": {
+      "PAID": "Pagado",
+      "PENDING": "Pendiente",
+      "FAILED": "Fallido",
+      "CANCELLED": "Cancelado",
+      "REFUNDED": "Reembolsado"
+    },
+    "detail": {
+      "title": "Detalle de Orden",
+      "orderId": "ID de Orden",
+      "buyOrder": "Buy Order",
+      "email": "Email",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "city": "Ciudad",
+      "notes": "Notas",
+      "products": "Productos",
+      "quantity": "Cantidad",
+      "unitPrice": "Precio Unit.",
+      "subtotal": "Subtotal",
+      "payment": "Información de Pago",
+      "authCode": "Código de Auth.",
+      "cardLast4": "Tarjeta",
+      "paymentType": "Tipo de Pago",
+      "transactionDate": "Fecha Transacción"
+    },
+    "noNotes": "Sin notas",
+    "noPhone": "No especificado"
+  },
+
+  "sales": {
+    "title": "Resumen de Ventas",
+    "subtitle": "Métricas e indicadores clave de rendimiento de tu tienda",
+    "stats": {
+      "totalRevenue": "Ingresos Totales",
+      "totalOrders": "Órdenes Totales",
+      "approvalRate": "Tasa de Aprobación",
+      "avgOrderValue": "Valor Promedio por Orden",
+      "monthlyGrowth": "Crecimiento mensual"
+    },
+    "charts": {
+      "revenueTitle": "Ingresos por Mes",
+      "topProductsTitle": "Top 10 Productos Más Vendidos",
+      "productName": "Producto",
+      "unitsSold": "Unidades vendidas",
+      "revenue": "Ingresos"
+    },
+    "filters": {
+      "year": "Año"
+    },
+    "noData": "Sin datos para el período seleccionado"
+  },
+
+  "wishlist": {
+    "title": "Wishlist de Clientes",
+    "subtitle": "Descubre qué productos desean tus clientes para tomar decisiones de inventario",
+    "table": {
+      "product": "Producto",
+      "category": "Categoría",
+      "expansion": "Expansión",
+      "wishes": "Deseos",
+      "actions": "Ver"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar producto...",
+      "category": "Categoría",
+      "allCategories": "Todas las categorías",
+      "minWishes": "Mínimo de deseos",
+      "minWishesPlaceholder": "Ej: 5"
+    },
+    "stats": {
+      "totalProducts": "Productos en Wishlist",
+      "totalWishes": "Total de Deseos",
+      "topProduct": "Producto Más Deseado"
+    },
+    "noProduct": "Producto eliminado"
+  }
+}

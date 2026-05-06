@@ -1,0 +1,93 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "noResults": "No se encontraron resultados",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver",
+    "seeMore": "Ver más",
+    "currency": "ARS"
+  },
+  "nav": {
+    "shop": "Tienda",
+    "cart": "Carrito",
+    "wishlist": "Lista de deseos",
+    "account": "Mi cuenta",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse"
+  },
+  "shop": {
+    "title": "Explorar productos",
+    "addToCart": "Agregar al carrito",
+    "outOfStock": "Sin stock",
+    "maxReached": "Máximo alcanzado",
+    "filters": "Filtros",
+    "clearFilters": "Limpiar",
+    "search": "Buscar producto",
+    "searchPlaceholder": "Escribí para buscar...",
+    "category": "Juego / Categoría",
+    "selectCategory": "Seleccionar Categoría",
+    "expansion": "Expansión",
+    "selectExpansion": "Seleccionar Expansión",
+    "selectGameFirst": "Primero seleccioná un juego",
+    "noCards": "No se encontraron cartas en esta edición.",
+    "selectExpansionPrompt": "Ahora seleccioná una edición o un tipo para ver las cartas.",
+    "noPrice": "Sin precio",
+    "priceUnit": "USD · CK"
+  },
+  "cart": {
+    "title": "Tu carrito",
+    "empty": "Tu carrito está vacío",
+    "emptyDescription": "Agregá productos para comenzar",
+    "continueShopping": "Seguir comprando",
+    "checkout": "Ir al pago",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "quantity": "Cantidad",
+    "remove": "Eliminar",
+    "product": "Producto",
+    "price": "Precio"
+  },
+  "checkout": {
+    "title": "Datos de contacto",
+    "paymentMethod": "Método de pago",
+    "yourOrder": "Tu pedido",
+    "fullName": "Nombre completo",
+    "fullNamePlaceholder": "Ej: Juan Pérez",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+54 9 11 1234 5678",
+    "city": "Ciudad",
+    "cityPlaceholder": "Buenos Aires",
+    "shippingAddress": "Dirección de envío",
+    "addressPlaceholder": "Calle, número, piso, depto...",
+    "notes": "Notas adicionales (opcional)",
+    "notesPlaceholder": "Instrucciones especiales de envío...",
+    "payButton": "Pagar con Mercado Pago · ${amount}",
+    "redirecting": "Redirigiendo...",
+    "secureTransaction": "Transacción segura con encriptación SSL 256 bits",
+    "webpayDescription": "Pagá con tarjeta de débito o crédito de forma segura.",
+    "errorName": "Por favor completá tu nombre y correo electrónico.",
+    "errorEmpty": "Tu carrito está vacío."
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "details": "Datos de la cuenta",
+    "addresses": "Mis direcciones",
+    "orders": "Mis pedidos",
+    "logout": "Cerrar sesión",
+    "noOrders": "Todavía no tenés pedidos",
+    "orderDate": "Fecha",
+    "orderStatus": "Estado",
+    "orderTotal": "Total",
+    "orderItems": "Productos"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados",
+    "contact": "Contacto"
+  }
+}

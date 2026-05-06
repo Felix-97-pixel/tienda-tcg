@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const pathname = usePathname();
+  const t = useTranslations("admin");
 
   return (
     <aside

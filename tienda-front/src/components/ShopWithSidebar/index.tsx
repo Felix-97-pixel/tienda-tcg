@@ -4,16 +4,16 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
 import SearchableSelect from "../Common/SearchableSelect";
-//import AttributeDropdown from "./AttributeDropdown";
 import SizeDropdown from "./SizeDropdown";
 import ColorsDropdwon from "./ColorsDropdwon";
 import PriceDropdown from "./PriceDropdown";
-//import shopData from "../Shop/shopData";
 import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";
 import { Product } from "@/types/product";
+import { useTranslations } from "next-intl";
 
 const ShopWithSidebar = () => {
+  const t = useTranslations('shop');
   const [products, setProducts] = useState<Product[]>([]);
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -248,21 +248,21 @@ const ShopWithSidebar = () => {
                   {/* <!-- filter box --> */}
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
                     <div className="flex items-center justify-between">
-                      <p>Filtros:</p>
+                      <p>{t('filters')}:</p>
                       <button className="text-blue" onClick={(e) => {
                         e.preventDefault();
                         setSelectedCategory(null);
                         setSearchTerm("");
-                      }}>Limpiar</button>
+                      }}>{t('clearFilters')}</button>
                     </div>
                   </div>
 
                   {/* <!-- search box --> */}
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
-                    <h3 className="mb-3 text-lg font-bold text-black">Buscar Producto</h3>
+                    <h3 className="mb-3 text-lg font-bold text-black">{t('search')}</h3>
                     <input
                       type="text"
-                      placeholder="Escribe para buscar..."
+                      placeholder={t('searchPlaceholder')}
                       value={searchTerm}
                       onChange={(e) => {
                         setSearchTerm(e.target.value);
@@ -274,24 +274,24 @@ const ShopWithSidebar = () => {
 
                   {/* <!-- category box --> */}
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
-                    <h3 className="mb-3 text-lg font-bold text-black">Categoría</h3>
+                    <h3 className="mb-3 text-lg font-bold text-black">{t('category')}</h3>
                     <SearchableSelect
                       options={categoriesData.map((c: any) => ({ label: c.name, value: c.name }))}
                       value={selectedCategory || ""}
                       onChange={(val) => handleCategorySelect(val)}
-                      placeholder="Seleccionar Categoría"
+                      placeholder={t('selectCategory')}
                     />
                   </div>
 
                   {/* <!-- expansions box (formerly gender) --> */}
                   {(!selectedCategory || categoriesData.find((c: any) => c.name === selectedCategory)?.isTcg) && (
                     <div className="bg-white shadow-1 rounded-lg py-4 px-5">
-                      <h3 className="mb-3 text-lg font-bold text-black">Expansión</h3>
+                      <h3 className="mb-3 text-lg font-bold text-black">{t('expansion')}</h3>
                       <SearchableSelect
                         options={expansionsData.map((e: any) => ({ label: `${e.name} (${e.products})`, value: e.name }))}
                         value={selectedExpansion || ""}
                         onChange={(val) => handleExpansionSelect(val)}
-                        placeholder={selectedCategory ? "Seleccionar Expansión" : "Primero selecciona un juego"}
+                        placeholder={selectedCategory ? t('selectExpansion') : t('selectGameFirst')}
                         disabled={!selectedCategory}
                       />
                     </div>

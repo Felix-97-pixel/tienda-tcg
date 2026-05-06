@@ -1,0 +1,93 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "noResults": "No se encontraron resultados",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver",
+    "seeMore": "Ver más",
+    "currency": "PEN"
+  },
+  "nav": {
+    "shop": "Tienda",
+    "cart": "Carrito",
+    "wishlist": "Lista de deseos",
+    "account": "Mi cuenta",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse"
+  },
+  "shop": {
+    "title": "Explorar productos",
+    "addToCart": "Agregar al carrito",
+    "outOfStock": "Sin stock",
+    "maxReached": "Máximo alcanzado",
+    "filters": "Filtros",
+    "clearFilters": "Limpiar",
+    "search": "Buscar producto",
+    "searchPlaceholder": "Escribe para buscar...",
+    "category": "Juego / Categoría",
+    "selectCategory": "Seleccionar Categoría",
+    "expansion": "Expansión",
+    "selectExpansion": "Seleccionar Expansión",
+    "selectGameFirst": "Primero selecciona un juego",
+    "noCards": "No se encontraron cartas en esta edición.",
+    "selectExpansionPrompt": "Ahora selecciona una edición o un tipo para ver las cartas.",
+    "noPrice": "Sin precio",
+    "priceUnit": "USD · CK"
+  },
+  "cart": {
+    "title": "Tu carrito",
+    "empty": "Tu carrito está vacío",
+    "emptyDescription": "Agrega productos para comenzar",
+    "continueShopping": "Seguir comprando",
+    "checkout": "Ir al pago",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "quantity": "Cantidad",
+    "remove": "Eliminar",
+    "product": "Producto",
+    "price": "Precio"
+  },
+  "checkout": {
+    "title": "Datos de contacto",
+    "paymentMethod": "Método de pago",
+    "yourOrder": "Tu pedido",
+    "fullName": "Nombre completo",
+    "fullNamePlaceholder": "Ej: Juan García",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+51 9 1234 5678",
+    "city": "Ciudad",
+    "cityPlaceholder": "Lima",
+    "shippingAddress": "Dirección de delivery",
+    "addressPlaceholder": "Calle, número, interior...",
+    "notes": "Notas adicionales (opcional)",
+    "notesPlaceholder": "Instrucciones especiales de delivery...",
+    "payButton": "Pagar con Yape/Plin · ${amount}",
+    "redirecting": "Redirigiendo...",
+    "secureTransaction": "Transacción segura con encriptación SSL 256 bits",
+    "webpayDescription": "Paga con tarjeta de débito o crédito de forma segura.",
+    "errorName": "Por favor completa tu nombre y correo electrónico.",
+    "errorEmpty": "Tu carrito está vacío."
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "details": "Datos de la cuenta",
+    "addresses": "Mis direcciones",
+    "orders": "Mis pedidos",
+    "logout": "Cerrar sesión",
+    "noOrders": "Aún no tienes pedidos",
+    "orderDate": "Fecha",
+    "orderStatus": "Estado",
+    "orderTotal": "Total",
+    "orderItems": "Productos"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados",
+    "contact": "Contacto"
+  }
+}
