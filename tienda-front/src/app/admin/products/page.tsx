@@ -399,11 +399,11 @@ export default function AdminProducts() {
         link.click();
         document.body.removeChild(link);
       } else {
-        alert("Error al descargar plantilla");
+        alert(t("bulkDownloadError"));
       }
     } catch (e) {
       console.error(e);
-      alert("Error de red");
+      alert(tc("networkError"));
     }
   };
 
@@ -413,7 +413,7 @@ export default function AdminProducts() {
 
     const selectedCategoryData = categoriesList.find(c => c.id === bulkCategory);
     if (selectedCategoryData?.isTcg !== false && !selectedCategoryData?.name.toLowerCase().includes("magic")) {
-      alert("La subida masiva por CSV actualmente solo está soportada para Magic The Gathering o Productos Normales.");
+      alert(t("bulkNotSupported"));
       return;
     }
 
@@ -443,11 +443,11 @@ export default function AdminProducts() {
 
             if (res.ok) {
               const data = await res.json();
-              let msg = `Subida masiva completada: ${data.added} agregados, ${data.updated} actualizados.\nErrores: ${data.errors.length}`;
+              let msg = t("bulk.successMtg", { added: data.added, updated: data.updated, errors: data.errors.length });
               if (data.errors.length > 0) {
                 const sampleErrors = data.errors.slice(0, 10).join("\n- ");
-                msg += `\n\nDetalle de errores:\n- ${sampleErrors}`;
-                if (data.errors.length > 10) msg += `\n...y ${data.errors.length - 10} errores más.`;
+                msg += `\n\n${t("bulk.formatDesc")}\n- ${sampleErrors}`;
+                if (data.errors.length > 10) msg += `\n...${t("bulk.errorMessage")}`;
               }
               alert(msg);
               setIsBulkOpen(false);
@@ -455,7 +455,7 @@ export default function AdminProducts() {
               setBulkCategory("");
               fetchProducts();
             } else {
-              alert("Error al realizar la subida masiva.");
+              alert(t("bulk.errorBulk"));
             }
           } else {
             const items = results.data.map((row: any) => ({
@@ -472,11 +472,11 @@ export default function AdminProducts() {
 
             if (res.ok) {
               const data = await res.json();
-              let msg = `Actualización masiva completada: ${data.updated} actualizados.\nErrores: ${data.errors.length}`;
+              let msg = t("bulk.successStock", { updated: data.updated, errors: data.errors.length });
               if (data.errors.length > 0) {
                 const sampleErrors = data.errors.slice(0, 10).join("\n- ");
-                msg += `\n\nDetalle de errores:\n- ${sampleErrors}`;
-                if (data.errors.length > 10) msg += `\n...y ${data.errors.length - 10} errores más.`;
+                msg += `\n\n${t("bulk.formatDesc")}\n- ${sampleErrors}`;
+                if (data.errors.length > 10) msg += `\n...${t("bulk.errorMessage")}`;
               }
               alert(msg);
               setIsBulkOpen(false);
@@ -484,19 +484,19 @@ export default function AdminProducts() {
               setBulkCategory("");
               fetchProducts();
             } else {
-              alert("Error al realizar la actualización masiva.");
+              alert(t("bulk.errorStock"));
             }
           }
         } catch (error) {
           console.error(error);
-          alert("Error procesando el archivo CSV.");
+          alert(t("bulk.errorCsv"));
         } finally {
           setIsUploadingBulk(false);
         }
       },
       error: (error) => {
         console.error(error);
-        alert("Error leyendo el archivo CSV.");
+        alert(t("bulk.errorCsvRead"));
         setIsUploadingBulk(false);
       }
     });

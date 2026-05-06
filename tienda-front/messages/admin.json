@@ -2,6 +2,7 @@
   "common": {
     "loading": "Cargando...",
     "error": "Ha ocurrido un error",
+    "networkError": "Error de red. Intenta de nuevo.",
     "save": "Guardar cambios",
     "cancel": "Cancelar",
     "delete": "Eliminar",
@@ -108,6 +109,13 @@
       "uploadLabel": "Seleccionar archivo CSV",
       "uploading": "Subiendo...",
       "uploadButton": "Subir CSV",
+      "downloadTemplate": "Descargar Plantilla",
+      "successMtg": "Subida completada: {added} agregados, {updated} actualizados. Errores: {errors}",
+      "successStock": "Actualización completada: {updated} actualizados. Errores: {errors}",
+      "errorBulk": "Error al realizar la subida masiva.",
+      "errorStock": "Error al realizar la actualización masiva.",
+      "errorCsv": "Error al procesar el archivo CSV.",
+      "errorCsvRead": "Error al leer el archivo CSV.",
       "successMessage": "productos procesados correctamente",
       "errorMessage": "Error al procesar el archivo"
     },
@@ -116,7 +124,9 @@
       "creating": "Creando..."
     },
     "noImage": "Sin Img",
-    "deleteConfirm": "¿Eliminar este producto permanentemente?"
+    "deleteConfirm": "¿Eliminar este producto permanentemente?",
+    "bulkNotSupported": "La subida masiva por CSV solo está soportada para Magic The Gathering o Productos Normales.",
+    "bulkDownloadError": "Error al descargar la plantilla."
   },
   "categories": {
     "title": "Categorías",
@@ -144,7 +154,9 @@
       "imageLabel": "Imagen de la Categoría",
       "saving": "Guardando..."
     },
-    "deleteConfirm": "¿Eliminar esta categoría? Los productos asociados quedarán sin categoría."
+    "deleteConfirm": "¿Eliminar esta categoría? Los productos asociados quedarán sin categoría.",
+    "errorUpdate": "Error al actualizar la categoría",
+    "errorCreate": "Error al crear la categoría. Verifica que el nombre o slug no existan ya."
   },
   "brands": {
     "title": "Marcas",
@@ -164,7 +176,9 @@
       "imageLabel": "Logo de la Marca",
       "saving": "Guardando..."
     },
-    "deleteConfirm": "¿Eliminar esta marca?"
+    "deleteConfirm": "¿Eliminar esta marca?",
+    "errorUpdate": "Error al actualizar la marca",
+    "errorCreate": "Error al crear la marca. Verifica que el nombre no exista ya."
   },
   "sync": {
     "title": "Sincronización de Catálogo",
@@ -179,7 +193,9 @@
       "successPrefix": "Importación completada:",
       "successSuffix": "cartas procesadas",
       "findCodesLabel": "Buscar códigos de expansión en",
-      "findCodesLink": "MTGJSON Sets"
+      "findCodesLink": "MTGJSON Sets",
+      "errorApi": "Error en la importación: {message}",
+      "errorNetwork": "Error de red al intentar sincronizar."
     },
     "cardkingdom": {
       "title": "Actualizar Precios desde Card Kingdom",
@@ -187,7 +203,9 @@
       "button": "Actualizar Precios",
       "updating": "Actualizando...",
       "successPrefix": "Precios actualizados:",
-      "successSuffix": "cartas actualizadas"
+      "successSuffix": "cartas actualizadas",
+      "errorApi": "Error al actualizar precios: {message}",
+      "errorNetwork": "Error de red al intentar actualizar precios."
     },
     "pokemon": {
       "title": "Importar desde PokémonTCG API",

@@ -121,10 +121,10 @@ export default function AdminSync() {
           .then((r) => r.json())
           .then((d) => setExpansionsList(d));
       } else {
-        setMtgJsonMessage(`Error: ${data.message || "Hubo un problema"}`);
+        setMtgJsonMessage(t("mtgjson.errorApi", { message: data.message || "" }));
       }
     } catch {
-      setMtgJsonMessage("Error de red al intentar sincronizar.");
+      setMtgJsonMessage(t("mtgjson.errorNetwork"));
     } finally {
       setLoadingMtg(false);
     }
@@ -146,10 +146,10 @@ export default function AdminSync() {
       if (res.ok) {
         setCkMessage(data.message || `${t("cardkingdom.successPrefix")} ${expansion}`);
       } else {
-        setCkMessage(`Error: ${data.error || "Hubo un problema"}`);
+        setCkMessage(t("cardkingdom.errorApi", { message: data.error || "" }));
       }
     } catch {
-      setCkMessage("Error de red al intentar actualizar precios.");
+      setCkMessage(t("cardkingdom.errorNetwork"));
     } finally {
       setLoadingCk(false);
     }

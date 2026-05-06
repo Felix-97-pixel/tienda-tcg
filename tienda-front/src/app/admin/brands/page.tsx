@@ -68,7 +68,7 @@ export default function AdminBrands() {
           setBrands((prev) => prev.map((b) => b.id === editingBrand.id ? { ...b, ...formData } : b));
           setIsModalOpen(false);
         } else {
-          alert("Error al actualizar la marca");
+          alert(t("errorUpdate"));
         }
       } else {
         const res = await fetch(`${API_URL}/products/meta/brands`, {
@@ -82,12 +82,12 @@ export default function AdminBrands() {
           setBrands((prev) => [...prev, newBrand]);
           setIsModalOpen(false);
         } else {
-          alert("Error al crear la marca.");
+          alert(t("errorCreate"));
         }
       }
     } catch (error) {
       console.error(error);
-      alert(tc("error"));
+      alert(tc("networkError"));
     }
   };
 

@@ -81,7 +81,7 @@ export default function AdminCategories() {
           setCategories((prev) => prev.map((cat) => cat.id === editingCategory.id ? { ...cat, ...formData } : cat));
           setIsModalOpen(false);
         } else {
-          alert(tc("error"));
+          alert(t("errorUpdate"));
         }
       } else {
         const res = await fetch(`${API_URL}/products/meta/categories`, {
@@ -95,12 +95,12 @@ export default function AdminCategories() {
           setCategories((prev) => [...prev, newCategory]);
           setIsModalOpen(false);
         } else {
-          alert(tc("error"));
+          alert(t("errorCreate"));
         }
       }
     } catch (error) {
       console.error(error);
-      alert(tc("error"));
+      alert(tc("networkError"));
     }
   };
 
