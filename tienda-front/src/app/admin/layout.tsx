@@ -1,20 +1,23 @@
 import React from "react";
 import { NextIntlClientProvider } from "next-intl";
-import adminMessages from "../../../messages/admin.json";
+import { getMessages, getLocale } from "next-intl/server";
 import AdminLayoutClient from "@/components/Admin/AdminLayoutClient";
 
 import "../css/euclid-circular-a-font.css";
 import "../css/style.css";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages(); // ya incluye admin.json + es-CL.json (mergeado en request.ts)
+
   return (
-    <html lang="es" suppressHydrationWarning={true} data-scroll-behavior="smooth">
+    <html lang={locale} suppressHydrationWarning={true} data-scroll-behavior="smooth">
       <body>
-        <NextIntlClientProvider locale="es-CL" messages={adminMessages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <AdminLayoutClient>
             {children}
           </AdminLayoutClient>

@@ -63,12 +63,13 @@ export default async function AdminDashboard() {
   ];
 
   const quickGuide = [
-    { key: "brands",   descKey: "brandsDesc" },
-    { key: "products", descKey: "productsDesc" },
-    { key: "sync",     descKey: "syncDesc" },
-    { key: "sales",    descKey: "salesDesc" },
-    { key: "orders",   descKey: "ordersDesc" },
-    { key: "wishlist", descKey: "wishlistDesc" },
+    { key: "brands",      descKey: "brandsDesc" },
+    { key: "categories",  descKey: "categoriesDesc" },
+    { key: "products",    descKey: "productsDesc" },
+    { key: "sync",        descKey: "syncDesc" },
+    { key: "sales",       descKey: "salesDesc" },
+    { key: "orders",      descKey: "ordersDesc" },
+    { key: "wishlist",    descKey: "wishlistDesc" },
   ];
 
   return (

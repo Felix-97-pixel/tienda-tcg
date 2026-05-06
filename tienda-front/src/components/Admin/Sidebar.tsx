@@ -1,11 +1,21 @@
+"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const pathname = usePathname();
-  const t = useTranslations("admin");
+  const t = useTranslations("dashboard");
+
+  const navItems = [
+    { href: "/admin/brands",      label: t("modules.brands") },
+    { href: "/admin/categories",  label: t("modules.categories") },
+    { href: "/admin/products",    label: t("modules.products") },
+    { href: "/admin/sync",        label: t("modules.sync") },
+    { href: "/admin/wishlist",    label: t("modules.wishlist") },
+    { href: "/admin/sales",       label: t("modules.sales") },
+    { href: "/admin/orders",      label: t("modules.orders") },
+  ];
 
   return (
     <aside
@@ -17,96 +27,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
         <Link href="/admin">
           <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
         </Link>
-
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-controls="sidebar"
           aria-expanded={sidebarOpen}
           className="block lg:hidden text-white"
         >
-          X
+          ✕
         </button>
       </div>
-      {/* SIDEBAR HEADER */}
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-gray-4">MENU</h3>
-
             <ul className="mb-6 flex flex-col gap-1.5">
-              <li>
-                <Link
-                  href="/admin"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname === "/admin" && "bg-gray-700"
+              {navItems.map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${
+                      pathname.includes(href) ? "bg-gray-700" : ""
                     }`}
-                >
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/brands"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/brands") && "bg-gray-700"
-                    }`}
-                >
-                  Marcas
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/categories"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/categories") && "bg-gray-700"
-                    }`}
-                >
-                  Categorías
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/products"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/products") && "bg-gray-700"
-                    }`}
-                >
-                  Productos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/sync"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/sync") && "bg-gray-700"
-                    }`}
-                >
-                  Sincronización
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/wishlist"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/wishlist") && "bg-gray-700"
-                    }`}
-                >
-                  Wishlist
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/sales"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/sales") && "bg-gray-700"
-                    }`}
-                >
-                  Ventas
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/orders"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-3 duration-300 ease-in-out hover:bg-gray-700 ${pathname.includes("/admin/orders") && "bg-gray-700"
-                    }`}
-                >
-                  Órdenes
-                </Link>
-              </li>
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </nav>

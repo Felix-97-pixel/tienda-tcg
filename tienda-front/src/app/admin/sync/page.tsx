@@ -1,8 +1,7 @@
 "use client";
 import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
-
-
+import { useTranslations } from "next-intl";
 
 interface MTGSet {
   code: string;
@@ -10,7 +9,6 @@ interface MTGSet {
   releaseDate: string;
 }
 
-// Custom Searchable Dropdown Component
 function SearchableSelect({
   options,
   value,
@@ -41,15 +39,9 @@ function SearchableSelect({
         disabled={disabled}
         placeholder={placeholder}
         value={displayValue}
-        onFocus={() => {
-          setIsOpen(true);
-          setSearch("");
-        }}
+        onFocus={() => { setIsOpen(true); setSearch(""); }}
         onChange={(e) => setSearch(e.target.value)}
-        onBlur={() => {
-          // Delay closing to allow click event to register
-          setTimeout(() => setIsOpen(false), 200);
-        }}
+        onBlur={() => { setTimeout(() => setIsOpen(false), 200); }}
         className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary disabled:bg-gray-2"
       />
       {isOpen && !disabled && (
@@ -60,10 +52,7 @@ function SearchableSelect({
             filteredOptions.map((opt) => (
               <li
                 key={opt.value}
-                onClick={() => {
-                  onChange(opt.value);
-                  setIsOpen(false);
-                }}
+                onClick={() => { onChange(opt.value); setIsOpen(false); }}
                 className={`cursor-pointer px-5 py-3 hover:bg-gray-2 text-sm text-black ${value === opt.value ? 'bg-gray-2 font-bold' : ''}`}
               >
                 {opt.label}
@@ -77,41 +66,36 @@ function SearchableSelect({
 }
 
 export default function AdminSync() {
+  const t = useTranslations("sync");
+
   const [setId, setSetId] = useState("");
   const [expansion, setExpansion] = useState("");
   const [expansionsList, setExpansionsList] = useState<{name: string, products: number}[]>([]);
   const [mtgJsonSets, setMtgJsonSets] = useState<MTGSet[]>([]);
-  
   const [mtgJsonMessage, setMtgJsonMessage] = useState("");
   const [ckMessage, setCkMessage] = useState("");
   const [loadingMtg, setLoadingMtg] = useState(false);
   const [loadingCk, setLoadingCk] = useState(false);
 
   useEffect(() => {
-    // Fetch available expansions ONLY for Magic The Gathering
     const category = encodeURIComponent("Singles Magic The Gathering");
     fetch(`${API_URL}/products/meta/expansions?category=${category}`)
       .then((res) => res.json())
       .then((data) => {
         setExpansionsList(data);
-        if (data.length > 0) {
-          setExpansion(data[0].name);
-        }
+        if (data.length > 0) setExpansion(data[0].name);
       })
       .catch((err) => console.error("Error fetching expansions:", err));
 
-    // Fetch MTGJSON SetList to help admin pick the Set ID
     fetch("https://mtgjson.com/api/v5/SetList.json")
       .then((res) => res.json())
       .then((json) => {
         if (json.data) {
-          const sortedSets = json.data.sort((a: MTGSet, b: MTGSet) => {
-            return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-          });
+          const sortedSets = json.data.sort((a: MTGSet, b: MTGSet) =>
+            new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+          );
           setMtgJsonSets(sortedSets);
-          if (sortedSets.length > 0) {
-            setSetId(sortedSets[0].code.toLowerCase());
-          }
+          if (sortedSets.length > 0) setSetId(sortedSets[0].code.toLowerCase());
         }
       })
       .catch((err) => console.error("Error fetching MTGJSON sets:", err));
@@ -122,7 +106,6 @@ export default function AdminSync() {
     if (!setId) return;
     setLoadingMtg(true);
     setMtgJsonMessage("");
-
     try {
       const res = await fetch(`${API_URL}/sync/set`, {
         method: "POST",
@@ -132,7 +115,7 @@ export default function AdminSync() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMtgJsonMessage(`¡Éxito! Set importado.`);
+        setMtgJsonMessage(`${t("mtgjson.successPrefix")} ${data.count ?? ""} ${t("mtgjson.successSuffix")}`);
         const category = encodeURIComponent("Singles Magic The Gathering");
         fetch(`${API_URL}/products/meta/expansions?category=${category}`)
           .then((r) => r.json())
@@ -140,7 +123,7 @@ export default function AdminSync() {
       } else {
         setMtgJsonMessage(`Error: ${data.message || "Hubo un problema"}`);
       }
-    } catch (error) {
+    } catch {
       setMtgJsonMessage("Error de red al intentar sincronizar.");
     } finally {
       setLoadingMtg(false);
@@ -152,7 +135,6 @@ export default function AdminSync() {
     if (!expansion) return;
     setLoadingCk(true);
     setCkMessage("");
-
     try {
       const res = await fetch(`${API_URL}/price-updater/sync-set`, {
         method: "POST",
@@ -162,18 +144,17 @@ export default function AdminSync() {
       });
       const data = await res.json();
       if (res.ok) {
-        setCkMessage(data.message || `Precios actualizados para ${expansion}`);
+        setCkMessage(data.message || `${t("cardkingdom.successPrefix")} ${expansion}`);
       } else {
         setCkMessage(`Error: ${data.error || "Hubo un problema"}`);
       }
-    } catch (error) {
+    } catch {
       setCkMessage("Error de red al intentar actualizar precios.");
     } finally {
       setLoadingCk(false);
     }
   };
 
-  // Convert states to options format
   const mtgJsonOptions = mtgJsonSets.map(set => ({
     label: `${set.name} (${set.code}) - ${set.releaseDate}`,
     value: set.code.toLowerCase()
@@ -186,10 +167,9 @@ export default function AdminSync() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-dark">Sincronización</h1>
-        <p className="text-dark-4 text-sm mt-1">Importa cartas y actualiza precios desde fuentes externas</p>
+        <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
+        <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -202,18 +182,18 @@ export default function AdminSync() {
               </svg>
             </div>
             <div>
-              <h2 className="font-semibold text-dark">1. Importar Cartas (MTGJSON)</h2>
-              <p className="text-dark-4 text-xs mt-0.5">Descarga y guarda todas las cartas de una expansión específica</p>
+              <h2 className="font-semibold text-dark">{t("mtgjson.title")}</h2>
+              <p className="text-dark-4 text-xs mt-0.5">{t("mtgjson.subtitle")}</p>
             </div>
           </div>
           <form onSubmit={handleSyncMtgJson}>
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">Selecciona la Expansión a Descargar</label>
+              <label className="mb-2 block text-sm font-medium text-dark">{t("mtgjson.label")}</label>
               <SearchableSelect
                 options={mtgJsonOptions}
                 value={setId}
                 onChange={setSetId}
-                placeholder={mtgJsonSets.length === 0 ? "Cargando expansiones..." : "Busca por nombre o código (Ej. Duskmourn)"}
+                placeholder={mtgJsonSets.length === 0 ? t("mtgjson.placeholder") : t("mtgjson.placeholder")}
                 disabled={mtgJsonSets.length === 0}
               />
             </div>
@@ -222,13 +202,11 @@ export default function AdminSync() {
               disabled={loadingMtg || mtgJsonSets.length === 0}
               className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
             >
-              {loadingMtg ? "Sincronizando..." : "Descargar Cartas"}
+              {loadingMtg ? t("mtgjson.importing") : t("mtgjson.button")}
             </button>
           </form>
           {mtgJsonMessage && (
-            <div className={`mt-4 p-3 rounded-lg text-sm ${
-              mtgJsonMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
-            }`}>
+            <div className={`mt-4 p-3 rounded-lg text-sm ${mtgJsonMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
               {mtgJsonMessage}
             </div>
           )}
@@ -243,18 +221,18 @@ export default function AdminSync() {
               </svg>
             </div>
             <div>
-              <h2 className="font-semibold text-dark">2. Actualizar Precios (Card Kingdom)</h2>
-              <p className="text-dark-4 text-xs mt-0.5">Actualiza los precios de expansiones existentes en tu inventario</p>
+              <h2 className="font-semibold text-dark">{t("cardkingdom.title")}</h2>
+              <p className="text-dark-4 text-xs mt-0.5">{t("cardkingdom.subtitle")}</p>
             </div>
           </div>
           <form onSubmit={handleSyncCardKingdom}>
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">Selecciona la Expansión</label>
+              <label className="mb-2 block text-sm font-medium text-dark">{t("cardkingdom.title")}</label>
               <SearchableSelect
                 options={localExpansionOptions}
                 value={expansion}
                 onChange={setExpansion}
-                placeholder={expansionsList.length === 0 ? "No hay expansiones cargadas" : "Escribe para filtrar expansiones..."}
+                placeholder={expansionsList.length === 0 ? "No hay expansiones cargadas" : "Escribe para filtrar..."}
                 disabled={expansionsList.length === 0}
               />
             </div>
@@ -263,13 +241,11 @@ export default function AdminSync() {
               disabled={loadingCk || expansionsList.length === 0}
               className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
             >
-              {loadingCk ? "Actualizando precios..." : "Sincronizar Precios CK"}
+              {loadingCk ? t("cardkingdom.updating") : t("cardkingdom.button")}
             </button>
           </form>
           {ckMessage && (
-            <div className={`mt-4 p-3 rounded-lg text-sm ${
-              ckMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
-            }`}>
+            <div className={`mt-4 p-3 rounded-lg text-sm ${ckMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
               {ckMessage}
             </div>
           )}

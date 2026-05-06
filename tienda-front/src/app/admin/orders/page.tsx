@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 type OrderItem = {
   id: string;
@@ -29,15 +30,18 @@ type Order = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
-const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  PENDING:   { label: "Pendiente",  cls: "bg-yellow-100 text-yellow-800" },
-  PAID:      { label: "Pagado",     cls: "bg-green-100 text-green-800"  },
-  FAILED:    { label: "Fallido",    cls: "bg-red-100 text-red-800"      },
-  CANCELLED: { label: "Cancelado",  cls: "bg-gray-100 text-gray-700"    },
-  REFUNDED:  { label: "Reembolsado",cls: "bg-purple-100 text-purple-800"},
+const STATUS_CLS: Record<string, string> = {
+  PENDING:   "bg-yellow-100 text-yellow-800",
+  PAID:      "bg-green-100 text-green-800",
+  FAILED:    "bg-red-100 text-red-800",
+  CANCELLED: "bg-gray-100 text-gray-700",
+  REFUNDED:  "bg-purple-100 text-purple-800",
 };
 
 const AdminOrdersPage = () => {
+  const t = useTranslations("orders");
+  const tc = useTranslations("common");
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -48,10 +52,7 @@ const AdminOrdersPage = () => {
   const fetchOrders = useCallback(async (p: number) => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/payments/orders?page=${p}&limit=${LIMIT}`,
-        { credentials: "include" }
-      );
+      const res = await fetch(`${API_URL}/payments/orders?page=${p}&limit=${LIMIT}`, { credentials: "include" });
       if (!res.ok) throw new Error("No autorizado");
       const data = await res.json();
       setOrders(data.orders);
@@ -63,20 +64,18 @@ const AdminOrdersPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchOrders(page);
-  }, [page, fetchOrders]);
+  useEffect(() => { fetchOrders(page); }, [page, fetchOrders]);
 
   const totalPages = Math.ceil(total / LIMIT);
+
+  const statusLabel = (status: string) => t(`status.${status}` as Parameters<typeof t>[0]) ?? status;
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-dark">Órdenes</h1>
-          <p className="text-dark-4 text-sm mt-1">
-            {total} orden{total !== 1 ? "es" : ""} en total
-          </p>
+          <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
+          <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
         <button
           onClick={() => fetchOrders(page)}
@@ -85,7 +84,7 @@ const AdminOrdersPage = () => {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
           </svg>
-          Actualizar
+          {tc("search")}
         </button>
       </div>
 
@@ -103,59 +102,46 @@ const AdminOrdersPage = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-1 border-b border-gray-3">
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">N° Orden</th>
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">Cliente</th>
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">Email</th>
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">Total</th>
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">Estado</th>
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">Fecha</th>
-                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">Acciones</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("table.order")}</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("table.customer")}</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("detail.email")}</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("table.total")}</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("table.status")}</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("table.date")}</th>
+                    <th className="text-left py-3.5 px-4 font-semibold text-dark-4">{t("table.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-12 text-dark-4">
-                        No hay órdenes registradas
-                      </td>
+                      <td colSpan={7} className="text-center py-12 text-dark-4">{tc("noResults")}</td>
                     </tr>
                   ) : (
-                    orders.map((order) => {
-                      const st = STATUS_LABELS[order.status] ?? { label: order.status, cls: "bg-gray-100 text-gray-700" };
-                      return (
-                        <tr key={order.id} className="border-b border-gray-3 hover:bg-gray-1 transition">
-                          <td className="py-3 px-4 font-mono text-dark">{order.buyOrder}</td>
-                          <td className="py-3 px-4 text-dark">{order.name}</td>
-                          <td className="py-3 px-4 text-dark-4">{order.email}</td>
-                          <td className="py-3 px-4 font-semibold text-dark">
-                            ${parseFloat(order.totalAmount).toLocaleString("es-CL")}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${st.cls}`}>
-                              {st.label}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-dark-4">
-                            {new Date(order.createdAt).toLocaleDateString("es-CL")}
-                          </td>
-                          <td className="py-3 px-4">
-                            <button
-                              onClick={() => setSelected(order)}
-                              className="text-blue hover:underline text-xs font-medium"
-                            >
-                              Ver detalle
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
+                    orders.map((order) => (
+                      <tr key={order.id} className="border-b border-gray-3 hover:bg-gray-1 transition">
+                        <td className="py-3 px-4 font-mono text-dark">{order.buyOrder}</td>
+                        <td className="py-3 px-4 text-dark">{order.name}</td>
+                        <td className="py-3 px-4 text-dark-4">{order.email}</td>
+                        <td className="py-3 px-4 font-semibold text-dark">${parseFloat(order.totalAmount).toLocaleString("es-CL")}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CLS[order.status] ?? "bg-gray-100 text-gray-700"}`}>
+                            {statusLabel(order.status)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-dark-4">{new Date(order.createdAt).toLocaleDateString("es-CL")}</td>
+                        <td className="py-3 px-4">
+                          <button onClick={() => setSelected(order)} className="text-blue hover:underline text-xs font-medium">
+                            {t("detail.title")}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Paginación */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-6">
               <button
@@ -163,101 +149,79 @@ const AdminOrdersPage = () => {
                 onClick={() => setPage((p) => p - 1)}
                 className="px-3 py-1.5 rounded border border-gray-3 text-dark-4 disabled:opacity-40 hover:bg-gray-1 transition"
               >
-                ←
+                {tc("previous")}
               </button>
-              <span className="text-sm text-dark-4">
-                Página {page} de {totalPages}
-              </span>
+              <span className="text-sm text-dark-4">{tc("page", { current: page, total: totalPages })}</span>
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 rounded border border-gray-3 text-dark-4 disabled:opacity-40 hover:bg-gray-1 transition"
               >
-                →
+                {tc("next")}
               </button>
             </div>
           )}
         </>
       )}
 
-      {/* ─── Modal detalle ─── */}
+      {/* Modal detalle */}
       {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setSelected(null)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelected(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-6 border-b border-gray-3">
               <div>
-                <h2 className="font-bold text-dark text-lg">Orden #{selected.buyOrder}</h2>
+                <h2 className="font-bold text-dark text-lg">{t("detail.title")} #{selected.buyOrder}</h2>
                 <p className="text-dark-4 text-sm">{selected.email}</p>
               </div>
-              <button
-                onClick={() => setSelected(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-1 transition"
-              >
-                ✕
-              </button>
+              <button onClick={() => setSelected(null)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-1 transition">✕</button>
             </div>
 
             <div className="p-6 space-y-4">
-              {/* Info cliente */}
               <div className="bg-gray-1 rounded-xl p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-dark-4">Cliente</span>
+                  <span className="text-dark-4">{t("table.customer")}</span>
                   <span className="font-medium text-dark">{selected.name}</span>
                 </div>
                 {selected.phone && (
                   <div className="flex justify-between">
-                    <span className="text-dark-4">Teléfono</span>
+                    <span className="text-dark-4">{t("detail.phone")}</span>
                     <span className="font-medium text-dark">{selected.phone}</span>
                   </div>
                 )}
                 {selected.city && (
                   <div className="flex justify-between">
-                    <span className="text-dark-4">Ciudad</span>
+                    <span className="text-dark-4">{t("detail.city")}</span>
                     <span className="font-medium text-dark">{selected.city}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-dark-4">Total</span>
-                  <span className="font-bold text-dark">
-                    ${parseFloat(selected.totalAmount).toLocaleString("es-CL")}
-                  </span>
+                  <span className="text-dark-4">{tc("total")}</span>
+                  <span className="font-bold text-dark">${parseFloat(selected.totalAmount).toLocaleString("es-CL")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-dark-4">Estado</span>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${(STATUS_LABELS[selected.status] ?? { cls: "" }).cls}`}>
-                    {(STATUS_LABELS[selected.status] ?? { label: selected.status }).label}
+                  <span className="text-dark-4">{tc("status")}</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_CLS[selected.status] ?? ""}`}>
+                    {statusLabel(selected.status)}
                   </span>
                 </div>
                 {selected.payment?.authCode && (
                   <div className="flex justify-between">
-                    <span className="text-dark-4">Código auth.</span>
+                    <span className="text-dark-4">{t("detail.authCode")}</span>
                     <span className="font-medium text-dark font-mono">{selected.payment.authCode}</span>
                   </div>
                 )}
               </div>
 
-              {/* Productos */}
               <div>
-                <h3 className="font-semibold text-dark mb-3">Productos</h3>
+                <h3 className="font-semibold text-dark mb-3">{t("detail.products")}</h3>
                 <div className="space-y-2">
                   {selected.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between items-center py-2 border-b border-gray-3 text-sm"
-                    >
+                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-3 text-sm">
                       <div>
                         <p className="font-medium text-dark">{item.productName}</p>
                         <p className="text-dark-4 text-xs">× {item.quantity}</p>
                       </div>
-                      <p className="font-medium text-dark">
-                        ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
-                      </p>
+                      <p className="font-medium text-dark">${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}</p>
                     </div>
                   ))}
                 </div>

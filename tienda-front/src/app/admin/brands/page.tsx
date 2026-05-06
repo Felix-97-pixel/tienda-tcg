@@ -3,6 +3,7 @@ import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useTranslations } from "next-intl";
 
 interface BrandMeta {
   id: string;
@@ -11,37 +12,25 @@ interface BrandMeta {
 }
 
 export default function AdminBrands() {
+  const t = useTranslations("brands");
+  const tc = useTranslations("common");
+
   const [brands, setBrands] = useState<BrandMeta[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<BrandMeta | null>(null);
   const { isUploading: uploadingImage, handleUpload, handleRemove } = useImageUpload();
-
-  // Form State
-  const [formData, setFormData] = useState({
-    name: "",
-    imageUrl: "",
-  });
+  const [formData, setFormData] = useState({ name: "", imageUrl: "" });
 
   const fetchBrands = () => {
     setLoading(true);
     fetch(`${API_URL}/products/meta/brands`)
       .then((res) => res.json())
-      .then((data) => {
-        setBrands(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching brands:", err);
-        setLoading(false);
-      });
+      .then((data) => { setBrands(data); setLoading(false); })
+      .catch((err) => { console.error("Error fetching brands:", err); setLoading(false); });
   };
 
-  useEffect(() => {
-    fetchBrands();
-  }, []);
+  useEffect(() => { fetchBrands(); }, []);
 
   const openCreateModal = () => {
     setEditingBrand(null);
@@ -51,126 +40,102 @@ export default function AdminBrands() {
 
   const openEditModal = (brand: BrandMeta) => {
     setEditingBrand(brand);
-    setFormData({
-      name: brand.name,
-      imageUrl: brand.imageUrl || "",
-    });
+    setFormData({ name: brand.name, imageUrl: brand.imageUrl || "" });
     setIsModalOpen(true);
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, name: e.target.value });
   };
 
   const handleRemoveImage = async () => {
     const success = await handleRemove(formData.imageUrl);
-    if (success) {
-      setFormData({ ...formData, imageUrl: "" });
-    }
+    if (success) setFormData({ ...formData, imageUrl: "" });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = await handleUpload(e, formData.imageUrl);
-    if (newUrl) {
-      setFormData({ ...formData, imageUrl: newUrl });
-    }
+    if (newUrl) setFormData({ ...formData, imageUrl: newUrl });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       if (editingBrand) {
-        // UPDATE
         const res = await fetch(`${API_URL}/products/meta/brands/${editingBrand.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
           credentials: "include",
         });
-
         if (res.ok) {
-          setBrands((prev) =>
-            prev.map((brand) =>
-              brand.id === editingBrand.id ? { ...brand, ...formData } : brand
-            )
-          );
+          setBrands((prev) => prev.map((b) => b.id === editingBrand.id ? { ...b, ...formData } : b));
           setIsModalOpen(false);
         } else {
           alert("Error al actualizar la marca");
         }
       } else {
-        // CREATE
         const res = await fetch(`${API_URL}/products/meta/brands`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
           credentials: "include",
         });
-
         if (res.ok) {
           const newBrand = await res.json();
           setBrands((prev) => [...prev, newBrand]);
           setIsModalOpen(false);
         } else {
-          alert("Error al crear la marca. Verifica que el nombre no exista ya.");
+          alert("Error al crear la marca.");
         }
       }
     } catch (error) {
       console.error(error);
-      alert("Hubo un error de conexión");
+      alert(tc("error"));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta marca? Solo se puede eliminar si no tiene productos asociados.")) return;
+    if (!confirm(t("deleteConfirm"))) return;
     try {
       const res = await fetch(`${API_URL}/products/meta/brands/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (res.ok) {
-        setBrands((prev) => prev.filter((brand) => brand.id !== id));
+        setBrands((prev) => prev.filter((b) => b.id !== id));
       } else {
         const errData = await res.json();
-        alert(errData.message || "Error al eliminar la marca. Verifica que no tenga productos asociados.");
+        alert(errData.message || tc("error"));
       }
     } catch (e) {
       console.error(e);
-      alert("Error de red");
+      alert(tc("error"));
     }
   };
 
   return (
     <>
-      {/* Header */}
       <div className="p-6 pb-0">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-dark">Marcas</h1>
-            <p className="text-dark-4 text-sm mt-1">Administra las marcas y sus logos</p>
+            <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
+            <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
           </div>
           <button
             onClick={openCreateModal}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue text-white text-sm font-medium hover:bg-blue-dark transition"
           >
-            + Crear Marca
+            {t("addBrand")}
           </button>
         </div>
       </div>
 
       <div className="px-6 pb-6">
         <div className="bg-white rounded-2xl shadow-1 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-3">
-            <h2 className="font-semibold text-dark">Todas las marcas ({brands.length})</h2>
-          </div>
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-1 text-left">
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Logo</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Nombre</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Acciones</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.image")}</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.name")}</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-3">
@@ -185,7 +150,7 @@ export default function AdminBrands() {
                   </tr>
                 ) : brands.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-12 text-center text-dark-4 text-sm">No hay marcas creadas aún</td>
+                    <td colSpan={3} className="py-12 text-center text-dark-4 text-sm">{tc("noResults")}</td>
                   </tr>
                 ) : (
                   brands.map((brand, key) => (
@@ -197,7 +162,7 @@ export default function AdminBrands() {
                           </div>
                         ) : (
                           <div className="h-10 w-14 rounded-lg bg-gray-2 flex items-center justify-center">
-                            <span className="text-xs text-dark-4">Sin img</span>
+                            <span className="text-xs text-dark-4">{tc("image")}</span>
                           </div>
                         )}
                       </td>
@@ -206,17 +171,11 @@ export default function AdminBrands() {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => openEditModal(brand)}
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition"
-                          >
-                            Editar
+                          <button onClick={() => openEditModal(brand)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
+                            {tc("edit")}
                           </button>
-                          <button
-                            onClick={() => handleDelete(brand.id)}
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition"
-                          >
-                            Eliminar
+                          <button onClick={() => handleDelete(brand.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
+                            {tc("delete")}
                           </button>
                         </div>
                       </td>
@@ -229,38 +188,34 @@ export default function AdminBrands() {
         </div>
       </div>
 
-      {/* MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-5 text-xl font-bold text-dark">
-              {editingBrand ? `Editar Marca` : `Nueva Marca`}
+              {editingBrand ? t("modal.editTitle") : t("modal.createTitle")}
             </h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-dark">
-                  Nombre de la Marca
-                </label>
+                <label className="mb-2 block text-sm font-medium text-dark">{t("modal.nameLabel")}</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
-                  onChange={handleNameChange}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={t("modal.namePlaceholder")}
                   className="w-full rounded-lg border border-gray-3 bg-gray-1 py-2.5 px-4 text-dark outline-none transition focus:border-blue focus:ring-2 focus:ring-blue/20"
                 />
               </div>
 
               <div className="mb-5">
-                <label className="mb-2 block text-sm font-medium text-dark">
-                  Logo de la Marca
-                </label>
+                <label className="mb-2 block text-sm font-medium text-dark">{t("modal.imageLabel")}</label>
                 {formData.imageUrl ? (
                   <div className="mb-3">
                     <div className="relative h-24 w-32 rounded-lg border border-gray-3 bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
                       <Image src={formData.imageUrl} alt="Vista previa" width={128} height={96} className="object-contain h-full w-full" />
                     </div>
                     <button type="button" onClick={handleRemoveImage} className="text-sm text-red-500 hover:underline">
-                      Eliminar Imagen
+                      {tc("delete")}
                     </button>
                   </div>
                 ) : (
@@ -272,17 +227,17 @@ export default function AdminBrands() {
                       disabled={uploadingImage}
                       className="w-full cursor-pointer rounded-lg border border-gray-3 bg-gray-1 text-dark text-sm outline-none transition file:mr-4 file:border-0 file:bg-blue/10 file:text-blue file:py-2 file:px-4 file:font-medium hover:file:bg-blue hover:file:text-white"
                     />
-                    {uploadingImage && <span className="text-sm text-blue mt-1 block">Subiendo...</span>}
+                    {uploadingImage && <span className="text-sm text-blue mt-1 block">{tc("loading")}</span>}
                   </div>
                 )}
               </div>
 
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border border-gray-3 text-dark-4 hover:bg-gray-1 transition text-sm">
-                  Cancelar
+                  {tc("cancel")}
                 </button>
                 <button type="submit" className="px-4 py-2 rounded-lg bg-blue text-white font-medium text-sm hover:bg-blue-dark transition">
-                  Guardar
+                  {tc("save")}
                 </button>
               </div>
             </form>

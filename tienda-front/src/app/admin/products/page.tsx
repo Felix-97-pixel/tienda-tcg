@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Papa from "papaparse";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useTranslations } from "next-intl";
 
 interface InventoryItem {
   id: string;
@@ -111,6 +112,9 @@ function SearchableSelect({
 }
 
 export default function AdminProducts() {
+  const t = useTranslations("products");
+  const tc = useTranslations("common");
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -285,11 +289,11 @@ export default function AdminProducts() {
         );
         setIsModalOpen(false);
       } else {
-        alert("Error al actualizar el producto");
+        alert(tc("error"));
       }
     } catch (error) {
       console.error(error);
-      alert("Hubo un error de conexión");
+      alert(tc("error"));
     }
   };
 
@@ -339,22 +343,22 @@ export default function AdminProducts() {
       });
 
       if (res.ok) {
-        alert("Producto creado exitosamente");
+        alert(tc("success"));
         setIsCreateOpen(false);
         setCreatingProduct({ name: "", categoryId: "", brandId: "", price: 0, stock: 0, imageUrl: "", description: "" });
         fetchProducts(); // Refresh list
       } else {
         const data = await res.json();
-        alert(`Error al crear producto: ${data.message || "Hubo un problema"}`);
+        alert(`${tc("error")}: ${data.message || ""}`);
       }
     } catch (error) {
       console.error(error);
-      alert("Hubo un error de red al crear el producto.");
+      alert(tc("error"));
     }
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.")) return;
+    if (!confirm(t("deleteConfirm"))) return;
     try {
       const res = await fetch(`${API_URL}/products/${id}`, {
         method: "DELETE",
@@ -364,11 +368,11 @@ export default function AdminProducts() {
         setProducts((prev) => prev.filter((p) => p.id !== id));
       } else {
         const errData = await res.json();
-        alert(errData.message || "Error al eliminar el producto.");
+        alert(errData.message || tc("error"));
       }
     } catch (e) {
       console.error(e);
-      alert("Error de red");
+      alert(tc("error"));
     }
   };
 
@@ -499,14 +503,14 @@ export default function AdminProducts() {
   };
 
   const categoryOptions = [
-    { label: "Todas las categorías", value: "" },
+    { label: t("filters.allCategories"), value: "" },
     ...categoriesList.map(c => ({ label: c.name, value: c.name }))
   ];
 
   const createCategoryOptions = categoriesList.map(c => ({ label: c.name, value: c.id }));
 
   const expansionOptions = [
-    { label: "Todas las expansiones", value: "" },
+    { label: t("filters.allExpansions"), value: "" },
     ...expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))
   ];
 
@@ -516,18 +520,18 @@ export default function AdminProducts() {
       <div className="p-6 pb-0">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-dark">Inventario de Productos</h1>
-            <p className="text-dark-4 text-sm mt-1">Gestiona stock, precios e imágenes</p>
+            <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
+            <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setIsBulkOpen(true)}
               style={{ backgroundColor: '#16a34a' }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:opacity-90">
-              Subida Masiva (CSV)
+              {t("bulkUpload")}
             </button>
             <button onClick={() => setIsCreateOpen(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue text-white text-sm font-medium hover:bg-blue-dark transition">
-              + Agregar Producto
+              {t("addProduct")}
             </button>
           </div>
         </div>
@@ -536,26 +540,26 @@ export default function AdminProducts() {
       {/* FILTROS */}
       <div className="px-6 pb-4">
         <div className="bg-white rounded-2xl shadow-1 p-5 mb-6">
-          <p className="text-sm font-medium text-dark mb-3">Filtros</p>
+          <p className="text-sm font-medium text-dark mb-3">{tc("filters")}</p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">Buscar por Nombre</label>
-              <input type="text" placeholder="Ej. Black Lotus..."
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{tc("search")}</label>
+              <input type="text" placeholder={t("filters.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
                 className="w-full rounded-lg border border-gray-3 bg-gray-1 py-2 px-4 text-sm outline-none focus:border-blue focus:ring-2 focus:ring-blue/20" />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">Categoría / Juego</label>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.category")}</label>
               <SearchableSelect options={categoryOptions} value={selectedCategory}
                 onChange={(val) => { setSelectedCategory(val); setPage(1); }}
-                placeholder="Selecciona Categoría" />
+                placeholder={t("filters.allCategories")} />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">Expansión</label>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.expansion")}</label>
               <SearchableSelect options={expansionOptions} value={selectedExpansion}
                 onChange={(val) => { setSelectedExpansion(val); setPage(1); }}
-                placeholder="Selecciona Expansión"
+                placeholder={t("filters.allExpansions")}
                 disabled={expansionsList.length === 0} />
             </div>
           </div>
@@ -566,11 +570,11 @@ export default function AdminProducts() {
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-1 text-left">
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Producto</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm hidden md:table-cell">Edición</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Stock</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Precio</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">Acciones</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.product")}</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm hidden md:table-cell">{t("filters.expansion")}</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.stock")}</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.price")}</th>
+                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-3">
@@ -585,7 +589,7 @@ export default function AdminProducts() {
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-5 text-center">No se encontraron productos</td>
+                  <td colSpan={5} className="py-5 text-center">{tc("noResults")}</td>
                 </tr>
               ) : (
                 products.map((product) => {
@@ -623,13 +627,13 @@ export default function AdminProducts() {
                           {mainItem && (
                             <button onClick={() => openEditModal(product, mainItem)}
                               className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
-                              Editar
+                              {tc("edit")}
                             </button>
                           )}
                           {!product.category?.isTcg && (
                             <button onClick={() => handleDeleteProduct(product.id)}
                               className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
-                              Eliminar
+                              {tc("delete")}
                             </button>
                           )}
                         </div>
@@ -645,10 +649,10 @@ export default function AdminProducts() {
           {/* Paginación */}
           <div className="flex justify-between items-center px-6 py-4 border-t border-gray-3">
             <button disabled={page === 1} onClick={() => setPage(page - 1)}
-              className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">← Anterior</button>
-            <span className="text-sm text-dark-4">Página {page} de {totalPages}</span>
+              className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">{tc("previous")}</button>
+            <span className="text-sm text-dark-4">{tc("page", { current: page, total: totalPages })}</span>
             <button disabled={page === totalPages || totalPages === 0} onClick={() => setPage(page + 1)}
-              className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">Siguiente →</button>
+              className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">{tc("next")}</button>
           </div>
         </div>
       </div>
@@ -657,12 +661,10 @@ export default function AdminProducts() {
       {isModalOpen && editingItem && (
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-default">
-            <h3 className="mb-4 text-xl font-bold text-black">
-              Editar Producto
-            </h3>
+            <h3 className="mb-4 text-xl font-bold text-black">{t("modal.editTitle")}</h3>
             <form onSubmit={handleUpdateItem}>
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Nombre del Producto</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.nameLabel")}</label>
                 <input
                   type="text"
                   required
@@ -673,14 +675,14 @@ export default function AdminProducts() {
               </div>
 
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Categoría</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.categoryLabel")}</label>
                 <select
                   required
                   value={editingItem.categoryId}
                   onChange={(e) => setEditingItem({ ...editingItem, categoryId: e.target.value })}
                   className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
                 >
-                  <option value="" disabled>Seleccione Categoría</option>
+                  <option value="" disabled>{t("modal.categoryPlaceholder")}</option>
                   {categoriesList.map((cat) => (
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
@@ -688,22 +690,20 @@ export default function AdminProducts() {
               </div>
 
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Marca (Opcional)</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.brandLabel")}</label>
                 <select
                   value={editingItem.brandId}
                   onChange={(e) => setEditingItem({ ...editingItem, brandId: e.target.value })}
                   className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary"
                 >
-                  <option value="">Sin Marca</option>
+                  <option value="">{t("modal.brandPlaceholder")}</option>
                   {brandsList.map((brand) => (
                     <option key={brand.id} value={brand.id}>{brand.name}</option>
                   ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Stock Disponible
-                </label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.stockLabel")}</label>
                 <input
                   type="number"
                   min="0"
@@ -715,9 +715,7 @@ export default function AdminProducts() {
               </div>
 
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Precio (USD)
-                </label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.priceLabel")}</label>
                 <input
                   type="number"
                   min="0"
@@ -731,7 +729,7 @@ export default function AdminProducts() {
 
               {!categoriesList.find(c => c.id === editingItem.categoryId)?.isTcg && (
                 <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-black">Imagen del Producto (Opcional)</label>
+                  <label className="mb-2 block text-sm font-medium text-black">{t("modal.imageLabel")}</label>
                   {editingItem.imageUrl ? (
                     <div className="mb-3">
                       <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
@@ -742,7 +740,7 @@ export default function AdminProducts() {
                         onClick={handleEditRemoveImage}
                         className="text-sm text-danger hover:underline"
                       >
-                        Eliminar Imagen
+                        {t("modal.removeImage")}
                       </button>
                     </div>
                   ) : (
@@ -754,7 +752,7 @@ export default function AdminProducts() {
                         disabled={uploadingImage}
                         className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                       />
-                      {uploadingImage && <span className="text-sm text-blue">Subiendo...</span>}
+                      {uploadingImage && <span className="text-sm text-blue">{t("modal.saving")}</span>}
                     </div>
                   )}
                 </div>
@@ -768,11 +766,8 @@ export default function AdminProducts() {
                 >
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-                >
-                  Guardar
+                <button type="submit" className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90">
+                  {tc("save")}
                 </button>
               </div>
             </form>
@@ -783,12 +778,10 @@ export default function AdminProducts() {
       {isCreateOpen && (
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
           <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
-            <h3 className="mb-4 text-xl font-bold text-black">
-              Agregar Producto Nuevo
-            </h3>
+            <h3 className="mb-4 text-xl font-bold text-black">{t("create.title")}</h3>
             <form onSubmit={handleCreateProduct}>
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Nombre del Producto</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.nameLabel")}</label>
                 <input
                   type="text"
                   required
@@ -799,14 +792,14 @@ export default function AdminProducts() {
               </div>
 
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Categoría</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.categoryLabel")}</label>
                 <select
                   required
                   value={creatingProduct.categoryId}
                   onChange={(e) => setCreatingProduct({ ...creatingProduct, categoryId: e.target.value })}
                   className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
                 >
-                  <option value="" disabled>Selecciona una categoría</option>
+                  <option value="" disabled>{t("modal.categoryPlaceholder")}</option>
                   {createCategoryOptions.map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
@@ -814,13 +807,13 @@ export default function AdminProducts() {
               </div>
 
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Marca (Opcional)</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.brandLabel")}</label>
                 <select
                   value={creatingProduct.brandId}
                   onChange={(e) => setCreatingProduct({ ...creatingProduct, brandId: e.target.value })}
                   className="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary appearance-none"
                 >
-                  <option value="">Sin Marca</option>
+                  <option value="">{t("modal.brandPlaceholder")}</option>
                   {brandsList.map((brand) => (
                     <option key={brand.id} value={brand.id}>{brand.name}</option>
                   ))}
@@ -829,7 +822,7 @@ export default function AdminProducts() {
 
               {!categoriesList.find(c => c.id === creatingProduct.categoryId)?.isTcg && (
                 <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-black">Imagen del Producto (Opcional)</label>
+                  <label className="mb-2 block text-sm font-medium text-black">{t("modal.imageLabel")}</label>
                   {creatingProduct.imageUrl ? (
                     <div className="mb-3">
                       <div className="relative h-24 w-32 rounded border border-stroke bg-gray-1 flex items-center justify-center overflow-hidden mb-2">
@@ -840,7 +833,7 @@ export default function AdminProducts() {
                         onClick={handleRemoveImage}
                         className="text-sm text-danger hover:underline"
                       >
-                        Eliminar Imagen
+                        {t("modal.removeImage")}
                       </button>
                     </div>
                   ) : (
@@ -852,7 +845,7 @@ export default function AdminProducts() {
                         disabled={uploadingImage}
                         className="w-full cursor-pointer rounded border-[1.5px] border-stroke bg-transparent font-medium text-black outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                       />
-                      {uploadingImage && <span className="text-sm text-blue">Subiendo...</span>}
+                      {uploadingImage && <span className="text-sm text-blue">{t("modal.saving")}</span>}
                     </div>
                   )}
                 </div>
@@ -860,7 +853,7 @@ export default function AdminProducts() {
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">Stock Inicial</label>
+                  <label className="mb-2 block text-sm font-medium text-black">{t("modal.stockLabel")}</label>
                   <input
                     type="number"
                     min="0"
@@ -871,7 +864,7 @@ export default function AdminProducts() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">Precio</label>
+                  <label className="mb-2 block text-sm font-medium text-black">{t("modal.priceLabel")}</label>
                   <input
                     type="number"
                     min="0"
@@ -902,11 +895,8 @@ export default function AdminProducts() {
                 >
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90"
-                >
-                  Crear Producto
+                <button type="submit" className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90">
+                  {t("create.creating")}
                 </button>
               </div>
             </form>
@@ -918,16 +908,11 @@ export default function AdminProducts() {
       {isBulkOpen && (
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
           <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
-            <h3 className="mb-4 text-xl font-bold text-black">
-              Subida Masiva de Cartas (CSV)
-            </h3>
-            <p className="mb-4 text-sm text-gray-500">
-              Sube un archivo CSV con tu inventario.
-              Si es Magic, asegúrate de que venga de ManaBox. Si es otra categoría normal, descarga primero la plantilla y rellena la columna de stock.
-            </p>
+            <h3 className="mb-4 text-xl font-bold text-black">{t("bulk.title")}</h3>
+            <p className="mb-4 text-sm text-gray-500">{t("bulk.subtitle")}</p>
             <form onSubmit={handleBulkUpload}>
               <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-black">Juego / Categoría</label>
+                <label className="mb-2 block text-sm font-medium text-black">{t("modal.categoryLabel")}</label>
                 <div className="flex gap-2">
                   <select
                     required
@@ -981,7 +966,7 @@ export default function AdminProducts() {
                   disabled={isUploadingBulk || !bulkFile || !bulkCategory}
                   className="rounded bg-green py-2 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
                 >
-                  {isUploadingBulk ? "Subiendo..." : "Subir CSV"}
+                  {isUploadingBulk ? t("bulk.uploading") : t("bulk.uploadButton")}
                 </button>
               </div>
             </form>

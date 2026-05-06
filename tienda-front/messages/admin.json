@@ -23,7 +23,12 @@
     "confirm": "¿Estás seguro?",
     "success": "Operación completada exitosamente"
   },
-
+  "sidebar": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "save": "Guardar cambios",
+    "cancel": "Cancelar"
+  },
   "dashboard": {
     "title": "Panel de Administración",
     "subtitle": "Gestiona tu tienda TapTrade desde un solo lugar",
@@ -31,8 +36,10 @@
     "welcomeSubtitle": "Desde aquí puedes gestionar todos los aspectos de tu tienda",
     "quickGuideTitle": "Guía Rápida",
     "modules": {
-      "brands": "Marcas y Categorías",
-      "brandsDesc": "Crea la estructura del catálogo antes de agregar productos.",
+      "brands": "Marcas",
+      "brandsDesc": "Administra las marcas y editoriales de los productos.",
+      "categories": "Categorías",
+      "categoriesDesc": "Organiza el catálogo de tu tienda por juego o tipo de producto.",
       "products": "Productos",
       "productsDesc": "Edita stock, precio e imagen. Soporta subida masiva por CSV para cartas TCG.",
       "sync": "Sincronización",
@@ -54,7 +61,6 @@
       "wishlist": "Ir a Wishlist"
     }
   },
-
   "products": {
     "title": "Inventario de Productos",
     "subtitle": "Gestiona stock, precios e imágenes",
@@ -112,7 +118,6 @@
     "noImage": "Sin Img",
     "deleteConfirm": "¿Eliminar este producto permanentemente?"
   },
-
   "categories": {
     "title": "Categorías",
     "subtitle": "Organiza el catálogo de tu tienda por juego o tipo de producto",
@@ -141,7 +146,6 @@
     },
     "deleteConfirm": "¿Eliminar esta categoría? Los productos asociados quedarán sin categoría."
   },
-
   "brands": {
     "title": "Marcas",
     "subtitle": "Administra las marcas o editoriales de los productos de tu tienda",
@@ -162,7 +166,6 @@
     },
     "deleteConfirm": "¿Eliminar esta marca?"
   },
-
   "sync": {
     "title": "Sincronización de Catálogo",
     "subtitle": "Importa y actualiza productos desde fuentes externas",
@@ -199,7 +202,6 @@
       "findCodesLink": "PokémonTCG.io"
     }
   },
-
   "orders": {
     "title": "Órdenes",
     "subtitle": "Historial completo de pedidos de la tienda",
@@ -246,7 +248,6 @@
     "noNotes": "Sin notas",
     "noPhone": "No especificado"
   },
-
   "sales": {
     "title": "Resumen de Ventas",
     "subtitle": "Métricas e indicadores clave de rendimiento de tu tienda",
@@ -269,7 +270,6 @@
     },
     "noData": "Sin datos para el período seleccionado"
   },
-
   "wishlist": {
     "title": "Wishlist de Clientes",
     "subtitle": "Descubre qué productos desean tus clientes para tomar decisiones de inventario",
