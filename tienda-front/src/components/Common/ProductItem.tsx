@@ -11,12 +11,14 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
 import { useProductCart } from "@/hooks/useProductCart";
+import { useToast } from "@/hooks/useToast";
 
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
 
   const dispatch = useDispatch<AppDispatch>();
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
+  const { showToast } = useToast();
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
@@ -31,6 +33,7 @@ const ProductItem = ({ item }: { item: Product }) => {
         quantity: 1,
       })
     );
+    showToast(`"${item.title}" agregado a tu wishlist`, "info");
   };
 
   const handleProductDetails = () => {

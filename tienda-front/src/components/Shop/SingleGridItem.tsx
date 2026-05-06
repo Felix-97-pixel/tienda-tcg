@@ -4,40 +4,26 @@ import React from "react";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { updateQuickView } from "@/redux/features/quickView-slice";
-import { addItemToCart } from "@/redux/features/cart-slice";
 import { addItemToWishlist } from "@/redux/features/wishlist-slice";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import Link from "next/link";
 import Image from "next/image";
 import { useProductCart } from "@/hooks/useProductCart";
+import { useToast } from "@/hooks/useToast";
 
 const SingleGridItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
 
   const dispatch = useDispatch<AppDispatch>();
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
-  const cartItem = cartItems.find((ci) => ci.id === item.id);
-  const quantityInCart = cartItem ? cartItem.quantity : 0;
-  const isMaxStockReached = item.stock !== undefined && item.stock !== null ? quantityInCart >= item.stock : false;
+  const { handleAddToCart, isMaxStockReached } = useProductCart(item);
+  const { showToast } = useToast();
+  const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
   };
-
-  // add to cart
-  const handleAddToCart = () => {
-    if (item.stock === 0 || isMaxStockReached) return;
-    dispatch(
-      addItemToCart({
-        ...item,
-        quantity: 1,
-      })
-    );
-  };
-
-  const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
 
   const handleItemToWishList = async () => {
     dispatch(
@@ -47,9 +33,9 @@ const SingleGridItem = ({ item }: { item: Product }) => {
         quantity: 1,
       })
     );
+    showToast(`"${item.title}" agregado a tu wishlist`, "info");
     if (isAuthenticated) {
       try {
-        
         await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
     }

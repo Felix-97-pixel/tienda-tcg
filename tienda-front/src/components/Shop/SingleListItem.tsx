@@ -12,11 +12,13 @@ import { AppDispatch, useAppSelector } from "@/redux/store";
 import Link from "next/link";
 import Image from "next/image";
 import { useProductCart } from "@/hooks/useProductCart";
+import { useToast } from "@/hooks/useToast";
 
 const SingleListItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
+  const { showToast } = useToast();
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
@@ -33,9 +35,9 @@ const SingleListItem = ({ item }: { item: Product }) => {
         quantity: 1,
       })
     );
+    showToast(`"${item.title}" agregado a tu wishlist`, "info");
     if (isAuthenticated) {
       try {
-        
         await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
     }

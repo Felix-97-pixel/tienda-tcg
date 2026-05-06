@@ -12,6 +12,7 @@ import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { resetQuickView } from "@/redux/features/quickView-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
 import { useProductCart } from "@/hooks/useProductCart";
+import { useToast } from "@/hooks/useToast";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
@@ -24,6 +25,7 @@ const QuickViewModal = () => {
   // get the product data
   const product = useAppSelector((state) => state.quickViewReducer.value);
   const { handleAddToCart: addToCart, isMaxStockReached, availableStock } = useProductCart(product);
+  const { showToast } = useToast();
 
   const [activePreview, setActivePreview] = useState(0);
 
@@ -48,9 +50,9 @@ const QuickViewModal = () => {
         quantity: 1,
       })
     );
+    showToast(`"${product.title}" agregado a tu wishlist`, "info");
     if (isAuthenticated) {
       try {
-        
         await fetch(`${API_URL}/wishlist/${product.id}`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
     }

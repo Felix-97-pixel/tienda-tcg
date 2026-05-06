@@ -8,6 +8,7 @@ import { PreviewSliderProvider } from "../context/PreviewSliderContext";
 import QuickViewModal from "@/components/Common/QuickViewModal";
 import CartSidebarModal from "@/components/Common/CartSidebarModal";
 import PreviewSliderModal from "@/components/Common/PreviewSlider";
+import ToastContainer from "@/components/Common/ToastContainer";
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -19,6 +20,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
             <QuickViewModal />
             <CartSidebarModal />
             <PreviewSliderModal />
+            <ToastContainer />
           </PreviewSliderProvider>
         </ModalProvider>
       </CartModalProvider>

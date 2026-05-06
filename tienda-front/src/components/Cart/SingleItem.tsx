@@ -5,14 +5,17 @@ import {
   removeItemFromCart,
   updateCartItemQuantity,
 } from "@/redux/features/cart-slice";
+import { useToast } from "@/hooks/useToast";
 
 import Image from "next/image";
 
 const SingleItem = ({ item }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { showToast } = useToast();
 
   const handleRemoveFromCart = () => {
     dispatch(removeItemFromCart(item.id));
+    showToast(`"${item.title}" eliminado del carro`, "warning");
   };
 
   const handleIncreaseQuantity = () => {

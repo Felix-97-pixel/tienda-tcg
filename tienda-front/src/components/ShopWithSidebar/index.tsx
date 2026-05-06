@@ -28,7 +28,7 @@ const ShopWithSidebar = () => {
   const [selectedExpansion, setSelectedExpansion] = useState<string | null>(null);
   const [selectedAttribute, setSelectedAttribute] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const gridRef = React.useRef<HTMLDivElement>(null);
 
   const handleStickyMenu = () => {
@@ -90,58 +90,58 @@ const ShopWithSidebar = () => {
     // Debounce the search term to avoid spamming the API on every keystroke
     const timeoutId = setTimeout(() => {
       let url = `${API_URL}/products?page=${currentPage}&limit=20`;
-      
+
       if (selectedCategory) {
         url += `&category=${encodeURIComponent(selectedCategory)}`;
       }
       if (searchTerm) {
         url += `&search=${encodeURIComponent(searchTerm)}`;
       }
-    if (selectedExpansion) {
-      url += `&expansion=${encodeURIComponent(selectedExpansion)}`;
-    }
-    if (selectedAttribute) {
-      url += `&attribute=${encodeURIComponent(selectedAttribute)}`;
-    }
+      if (selectedExpansion) {
+        url += `&expansion=${encodeURIComponent(selectedExpansion)}`;
+      }
+      if (selectedAttribute) {
+        url += `&attribute=${encodeURIComponent(selectedAttribute)}`;
+      }
 
-    setIsFetching(true);
+      setIsFetching(true);
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((response) => {
-        const productList = response.data || response;
+      fetch(url)
+        .then((res) => res.json())
+        .then((response) => {
+          const productList = response.data || response;
 
-        const mapped = productList.map((item: any) => {
-          const defaultPrice = item.items?.[0]?.price || 0;
-          const defaultStock = item.items?.[0]?.stock || 0;
-          const catName = item.category?.name || "Uncategorized";
+          const mapped = productList.map((item: any) => {
+            const defaultPrice = item.items?.[0]?.price || 0;
+            const defaultStock = item.items?.[0]?.stock || 0;
+            const catName = item.category?.name || "Uncategorized";
 
-          return {
-            id: item.id,
-            title: item.name,
-            reviews: 0,
-            price: parseFloat(defaultPrice),
-            discountedPrice: parseFloat(defaultPrice),
-            inventoryItemId: item.items?.[0]?.id ?? undefined,
-            category: catName,
-            stock: parseInt(defaultStock, 10),
-            imgs: {
-              thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-              previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-            },
-          };
+            return {
+              id: item.id,
+              title: item.name,
+              reviews: 0,
+              price: parseFloat(defaultPrice),
+              discountedPrice: parseFloat(defaultPrice),
+              inventoryItemId: item.items?.[0]?.id ?? undefined,
+              category: catName,
+              stock: parseInt(defaultStock, 10),
+              imgs: {
+                thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+                previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+              },
+            };
+          });
+
+          setProducts(mapped);
+          if (response.meta) {
+            setTotalPages(response.meta.totalPages);
+          }
+        })
+        .catch((err) => console.error("Error fetching products:", err))
+        .finally(() => {
+          setIsFetching(false);
+          window.scrollTo({ top: 0, behavior: "smooth" });
         });
-
-        setProducts(mapped);
-        if (response.meta) {
-          setTotalPages(response.meta.totalPages);
-        }
-      })
-      .catch((err) => console.error("Error fetching products:", err))
-      .finally(() => {
-        setIsFetching(false);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
     }, 400); // 400ms debounce
 
     window.addEventListener("scroll", handleStickyMenu);
@@ -249,8 +249,8 @@ const ShopWithSidebar = () => {
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
                     <div className="flex items-center justify-between">
                       <p>Filtros:</p>
-                      <button className="text-blue" onClick={(e) => { 
-                        e.preventDefault(); 
+                      <button className="text-blue" onClick={(e) => {
+                        e.preventDefault();
                         setSelectedCategory(null);
                         setSearchTerm("");
                       }}>Limpiar</button>
@@ -274,7 +274,7 @@ const ShopWithSidebar = () => {
 
                   {/* <!-- category box --> */}
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
-                    <h3 className="mb-3 text-lg font-bold text-black">Juego / Categoría</h3>
+                    <h3 className="mb-3 text-lg font-bold text-black">Categoría</h3>
                     <SearchableSelect
                       options={categoriesData.map((c: any) => ({ label: c.name, value: c.name }))}
                       value={selectedCategory || ""}
