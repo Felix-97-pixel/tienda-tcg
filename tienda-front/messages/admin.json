@@ -311,5 +311,18 @@
       "topProduct": "Producto Más Deseado"
     },
     "noProduct": "Producto eliminado"
+  },
+  "settings": {
+    "title": "Configuraciones",
+    "subtitle": "Gestiona los ajustes globales del panel de administración",
+    "destinations": {
+      "title": "Configuración de Destinos",
+      "subtitle": "Define las categorías por defecto para las importaciones y sincronizaciones",
+      "magic": "Destino Magic: The Gathering",
+      "pokemon": "Destino Pokémon TCG",
+      "riftbound": "Destino Riftbound",
+      "save": "Guardar Configuración",
+      "success": "Configuración guardada correctamente"
+    }
   }
 }

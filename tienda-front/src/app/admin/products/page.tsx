@@ -6,6 +6,7 @@ import Papa from "papaparse";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
+import PreLoader from "@/components/Common/PreLoader";
 
 interface InventoryItem {
   id: string;
@@ -224,6 +225,8 @@ export default function AdminProducts() {
       .catch((err) => console.error(err));
   }, [selectedCategory]);
 
+  const handleSlugify = (name: string) => name.toLowerCase().trim().replace(/[\s\W-]+/g, '-');
+
   const fetchProducts = () => {
     setLoading(true);
     const url = new URL(`${API_URL}/products`);
@@ -385,7 +388,10 @@ export default function AdminProducts() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUrl = await handleUpload(e, creatingProduct.imageUrl);
+    const category = categoriesList.find(c => c.id === creatingProduct.categoryId);
+    const folder = category ? `products/${handleSlugify(category.name)}` : 'products';
+    
+    const newUrl = await handleUpload(e, creatingProduct.imageUrl, folder);
     if (newUrl) {
       setCreatingProduct({ ...creatingProduct, imageUrl: newUrl });
     }
@@ -393,7 +399,10 @@ export default function AdminProducts() {
 
   const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editingItem) return;
-    const newUrl = await handleUpload(e, editingItem.imageUrl);
+    const category = categoriesList.find(c => c.id === editingItem.categoryId);
+    const folder = category ? `products/${handleSlugify(category.name)}` : 'products';
+
+    const newUrl = await handleUpload(e, editingItem.imageUrl, folder);
     if (newUrl) {
       setEditingItem({ ...editingItem, imageUrl: newUrl });
     }
@@ -444,15 +453,20 @@ export default function AdminProducts() {
     }
   };
 
-  const handleDeleteProduct = async (id: string) => {
+  const handleDeleteProduct = async (product: Product) => {
     if (!confirm(t("deleteConfirm"))) return;
     try {
-      const res = await fetch(`${API_URL}/products/${id}`, {
+      // Delete image from Cloudinary if it exists
+      if (product.imageUrl) {
+        await handleRemove(product.imageUrl);
+      }
+
+      const res = await fetch(`${API_URL}/products/${product.id}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (res.ok) {
-        setProducts((prev) => prev.filter((p) => p.id !== id));
+        setProducts((prev) => prev.filter((p) => p.id !== product.id));
         showToast(tc("success"), "success");
       } else {
         const errData = await res.json();
@@ -647,7 +661,8 @@ export default function AdminProducts() {
   ];
 
   return (
-    <>
+    <div className="relative">
+      {isUploadingBulk && <PreLoader message={t("bulk.uploading")} />}
       {/* Header */}
       <div className="p-6 pb-0">
         <div className="flex items-center justify-between mb-6">
@@ -769,7 +784,7 @@ export default function AdminProducts() {
                                   className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-1 text-dark-4 hover:bg-gray-2 transition">
                                   {tc("edit")}
                                 </button>
-                                <button onClick={() => handleDeleteProduct(product.id)}
+                                <button onClick={() => handleDeleteProduct(product)}
                                   className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
                                   {tc("delete")}
                                 </button>
@@ -905,8 +920,12 @@ export default function AdminProducts() {
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90">
-                  {tc("save")}
+                <button 
+                  type="submit" 
+                  disabled={uploadingImage}
+                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploadingImage ? tc("loading") : tc("save")}
                 </button>
               </div>
             </form>
@@ -1034,8 +1053,12 @@ export default function AdminProducts() {
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90">
-                  {t("create.creating")}
+                <button 
+                  type="submit" 
+                  disabled={uploadingImage}
+                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploadingImage ? tc("loading") : t("create.creating")}
                 </button>
               </div>
             </form>
@@ -1244,6 +1267,6 @@ export default function AdminProducts() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

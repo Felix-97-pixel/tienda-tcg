@@ -15,6 +15,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/wishlist",    label: t("modules.wishlist") },
     { href: "/admin/sales",       label: t("modules.sales") },
     { href: "/admin/orders",      label: t("modules.orders") },
+    { href: "/admin/settings",    label: "Configuraciones" },
   ];
 
   return (

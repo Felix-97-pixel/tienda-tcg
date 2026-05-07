@@ -3,6 +3,7 @@ import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
+import PreLoader from "@/components/Common/PreLoader";
 
 interface MTGSet {
   code: string;
@@ -78,23 +79,31 @@ export default function AdminSync() {
   const [loadingCk, setLoadingCk] = useState(false);
   
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("Singles Magic The Gathering");
+  const [mtgDefaultCategory, setMtgDefaultCategory] = useState("Singles Magic The Gathering");
 
   useEffect(() => {
-    // Fetch categories
-    fetch(`${API_URL}/products/meta/categories`)
-      .then(res => res.json())
-      .then(data => {
-        setCategories(data);
-        if (data.length > 0) {
-          const mtgCat = data.find((c: any) => c.name.toLowerCase().includes("magic"));
-          if (mtgCat) setSelectedCategory(mtgCat.name);
-          else setSelectedCategory(data[0].name);
+    // Fetch categories and settings in parallel
+    Promise.all([
+      fetch(`${API_URL}/products/meta/categories`).then(res => res.json()),
+      fetch(`${API_URL}/settings`).then(res => res.json())
+    ])
+      .then(([categoriesData, settingsData]) => {
+        setCategories(categoriesData);
+        if (settingsData.mtg_sync_destination) {
+          setMtgDefaultCategory(settingsData.mtg_sync_destination);
+        } else if (categoriesData.length > 0) {
+          const mtgCat = categoriesData.find((c: any) => c.name.toLowerCase().includes("magic"));
+          if (mtgCat) setMtgDefaultCategory(mtgCat.name);
+          else setMtgDefaultCategory(categoriesData[0].name);
         }
       })
-      .catch(err => console.error("Error fetching categories:", err));
+      .catch(err => console.error("Error fetching data:", err));
+  }, []);
 
-    const category = encodeURIComponent(selectedCategory);
+  useEffect(() => {
+    if (!mtgDefaultCategory) return;
+
+    const category = encodeURIComponent(mtgDefaultCategory);
     fetch(`${API_URL}/products/meta/expansions?category=${category}`)
       .then((res) => res.json())
       .then((data) => {
@@ -115,7 +124,7 @@ export default function AdminSync() {
         }
       })
       .catch((err) => console.error("Error fetching MTGJSON sets:", err));
-  }, [selectedCategory]);
+  }, [mtgDefaultCategory]);
 
   const handleSyncMtgJson = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,7 +134,7 @@ export default function AdminSync() {
       const res = await fetch(`${API_URL}/sync/set`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ game: selectedCategory, setId: setId.toLowerCase() }),
+        body: JSON.stringify({ game: mtgDefaultCategory, setId: setId.toLowerCase() }),
         credentials: "include",
       });
       const data = await res.json();
@@ -181,10 +190,14 @@ export default function AdminSync() {
 
   return (
     <div className="p-6 space-y-6">
+      {loadingMtg && <PreLoader message={t("mtgjson.importing")} />}
+      {loadingCk && <PreLoader message={t("cardkingdom.updating")} />}
       <div>
         <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
         <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
       </div>
+
+
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* MTGJSON Sync */}
@@ -202,18 +215,13 @@ export default function AdminSync() {
           </div>
           <form onSubmit={handleSyncMtgJson}>
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">Destino (Categoría)</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary"
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+              <label className="mb-1 block text-xs font-medium text-dark-4">Destino configurado:</label>
+              <div className="flex items-center gap-2 text-sm font-bold text-blue bg-blue/5 p-2 rounded-lg border border-blue/10">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                {mtgDefaultCategory}
+              </div>
             </div>
 
             <div className="mb-4">

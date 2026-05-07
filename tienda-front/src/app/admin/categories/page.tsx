@@ -65,7 +65,7 @@ export default function AdminCategories() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUrl = await handleUpload(e, formData.imageUrl);
+    const newUrl = await handleUpload(e, formData.imageUrl, 'categories');
     if (newUrl) setFormData({ ...formData, imageUrl: newUrl });
   };
 
@@ -108,15 +108,20 @@ export default function AdminCategories() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (category: CategoryMeta) => {
     if (!confirm(t("deleteConfirm"))) return;
     try {
-      const res = await fetch(`${API_URL}/products/meta/categories/${id}`, {
+      // Delete image from Cloudinary if it exists
+      if (category.imageUrl) {
+        await handleRemove(category.imageUrl);
+      }
+
+      const res = await fetch(`${API_URL}/products/meta/categories/${category.id}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (res.ok) {
-        setCategories((prev) => prev.filter((cat) => cat.id !== id));
+        setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
         showToast(tc("success"), "success");
       } else {
         const errData = await res.json();
@@ -191,7 +196,7 @@ export default function AdminCategories() {
                           <button onClick={() => openEditModal(category)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
                             {tc("edit")}
                           </button>
-                          <button onClick={() => handleDelete(category.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
+                          <button onClick={() => handleDelete(category)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
                             {tc("delete")}
                           </button>
                         </div>
@@ -279,8 +284,12 @@ export default function AdminCategories() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded bg-gray-3 py-2 px-4 font-medium text-black hover:bg-gray-4">
                   {tc("cancel")}
                 </button>
-                <button type="submit" className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90">
-                  {tc("save")}
+                <button 
+                  type="submit" 
+                  disabled={uploadingImage}
+                  className="rounded bg-blue py-2 px-4 font-medium text-white hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploadingImage ? tc("loading") : tc("save")}
                 </button>
               </div>
             </form>

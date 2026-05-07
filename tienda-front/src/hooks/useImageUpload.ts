@@ -6,7 +6,8 @@ export const useImageUpload = () => {
 
   const handleUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    currentUrl?: string
+    currentUrl?: string,
+    folder: string = 'general'
   ): Promise<string | null> => {
     if (!e.target.files || e.target.files.length === 0) return null;
 
@@ -26,7 +27,7 @@ export const useImageUpload = () => {
         }).catch((err) => console.error("No se pudo borrar imagen antigua", err));
       }
 
-      const res = await fetch(`${API_URL}/upload/image`, {
+      const res = await fetch(`${API_URL}/upload/image?folder=${folder}`, {
         method: "POST",
         body: uploadData,
         credentials: "include",

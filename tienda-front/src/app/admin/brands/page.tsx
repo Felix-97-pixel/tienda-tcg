@@ -52,7 +52,7 @@ export default function AdminBrands() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUrl = await handleUpload(e, formData.imageUrl);
+    const newUrl = await handleUpload(e, formData.imageUrl, 'brands');
     if (newUrl) setFormData({ ...formData, imageUrl: newUrl });
   };
 
@@ -95,15 +95,20 @@ export default function AdminBrands() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (brand: BrandMeta) => {
     if (!confirm(t("deleteConfirm"))) return;
     try {
-      const res = await fetch(`${API_URL}/products/meta/brands/${id}`, {
+      // Delete image from Cloudinary if it exists
+      if (brand.imageUrl) {
+        await handleRemove(brand.imageUrl);
+      }
+
+      const res = await fetch(`${API_URL}/products/meta/brands/${brand.id}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (res.ok) {
-        setBrands((prev) => prev.filter((b) => b.id !== id));
+        setBrands((prev) => prev.filter((b) => b.id !== brand.id));
         showToast(tc("success"), "success");
       } else {
         const errData = await res.json();
@@ -179,7 +184,7 @@ export default function AdminBrands() {
                           <button onClick={() => openEditModal(brand)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
                             {tc("edit")}
                           </button>
-                          <button onClick={() => handleDelete(brand.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
+                          <button onClick={() => handleDelete(brand)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
                             {tc("delete")}
                           </button>
                         </div>
@@ -241,8 +246,12 @@ export default function AdminBrands() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg border border-gray-3 text-dark-4 hover:bg-gray-1 transition text-sm">
                   {tc("cancel")}
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-blue text-white font-medium text-sm hover:bg-blue-dark transition">
-                  {tc("save")}
+                <button 
+                  type="submit" 
+                  disabled={uploadingImage}
+                  className="px-4 py-2 rounded-lg bg-blue text-white font-medium text-sm hover:bg-blue-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploadingImage ? tc("loading") : tc("save")}
                 </button>
               </div>
             </form>
