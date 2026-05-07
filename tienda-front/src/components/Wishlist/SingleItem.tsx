@@ -11,15 +11,18 @@ import Image from "next/image";
 import { useAppSelector } from "@/redux/store";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 
 const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) => {
   const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
   const { showToast } = useToast();
+  const t = useTranslations("shop");
+  const tw = useTranslations("wishlist");
 
   const handleRemoveFromWishlist = async () => {
     dispatch(removeItemFromWishlist(item.id));
-    showToast(`"${item.title}" eliminado de tu wishlist`, "warning");
+    showToast(tw("removed", { title: item.title }), "warning");
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'DELETE', credentials: "include" });
@@ -99,7 +102,7 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
                     </clipPath>
                   </defs>
                 </svg>
-                <span className="text-green-500 font-medium text-dark"> In Stock </span>
+                <span className="text-green-500 font-medium text-dark"> {t("inStock")} </span>
               </>
             ) : (
               <>
@@ -107,7 +110,7 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
                   <circle cx="10" cy="10" r="9.4375" fill="#DC3545" />
                   <path d="M6 10H14" stroke="white" strokeWidth="2" strokeLinecap="round" />
                 </svg>
-                <span className="text-red font-medium"> Out of Stock </span>
+                <span className="text-red font-medium"> {t("outOfStock")} </span>
               </>
             );
           })()}
@@ -124,7 +127,7 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
               : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
           }`}
         >
-          {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
+          {item.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
         </button>
       </div>
     </div>

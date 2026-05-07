@@ -4,14 +4,16 @@ import { AppDispatch } from "@/redux/store";
 import Image from "next/image";
 import { updateCartItemQuantity } from "@/redux/features/cart-slice";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 
 const SingleItem = ({ item, removeItemFromCart }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { showToast } = useToast();
+  const t = useTranslations("cart");
 
   const handleRemoveFromCart = () => {
     dispatch(removeItemFromCart(item.id));
-    showToast(`"${item.title}" eliminado del carro`, "warning");
+    showToast(t("removed", { title: item.title }), "warning");
   };
 
   const handleIncreaseQuantity = () => {
@@ -35,7 +37,7 @@ const SingleItem = ({ item, removeItemFromCart }) => {
           <h3 className="font-medium text-dark mb-1 ease-out duration-200 hover:text-blue">
             <a href="#"> {item.title} </a>
           </h3>
-          <p className="text-custom-sm mb-2">Price: ${item.discountedPrice}</p>
+          <p className="text-custom-sm mb-2">{t("price")}: ${item.discountedPrice}</p>
           
           <div className="w-max flex items-center rounded-md border border-gray-3">
             <button

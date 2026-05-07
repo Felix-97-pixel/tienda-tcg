@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useTranslations } from "next-intl";
+import { useToast } from "@/hooks/useToast";
 
 interface BrandMeta {
   id: string;
@@ -14,6 +15,7 @@ interface BrandMeta {
 export default function AdminBrands() {
   const t = useTranslations("brands");
   const tc = useTranslations("common");
+  const { showToast } = useToast();
 
   const [brands, setBrands] = useState<BrandMeta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,8 +69,9 @@ export default function AdminBrands() {
         if (res.ok) {
           setBrands((prev) => prev.map((b) => b.id === editingBrand.id ? { ...b, ...formData } : b));
           setIsModalOpen(false);
+          showToast(tc("success"), "success");
         } else {
-          alert(t("errorUpdate"));
+          showToast(t("errorUpdate"), "error");
         }
       } else {
         const res = await fetch(`${API_URL}/products/meta/brands`, {
@@ -81,13 +84,14 @@ export default function AdminBrands() {
           const newBrand = await res.json();
           setBrands((prev) => [...prev, newBrand]);
           setIsModalOpen(false);
+          showToast(tc("success"), "success");
         } else {
-          alert(t("errorCreate"));
+          showToast(t("errorCreate"), "error");
         }
       }
     } catch (error) {
       console.error(error);
-      alert(tc("networkError"));
+      showToast(tc("networkError"), "error");
     }
   };
 
@@ -100,13 +104,14 @@ export default function AdminBrands() {
       });
       if (res.ok) {
         setBrands((prev) => prev.filter((b) => b.id !== id));
+        showToast(tc("success"), "success");
       } else {
         const errData = await res.json();
-        alert(errData.message || tc("error"));
+        showToast(errData.message || tc("error"), "error");
       }
     } catch (e) {
       console.error(e);
-      alert(tc("error"));
+      showToast(tc("error"), "error");
     }
   };
 

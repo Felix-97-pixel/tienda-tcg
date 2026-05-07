@@ -4,6 +4,7 @@ import AdminGuard from "@/components/Admin/AdminGuard";
 import Sidebar from "@/components/Admin/Sidebar";
 import Header from "@/components/Admin/Header";
 import { ReduxProvider } from "@/redux/provider";
+import ToastContainer from "@/components/Common/ToastContainer";
 
 export default function AdminLayoutClient({
   children,
@@ -32,6 +33,7 @@ export default function AdminLayoutClient({
             </main>
           </div>
         </div>
+        <ToastContainer />
       </AdminGuard>
     </ReduxProvider>
   );

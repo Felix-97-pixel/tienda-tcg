@@ -2,6 +2,7 @@
 import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useToast } from "@/hooks/useToast";
 
 interface MTGSet {
   code: string;
@@ -67,13 +68,12 @@ function SearchableSelect({
 
 export default function AdminSync() {
   const t = useTranslations("sync");
+  const { showToast } = useToast();
 
   const [setId, setSetId] = useState("");
   const [expansion, setExpansion] = useState("");
   const [expansionsList, setExpansionsList] = useState<{name: string, products: number}[]>([]);
   const [mtgJsonSets, setMtgJsonSets] = useState<MTGSet[]>([]);
-  const [mtgJsonMessage, setMtgJsonMessage] = useState("");
-  const [ckMessage, setCkMessage] = useState("");
   const [loadingMtg, setLoadingMtg] = useState(false);
   const [loadingCk, setLoadingCk] = useState(false);
 
@@ -105,7 +105,6 @@ export default function AdminSync() {
     e.preventDefault();
     if (!setId) return;
     setLoadingMtg(true);
-    setMtgJsonMessage("");
     try {
       const res = await fetch(`${API_URL}/sync/set`, {
         method: "POST",
@@ -115,16 +114,16 @@ export default function AdminSync() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMtgJsonMessage(`${t("mtgjson.successPrefix")} ${data.count ?? ""} ${t("mtgjson.successSuffix")}`);
+        showToast(`${t("mtgjson.successPrefix")} ${data.count ?? ""} ${t("mtgjson.successSuffix")}`, "success");
         const category = encodeURIComponent("Singles Magic The Gathering");
         fetch(`${API_URL}/products/meta/expansions?category=${category}`)
           .then((r) => r.json())
           .then((d) => setExpansionsList(d));
       } else {
-        setMtgJsonMessage(t("mtgjson.errorApi", { message: data.message || "" }));
+        showToast(t("mtgjson.errorApi", { message: data.message || "" }), "error");
       }
     } catch {
-      setMtgJsonMessage(t("mtgjson.errorNetwork"));
+      showToast(t("mtgjson.errorNetwork"), "error");
     } finally {
       setLoadingMtg(false);
     }
@@ -134,7 +133,6 @@ export default function AdminSync() {
     e.preventDefault();
     if (!expansion) return;
     setLoadingCk(true);
-    setCkMessage("");
     try {
       const res = await fetch(`${API_URL}/price-updater/sync-set`, {
         method: "POST",
@@ -144,12 +142,12 @@ export default function AdminSync() {
       });
       const data = await res.json();
       if (res.ok) {
-        setCkMessage(data.message || `${t("cardkingdom.successPrefix")} ${expansion}`);
+        showToast(data.message || `${t("cardkingdom.successPrefix")} ${expansion}`, "success");
       } else {
-        setCkMessage(t("cardkingdom.errorApi", { message: data.error || "" }));
+        showToast(t("cardkingdom.errorApi", { message: data.error || "" }), "error");
       }
     } catch {
-      setCkMessage(t("cardkingdom.errorNetwork"));
+      showToast(t("cardkingdom.errorNetwork"), "error");
     } finally {
       setLoadingCk(false);
     }
@@ -205,11 +203,6 @@ export default function AdminSync() {
               {loadingMtg ? t("mtgjson.importing") : t("mtgjson.button")}
             </button>
           </form>
-          {mtgJsonMessage && (
-            <div className={`mt-4 p-3 rounded-lg text-sm ${mtgJsonMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-              {mtgJsonMessage}
-            </div>
-          )}
         </div>
 
         {/* Card Kingdom Sync */}
@@ -244,11 +237,6 @@ export default function AdminSync() {
               {loadingCk ? t("cardkingdom.updating") : t("cardkingdom.button")}
             </button>
           </form>
-          {ckMessage && (
-            <div className={`mt-4 p-3 rounded-lg text-sm ${ckMessage.startsWith('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-              {ckMessage}
-            </div>
-          )}
         </div>
       </div>
     </div>

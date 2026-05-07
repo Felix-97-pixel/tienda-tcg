@@ -40,9 +40,9 @@ const ShopWithSidebar = () => {
   };
 
   const options = [
-    { label: "Latest Products", value: "0" },
-    { label: "Best Selling", value: "1" },
-    { label: "Old Products", value: "2" },
+    { label: t("sort.latest"), value: "0" },
+    { label: t("sort.bestSelling"), value: "1" },
+    { label: t("sort.oldest"), value: "2" },
   ];
 
   // Initial fetch for categories
@@ -430,7 +430,7 @@ const ShopWithSidebar = () => {
 
                   if (selectedCategory && categoriesData.find((c: any) => c.name === selectedCategory)?.isTcg && !selectedExpansion && !selectedAttribute && !searchTerm) {
                     return (
-                      <p className="col-span-3 text-center py-20 text-lg font-medium">Ahora selecciona una edición o un tipo para ver las cartas.</p>
+                      <p className="col-span-3 text-center py-20 text-lg font-medium">{t("selectExpansionPrompt")}</p>
                     );
                   }
 
@@ -443,7 +443,7 @@ const ShopWithSidebar = () => {
                       )
                     )
                   ) : (
-                    <p className="col-span-3 text-center py-10">No se encontraron cartas en esta edición.</p>
+                    <p className="col-span-3 text-center py-10">{t("noCards")}</p>
                   );
                 })()}
               </div>

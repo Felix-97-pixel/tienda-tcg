@@ -11,9 +11,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 
 const SingleGridItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
+  const t = useTranslations("shop");
+  const tw = useTranslations("wishlist");
 
   const dispatch = useDispatch<AppDispatch>();
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
@@ -33,7 +36,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
         quantity: 1,
       })
     );
-    showToast(`"${item.title}" agregado a tu wishlist`, "info");
+    showToast(tw("added", { title: item.title }), "info");
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
@@ -57,7 +60,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
         {item.stock === 0 && (
           <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
             <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
-              Sin stock
+              {t("outOfStock")}
             </span>
           </div>
         )}
@@ -104,7 +107,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
               : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
           }`}
         >
-          {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
+          {item.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
         </button>
 
           <button

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useTranslations } from "next-intl";
+import { useToast } from "@/hooks/useToast";
 
 interface CategoryMeta {
   id: string;
@@ -16,6 +17,7 @@ interface CategoryMeta {
 export default function AdminCategories() {
   const t = useTranslations("categories");
   const tc = useTranslations("common");
+  const { showToast } = useToast();
 
   const [categories, setCategories] = useState<CategoryMeta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,8 +82,9 @@ export default function AdminCategories() {
         if (res.ok) {
           setCategories((prev) => prev.map((cat) => cat.id === editingCategory.id ? { ...cat, ...formData } : cat));
           setIsModalOpen(false);
+          showToast(tc("success"), "success");
         } else {
-          alert(t("errorUpdate"));
+          showToast(t("errorUpdate"), "error");
         }
       } else {
         const res = await fetch(`${API_URL}/products/meta/categories`, {
@@ -94,13 +97,14 @@ export default function AdminCategories() {
           const newCategory = await res.json();
           setCategories((prev) => [...prev, newCategory]);
           setIsModalOpen(false);
+          showToast(tc("success"), "success");
         } else {
-          alert(t("errorCreate"));
+          showToast(t("errorCreate"), "error");
         }
       }
     } catch (error) {
       console.error(error);
-      alert(tc("networkError"));
+      showToast(tc("networkError"), "error");
     }
   };
 
@@ -113,13 +117,14 @@ export default function AdminCategories() {
       });
       if (res.ok) {
         setCategories((prev) => prev.filter((cat) => cat.id !== id));
+        showToast(tc("success"), "success");
       } else {
         const errData = await res.json();
-        alert(errData.message || tc("error"));
+        showToast(errData.message || tc("error"), "error");
       }
     } catch (e) {
       console.error(e);
-      alert(tc("error"));
+      showToast(tc("error"), "error");
     }
   };
 

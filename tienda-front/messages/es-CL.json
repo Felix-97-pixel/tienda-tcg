@@ -23,8 +23,12 @@
   "shop": {
     "title": "Explorar productos",
     "addToCart": "Agregar al carro",
+    "inStock": "En stock",
     "outOfStock": "Sin stock",
     "maxReached": "Máximo alcanzado",
+    "rating": "Calificación",
+    "reviews": "reseñas",
+    "addToWishlist": "Agregar a la wishlist",
     "filters": "Filtros",
     "clearFilters": "Limpiar",
     "search": "Buscar producto",
@@ -36,6 +40,11 @@
     "selectGameFirst": "Primero selecciona un juego",
     "noCards": "No se encontraron cartas en esta edición.",
     "selectExpansionPrompt": "Ahora selecciona una edición o un tipo para ver las cartas.",
+    "sort": {
+      "latest": "Últimos productos",
+      "bestSelling": "Más vendidos",
+      "oldest": "Más antiguos"
+    },
     "noPrice": "Sin precio",
     "priceUnit": "USD · CK"
   },
@@ -50,7 +59,8 @@
     "quantity": "Cantidad",
     "remove": "Eliminar",
     "product": "Producto",
-    "price": "Precio"
+    "price": "Precio",
+    "removed": "\"{title}\" eliminado del carro"
   },
   "checkout": {
     "title": "Datos de contacto",
@@ -85,6 +95,12 @@
     "orderStatus": "Estado",
     "orderTotal": "Total",
     "orderItems": "Productos"
+  },
+  "wishlist": {
+    "title": "Lista de deseos",
+    "added": "\"{title}\" agregado a tu wishlist",
+    "removed": "\"{title}\" eliminado de tu wishlist",
+    "empty": "Tu lista de deseos está vacía"
   },
   "footer": {
     "rights": "Todos los derechos reservados",

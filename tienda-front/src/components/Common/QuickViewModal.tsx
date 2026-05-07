@@ -13,6 +13,7 @@ import { resetQuickView } from "@/redux/features/quickView-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
@@ -26,6 +27,10 @@ const QuickViewModal = () => {
   const product = useAppSelector((state) => state.quickViewReducer.value);
   const { handleAddToCart: addToCart, isMaxStockReached, availableStock } = useProductCart(product);
   const { showToast } = useToast();
+
+  const t = useTranslations("shop");
+  const tw = useTranslations("wishlist");
+  const tc = useTranslations("cart");
 
   const [activePreview, setActivePreview] = useState(0);
 
@@ -50,7 +55,7 @@ const QuickViewModal = () => {
         quantity: 1,
       })
     );
-    showToast(`"${product.title}" agregado a tu wishlist`, "info");
+    showToast(tw("added", { title: product.title }), "info");
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${product.id}`, { method: 'POST', credentials: 'include' });
@@ -285,8 +290,8 @@ const QuickViewModal = () => {
                   </div>
 
                   <span>
-                    <span className="font-medium text-dark"> 4.7 Rating </span>
-                    <span className="text-dark-2"> (5 reviews) </span>
+                    <span className="font-medium text-dark"> 4.7 {t("rating")} </span>
+                    <span className="text-dark-2"> (5 {t("reviews")}) </span>
                   </span>
                 </div>
 
@@ -297,7 +302,7 @@ const QuickViewModal = () => {
                         <circle cx="10" cy="10" r="9.4375" fill="#DC3545" />
                         <path d="M6 10H14" stroke="white" strokeWidth="2" strokeLinecap="round" />
                       </svg>
-                      <span className="font-medium text-red"> Sin stock </span>
+                      <span className="font-medium text-red"> {t("outOfStock")} </span>
                     </>
                   ) : (
                     <>
@@ -312,7 +317,7 @@ const QuickViewModal = () => {
                           </clipPath>
                         </defs>
                       </svg>
-                      <span className="font-medium text-dark"> In Stock </span>
+                      <span className="font-medium text-dark"> {t("inStock")} </span>
                     </>
                   )}
                 </div>
@@ -326,7 +331,7 @@ const QuickViewModal = () => {
               <div className="flex flex-wrap justify-between gap-5 mt-6 mb-7.5">
                 <div>
                   <h4 className="font-semibold text-lg text-dark mb-3.5">
-                    Price
+                    {tc("price")}
                   </h4>
 
                   <span className="flex items-center gap-2">
@@ -341,7 +346,7 @@ const QuickViewModal = () => {
 
                 <div>
                   <h4 className="font-semibold text-lg text-dark mb-3.5">
-                    Quantity
+                    {tc("quantity")}
                   </h4>
 
                   <div className="flex items-center gap-3">
@@ -421,7 +426,7 @@ const QuickViewModal = () => {
                       : "text-white bg-blue hover:bg-blue-dark"
                   }`}
                 >
-                  {product?.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
+                  {product?.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
                 </button>
 
                 <button
@@ -443,7 +448,7 @@ const QuickViewModal = () => {
                       fill=""
                     />
                   </svg>
-                  Add to Wishlist
+                  {t("addToWishlist")}
                 </button>
               </div>
             </div>

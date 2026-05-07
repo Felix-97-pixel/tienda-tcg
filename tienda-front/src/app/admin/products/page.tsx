@@ -5,6 +5,7 @@ import Image from "next/image";
 import Papa from "papaparse";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useTranslations } from "next-intl";
+import { useToast } from "@/hooks/useToast";
 
 interface InventoryItem {
   id: string;
@@ -114,6 +115,7 @@ function SearchableSelect({
 export default function AdminProducts() {
   const t = useTranslations("products");
   const tc = useTranslations("common");
+  const { showToast } = useToast();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -288,12 +290,13 @@ export default function AdminProducts() {
           })
         );
         setIsModalOpen(false);
+        showToast(tc("success"), "success");
       } else {
-        alert(tc("error"));
+        showToast(tc("error"), "error");
       }
     } catch (error) {
       console.error(error);
-      alert(tc("error"));
+      showToast(tc("networkError"), "error");
     }
   };
 
@@ -343,17 +346,17 @@ export default function AdminProducts() {
       });
 
       if (res.ok) {
-        alert(tc("success"));
+        showToast(tc("success"), "success");
         setIsCreateOpen(false);
         setCreatingProduct({ name: "", categoryId: "", brandId: "", price: 0, stock: 0, imageUrl: "", description: "" });
         fetchProducts(); // Refresh list
       } else {
         const data = await res.json();
-        alert(`${tc("error")}: ${data.message || ""}`);
+        showToast(`${tc("error")}: ${data.message || ""}`, "error");
       }
     } catch (error) {
       console.error(error);
-      alert(tc("error"));
+      showToast(tc("networkError"), "error");
     }
   };
 
@@ -366,13 +369,14 @@ export default function AdminProducts() {
       });
       if (res.ok) {
         setProducts((prev) => prev.filter((p) => p.id !== id));
+        showToast(tc("success"), "success");
       } else {
         const errData = await res.json();
-        alert(errData.message || tc("error"));
+        showToast(errData.message || tc("error"), "error");
       }
     } catch (e) {
       console.error(e);
-      alert(tc("error"));
+      showToast(tc("error"), "error");
     }
   };
 
@@ -399,11 +403,11 @@ export default function AdminProducts() {
         link.click();
         document.body.removeChild(link);
       } else {
-        alert(t("bulkDownloadError"));
+        showToast(t("bulkDownloadError"), "error");
       }
     } catch (e) {
       console.error(e);
-      alert(tc("networkError"));
+      showToast(tc("networkError"), "error");
     }
   };
 
@@ -413,7 +417,7 @@ export default function AdminProducts() {
 
     const selectedCategoryData = categoriesList.find(c => c.id === bulkCategory);
     if (selectedCategoryData?.isTcg !== false && !selectedCategoryData?.name.toLowerCase().includes("magic")) {
-      alert(t("bulkNotSupported"));
+      showToast(t("bulkNotSupported"), "warning");
       return;
     }
 
@@ -449,13 +453,13 @@ export default function AdminProducts() {
                 msg += `\n\n${t("bulk.formatDesc")}\n- ${sampleErrors}`;
                 if (data.errors.length > 10) msg += `\n...${t("bulk.errorMessage")}`;
               }
-              alert(msg);
+              showToast(msg, data.errors.length > 0 ? "warning" : "success");
               setIsBulkOpen(false);
               setBulkFile(null);
               setBulkCategory("");
               fetchProducts();
             } else {
-              alert(t("bulk.errorBulk"));
+              showToast(t("bulk.errorBulk"), "error");
             }
           } else {
             const items = results.data.map((row: any) => ({
@@ -478,25 +482,25 @@ export default function AdminProducts() {
                 msg += `\n\n${t("bulk.formatDesc")}\n- ${sampleErrors}`;
                 if (data.errors.length > 10) msg += `\n...${t("bulk.errorMessage")}`;
               }
-              alert(msg);
+              showToast(msg, data.errors.length > 0 ? "warning" : "success");
               setIsBulkOpen(false);
               setBulkFile(null);
               setBulkCategory("");
               fetchProducts();
             } else {
-              alert(t("bulk.errorStock"));
+              showToast(t("bulk.errorStock"), "error");
             }
           }
         } catch (error) {
           console.error(error);
-          alert(t("bulk.errorCsv"));
+          showToast(t("bulk.errorCsv"), "error");
         } finally {
           setIsUploadingBulk(false);
         }
       },
       error: (error) => {
         console.error(error);
-        alert(t("bulk.errorCsvRead"));
+        showToast(t("bulk.errorCsvRead"), "error");
         setIsUploadingBulk(false);
       }
     });
