@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Body, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Body, UseInterceptors, UploadedFile, UseGuards, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -14,8 +14,11 @@ export class UploadController {
   @Post('image')
   @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImage(@UploadedFile() file: Express.Multer.File) {
-    const result = await this.uploadService.uploadImage(file);
+  async uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('folder') folder: string = 'general'
+  ) {
+    const result = await this.uploadService.uploadImage(file, `tienda/${folder}`);
     return {
       url: result.secure_url,
     };

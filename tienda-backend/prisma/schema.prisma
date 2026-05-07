@@ -165,3 +165,9 @@ enum PaymentStatus {
   FAILED
   NULLIFIED
 }
+
+model GlobalSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}

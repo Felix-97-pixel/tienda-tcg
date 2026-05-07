@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { PaymentsModule } from './payments/payments.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { PaymentsModule } from './payments/payments.module';
     AuthModule,
     UploadModule,
     WishlistModule,
-    PaymentsModule
+    PaymentsModule,
+    SettingsModule
   ],
   controllers: [AppController],
   providers: [AppService],
