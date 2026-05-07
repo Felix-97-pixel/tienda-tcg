@@ -76,9 +76,25 @@ export default function AdminSync() {
   const [mtgJsonSets, setMtgJsonSets] = useState<MTGSet[]>([]);
   const [loadingMtg, setLoadingMtg] = useState(false);
   const [loadingCk, setLoadingCk] = useState(false);
+  
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("Singles Magic The Gathering");
 
   useEffect(() => {
-    const category = encodeURIComponent("Singles Magic The Gathering");
+    // Fetch categories
+    fetch(`${API_URL}/products/meta/categories`)
+      .then(res => res.json())
+      .then(data => {
+        setCategories(data);
+        if (data.length > 0) {
+          const mtgCat = data.find((c: any) => c.name.toLowerCase().includes("magic"));
+          if (mtgCat) setSelectedCategory(mtgCat.name);
+          else setSelectedCategory(data[0].name);
+        }
+      })
+      .catch(err => console.error("Error fetching categories:", err));
+
+    const category = encodeURIComponent(selectedCategory);
     fetch(`${API_URL}/products/meta/expansions?category=${category}`)
       .then((res) => res.json())
       .then((data) => {
@@ -99,7 +115,7 @@ export default function AdminSync() {
         }
       })
       .catch((err) => console.error("Error fetching MTGJSON sets:", err));
-  }, []);
+  }, [selectedCategory]);
 
   const handleSyncMtgJson = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +125,7 @@ export default function AdminSync() {
       const res = await fetch(`${API_URL}/sync/set`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ game: "Singles Magic The Gathering", setId: setId.toLowerCase() }),
+        body: JSON.stringify({ game: selectedCategory, setId: setId.toLowerCase() }),
         credentials: "include",
       });
       const data = await res.json();
@@ -185,6 +201,21 @@ export default function AdminSync() {
             </div>
           </div>
           <form onSubmit={handleSyncMtgJson}>
+            <div className="mb-4">
+              <label className="mb-2 block text-sm font-medium text-dark">Destino (Categoría)</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary"
+              >
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="mb-4">
               <label className="mb-2 block text-sm font-medium text-dark">{t("mtgjson.label")}</label>
               <SearchableSelect

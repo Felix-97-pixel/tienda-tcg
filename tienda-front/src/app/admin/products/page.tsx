@@ -147,6 +147,19 @@ export default function AdminProducts() {
     stock: number;
   } | null>(null);
 
+  // Inventory Modal State
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [languages, setLanguages] = useState<{id: string, name: string}[]>([]);
+  const [conditions, setConditions] = useState<{id: string, name: string}[]>([]);
+  const [newVariation, setNewVariation] = useState({
+    languageId: "",
+    conditionId: "",
+    price: 0,
+    stock: 0,
+    isFoil: false
+  });
+
   // Create Modal State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { isUploading: uploadingImage, handleUpload, handleRemove } = useImageUpload();
@@ -176,6 +189,22 @@ export default function AdminProducts() {
     fetch(`${API_URL}/products/meta/brands`)
       .then((res) => res.json())
       .then((data) => setBrandsList(data))
+      .catch((err) => console.error(err));
+
+    fetch(`${API_URL}/products/meta/languages`)
+      .then((res) => res.json())
+      .then((data) => {
+        setLanguages(data);
+        if (data.length > 0) setNewVariation(prev => ({ ...prev, languageId: data[0].id }));
+      })
+      .catch((err) => console.error(err));
+
+    fetch(`${API_URL}/products/meta/conditions`)
+      .then((res) => res.json())
+      .then((data) => {
+        setConditions(data);
+        if (data.length > 0) setNewVariation(prev => ({ ...prev, conditionId: data[0].id }));
+      })
       .catch((err) => console.error(err));
   }, []);
 
@@ -243,6 +272,61 @@ export default function AdminProducts() {
       stock: item.stock,
     });
     setIsModalOpen(true);
+  };
+
+  const openInventoryModal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsInventoryOpen(true);
+  };
+
+  const handleAddVariation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProduct) return;
+    try {
+      const res = await fetch(`${API_URL}/products/${selectedProduct.id}/inventory`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newVariation),
+        credentials: "include"
+      });
+      if (res.ok) {
+        showToast(tc("success"), "success");
+        // Refrescar el producto seleccionado para ver el nuevo item
+        const updatedProductRes = await fetch(`${API_URL}/products/${selectedProduct.id}`);
+        const updatedProduct = await updatedProductRes.json();
+        setSelectedProduct(updatedProduct);
+        setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+      } else {
+        const data = await res.json();
+        showToast(data.message || tc("error"), "error");
+      }
+    } catch (err) {
+      showToast(tc("networkError"), "error");
+    }
+  };
+
+  const handleUpdateStockPrice = async (itemId: string, price: number, stock: number) => {
+    try {
+      const res = await fetch(`${API_URL}/products/inventory/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price, stock }),
+        credentials: "include"
+      });
+      if (res.ok) {
+        showToast(tc("success"), "success");
+        if (selectedProduct) {
+          const updatedItems = selectedProduct.items.map(i => i.id === itemId ? { ...i, price, stock } : i);
+          const updatedProduct = { ...selectedProduct, items: updatedItems };
+          setSelectedProduct(updatedProduct);
+          setProducts(prev => prev.map(p => p.id === selectedProduct.id ? updatedProduct : p));
+        }
+      } else {
+        showToast(tc("error"), "error");
+      }
+    } catch (err) {
+      showToast(tc("networkError"), "error");
+    }
   };
 
   const handleUpdateItem = async (e: React.FormEvent) => {
@@ -641,53 +725,60 @@ export default function AdminProducts() {
                 </tr>
               ) : (
                 products.map((product) => {
-                  const mainItem = product.items[0]; // For MVP, grab the first inventory item
-                  return (
-                    <tr key={product.id} className="hover:bg-gray-1 transition">
-                      <td className="py-4 px-6 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-2">
-                          {product.imageUrl ? (
-                            <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="object-cover h-full w-full" />
-                          ) : (
-                            <span className="text-[10px] text-dark-4 flex h-full items-center justify-center">Sin Img</span>
-                          )}
-                        </div>
-                        <p className="text-dark font-medium text-sm">{product.name}</p>
-                      </td>
-                      <td className="py-4 px-6 hidden md:table-cell">
-                        <p className="text-dark text-sm">{product.cardDetail?.expansion || "N/A"}</p>
-                        <p className="text-dark-4 text-xs">{product.cardDetail?.rarity}</p>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                          mainItem?.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-                        }`}>
-                          {mainItem?.stock || 0}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <p className="text-dark font-bold text-sm">
-                          ${Number(mainItem?.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2">
-                          {mainItem && (
-                            <button onClick={() => openEditModal(product, mainItem)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
-                              {tc("edit")}
-                            </button>
-                          )}
-                          {!product.category?.isTcg && (
-                            <button onClick={() => handleDeleteProduct(product.id)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
-                              {tc("delete")}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
+                  const totalStock = product.items.reduce((sum, item) => sum + item.stock, 0);
+                  const mainPrice = product.items[0]?.price || 0;
+
+                    return (
+                      <tr key={product.id} className="hover:bg-gray-1 transition">
+                        <td className="py-4 px-6 flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-2">
+                            {product.imageUrl ? (
+                              <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="object-cover h-full w-full" />
+                            ) : (
+                              <span className="text-[10px] text-dark-4 flex h-full items-center justify-center">Sin Img</span>
+                            )}
+                          </div>
+                          <p className="text-dark font-medium text-sm">{product.name}</p>
+                        </td>
+                        <td className="py-4 px-6 hidden md:table-cell">
+                          <p className="text-dark text-sm">{product.cardDetail?.expansion || "N/A"}</p>
+                          <p className="text-dark-4 text-xs">{product.cardDetail?.rarity}</p>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                            totalStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                          }`}>
+                            {totalStock}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <p className="text-dark font-bold text-sm">
+                            ${Number(mainPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-2">
+                            {product.category?.isTcg ? (
+                              <button onClick={() => openInventoryModal(product)}
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue/10 text-blue hover:bg-blue hover:text-white transition">
+                                Inventario ({product.items.length})
+                              </button>
+                            ) : (
+                              <>
+                                <button onClick={() => openEditModal(product, product.items[0] || {})}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-1 text-dark-4 hover:bg-gray-2 transition">
+                                  {tc("edit")}
+                                </button>
+                                <button onClick={() => handleDeleteProduct(product.id)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition">
+                                  {tc("delete")}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
                 })
               )}
               </tbody>
@@ -1018,6 +1109,138 @@ export default function AdminProducts() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* INVENTORY MANAGEMENT MODAL */}
+      {isInventoryOpen && selectedProduct && (
+        <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
+          <div className="w-full max-w-4xl rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-black">Gestionar Inventario</h3>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-gray-500">{selectedProduct.name}</p>
+                  <span className="bg-blue/10 text-blue text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                    Stock Total: {selectedProduct.items.reduce((sum, item) => sum + item.stock, 0)}
+                  </span>
+                </div>
+              </div>
+              <button onClick={() => setIsInventoryOpen(false)} className="text-gray-500 hover:text-black text-2xl">✕</button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Add New Variation Form */}
+              <div className="lg:col-span-1 bg-gray-50 p-4 rounded-xl">
+                <h4 className="font-semibold text-dark mb-4 text-sm">Añadir Nueva Variante</h4>
+                <form onSubmit={handleAddVariation} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 mb-1 block">Idioma</label>
+                    <select 
+                      value={newVariation.languageId}
+                      onChange={(e) => setNewVariation({...newVariation, languageId: e.target.value})}
+                      className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                    >
+                      {languages.map(lang => (
+                        <option key={lang.id} value={lang.id}>{lang.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 mb-1 block">Condición</label>
+                    <select 
+                      value={newVariation.conditionId}
+                      onChange={(e) => setNewVariation({...newVariation, conditionId: e.target.value})}
+                      className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                    >
+                      {conditions.map(cond => (
+                        <option key={cond.id} value={cond.id}>{cond.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 py-1">
+                    <input 
+                      type="checkbox" 
+                      id="isFoil"
+                      checked={newVariation.isFoil}
+                      onChange={(e) => setNewVariation({...newVariation, isFoil: e.target.checked})}
+                      className="w-4 h-4 rounded border-gray-300 text-blue focus:ring-blue"
+                    />
+                    <label htmlFor="isFoil" className="text-xs font-medium text-dark cursor-pointer">Es Foil</label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Precio</label>
+                      <input 
+                        type="number" 
+                        value={newVariation.price}
+                        onChange={(e) => setNewVariation({...newVariation, price: Number(e.target.value)})}
+                        className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Stock</label>
+                      <input 
+                        type="number" 
+                        value={newVariation.stock}
+                        onChange={(e) => setNewVariation({...newVariation, stock: Number(e.target.value)})}
+                        className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full bg-blue text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-dark transition">
+                    Añadir Variante
+                  </button>
+                </form>
+              </div>
+
+              {/* Variation List */}
+              <div className="lg:col-span-2">
+                <h4 className="font-semibold text-dark mb-4 text-sm">Variantes Existentes</h4>
+                <div className="overflow-x-auto border border-stroke rounded-xl">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 border-b border-stroke">
+                      <tr>
+                        <th className="py-2 px-3 font-medium">Idioma / Condición</th>
+                        <th className="py-2 px-3 font-medium">Foil</th>
+                        <th className="py-2 px-3 font-medium w-24">Precio</th>
+                        <th className="py-2 px-3 font-medium w-20">Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stroke">
+                      {selectedProduct.items.map((item: any) => (
+                        <tr key={item.id}>
+                          <td className="py-3 px-3">
+                            <span className="font-medium text-dark">{item.language?.name || 'N/A'}</span>
+                            <span className="text-gray-400 mx-1">/</span>
+                            <span className="text-dark-4 uppercase text-[10px] font-bold">{item.condition?.name.replace('_', ' ') || 'N/A'}</span>
+                          </td>
+                          <td className="py-3 px-3">
+                            {item.isFoil ? <span className="text-yellow-600 text-xs font-bold">Foil</span> : <span className="text-gray-300 text-xs">No</span>}
+                          </td>
+                          <td className="py-3 px-3">
+                            <input 
+                              type="number" 
+                              defaultValue={item.price}
+                              onBlur={(e) => handleUpdateStockPrice(item.id, Number(e.target.value), item.stock)}
+                              className="w-full border-b border-gray-200 focus:border-blue outline-none py-1"
+                            />
+                          </td>
+                          <td className="py-3 px-3">
+                            <input 
+                              type="number" 
+                              defaultValue={item.stock}
+                              onBlur={(e) => handleUpdateStockPrice(item.id, item.price, Number(e.target.value))}
+                              className="w-full border-b border-gray-200 focus:border-blue outline-none py-1 text-center"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

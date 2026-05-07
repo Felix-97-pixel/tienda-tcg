@@ -129,6 +129,16 @@ export class ProductsController {
     return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName);
   }
 
+  @Get('meta/languages')
+  getLanguages() {
+    return this.productsService.getLanguages();
+  }
+
+  @Get('meta/conditions')
+  getConditions() {
+    return this.productsService.getConditions();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     // Sin el '+', pasamos el ID como el texto que es
@@ -159,5 +169,12 @@ export class ProductsController {
   @Roles(Role.ADMIN)
   updateInventoryItem(@Param('id') id: string, @Body() body: { price?: number; stock?: number }) {
     return this.productsService.updateInventoryItem(id, body);
+  }
+
+  @Post(':productId/inventory')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  addInventoryItem(@Param('productId') productId: string, @Body() body: any) {
+    return this.productsService.addInventoryItem(productId, body);
   }
 }

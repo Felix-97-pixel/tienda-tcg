@@ -29,7 +29,18 @@ export class SyncService {
     }
 
     const categoryId = category.id;
-    const gameType = game; // Usamos el nombre del juego directamente ahora que es String
+    const gameType = game;
+
+    // Obtener IDs por defecto para Idioma (Inglés) y Condición (Near Mint)
+    const [defaultLang, defaultCond] = await Promise.all([
+      this.prisma.language.findUnique({ where: { code: 'en' } }),
+      this.prisma.condition.findUnique({ where: { name: 'near_mint' } })
+    ]);
+
+    if (!defaultLang || !defaultCond) {
+      return { error: "No se encontraron los registros de idioma 'en' o condición 'near_mint' en la base de datos. Ejecuta el Seed primero." };
+    }
+
     let totalProcessed = 0;
     let url = game === GameType.POKEMON
       ? `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}`
@@ -41,6 +52,14 @@ export class SyncService {
     while (hasMore) {
       const res = await axios.get(url);
       const data = res.data;
+      
+      if (!data.data || data.data.length === 0) {
+        console.log('No se encontraron cartas en la respuesta de la API');
+        hasMore = false;
+        break;
+      }
+
+      console.log(`Sincronizando ${data.data.length} cartas de la página actual...`);
 
       const pageCards: CardToSync[] = data.data.map((c: any) => {
         let attrs: string[] = [];
@@ -71,7 +90,7 @@ export class SyncService {
 
         const results = await Promise.allSettled(
           chunk.map(async (card) => {
-            await this.prisma.product.upsert({
+            const existingProduct = await this.prisma.product.upsert({
               where: { externalId: card.externalId },
               update: { imageUrl: card.image, name: card.name },
               create: {
@@ -86,10 +105,23 @@ export class SyncService {
                     collectorNum: card.number,
                     game: gameType,
                   }
-                },
-                items: { create: { price: 0, stock: 0, condition: 'New' } }
-              }
-            });
+                }
+              },
+              include: { items: true }
+            }); 
+
+            // Asegurar que tenga al menos un item de inventario (Placeholder Stock 0)
+            if (existingProduct.items.length === 0) {
+              await this.prisma.inventoryItem.create({
+                data: {
+                  productId: existingProduct.id,
+                  price: 0,
+                  stock: 0,
+                  conditionId: defaultCond.id,
+                  languageId: defaultLang.id
+                }
+              });
+            }
 
             await this.updateAttributes(card.externalId, card.attributes);
           })

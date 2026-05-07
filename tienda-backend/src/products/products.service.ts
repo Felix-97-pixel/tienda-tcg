@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from '../upload/upload.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -15,6 +15,11 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto) {
     const { price, stock, ...productData } = createProductDto;
     
+    const [defaultCond, defaultLang] = await Promise.all([
+      this.prisma.condition.findFirst({ where: { name: 'near_mint' } }),
+      this.prisma.language.findFirst({ where: { code: 'en' } })
+    ]);
+
     return this.prisma.product.create({
       data: {
         ...productData,
@@ -23,7 +28,8 @@ export class ProductsService {
           create: {
             price: price || 0,
             stock: stock || 0,
-            condition: "New",
+            conditionId: defaultCond?.id || "",
+            languageId: defaultLang?.id || "",
             isFoil: false
           }
         }
@@ -159,12 +165,16 @@ export class ProductsService {
           });
           results.updated++;
         } else if (product && product.items.length === 0) {
+          const defaultLang = await this.prisma.language.findFirst({ where: { code: 'en' } });
+          const defaultCond = await this.prisma.condition.findFirst({ where: { name: 'near_mint' } });
+
           await this.prisma.inventoryItem.create({
             data: {
               productId: product.id,
               price: 0,
               stock: item.stock,
-              condition: "New",
+              conditionId: defaultCond?.id || "",
+              languageId: defaultLang?.id || "",
               isFoil: false
             }
           });
@@ -370,7 +380,12 @@ export class ProductsService {
           category: true,
           brand: true,
           cardDetail: true,
-          items: true,
+          items: {
+            include: {
+              language: true,
+              condition: true
+            }
+          },
         },
       }),
       this.prisma.product.count({ where: whereClause })
@@ -446,6 +461,46 @@ export class ProductsService {
     return this.prisma.inventoryItem.update({
       where: { id: itemId },
       data
+    });
+  }
+
+  async getLanguages() {
+    return this.prisma.language.findMany({
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async getConditions() {
+    return this.prisma.condition.findMany({
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async addInventoryItem(productId: string, data: any) {
+    const { languageId, conditionId, price, stock, isFoil } = data;
+
+    const exists = await this.prisma.inventoryItem.findFirst({
+      where: {
+        productId,
+        languageId,
+        conditionId,
+        isFoil: !!isFoil
+      }
+    });
+
+    if (exists) {
+      throw new BadRequestException("Esta combinación de idioma, condición y versión ya existe para este producto.");
+    }
+
+    return this.prisma.inventoryItem.create({
+      data: {
+        productId,
+        languageId,
+        conditionId,
+        price: Number(price) || 0,
+        stock: Number(stock) || 0,
+        isFoil: !!isFoil
+      }
     });
   }
 }
