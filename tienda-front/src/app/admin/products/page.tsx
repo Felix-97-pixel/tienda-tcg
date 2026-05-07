@@ -437,6 +437,9 @@ export default function AdminProducts() {
                 collectorNum: row["Collector number"]?.trim() || "0",
                 quantity: parseInt(row["Quantity"]) || 1,
                 price: (row["Purchase price"] || row["Price"]) ? parseFloat((row["Purchase price"] || row["Price"]).toString().replace(/[$,]/g, "")) : undefined,
+                condition: row["Condition"]?.trim() || "near_mint",
+                isFoil: row["Foil"]?.toLowerCase().includes("foil") || row["Foil"]?.toLowerCase() === "yes" || false,
+                language: row["Language"]?.trim() || "es",
                 originalIndex: index // Guardamos el índice original
               }));
 

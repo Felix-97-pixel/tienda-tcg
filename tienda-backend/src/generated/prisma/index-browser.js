@@ -123,7 +123,15 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  slug: 'slug'
+  slug: 'slug',
+  imageUrl: 'imageUrl',
+  isTcg: 'isTcg'
+};
+
+exports.Prisma.BrandScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  imageUrl: 'imageUrl'
 };
 
 exports.Prisma.ProductScalarFieldEnum = {
@@ -133,8 +141,20 @@ exports.Prisma.ProductScalarFieldEnum = {
   description: 'description',
   imageUrl: 'imageUrl',
   categoryId: 'categoryId',
+  brandId: 'brandId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LanguageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code'
+};
+
+exports.Prisma.ConditionScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
 };
 
 exports.Prisma.CardDetailScalarFieldEnum = {
@@ -150,10 +170,71 @@ exports.Prisma.CardDetailScalarFieldEnum = {
 exports.Prisma.InventoryItemScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
-  condition: 'condition',
+  conditionId: 'conditionId',
+  languageId: 'languageId',
   isFoil: 'isFoil',
   price: 'price',
   stock: 'stock'
+};
+
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  password: 'password',
+  name: 'name',
+  phone: 'phone',
+  address: 'address',
+  city: 'city',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  buyOrder: 'buyOrder',
+  userId: 'userId',
+  email: 'email',
+  name: 'name',
+  phone: 'phone',
+  address: 'address',
+  city: 'city',
+  notes: 'notes',
+  totalAmount: 'totalAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  inventoryItemId: 'inventoryItemId',
+  productName: 'productName',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  token: 'token',
+  status: 'status',
+  amount: 'amount',
+  authCode: 'authCode',
+  cardLast4: 'cardLast4',
+  paymentType: 'paymentType',
+  installments: 'installments',
+  transactionDate: 'transactionDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WishlistItemScalarFieldEnum = {
+  userId: 'userId',
+  productId: 'productId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -170,18 +251,39 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-exports.GameType = exports.$Enums.GameType = {
-  MAGIC: 'MAGIC',
-  POKEMON: 'POKEMON',
-  YUGIOH: 'YUGIOH',
-  RIFTBOUND: 'RIFTBOUND'
+exports.Role = exports.$Enums.Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+};
+
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  AUTHORIZED: 'AUTHORIZED',
+  FAILED: 'FAILED',
+  NULLIFIED: 'NULLIFIED'
 };
 
 exports.Prisma.ModelName = {
   Category: 'Category',
+  Brand: 'Brand',
   Product: 'Product',
+  Language: 'Language',
+  Condition: 'Condition',
   CardDetail: 'CardDetail',
-  InventoryItem: 'InventoryItem'
+  InventoryItem: 'InventoryItem',
+  User: 'User',
+  Order: 'Order',
+  OrderItem: 'OrderItem',
+  Payment: 'Payment',
+  WishlistItem: 'WishlistItem'
 };
 
 /**

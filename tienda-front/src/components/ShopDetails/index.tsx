@@ -16,6 +16,11 @@ const ShopDetails = () => {
   const [type, setType] = useState("active");
   const [sim, setSim] = useState("dual");
   const [quantity, setQuantity] = useState(1);
+  
+  const [selectedCondition, setSelectedCondition] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedFoil, setSelectedFoil] = useState<boolean | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const [activeTab, setActiveTab] = useState("tabOne");
 
@@ -97,8 +102,30 @@ const ShopDetails = () => {
   useEffect(() => {
     if (isMounted) {
       localStorage.setItem("productDetails", JSON.stringify(product));
+      
+      // Initialize TCG selection
+      if (product?.items && product.items.length > 0) {
+        const firstItem = product.items[0];
+        setSelectedItem(firstItem);
+        setSelectedCondition(firstItem.conditionId);
+        setSelectedLanguage(firstItem.languageId);
+        setSelectedFoil(firstItem.isFoil);
+      }
     }
   }, [product, isMounted]);
+
+  useEffect(() => {
+    if (product?.items) {
+      const match = product.items.find((i: any) => 
+        i.conditionId === selectedCondition && 
+        i.languageId === selectedLanguage &&
+        i.isFoil === selectedFoil
+      );
+      if (match) {
+        setSelectedItem(match);
+      }
+    }
+  }, [selectedCondition, selectedLanguage, selectedFoil, product]);
 
   // pass the product here when you get the real data.
   const handlePreviewSlider = () => {
@@ -324,18 +351,21 @@ const ShopDetails = () => {
                         </defs>
                       </svg>
 
-                      <span className="text-green"> In Stock </span>
+                      <span className="text-green"> 
+                        {selectedItem && selectedItem.stock > 0 ? "In Stock" : "Out of Stock"} 
+                      </span>
                     </div>
                   </div>
 
                   <h3 className="font-medium text-custom-1 mb-4.5">
                     <span className="text-sm sm:text-base text-dark">
-                      Price: ${product.price}
+                      Price: ${selectedItem ? selectedItem.price : product.price}
                     </span>
-                    <span className="line-through">
-                      {" "}
-                      ${product.discountedPrice}{" "}
-                    </span>
+                    {product.discountedPrice > 0 && (
+                      <span className="line-through ml-2 text-gray-500">
+                        ${product.discountedPrice}
+                      </span>
+                    )}
                   </h3>
 
                   <ul className="flex flex-col gap-2">
@@ -386,243 +416,173 @@ const ShopDetails = () => {
 
                   <form onSubmit={(e) => e.preventDefault()}>
                     <div className="flex flex-col gap-4.5 border-y border-gray-3 mt-7.5 mb-9 py-9">
-                      {/* <!-- details item --> */}
-                      <div className="flex items-center gap-4">
-                        <div className="min-w-[65px]">
-                          <h4 className="font-medium text-dark">Color:</h4>
-                        </div>
-
-                        <div className="flex items-center gap-2.5">
-                          {colors.map((color, key) => (
-                            <label
-                              key={key}
-                              htmlFor={color}
-                              className="cursor-pointer select-none flex items-center"
-                            >
-                              <div className="relative">
-                                <input
-                                  type="radio"
-                                  name="color"
-                                  id={color}
-                                  className="sr-only"
-                                  onChange={() => setActiveColor(color)}
-                                />
-                                <div
-                                  className={`flex items-center justify-center w-5.5 h-5.5 rounded-full ${activeColor === color && "border"
-                                    }`}
-                                  style={{ borderColor: `${color}` }}
+                      {product.category?.isTcg ? (
+                        <>
+                          {/* TCG Condition Selector */}
+                          <div className="flex items-center gap-4">
+                            <div className="min-w-[85px]">
+                              <h4 className="font-medium text-dark">Condición:</h4>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {Array.from(new Map(product.items.map((i: any) => [i.conditionId, i.condition])).entries()).map(([id, cond]: any) => (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => setSelectedCondition(id)}
+                                  className={`px-3 py-1 rounded border text-sm ${selectedCondition === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
                                 >
-                                  <span
-                                    className="block w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: `${color}` }}
-                                  ></span>
-                                </div>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
+                                  {cond.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
 
-                      {/* <!-- details item --> */}
-                      <div className="flex items-center gap-4">
-                        <div className="min-w-[65px]">
-                          <h4 className="font-medium text-dark">Storage:</h4>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          {storages.map((item, key) => (
-                            <label
-                              key={key}
-                              htmlFor={item.id}
-                              className="flex cursor-pointer select-none items-center"
-                            >
-                              <div className="relative">
-                                <input
-                                  type="checkbox"
-                                  name="storage"
-                                  id={item.id}
-                                  className="sr-only"
-                                  onChange={() => setStorage(item.id)}
-                                />
-
-                                {/*  */}
-                                <div
-                                  className={`mr-2 flex h-4 w-4 items-center justify-center rounded border ${storage === item.id
-                                    ? "border-blue bg-blue"
-                                    : "border-gray-4"
-                                    } `}
+                          {/* TCG Language Selector */}
+                          <div className="flex items-center gap-4">
+                            <div className="min-w-[85px]">
+                              <h4 className="font-medium text-dark">Idioma:</h4>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {Array.from(new Map(product.items.map((i: any) => [i.languageId, i.language])).entries()).map(([id, lang]: any) => (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => setSelectedLanguage(id)}
+                                  className={`px-3 py-1 rounded border text-sm ${selectedLanguage === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
                                 >
-                                  <span
-                                    className={
-                                      storage === item.id
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    }
-                                  >
-                                    <svg
-                                      width="24"
-                                      height="24"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
+                                  {lang.code.toUpperCase()}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* TCG Foil Selector */}
+                          <div className="flex items-center gap-4">
+                            <div className="min-w-[85px]">
+                              <h4 className="font-medium text-dark">Versión:</h4>
+                            </div>
+                            <div className="flex gap-2">
+                              {Array.from(new Set(product.items.map((i: any) => i.isFoil))).sort().map((foil: any) => (
+                                <button
+                                  key={foil ? 'foil' : 'non-foil'}
+                                  type="button"
+                                  onClick={() => setSelectedFoil(foil)}
+                                  className={`px-3 py-1 rounded border text-sm ${selectedFoil === foil ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                >
+                                  {foil ? 'Foil' : 'Normal'}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* Original Phone Selectors */}
+                          {/* <!-- details item --> */}
+                          <div className="flex items-center gap-4">
+                            <div className="min-w-[65px]">
+                              <h4 className="font-medium text-dark">Color:</h4>
+                            </div>
+
+                            <div className="flex items-center gap-2.5">
+                              {colors.map((color, key) => (
+                                <label
+                                  key={key}
+                                  htmlFor={color}
+                                  className="cursor-pointer select-none flex items-center"
+                                >
+                                  <div className="relative">
+                                    <input
+                                      type="radio"
+                                      name="color"
+                                      id={color}
+                                      className="sr-only"
+                                      onChange={() => setActiveColor(color)}
+                                    />
+                                    <div
+                                      className={`flex items-center justify-center w-5.5 h-5.5 rounded-full ${activeColor === color && "border"
+                                        }`}
+                                      style={{ borderColor: `${color}` }}
                                     >
-                                      <rect
-                                        x="4"
-                                        y="4.00006"
-                                        width="16"
-                                        height="16"
-                                        rx="4"
-                                        fill="#3C50E0"
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M16.3103 9.25104C16.471 9.41178 16.5612 9.62978 16.5612 9.85707C16.5612 10.0844 16.471 10.3024 16.3103 10.4631L12.0243 14.7491C11.8635 14.9098 11.6455 15.0001 11.4182 15.0001C11.191 15.0001 10.973 14.9098 10.8122 14.7491L8.24062 12.1775C8.08448 12.0158 7.99808 11.7993 8.00003 11.5745C8.00199 11.3498 8.09214 11.1348 8.25107 10.9759C8.41 10.8169 8.62499 10.7268 8.84975 10.7248C9.0745 10.7229 9.29103 10.8093 9.4527 10.9654L11.4182 12.931L15.0982 9.25104C15.2589 9.09034 15.4769 9.00006 15.7042 9.00006C15.9315 9.00006 16.1495 9.09034 16.3103 9.25104Z"
-                                        fill="white"
-                                      />
-                                    </svg>
-                                  </span>
-                                </div>
-                              </div>
-                              {item.title}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
+                                      <span
+                                        className="block w-3 h-3 rounded-full"
+                                        style={{ backgroundColor: `${color}` }}
+                                      ></span>
+                                    </div>
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
 
-                      {/* // <!-- details item --> */}
-                      <div className="flex items-center gap-4">
-                        <div className="min-w-[65px]">
-                          <h4 className="font-medium text-dark">Type:</h4>
-                        </div>
+                          {/* <!-- details item --> */}
+                          <div className="flex items-center gap-4">
+                            <div className="min-w-[65px]">
+                              <h4 className="font-medium text-dark">Storage:</h4>
+                            </div>
 
-                        <div className="flex items-center gap-4">
-                          {types.map((item, key) => (
-                            <label
-                              key={key}
-                              htmlFor={item.id}
-                              className="flex cursor-pointer select-none items-center"
-                            >
-                              <div className="relative">
-                                <input
-                                  type="checkbox"
-                                  name="storage"
-                                  id={item.id}
-                                  className="sr-only"
-                                  onChange={() => setType(item.id)}
-                                />
-
-                                {/*  */}
-                                <div
-                                  className={`mr-2 flex h-4 w-4 items-center justify-center rounded border ${type === item.id
-                                    ? "border-blue bg-blue"
-                                    : "border-gray-4"
-                                    } `}
+                            <div className="flex items-center gap-4">
+                              {storages.map((item, key) => (
+                                <label
+                                  key={key}
+                                  htmlFor={item.id}
+                                  className="flex cursor-pointer select-none items-center"
                                 >
-                                  <span
-                                    className={
-                                      type === item.id
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    }
-                                  >
-                                    <svg
-                                      width="24"
-                                      height="24"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
+                                  <div className="relative">
+                                    <input
+                                      type="checkbox"
+                                      name="storage"
+                                      id={item.id}
+                                      className="sr-only"
+                                      onChange={() => setStorage(item.id)}
+                                    />
+
+                                    {/*  */}
+                                    <div
+                                      className={`mr-2 flex h-4 w-4 items-center justify-center rounded border ${storage === item.id
+                                        ? "border-blue bg-blue"
+                                        : "border-gray-4"
+                                        } `}
                                     >
-                                      <rect
-                                        x="4"
-                                        y="4.00006"
-                                        width="16"
-                                        height="16"
-                                        rx="4"
-                                        fill="#3C50E0"
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M16.3103 9.25104C16.471 9.41178 16.5612 9.62978 16.5612 9.85707C16.5612 10.0844 16.471 10.3024 16.3103 10.4631L12.0243 14.7491C11.8635 14.9098 11.6455 15.0001 11.4182 15.0001C11.191 15.0001 10.973 14.9098 10.8122 14.7491L8.24062 12.1775C8.08448 12.0158 7.99808 11.7993 8.00003 11.5745C8.00199 11.3498 8.09214 11.1348 8.25107 10.9759C8.41 10.8169 8.62499 10.7268 8.84975 10.7248C9.0745 10.7229 9.29103 10.8093 9.4527 10.9654L11.4182 12.931L15.0982 9.25104C15.2589 9.09034 15.4769 9.00006 15.7042 9.00006C15.9315 9.00006 16.1495 9.09034 16.3103 9.25104Z"
-                                        fill="white"
-                                      />
-                                    </svg>
-                                  </span>
-                                </div>
-                              </div>
-                              {item.title}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* // <!-- details item --> */}
-                      <div className="flex items-center gap-4">
-                        <div className="min-w-[65px]">
-                          <h4 className="font-medium text-dark">Sim:</h4>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          {sims.map((item, key) => (
-                            <label
-                              key={key}
-                              htmlFor={item.id}
-                              className="flex cursor-pointer select-none items-center"
-                            >
-                              <div className="relative">
-                                <input
-                                  type="checkbox"
-                                  name="storage"
-                                  id={item.id}
-                                  className="sr-only"
-                                  onChange={() => setSim(item.id)}
-                                />
-
-                                {/*  */}
-                                <div
-                                  className={`mr-2 flex h-4 w-4 items-center justify-center rounded border ${sim === item.id
-                                    ? "border-blue bg-blue"
-                                    : "border-gray-4"
-                                    } `}
-                                >
-                                  <span
-                                    className={
-                                      sim === item.id
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    }
-                                  >
-                                    <svg
-                                      width="24"
-                                      height="24"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <rect
-                                        x="4"
-                                        y="4.00006"
-                                        width="16"
-                                        height="16"
-                                        rx="4"
-                                        fill="#3C50E0"
-                                      />
-                                      <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M16.3103 9.25104C16.471 9.41178 16.5612 9.62978 16.5612 9.85707C16.5612 10.0844 16.471 10.3024 16.3103 10.4631L12.0243 14.7491C11.8635 14.9098 11.6455 15.0001 11.4182 15.0001C11.191 15.0001 10.973 14.9098 10.8122 14.7491L8.24062 12.1775C8.08448 12.0158 7.99808 11.7993 8.00003 11.5745C8.00199 11.3498 8.09214 11.1348 8.25107 10.9759C8.41 10.8169 8.62499 10.7268 8.84975 10.7248C9.0745 10.7229 9.29103 10.8093 9.4527 10.9654L11.4182 12.931L15.0982 9.25104C15.2589 9.09034 15.4769 9.00006 15.7042 9.00006C15.9315 9.00006 16.1495 9.09034 16.3103 9.25104Z"
-                                        fill="white"
-                                      />
-                                    </svg>
-                                  </span>
-                                </div>
-                              </div>
-                              {item.title}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
+                                      <span
+                                        className={
+                                          storage === item.id
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        }
+                                      >
+                                        <svg
+                                          width="24"
+                                          height="24"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <rect
+                                            x="4"
+                                            y="4.00006"
+                                            width="16"
+                                            height="16"
+                                            rx="4"
+                                            fill="#3C50E0"
+                                          />
+                                          <path
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                            d="M16.3103 9.25104C16.471 9.41178 16.5612 9.62978 16.5612 9.85707C16.5612 10.0844 16.471 10.3024 16.3103 10.4631L12.0243 14.7491C11.8635 14.9098 11.6455 15.0001 11.4182 15.0001C11.191 15.0001 10.973 14.9098 10.8122 14.7491L8.24062 12.1775C8.08448 12.0158 7.99808 11.7993 8.00003 11.5745C8.00199 11.3498 8.09214 11.1348 8.25107 10.9759C8.41 10.8169 8.62499 10.7268 8.84975 10.7248C9.0745 10.7229 9.29103 10.8093 9.4527 10.9654L11.4182 12.931L15.0982 9.25104C15.2589 9.09034 15.4769 9.00006 15.7042 9.00006C15.9315 9.00006 16.1495 9.09034 16.3103 9.25104Z"
+                                            fill="white"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {item.title}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4.5">

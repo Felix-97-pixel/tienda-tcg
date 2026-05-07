@@ -40,7 +40,18 @@ export class ProductsService {
     }
 
     const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
- 
+    
+    // Pre-cargar idiomas y condiciones para evitar consultas repetitivas
+    const [languages, conditions] = await Promise.all([
+      this.prisma.language.findMany(),
+      this.prisma.condition.findMany()
+    ]);
+
+    const langMap = new Map(languages.map(l => [l.code, l.id]));
+    const condMap = new Map(conditions.map(c => [c.name, c.id]));
+    const defaultLang = languages.find(l => l.code === 'es')?.id || languages[0]?.id;
+    const defaultCond = conditions.find(c => c.name === 'near_mint')?.id || conditions[0]?.id;
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       try {
@@ -71,12 +82,22 @@ export class ProductsService {
         }
 
         if (product) {
-          if (product.items && product.items.length > 0) {
+          const conditionId = condMap.get(item.condition || "") || defaultCond;
+          const languageId = langMap.get(item.language || "") || defaultLang;
+          const isFoil = item.isFoil || false;
+          
+          const existingItem = product.items.find(i => 
+            i.conditionId === conditionId && 
+            i.languageId === languageId &&
+            i.isFoil === isFoil
+          );
+
+          if (existingItem) {
             await this.prisma.inventoryItem.update({
-              where: { id: product.items[0].id },
+              where: { id: existingItem.id },
               data: {
-                stock: product.items[0].stock + item.quantity,
-                price: item.price !== undefined ? item.price : product.items[0].price
+                stock: existingItem.stock + item.quantity,
+                price: item.price !== undefined ? item.price : existingItem.price
               }
             });
           } else {
@@ -85,8 +106,9 @@ export class ProductsService {
                 productId: product.id,
                 price: item.price || 0,
                 stock: item.quantity,
-                condition: "New",
-                isFoil: false
+                conditionId: conditionId,
+                languageId: languageId,
+                isFoil: isFoil
               }
             });
           }
@@ -373,7 +395,12 @@ export class ProductsService {
         category: true,
         brand: true,
         cardDetail: true,
-        items: true,
+        items: {
+          include: {
+            condition: true,
+            language: true,
+          }
+        },
       },
     });
   }

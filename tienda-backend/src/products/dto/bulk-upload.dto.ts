@@ -26,6 +26,18 @@ export class BulkUploadItemDto {
   price?: number;
 
   @IsOptional()
+  @IsString()
+  condition?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isFoil?: boolean;
+
+  @IsOptional()
+  @IsString()
+  language?: string;
+
+  @IsOptional()
   @IsNumber()
   originalIndex?: number;
 }

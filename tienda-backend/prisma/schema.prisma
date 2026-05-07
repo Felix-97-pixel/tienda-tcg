@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -38,6 +39,19 @@ model Product {
   wishlistedBy WishlistItem[]
 }
 
+model Language {
+  id    String @id @default(uuid())
+  name  String @unique // e.g., "Spanish", "English"
+  code  String @unique // e.g., "es", "en"
+  items InventoryItem[]
+}
+
+model Condition {
+  id    String @id @default(uuid())
+  name  String @unique // e.g., "near_mint", "poor"
+  items InventoryItem[]
+}
+
 model CardDetail {
   id           String   @id @default(uuid())
   expansion    String
@@ -50,13 +64,16 @@ model CardDetail {
 }
 
 model InventoryItem {
-  id        String  @id @default(uuid())
-  productId String
-  condition String  @default("New")
-  isFoil    Boolean @default(false)
-  price     Decimal @db.Decimal(10, 2)
-  stock     Int     @default(0)
-  product   Product @relation(fields: [productId], references: [id])
+  id          String    @id @default(uuid())
+  productId   String
+  conditionId String
+  languageId  String
+  isFoil      Boolean   @default(false)
+  price       Decimal   @db.Decimal(10, 2)
+  stock       Int       @default(0)
+  product     Product   @relation(fields: [productId], references: [id])
+  condition   Condition @relation(fields: [conditionId], references: [id])
+  language    Language  @relation(fields: [languageId], references: [id])
 }
 
 model User {
