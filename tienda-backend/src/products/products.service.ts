@@ -39,9 +39,10 @@ export class ProductsService {
       throw new Error("La carga masiva actualmente solo está soportada para Singles Magic The Gathering.");
     }
 
-    const results = { added: 0, updated: 0, errors: [] as string[] };
-
-    for (const item of items) {
+    const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
+ 
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       try {
         let product;
         if (item.scryfallId) {
@@ -74,7 +75,8 @@ export class ProductsService {
             await this.prisma.inventoryItem.update({
               where: { id: product.items[0].id },
               data: {
-                stock: product.items[0].stock + item.quantity
+                stock: product.items[0].stock + item.quantity,
+                price: item.price !== undefined ? item.price : product.items[0].price
               }
             });
           } else {
@@ -90,10 +92,16 @@ export class ProductsService {
           }
           results.updated++;
         } else {
-          results.errors.push(`No se encontró la carta '${item.name}' de la edición '${item.expansion}'. Asegúrate de sincronizar la edición primero.`);
+          results.errors.push({
+            index: item.originalIndex !== undefined ? item.originalIndex : i,
+            error: `No se encontró la carta '${item.name}' de la edición '${item.expansion}'. Asegúrate de sincronizar la edición primero.`
+          });
         }
       } catch (err: any) {
-        results.errors.push(`Error with item ${item.name}: ${err.message}`);
+        results.errors.push({
+          index: item.originalIndex !== undefined ? item.originalIndex : i,
+          error: `Error with item ${item.name}: ${err.message}`
+        });
       }
     }
     return results;
@@ -111,10 +119,11 @@ export class ProductsService {
     });
   }
 
-  async bulkUpdateStock(items: { id: string, stock: number }[]) {
-    const results = { updated: 0, errors: [] as string[] };
+  async bulkUpdateStock(items: { id: string, stock: number, originalIndex?: number }[]) {
+    const results = { updated: 0, errors: [] as { index: number, error: string }[] };
 
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       try {
         const product = await this.prisma.product.findUnique({
           where: { id: item.id },
@@ -139,10 +148,16 @@ export class ProductsService {
           });
           results.updated++;
         } else {
-          results.errors.push(`No se encontró el producto con ID: ${item.id}`);
+          results.errors.push({
+            index: item.originalIndex !== undefined ? item.originalIndex : i,
+            error: `No se encontró el producto con ID: ${item.id}`
+          });
         }
       } catch (err: any) {
-        results.errors.push(`Error con producto ${item.id}: ${err.message}`);
+        results.errors.push({
+          index: item.originalIndex !== undefined ? item.originalIndex : i,
+          error: `Error con producto ${item.id}: ${err.message}`
+        });
       }
     }
 

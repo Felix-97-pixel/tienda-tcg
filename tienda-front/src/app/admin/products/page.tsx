@@ -426,17 +426,19 @@ export default function AdminProducts() {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
+        const originalData = results.data;
         try {
           if (selectedCategoryData?.isTcg !== false) {
-            const items = results.data.map((row: any) => ({
-              scryfallId: row["Scryfall ID"]?.trim() || undefined,
-              name: row["Name"]?.trim() || "Unknown",
-              expansion: row["Set name"]?.trim() || "Unknown",
-              rarity: row["Rarity"]?.trim() || "Unknown",
-              collectorNum: row["Collector number"]?.trim() || "0",
-              quantity: parseInt(row["Quantity"]) || 1,
-              price: row["Purchase price"] ? parseFloat(row["Purchase price"]) : undefined,
-            }));
+              const items = originalData.map((row: any, index: number) => ({
+                scryfallId: row["Scryfall ID"]?.trim() || undefined,
+                name: row["Name"]?.trim() || "Unknown",
+                expansion: row["Set name"]?.trim() || "Unknown",
+                rarity: row["Rarity"]?.trim() || "Unknown",
+                collectorNum: row["Collector number"]?.trim() || "0",
+                quantity: parseInt(row["Quantity"]) || 1,
+                price: (row["Purchase price"] || row["Price"]) ? parseFloat((row["Purchase price"] || row["Price"]).toString().replace(/[$,]/g, "")) : undefined,
+                originalIndex: index // Guardamos el índice original
+              }));
 
             const res = await fetch(`${API_URL}/products/bulk-upload`, {
               method: "POST",
@@ -449,9 +451,28 @@ export default function AdminProducts() {
               const data = await res.json();
               let msg = t("bulk.successMtg", { added: data.added, updated: data.updated, errors: data.errors.length });
               if (data.errors.length > 0) {
-                const sampleErrors = data.errors.slice(0, 10).join("\n- ");
+                const sampleErrors = data.errors.slice(0, 10).map((e: any) => e.error).join("\n- ");
                 msg += `\n\n${t("bulk.formatDesc")}\n- ${sampleErrors}`;
                 if (data.errors.length > 10) msg += `\n...${t("bulk.errorMessage")}`;
+
+                // Download CSV of errors
+                const failedItems = data.errors.map((e: any) => {
+                  const row = (originalData[e.index] || {}) as Record<string, unknown>;
+                  return {
+                    ...row,
+                    Error: e.error
+                  };
+                });
+                const csv = Papa.unparse(failedItems);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `errores_carga_tcg_${Date.now()}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
               }
               showToast(msg, data.errors.length > 0 ? "warning" : "success");
               setIsBulkOpen(false);
@@ -462,9 +483,10 @@ export default function AdminProducts() {
               showToast(t("bulk.errorBulk"), "error");
             }
           } else {
-            const items = results.data.map((row: any) => ({
+            const items = originalData.map((row: any, index: number) => ({
               id: row["ID"],
-              stock: parseInt(row["Stock"]) || 0
+              stock: parseInt(row["Stock"]) || 0,
+              originalIndex: index // Guardamos el índice original
             })).filter((item: any) => item.id);
 
             const res = await fetch(`${API_URL}/products/bulk-update-stock`, {
@@ -478,9 +500,28 @@ export default function AdminProducts() {
               const data = await res.json();
               let msg = t("bulk.successStock", { updated: data.updated, errors: data.errors.length });
               if (data.errors.length > 0) {
-                const sampleErrors = data.errors.slice(0, 10).join("\n- ");
+                const sampleErrors = data.errors.slice(0, 10).map((e: any) => e.error).join("\n- ");
                 msg += `\n\n${t("bulk.formatDesc")}\n- ${sampleErrors}`;
                 if (data.errors.length > 10) msg += `\n...${t("bulk.errorMessage")}`;
+
+                // Download CSV of errors
+                const failedItems = data.errors.map((e: any) => {
+                  const row = (originalData[e.index] || {}) as Record<string, unknown>;
+                  return {
+                    ...row,
+                    Error: e.error
+                  };
+                });
+                const csv = Papa.unparse(failedItems);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `errores_carga_stock_${Date.now()}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
               }
               showToast(msg, data.errors.length > 0 ? "warning" : "success");
               setIsBulkOpen(false);

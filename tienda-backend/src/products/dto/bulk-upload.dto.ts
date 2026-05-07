@@ -24,6 +24,10 @@ export class BulkUploadItemDto {
   @IsOptional()
   @IsNumber()
   price?: number;
+
+  @IsOptional()
+  @IsNumber()
+  originalIndex?: number;
 }
 
 export class BulkUploadDto {
