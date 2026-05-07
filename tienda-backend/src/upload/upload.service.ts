@@ -24,10 +24,25 @@ export class UploadService {
   async deleteImage(url: string): Promise<any> {
     try {
       if (!url.includes('cloudinary.com')) return null;
-      // Extract public_id from Cloudinary URL
-      const parts = url.split('/');
-      const filenameWithExtension = parts[parts.length - 1];
-      const publicId = filenameWithExtension.split('.')[0];
+      
+      // Cloudinary URL format: https://res.cloudinary.com/[cloud_name]/image/upload/v[version]/[public_id].[extension]
+      // We need everything after /upload/ (excluding the version and the extension)
+      const uploadIndex = url.indexOf('/upload/');
+      if (uploadIndex === -1) return null;
+
+      const afterUpload = url.substring(uploadIndex + 8);
+      const parts = afterUpload.split('/');
+      
+      // If the first part starts with 'v' and is followed by numbers, it's the version
+      let publicIdWithExt;
+      if (parts[0].match(/^v\d+$/)) {
+        publicIdWithExt = parts.slice(1).join('/');
+      } else {
+        publicIdWithExt = parts.join('/');
+      }
+
+      // Remove extension
+      const publicId = publicIdWithExt.split('.').slice(0, -1).join('.');
       
       return await cloudinary.uploader.destroy(publicId);
     } catch (error) {
