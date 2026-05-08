@@ -183,9 +183,11 @@
   "sync": {
     "title": "Sincronización de Catálogo",
     "subtitle": "Importa y actualiza productos desde fuentes externas",
+    "configuredDestination": "Destino configurado:",
+    "noExpansions": "No hay expansiones cargadas",
     "mtgjson": {
-      "title": "Importar desde MTGJSON",
-      "subtitle": "Importa cartas de Magic: The Gathering desde la base de datos oficial de MTGJSON",
+      "title": "Importar Expansiones de Magic The Gathering desde Scryfall",
+      "subtitle": "Importa cartas de Magic: The Gathering desde la base de datos oficial de Scryfall",
       "label": "Código de Expansión MTG",
       "placeholder": "Ej: MKM, OTJ, BLB...",
       "button": "Importar Expansión",
@@ -198,7 +200,7 @@
       "errorNetwork": "Error de red al intentar sincronizar."
     },
     "cardkingdom": {
-      "title": "Actualizar Precios desde Card Kingdom",
+      "title": "Actualizar Precios Magic The Gathering",
       "subtitle": "Sincroniza los precios de tus cartas con los precios actuales de Card Kingdom",
       "button": "Actualizar Precios",
       "updating": "Actualizando...",
@@ -218,6 +220,15 @@
       "successSuffix": "cartas procesadas",
       "findCodesLabel": "Ver códigos de sets en",
       "findCodesLink": "PokémonTCG.io"
+    },
+    "tcgplayer": {
+      "title": "Actualizar Precios Pokémon",
+      "subtitle": "Sincroniza los precios de tus cartas de Pokémon con TCGPlayer",
+      "label": "Seleccionar Expansión Pokémon",
+      "placeholder": "Escribe para filtrar...",
+      "button": "Actualizar Precios TCGPlayer",
+      "updating": "Actualizando precios Pokémon...",
+      "success": "Actualización de precios de Pokémon iniciada correctamente"
     }
   },
   "orders": {

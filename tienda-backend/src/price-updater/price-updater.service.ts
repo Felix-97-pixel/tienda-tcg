@@ -216,4 +216,76 @@ export class PriceUpdaterService {
 
     this.logger.log(`=== ¡Proceso completado! ${updated} cartas de "${expansion}" actualizadas con precios de Card Kingdom. ===`);
   }
+
+  /**
+   * Actualiza precios para Pokémon usando pokemontcg.io (TCGPlayer data)
+   */
+  async updatePokemonSetPrices(expansion: string) {
+    this.logger.log(`=== Iniciando actualización Pokémon TCG para: "${expansion}" ===`);
+
+    // 1. Buscar el set en la API para obtener el ID real
+    const setsRes = await axios.get(`https://api.pokemontcg.io/v2/sets?q=name:"${expansion}"`);
+    const set = setsRes.data?.data?.[0];
+    if (!set) {
+      this.logger.error(`No se encontró el set Pokémon con nombre "${expansion}" en la API.`);
+      return;
+    }
+
+    const setId = set.id;
+    this.logger.log(`Set Pokémon encontrado: ${set.name} (${setId})`);
+
+    let page = 1;
+    const pageSize = 250;
+    let hasMore = true;
+    let updatedCount = 0;
+
+    while (hasMore) {
+      const url = `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}&select=id,tcgplayer`;
+      const res = await axios.get(url);
+      const cards = res.data?.data ?? [];
+
+      if (cards.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      for (const card of cards) {
+        const externalId = card.id;
+        const prices = card.tcgplayer?.prices;
+
+        if (!prices) continue;
+
+        // Pokémon puede tener varios tipos de precios (normal, holofoil, reverseHolofoil, etc.)
+        // Intentamos mapear a nuestro sistema de normal vs foil
+        const normalPrice = prices.normal?.mid || prices.unlimitedHolofoil?.mid || 0;
+        const foilPrice = prices.holofoil?.mid || prices.reverseHolofoil?.mid || prices['1stEditionHolofoil']?.mid || 0;
+
+        if (normalPrice > 0) {
+          await this.prisma.inventoryItem.updateMany({
+            where: {
+              product: { externalId },
+              isFoil: false
+            },
+            data: { price: normalPrice }
+          });
+        }
+
+        if (foilPrice > 0) {
+          await this.prisma.inventoryItem.updateMany({
+            where: {
+              product: { externalId },
+              isFoil: true
+            },
+            data: { price: foilPrice }
+          });
+        }
+        updatedCount++;
+      }
+
+      if (cards.length < pageSize) hasMore = false;
+      else page++;
+    }
+
+    this.logger.log(`=== ¡Proceso completado! ${updatedCount} cartas de Pokémon de "${expansion}" actualizadas. ===`);
+  }
 }

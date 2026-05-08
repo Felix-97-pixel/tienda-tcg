@@ -36,4 +36,26 @@ export class PriceUpdaterController {
       source: 'MTGJSON (100% libre de scraping)'
     };
   }
+
+  @Post('sync-pokemon')
+  @HttpCode(200)
+  async syncPokemonPrices(@Body('expansion') expansion: string) {
+    if (!expansion) {
+      return { error: 'Debes enviar el nombre de la expansión en el cuerpo de la petición (ej: { "expansion": "Scarlet & Violet" })' };
+    }
+
+    const exists = await this.priceUpdaterService.checkExpansionExists(expansion);
+    if (!exists) {
+      return {
+        error: `La expansión '${expansion}' no existe en tu base de datos.`
+      };
+    }
+
+    this.priceUpdaterService.updatePokemonSetPrices(expansion);
+
+    return {
+      message: `La actualización de precios para la expansión '${expansion}' ha comenzado en segundo plano.`,
+      source: 'TCGPlayer (PokemonTCG.io API)'
+    };
+  }
 }

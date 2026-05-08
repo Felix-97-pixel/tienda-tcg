@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -10,6 +10,17 @@ import { Role } from '@prisma/client';
 @Roles(Role.ADMIN)
 export class SyncController {
   constructor(private readonly syncService: SyncService) { }
+
+  @Get('mtg-sets')
+  async getMtgSets() {
+    return this.syncService.getMtgSets();
+  }
+
+  @Get('pokemon-sets')
+  async getPokemonSets() {
+    return this.syncService.getPokemonSets();
+  }
+
   //Invoke-RestMethod -Method POST -Uri "http://localhost:3001/sync/set" -ContentType "application/json" -Body '{"game": "Singles Magic The Gathering", "setId": "tla"}'
   @Post('set')
   async syncSet(
