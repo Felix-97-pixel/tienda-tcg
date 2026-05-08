@@ -201,7 +201,7 @@
     },
     "cardkingdom": {
       "title": "Actualizar Precios Magic The Gathering",
-      "subtitle": "Sincroniza los precios de tus cartas con los precios actuales de Card Kingdom",
+      "subtitle": "Sincroniza los precios de tus cartas con los precios actuales de Card Kingdom desde MTGJSON",
       "button": "Actualizar Precios",
       "updating": "Actualizando...",
       "successPrefix": "Precios actualizados:",
@@ -229,6 +229,18 @@
       "button": "Actualizar Precios TCGPlayer",
       "updating": "Actualizando precios Pokémon...",
       "success": "Actualización de precios de Pokémon iniciada correctamente"
+    },
+    "riftbound": {
+      "title": "Importar desde Riftcodex (Riftbound)",
+      "subtitle": "Importa cartas de Riftbound TCG usando el catálogo oficial de Riftcodex",
+      "placeholder": "Selecciona un set...",
+      "button": "Importar Set Riftbound"
+    },
+    "riftboundPrice": {
+      "title": "Actualizar Precios Riftbound",
+      "subtitle": "Sincroniza los precios NM/Foil de Riftbound usando la API de JustTCG",
+      "placeholder": "Selecciona expansión local...",
+      "button": "Actualizar Precios JustTCG"
     }
   },
   "orders": {

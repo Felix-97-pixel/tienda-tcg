@@ -21,6 +21,11 @@ export class SyncController {
     return this.syncService.getPokemonSets();
   }
 
+  @Get('riftbound-sets')
+  async getRiftboundSets() {
+    return this.syncService.getRiftboundSets();
+  }
+
   //Invoke-RestMethod -Method POST -Uri "http://localhost:3001/sync/set" -ContentType "application/json" -Body '{"game": "Singles Magic The Gathering", "setId": "tla"}'
   @Post('set')
   async syncSet(

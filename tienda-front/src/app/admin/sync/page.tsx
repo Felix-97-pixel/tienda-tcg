@@ -18,8 +18,14 @@ interface PokemonSet {
   releaseDate: string;
 }
 
+interface RiftboundSet {
+  id: string;
+  name: string;
+  release_date: string;
+}
+
 function SearchableSelect({
-  options,
+  options = [],
   value,
   onChange,
   placeholder,
@@ -36,10 +42,11 @@ function SearchableSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const selectedOption = options.find((o) => o.value === value);
+  const safeOptions = Array.isArray(options) ? options : [];
+  const selectedOption = safeOptions.find((o) => o.value === value);
   const displayValue = isOpen ? search : selectedOption ? selectedOption.label : "";
 
-  const filteredOptions = options.filter((o) =>
+  const filteredOptions = safeOptions.filter((o) =>
     o.label.toLowerCase().includes(search.toLowerCase()) || o.value.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -53,7 +60,7 @@ function SearchableSelect({
         onFocus={() => { setIsOpen(true); setSearch(""); }}
         onChange={(e) => setSearch(e.target.value)}
         onBlur={() => { setTimeout(() => setIsOpen(false), 200); }}
-        className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary disabled:bg-gray-2"
+        className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary disabled:bg-gray-2 text-sm"
       />
       {isOpen && !disabled && (
         <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border border-stroke bg-white shadow-default">
@@ -83,391 +90,193 @@ export default function AdminSync() {
 
   const [setId, setSetId] = useState("");
   const [pokemonSetId, setPokemonSetId] = useState("");
+  const [riftSetId, setRiftSetId] = useState("");
+
   const [expansion, setExpansion] = useState("");
   const [pokemonExpansion, setPokemonExpansion] = useState("");
-  const [expansionsList, setExpansionsList] = useState<{name: string, products: number}[]>([]);
-  const [pokemonExpansionsList, setPokemonExpansionsList] = useState<{name: string, products: number}[]>([]);
+  const [riftExpansion, setRiftExpansion] = useState("");
+
+  const [expansionsList, setExpansionsList] = useState<{ name: string, products: number }[]>([]);
+  const [pokemonExpansionsList, setPokemonExpansionsList] = useState<{ name: string, products: number }[]>([]);
+  const [riftExpansionsList, setRiftExpansionsList] = useState<{ name: string, products: number }[]>([]);
+
   const [mtgJsonSets, setMtgJsonSets] = useState<MTGSet[]>([]);
   const [pokemonSets, setPokemonSets] = useState<PokemonSet[]>([]);
+  const [riftSets, setRiftSets] = useState<RiftboundSet[]>([]);
+
   const [loadingMtg, setLoadingMtg] = useState(false);
   const [loadingPokemon, setLoadingPokemon] = useState(false);
+  const [loadingRift, setLoadingRift] = useState(false);
   const [loadingCk, setLoadingCk] = useState(false);
   const [loadingPkPrice, setLoadingPkPrice] = useState(false);
-  
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+  const [loadingRiftPrice, setLoadingRiftPrice] = useState(false);
+
   const [mtgDefaultCategory, setMtgDefaultCategory] = useState("Singles Magic The Gathering");
   const [pokemonDefaultCategory, setPokemonDefaultCategory] = useState("Singles Pokemon");
+  const [riftDefaultCategory, setRiftDefaultCategory] = useState("Singles Riftbound");
 
   useEffect(() => {
-    // Fetch categories and settings in parallel
-    Promise.all([
-      fetch(`${API_URL}/products/meta/categories`).then(res => res.json()),
-      fetch(`${API_URL}/settings`).then(res => res.json())
-    ])
-      .then(([categoriesData, settingsData]) => {
-        setCategories(categoriesData);
-        
-        // MTG Category
-        if (settingsData.mtg_sync_destination) {
-          setMtgDefaultCategory(settingsData.mtg_sync_destination);
-        } else if (categoriesData.length > 0) {
-          const mtgCat = categoriesData.find((c: any) => c.name.toLowerCase().includes("magic"));
-          if (mtgCat) setMtgDefaultCategory(mtgCat.name);
-          else setMtgDefaultCategory(categoriesData[0].name);
-        }
-
-        // Pokemon Category
-        if (settingsData.pokemon_sync_destination) {
-          setPokemonDefaultCategory(settingsData.pokemon_sync_destination);
-        } else if (categoriesData.length > 0) {
-          const pkmnCat = categoriesData.find((c: any) => c.name.toLowerCase().includes("pokemon"));
-          if (pkmnCat) setPokemonDefaultCategory(pkmnCat.name);
-          else setPokemonDefaultCategory(categoriesData[0].name);
-        }
-      })
-      .catch(err => console.error("Error fetching data:", err));
+    fetch(`${API_URL}/settings`).then(res => res.json()).then(data => {
+      if (data.mtg_sync_destination) setMtgDefaultCategory(data.mtg_sync_destination);
+      if (data.pokemon_sync_destination) setPokemonDefaultCategory(data.pokemon_sync_destination);
+      if (data.riftbound_sync_destination) setRiftDefaultCategory(data.riftbound_sync_destination);
+    }).catch(() => { });
   }, []);
 
   useEffect(() => {
     if (!mtgDefaultCategory) return;
-
-    const category = encodeURIComponent(mtgDefaultCategory);
-    fetch(`${API_URL}/products/meta/expansions?category=${category}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setExpansionsList(data);
-        if (data.length > 0) setExpansion(data[0].name);
-      })
-      .catch((err) => console.error("Error fetching expansions:", err));
-
-    // Fetch MTG sets from BACKEND
-    fetch(`${API_URL}/sync/mtg-sets`, { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setMtgJsonSets(data);
-        if (data.length > 0) setSetId(data[0].code.toLowerCase());
-      })
-      .catch((err) => console.error("Error fetching MTG sets:", err));
+    const cat = encodeURIComponent(mtgDefaultCategory);
+    fetch(`${API_URL}/products/meta/expansions?category=${cat}`).then(r => r.json()).then(d => setExpansionsList(Array.isArray(d) ? d : []));
+    fetch(`${API_URL}/sync/mtg-sets`, { credentials: "include" }).then(r => r.json()).then(data => {
+      const sets = Array.isArray(data) ? data : [];
+      setMtgJsonSets(sets);
+      if (sets.length > 0) setSetId(sets[0].code.toLowerCase());
+    });
   }, [mtgDefaultCategory]);
 
   useEffect(() => {
     if (!pokemonDefaultCategory) return;
-
-    const category = encodeURIComponent(pokemonDefaultCategory);
-    fetch(`${API_URL}/products/meta/expansions?category=${category}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setPokemonExpansionsList(data);
-        if (data.length > 0) setPokemonExpansion(data[0].name);
-      })
-      .catch((err) => console.error("Error fetching Pokemon expansions:", err));
-
-    // Fetch Pokemon sets from BACKEND
-    fetch(`${API_URL}/sync/pokemon-sets`, { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setPokemonSets(data);
-        if (data.length > 0) setPokemonSetId(data[0].id);
-      })
-      .catch((err) => console.error("Error fetching Pokemon sets:", err));
+    const cat = encodeURIComponent(pokemonDefaultCategory);
+    fetch(`${API_URL}/products/meta/expansions?category=${cat}`).then(r => r.json()).then(d => setPokemonExpansionsList(Array.isArray(d) ? d : []));
+    fetch(`${API_URL}/sync/pokemon-sets`, { credentials: "include" }).then(r => r.json()).then(data => {
+      const sets = Array.isArray(data) ? data : [];
+      setPokemonSets(sets);
+      if (sets.length > 0) setPokemonSetId(sets[0].id);
+    });
   }, [pokemonDefaultCategory]);
 
-  const handleSyncMtgJson = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (!riftDefaultCategory) return;
+    const cat = encodeURIComponent(riftDefaultCategory);
+    fetch(`${API_URL}/products/meta/expansions?category=${cat}`).then(r => r.json()).then(d => setRiftExpansionsList(Array.isArray(d) ? d : []));
+    fetch(`${API_URL}/sync/riftbound-sets`, { credentials: "include" }).then(r => r.json()).then(data => {
+      const sets = Array.isArray(data) ? data : [];
+      setRiftSets(sets);
+      if (sets.length > 0) setRiftSetId(sets[0].id);
+    });
+  }, [riftDefaultCategory]);
+
+  const handleSyncSet = async (game: string, setId: string, setLoader: (l: boolean) => void, refresh: () => void) => {
     if (!setId) return;
-    setLoadingMtg(true);
+    setLoader(true);
     try {
       const res = await fetch(`${API_URL}/sync/set`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ game: mtgDefaultCategory, setId: setId.toLowerCase() }),
+        body: JSON.stringify({ game, setId }),
         credentials: "include",
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(`${t("mtgjson.successPrefix")} ${data.count ?? ""} ${t("mtgjson.successSuffix")}`, "success");
-        const category = encodeURIComponent(mtgDefaultCategory);
-        fetch(`${API_URL}/products/meta/expansions?category=${category}`)
-          .then((r) => r.json())
-          .then((d) => setExpansionsList(d));
+        showToast(`${tCommon("success")}: ${data.count ?? ""} cartas`, "success");
+        refresh();
       } else {
-        showToast(t("mtgjson.errorApi", { message: data.message || "" }), "error");
+        showToast(data.message || tCommon("error"), "error");
       }
     } catch {
-      showToast(t("mtgjson.errorNetwork"), "error");
+      showToast(tCommon("networkError"), "error");
     } finally {
-      setLoadingMtg(false);
+      setLoader(false);
     }
   };
 
-  const handleSyncPokemon = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!pokemonSetId) return;
-    setLoadingPokemon(true);
+  const handleSyncPrices = async (endpoint: string, expName: string, setLoader: (l: boolean) => void) => {
+    if (!expName) return;
+    setLoader(true);
     try {
-      const res = await fetch(`${API_URL}/sync/set`, {
+      const res = await fetch(`${API_URL}/price-updater/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ game: pokemonDefaultCategory, setId: pokemonSetId }),
+        body: JSON.stringify({ expansion: expName }),
         credentials: "include",
       });
       const data = await res.json();
-      if (res.ok) {
-        showToast(`${t("pokemon.successPrefix")} ${data.count ?? ""} ${t("pokemon.successSuffix")}`, "success");
-        const category = encodeURIComponent(pokemonDefaultCategory);
-        fetch(`${API_URL}/products/meta/expansions?category=${category}`)
-          .then((r) => r.json())
-          .then((d) => setPokemonExpansionsList(d));
-      } else {
-        showToast(t("mtgjson.errorApi", { message: data.message || "" }), "error");
-      }
+      if (res.ok) showToast(data.message || tCommon("success"), "success");
+      else showToast(data.error || tCommon("error"), "error");
     } catch {
-      showToast(t("mtgjson.errorNetwork"), "error");
+      showToast(tCommon("networkError"), "error");
     } finally {
-      setLoadingPokemon(false);
+      setLoader(false);
     }
   };
 
-  const handleSyncCardKingdom = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!expansion) return;
-    setLoadingCk(true);
-    try {
-      const res = await fetch(`${API_URL}/price-updater/sync-set`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ expansion }),
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(data.message || `${t("cardkingdom.successPrefix")} ${expansion}`, "success");
-      } else {
-        showToast(t("cardkingdom.errorApi", { message: data.error || "" }), "error");
-      }
-    } catch {
-      showToast(t("cardkingdom.errorNetwork"), "error");
-    } finally {
-      setLoadingCk(false);
-    }
-  };
-
-  const handleSyncPokemonPrices = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!pokemonExpansion) return;
-    setLoadingPkPrice(true);
-    try {
-      const res = await fetch(`${API_URL}/price-updater/sync-pokemon`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ expansion: pokemonExpansion }),
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(data.message || t("tcgplayer.success"), "success");
-      } else {
-        showToast(data.error || tCommon("error"), "error");
-      }
-    } catch {
-      showToast(t("mtgjson.errorNetwork"), "error");
-    } finally {
-      setLoadingPkPrice(false);
-    }
-  };
-
-  const mtgJsonOptions = mtgJsonSets.map(set => ({
-    label: `${set.name} (${set.code}) - ${set.releaseDate}`,
-    value: set.code.toLowerCase()
-  }));
-
-  const pokemonOptions = pokemonSets.map(set => ({
-    label: `${set.name} (${set.id}) - ${set.releaseDate}`,
-    value: set.id
-  }));
-
-  const localExpansionOptions = expansionsList.map(exp => ({
-    label: `${exp.name} (${exp.products} cartas)`,
-    value: exp.name
-  }));
-
-  const localPokemonExpansionOptions = pokemonExpansionsList.map(exp => ({
-    label: `${exp.name} (${exp.products} cartas)`,
-    value: exp.name
-  }));
+  // Botón estándar azul para todos
+  const buttonClass = "w-full mt-4 bg-blue text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-md transition-all active:scale-[0.98]";
 
   return (
-    <div className="p-6 space-y-6">
-      {loadingMtg && <PreLoader message={t("mtgjson.importing")} />}
-      {loadingPokemon && <PreLoader message={t("pokemon.importing")} />}
-      {loadingCk && <PreLoader message={t("cardkingdom.updating")} />}
-      {loadingPkPrice && <PreLoader message={t("tcgplayer.updating")} />}
+    <div className="p-6 space-y-6 pb-24">
+      {(loadingMtg || loadingPokemon || loadingRift || loadingCk || loadingPkPrice || loadingRiftPrice) && <PreLoader message={tCommon("loading")} />}
+
       <div>
         <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
         <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
       </div>
 
-
-
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* MTGJSON Sync */}
+        {/* MAGIC */}
         <div className="bg-white rounded-2xl shadow-1 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-blue/10 flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="font-semibold text-dark">{t("mtgjson.title")}</h2>
-              <p className="text-dark-4 text-xs mt-0.5">{t("mtgjson.subtitle")}</p>
-            </div>
+          <h2 className="font-bold text-dark mb-1">{t("mtgjson.title")}</h2>
+          <p className="text-xs text-dark-4 mb-4">{t("mtgjson.subtitle")}</p>
+          <div className="mb-4">
+            <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
+            <div className="text-sm font-bold text-blue bg-blue/5 p-2 rounded border border-blue/10">{mtgDefaultCategory}</div>
           </div>
-          <form onSubmit={handleSyncMtgJson}>
-            <div className="mb-4">
-              <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
-              <div className="flex items-center gap-2 text-sm font-bold text-blue bg-blue/5 p-2 rounded-lg border border-blue/10">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-                {mtgDefaultCategory}
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">{t("mtgjson.label")}</label>
-              <SearchableSelect
-                options={mtgJsonOptions}
-                value={setId}
-                onChange={setSetId}
-                placeholder={mtgJsonSets.length === 0 ? tCommon("loading") : t("mtgjson.placeholder")}
-                disabled={mtgJsonSets.length === 0}
-                noResultsText={tCommon("noResults")}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loadingMtg || mtgJsonSets.length === 0}
-              className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
-            >
-              {loadingMtg ? t("mtgjson.importing") : t("mtgjson.button")}
-            </button>
-          </form>
+          <SearchableSelect options={mtgJsonSets.map(s => ({ label: `${s.name} (${s.code})`, value: s.code.toLowerCase() }))} value={setId} onChange={setSetId} placeholder={t("mtgjson.placeholder")} />
+          <button onClick={() => handleSyncSet(mtgDefaultCategory, setId, setLoadingMtg, () => {
+            const cat = encodeURIComponent(mtgDefaultCategory);
+            fetch(`${API_URL}/products/meta/expansions?category=${cat}`).then(r => r.json()).then(d => setExpansionsList(Array.isArray(d) ? d : []));
+          })} className={buttonClass}>{t("mtgjson.button")}</button>
         </div>
 
-        {/* Card Kingdom Sync */}
         <div className="bg-white rounded-2xl shadow-1 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="font-semibold text-dark">{t("cardkingdom.title")}</h2>
-              <p className="text-dark-4 text-xs mt-0.5">{t("cardkingdom.subtitle")}</p>
-            </div>
-          </div>
-          <form onSubmit={handleSyncCardKingdom}>
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">{t("cardkingdom.title")}</label>
-              <SearchableSelect
-                options={localExpansionOptions}
-                value={expansion}
-                onChange={setExpansion}
-                placeholder={expansionsList.length === 0 ? t("noExpansions") : t("tcgplayer.placeholder")}
-                disabled={expansionsList.length === 0}
-                noResultsText={tCommon("noResults")}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loadingCk || expansionsList.length === 0}
-              className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
-            >
-              {loadingCk ? t("cardkingdom.updating") : t("cardkingdom.button")}
-            </button>
-          </form>
+          <h2 className="font-bold text-dark mb-1">{t("cardkingdom.title")}</h2>
+          <p className="text-xs text-dark-4 mb-4">{t("cardkingdom.subtitle")}</p>
+          <SearchableSelect options={expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={expansion} onChange={setExpansion} placeholder={t("mtgjson.placeholder")} />
+          <button onClick={() => handleSyncPrices("sync-set", expansion, setLoadingCk)} className={buttonClass}>{t("cardkingdom.button")}</button>
         </div>
 
-        {/* Pokemon TCG API Sync */}
+        {/* POKEMON */}
         <div className="bg-white rounded-2xl shadow-1 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-              <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="font-semibold text-dark">{t("pokemon.title")}</h2>
-              <p className="text-dark-4 text-xs mt-0.5">{t("pokemon.subtitle")}</p>
-            </div>
+          <h2 className="font-bold text-dark mb-1">{t("pokemon.title")}</h2>
+          <p className="text-xs text-dark-4 mb-4">{t("pokemon.subtitle")}</p>
+          <div className="mb-4">
+            <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
+            <div className="text-sm font-bold text-red-500 bg-red-50 p-2 rounded border border-red-100">{pokemonDefaultCategory}</div>
           </div>
-          <form onSubmit={handleSyncPokemon}>
-            <div className="mb-4">
-              <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
-              <div className="flex items-center gap-2 text-sm font-bold text-red-500 bg-red-50 p-2 rounded-lg border border-red-100">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-                {pokemonDefaultCategory}
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">{t("pokemon.label")}</label>
-              <SearchableSelect
-                options={pokemonOptions}
-                value={pokemonSetId}
-                onChange={setPokemonSetId}
-                placeholder={pokemonSets.length === 0 ? tCommon("loading") : t("pokemon.placeholder")}
-                disabled={pokemonSets.length === 0}
-                noResultsText={tCommon("noResults")}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loadingPokemon || pokemonSets.length === 0}
-              className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
-            >
-              {loadingPokemon ? t("pokemon.importing") : t("pokemon.button")}
-            </button>
-          </form>
+          <SearchableSelect options={pokemonSets.map(s => ({ label: s.name, value: s.id }))} value={pokemonSetId} onChange={setPokemonSetId} placeholder={t("pokemon.placeholder")} />
+          <button onClick={() => handleSyncSet(pokemonDefaultCategory, pokemonSetId, setLoadingPokemon, () => {
+            const cat = encodeURIComponent(pokemonDefaultCategory);
+            fetch(`${API_URL}/products/meta/expansions?category=${cat}`).then(r => r.json()).then(d => setPokemonExpansionsList(Array.isArray(d) ? d : []));
+          })} className={buttonClass}>{t("pokemon.button")}</button>
         </div>
 
-        {/* Pokemon Price Sync */}
         <div className="bg-white rounded-2xl shadow-1 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-              <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="font-semibold text-dark">{t("tcgplayer.title")}</h2>
-              <p className="text-dark-4 text-xs mt-0.5">{t("tcgplayer.subtitle")}</p>
-            </div>
+          <h2 className="font-bold text-dark mb-1">{t("tcgplayer.title")}</h2>
+          <p className="text-xs text-dark-4 mb-4">{t("tcgplayer.subtitle")}</p>
+          <SearchableSelect options={pokemonExpansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={pokemonExpansion} onChange={setPokemonExpansion} placeholder={t("tcgplayer.placeholder")} />
+          <button onClick={() => handleSyncPrices("sync-pokemon", pokemonExpansion, setLoadingPkPrice)} className={buttonClass}>{t("tcgplayer.button")}</button>
+        </div>
+
+        {/* RIFTBOUND */}
+        <div className="bg-white rounded-2xl shadow-1 p-6">
+          <h2 className="font-bold text-dark mb-1">{t("riftbound.title")}</h2>
+          <p className="text-xs text-dark-4 mb-4">{t("riftbound.subtitle")}</p>
+          <div className="mb-4">
+            <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
+            <div className="text-sm font-bold text-purple-500 bg-purple-50 p-2 rounded border border-purple-100">{riftDefaultCategory}</div>
           </div>
-          <form onSubmit={handleSyncPokemonPrices}>
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-dark">{t("tcgplayer.label")}</label>
-              <SearchableSelect
-                options={localPokemonExpansionOptions}
-                value={pokemonExpansion}
-                onChange={setPokemonExpansion}
-                placeholder={pokemonExpansionsList.length === 0 ? t("noExpansions") : t("tcgplayer.placeholder")}
-                disabled={pokemonExpansionsList.length === 0}
-                noResultsText={tCommon("noResults")}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loadingPkPrice || pokemonExpansionsList.length === 0}
-              className="flex w-full justify-center rounded-lg bg-blue py-2.5 px-4 font-medium text-white hover:bg-blue-dark transition disabled:opacity-50"
-            >
-              {loadingPkPrice ? t("tcgplayer.updating") : t("tcgplayer.button")}
-            </button>
-          </form>
+          <SearchableSelect options={riftSets.map(s => ({ label: s.name, value: s.id }))} value={riftSetId} onChange={setRiftSetId} placeholder={t("riftbound.placeholder")} />
+          <button onClick={() => handleSyncSet(riftDefaultCategory, riftSetId, setLoadingRift, () => {
+            const cat = encodeURIComponent(riftDefaultCategory);
+            fetch(`${API_URL}/products/meta/expansions?category=${cat}`).then(r => r.json()).then(d => setRiftExpansionsList(Array.isArray(d) ? d : []));
+          })} className={buttonClass}>{t("riftbound.button")}</button>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-1 p-6">
+          <h2 className="font-bold text-dark mb-1">{t("riftboundPrice.title")}</h2>
+          <p className="text-xs text-dark-4 mb-4">{t("riftboundPrice.subtitle")}</p>
+          <SearchableSelect options={riftExpansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={riftExpansion} onChange={setRiftExpansion} placeholder={t("riftboundPrice.placeholder")} />
+          <button onClick={() => handleSyncPrices("sync-riftbound", riftExpansion, setLoadingRiftPrice)} className={buttonClass}>{t("riftboundPrice.button")}</button>
         </div>
       </div>
     </div>

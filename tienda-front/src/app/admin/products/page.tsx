@@ -14,13 +14,16 @@ interface InventoryItem {
   stock: number;
   condition: string;
   isFoil: boolean;
+  language?: { name: string };
 }
 
 interface Product {
   id: string;
   name: string;
   categoryId: string;
+  brandId?: string;
   imageUrl?: string;
+  description?: string;
   category?: {
     name: string;
     isTcg: boolean;
@@ -38,13 +41,15 @@ function SearchableSelect({
   value,
   onChange,
   placeholder,
-  disabled = false
+  disabled = false,
+  noResultsText = "No hay resultados"
 }: {
   options: { label: string; value: string }[];
   value: string;
   onChange: (val: string) => void;
   placeholder: string;
   disabled?: boolean;
+  noResultsText?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -92,7 +97,7 @@ function SearchableSelect({
       {isOpen && !disabled && (
         <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border border-stroke bg-white shadow-default">
           {filteredOptions.length === 0 ? (
-            <li className="px-4 py-2 text-sm text-gray-500">No hay resultados</li>
+            <li className="px-4 py-2 text-sm text-gray-500">{noResultsText}</li>
           ) : (
             filteredOptions.map((opt) => (
               <li
@@ -125,6 +130,10 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedExpansion, setSelectedExpansion] = useState("");
+
+  // Hover Preview State
+  const [hoveredImage, setHoveredImage] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   // Dropdown Lists
   const [categoriesList, setCategoriesList] = useState<{ id: string, name: string, isTcg?: boolean }[]>([]);
@@ -366,6 +375,9 @@ export default function AdminProducts() {
               return {
                 ...p,
                 imageUrl: editingItem.imageUrl,
+                name: editingItem.productName,
+                categoryId: editingItem.categoryId,
+                brandId: editingItem.brandId,
                 items: p.items.map((i) =>
                   i.id === editingItem.itemId
                     ? { ...i, price: Number(editingItem.price), stock: Number(editingItem.stock) }
@@ -648,6 +660,10 @@ export default function AdminProducts() {
     });
   };
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
+
   const categoryOptions = [
     { label: t("filters.allCategories"), value: "" },
     ...categoriesList.map(c => ({ label: c.name, value: c.name }))
@@ -661,8 +677,33 @@ export default function AdminProducts() {
   ];
 
   return (
-    <div className="relative">
+    <div className="relative" onMouseMove={handleMouseMove}>
       {isUploadingBulk && <PreLoader message={t("bulk.uploading")} />}
+      
+      {/* HOVER PREVIEW */}
+      {hoveredImage && (
+        <div 
+          className="fixed z-999999 pointer-events-none shadow-2xl rounded-2xl border-4 border-white bg-white overflow-hidden transition-all duration-200 animate-in fade-in zoom-in"
+          style={{ 
+            // Si el mouse está en la parte inferior (> 60% del alto), mostramos la imagen hacia arriba
+            top: typeof window !== 'undefined' && mousePos.y > window.innerHeight * 0.6 
+              ? mousePos.y - 440 
+              : mousePos.y + 20, 
+            left: mousePos.x + 20,
+            maxWidth: '300px'
+          }}
+        >
+          <Image 
+            src={hoveredImage} 
+            alt="Preview" 
+            width={300} 
+            height={420} 
+            className="w-full h-auto object-contain"
+            priority
+          />
+        </div>
+      )}
+
       {/* Header */}
       <div className="p-6 pb-0">
         <div className="flex items-center justify-between mb-6">
@@ -700,14 +741,16 @@ export default function AdminProducts() {
               <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.category")}</label>
               <SearchableSelect options={categoryOptions} value={selectedCategory}
                 onChange={(val) => { setSelectedCategory(val); setPage(1); }}
-                placeholder={t("filters.allCategories")} />
+                placeholder={t("filters.allCategories")}
+                noResultsText={tc("noResults")} />
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.expansion")}</label>
               <SearchableSelect options={expansionOptions} value={selectedExpansion}
                 onChange={(val) => { setSelectedExpansion(val); setPage(1); }}
                 placeholder={t("filters.allExpansions")}
-                disabled={expansionsList.length === 0} />
+                disabled={expansionsList.length === 0}
+                noResultsText={tc("noResults")} />
             </div>
           </div>
         </div>
@@ -745,15 +788,21 @@ export default function AdminProducts() {
 
                     return (
                       <tr key={product.id} className="hover:bg-gray-1 transition">
-                        <td className="py-4 px-6 flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-2">
-                            {product.imageUrl ? (
-                              <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="object-cover h-full w-full" />
-                            ) : (
-                              <span className="text-[10px] text-dark-4 flex h-full items-center justify-center">Sin Img</span>
-                            )}
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-2 cursor-zoom-in transition-transform hover:scale-110"
+                              onMouseEnter={() => product.imageUrl && setHoveredImage(product.imageUrl)}
+                              onMouseLeave={() => setHoveredImage(null)}
+                            >
+                              {product.imageUrl ? (
+                                <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="object-cover h-full w-full" />
+                              ) : (
+                                <span className="text-[10px] text-dark-4 flex h-full items-center justify-center">Sin Img</span>
+                              )}
+                            </div>
+                            <p className="text-dark font-medium text-sm">{product.name}</p>
                           </div>
-                          <p className="text-dark font-medium text-sm">{product.name}</p>
                         </td>
                         <td className="py-4 px-6 hidden md:table-cell">
                           <p className="text-dark text-sm">{product.cardDetail?.expansion || "N/A"}</p>
@@ -1138,127 +1187,164 @@ export default function AdminProducts() {
       {/* INVENTORY MANAGEMENT MODAL */}
       {isInventoryOpen && selectedProduct && (
         <div className="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 px-4">
-          <div className="w-full max-w-4xl rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-5xl rounded-lg bg-white p-6 shadow-default max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-black">Gestionar Inventario</h3>
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-gray-500">{selectedProduct.name}</p>
-                  <span className="bg-blue/10 text-blue text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                    Stock Total: {selectedProduct.items.reduce((sum, item) => sum + item.stock, 0)}
-                  </span>
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-1 border border-stroke">
+                  {selectedProduct.imageUrl ? (
+                    <Image src={selectedProduct.imageUrl} alt={selectedProduct.name} width={64} height={64} className="object-contain h-full w-full" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-[10px] text-gray-400">Sin Imagen</div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black">Gestionar Inventario</h3>
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm text-gray-500">{selectedProduct.name}</p>
+                    <span className="bg-blue/10 text-blue text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                      Stock Total: {selectedProduct.items.reduce((sum, item) => sum + item.stock, 0)}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button onClick={() => setIsInventoryOpen(false)} className="text-gray-500 hover:text-black text-2xl">✕</button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Add New Variation Form */}
-              <div className="lg:col-span-1 bg-gray-50 p-4 rounded-xl">
-                <h4 className="font-semibold text-dark mb-4 text-sm">Añadir Nueva Variante</h4>
-                <form onSubmit={handleAddVariation} className="space-y-3">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 mb-1 block">Idioma</label>
-                    <select 
-                      value={newVariation.languageId}
-                      onChange={(e) => setNewVariation({...newVariation, languageId: e.target.value})}
-                      className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
-                    >
-                      {languages.map(lang => (
-                        <option key={lang.id} value={lang.id}>{lang.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 mb-1 block">Condición</label>
-                    <select 
-                      value={newVariation.conditionId}
-                      onChange={(e) => setNewVariation({...newVariation, conditionId: e.target.value})}
-                      className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
-                    >
-                      {conditions.map(cond => (
-                        <option key={cond.id} value={cond.id}>{cond.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2 py-1">
-                    <input 
-                      type="checkbox" 
-                      id="isFoil"
-                      checked={newVariation.isFoil}
-                      onChange={(e) => setNewVariation({...newVariation, isFoil: e.target.checked})}
-                      className="w-4 h-4 rounded border-gray-300 text-blue focus:ring-blue"
-                    />
-                    <label htmlFor="isFoil" className="text-xs font-medium text-dark cursor-pointer">Es Foil</label>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1 block">Precio</label>
-                      <input 
-                        type="number" 
-                        value={newVariation.price}
-                        onChange={(e) => setNewVariation({...newVariation, price: Number(e.target.value)})}
-                        className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1 block">Stock</label>
-                      <input 
-                        type="number" 
-                        value={newVariation.stock}
-                        onChange={(e) => setNewVariation({...newVariation, stock: Number(e.target.value)})}
-                        className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
-                      />
-                    </div>
-                  </div>
-                  <button type="submit" className="w-full bg-blue text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-dark transition">
-                    Añadir Variante
-                  </button>
-                </form>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Image & Description Column */}
+              <div className="lg:col-span-1 space-y-4">
+                <div className="aspect-[3/4] w-full rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                  {selectedProduct.imageUrl ? (
+                    <Image src={selectedProduct.imageUrl} alt={selectedProduct.name} width={300} height={420} className="w-full h-full object-contain" />
+                  ) : (
+                    <span className="text-gray-400">Sin ilustración</span>
+                  )}
+                </div>
+                <div className="bg-blue/5 p-4 rounded-xl border border-blue/10">
+                   <p className="text-xs font-bold text-blue uppercase mb-1">{selectedProduct.cardDetail?.expansion || "Expansión"}</p>
+                   <p className="text-sm text-dark font-medium">{selectedProduct.cardDetail?.rarity || "Rareza N/A"}</p>
+                </div>
               </div>
 
-              {/* Variation List */}
-              <div className="lg:col-span-2">
-                <h4 className="font-semibold text-dark mb-4 text-sm">Variantes Existentes</h4>
-                <div className="overflow-x-auto border border-stroke rounded-xl">
+              <div className="lg:col-span-3 space-y-6">
+                {/* Add New Variation Form */}
+                <div className="bg-gray-50 p-4 rounded-xl border border-stroke">
+                  <h4 className="font-semibold text-dark mb-4 text-sm">Añadir Nueva Variante</h4>
+                  <form onSubmit={handleAddVariation} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Idioma</label>
+                      <select 
+                        value={newVariation.languageId}
+                        onChange={(e) => setNewVariation({...newVariation, languageId: e.target.value})}
+                        className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                      >
+                        {languages.map(lang => (
+                          <option key={lang.id} value={lang.id}>{lang.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Condición</label>
+                      <select 
+                        value={newVariation.conditionId}
+                        onChange={(e) => setNewVariation({...newVariation, conditionId: e.target.value})}
+                        className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                      >
+                        {conditions.map(cond => (
+                          <option key={cond.id} value={cond.id}>{cond.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                       <label className="text-xs font-medium text-gray-500 mb-1 block">Precio / Stock</label>
+                       <div className="flex gap-2">
+                          <input 
+                            type="number" 
+                            placeholder="$$"
+                            value={newVariation.price || ""}
+                            onChange={(e) => setNewVariation({...newVariation, price: Number(e.target.value)})}
+                            className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                          />
+                          <input 
+                            type="number" 
+                            placeholder="Stk"
+                            value={newVariation.stock || ""}
+                            onChange={(e) => setNewVariation({...newVariation, stock: Number(e.target.value)})}
+                            className="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary"
+                          />
+                       </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          id="isFoil"
+                          checked={newVariation.isFoil}
+                          onChange={(e) => setNewVariation({...newVariation, isFoil: e.target.checked})}
+                          className="w-4 h-4 rounded border-gray-300 text-blue focus:ring-blue"
+                        />
+                        <label htmlFor="isFoil" className="text-xs font-medium text-dark cursor-pointer">Foil</label>
+                      </div>
+                      <button type="submit" className="bg-blue text-white py-2 px-4 rounded-lg text-sm font-bold hover:bg-blue-dark transition">
+                        Añadir
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Variation List */}
+                <div className="overflow-hidden border border-stroke rounded-xl shadow-sm">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 border-b border-stroke">
+                    <thead className="bg-gray-1 border-b border-stroke">
                       <tr>
-                        <th className="py-2 px-3 font-medium">Idioma / Condición</th>
-                        <th className="py-2 px-3 font-medium">Foil</th>
-                        <th className="py-2 px-3 font-medium w-24">Precio</th>
-                        <th className="py-2 px-3 font-medium w-20">Stock</th>
+                        <th className="py-2.5 px-4 font-semibold text-dark-4">Idioma / Condición</th>
+                        <th className="py-2.5 px-4 font-semibold text-dark-4">Foil</th>
+                        <th className="py-2.5 px-4 font-semibold text-dark-4 w-28">Precio</th>
+                        <th className="py-2.5 px-4 font-semibold text-dark-4 w-24">Stock</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-stroke">
+                    <tbody className="divide-y divide-stroke bg-white">
                       {selectedProduct.items.map((item: any) => (
-                        <tr key={item.id}>
-                          <td className="py-3 px-3">
-                            <span className="font-medium text-dark">{item.language?.name || 'N/A'}</span>
-                            <span className="text-gray-400 mx-1">/</span>
-                            <span className="text-dark-4 uppercase text-[10px] font-bold">{item.condition?.name.replace('_', ' ') || 'N/A'}</span>
+                        <tr key={item.id} className="hover:bg-gray-1/50 transition">
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-dark">{item.language?.name || 'N/A'}</span>
+                              <span className="text-dark-4 uppercase text-[10px] font-bold tracking-wider">{item.condition?.name.replace('_', ' ') || 'N/A'}</span>
+                            </div>
                           </td>
-                          <td className="py-3 px-3">
-                            {item.isFoil ? <span className="text-yellow-600 text-xs font-bold">Foil</span> : <span className="text-gray-300 text-xs">No</span>}
+                          <td className="py-3 px-4 text-center">
+                            {item.isFoil ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 uppercase tracking-tighter border border-yellow-200">FOIL</span>
+                            ) : (
+                              <span className="text-gray-300 text-[10px] uppercase font-bold">Normal</span>
+                            )}
                           </td>
-                          <td className="py-3 px-3">
-                            <input 
-                              type="number" 
-                              defaultValue={item.price}
-                              onBlur={(e) => handleUpdateStockPrice(item.id, Number(e.target.value), item.stock)}
-                              className="w-full border-b border-gray-200 focus:border-blue outline-none py-1"
-                            />
+                          <td className="py-3 px-4">
+                            <div className="relative group">
+                              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
+                              <input 
+                                type="number" 
+                                defaultValue={item.price}
+                                onBlur={(e) => handleUpdateStockPrice(item.id, Number(e.target.value), item.stock)}
+                                className="w-full border-b border-transparent focus:border-blue outline-none py-1 pl-3 font-medium transition"
+                              />
+                            </div>
                           </td>
-                          <td className="py-3 px-3">
+                          <td className="py-3 px-4">
                             <input 
                               type="number" 
                               defaultValue={item.stock}
                               onBlur={(e) => handleUpdateStockPrice(item.id, item.price, Number(e.target.value))}
-                              className="w-full border-b border-gray-200 focus:border-blue outline-none py-1 text-center"
+                              className="w-full border-b border-transparent focus:border-blue outline-none py-1 text-center font-bold transition"
                             />
                           </td>
                         </tr>
                       ))}
+                      {selectedProduct.items.length === 0 && (
+                        <tr>
+                           <td colSpan={4} className="py-8 text-center text-gray-400 italic">No hay variantes registradas</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

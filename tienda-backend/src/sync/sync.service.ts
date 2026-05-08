@@ -18,8 +18,12 @@ export class SyncService {
   constructor(private prisma: PrismaService) { }
 
   async syncSet(game: string, setId: string) {
-    if (game === GameType.POKEMON) {
+    const gameType = game.toLowerCase();
+    if (gameType.includes('pokemon')) {
       return this.syncPokemonSet(game, setId);
+    }
+    if (gameType.includes('riftbound')) {
+      return this.syncRiftboundSet(game, setId);
     }
     // Por defecto tratamos como Magic u otros que sigan el patrón Scryfall
     return this.syncMtgSet(game, setId);
@@ -115,7 +119,7 @@ export class SyncService {
     while (hasMore) {
       const url = `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}`;
       console.log(`Consultando Pokemon API: Página ${page}`);
-      
+
       const res = await axios.get(url);
       const data = res.data;
 
@@ -149,6 +153,58 @@ export class SyncService {
     }
 
     return { message: `Sincronización de Pokemon completada`, count: totalProcessed };
+  }
+
+  /**
+   * Sincronización para Riftbound usando Riftcodex API
+   */
+  async syncRiftboundSet(game: string, setId: string) {
+    const categoryId = await this.getCategoryId(game);
+    const { defaultLang, defaultCond } = await this.getSyncDefaults();
+
+    let totalProcessed = 0;
+    let page = 1;
+    let hasMore = true;
+    const CONCURRENCY_LIMIT = 15;
+
+    while (hasMore) {
+      console.log(`--- Importando página ${page} de Riftbound (${setId}) ---`);
+      const url = `https://api.riftcodex.com/cards?set_id=${setId}&page=${page}`;
+      const res = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+
+      const data = res.data;
+      const cardList = data?.items || (Array.isArray(data) ? data : []);
+
+      if (cardList.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      const cards: CardToSync[] = cardList.map((c: any) => ({
+        externalId: `rb-${c.id}`,
+        name: c.name,
+        image: c.media?.image_url || '',
+        expansion: c.set?.label || setId,
+        rarity: c.rarity || 'Common',
+        number: c.card_number || '',
+        attributes: Array.isArray(c.types) ? c.types : []
+      }));
+
+      totalProcessed += await this.processBatch(cards, categoryId, game, defaultLang.id, defaultCond.id, CONCURRENCY_LIMIT);
+
+      // Si hay más páginas según la API
+      if (data.page < data.pages) {
+        page++;
+      } else {
+        hasMore = false;
+      }
+    }
+
+    return { message: `Sincronización de Riftbound completada`, count: totalProcessed };
   }
 
   /**
@@ -247,5 +303,44 @@ export class SyncService {
     return data.sort((a: any, b: any) =>
       new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
     );
+  }
+
+  /**
+   * Obtiene la lista de ediciones de Riftbound desde Riftcodex
+   */
+  async getRiftboundSets() {
+    try {
+      const res = await axios.get('https://api.riftcodex.com/sets/', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+
+      // La API devuelve los sets en la propiedad 'items'
+      let results = [];
+      if (res.data && res.data.items) {
+        results = res.data.items;
+      } else if (res.data && res.data.results) {
+        results = res.data.results;
+      } else if (Array.isArray(res.data)) {
+        results = res.data;
+      }
+
+      const mappedSets = results.map((s: any) => ({
+        id: s.set_id || s.id || '',
+        name: s.name || 'Set sin nombre',
+        release_date: s.published_on || s.release_date || new Date().toISOString()
+      }));
+
+      // Ordenar por fecha descendente
+      return mappedSets.sort((a: any, b: any) => {
+        const dateA = new Date(a.release_date).getTime();
+        const dateB = new Date(b.release_date).getTime();
+        return (dateB || 0) - (dateA || 0);
+      });
+    } catch (error) {
+      console.error('❌ Error al obtener sets de Riftbound:', error.message);
+      return [];
+    }
   }
 }

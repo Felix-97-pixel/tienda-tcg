@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ConfigService } from '@nestjs/config';
 import * as https from 'https';
 import axios from 'axios';
 
@@ -9,7 +10,10 @@ const JSONStream = require('JSONStream');
 export class PriceUpdaterService {
   private readonly logger = new Logger(PriceUpdaterService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService
+  ) { }
 
   async checkExpansionExists(expansion: string): Promise<boolean> {
     const count = await this.prisma.product.count({
@@ -83,7 +87,6 @@ export class PriceUpdaterService {
 
   /**
    * Paso 3: Consultar AllPricesToday.json filtrando solo los UUIDs que nos interesan.
-   * AllPricesToday pesa mucho menos que AllPrices (sin historial de 90 días).
    */
   private async getPricesForUUIDs(
     uuidsToFind: Set<string>
@@ -133,19 +136,11 @@ export class PriceUpdaterService {
     });
   }
 
-  /**
-   * Método principal: orquesta todo el proceso para actualizar los precios
-   * de una expansión específica usando datos 100% de MTGJSON.
-   */
   async updateSetPrices(expansion: string) {
     this.logger.log(`=== Iniciando actualización MTGJSON para: "${expansion}" ===`);
-
-    // 1. Obtener los productos de nuestra BD con sus scryfallIds (externalId)
     const products = await this.prisma.product.findMany({
       where: {
-        cardDetail: {
-          expansion: { equals: expansion, mode: 'insensitive' }
-        }
+        cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } }
       },
       select: { id: true, externalId: true }
     });
@@ -154,51 +149,24 @@ export class PriceUpdaterService {
       this.logger.warn(`No se encontraron cartas de '${expansion}' en la BD.`);
       return;
     }
-    this.logger.log(`${products.length} cartas encontradas en BD.`);
 
-    // Mapa: scryfallId → productId (BD)
-    const scryfallToProductId = new Map<string, string>();
-    for (const p of products) {
-      scryfallToProductId.set(p.externalId, p.id);
-    }
-
-    // 2. Obtener el código de la edición desde Scryfall (ej: "BLB")
     const setCode = await this.getSetCode(expansion);
-    if (!setCode) {
-      this.logger.error(`No se pudo encontrar el código de set para "${expansion}" en Scryfall.`);
-      return;
-    }
-    this.logger.log(`Código de set encontrado: ${setCode}`);
+    if (!setCode) return;
 
-    // 3. Descargar BLB.json (solo ~500KB) y mapear ScryfallId → MTGJSON UUID
     const scryfallToMtgjson = await this.getSetUUIDs(setCode);
-
-    // Cruzar: construir mapa UUID de MTGJSON → productId de nuestra BD
     const mtgjsonUUIDtoProductId = new Map<string, string>();
     for (const [scryfallId, mtgjsonUUID] of scryfallToMtgjson) {
-      const productId = scryfallToProductId.get(scryfallId);
-      if (productId) {
-        mtgjsonUUIDtoProductId.set(mtgjsonUUID, productId);
-      }
+      const match = products.find(p => p.externalId === scryfallId);
+      if (match) mtgjsonUUIDtoProductId.set(mtgjsonUUID, match.id);
     }
 
-    if (mtgjsonUUIDtoProductId.size === 0) {
-      this.logger.error('No se encontraron equivalencias entre IDs de Scryfall y MTGJSON.');
-      return;
-    }
-    this.logger.log(`${mtgjsonUUIDtoProductId.size} cartas cruzadas correctamente.`);
+    if (mtgjsonUUIDtoProductId.size === 0) return;
 
-    // 4. Consultar AllPricesToday con solo los UUIDs que nos interesan
-    const uuidsToFind = new Set(mtgjsonUUIDtoProductId.keys());
-    const prices = await this.getPricesForUUIDs(uuidsToFind);
+    const prices = await this.getPricesForUUIDs(new Set(mtgjsonUUIDtoProductId.keys()));
 
-    // 5. Guardar precios en la BD (tabla InventoryItem)
-    this.logger.log(`Guardando ${prices.size} precios en la base de datos...`);
     let updated = 0;
-
     for (const [mtgjsonUUID, { normal, foil }] of prices) {
       const productId = mtgjsonUUIDtoProductId.get(mtgjsonUUID)!;
-
       if (normal > 0) {
         await this.prisma.inventoryItem.updateMany({
           where: { productId, isFoil: false },
@@ -213,79 +181,136 @@ export class PriceUpdaterService {
       }
       updated++;
     }
-
-    this.logger.log(`=== ¡Proceso completado! ${updated} cartas de "${expansion}" actualizadas con precios de Card Kingdom. ===`);
+    this.logger.log(`=== ¡Actualización MTG completada! ${updated} cartas actualizadas. ===`);
   }
 
-  /**
-   * Actualiza precios para Pokémon usando pokemontcg.io (TCGPlayer data)
-   */
   async updatePokemonSetPrices(expansion: string) {
     this.logger.log(`=== Iniciando actualización Pokémon TCG para: "${expansion}" ===`);
-
-    // 1. Buscar el set en la API para obtener el ID real
     const setsRes = await axios.get(`https://api.pokemontcg.io/v2/sets?q=name:"${expansion}"`);
     const set = setsRes.data?.data?.[0];
-    if (!set) {
-      this.logger.error(`No se encontró el set Pokémon con nombre "${expansion}" en la API.`);
-      return;
-    }
+    if (!set) return;
 
     const setId = set.id;
-    this.logger.log(`Set Pokémon encontrado: ${set.name} (${setId})`);
-
     let page = 1;
     const pageSize = 250;
     let hasMore = true;
     let updatedCount = 0;
 
     while (hasMore) {
-      const url = `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}&select=id,tcgplayer`;
-      const res = await axios.get(url);
+      const res = await axios.get(`https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}&select=id,tcgplayer`);
       const cards = res.data?.data ?? [];
-
-      if (cards.length === 0) {
-        hasMore = false;
-        break;
-      }
+      if (cards.length === 0) break;
 
       for (const card of cards) {
-        const externalId = card.id;
         const prices = card.tcgplayer?.prices;
-
         if (!prices) continue;
 
-        // Pokémon puede tener varios tipos de precios (normal, holofoil, reverseHolofoil, etc.)
-        // Intentamos mapear a nuestro sistema de normal vs foil
         const normalPrice = prices.normal?.mid || prices.unlimitedHolofoil?.mid || 0;
-        const foilPrice = prices.holofoil?.mid || prices.reverseHolofoil?.mid || prices['1stEditionHolofoil']?.mid || 0;
+        const foilPrice = prices.holofoil?.mid || prices.reverseHolofoil?.mid || 0;
 
         if (normalPrice > 0) {
           await this.prisma.inventoryItem.updateMany({
-            where: {
-              product: { externalId },
-              isFoil: false
-            },
+            where: { product: { externalId: card.id }, isFoil: false },
             data: { price: normalPrice }
           });
         }
-
         if (foilPrice > 0) {
           await this.prisma.inventoryItem.updateMany({
-            where: {
-              product: { externalId },
-              isFoil: true
-            },
+            where: { product: { externalId: card.id }, isFoil: true },
             data: { price: foilPrice }
           });
         }
         updatedCount++;
       }
-
       if (cards.length < pageSize) hasMore = false;
       else page++;
     }
+    this.logger.log(`=== ¡Actualización Pokémon completada! ${updatedCount} cartas actualizadas. ===`);
+  }
 
-    this.logger.log(`=== ¡Proceso completado! ${updatedCount} cartas de Pokémon de "${expansion}" actualizadas. ===`);
+  /**
+   * Actualiza precios para Riftbound usando JustTCG API
+   */
+  async updateRiftboundSetPrices(expansion: string) {
+    this.logger.log(`=== Iniciando actualización Riftbound via JustTCG para: "${expansion}" ===`);
+    const apiKey = this.configService.get('JUSTTCG_API_KEY');
+    if (!apiKey) {
+      this.logger.error('JUSTTCG_API_KEY no configurada en el archivo .env');
+      return;
+    }
+
+    // El set_id en JustTCG suele ser slug-riftbound, ej: "origins-riftbound"
+    const setSlug = `${expansion.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-riftbound`;
+    
+    let offset = 0;
+    const limit = 20;
+    let hasMore = true;
+    let updatedCount = 0;
+
+    try {
+      const gameName = 'riftbound-league-of-legends-trading-card-game';
+      
+      // Paso 1: Resolver el ID real del set en JustTCG
+      this.logger.log(`Buscando ID del set para: "${expansion}"...`);
+      const setsRes = await axios.get(`https://api.justtcg.com/v1/sets?game=${gameName}`, {
+        headers: { 'X-Api-Key': apiKey }
+      });
+      
+      const sets = setsRes.data?.data || [];
+      const match = sets.find((s: any) => s.name?.toLowerCase() === expansion.toLowerCase());
+      
+      if (!match) {
+        this.logger.warn(`No se encontró el set "${expansion}" en JustTCG. Abortando.`);
+        return;
+      }
+
+      const setSlug = match.set_id;
+      this.logger.log(`Set "${expansion}" resuelto como ID: "${setSlug}". Iniciando descarga de cartas...`);
+
+      // Paso 2: Descargar solo las cartas de ese set
+      while (hasMore) {
+        this.logger.log(`Consultando JustTCG (Set: ${setSlug}, Cartas ${offset} a ${offset + limit})...`);
+        
+        // Retraso de 2 segundos (ya no necesitamos 4 porque haremos muy pocas peticiones)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const url = `https://api.justtcg.com/v1/cards?game=${gameName}&set=${setSlug}&limit=${limit}&offset=${offset}`;
+        const res = await axios.get(url, {
+          headers: { 'X-Api-Key': apiKey }
+        });
+
+        const cards = res.data?.data || [];
+        if (cards.length === 0) break;
+
+        for (const card of cards) {
+          const variants = card.variants || [];
+          for (const variant of variants) {
+            if (variant.condition === 'Near Mint' && variant.price > 0) {
+              const isFoil = variant.printing === 'Foil';
+              
+              const updateRes = await this.prisma.inventoryItem.updateMany({
+                where: {
+                  product: {
+                    name: { equals: card.name, mode: 'insensitive' },
+                    cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } }
+                  },
+                  isFoil: isFoil
+                },
+                data: { price: variant.price }
+              });
+
+              if (updateRes.count > 0) updatedCount += updateRes.count;
+            }
+          }
+        }
+
+        hasMore = res.data?.meta?.hasMore || false;
+        offset += limit;
+      }
+
+      this.logger.log(`=== ¡Actualización Riftbound completada! ${updatedCount} variantes actualizadas. ===`);
+    } catch (err) {
+      this.logger.error(`Error en JustTCG API para ${expansion}:`, err.response?.data || err.message);
+    }
   }
 }
