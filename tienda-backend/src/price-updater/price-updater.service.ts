@@ -241,7 +241,7 @@ export class PriceUpdaterService {
 
     // El set_id en JustTCG suele ser slug-riftbound, ej: "origins-riftbound"
     const setSlug = `${expansion.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-riftbound`;
-    
+
     let offset = 0;
     const limit = 20;
     let hasMore = true;
@@ -249,29 +249,43 @@ export class PriceUpdaterService {
 
     try {
       const gameName = 'riftbound-league-of-legends-trading-card-game';
-      
+
       // Paso 1: Resolver el ID real del set en JustTCG
       this.logger.log(`Buscando ID del set para: "${expansion}"...`);
       const setsRes = await axios.get(`https://api.justtcg.com/v1/sets?game=${gameName}`, {
         headers: { 'X-Api-Key': apiKey }
       });
-      
+
       const sets = setsRes.data?.data || [];
       const match = sets.find((s: any) => s.name?.toLowerCase() === expansion.toLowerCase());
-      
+
       if (!match) {
         this.logger.warn(`No se encontró el set "${expansion}" en JustTCG. Abortando.`);
         return;
       }
 
-      const setSlug = match.set_id;
+      // Intentamos obtener el ID de varias propiedades posibles
+      const setSlug = match.set_id || match.slug || match.id;
+
+      if (!setSlug) {
+        this.logger.error(`Se encontró el set "${expansion}" pero no tiene un ID/Slug válido: ${JSON.stringify(match)}`);
+        return;
+      }
+
       this.logger.log(`Set "${expansion}" resuelto como ID: "${setSlug}". Iniciando descarga de cartas...`);
+
+      // Paso 1.5: Cargar productos locales para match rápido en memoria
+      const localProducts = await this.prisma.product.findMany({
+        where: { cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } } },
+        select: { id: true, name: true }
+      });
+
+      const normalize = (str: string) => str?.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
 
       // Paso 2: Descargar solo las cartas de ese set
       while (hasMore) {
         this.logger.log(`Consultando JustTCG (Set: ${setSlug}, Cartas ${offset} a ${offset + limit})...`);
-        
-        // Retraso de 2 segundos (ya no necesitamos 4 porque haremos muy pocas peticiones)
+
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         const url = `https://api.justtcg.com/v1/cards?game=${gameName}&set=${setSlug}&limit=${limit}&offset=${offset}`;
@@ -283,20 +297,31 @@ export class PriceUpdaterService {
         if (cards.length === 0) break;
 
         for (const card of cards) {
+          const justTcgNormal = normalize(card.name);
+          const cleanNormal = normalize(card.name.split(' (')[0]);
+
+          // Buscar el producto local que más se parezca
+          const matchLocal = localProducts.find(lp => {
+            const lpNormal = normalize(lp.name);
+            return lpNormal === justTcgNormal || lpNormal === cleanNormal;
+          });
+
+          if (!matchLocal) continue;
+
           const variants = card.variants || [];
           for (const variant of variants) {
-            if (variant.condition === 'Near Mint' && variant.price > 0) {
+            // Usamos marketPrice (media) si está disponible, si no, usamos price
+            const finalPrice = variant.marketPrice || variant.price || 0;
+
+            if (variant.condition === 'Near Mint' && finalPrice > 0) {
               const isFoil = variant.printing === 'Foil';
-              
+
               const updateRes = await this.prisma.inventoryItem.updateMany({
                 where: {
-                  product: {
-                    name: { equals: card.name, mode: 'insensitive' },
-                    cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } }
-                  },
+                  productId: matchLocal.id,
                   isFoil: isFoil
                 },
-                data: { price: variant.price }
+                data: { price: finalPrice }
               });
 
               if (updateRes.count > 0) updatedCount += updateRes.count;
