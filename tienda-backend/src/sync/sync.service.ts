@@ -185,13 +185,13 @@ export class SyncService {
       }
 
       const cards: CardToSync[] = cardList.map((c: any) => ({
-        externalId: `rb-${c.id}`,
+        externalId: c.tcgplayer_id ? String(c.tcgplayer_id) : `rb-${c.id}`,
         name: c.name,
         image: c.media?.image_url || '',
         expansion: c.set?.label || setId,
-        rarity: c.rarity || 'Common',
-        number: c.card_number || '',
-        attributes: Array.isArray(c.types) ? c.types : []
+        rarity: c.classification?.rarity || c.rarity || 'Common',
+        number: String(c.collector_number || ''),
+        attributes: Array.isArray(c.classification?.domain) ? c.classification.domain : []
       }));
 
       totalProcessed += await this.processBatch(cards, categoryId, game, defaultLang.id, defaultCond.id, CONCURRENCY_LIMIT);
@@ -225,9 +225,30 @@ export class SyncService {
 
       const results = await Promise.allSettled(
         chunk.map(async (card) => {
-          const product = await this.prisma.product.upsert({
+          // Intentar encontrar por externalId (TCGPlayer ID)
+          let existingProduct = await this.prisma.product.findUnique({
             where: { externalId: card.externalId },
-            update: { imageUrl: card.image, name: card.name },
+            include: { items: true }
+          });
+
+          // Si no existe por ID, buscar por nombre y expansión (Migración de rb-id a TCGPlayer ID)
+          if (!existingProduct) {
+            existingProduct = await this.prisma.product.findFirst({
+              where: {
+                name: { equals: card.name, mode: 'insensitive' },
+                cardDetail: { expansion: { equals: card.expansion, mode: 'insensitive' } }
+              },
+              include: { items: true }
+            });
+          }
+
+          const product = await this.prisma.product.upsert({
+            where: { id: existingProduct?.id || 'non-existent-uuid' },
+            update: { 
+              externalId: card.externalId, // Actualizamos al nuevo ID de TCGPlayer
+              imageUrl: card.image, 
+              name: card.name 
+            },
             create: {
               externalId: card.externalId,
               name: card.name,
@@ -245,14 +266,31 @@ export class SyncService {
             include: { items: true }
           });
 
-          if (product.items.length === 0) {
+          const hasNormal = product.items.some(item => !item.isFoil);
+          const hasFoil = product.items.some(item => item.isFoil);
+
+          if (!hasNormal) {
             await this.prisma.inventoryItem.create({
               data: {
                 productId: product.id,
-                price: 0,
-                stock: 0,
+                languageId: langId,
                 conditionId: condId,
-                languageId: langId
+                isFoil: false,
+                price: 0,
+                stock: 0
+              }
+            });
+          }
+
+          if (!hasFoil) {
+            await this.prisma.inventoryItem.create({
+              data: {
+                productId: product.id,
+                languageId: langId,
+                conditionId: condId,
+                isFoil: true,
+                price: 0,
+                stock: 0
               }
             });
           }

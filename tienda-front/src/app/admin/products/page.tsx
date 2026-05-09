@@ -763,14 +763,13 @@ export default function AdminProducts() {
                   <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.product")}</th>
                   <th className="py-3 px-6 font-medium text-dark-4 text-sm hidden md:table-cell">{t("filters.expansion")}</th>
                   <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.stock")}</th>
-                  <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.price")}</th>
                   <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-3">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center">
+                  <td colSpan={4} className="py-12 text-center">
                     <svg className="animate-spin h-6 w-6 text-blue mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -779,12 +778,11 @@ export default function AdminProducts() {
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-5 text-center">{tc("noResults")}</td>
+                  <td colSpan={4} className="py-5 text-center">{tc("noResults")}</td>
                 </tr>
               ) : (
                 products.map((product) => {
                   const totalStock = product.items.reduce((sum, item) => sum + item.stock, 0);
-                  const mainPrice = product.items[0]?.price || 0;
 
                     return (
                       <tr key={product.id} className="hover:bg-gray-1 transition">
@@ -812,13 +810,8 @@ export default function AdminProducts() {
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                             totalStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
                           }`}>
-                            {totalStock}
+                          {totalStock}
                           </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <p className="text-dark font-bold text-sm">
-                            ${Number(mainPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </p>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2">

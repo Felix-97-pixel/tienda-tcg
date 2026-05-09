@@ -274,10 +274,10 @@ export class PriceUpdaterService {
 
       this.logger.log(`Set "${expansion}" resuelto como ID: "${setSlug}". Iniciando descarga de cartas...`);
 
-      // Paso 1.5: Cargar productos locales para match rápido en memoria
-      const localProducts = await this.prisma.product.findMany({
-        where: { cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } } },
-        select: { id: true, name: true }
+      // Paso 1.5: Cargar TODOS los productos de Riftbound para match de emergencia
+      const allRiftboundProducts = await this.prisma.product.findMany({
+        where: { cardDetail: { game: { contains: 'Riftbound', mode: 'insensitive' } } },
+        select: { id: true, externalId: true, name: true, cardDetail: { select: { expansion: true } } }
       });
 
       const normalize = (str: string) => str?.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
@@ -286,7 +286,7 @@ export class PriceUpdaterService {
       while (hasMore) {
         this.logger.log(`Consultando JustTCG (Set: ${setSlug}, Cartas ${offset} a ${offset + limit})...`);
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 8000));
 
         const url = `https://api.justtcg.com/v1/cards?game=${gameName}&set=${setSlug}&limit=${limit}&offset=${offset}`;
         const res = await axios.get(url, {
@@ -297,24 +297,24 @@ export class PriceUpdaterService {
         if (cards.length === 0) break;
 
         for (const card of cards) {
-          const justTcgNormal = normalize(card.name);
-          const cleanNormal = normalize(card.name.split(' (')[0]);
+          const tcgId = card.tcgplayerId ? String(card.tcgplayerId) : null;
 
-          // Buscar el producto local que más se parezca
-          const matchLocal = localProducts.find(lp => {
-            const lpNormal = normalize(lp.name);
-            return lpNormal === justTcgNormal || lpNormal === cleanNormal;
-          });
+          if (!tcgId) continue;
 
-          if (!matchLocal) continue;
+          // Buscar el producto local por su ID de TCGPlayer (externalId)
+          const matchLocal = allRiftboundProducts.find(lp => lp.externalId === tcgId);
+
+          if (!matchLocal) {
+            // Log opcional para ver si falta alguna carta importante
+            // this.logger.warn(`No se encontró producto con externalId: ${tcgId} (${card.name})`);
+            continue;
+          }
 
           const variants = card.variants || [];
           for (const variant of variants) {
-            // Usamos marketPrice (media) si está disponible, si no, usamos price
-            const finalPrice = variant.marketPrice || variant.price || 0;
-
-            if (variant.condition === 'Near Mint' && finalPrice > 0) {
+            if (variant.condition === 'Near Mint' && (variant.marketPrice > 0 || variant.price > 0)) {
               const isFoil = variant.printing === 'Foil';
+              const finalPrice = variant.marketPrice || variant.price;
 
               const updateRes = await this.prisma.inventoryItem.updateMany({
                 where: {
