@@ -6,6 +6,7 @@ import Newsletter from "../Common/Newsletter";
 import RecentlyViewdItems from "./RecentlyViewd";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { useAppSelector } from "@/redux/store";
+import { Product, InventoryItem } from "@/types/product";
 
 const ShopDetails = () => {
   const [activeColor, setActiveColor] = useState("blue");
@@ -20,7 +21,7 @@ const ShopDetails = () => {
   const [selectedCondition, setSelectedCondition] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedFoil, setSelectedFoil] = useState<boolean | null>(null);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
   const [activeTab, setActiveTab] = useState("tabOne");
 
@@ -84,7 +85,7 @@ const ShopDetails = () => {
     (state) => state.productDetailsReducer.value
   );
 
-  const [product, setProduct] = useState(productFromStorage);
+  const [product, setProduct] = useState<Product>(productFromStorage);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -116,7 +117,7 @@ const ShopDetails = () => {
 
   useEffect(() => {
     if (product?.items) {
-      const match = product.items.find((i: any) => 
+      const match = product.items.find((i: InventoryItem) => 
         i.conditionId === selectedCondition && 
         i.languageId === selectedLanguage &&
         i.isFoil === selectedFoil

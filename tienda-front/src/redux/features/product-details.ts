@@ -15,6 +15,7 @@ const initialState = {
     images: [],
     id: 0,
     imgs: { thumbnails: [], previews: [] },
+    items: [],
   },
 } as InitialState;
 
