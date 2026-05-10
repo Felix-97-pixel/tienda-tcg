@@ -37,5 +37,5 @@ export type Product = {
     thumbnails: string[];
     previews: string[];
   };
-  items: InventoryItem[];
+  items?: InventoryItem[];
 };
