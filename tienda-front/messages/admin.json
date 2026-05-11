@@ -50,7 +50,13 @@
       "orders": "Órdenes",
       "ordersDesc": "Revisa el historial de pedidos, filtra por estado y ve los detalles de cada transacción.",
       "wishlist": "Wishlist",
-      "wishlistDesc": "Descubre qué productos interesan más a tus clientes para tomar decisiones de inventario."
+      "wishlistDesc": "Descubre qué productos interesan más a tus clientes para tomar decisiones de inventario.",
+      "settings": "Configuraciones",
+      "settingsDesc": "Define las categorías de destino para cada juego y gestiona los ajustes globales del panel."
+    },
+    "guideButtons": {
+      "sync": "Ir a Sincronización",
+      "settings": "Ir a Configuraciones"
     },
     "links": {
       "brands": "Ir a Marcas",
@@ -241,6 +247,17 @@
       "subtitle": "Sincroniza los precios NM/Foil de Riftbound usando la API de JustTCG",
       "placeholder": "Selecciona expansión local...",
       "button": "Actualizar Precios JustTCG"
+    },
+    "quickGuide": {
+      "title": "Guía Rápida de Administración TCG",
+      "subtitle": "Aprende a usar las nuevas funciones de sincronización y precios",
+      "step1Title": "Sincronización Riftbound",
+      "step1Desc": "Ve a la sección \"Sync\" y selecciona el set (ej: Origins). El sistema conectará con Riftcodex y asignará automáticamente el TCGPlayer ID a cada carta. Esto es vital para que los precios funcionen.",
+      "step2Title": "Actualización de Precios",
+      "step2Desc": "En el panel principal de Productos, usa el botón de \"Actualizar Precios\". El sistema usará la API de JustTCG para buscar el precio exacto por ID. Recuerda que hay un delay de 8s entre peticiones para respetar los límites de la API.",
+      "step3Title": "Variantes Automáticas",
+      "step3Desc": "Cada vez que sincronizas un set, el sistema asegura que existan los slots de Normal y Foil (NM English) para todas las cartas. Si un precio llega como Foil, ahora siempre tendrá un lugar donde guardarse.",
+      "proTip": "Tip Pro: Si ves una carta con precio $0, asegúrate de haber corrido la sincronización del set recientemente para migrar sus IDs."
     }
   },
   "orders": {

@@ -1,8 +1,9 @@
 "use client";
 import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useMessages } from "next-intl";
 import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
 
 export default function AdminSettings() {
   const t = useTranslations("settings");
@@ -21,7 +22,7 @@ export default function AdminSettings() {
     ])
       .then(([categoriesData, settingsData]) => {
         setCategories(categoriesData);
-        
+
         // Load from DB settings or set defaults
         const savedMtg = settingsData.mtg_sync_destination;
         const savedPokemon = settingsData.pokemon_sync_destination;

@@ -45,6 +45,11 @@ const icons = {
       <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
     </svg>
   ),
+  settings: (
+    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.533 1.533 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.533 1.533 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+    </svg>
+  ),
 };
 
 // La función es async porque getTranslations es asíncrono
@@ -53,23 +58,25 @@ export default async function AdminDashboard() {
 
   // Los arrays que usan t() van DENTRO de la función async
   const cards = [
-    { href: "/admin/products",   key: "products",   color: "bg-blue/10",    iconColor: "text-blue" },
+    { href: "/admin/products", key: "products", color: "bg-blue/10", iconColor: "text-blue" },
     { href: "/admin/categories", key: "categories", color: "bg-purple-100", iconColor: "text-purple-600" },
-    { href: "/admin/brands",     key: "brands",     color: "bg-green-100",  iconColor: "text-green-600" },
-    { href: "/admin/sales",      key: "sales",      color: "bg-yellow-100", iconColor: "text-yellow-600" },
-    { href: "/admin/orders",     key: "orders",     color: "bg-orange-100", iconColor: "text-orange-600" },
-    { href: "/admin/sync",       key: "sync",       color: "bg-red-100",    iconColor: "text-red-500" },
-    { href: "/admin/wishlist",   key: "wishlist",   color: "bg-pink-100",   iconColor: "text-pink-500" },
+    { href: "/admin/brands", key: "brands", color: "bg-green-100", iconColor: "text-green-600" },
+    { href: "/admin/sales", key: "sales", color: "bg-yellow-100", iconColor: "text-yellow-600" },
+    { href: "/admin/orders", key: "orders", color: "bg-orange-100", iconColor: "text-orange-600" },
+    { href: "/admin/sync", key: "sync", color: "bg-red-100", iconColor: "text-red-500" },
+    { href: "/admin/wishlist", key: "wishlist", color: "bg-pink-100", iconColor: "text-pink-500" },
+    { href: "/admin/settings", key: "settings", color: "bg-gray-100", iconColor: "text-gray-600" },
   ];
 
   const quickGuide = [
-    { key: "brands",      descKey: "brandsDesc" },
-    { key: "categories",  descKey: "categoriesDesc" },
-    { key: "products",    descKey: "productsDesc" },
-    { key: "sync",        descKey: "syncDesc" },
-    { key: "sales",       descKey: "salesDesc" },
-    { key: "orders",      descKey: "ordersDesc" },
-    { key: "wishlist",    descKey: "wishlistDesc" },
+    { key: "brands", descKey: "brandsDesc" },
+    { key: "categories", descKey: "categoriesDesc" },
+    { key: "products", descKey: "productsDesc" },
+    { key: "sync", descKey: "syncDesc" },
+    { key: "sales", descKey: "salesDesc" },
+    { key: "orders", descKey: "ordersDesc" },
+    { key: "wishlist", descKey: "wishlistDesc" },
+    { key: "settings", descKey: "settingsDesc" },
   ];
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useMessages } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import PreLoader from "@/components/Common/PreLoader";
 
@@ -212,9 +212,54 @@ export default function AdminSync() {
         <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
       </div>
 
+      {/* GUIA RAPIDA DINAMICA */}
+      <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-blue flex items-center justify-center text-white">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="font-bold text-dark text-xl">{t("quickGuide.title")}</h2>
+            <p className="text-dark-4 text-sm mt-0.5">{t("quickGuide.subtitle")}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.keys((useMessages() as any).sync.quickGuide)
+            .filter((key: string) => key.startsWith("step") && key.endsWith("Title"))
+            .map((key: string, index: number) => {
+              const stepId = key.replace("Title", "");
+              return (
+                <div key={stepId} className="p-4 rounded-xl bg-gray-1 border border-gray-3">
+                  <h3 className="font-semibold text-blue mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-blue text-white text-xs flex items-center justify-center font-bold">
+                      {index + 1}
+                    </span>
+                    {t(`quickGuide.${stepId}Title`)}
+                  </h3>
+                  <p className="text-xs text-dark-4 leading-relaxed">
+                    {t(`quickGuide.${stepId}Desc`)}
+                  </p>
+                </div>
+              );
+            })}
+        </div>
+
+        <div className="mt-6 p-4 rounded-lg bg-blue/5 border border-blue/20">
+          <p className="text-xs text-blue font-medium flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {t("quickGuide.proTip")}
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* MAGIC */}
-        <div className="bg-white rounded-2xl shadow-1 p-6">
+        <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
           <h2 className="font-bold text-dark mb-1">{t("mtgjson.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("mtgjson.subtitle")}</p>
           <div className="mb-4">
@@ -228,7 +273,7 @@ export default function AdminSync() {
           })} className={buttonClass}>{t("mtgjson.button")}</button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-1 p-6">
+        <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
           <h2 className="font-bold text-dark mb-1">{t("cardkingdom.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("cardkingdom.subtitle")}</p>
           <SearchableSelect options={expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={expansion} onChange={setExpansion} placeholder={t("mtgjson.placeholder")} />
@@ -236,7 +281,7 @@ export default function AdminSync() {
         </div>
 
         {/* POKEMON */}
-        <div className="bg-white rounded-2xl shadow-1 p-6">
+        <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
           <h2 className="font-bold text-dark mb-1">{t("pokemon.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("pokemon.subtitle")}</p>
           <div className="mb-4">
@@ -250,7 +295,7 @@ export default function AdminSync() {
           })} className={buttonClass}>{t("pokemon.button")}</button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-1 p-6">
+        <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
           <h2 className="font-bold text-dark mb-1">{t("tcgplayer.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("tcgplayer.subtitle")}</p>
           <SearchableSelect options={pokemonExpansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={pokemonExpansion} onChange={setPokemonExpansion} placeholder={t("tcgplayer.placeholder")} />
@@ -258,7 +303,7 @@ export default function AdminSync() {
         </div>
 
         {/* RIFTBOUND */}
-        <div className="bg-white rounded-2xl shadow-1 p-6">
+        <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
           <h2 className="font-bold text-dark mb-1">{t("riftbound.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("riftbound.subtitle")}</p>
           <div className="mb-4">
@@ -272,7 +317,7 @@ export default function AdminSync() {
           })} className={buttonClass}>{t("riftbound.button")}</button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-1 p-6">
+        <div className="bg-white rounded-2xl shadow-1 p-6 border-l-4 border-blue">
           <h2 className="font-bold text-dark mb-1">{t("riftboundPrice.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("riftboundPrice.subtitle")}</p>
           <SearchableSelect options={riftExpansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={riftExpansion} onChange={setRiftExpansion} placeholder={t("riftboundPrice.placeholder")} />
