@@ -1,76 +1,75 @@
 "use client";
 import React, { useState } from "react";
 
-export default function SearchableSelect({
-  options,
-  value,
-  onChange,
-  placeholder,
-  disabled = false
-}: {
-  options: { label: string; value: string }[];
+interface Option {
+  label: string;
+  value: string;
+}
+
+interface SearchableSelectProps {
+  options: Option[];
   value: string;
   onChange: (val: string) => void;
   placeholder: string;
   disabled?: boolean;
-}) {
+  noResultsText?: string;
+  className?: string;
+}
+
+export default function SearchableSelect({
+  options = [],
+  value,
+  onChange,
+  placeholder,
+  disabled = false,
+  noResultsText = "No results",
+  className = ""
+}: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const selectedOption = options.find((o) => o.value === value);
+  const safeOptions = Array.isArray(options) ? options : [];
+  const selectedOption = safeOptions.find((o) => o.value === value);
   const displayValue = isOpen ? search : selectedOption ? selectedOption.label : "";
 
-  const filteredOptions = options.filter((o) =>
-    o.label.toLowerCase().includes(search.toLowerCase()) || o.value.toLowerCase().includes(search.toLowerCase())
+  const filteredOptions = safeOptions.filter((o) =>
+    o.label.toLowerCase().includes(search.toLowerCase()) || 
+    o.value.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full ${className}`}>
       <input
         type="text"
         disabled={disabled}
         placeholder={placeholder}
         value={displayValue}
-        onFocus={() => {
-          setIsOpen(true);
-          setSearch("");
+        onFocus={() => { 
+          setIsOpen(true); 
+          setSearch(""); 
         }}
         onChange={(e) => setSearch(e.target.value)}
-        onBlur={() => {
-          // Delay closing to allow click event to register
-          setTimeout(() => setIsOpen(false), 200);
+        onBlur={() => { 
+          // Delay to allow click on option
+          setTimeout(() => setIsOpen(false), 200); 
         }}
-        className="w-full rounded border border-stroke bg-white py-3 pl-5 pr-10 font-medium text-black outline-none transition focus:border-primary active:border-primary disabled:bg-gray-2"
+        className="w-full rounded-xl border border-gray-3 bg-white py-2.5 px-4 text-sm text-dark outline-none transition focus:border-blue focus:ring-2 focus:ring-blue/20 disabled:bg-gray-2"
       />
-      {value && !disabled && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onChange("");
-            setSearch("");
-            setIsOpen(false);
-          }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
-          title="Limpiar selección"
-        >
-          ✕
-        </button>
-      )}
       {isOpen && !disabled && (
-        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border border-stroke bg-white shadow-default">
+        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-stroke bg-white shadow-lg animate-in fade-in zoom-in duration-200">
           {filteredOptions.length === 0 ? (
-            <li className="px-5 py-3 text-sm text-gray-500">No hay resultados</li>
+            <li className="px-5 py-3 text-sm text-gray-500 italic">{noResultsText}</li>
           ) : (
             filteredOptions.map((opt) => (
               <li
                 key={opt.value}
-                onClick={() => {
-                  onChange(opt.value);
-                  setIsOpen(false);
+                onClick={() => { 
+                  onChange(opt.value); 
+                  setIsOpen(false); 
                 }}
-                className={`cursor-pointer px-5 py-3 hover:bg-gray-2 text-sm text-black ${value === opt.value ? 'bg-gray-2 font-bold' : ''}`}
+                className={`cursor-pointer px-4 py-2.5 hover:bg-blue/5 text-sm text-dark transition-colors ${
+                  value === opt.value ? 'bg-blue/10 font-bold text-blue' : ''
+                }`}
               >
                 {opt.label}
               </li>

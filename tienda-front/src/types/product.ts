@@ -1,41 +1,49 @@
-export type Condition = {
-  id: string;
-  name: string;
-};
-
-export type Language = {
-  id: string;
-  name: string;
-  code: string;
-};
-
-export type InventoryItem = {
+export interface InventoryItem {
   id: string;
   price: number;
   stock: number;
+  condition: string;
   isFoil: boolean;
-  conditionId: string;
-  languageId: string;
-  condition: Condition;
-  language: Language;
-};
+  languageId?: string;
+  conditionId?: string;
+  language?: { name: string };
+  condition_rel?: { name: string }; // Dependiendo de cómo venga del backend
+}
 
-export type Product = {
-  title: string;
-  reviews: number;
+export interface Category {
+  id: string;
+  name: string;
+  isTcg: boolean;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  categoryId: string;
+  brandId?: string;
+  imageUrl?: string;
+  description?: string;
+  category?: Category;
+  brand?: Brand;
+  cardDetail?: {
+    expansion: string;
+    rarity: string;
+  };
+  items: InventoryItem[];
+  wishlistCount?: number;
+}
+
+export interface ProductCreateInput {
+  name: string;
+  categoryId: string;
+  brandId: string;
   price: number;
-  discountedPrice: number;
-  id: number | string;
-  inventoryItemId?: string;
-  category?: {
-    id: string;
-    name: string;
-    isTcg: boolean;
-  };
-  stock?: number;
-  imgs?: {
-    thumbnails: string[];
-    previews: string[];
-  };
-  items?: InventoryItem[];
-};
+  stock: number;
+  imageUrl: string;
+  description: string;
+}

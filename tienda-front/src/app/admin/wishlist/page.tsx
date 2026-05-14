@@ -1,16 +1,9 @@
 "use client";
-import { API_URL } from "@/utils/api";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-
-interface InventoryItem {
-  id: string;
-  price: number;
-  stock: number;
-  condition: string;
-  isFoil: boolean;
-}
+import { API_URL } from "@/utils/api";
+import SearchableSelect from "@/components/Common/SearchableSelect";
 
 interface Product {
   id: string;
@@ -19,56 +12,8 @@ interface Product {
   imageUrl?: string;
   category?: { name: string };
   cardDetail?: { expansion: string; rarity: string };
-  items: InventoryItem[];
+  items: any[];
   wishlistCount?: number;
-}
-
-function SearchableSelect({ options, value, onChange, placeholder, disabled = false }: {
-  options: { label: string; value: string }[];
-  value: string;
-  onChange: (val: string) => void;
-  placeholder: string;
-  disabled?: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const selectedOption = options.find((o) => o.value === value);
-  const displayValue = isOpen ? search : selectedOption ? selectedOption.label : "";
-  const filteredOptions = options.filter((o) =>
-    o.label.toLowerCase().includes(search.toLowerCase()) || o.value.toLowerCase().includes(search.toLowerCase())
-  );
-  return (
-    <div className="relative w-full">
-      <input
-        type="text"
-        disabled={disabled}
-        placeholder={placeholder}
-        value={displayValue}
-        onFocus={() => { setIsOpen(true); setSearch(""); }}
-        onChange={(e) => setSearch(e.target.value)}
-        onBlur={() => { setTimeout(() => setIsOpen(false), 200); }}
-        className="w-full rounded-lg border border-gray-3 bg-gray-1 py-2 pl-4 pr-10 text-sm text-dark outline-none transition focus:border-blue focus:ring-2 focus:ring-blue/20 disabled:bg-gray-2"
-      />
-      {value && !disabled && (
-        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(""); setSearch(""); setIsOpen(false); }}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-4 hover:text-dark">✕</button>
-      )}
-      {isOpen && !disabled && (
-        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-3 bg-white shadow-lg">
-          {filteredOptions.length === 0 ? (
-            <li className="px-4 py-2 text-sm text-dark-4">No hay resultados</li>
-          ) : (
-            filteredOptions.map((opt) => (
-              <li key={opt.value} onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                className={`cursor-pointer px-4 py-2 hover:bg-gray-1 text-sm text-dark ${value === opt.value ? 'bg-gray-1 font-bold' : ''}`}>
-                {opt.label}
-              </li>
-            ))
-          )}
-        </ul>
-      )}
-    </div>
-  );
 }
 
 export default function AdminWishlist() {
@@ -76,163 +21,179 @@ export default function AdminWishlist() {
   const tc = useTranslations("common");
 
   const [allWishlistItems, setAllWishlistItems] = useState<Product[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedExpansion, setSelectedExpansion] = useState("");
-  const [categoriesList, setCategoriesList] = useState<{ id: string; name: string; isTcg?: boolean }[]>([]);
-  const [expansionsList, setExpansionsList] = useState<{ name: string; products: number }[]>([]);
+  const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [expansionsList, setExpansionsList] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 15;
 
   useEffect(() => {
     fetch(`${API_URL}/products/meta/categories/admin`)
       .then((res) => res.json())
-      .then((data) => setCategoriesList(data))
-      .catch((err) => console.error(err));
-  }, []);
+      .then(setCategoriesList)
+      .catch(console.error);
 
-  const fetchWishlistData = () => {
     setLoading(true);
     fetch(`${API_URL}/wishlist/count`, { credentials: "include" })
       .then((res) => res.json())
-      .then((data) => { setAllWishlistItems(Array.isArray(data) ? data : []); setLoading(false); })
-      .catch((err) => { console.error("Error:", err); setLoading(false); });
-  };
-
-  useEffect(() => { fetchWishlistData(); }, []);
+      .then((data) => {
+        setAllWishlistItems(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
-    setExpansionsList([]);
-    setSelectedExpansion("");
     let url = `${API_URL}/products/meta/expansions`;
     if (selectedCategory) url += `?category=${encodeURIComponent(selectedCategory)}`;
-    fetch(url).then((res) => res.json()).then((data) => setExpansionsList(data)).catch(console.error);
+    fetch(url).then((res) => res.json()).then(setExpansionsList).catch(console.error);
+    setSelectedExpansion("");
   }, [selectedCategory]);
 
-  useEffect(() => {
-    if (!Array.isArray(allWishlistItems)) return;
+  const filteredItems = useMemo(() => {
     let filtered = [...allWishlistItems];
     if (searchTerm) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     if (selectedCategory) filtered = filtered.filter(p => p.category?.name === selectedCategory);
     if (selectedExpansion) filtered = filtered.filter(p => p.cardDetail?.expansion === selectedExpansion);
-    const limit = 20;
-    setTotalPages(Math.ceil(filtered.length / limit) || 1);
-    setProducts(filtered.slice((page - 1) * limit, page * limit));
-  }, [allWishlistItems, page, searchTerm, selectedCategory, selectedExpansion]);
+    return filtered;
+  }, [allWishlistItems, searchTerm, selectedCategory, selectedExpansion]);
 
-  const categoryOptions = [
-    { label: t("filters.allCategories"), value: "" },
-    ...categoriesList.map(c => ({ label: c.name, value: c.name }))
-  ];
-  const expansionOptions = [
-    { label: tc("noResults"), value: "" },
-    ...expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))
-  ];
+  const totalPages = Math.ceil(filteredItems.length / LIMIT) || 1;
+  const paginatedItems = filteredItems.slice((page - 1) * LIMIT, page * LIMIT);
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
-        <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
+    <div className="p-6 space-y-8 pb-24">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-dark tracking-tight">{t("title")}</h1>
+          <p className="text-dark-4 text-sm font-medium mt-1">{t("subtitle")}</p>
+        </div>
+        <div className="px-4 py-2 rounded-2xl bg-pink-50 border border-pink-100 flex items-center gap-2">
+           <span className="text-pink-500 text-xl animate-pulse">♥</span>
+           <span className="text-xs font-black text-pink-700 uppercase tracking-widest">{allWishlistItems.length} Deseos totales</span>
+        </div>
       </div>
 
-      {/* Filtros */}
-      <div className="bg-white rounded-2xl shadow-1 p-5">
-        <p className="text-sm font-medium text-dark mb-3">{tc("filters")}</p>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Filtros Premium */}
+      <div className="bg-white rounded-3xl shadow-1 p-6 border border-transparent hover:border-stroke transition-all duration-300">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{tc("search")}</label>
-            <input type="text" placeholder={t("filters.searchPlaceholder")} value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-              className="w-full rounded-lg border border-gray-3 bg-gray-1 py-2 px-4 text-sm outline-none focus:border-blue focus:ring-2 focus:ring-blue/20" />
+            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{tc("search")}</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder={t("filters.searchPlaceholder")} 
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+                className="w-full rounded-2xl border border-stroke bg-gray-50 py-3 px-5 text-sm font-medium outline-none focus:border-blue focus:bg-white focus:ring-4 focus:ring-blue/5 transition-all" 
+              />
+              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.category")}</label>
-            <SearchableSelect options={categoryOptions} value={selectedCategory}
+            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{t("filters.category")}</label>
+            <SearchableSelect 
+              options={[{ label: "Todas las categorías", value: "" }, ...categoriesList.map(c => ({ label: c.name, value: c.name }))]} 
+              value={selectedCategory}
               onChange={(val) => { setSelectedCategory(val); setPage(1); }}
-              placeholder={t("filters.allCategories")} />
+              placeholder={t("filters.allCategories")} 
+            />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("table.expansion")}</label>
-            <SearchableSelect options={expansionOptions} value={selectedExpansion}
+            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">Expansión</label>
+            <SearchableSelect 
+              options={[{ label: "Todas las expansiones", value: "" }, ...expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))]} 
+              value={selectedExpansion}
               onChange={(val) => { setSelectedExpansion(val); setPage(1); }}
-              placeholder={t("filters.allCategories")} disabled={expansionsList.length === 0} />
+              placeholder="Filtrar por expansión..." 
+              disabled={expansionsList.length === 0} 
+            />
           </div>
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-white rounded-2xl shadow-1 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-3">
-          <h2 className="font-semibold text-dark">{t("title")}</h2>
-        </div>
+      {/* Tabla Premium */}
+      <div className="bg-white rounded-3xl shadow-1 overflow-hidden border border-transparent hover:border-stroke transition-all duration-300">
         <div className="overflow-x-auto">
-          <table className="w-full table-auto">
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-1 text-left">
-                <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.product")}</th>
-                <th className="py-3 px-6 font-medium text-dark-4 text-sm hidden md:table-cell">{t("table.expansion")}</th>
-                <th className="py-3 px-6 font-medium text-dark-4 text-sm">{t("table.wishes")}</th>
-                <th className="py-3 px-6 font-medium text-dark-4 text-sm">{tc("total")}</th>
+              <tr className="bg-gray-50/50 border-b border-stroke">
+                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest">{t("table.product")}</th>
+                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest hidden md:table-cell">Edición / Rareza</th>
+                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest text-center">{t("table.wishes")}</th>
+                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest text-right">Precio Actual</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-3">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr>
-                  <td colSpan={4} className="py-12 text-center">
-                    <svg className="animate-spin h-6 w-6 text-blue mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                  </td>
-                </tr>
-              ) : products.length === 0 ? (
-                <tr><td colSpan={4} className="py-12 text-center text-dark-4 text-sm">{tc("noResults")}</td></tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan={4} className="py-6 px-8"><div className="h-10 bg-gray-1 rounded-2xl w-full"></div></td>
+                  </tr>
+                ))
+              ) : paginatedItems.length === 0 ? (
+                <tr><td colSpan={4} className="py-20 text-center text-dark-4 font-black uppercase tracking-widest text-xs">{tc("noResults")}</td></tr>
               ) : (
-                products.map((product) => {
-                  const mainItem = product.items[0];
-                  return (
-                    <tr key={product.id} className="hover:bg-gray-1 transition">
-                      <td className="py-4 px-6 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-2">
+                paginatedItems.map((product) => (
+                  <tr key={product.id} className="group hover:bg-gray-50 transition-all duration-200">
+                    <td className="py-5 px-8">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-1 border border-stroke transition-transform group-hover:scale-110">
                           {product.imageUrl
-                            ? <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="object-cover h-full w-full" />
-                            : <span className="text-[10px] text-dark-4 flex h-full items-center justify-center">{tc("image")}</span>}
+                            ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
+                            : <div className="h-full w-full flex items-center justify-center text-[10px] font-black text-dark-4 uppercase">No img</div>}
                         </div>
-                        <p className="text-dark font-medium text-sm">{product.name}</p>
-                      </td>
-                      <td className="py-4 px-6 hidden md:table-cell">
-                        <p className="text-dark text-sm">{product.cardDetail?.expansion || "N/A"}</p>
-                        <p className="text-dark-4 text-xs">{product.cardDetail?.rarity}</p>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${(product.wishlistCount || 0) > 0 ? 'bg-pink-100 text-pink-600' : 'bg-gray-100 text-gray-500'}`}>
-                          ♥ {product.wishlistCount || 0}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <p className="text-dark font-bold text-sm">
-                          ${Number(mainItem?.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                      </td>
-                    </tr>
-                  );
-                })
+                        <p className="text-dark font-black text-sm tracking-tight">{product.name}</p>
+                      </div>
+                    </td>
+                    <td className="py-5 px-8 hidden md:table-cell">
+                      <p className="text-dark font-bold text-xs">{product.cardDetail?.expansion || "General"}</p>
+                      <p className="text-blue font-black text-[9px] uppercase tracking-widest mt-1 opacity-60">{product.cardDetail?.rarity}</p>
+                    </td>
+                    <td className="py-5 px-8 text-center">
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-pink-50 border border-pink-100">
+                        <span className="text-pink-500 font-bold">♥</span>
+                        <span className="text-xs font-black text-pink-700">{product.wishlistCount || 0}</span>
+                      </div>
+                    </td>
+                    <td className="py-5 px-8 text-right">
+                      <p className="text-sm font-black text-dark tracking-tighter">
+                        ${Number(product.items[0]?.price || 0).toLocaleString('es-CL')}
+                      </p>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
-        <div className="flex justify-between items-center px-6 py-4 border-t border-gray-3">
-          <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">
-            {tc("previous")}
-          </button>
-          <span className="text-sm text-dark-4">{tc("page", { current: page, total: totalPages })}</span>
-          <button disabled={page === totalPages || totalPages === 0} onClick={() => setPage(page + 1)} className="px-3 py-1.5 rounded-lg text-sm border border-gray-3 text-dark-4 hover:bg-gray-1 transition disabled:opacity-40">
-            {tc("next")}
-          </button>
-        </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center px-8 py-5 border-t border-stroke bg-gray-50/30">
+            <button 
+              disabled={page === 1} 
+              onClick={() => setPage(page - 1)} 
+              className="px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest border border-stroke text-dark-4 hover:bg-white hover:text-blue hover:border-blue transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+            >
+              {tc("previous")}
+            </button>
+            <span className="text-[10px] font-black text-dark-4 uppercase tracking-[0.2em] bg-white px-4 py-2 rounded-xl border border-stroke shadow-sm">
+              {tc("page", { current: page, total: totalPages })}
+            </span>
+            <button 
+              disabled={page === totalPages} 
+              onClick={() => setPage(page + 1)} 
+              className="px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest border border-stroke text-dark-4 hover:bg-white hover:text-blue hover:border-blue transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+            >
+              {tc("next")}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

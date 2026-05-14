@@ -5,13 +5,11 @@ export const useImageUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
+    file: File,
     currentUrl?: string,
     folder: string = 'general'
   ): Promise<string | null> => {
-    if (!e.target.files || e.target.files.length === 0) return null;
-
-    const file = e.target.files[0];
+    if (!file) return null;
     const uploadData = new FormData();
     uploadData.append("file", file);
 

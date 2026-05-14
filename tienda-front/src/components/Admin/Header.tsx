@@ -11,8 +11,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
   }, []);
 
   return (
-    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1">
-      <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+    <header className="sticky top-0 z-999 flex w-full bg-white/80 backdrop-blur-md border-b border-stroke/50 shadow-sm">
+      <div className="flex flex-grow items-center justify-between px-6 py-4 md:px-8 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
           <button
             aria-controls="sidebar"
@@ -20,55 +20,27 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
               e.stopPropagation();
               setSidebarOpen(!sidebarOpen);
             }}
-            className="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm lg:hidden"
+            className="z-99999 block rounded-xl border border-stroke bg-white p-2 shadow-sm lg:hidden hover:bg-gray-50 transition-colors"
           >
-            <span className="relative block h-5.5 w-5.5 cursor-pointer">
-              {/* Hamburger Icon */}
-              <span className="du-block absolute right-0 h-full w-full">
-                <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-[0] duration-200 ease-in-out bg-dark ${!sidebarOpen && "!w-full delay-300"
-                    }`}
-                ></span>
-                <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-150 duration-200 ease-in-out bg-dark ${!sidebarOpen && "delay-400 !w-full"
-                    }`}
-                ></span>
-                <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-200 duration-200 ease-in-out bg-dark ${!sidebarOpen && "!w-full delay-500"
-                    }`}
-                ></span>
-              </span>
-              <span className="absolute right-0 h-full w-full rotate-45">
-                <span
-                  className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm bg-black delay-300 duration-200 ease-in-out ${!sidebarOpen && "!h-0 !delay-[0]"
-                    }`}
-                ></span>
-                <span
-                  className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm bg-black duration-200 ease-in-out ${!sidebarOpen && "!h-0 !delay-200"
-                    }`}
-                ></span>
-              </span>
-            </span>
+            <svg className="w-5 h-5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"} />
+            </svg>
           </button>
         </div>
 
-        <div className="hidden sm:block">
-          {/* We can put a search bar here if needed */}
+        <div className="hidden lg:block">
+          <p className="text-xs font-bold text-dark-4 uppercase tracking-[0.1em]">Panel de Gestión <span className="text-blue mx-1">/</span> <span className="text-dark">Resumen General</span></p>
         </div>
 
-        <div className="flex items-center gap-3 2xsm:gap-7">
-          <ul className="flex items-center gap-2 2xsm:gap-4">
-            {/* Dark Mode Toggler could go here */}
-          </ul>
-
-          <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 border-l border-stroke pl-6">
             <span className="hidden text-right lg:block">
               {isMounted && (
                 <>
-                  <span className="block text-sm font-medium text-black">
+                  <span className="block text-sm font-black text-dark tracking-tight leading-tight">
                     {user?.name || user?.email}
                   </span>
-                  <span className="block text-xs">{user?.role}</span>
+                  <span className="block text-[10px] font-bold text-blue uppercase tracking-widest mt-0.5">{user?.role || 'Administrador'}</span>
                 </>
               )}
             </span>
@@ -76,9 +48,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
             {/* Link back to store */}
             <Link
               href="/"
-              className="text-sm font-medium text-blue hover:underline"
+              className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-1 text-xs font-bold text-dark-4 hover:bg-blue hover:text-white transition-all shadow-sm"
             >
-              Volver a la tienda
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              {isMounted && "Ir a la tienda"}
             </Link>
           </div>
         </div>
