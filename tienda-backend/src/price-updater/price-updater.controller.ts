@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, UseGuards, Get, Param } from '@nestjs/common';
 import { PriceUpdaterService } from './price-updater.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -69,5 +69,10 @@ export class PriceUpdaterController {
       message: `La actualización de precios para la expansión '${expansion}' ha comenzado en segundo plano.`,
       source: 'JustTCG API (Datos Premium NM/Foil)'
     };
+  }
+
+  @Get('status/:game')
+  async getStatus(@Param('game') game: string) {
+    return this.priceUpdaterService.getProgress(game);
   }
 }

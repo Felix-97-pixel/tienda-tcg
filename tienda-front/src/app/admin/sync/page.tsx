@@ -110,6 +110,10 @@ export default function AdminSync() {
   const [loadingCk, setLoadingCk] = useState(false);
   const [loadingPkPrice, setLoadingPkPrice] = useState(false);
   const [loadingRiftPrice, setLoadingRiftPrice] = useState(false);
+  
+  const [magicProgress, setMagicProgress] = useState({ current: 0, total: 0, active: false });
+  const [pokemonProgress, setPokemonProgress] = useState({ current: 0, total: 0, active: false });
+  const [riftboundProgress, setRiftboundProgress] = useState({ current: 0, total: 0, active: false });
 
   const [mtgDefaultCategory, setMtgDefaultCategory] = useState("Singles Magic The Gathering");
   const [pokemonDefaultCategory, setPokemonDefaultCategory] = useState("Singles Pokemon");
@@ -156,6 +160,31 @@ export default function AdminSync() {
     });
   }, [riftDefaultCategory]);
 
+  // Nuevo: Verificar si hay procesos activos al cargar la página
+  useEffect(() => {
+    const checkInitialStatus = async () => {
+      const games = [
+        { id: 'magic', setter: setMagicProgress },
+        { id: 'pokemon', setter: setPokemonProgress },
+        { id: 'riftbound', setter: setRiftboundProgress }
+      ];
+
+      for (const game of games) {
+        try {
+          const res = await fetch(`${API_URL}/price-updater/status/${game.id}`, { credentials: "include" });
+          const data = await res.json();
+          if (data.active) {
+            game.setter(data);
+            startPolling(game.id, game.setter);
+          }
+        } catch (e) {
+          console.error(`Error checking status for ${game.id}`, e);
+        }
+      }
+    };
+    checkInitialStatus();
+  }, []);
+
   const handleSyncSet = async (game: string, setId: string, setLoader: (l: boolean) => void, refresh: () => void) => {
     if (!setId) return;
     setLoader(true);
@@ -180,7 +209,20 @@ export default function AdminSync() {
     }
   };
 
-  const handleSyncPrices = async (endpoint: string, expName: string, setLoader: (l: boolean) => void) => {
+  const startPolling = (game: string, setProgress: any) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_URL}/price-updater/status/${game}`, { credentials: "include" });
+        const data = await res.json();
+        setProgress(data);
+        if (!data.active) clearInterval(interval);
+      } catch {
+        clearInterval(interval);
+      }
+    }, 2000);
+  };
+
+  const handleSyncPrices = async (game: string, endpoint: string, expName: string, setLoader: (l: boolean) => void, setProgress: any) => {
     if (!expName) return;
     setLoader(true);
     try {
@@ -191,13 +233,35 @@ export default function AdminSync() {
         credentials: "include",
       });
       const data = await res.json();
-      if (res.ok) showToast(data.message || tCommon("success"), "success");
-      else showToast(data.error || tCommon("error"), "error");
+      if (res.ok) {
+        showToast(data.message || tCommon("success"), "success");
+        startPolling(game, setProgress);
+      } else {
+        showToast(data.error || tCommon("error"), "error");
+      }
     } catch {
       showToast(tCommon("networkError"), "error");
     } finally {
       setLoader(false);
     }
+  };
+
+  const isAnyActive = magicProgress.active || pokemonProgress.active || riftboundProgress.active;
+
+  const ProgressDisplay = ({ p }: { p: { current: number, total: number, active: boolean } }) => {
+    if (!p.active && p.current === 0) return null;
+    const pct = p.total > 0 ? Math.round((p.current / p.total) * 100) : 0;
+    return (
+      <div className="mt-4 p-3 bg-blue/5 rounded-xl border border-blue/10">
+        <div className="flex justify-between text-xs font-bold text-blue mb-1">
+          <span>{p.active ? "Actualizando..." : "Completado"}</span>
+          <span>{p.current} / {p.total} ({pct}%)</span>
+        </div>
+        <div className="w-full bg-gray-2 rounded-full h-2 overflow-hidden">
+          <div className="bg-blue h-full transition-all duration-500" style={{ width: `${pct}%` }}></div>
+        </div>
+      </div>
+    );
   };
 
   // Botón estándar azul para todos
@@ -277,7 +341,14 @@ export default function AdminSync() {
           <h2 className="font-bold text-dark mb-1">{t("cardkingdom.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("cardkingdom.subtitle")}</p>
           <SearchableSelect options={expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={expansion} onChange={setExpansion} placeholder={t("mtgjson.placeholder")} />
-          <button onClick={() => handleSyncPrices("sync-set", expansion, setLoadingCk)} className={buttonClass}>{t("cardkingdom.button")}</button>
+          <button 
+            disabled={isAnyActive}
+            onClick={() => handleSyncPrices("magic", "sync-set", expansion, setLoadingCk, setMagicProgress)} 
+            className={`${buttonClass} ${isAnyActive ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          >
+            {magicProgress.active ? "En progreso..." : t("cardkingdom.button")}
+          </button>
+          <ProgressDisplay p={magicProgress} />
         </div>
 
         {/* POKEMON */}
@@ -299,7 +370,15 @@ export default function AdminSync() {
           <h2 className="font-bold text-dark mb-1">{t("tcgplayer.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("tcgplayer.subtitle")}</p>
           <SearchableSelect options={pokemonExpansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={pokemonExpansion} onChange={setPokemonExpansion} placeholder={t("tcgplayer.placeholder")} />
-          <button onClick={() => handleSyncPrices("sync-pokemon", pokemonExpansion, setLoadingPkPrice)} className={buttonClass}>{t("tcgplayer.button")}</button>
+          <button 
+            disabled={isAnyActive}
+            onClick={() => handleSyncPrices("pokemon", "sync-pokemon", pokemonExpansion, setLoadingPkPrice, setPokemonProgress)} 
+            className={`${buttonClass} ${isAnyActive ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          >
+            {pokemonProgress.active ? "En progreso..." : t("tcgplayer.button")}
+          </button>
+
+          <ProgressDisplay p={pokemonProgress} />
         </div>
 
         {/* RIFTBOUND */}
@@ -321,7 +400,15 @@ export default function AdminSync() {
           <h2 className="font-bold text-dark mb-1">{t("riftboundPrice.title")}</h2>
           <p className="text-xs text-dark-4 mb-4">{t("riftboundPrice.subtitle")}</p>
           <SearchableSelect options={riftExpansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))} value={riftExpansion} onChange={setRiftExpansion} placeholder={t("riftboundPrice.placeholder")} />
-          <button onClick={() => handleSyncPrices("sync-riftbound", riftExpansion, setLoadingRiftPrice)} className={buttonClass}>{t("riftboundPrice.button")}</button>
+          <button 
+            disabled={isAnyActive}
+            onClick={() => handleSyncPrices("riftbound", "sync-riftbound", riftExpansion, setLoadingRiftPrice, setRiftboundProgress)} 
+            className={`${buttonClass} ${isAnyActive ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          >
+            {riftboundProgress.active ? "En progreso..." : t("riftboundPrice.button")}
+          </button>
+ blackout_line
+          <ProgressDisplay p={riftboundProgress} />
         </div>
       </div>
     </div>

@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import axios from 'axios';
 import { GameType } from '../common/enums/game-type.enum';
+import { RiftboundProvider } from './providers/riftbound.provider';
+import { MagicProvider } from './providers/magic.provider';
+import { PokemonProvider } from './providers/pokemon.provider';
 
 interface CardToSync {
   externalId: string;
@@ -15,309 +18,49 @@ interface CardToSync {
 
 @Injectable()
 export class SyncService {
-  constructor(private prisma: PrismaService) { }
+  private providers: Record<string, any>;
+
+  constructor(private prisma: PrismaService) {
+    this.providers = {
+      riftbound: new RiftboundProvider(this.prisma),
+      pokemon: new PokemonProvider(this.prisma),
+      magic: new MagicProvider(this.prisma),
+    };
+  }
 
   async syncSet(game: string, setId: string) {
-    const gameType = game.toLowerCase();
-    if (gameType.includes('pokemon')) {
-      return this.syncPokemonSet(game, setId);
-    }
-    if (gameType.includes('riftbound')) {
-      return this.syncRiftboundSet(game, setId);
-    }
-    // Por defecto tratamos como Magic u otros que sigan el patrón Scryfall
-    return this.syncMtgSet(game, setId);
-  }
-
-  private async getSyncDefaults() {
-    const [defaultLang, defaultCond] = await Promise.all([
-      this.prisma.language.findUnique({ where: { code: 'en' } }),
-      this.prisma.condition.findUnique({ where: { name: 'near_mint' } })
-    ]);
-
-    if (!defaultLang || !defaultCond) {
-      throw new Error("No se encontraron los registros de idioma 'en' o condición 'near_mint'.");
-    }
-
-    return { defaultLang, defaultCond };
-  }
-
-  private async getCategoryId(game: string) {
-    const category = await this.prisma.category.findFirst({
-      where: { name: { equals: game, mode: 'insensitive' } }
+    // 1. Obtener las configuraciones de destino desde la base de datos
+    const settings = await this.prisma.globalSetting.findMany({
+      where: {
+        key: { in: ['mtg_sync_destination', 'pokemon_sync_destination', 'riftbound_sync_destination'] }
+      }
     });
 
-    if (!category) {
-      throw new Error(`La categoría '${game}' no existe.`);
+    const settingsMap = new Map(settings.map(s => [s.key, s.value.toLowerCase()]));
+    const gameNameLower = game.toLowerCase();
+
+    // 2. Determinar el proveedor comparando el nombre recibido con las configuraciones
+    let providerKey = '';
+
+    if (gameNameLower === settingsMap.get('mtg_sync_destination')) providerKey = 'magic';
+    else if (gameNameLower === settingsMap.get('pokemon_sync_destination')) providerKey = 'pokemon';
+    else if (gameNameLower === settingsMap.get('riftbound_sync_destination')) providerKey = 'riftbound';
+    
+    // Si no coincide con ninguna configuración, probamos con las llaves directas por si acaso
+    if (!providerKey && this.providers[gameNameLower]) {
+      providerKey = gameNameLower;
     }
 
-    return category.id;
-  }
-
-  /**
-   * Sincronización para Magic The Gathering usando Scryfall
-   */
-  async syncMtgSet(game: string, setId: string) {
-    const categoryId = await this.getCategoryId(game);
-    const { defaultLang, defaultCond } = await this.getSyncDefaults();
-
-    let totalProcessed = 0;
-    let url = `https://api.scryfall.com/cards/search?q=set:${setId}+-is:digital&unique=prints`;
-    let hasMore = true;
-    const CONCURRENCY_LIMIT = 15;
-
-    while (hasMore) {
-      const res = await axios.get(url);
-      const data = res.data;
-
-      if (!data.data || data.data.length === 0) {
-        hasMore = false;
-        break;
-      }
-
-      const pageCards: CardToSync[] = data.data.map((c: any) => {
-        const attrs: string[] = c.colors || c.card_faces?.[0]?.colors || [];
-        if (c.oracle_text?.includes('{E}')) attrs.push('Energy');
-        if (c.oracle_text?.toLowerCase().includes('devotion')) attrs.push('Devotion');
-
-        return {
-          externalId: c.id,
-          name: c.name,
-          image: c.image_uris?.normal || c.card_faces?.[0]?.image_uris?.normal || '',
-          expansion: c.set_name,
-          rarity: c.rarity || 'Common',
-          number: c.collector_number,
-          attributes: attrs
-        };
-      });
-
-      totalProcessed += await this.processBatch(pageCards, categoryId, game, defaultLang.id, defaultCond.id, CONCURRENCY_LIMIT);
-
-      if (data.has_more && data.next_page) {
-        url = data.next_page;
-      } else {
-        hasMore = false;
-      }
+    const provider = this.providers[providerKey];
+    if (provider) {
+      return provider.syncSet(setId, game);
     }
 
-    return { message: `Sincronización de Magic completada`, count: totalProcessed };
+    throw new Error(`La categoría '${game}' no está configurada como destino para ningún TCG.`);
   }
 
-  /**
-   * Sincronización para Pokemon usando Pokemon TCG API (pokemontcg.io)
-   */
-  async syncPokemonSet(game: string, setId: string) {
-    const categoryId = await this.getCategoryId(game);
-    const { defaultLang, defaultCond } = await this.getSyncDefaults();
-
-    let totalProcessed = 0;
-    let page = 1;
-    const pageSize = 250;
-    let hasMore = true;
-    const CONCURRENCY_LIMIT = 15;
-
-    while (hasMore) {
-      const url = `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}`;
-      console.log(`Consultando Pokemon API: Página ${page}`);
-
-      const res = await axios.get(url);
-      const data = res.data;
-
-      if (!data.data || data.data.length === 0) {
-        hasMore = false;
-        break;
-      }
-
-      const pageCards: CardToSync[] = data.data.map((c: any) => {
-        const attrs = c.types ? [...c.types] : [];
-        if (c.supertype === 'Energy' && !attrs.includes('Energy')) attrs.push('Energy');
-
-        return {
-          externalId: c.id,
-          name: c.name,
-          image: c.images?.large || c.images?.small || '',
-          expansion: c.set.name,
-          rarity: c.rarity || 'Common',
-          number: c.number,
-          attributes: attrs
-        };
-      });
-
-      totalProcessed += await this.processBatch(pageCards, categoryId, game, defaultLang.id, defaultCond.id, CONCURRENCY_LIMIT);
-
-      if (data.data.length < pageSize) {
-        hasMore = false;
-      } else {
-        page++;
-      }
-    }
-
-    return { message: `Sincronización de Pokemon completada`, count: totalProcessed };
-  }
-
-  /**
-   * Sincronización para Riftbound usando Riftcodex API
-   */
-  async syncRiftboundSet(game: string, setId: string) {
-    const categoryId = await this.getCategoryId(game);
-    const { defaultLang, defaultCond } = await this.getSyncDefaults();
-
-    let totalProcessed = 0;
-    let page = 1;
-    let hasMore = true;
-    const CONCURRENCY_LIMIT = 15;
-
-    while (hasMore) {
-      console.log(`--- Importando página ${page} de Riftbound (${setId}) ---`);
-      const url = `https://api.riftcodex.com/cards?set_id=${setId}&page=${page}`;
-      const res = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-      });
-
-      const data = res.data;
-      const cardList = data?.items || (Array.isArray(data) ? data : []);
-
-      if (cardList.length === 0) {
-        hasMore = false;
-        break;
-      }
-
-      const cards: CardToSync[] = cardList.map((c: any) => ({
-        externalId: c.tcgplayer_id ? String(c.tcgplayer_id) : `rb-${c.id}`,
-        name: c.name,
-        image: c.media?.image_url || '',
-        expansion: c.set?.label || setId,
-        rarity: c.classification?.rarity || c.rarity || 'Common',
-        number: String(c.collector_number || ''),
-        attributes: Array.isArray(c.classification?.domain) ? c.classification.domain : []
-      }));
-
-      totalProcessed += await this.processBatch(cards, categoryId, game, defaultLang.id, defaultCond.id, CONCURRENCY_LIMIT);
-
-      // Si hay más páginas según la API
-      if (data.page < data.pages) {
-        page++;
-      } else {
-        hasMore = false;
-      }
-    }
-
-    return { message: `Sincronización de Riftbound completada`, count: totalProcessed };
-  }
-
-  /**
-   * Procesa un lote de cartas e inserta/actualiza en la base de datos
-   */
-  private async processBatch(
-    cards: CardToSync[],
-    categoryId: string,
-    gameType: string,
-    langId: string,
-    condId: string,
-    limit: number
-  ): Promise<number> {
-    let processedInBatch = 0;
-
-    for (let i = 0; i < cards.length; i += limit) {
-      const chunk = cards.slice(i, i + limit);
-
-      const results = await Promise.allSettled(
-        chunk.map(async (card) => {
-          // Intentar encontrar por externalId (TCGPlayer ID)
-          let existingProduct = await this.prisma.product.findUnique({
-            where: { externalId: card.externalId },
-            include: { items: true }
-          });
-
-          // Si no existe por ID, buscar por nombre y expansión (Migración de rb-id a TCGPlayer ID)
-          if (!existingProduct) {
-            existingProduct = await this.prisma.product.findFirst({
-              where: {
-                name: { equals: card.name, mode: 'insensitive' },
-                cardDetail: { expansion: { equals: card.expansion, mode: 'insensitive' } }
-              },
-              include: { items: true }
-            });
-          }
-
-          const product = await this.prisma.product.upsert({
-            where: { id: existingProduct?.id || 'non-existent-uuid' },
-            update: { 
-              externalId: card.externalId, // Actualizamos al nuevo ID de TCGPlayer
-              imageUrl: card.image, 
-              name: card.name 
-            },
-            create: {
-              externalId: card.externalId,
-              name: card.name,
-              imageUrl: card.image,
-              categoryId: categoryId,
-              cardDetail: {
-                create: {
-                  expansion: card.expansion,
-                  rarity: card.rarity,
-                  collectorNum: card.number,
-                  game: gameType,
-                }
-              }
-            },
-            include: { items: true }
-          });
-
-          const hasNormal = product.items.some(item => !item.isFoil);
-          const hasFoil = product.items.some(item => item.isFoil);
-
-          if (!hasNormal) {
-            await this.prisma.inventoryItem.create({
-              data: {
-                productId: product.id,
-                languageId: langId,
-                conditionId: condId,
-                isFoil: false,
-                price: 0,
-                stock: 0
-              }
-            });
-          }
-
-          if (!hasFoil) {
-            await this.prisma.inventoryItem.create({
-              data: {
-                productId: product.id,
-                languageId: langId,
-                conditionId: condId,
-                isFoil: true,
-                price: 0,
-                stock: 0
-              }
-            });
-          }
-
-          await this.updateAttributes(card.externalId, card.attributes);
-        })
-      );
-
-      results.forEach((res) => {
-        if (res.status === 'fulfilled') processedInBatch++;
-        else console.error('❌ Error procesando carta:', res.reason);
-      });
-    }
-
-    return processedInBatch;
-  }
-
-  private async updateAttributes(externalId: string, attributes: string[]): Promise<void> {
-    if (!attributes.length) return;
-    await this.prisma.$executeRaw`
-      UPDATE "CardDetail"
-      SET    attributes = ${attributes}::text[]
-      WHERE  "productId" = (
-        SELECT id FROM "Product" WHERE "externalId" = ${externalId}
-      )
-    `;
-  }
+  // Los métodos de obtener listas de sets se mantienen por ahora 
+  // ya que son simples GETs, pero también podrían moverse a los providers.
 
   /**
    * Obtiene la lista de ediciones de Magic desde MTGJSON
