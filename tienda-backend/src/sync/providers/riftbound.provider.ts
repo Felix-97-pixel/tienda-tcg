@@ -83,18 +83,13 @@ export class RiftboundProvider extends TcgProvider {
       this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
 
       // 2. Cargar productos locales para match rápido
-      const localProductIds = await this.prisma.product.findMany({
+      const localProducts = await this.prisma.product.findMany({
         where: { cardDetail: { expansion: { equals: expansionName, mode: 'insensitive' } } },
         select: { id: true, externalId: true }
       });
-      const localProducts = localProductIds;
-      this.logger.log(`[Riftbound] ${localProducts.length} productos encontrados en la BD local.`);
-
-      // Contar los ítems de inventario reales (variants) para un total preciso en la barra de progreso
-      const totalInventoryItems = await this.prisma.inventoryItem.count({
-        where: { productId: { in: localProducts.map(p => p.id) } }
-      });
-      const totalRift = totalInventoryItems || localProducts.length;
+      
+      const totalRift = localProducts.length;
+      this.logger.log(`[Riftbound] ${totalRift} productos encontrados en la BD local.`);
 
       let offset = 0;
       const limit = 20;
@@ -122,24 +117,26 @@ export class RiftboundProvider extends TcgProvider {
           const matchLocal = localProducts.find(lp => lp.externalId === tcgId);
           if (!matchLocal) continue;
 
+          // Procesar variantes
           for (const variant of card.variants || []) {
             if (variant.condition === 'Near Mint' && (variant.marketPrice > 0 || variant.price > 0)) {
               const finalPrice = variant.marketPrice || variant.price;
-              const res = await this.prisma.inventoryItem.updateMany({
+              await this.prisma.inventoryItem.updateMany({
                 where: { productId: matchLocal.id, isFoil: variant.printing === 'Foil' },
                 data: { price: finalPrice }
               });
-              updatedCount += res.count;
             }
           }
+          // Incrementar por CARTA única procesada, no por variantes
+          updatedCount++;
           this.onProgress?.('riftbound', updatedCount, totalRift, 'price');
         }
-        this.logger.log(`[Riftbound] Lote procesado. Total actualizado: ${updatedCount}/${totalRift}`);
+        this.logger.log(`[Riftbound] Lote procesado. Progreso: ${updatedCount}/${totalRift}`);
         hasMore = res.data?.meta?.hasMore || false;
         offset += limit;
       }
 
-      this.logger.log(`[Riftbound] ¡Actualización completada! ${updatedCount} variantes de inventario actualizadas.`);
+      this.logger.log(`[Riftbound] ¡Actualización completada! ${updatedCount} cartas procesadas.`);
       return { updated: updatedCount, errors: 0 };
     } catch (err) {
       this.logger.error(`[Riftbound] Error en JustTCG: ${err.message}`);
