@@ -48,11 +48,11 @@ export default function CategoryTable({ categories, loading, onEdit, onDelete }:
               categories.map((category) => (
                 <tr key={category.id} className="group hover:bg-blue/5 transition-colors">
                   <td className="py-4 px-6">
-                    <div className="h-12 w-20 rounded-xl flex items-center justify-center bg-gray-1 overflow-hidden border border-stroke transition-transform group-hover:scale-105">
+                    <div className="relative h-12 w-20 rounded-xl bg-gray-1 overflow-hidden border border-stroke transition-transform group-hover:scale-105">
                       {category.imageUrl ? (
-                        <Image src={category.imageUrl} alt={category.name} width={60} height={40} className="object-contain" />
+                        <Image src={category.imageUrl} alt={category.name} fill sizes="80px" className="object-contain p-1" />
                       ) : (
-                        <span className="text-[10px] text-dark-4 font-bold tracking-tight">{tc("noImage")}</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] text-dark-4 font-bold tracking-tight">{tc("noImage")}</span>
                       )}
                     </div>
                   </td>

@@ -1,77 +1,31 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { RiftboundProvider } from '../sync/providers/riftbound.provider';
-import { MagicProvider } from '../sync/providers/magic.provider';
-import { PokemonProvider } from '../sync/providers/pokemon.provider';
+import { SyncService } from '../sync/sync.service';
 
 @Injectable()
 export class PriceUpdaterService {
   private readonly logger = new Logger(PriceUpdaterService.name);
-  private providers: Record<string, any>;
-  private syncProgress: Record<string, { current: number, total: number, active: boolean }> = {
-    magic: { current: 0, total: 0, active: false },
-    pokemon: { current: 0, total: 0, active: false },
-    riftbound: { current: 0, total: 0, active: false },
-  };
 
-  constructor(private prisma: PrismaService) {
-    this.providers = {
-      riftbound: new RiftboundProvider(this.prisma),
-      pokemon: new PokemonProvider(this.prisma),
-      magic: new MagicProvider(this.prisma),
-    };
+  constructor(private syncService: SyncService) {}
 
-    // Inyectamos una función de callback en los providers para que reporten progreso
-    Object.values(this.providers).forEach(p => {
-      p.onProgress = (game: string, current: number, total: number) => {
-        const key = game.toLowerCase();
-        if (this.syncProgress[key]) {
-          this.syncProgress[key] = { current, total, active: true };
-        }
-      };
-    });
-  }
-
+  /**
+   * Obtiene el progreso desde el servicio unificado
+   */
   getProgress(game: string) {
-    return this.syncProgress[game.toLowerCase()] || { current: 0, total: 0, active: false };
+    return this.syncService.getProgress(game).price;
   }
 
-  private setStatus(game: string, active: boolean) {
-    const key = game.toLowerCase();
-    if (this.syncProgress[key]) {
-      this.syncProgress[key].active = active;
-      if (active) {
-        this.syncProgress[key].current = 0;
-        this.syncProgress[key].total = 0;
-      }
-    }
-  }
-
-  async checkExpansionExists(expansion: string): Promise<boolean> {
-    const count = await this.prisma.product.count({
-      where: { cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } } }
-    });
-    return count > 0;
+  async checkExpansionExists(expansion: string) {
+    return this.syncService.checkExpansionExists(expansion);
   }
 
   /**
-   * Método genérico para actualizar precios de cualquier juego
+   * Delegar actualización a SyncService
    */
   async updatePrices(game: string, expansion: string) {
-    const provider = this.providers[game.toLowerCase()];
-    if (!provider) throw new Error(`Juego ${game} no soportado`);
-    
-    this.setStatus(game, true);
-    try {
-      const result = await provider.updateGamePrices(expansion);
-      return result;
-    } finally {
-      this.setStatus(game, false);
-    }
+    return this.syncService.updatePrices(game, expansion);
   }
 
-  // Mantenemos estos métodos por compatibilidad con el Controller, 
-  // pero ahora solo llaman al método genérico.
+  // Mantenemos estos métodos por compatibilidad con el Controller
   async updateSetPrices(expansion: string) {
     return this.updatePrices('magic', expansion);
   }

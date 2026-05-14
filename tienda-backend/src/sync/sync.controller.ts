@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -24,6 +24,11 @@ export class SyncController {
   @Get('riftbound-sets')
   async getRiftboundSets() {
     return this.syncService.getRiftboundSets();
+  }
+
+  @Get('status/:game')
+  async getStatus(@Param('game') game: string) {
+    return this.syncService.getProgress(game);
   }
 
   //Invoke-RestMethod -Method POST -Uri "http://localhost:3001/sync/set" -ContentType "application/json" -Body '{"game": "Singles Magic The Gathering", "setId": "tla"}'

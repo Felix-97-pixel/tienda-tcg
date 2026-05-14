@@ -30,13 +30,16 @@ export default function AdminSync() {
       })
       .catch(() => {});
   }, []);
-
-  // Usamos nuestro Hook personalizado para cada juego
+  // Usamos nuestro Hook personalizado para cada juego
   const magic = useTcgSync("magic", categories.magic);
   const pokemon = useTcgSync("pokemon", categories.pokemon);
   const riftbound = useTcgSync("riftbound", categories.riftbound);
 
-  const isAnyActive = magic.progress.active || pokemon.progress.active || riftbound.progress.active;
+  const isAnyActive = 
+    magic.priceProgress.active || magic.importProgress.active || 
+    pokemon.priceProgress.active || pokemon.importProgress.active || 
+    riftbound.priceProgress.active || riftbound.importProgress.active;
+    
   const anyLoading = magic.loading || pokemon.loading || riftbound.loading;
 
   const games = [
@@ -93,60 +96,72 @@ export default function AdminSync() {
         {games.map((game) => (
           <React.Fragment key={game.id}>
             {/* Card de Importación de Edición */}
-            <div className={`bg-white rounded-2xl shadow-1 p-6 border-l-4 ${game.color}`}>
-              <h2 className="font-bold text-dark mb-1">{game.title}</h2>
-              <p className="text-xs text-dark-4 mb-4">{game.subtitle}</p>
-              
-              <div className="mb-4">
-                <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
-                <div className="text-sm font-bold text-blue bg-blue/5 p-2 rounded border border-blue/10">
-                  {categories[game.id as keyof typeof categories]}
+            <div className={`bg-white rounded-2xl shadow-1 p-6 border-l-4 ${game.color} flex flex-col`}>
+              <div className="flex-1">
+                <h2 className="font-bold text-dark mb-1">{game.title}</h2>
+                <p className="text-xs text-dark-4 mb-4">{game.subtitle}</p>
+                
+                <div className="mb-4">
+                  <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
+                  <div className="text-sm font-bold text-blue bg-blue/5 p-2 rounded border border-blue/10">
+                    {categories[game.id as keyof typeof categories]}
+                  </div>
                 </div>
-              </div>
 
-              <SearchableSelect 
-                options={game.sync.sets.map(s => ({ 
-                  label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name, 
-                  value: s.id 
-                }))} 
-                value={game.sync.selectedSetId} 
-                onChange={game.sync.setSelectedSetId} 
-                placeholder={game.placeholder} 
-              />
+                <SearchableSelect 
+                  options={game.sync.sets.map(s => ({ 
+                    label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name, 
+                    value: s.id 
+                  }))} 
+                  value={game.sync.selectedSetId} 
+                  onChange={game.sync.setSelectedSetId} 
+                  placeholder={game.placeholder} 
+                />
+              </div>
               
               <button 
                 onClick={game.sync.syncSet} 
                 disabled={isAnyActive}
                 className={buttonClass}
               >
-                {game.importBtn}
+                {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
               </button>
+
+              <ProgressDisplay 
+                progress={game.sync.importProgress} 
+                label={tCommon("importing")} 
+              />
             </div>
 
             {/* Card de Actualización de Precios */}
-            <div className={`bg-white rounded-2xl shadow-1 p-6 border-l-4 ${game.color}`}>
-              <h2 className="font-bold text-dark mb-1">{game.priceTitle}</h2>
-              <p className="text-xs text-dark-4 mb-4">{game.priceSubtitle}</p>
-              
-              <SearchableSelect 
-                options={game.sync.expansionsList.map(e => ({ 
-                  label: `${e.name} (${e.products})`, 
-                  value: e.name 
-                }))} 
-                value={game.sync.selectedExpansion} 
-                onChange={game.sync.setSelectedExpansion} 
-                placeholder={game.placeholder} 
-              />
+            <div className={`bg-white rounded-2xl shadow-1 p-6 border-l-4 ${game.color} flex flex-col`}>
+              <div className="flex-1">
+                <h2 className="font-bold text-dark mb-1">{game.priceTitle}</h2>
+                <p className="text-xs text-dark-4 mb-4">{game.priceSubtitle}</p>
+                
+                <SearchableSelect 
+                  options={game.sync.expansionsList.map(e => ({ 
+                    label: `${e.name} (${e.products})`, 
+                    value: e.name 
+                  }))} 
+                  value={game.sync.selectedExpansion} 
+                  onChange={game.sync.setSelectedExpansion} 
+                  placeholder={game.placeholder} 
+                />
+              </div>
               
               <button 
                 disabled={isAnyActive}
                 onClick={game.sync.syncPrices} 
                 className={buttonClass}
               >
-                {game.sync.progress.active ? t("inProgress") : game.priceBtn}
+                {game.sync.priceProgress.active ? t("inProgress") : game.priceBtn}
               </button>
               
-              <ProgressDisplay progress={game.sync.progress} />
+              <ProgressDisplay 
+                progress={game.sync.priceProgress} 
+                label={tCommon("updating")} 
+              />
             </div>
           </React.Fragment>
         ))}

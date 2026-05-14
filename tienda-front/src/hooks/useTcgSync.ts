@@ -11,7 +11,10 @@ export function useTcgSync(game: string, defaultCategory: string) {
   const [selectedSetId, setSelectedSetId] = useState("");
   const [selectedExpansion, setSelectedExpansion] = useState("");
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<SyncProgress>({ current: 0, total: 0, active: false });
+  
+  // Estados de progreso independientes
+  const [priceProgress, setPriceProgress] = useState<SyncProgress>({ current: 0, total: 0, active: false });
+  const [importProgress, setImportProgress] = useState<SyncProgress>({ current: 0, total: 0, active: false });
 
   // Cargar expansiones locales y sets externos
   const refreshData = useCallback(async () => {
@@ -41,35 +44,43 @@ export function useTcgSync(game: string, defaultCategory: string) {
     refreshData();
   }, [refreshData]);
 
-  // Polling de estado
+  // Polling unificado para progreso
   const startPolling = useCallback(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`${API_URL}/price-updater/status/${game}`, { credentials: "include" });
+        const res = await fetch(`${API_URL}/sync/status/${game}`, { credentials: "include" });
         const data = await res.json();
-        setProgress(data);
-        if (!data.active) {
+        
+        // Actualizar ambos estados desde la misma respuesta
+        setImportProgress(data.import);
+        setPriceProgress(data.price);
+        
+        if (!data.import.active && !data.price.active) {
           clearInterval(interval);
-          // Forzar 100% visualmente antes de limpiar
-          setProgress({ current: data.total, total: data.total, active: false });
+          // Si terminaron, refrescamos datos
           refreshData();
+          
+          // Limpieza suave después de un delay
           setTimeout(() => {
-            setProgress({ current: 0, total: 0, active: false });
+            setImportProgress(prev => ({ ...prev, active: false }));
+            setPriceProgress(prev => ({ ...prev, active: false }));
           }, 2500);
         }
       } catch {
         clearInterval(interval);
       }
     }, 2000);
+    return interval;
   }, [game, refreshData]);
 
-  // Verificar estado al cargar (Persistencia)
+  // Verificar estados al cargar (Persistencia)
   useEffect(() => {
-    fetch(`${API_URL}/price-updater/status/${game}`, { credentials: "include" })
+    fetch(`${API_URL}/sync/status/${game}`, { credentials: "include" })
       .then(r => r.json())
       .then(data => {
-        if (data.active) {
-          setProgress(data);
+        setImportProgress(data.import);
+        setPriceProgress(data.price);
+        if (data.import.active || data.price.active) {
           startPolling();
         }
       });
@@ -115,7 +126,7 @@ export function useTcgSync(game: string, defaultCategory: string) {
       const data = await res.json();
       if (res.ok) {
         showToast(data.message, "success");
-        refreshData();
+        startPolling();
       } else {
         showToast(data.error, "error");
       }
@@ -134,7 +145,8 @@ export function useTcgSync(game: string, defaultCategory: string) {
     selectedExpansion,
     setSelectedExpansion,
     loading,
-    progress,
+    priceProgress,
+    importProgress,
     syncPrices,
     syncSet
   };

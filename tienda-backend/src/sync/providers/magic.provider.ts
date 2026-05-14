@@ -116,7 +116,7 @@ export class MagicProvider extends TcgProvider {
         updated++;
         
         if (updated % 50 === 0 || updated === total) {
-          this.onProgress?.('magic', updated, total);
+          this.onProgress?.('magic', updated, total, 'price');
           this.logger.log(`[Magic] Progreso: ${updated}/${total} productos actualizados...`);
         }
       }

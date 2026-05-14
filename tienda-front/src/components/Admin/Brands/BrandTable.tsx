@@ -50,11 +50,11 @@ export default function BrandTable({ brands, loading, onEdit, onDelete }: BrandT
               brands.map((brand) => (
                 <tr key={brand.id} className="group hover:bg-blue/5 transition-colors">
                   <td className="py-4 px-6">
-                    <div className="h-12 w-20 rounded-xl flex items-center justify-center bg-gray-1 overflow-hidden border border-stroke transition-transform group-hover:scale-105">
+                    <div className="relative h-12 w-20 rounded-xl bg-gray-1 overflow-hidden border border-stroke transition-transform group-hover:scale-105">
                       {brand.imageUrl ? (
-                        <Image src={brand.imageUrl} alt={brand.name} width={60} height={40} className="object-contain" />
+                        <Image src={brand.imageUrl} alt={brand.name} fill sizes="80px" className="object-contain p-1" />
                       ) : (
-                        <span className="text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
                       )}
                     </div>
                   </td>

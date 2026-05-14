@@ -7,7 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
  */
 export abstract class TcgProvider {
   protected readonly logger: Logger;
-  public onProgress?: (game: string, current: number, total: number) => void;
+  public onProgress?: (game: string, current: number, total: number, type: 'import' | 'price') => void;
 
   constructor(
     protected readonly gameName: string,
@@ -77,7 +77,7 @@ export abstract class TcgProvider {
                     expansion: productData.expansion,
                     rarity: productData.rarity,
                     collectorNum: productData.number,
-                    game: gameType,
+                    game: this.gameName,
                     attributes: productData.attributes
                   }
                 }
@@ -99,6 +99,9 @@ export abstract class TcgProvider {
           if (res.status === 'fulfilled') totalProcessed++;
           else this.logger.error(`Error procesando carta: ${res.reason}`);
         });
+
+        // Reportar progreso después de cada lote
+        this.onProgress?.(gameType, totalProcessed, externalCards.length, 'import');
       }
 
       this.logger.log(`Sincronización finalizada: ${totalProcessed} productos procesados.`);

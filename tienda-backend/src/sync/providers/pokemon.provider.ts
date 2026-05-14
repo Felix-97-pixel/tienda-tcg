@@ -103,7 +103,7 @@ export class PokemonProvider extends TcgProvider {
           updatedCount++;
         }
 
-        this.onProgress?.('pokemon', updatedCount, totalCards);
+        this.onProgress?.('pokemon', updatedCount, totalCards, 'price');
         this.logger.log(`[Pokémon] Página ${page} procesada (${updatedCount}/${totalCards} cartas).`);
         if (cards.length < pageSize) hasMore = false;
         else page++;

@@ -1,24 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import axios from 'axios';
-import { GameType } from '../common/enums/game-type.enum';
 import { RiftboundProvider } from './providers/riftbound.provider';
 import { MagicProvider } from './providers/magic.provider';
 import { PokemonProvider } from './providers/pokemon.provider';
 
-interface CardToSync {
-  externalId: string;
-  name: string;
-  image: string;
-  expansion: string;
-  rarity: string;
-  number: string;
-  attributes: string[];
-}
-
 @Injectable()
 export class SyncService {
   private providers: Record<string, any>;
+  private syncProgress: Record<string, {
+    import: { current: number, total: number, active: boolean },
+    price: { current: number, total: number, active: boolean }
+  }> = {
+      magic: {
+        import: { current: 0, total: 0, active: false },
+        price: { current: 0, total: 0, active: false }
+      },
+      pokemon: {
+        import: { current: 0, total: 0, active: false },
+        price: { current: 0, total: 0, active: false }
+      },
+      riftbound: {
+        import: { current: 0, total: 0, active: false },
+        price: { current: 0, total: 0, active: false }
+      },
+    };
 
   constructor(private prisma: PrismaService) {
     this.providers = {
@@ -26,37 +32,98 @@ export class SyncService {
       pokemon: new PokemonProvider(this.prisma),
       magic: new MagicProvider(this.prisma),
     };
+
+    // Inyectamos el callback para reportar progreso
+    // Los providers deben pasar el tipo de tarea: 'import' o 'price' (opcional, por defecto 'import')
+    Object.values(this.providers).forEach(p => {
+      p.onProgress = (game: string, current: number, total: number, type: 'import' | 'price' = 'import') => {
+        const key = game.toLowerCase();
+        if (this.syncProgress[key]) {
+          this.syncProgress[key][type] = { current, total, active: true };
+        }
+      };
+    });
   }
 
-  async syncSet(game: string, setId: string) {
-    // 1. Obtener las configuraciones de destino desde la base de datos
-    const settings = await this.prisma.globalSetting.findMany({
-      where: {
-        key: { in: ['mtg_sync_destination', 'pokemon_sync_destination', 'riftbound_sync_destination'] }
+  getProgress(game: string) {
+    return this.syncProgress[game.toLowerCase()] || {
+      import: { current: 0, total: 0, active: false },
+      price: { current: 0, total: 0, active: false }
+    };
+  }
+
+  private setStatus(game: string, type: 'import' | 'price', active: boolean) {
+    const key = game.toLowerCase();
+    if (this.syncProgress[key]) {
+      this.syncProgress[key][type].active = active;
+      if (active) {
+        this.syncProgress[key][type].current = 0;
+        this.syncProgress[key][type].total = 0;
       }
-    });
-
-    const settingsMap = new Map(settings.map(s => [s.key, s.value.toLowerCase()]));
-    const gameNameLower = game.toLowerCase();
-
-    // 2. Determinar el proveedor comparando el nombre recibido con las configuraciones
-    let providerKey = '';
-
-    if (gameNameLower === settingsMap.get('mtg_sync_destination')) providerKey = 'magic';
-    else if (gameNameLower === settingsMap.get('pokemon_sync_destination')) providerKey = 'pokemon';
-    else if (gameNameLower === settingsMap.get('riftbound_sync_destination')) providerKey = 'riftbound';
-    
-    // Si no coincide con ninguna configuración, probamos con las llaves directas por si acaso
-    if (!providerKey && this.providers[gameNameLower]) {
-      providerKey = gameNameLower;
     }
+  }
 
+  /**
+   * Importación de un Set Completo
+   */
+  async syncSet(game: string, setId: string) {
+    const providerKey = await this.resolveProviderKey(game);
     const provider = this.providers[providerKey];
-    if (provider) {
-      return provider.syncSet(setId, game);
-    }
+    if (!provider) throw new Error(`La categoría '${game}' no está configurada.`);
 
-    throw new Error(`La categoría '${game}' no está configurada como destino para ningún TCG.`);
+    this.setStatus(providerKey, 'import', true);
+
+    // Background execution
+    provider.syncSet(setId, game)
+      .then(() => this.setStatus(providerKey, 'import', false))
+      .catch((err) => {
+        console.error(`Error en importación (${providerKey}):`, err.message);
+        this.setStatus(providerKey, 'import', false);
+      });
+
+    return { message: `Importación de '${setId}' iniciada.`, active: true };
+  }
+
+  /**
+   * Actualización de Precios (Movido desde PriceUpdaterService)
+   */
+  async updatePrices(game: string, expansion: string) {
+    const providerKey = game.toLowerCase();
+    const provider = this.providers[providerKey];
+    if (!provider) throw new Error(`Juego ${game} no soportado.`);
+
+    this.setStatus(providerKey, 'price', true);
+
+    // Background execution
+    provider.updateGamePrices(expansion)
+      .then(() => this.setStatus(providerKey, 'price', false))
+      .catch((err) => {
+        console.error(`Error en precios (${providerKey}):`, err.message);
+        this.setStatus(providerKey, 'price', false);
+      });
+
+    return { message: `Actualización de precios para '${expansion}' iniciada.`, active: true };
+  }
+
+  async checkExpansionExists(expansion: string): Promise<boolean> {
+    const count = await this.prisma.product.count({
+      where: { cardDetail: { expansion: { equals: expansion, mode: 'insensitive' } } }
+    });
+    return count > 0;
+  }
+
+  private async resolveProviderKey(game: string): Promise<string> {
+    const settings = await this.prisma.globalSetting.findMany({
+      where: { key: { in: ['mtg_sync_destination', 'pokemon_sync_destination', 'riftbound_sync_destination'] } }
+    });
+    const settingsMap = new Map(settings.map(s => [s.key, s.value.toLowerCase()]));
+    const gameLower = game.toLowerCase();
+
+    if (gameLower === settingsMap.get('mtg_sync_destination')) return 'magic';
+    if (gameLower === settingsMap.get('pokemon_sync_destination')) return 'pokemon';
+    if (gameLower === settingsMap.get('riftbound_sync_destination')) return 'riftbound';
+
+    return this.providers[gameLower] ? gameLower : '';
   }
 
   // Los métodos de obtener listas de sets se mantienen por ahora 

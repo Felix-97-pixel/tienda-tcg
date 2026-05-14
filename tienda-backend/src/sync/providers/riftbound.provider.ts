@@ -132,7 +132,7 @@ export class RiftboundProvider extends TcgProvider {
               updatedCount += res.count;
             }
           }
-          this.onProgress?.('riftbound', updatedCount, totalRift);
+          this.onProgress?.('riftbound', updatedCount, totalRift, 'price');
         }
         this.logger.log(`[Riftbound] Lote procesado. Total actualizado: ${updatedCount}/${totalRift}`);
         hasMore = res.data?.meta?.hasMore || false;
