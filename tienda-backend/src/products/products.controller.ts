@@ -171,6 +171,18 @@ export class ProductsController {
     return this.productsService.updateInventoryItem(id, body);
   }
 
+  @Delete('inventory/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async removeInventoryItem(@Param('id') id: string) {
+    try {
+      await this.productsService.removeInventoryItem(id);
+      return { success: true };
+    } catch (e: any) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   @Post(':productId/inventory')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

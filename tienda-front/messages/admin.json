@@ -22,13 +22,29 @@
     "date": "Fecha",
     "total": "Total",
     "confirm": "¿Estás seguro?",
-    "success": "Operación completada exitosamente"
+    "success": "Operación completada exitosamente",
+    "close": "Cerrar",
+    "notAvailable": "N/A",
+    "completed": "Completado",
+    "updating": "Actualizando...",
+    "admin": "Administrador",
+    "general": "General",
+    "uploading": "Subiendo...",
+    "noImage": "Sin imagen",
+    "refresh": "Refrescar"
   },
   "sidebar": {
     "loading": "Cargando...",
     "error": "Ha ocurrido un error",
     "save": "Guardar cambios",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "menu": "Menú Principal",
+    "version": "Panel de Control v2.0"
+  },
+  "header": {
+    "management": "Panel de Gestión",
+    "summary": "Resumen General",
+    "backToStore": "Ir a la tienda"
   },
   "dashboard": {
     "title": "Panel de Administración",
@@ -51,7 +67,7 @@
       "ordersDesc": "Revisa el historial de pedidos, filtra por estado y ve los detalles de cada transacción.",
       "wishlist": "Wishlist",
       "wishlistDesc": "Descubre qué productos interesan más a tus clientes para tomar decisiones de inventario.",
-      "settings": "Configuraciones",
+      "settings": "Configuración",
       "settingsDesc": "Define las categorías de destino para cada juego y gestiona los ajustes globales del panel."
     },
     "guideButtons": {
@@ -78,7 +94,9 @@
       "expansion": "Expansión / Rareza",
       "stock": "Stock",
       "price": "Precio",
-      "actions": "Acciones"
+      "actions": "Acciones",
+      "stockCount": "{count} en stock",
+      "manage": "Gestionar ({count})"
     },
     "filters": {
       "title": "Filtros",
@@ -93,19 +111,30 @@
       "outOfStock": "Sin stock"
     },
     "modal": {
+      "createTitle": "Crear Nuevo Producto",
       "editTitle": "Editar Producto",
       "nameLabel": "Nombre del Producto",
+      "namePlaceholder": "Ej: Black Lotus",
       "categoryLabel": "Categoría",
-      "categoryPlaceholder": "Seleccione Categoría",
+      "categoryPlaceholder": "Seleccionar categoría...",
       "brandLabel": "Marca (Opcional)",
-      "brandPlaceholder": "Sin Marca",
-      "stockLabel": "Stock Disponible",
+      "brandPlaceholder": "Seleccionar marca...",
       "priceLabel": "Precio (USD)",
+      "stockLabel": "Stock Disponible",
       "imageLabel": "Imagen del Producto",
-      "imageUrlLabel": "URL de imagen actual",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Añade una breve descripción...",
+      "noImage": "Sin imagen",
       "uploadNew": "Subir nueva imagen",
       "removeImage": "Eliminar imagen",
-      "saving": "Guardando..."
+      "saving": "Guardando...",
+      "uploading": "Subiendo...",
+      "createButton": "Crear Producto",
+      "requiredFields": "Nombre y categoría son obligatorios",
+      "successCreate": "Producto creado exitosamente",
+      "successUpdate": "Producto actualizado correctamente",
+      "errorCreate": "Error al crear el producto",
+      "errorUpdate": "Error al actualizar"
     },
     "bulk": {
       "title": "Subida Masiva de Productos (CSV)",
@@ -113,6 +142,7 @@
       "formatTitle": "Formato requerido del CSV",
       "formatDesc": "El archivo CSV debe incluir las siguientes columnas:",
       "uploadLabel": "Seleccionar archivo CSV",
+      "fileLabel": "Archivo Seleccionado",
       "uploading": "Subiendo...",
       "uploadButton": "Subir CSV",
       "downloadTemplate": "Descargar Plantilla",
@@ -132,12 +162,30 @@
     "noImage": "Sin Img",
     "deleteConfirm": "¿Eliminar este producto permanentemente?",
     "bulkNotSupported": "La subida masiva por CSV solo está soportada para Magic The Gathering o Productos Normales.",
-    "bulkDownloadError": "Error al descargar la plantilla."
+    "bulkDownloadError": "Error al descargar la plantilla.",
+    "inventory": {
+      "title": "Gestionar Inventario",
+      "addVariation": "Añadir Nueva Variación",
+      "language": "Idioma",
+      "condition": "Condición",
+      "price": "Precio",
+      "stock": "Stock",
+      "isFoil": "¿Es Foil?",
+      "add": "Añadir",
+      "foil": "FOIL",
+      "reg": "REG",
+      "deleteConfirm": "¿Seguro que deseas eliminar esta variación?",
+      "successAdd": "Variación añadida correctamente",
+      "successDelete": "Variación eliminada",
+      "errorAdd": "Error al añadir variación",
+      "errorDelete": "Error al eliminar",
+      "requiredFields": "Idioma y condición son obligatorios"
+    }
   },
   "categories": {
-    "title": "Categorías",
-    "subtitle": "Organiza el catálogo de tu tienda por juego o tipo de producto",
-    "addCategory": "+ Nueva Categoría",
+    "title": "Gestión de Categorías",
+    "subtitle": "Administra las categorías de productos de tu tienda",
+    "addCategory": "Añadir Categoría",
     "table": {
       "image": "Imagen",
       "name": "Nombre",
@@ -146,8 +194,8 @@
       "actions": "Acciones"
     },
     "types": {
-      "tcg": "TCG",
-      "general": "General"
+      "tcg": "TCG / Cartas",
+      "general": "General / Otros"
     },
     "modal": {
       "createTitle": "Crear Categoría",
@@ -190,6 +238,7 @@
     "title": "Sincronización de Catálogo",
     "subtitle": "Importa y actualiza productos desde fuentes externas",
     "configuredDestination": "Destino configurado:",
+    "inProgress": "En progreso...",
     "noExpansions": "No hay expansiones cargadas",
     "mtgjson": {
       "title": "Importar Expansiones de Magic The Gathering desde Scryfall",
@@ -301,20 +350,31 @@
       "authCode": "Código de Auth.",
       "cardLast4": "Tarjeta",
       "paymentType": "Tipo de Pago",
-      "transactionDate": "Fecha Transacción"
+      "transactionDate": "Fecha Transacción",
+      "quantityCount": "CANTIDAD: {count}"
     },
     "noNotes": "Sin notas",
     "noPhone": "No especificado"
   },
   "sales": {
-    "title": "Resumen de Ventas",
-    "subtitle": "Métricas e indicadores clave de rendimiento de tu tienda",
+    "title": "Analítica de Ventas",
+    "subtitle": "Monitorea el rendimiento financiero y el éxito de tus productos",
+    "loading": "Cargando métricas...",
+    "errorTitle": "Error al cargar datos",
+    "errorDesc": "No pudimos conectar con el servidor para obtener las estadísticas actuales.",
     "stats": {
       "totalRevenue": "Ingresos Totales",
+      "totalRevenueDesc": "Desde el inicio",
+      "monthlyRevenue": "Ingresos Mes",
+      "vsPrevious": "vs mes anterior",
+      "firstMonth": "Primer mes",
+      "effectiveness": "Efectividad",
+      "paidOfTotal": "{paid} pagadas de {total}",
+      "pending": "Pendientes",
+      "failedCount": "{count} fallidas",
       "totalOrders": "Órdenes Totales",
       "approvalRate": "Tasa de Aprobación",
-      "avgOrderValue": "Valor Promedio por Orden",
-      "monthlyGrowth": "Crecimiento mensual"
+      "avgOrderValue": "Valor Promedio por Orden"
     },
     "charts": {
       "revenueTitle": "Ingresos por Mes",
@@ -329,26 +389,29 @@
     "noData": "Sin datos para el período seleccionado"
   },
   "wishlist": {
-    "title": "Wishlist de Clientes",
-    "subtitle": "Descubre qué productos desean tus clientes para tomar decisiones de inventario",
-    "table": {
-      "product": "Producto",
-      "category": "Categoría",
-      "expansion": "Expansión",
-      "wishes": "Deseos",
-      "actions": "Ver"
-    },
-    "filters": {
-      "searchPlaceholder": "Buscar producto...",
-      "category": "Categoría",
-      "allCategories": "Todas las categorías",
-      "minWishes": "Mínimo de deseos",
-      "minWishesPlaceholder": "Ej: 5"
-    },
+    "title": "Análisis de Wishlist",
+    "subtitle": "Descubre los productos más deseados por tus clientes",
     "stats": {
+      "total": "{count} Deseos totales",
       "totalProducts": "Productos en Wishlist",
       "totalWishes": "Total de Deseos",
       "topProduct": "Producto Más Deseado"
+    },
+    "filters": {
+      "allCategories": "Todas las categorías",
+      "category": "Categoría",
+      "expansion": "Expansión",
+      "allExpansions": "Todas las expansiones",
+      "expansionPlaceholder": "Filtrar por expansión...",
+      "searchPlaceholder": "Buscar producto...",
+      "minWishes": "Mínimo de deseos",
+      "minWishesPlaceholder": "Ej: 5"
+    },
+    "table": {
+      "product": "Producto",
+      "wishes": "Deseos",
+      "editionRarity": "Edición / Rareza",
+      "currentPrice": "Precio Actual"
     },
     "noProduct": "Producto eliminado"
   },

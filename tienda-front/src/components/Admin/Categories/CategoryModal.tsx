@@ -131,7 +131,7 @@ export default function CategoryModal({ isOpen, onClose, category, onSuccess }: 
                     </button>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-dark-4 font-bold">Sin imagen</span>
+                  <span className="text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
                 )}
               </div>
               <input

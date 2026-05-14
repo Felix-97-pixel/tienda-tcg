@@ -422,10 +422,27 @@ export class ProductsService {
 
   // CAMBIO CLAVE: 'id' ahora es 'string'
   async update(id: string, updateProductDto: UpdateProductDto) {
-    return this.prisma.product.update({
+    const { price, stock, ...productData } = updateProductDto;
+
+    // Actualizar datos del producto
+    const updatedProduct = await this.prisma.product.update({
       where: { id },
-      data: updateProductDto,
+      data: productData,
+      include: { items: true }
     });
+
+    // Si se enviaron precio o stock, actualizar el primer ítem de inventario (para productos estándar)
+    if ((price !== undefined || stock !== undefined) && updatedProduct.items.length > 0) {
+      await this.prisma.inventoryItem.update({
+        where: { id: updatedProduct.items[0].id },
+        data: {
+          ...(price !== undefined && { price }),
+          ...(stock !== undefined && { stock }),
+        }
+      });
+    }
+
+    return this.findOne(id);
   }
 
   // CAMBIO CLAVE: 'id' ahora es 'string'
@@ -461,6 +478,22 @@ export class ProductsService {
     return this.prisma.inventoryItem.update({
       where: { id: itemId },
       data
+    });
+  }
+
+  async removeInventoryItem(id: string) {
+    // Verificar si es el último item de un producto no TCG para evitar dejarlo sin stock
+    const item = await this.prisma.inventoryItem.findUnique({
+      where: { id },
+      include: { product: { include: { category: true, _count: { select: { items: true } } } } }
+    });
+
+    if (item?.product.category.isTcg === false && item.product._count.items <= 1) {
+      throw new BadRequestException("No se puede eliminar el único ítem de un producto estándar.");
+    }
+
+    return this.prisma.inventoryItem.delete({
+      where: { id }
     });
   }
 

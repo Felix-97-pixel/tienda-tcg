@@ -83,16 +83,22 @@ export class RiftboundProvider extends TcgProvider {
       this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
 
       // 2. Cargar productos locales para match rápido
-      const localProducts = await this.prisma.product.findMany({
+      const localProductIds = await this.prisma.product.findMany({
         where: { cardDetail: { expansion: { equals: expansionName, mode: 'insensitive' } } },
         select: { id: true, externalId: true }
       });
+      const localProducts = localProductIds;
       this.logger.log(`[Riftbound] ${localProducts.length} productos encontrados en la BD local.`);
+
+      // Contar los ítems de inventario reales (variants) para un total preciso en la barra de progreso
+      const totalInventoryItems = await this.prisma.inventoryItem.count({
+        where: { productId: { in: localProducts.map(p => p.id) } }
+      });
+      const totalRift = totalInventoryItems || localProducts.length;
 
       let offset = 0;
       const limit = 20;
       let hasMore = true;
-      const totalRift = localProducts.length;
 
       while (hasMore) {
         this.logger.log(`[Riftbound] Consultando cartas (Offset: ${offset})...`);

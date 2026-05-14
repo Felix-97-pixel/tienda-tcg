@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAppSelector } from "@/redux/store";
+import { useTranslations } from "next-intl";
 
 const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
+  const t = useTranslations("header");
+  const tc = useTranslations("common");
   const { user } = useAppSelector((state) => state.authReducer);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -29,7 +32,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
         </div>
 
         <div className="hidden lg:block">
-          <p className="text-xs font-bold text-dark-4 uppercase tracking-[0.1em]">Panel de Gestión <span className="text-blue mx-1">/</span> <span className="text-dark">Resumen General</span></p>
+          <p className="text-xs font-bold text-dark-4 uppercase tracking-[0.1em]">{t("management")} <span className="text-blue mx-1">/</span> <span className="text-dark">{t("summary")}</span></p>
         </div>
 
         <div className="flex items-center gap-6">
@@ -40,7 +43,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
                   <span className="block text-sm font-black text-dark tracking-tight leading-tight">
                     {user?.name || user?.email}
                   </span>
-                  <span className="block text-[10px] font-bold text-blue uppercase tracking-widest mt-0.5">{user?.role || 'Administrador'}</span>
+                  <span className="block text-[10px] font-bold text-blue uppercase tracking-widest mt-0.5">{user?.role || tc("admin")}</span>
                 </>
               )}
             </span>
@@ -51,7 +54,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
               className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-1 text-xs font-bold text-dark-4 hover:bg-blue hover:text-white transition-all shadow-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              {isMounted && "Ir a la tienda"}
+              {isMounted && t("backToStore")}
             </Link>
           </div>
         </div>

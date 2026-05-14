@@ -97,13 +97,13 @@ export default function AdminProducts() {
         <div className="flex gap-3">
           <button 
             onClick={() => setIsBulkOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-600 text-white text-sm font-bold shadow-lg shadow-green-600/20 hover:bg-green-700 transition-all active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl btn-green text-sm font-bold shadow-lg shadow-green-600/20 transition-all active:scale-95"
           >
             {t("bulkUpload")}
           </button>
           <button 
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue text-white text-sm font-bold shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl btn-blue text-sm font-bold shadow-lg shadow-blue/20 transition-all active:scale-95"
           >
             {t("addProduct")}
           </button>

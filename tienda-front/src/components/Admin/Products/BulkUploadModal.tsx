@@ -25,7 +25,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
 
   const handleUpload = async () => {
     if (!bulkFile || !bulkCategory) {
-      showToast("Selecciona un archivo y una categoría", "error");
+      showToast(t("bulk.selectError"), "error");
       return;
     }
 
@@ -42,14 +42,14 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message || "Subida exitosa", "success");
+        showToast(data.message || t("bulk.success"), "success");
         onSuccess();
         onClose();
       } else {
-        showToast(data.error || "Error en la subida", "error");
+        showToast(data.error || t("bulk.error"), "error");
       }
     } catch (error) {
-      showToast("Error de red", "error");
+      showToast(tc("networkError"), "error");
     } finally {
       setIsUploading(false);
     }
@@ -58,8 +58,8 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   return (
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="mb-2 text-xl font-bold text-dark">{t("bulkUpload.title") || "Subida Masiva CSV"}</h2>
-        <p className="mb-6 text-sm text-dark-4">Sube un archivo CSV con tus productos para la categoría seleccionada.</p>
+        <h2 className="mb-2 text-xl font-bold text-dark">{t("bulkUpload.title")}</h2>
+        <p className="mb-6 text-sm text-dark-4">{t("bulkUpload.subtitle")}</p>
         
         <div className="space-y-4">
           <div>
@@ -68,12 +68,12 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
               options={categories.map(c => ({ label: c.name, value: c.id }))}
               value={bulkCategory}
               onChange={setBulkCategory}
-              placeholder="Seleccionar categoría..."
+              placeholder={t("bulk.categoryPlaceholder")}
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark">Archivo CSV</label>
+            <label className="mb-2 block text-sm font-medium text-dark">{t("bulk.fileLabel")}</label>
             <input
               type="file"
               accept=".csv"
@@ -95,7 +95,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             disabled={isUploading}
             className="flex-1 rounded-xl bg-blue py-3 font-bold text-white shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
           >
-            {isUploading ? "Subiendo..." : "Comenzar Subida"}
+            {isUploading ? tc("loading") : t("bulk.uploadButton")}
           </button>
         </div>
       </div>

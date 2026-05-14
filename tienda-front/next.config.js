@@ -21,6 +21,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'cmsassets.rgpub.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.scrydex.com',
       }
     ],
   },

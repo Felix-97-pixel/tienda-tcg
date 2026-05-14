@@ -227,3 +227,28 @@ input[type='search']::-webkit-search-results-decoration {
   from { width: 100%; }
   to { width: 0%; }
 }
+
+/* Custom Buttons to fix Tailwind issues */
+.btn-green {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+.btn-green:hover {
+  background-color: #059669 !important;
+}
+
+.btn-blue {
+  background-color: #2b59ff !important;
+  color: white !important;
+}
+.btn-blue:hover {
+  background-color: #1a44e6 !important;
+}
+
+.btn-red {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+.btn-red:hover {
+  background-color: #dc2626 !important;
+}

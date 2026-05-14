@@ -35,7 +35,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
 
   const handleCreateProduct = async () => {
     if (!creatingProduct.name || !creatingProduct.categoryId) {
-      showToast("Nombre y categoría son obligatorios", "error");
+      showToast(t("modal.requiredFields"), "error");
       return;
     }
 
@@ -48,63 +48,63 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
       });
       const data = await res.json();
       if (res.ok) {
-        showToast("Producto creado exitosamente", "success");
+        showToast(t("modal.successCreate"), "success");
         setCreatingProduct({
           name: "", categoryId: "", brandId: "", price: 0, stock: 0, imageUrl: "", description: ""
         });
         onSuccess();
         onClose();
       } else {
-        showToast(data.error || "Error al crear", "error");
+        showToast(data.error || t("modal.errorCreate"), "error");
       }
     } catch (err) {
-      showToast("Error de red", "error");
+      showToast(tc("networkError"), "error");
     }
   };
 
   return (
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide">
-        <h2 className="mb-6 text-xl font-bold text-dark">{t("create.title") || "Crear Nuevo Producto"}</h2>
+        <h2 className="mb-6 text-xl font-bold text-dark">{t("modal.createTitle")}</h2>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Nombre */}
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.name")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.nameLabel")}</label>
             <input
               type="text"
               value={creatingProduct.name}
               onChange={(e) => setCreatingProduct({ ...creatingProduct, name: e.target.value })}
               className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
-              placeholder="Ej: Black Lotus"
+              placeholder={t("modal.namePlaceholder")}
             />
           </div>
 
           {/* Categoría */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.category")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.categoryLabel")}</label>
             <SearchableSelect
               options={categories.map(c => ({ label: c.name, value: c.id }))}
               value={creatingProduct.categoryId}
               onChange={(val) => setCreatingProduct({ ...creatingProduct, categoryId: val })}
-              placeholder="Seleccionar categoría..."
+              placeholder={t("modal.categoryPlaceholder")}
             />
           </div>
 
           {/* Marca */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.brand")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.brandLabel")}</label>
             <SearchableSelect
               options={brands.map(b => ({ label: b.name, value: b.id }))}
               value={creatingProduct.brandId}
               onChange={(val) => setCreatingProduct({ ...creatingProduct, brandId: val })}
-              placeholder="Seleccionar marca..."
+              placeholder={t("modal.brandPlaceholder")}
             />
           </div>
 
           {/* Precio y Stock */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.price")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.priceLabel")}</label>
             <input
               type="number"
               value={creatingProduct.price}
@@ -113,7 +113,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.stock")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.stockLabel")}</label>
             <input
               type="number"
               value={creatingProduct.stock}
@@ -124,7 +124,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
 
           {/* Imagen */}
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.image")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.imageLabel")}</label>
             <div className="flex items-center gap-4">
               <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border-2 border-dashed border-stroke flex items-center justify-center">
                 {creatingProduct.imageUrl ? (
@@ -138,7 +138,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
                     </button>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-dark-4 text-center px-1">Sin imagen</span>
+                  <span className="text-[10px] text-dark-4 text-center px-1 font-bold uppercase">{t("modal.noImage")}</span>
                 )}
               </div>
               <input
@@ -158,13 +158,13 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
 
           {/* Descripción */}
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.description")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.descriptionLabel")}</label>
             <textarea
               rows={3}
               value={creatingProduct.description}
               onChange={(e) => setCreatingProduct({ ...creatingProduct, description: e.target.value })}
               className="w-full rounded-xl border border-stroke bg-gray-1 py-3 px-4 text-sm outline-none focus:border-blue transition-all"
-              placeholder="Añade una breve descripción..."
+              placeholder={t("modal.descriptionPlaceholder")}
             />
           </div>
         </div>
@@ -179,9 +179,9 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
           <button
             onClick={handleCreateProduct}
             disabled={uploadingImage}
-            className="flex-1 rounded-xl bg-blue py-3 font-bold text-white shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+            className="flex-1 rounded-xl btn-green py-3 font-bold text-white shadow-lg shadow-green-600/20 transition-all active:scale-95 disabled:opacity-50"
           >
-            {uploadingImage ? "Subiendo..." : "Crear Producto"}
+            {uploadingImage ? t("modal.uploading") : t("modal.createButton")}
           </button>
         </div>
       </div>

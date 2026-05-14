@@ -33,6 +33,8 @@ const icons = {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
+  const ts = useTranslations("sidebar");
+  const tc = useTranslations("common");
 
   const navItems = [
     { href: "/admin/products",    label: t("modules.products"),   icon: icons.products },
@@ -42,7 +44,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
     { href: "/admin/sales",       label: t("modules.sales"),      icon: icons.sales },
     { href: "/admin/orders",      label: t("modules.orders"),     icon: icons.orders },
-    { href: "/admin/settings",    label: "Configuración",        icon: icons.settings },
+    { href: "/admin/settings",    label: t("modules.settings"),   icon: icons.settings },
   ];
 
   return (
@@ -65,7 +67,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear flex-1">
         <nav className="mt-2 py-4 px-4 lg:px-6">
           <div className="mb-6">
-            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Menú Principal</h3>
+            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{ts("menu")}</h3>
             <ul className="space-y-1.5">
               {navItems.map(({ href, label, icon }) => {
                 const isActive = pathname === href || pathname.startsWith(href + "/");
@@ -100,8 +102,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
         <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all">
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue to-indigo-600 flex items-center justify-center text-xs font-black text-white shadow-lg">AD</div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-black text-white truncate uppercase tracking-tighter">Administrador</p>
-            <p className="text-[9px] text-gray-500 truncate font-bold">Panel de Control v2.0</p>
+            <p className="text-xs font-black text-white truncate uppercase tracking-tighter">{tc("admin")}</p>
+            <p className="text-[9px] text-gray-500 truncate font-bold">{ts("version")}</p>
           </div>
         </div>
       </div>

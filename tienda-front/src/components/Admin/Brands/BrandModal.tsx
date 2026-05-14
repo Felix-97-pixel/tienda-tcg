@@ -101,7 +101,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
                     </button>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-dark-4 font-bold">Sin imagen</span>
+                  <span className="text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
                 )}
               </div>
               <input
@@ -118,7 +118,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
                 className="flex-1 cursor-pointer text-xs text-dark-4 file:mr-3 file:rounded-lg file:border-0 file:bg-blue/10 file:px-3 file:py-2 file:font-bold file:text-blue hover:file:bg-blue/20 transition-all"
               />
             </div>
-            {isUploading && <p className="mt-2 text-xs text-blue animate-pulse">Subiendo imagen...</p>}
+            {isUploading && <p className="mt-2 text-xs text-blue animate-pulse">{tc("uploading")}</p>}
           </div>
 
           <div className="mt-8 flex gap-3">

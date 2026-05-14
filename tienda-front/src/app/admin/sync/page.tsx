@@ -143,7 +143,7 @@ export default function AdminSync() {
                 onClick={game.sync.syncPrices} 
                 className={buttonClass}
               >
-                {game.sync.progress.active ? "En progreso..." : game.priceBtn}
+                {game.sync.progress.active ? t("inProgress") : game.priceBtn}
               </button>
               
               <ProgressDisplay progress={game.sync.progress} />

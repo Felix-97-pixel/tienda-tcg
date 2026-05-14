@@ -11,7 +11,7 @@ import { Role } from '@prisma/client';
 export class SyncController {
   constructor(private readonly syncService: SyncService) { }
 
-  @Get('mtg-sets')
+  @Get('magic-sets')
   async getMtgSets() {
     return this.syncService.getMtgSets();
   }

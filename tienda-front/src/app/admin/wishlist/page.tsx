@@ -74,7 +74,7 @@ export default function AdminWishlist() {
         </div>
         <div className="px-4 py-2 rounded-2xl bg-pink-50 border border-pink-100 flex items-center gap-2">
            <span className="text-pink-500 text-xl animate-pulse">♥</span>
-           <span className="text-xs font-black text-pink-700 uppercase tracking-widest">{allWishlistItems.length} Deseos totales</span>
+           <span className="text-xs font-black text-pink-700 uppercase tracking-widest">{t("stats.total", { count: allWishlistItems.length })}</span>
         </div>
       </div>
 
@@ -97,19 +97,19 @@ export default function AdminWishlist() {
           <div>
             <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{t("filters.category")}</label>
             <SearchableSelect 
-              options={[{ label: "Todas las categorías", value: "" }, ...categoriesList.map(c => ({ label: c.name, value: c.name }))]} 
+              options={[{ label: t("filters.allCategories"), value: "" }, ...categoriesList.map(c => ({ label: c.name, value: c.name }))]} 
               value={selectedCategory}
               onChange={(val) => { setSelectedCategory(val); setPage(1); }}
               placeholder={t("filters.allCategories")} 
             />
           </div>
           <div>
-            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">Expansión</label>
+            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{t("filters.expansion")}</label>
             <SearchableSelect 
-              options={[{ label: "Todas las expansiones", value: "" }, ...expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))]} 
+              options={[{ label: t("filters.allExpansions"), value: "" }, ...expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))]} 
               value={selectedExpansion}
               onChange={(val) => { setSelectedExpansion(val); setPage(1); }}
-              placeholder="Filtrar por expansión..." 
+              placeholder={t("filters.expansionPlaceholder")} 
               disabled={expansionsList.length === 0} 
             />
           </div>
@@ -123,9 +123,9 @@ export default function AdminWishlist() {
             <thead>
               <tr className="bg-gray-50/50 border-b border-stroke">
                 <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest">{t("table.product")}</th>
-                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest hidden md:table-cell">Edición / Rareza</th>
+                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest hidden md:table-cell">{t("table.editionRarity")}</th>
                 <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest text-center">{t("table.wishes")}</th>
-                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest text-right">Precio Actual</th>
+                <th className="py-5 px-8 font-black text-dark-4 text-[10px] uppercase tracking-widest text-right">{t("table.currentPrice")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -145,13 +145,13 @@ export default function AdminWishlist() {
                         <div className="h-12 w-12 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-1 border border-stroke transition-transform group-hover:scale-110">
                           {product.imageUrl
                             ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
-                            : <div className="h-full w-full flex items-center justify-center text-[10px] font-black text-dark-4 uppercase">No img</div>}
+                            : <div className="h-full w-full flex items-center justify-center text-[10px] font-black text-dark-4 uppercase">{tc("noImage")}</div>}
                         </div>
                         <p className="text-dark font-black text-sm tracking-tight">{product.name}</p>
                       </div>
                     </td>
                     <td className="py-5 px-8 hidden md:table-cell">
-                      <p className="text-dark font-bold text-xs">{product.cardDetail?.expansion || "General"}</p>
+                      <p className="text-dark font-bold text-xs">{product.cardDetail?.expansion || tc("general")}</p>
                       <p className="text-blue font-black text-[9px] uppercase tracking-widest mt-1 opacity-60">{product.cardDetail?.rarity}</p>
                     </td>
                     <td className="py-5 px-8 text-center">

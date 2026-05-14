@@ -38,7 +38,7 @@ export default function AdminSalesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-dark-4 text-xs font-black uppercase tracking-widest animate-pulse">Cargando métricas...</p>
+        <p className="text-dark-4 text-xs font-black uppercase tracking-widest animate-pulse">{t("loading")}</p>
       </div>
     );
   }
@@ -47,13 +47,13 @@ export default function AdminSalesPage() {
     return (
       <div className="p-6 text-center py-32 bg-white rounded-2xl shadow-1 border border-stroke">
         <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
-        <h2 className="text-xl font-bold text-dark mb-2">Error al cargar datos</h2>
-        <p className="text-dark-4 text-sm mb-6 max-w-xs mx-auto">No pudimos conectar con el servidor para obtener las estadísticas actuales.</p>
+        <h2 className="text-xl font-bold text-dark mb-2">{t("errorTitle")}</h2>
+        <p className="text-dark-4 text-sm mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
         <button 
           onClick={fetchStats} 
           className="px-8 py-3 rounded-xl bg-blue text-white font-bold shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95"
         >
-          {tc("refresh") || "Intentar de nuevo"}
+          {tc("refresh")}
         </button>
       </div>
     );
@@ -79,7 +79,7 @@ export default function AdminSalesPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
             </svg>
-            {tc("refresh") || "Actualizar"}
+            {tc("refresh")}
           </button>
           <Link 
             href="/admin/orders" 
@@ -95,29 +95,29 @@ export default function AdminSalesPage() {
         <StatCard
           label={t("stats.totalRevenue")}
           value={`$${revenue.total.toLocaleString("es-CL")}`}
-          sub="Desde el inicio"
+          sub={t("stats.totalRevenueDesc")}
           color="bg-green-100 text-green-600"
           icon={<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
         <StatCard
-          label="Ingresos Mes"
+          label={t("stats.monthlyRevenue")}
           value={`$${revenue.thisMonth.toLocaleString("es-CL")}`}
-          sub={revenue.monthGrowth !== null ? `vs mes anterior` : "Primer mes"}
+          sub={revenue.monthGrowth !== null ? t("stats.vsPrevious") : t("stats.firstMonth")}
           color={growthPositive ? "bg-blue/10 text-blue" : "bg-red-100 text-red-500"}
           trend={revenue.monthGrowth !== null ? { value: revenue.monthGrowth, positive: growthPositive } : undefined}
           icon={<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
         />
         <StatCard
-          label="Efectividad"
+          label={t("stats.effectiveness")}
           value={`${approvalRate}%`}
-          sub={`${orders.paid} pagadas de ${orders.total}`}
+          sub={t("stats.paidOfTotal", { paid: orders.paid, total: orders.total })}
           color="bg-purple-100 text-purple-600"
           icon={<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
         <StatCard
-          label="Pendientes"
+          label={t("stats.pending")}
           value={`${orders.pending}`}
-          sub={`${orders.failed} fallidas`}
+          sub={t("stats.failedCount", { count: orders.failed })}
           color="bg-yellow-100 text-yellow-600"
           icon={<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />

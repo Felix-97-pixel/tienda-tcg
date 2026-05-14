@@ -102,7 +102,7 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
                 <div key={item.id} className="flex justify-between items-center p-4 rounded-xl border border-stroke hover:bg-gray-50 transition-colors">
                   <div>
                     <p className="font-bold text-dark text-sm">{item.productName}</p>
-                    <p className="text-blue font-black text-[10px] mt-0.5">CANTIDAD: {item.quantity}</p>
+                    <p className="text-blue font-black text-[10px] mt-0.5">{t("detail.quantityCount", { count: item.quantity })}</p>
                   </div>
                   <p className="font-bold text-dark">${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}</p>
                 </div>
@@ -117,7 +117,7 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
             onClick={onClose}
             className="w-full rounded-xl bg-dark py-3 font-bold text-white hover:bg-black transition-all active:scale-95 shadow-lg shadow-dark/10"
           >
-            {tc("close") || "Cerrar"}
+            {tc("close")}
           </button>
         </div>
       </div>

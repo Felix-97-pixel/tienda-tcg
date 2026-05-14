@@ -54,7 +54,7 @@ export default function BrandTable({ brands, loading, onEdit, onDelete }: BrandT
                       {brand.imageUrl ? (
                         <Image src={brand.imageUrl} alt={brand.name} width={60} height={40} className="object-contain" />
                       ) : (
-                        <span className="text-[10px] text-dark-4 font-bold tracking-tight">SIN IMG</span>
+                        <span className="text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
                       )}
                     </div>
                   </td>

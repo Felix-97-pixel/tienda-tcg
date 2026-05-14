@@ -74,7 +74,7 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
                         >
                           {product.imageUrl 
                             ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
-                            : <span className="text-[10px] text-dark-4 flex h-full items-center justify-center font-bold">NO IMG</span>
+                            : <span className="text-[10px] text-dark-4 flex h-full items-center justify-center font-bold uppercase">{t("noImage")}</span>
                           }
                         </div>
                         <div>
@@ -84,14 +84,14 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
                       </div>
                     </td>
                     <td className="py-4 px-6 hidden md:table-cell">
-                      <p className="text-dark font-medium text-sm">{product.cardDetail?.expansion || "N/A"}</p>
+                      <p className="text-dark font-medium text-sm">{product.cardDetail?.expansion || tc("notAvailable")}</p>
                       <p className="text-[10px] text-dark-4 font-bold uppercase">{product.cardDetail?.rarity}</p>
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
                         totalStock > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
                       }`}>
-                        {totalStock} en stock
+                        {t("table.stockCount", { count: totalStock })}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-right">
@@ -101,7 +101,7 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
                             onClick={() => onInventory(product)}
                             className="px-4 py-2 rounded-xl text-xs font-bold bg-blue text-white shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95"
                           >
-                            Gestionar ({product.items.length})
+                            {t("table.manage", { count: product.items.length })}
                           </button>
                         ) : (
                           <>

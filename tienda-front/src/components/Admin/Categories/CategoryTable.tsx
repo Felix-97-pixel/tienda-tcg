@@ -52,7 +52,7 @@ export default function CategoryTable({ categories, loading, onEdit, onDelete }:
                       {category.imageUrl ? (
                         <Image src={category.imageUrl} alt={category.name} width={60} height={40} className="object-contain" />
                       ) : (
-                        <span className="text-[10px] text-dark-4 font-bold tracking-tight">SIN IMG</span>
+                        <span className="text-[10px] text-dark-4 font-bold tracking-tight">{tc("noImage")}</span>
                       )}
                     </div>
                   </td>

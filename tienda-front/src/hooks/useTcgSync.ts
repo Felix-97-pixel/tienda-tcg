@@ -50,7 +50,12 @@ export function useTcgSync(game: string, defaultCategory: string) {
         setProgress(data);
         if (!data.active) {
           clearInterval(interval);
-          refreshData(); // Refrescar conteos locales al terminar
+          // Forzar 100% visualmente antes de limpiar
+          setProgress({ current: data.total, total: data.total, active: false });
+          refreshData();
+          setTimeout(() => {
+            setProgress({ current: 0, total: 0, active: false });
+          }, 2500);
         }
       } catch {
         clearInterval(interval);
@@ -104,7 +109,7 @@ export function useTcgSync(game: string, defaultCategory: string) {
       const res = await fetch(`${API_URL}/sync/set`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category: defaultCategory, setId: selectedSetId }),
+        body: JSON.stringify({ game: defaultCategory, setId: selectedSetId }),
         credentials: "include",
       });
       const data = await res.json();

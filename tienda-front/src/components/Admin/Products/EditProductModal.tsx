@@ -57,82 +57,73 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
 
   const handleUpdate = async () => {
     try {
-      // 1. Actualizar Producto (Nombre, Categoría, Marca, Imagen)
-      const prodRes = await fetch(`${API_URL}/products/${item.productId}`, {
+      const res = await fetch(`${API_URL}/products/${item.productId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
           categoryId: form.categoryId,
-          brandId: form.brandId,
+          brandId: form.brandId || null,
           imageUrl: form.imageUrl,
-        }),
-        credentials: "include",
-      });
-
-      // 2. Actualizar Ítem de Inventario (Precio, Stock)
-      const itemRes = await fetch(`${API_URL}/inventory/${item.itemId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
           price: form.price,
           stock: form.stock,
         }),
         credentials: "include",
       });
 
-      if (prodRes.ok && itemRes.ok) {
-        showToast("Producto actualizado correctamente", "success");
+      if (res.ok) {
+        showToast(t("modal.successUpdate"), "success");
         onSuccess();
         onClose();
       } else {
-        showToast("Error al actualizar", "error");
+        showToast(t("modal.errorUpdate"), "error");
       }
     } catch (err) {
-      showToast("Error de red", "error");
+      showToast(tc("networkError"), "error");
     }
   };
 
   return (
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-xl rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="mb-6 text-xl font-bold text-dark">{t("edit.title") || "Editar Producto"}</h2>
+        <h2 className="mb-6 text-xl font-bold text-dark">{t("modal.editTitle")}</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.name")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.nameLabel")}</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
+              placeholder={t("modal.namePlaceholder")}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.category")}</label>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.categoryLabel")}</label>
               <SearchableSelect
                 options={categories.map(c => ({ label: c.name, value: c.id }))}
                 value={form.categoryId}
                 onChange={(val) => setForm({ ...form, categoryId: val })}
-                placeholder="Categoría..."
+                placeholder={t("modal.categoryPlaceholder")}
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.brand")}</label>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.brandLabel")}</label>
               <SearchableSelect
                 options={brands.map(b => ({ label: b.name, value: b.id }))}
                 value={form.brandId}
                 onChange={(val) => setForm({ ...form, brandId: val })}
-                placeholder="Marca..."
+                placeholder={t("modal.brandPlaceholder")}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.price")}</label>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.priceLabel")}</label>
               <input
                 type="number"
                 value={form.price}
@@ -141,7 +132,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.stock")}</label>
+              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.stockLabel")}</label>
               <input
                 type="number"
                 value={form.stock}
@@ -152,7 +143,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("create.image")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.imageLabel")}</label>
             <div className="flex items-center gap-4">
               <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border border-stroke flex items-center justify-center">
                 {form.imageUrl ? (
@@ -166,7 +157,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
                     </button>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-dark-4">No image</span>
+                  <span className="text-[10px] text-dark-4 font-bold uppercase">{t("modal.noImage")}</span>
                 )}
               </div>
               <input
@@ -195,9 +186,9 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           <button
             onClick={handleUpdate}
             disabled={uploadingImage}
-            className="flex-1 rounded-xl bg-blue py-3 font-bold text-white shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+            className="flex-1 rounded-xl btn-green py-3 font-bold shadow-lg shadow-green-600/20 transition-all active:scale-95 disabled:opacity-50"
           >
-            {uploadingImage ? "Subiendo..." : tc("save")}
+            {uploadingImage ? t("modal.uploading") : tc("save")}
           </button>
         </div>
       </div>
