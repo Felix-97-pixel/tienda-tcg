@@ -7,6 +7,25 @@ export class PokemonProvider extends TcgProvider {
     super('Pokemon', prisma);
   }
 
+  /**
+   * Detecta versiones automáticamente desde los precios de TCGPlayer
+   */
+  override getExpectedVariants(rawCard: any): string[] {
+    const prices = rawCard.tcgplayer?.prices || {};
+    const variants: string[] = [];
+
+    if (prices.normal) variants.push('Normal');
+    if (prices.holofoil) variants.push('Holofoil');
+    if (prices.reverseHolofoil) variants.push('Reverse Holofoil');
+    if (prices.unlimitedHolofoil) variants.push('Unlimited Holofoil');
+
+    if (variants.length === 0) {
+      return ['Normal', 'Holofoil'];
+    }
+
+    return variants;
+  }
+
   async fetchExternalSet(setId: string): Promise<any[]> {
     const allCards = [];
     let page = 1;
@@ -66,6 +85,13 @@ export class PokemonProvider extends TcgProvider {
 
       const setId = set.id;
       this.logger.log(`[Pokémon] Set ID resuelto: ${setId}. Consultando cartas...`);
+
+      // Pre-cargar acabados de Pokémon
+      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Pokemon' } });
+      const holoFinish = await this.prisma.finish.findFirst({ where: { name: 'Holofoil', game: 'Pokemon' } });
+      const reverseFinish = await this.prisma.finish.findFirst({ where: { name: 'Reverse Holofoil', game: 'Pokemon' } });
+      const unlimitedHoloFinish = await this.prisma.finish.findFirst({ where: { name: 'Unlimited Holofoil', game: 'Pokemon' } });
+
       let page = 1;
       const pageSize = 250;
       let hasMore = true;
@@ -85,21 +111,31 @@ export class PokemonProvider extends TcgProvider {
           const prices = card.tcgplayer?.prices;
           if (!prices) continue;
 
-          const normalPrice = prices.normal?.mid || prices.unlimitedHolofoil?.mid || 0;
-          const foilPrice = prices.holofoil?.mid || prices.reverseHolofoil?.mid || 0;
-
-          if (normalPrice > 0) {
+          if (prices.normal?.mid > 0 && normalFinish) {
             await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, isFoil: false },
-              data: { price: normalPrice }
+              where: { product: { externalId: card.id }, finishId: normalFinish.id },
+              data: { price: prices.normal.mid }
             });
           }
-          if (foilPrice > 0) {
+          if (prices.holofoil?.mid > 0 && holoFinish) {
             await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, isFoil: true },
-              data: { price: foilPrice }
+              where: { product: { externalId: card.id }, finishId: holoFinish.id },
+              data: { price: prices.holofoil.mid }
             });
           }
+          if (prices.reverseHolofoil?.mid > 0 && reverseFinish) {
+            await this.prisma.inventoryItem.updateMany({
+              where: { product: { externalId: card.id }, finishId: reverseFinish.id },
+              data: { price: prices.reverseHolofoil.mid }
+            });
+          }
+          if (prices.unlimitedHolofoil?.mid > 0 && unlimitedHoloFinish) {
+            await this.prisma.inventoryItem.updateMany({
+              where: { product: { externalId: card.id }, finishId: unlimitedHoloFinish.id },
+              data: { price: prices.unlimitedHolofoil.mid }
+            });
+          }
+          
           updatedCount++;
         }
 

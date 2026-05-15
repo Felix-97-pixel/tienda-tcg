@@ -139,6 +139,11 @@ export class ProductsController {
     return this.productsService.getConditions();
   }
 
+  @Get('meta/finishes')
+  getFinishes(@Query('game') game?: string) {
+    return this.productsService.getFinishes(game);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     // Sin el '+', pasamos el ID como el texto que es

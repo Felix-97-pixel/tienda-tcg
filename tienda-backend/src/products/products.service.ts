@@ -29,8 +29,7 @@ export class ProductsService {
             price: price || 0,
             stock: stock || 0,
             conditionId: defaultCond?.id || "",
-            languageId: defaultLang?.id || "",
-            isFoil: false
+            languageId: defaultLang?.id || ""
           }
         }
       },
@@ -90,12 +89,12 @@ export class ProductsService {
         if (product) {
           const conditionId = condMap.get(item.condition || "") || defaultCond;
           const languageId = langMap.get(item.language || "") || defaultLang;
-          const isFoil = item.isFoil || false;
+          const finishId = item.finishId || null;
           
           const existingItem = product.items.find(i => 
             i.conditionId === conditionId && 
             i.languageId === languageId &&
-            i.isFoil === isFoil
+            i.finishId === finishId
           );
 
           if (existingItem) {
@@ -114,7 +113,7 @@ export class ProductsService {
                 stock: item.quantity,
                 conditionId: conditionId,
                 languageId: languageId,
-                isFoil: isFoil
+                finishId: finishId || undefined
               }
             });
           }
@@ -174,8 +173,7 @@ export class ProductsService {
               price: 0,
               stock: item.stock,
               conditionId: defaultCond?.id || "",
-              languageId: defaultLang?.id || "",
-              isFoil: false
+              languageId: defaultLang?.id || ""
             }
           });
           results.updated++;
@@ -383,7 +381,8 @@ export class ProductsService {
           items: {
             include: {
               language: true,
-              condition: true
+              condition: true,
+              finish: true
             }
           },
         },
@@ -414,6 +413,7 @@ export class ProductsService {
           include: {
             condition: true,
             language: true,
+            finish: true
           }
         },
       },
@@ -509,15 +509,46 @@ export class ProductsService {
     });
   }
 
+  async getFinishes(game?: string) {
+    if (!game) {
+      return this.prisma.finish.findMany({ orderBy: { name: 'asc' } });
+    }
+
+    // 1. Obtener todos los nombres de juegos base desde la tabla Finish ("Magic", "Pokemon", etc.)
+    const availableGames = await this.prisma.finish.findMany({
+      select: { game: true },
+      distinct: ['game']
+    });
+
+    // 2. Buscar dinámicamente cuál de los juegos base está contenido en el parámetro recibido
+    let targetGame = game;
+    const lowerInput = game.toLowerCase();
+
+    for (const record of availableGames) {
+      const lowerBaseGame = record.game.toLowerCase();
+      // Verificamos si el string recibido (ej. "Singles Magic The Gathering") contiene el nombre de la BD ("Magic")
+      if (lowerInput.indexOf(lowerBaseGame) !== -1) {
+        targetGame = record.game;
+        break;
+      }
+    }
+
+    // 3. Consultar la base de datos usando el nombre real encontrado
+    return this.prisma.finish.findMany({
+      where: { game: { equals: targetGame, mode: 'insensitive' as any } },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async addInventoryItem(productId: string, data: any) {
-    const { languageId, conditionId, price, stock, isFoil } = data;
+    const { languageId, conditionId, price, stock, finishId } = data;
 
     const exists = await this.prisma.inventoryItem.findFirst({
       where: {
         productId,
         languageId,
         conditionId,
-        isFoil: !!isFoil
+        finishId: finishId || null
       }
     });
 
@@ -532,7 +563,7 @@ export class ProductsService {
         conditionId,
         price: Number(price) || 0,
         stock: Number(stock) || 0,
-        isFoil: !!isFoil
+        finishId: finishId || undefined
       }
     });
   }

@@ -30,8 +30,8 @@ export class BulkUploadItemDto {
   condition?: string;
 
   @IsOptional()
-  @IsBoolean()
-  isFoil?: boolean;
+  @IsString()
+  finishId?: string;
 
   @IsOptional()
   @IsString()

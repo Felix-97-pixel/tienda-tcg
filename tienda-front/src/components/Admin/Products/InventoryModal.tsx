@@ -35,20 +35,26 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
   const [languages, setLanguages] = useState<{ id: string, name: string }[]>([]);
   const [conditions, setConditions] = useState<{ id: string, name: string }[]>([]);
+  const [finishes, setFinishes] = useState<{ id: string, name: string }[]>([]);
   const [newVariation, setNewVariation] = useState({
     languageId: "",
     conditionId: "",
+    finishId: "",
     price: 0,
-    stock: 0,
-    isFoil: false
+    stock: 0
   });
 
   useEffect(() => {
     if (isOpen) {
       fetch(`${API_URL}/products/meta/languages`).then(r => r.json()).then(setLanguages);
       fetch(`${API_URL}/products/meta/conditions`).then(r => r.json()).then(setConditions);
+      if (product?.cardDetail?.game) {
+        fetch(`${API_URL}/products/meta/finishes?game=${encodeURIComponent(product.cardDetail.game)}`)
+          .then(r => r.json())
+          .then(setFinishes);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, product?.cardDetail?.game]);
 
   if (!isOpen || !product) return null;
 
@@ -68,7 +74,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
       if (res.ok) {
         showToast(t("inventory.successAdd"), "success");
-        setNewVariation({ languageId: "", conditionId: "", price: 0, stock: 0, isFoil: false });
+        setNewVariation({ languageId: "", conditionId: "", finishId: "", price: 0, stock: 0 });
         await refreshProduct();
         onSuccess();
       } else {
@@ -128,7 +134,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         {/* Formulario Nueva Variación */}
         <div className="mb-8 p-5 bg-gray-1 rounded-2xl border border-stroke">
           <h3 className="text-sm font-bold text-dark mb-4">{t("inventory.addVariation")}</h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
             <div>
               <label className="mb-1 block text-xs font-medium text-dark-4">{t("inventory.language")}</label>
               <SearchableSelect
@@ -165,16 +171,16 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 className="w-full rounded-xl border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-blue"
               />
             </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-dark-4">Acabado</label>
+              <SearchableSelect
+                options={finishes.map(f => ({ label: f.name, value: f.id }))}
+                value={newVariation.finishId}
+                onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
+                placeholder="Acabado..."
+              />
+            </div>
             <div className="flex flex-col justify-end">
-              <label className="flex items-center gap-2 cursor-pointer mb-2">
-                <input
-                  type="checkbox"
-                  checked={newVariation.isFoil}
-                  onChange={(e) => setNewVariation({ ...newVariation, isFoil: e.target.checked })}
-                  className="accent-blue"
-                />
-                <span className="text-xs font-bold text-dark">{t("inventory.isFoil")}</span>
-              </label>
               <button
                 onClick={handleAddVariation}
                 className="w-full rounded-xl btn-green py-3 text-sm font-bold shadow-lg shadow-green-600/10 transition-all active:scale-95"
@@ -192,7 +198,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               <tr className="bg-gray-1 border-b border-stroke">
                 <th className="p-3 font-bold text-dark-4">{t("inventory.language")}</th>
                 <th className="p-3 font-bold text-dark-4">{t("inventory.condition")}</th>
-                <th className="p-3 font-bold text-dark-4">{t("inventory.isFoil").replace('¿', '').replace('?', '')}</th>
+                <th className="p-3 font-bold text-dark-4">Acabado</th>
                 <th className="p-3 font-bold text-dark-4">{t("inventory.price")}</th>
                 <th className="p-3 font-bold text-dark-4">{t("inventory.stock")}</th>
                 <th className="p-3 font-bold text-dark-4 text-center">{tc("actions")}</th>
@@ -206,8 +212,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     {item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).name : item.condition) || "N/A"}
                   </td>
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.isFoil ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-500'}`}>
-                      {item.isFoil ? t("inventory.foil") : t("inventory.reg")}
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-500'}`}>
+                      {item.finish?.name || "Normal"}
                     </span>
                   </td>
                   <td className="p-3">

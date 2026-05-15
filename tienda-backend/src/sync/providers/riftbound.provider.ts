@@ -7,6 +7,26 @@ export class RiftboundProvider extends TcgProvider {
     super('Riftbound', prisma);
   }
 
+  /**
+   * Detecta versiones automáticamente desde la API de Riftcodex.
+   */
+  override getExpectedVariants(rawCard: any): string[] {
+    // Si la API trae explícitamente las versiones/variantes disponibles
+    if (rawCard.variants && Array.isArray(rawCard.variants)) {
+      const hasNormal = rawCard.variants.some((v: any) => v.printing === 'Normal' || !v.is_foil);
+      const hasFoil = rawCard.variants.some((v: any) => v.printing === 'Foil' || v.is_foil);
+
+      const variants: string[] = [];
+      if (hasNormal) variants.push('Normal');
+      if (hasFoil) variants.push('Foil');
+
+      if (variants.length > 0) return variants;
+    }
+
+    // Si la API no da información, usamos el estándar (Normal y Foil) por seguridad
+    return ['Normal', 'Foil'];
+  }
+
   /** Obtener cartas de Riftcodex */
   async fetchExternalSet(setId: string): Promise<any[]> {
     let allCards = [];
@@ -55,7 +75,7 @@ export class RiftboundProvider extends TcgProvider {
   /** Lógica de precios usando JustTCG */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Riftbound] Iniciando actualización vía JustTCG para: "${expansionName}" ===`);
-    
+
     const apiKey = process.env.JUSTTCG_API_KEY;
     if (!apiKey) {
       this.logger.error('[Riftbound] JUSTTCG_API_KEY no configurada en las variables de entorno.');
@@ -82,12 +102,16 @@ export class RiftboundProvider extends TcgProvider {
       const setSlug = match.set_id || match.slug || match.id;
       this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
 
+      // Pre-cargar acabados
+      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Riftbound' } });
+      const foilFinish = await this.prisma.finish.findFirst({ where: { name: 'Foil', game: 'Riftbound' } });
+
       // 2. Cargar productos locales para match rápido
       const localProducts = await this.prisma.product.findMany({
         where: { cardDetail: { expansion: { equals: expansionName, mode: 'insensitive' } } },
         select: { id: true, externalId: true }
       });
-      
+
       const totalRift = localProducts.length;
       this.logger.log(`[Riftbound] ${totalRift} productos encontrados en la BD local.`);
 
@@ -97,7 +121,7 @@ export class RiftboundProvider extends TcgProvider {
 
       while (hasMore) {
         this.logger.log(`[Riftbound] Consultando cartas (Offset: ${offset})...`);
-        
+
         // El famoso delay de 8 segundos para no ser bloqueados
         if (offset > 0) {
           this.logger.log(`[Riftbound] Esperando 8 segundos para respetar Rate Limit...`);
@@ -121,10 +145,15 @@ export class RiftboundProvider extends TcgProvider {
           for (const variant of card.variants || []) {
             if (variant.condition === 'Near Mint' && (variant.marketPrice > 0 || variant.price > 0)) {
               const finalPrice = variant.marketPrice || variant.price;
-              await this.prisma.inventoryItem.updateMany({
-                where: { productId: matchLocal.id, isFoil: variant.printing === 'Foil' },
-                data: { price: finalPrice }
-              });
+              const isVariantFoil = variant.printing === 'Foil';
+              const targetFinishId = isVariantFoil ? foilFinish?.id : normalFinish?.id;
+
+              if (targetFinishId) {
+                await this.prisma.inventoryItem.updateMany({
+                  where: { productId: matchLocal.id, finishId: targetFinishId },
+                  data: { price: finalPrice }
+                });
+              }
             }
           }
           // Incrementar por CARTA única procesada, no por variantes
@@ -135,6 +164,9 @@ export class RiftboundProvider extends TcgProvider {
         hasMore = res.data?.meta?.hasMore || false;
         offset += limit;
       }
+
+      // 3. Limpiar variantes que quedaron vacías
+      await this.cleanEmptyInventory(expansionName);
 
       this.logger.log(`[Riftbound] ¡Actualización completada! ${updatedCount} cartas procesadas.`);
       return { updated: updatedCount, errors: 0 };

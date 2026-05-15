@@ -7,6 +7,22 @@ export class MagicProvider extends TcgProvider {
     super('Magic', prisma);
   }
 
+  /**
+   * Detecta versiones automáticamente desde Scryfall (finishes)
+   */
+  override getExpectedVariants(rawCard: any): string[] {
+    const finishes = rawCard.finishes || [];
+    const variants: string[] = [];
+
+    if (finishes.includes('nonfoil')) variants.push('Normal');
+    if (finishes.includes('foil')) variants.push('Foil');
+    if (finishes.includes('etched')) variants.push('Etched Foil');
+    if (finishes.includes('glossy')) variants.push('Glossy Foil');
+
+    // Si por alguna razón no trae nada (raro en Scryfall), devolvemos por seguridad
+    return variants.length > 0 ? variants : ['Normal', 'Foil'];
+  }
+
   async fetchExternalSet(setId: string): Promise<any[]> {
     const allCards = [];
     let url = `https://api.scryfall.com/cards/search?q=set:${setId}+-is:digital&unique=prints`;
@@ -65,6 +81,10 @@ export class MagicProvider extends TcgProvider {
         return { updated: 0, errors: 1 };
       }
 
+      // Obtener los IDs de los finishes para Magic
+      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Magic' } });
+      const foilFinish = await this.prisma.finish.findFirst({ where: { name: 'Foil', game: 'Magic' } });
+
       this.logger.log(`[Magic] ${products.length} productos locales encontrados. Resolviendo código de set...`);
 
       // 1. Obtener código de set (ej: BLB)
@@ -101,15 +121,15 @@ export class MagicProvider extends TcgProvider {
       
       for (const [mtgjsonUUID, { normal, foil }] of prices) {
         const productId = mtgjsonUUIDtoProductId.get(mtgjsonUUID)!;
-        if (normal > 0) {
+        if (normal > 0 && normalFinish) {
           await this.prisma.inventoryItem.updateMany({
-            where: { productId, isFoil: false },
+            where: { productId, finishId: normalFinish.id },
             data: { price: normal }
           });
         }
-        if (foil > 0) {
+        if (foil > 0 && foilFinish) {
           await this.prisma.inventoryItem.updateMany({
-            where: { productId, isFoil: true },
+            where: { productId, finishId: foilFinish.id },
             data: { price: foil }
           });
         }

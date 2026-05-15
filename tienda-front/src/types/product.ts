@@ -3,11 +3,12 @@ export interface InventoryItem {
   price: number;
   stock: number;
   condition: string;
-  isFoil: boolean;
+  finishId?: string;
   languageId?: string;
   conditionId?: string;
   language?: { name: string };
-  condition_rel?: { name: string }; // Dependiendo de cómo venga del backend
+  condition_rel?: { name: string };
+  finish?: { name: string };
 }
 
 export interface Category {
@@ -31,6 +32,7 @@ export interface Product {
   category?: Category;
   brand?: Brand;
   cardDetail?: {
+    game?: string;
     expansion: string;
     rarity: string;
   };

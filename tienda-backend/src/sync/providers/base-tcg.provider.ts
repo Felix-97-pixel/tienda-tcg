@@ -30,103 +30,120 @@ export abstract class TcgProvider {
   // --- MÉTODOS COMPARTIDOS (Lógica común) ---
 
   /**
+   * Define qué variantes de inventario se deben crear para una carta.
+   * Por defecto crea Normal y Foil.
+   */
+  getExpectedVariants(rawCard: any): string[] {
+    return ['Normal', 'Foil'];
+  }
+
+  /**
    * Flujo estándar de importación de un Set.
    */
-  async syncSet(setId: string, gameType: string) {
+  async syncSet(setId: string, categoryName: string) {
     this.logger.log(`Iniciando sincronización del set: ${setId}`);
 
     try {
-      const categoryId = await this.getCategoryId(gameType);
+      const categoryId = await this.getCategoryId(categoryName);
       const { defaultLang, defaultCond } = await this.getSyncDefaults();
       const externalCards = await this.fetchExternalSet(setId);
 
       this.logger.log(`Se obtuvieron ${externalCards.length} cartas de la API.`);
 
+      // Pre-cargar todos los finishes de este juego para resolver IDs rápido
+      const allFinishes = await this.prisma.finish.findMany({ where: { game: this.gameName } });
+      const finishMap = new Map(allFinishes.map(f => [f.name, f.id]));
+
       let totalProcessed = 0;
-      const CONCURRENCY_LIMIT = 15;
+      for (const card of externalCards) {
+        const productData = this.mapToProduct(card, categoryId);
+        const expectedVariantNames = this.getExpectedVariants(card);
 
-      // Procesamos por lotes para no saturar la DB
-      for (let i = 0; i < externalCards.length; i += CONCURRENCY_LIMIT) {
-        const chunk = externalCards.slice(i, i + CONCURRENCY_LIMIT);
-
-        const results = await Promise.allSettled(
-          chunk.map(async (card) => {
-            const productData = this.mapToProduct(card, categoryId);
-
-            // 1. Intentar encontrar producto existente
-            let existingProduct = await this.prisma.product.findUnique({
-              where: { externalId: productData.externalId },
-              include: { items: true }
-            });
-
-            // 2. Upsert del Producto
-            const product = await this.prisma.product.upsert({
-              where: { id: existingProduct?.id || 'non-existent-uuid' },
-              update: {
-                externalId: productData.externalId,
-                imageUrl: productData.image,
-                name: productData.name
-              },
-              create: {
-                externalId: productData.externalId,
-                name: productData.name,
-                imageUrl: productData.image,
-                categoryId: categoryId,
-                cardDetail: {
-                  create: {
-                    expansion: productData.expansion,
-                    rarity: productData.rarity,
-                    collectorNum: productData.number,
-                    game: this.gameName,
-                    attributes: productData.attributes
-                  }
-                }
-              },
-              include: { items: true }
-            });
-
-            // 3. Asegurar variantes Normal y Foil
-            await this.ensureInventoryItems(product.id, defaultLang.id, defaultCond.id, product.items);
-
-            // 4. Actualizar Atributos (si es necesario)
-            if (productData.attributes?.length) {
-              await this.updateAttributes(product.id, productData.attributes);
+        // Mapear los nombres de acabado a sus IDs reales
+        const inventoryToCreate = expectedVariantNames
+          .map(name => {
+            const finishId = finishMap.get(name);
+            if (!finishId) {
+              this.logger.warn(`Finish '${name}' no encontrado en BD para el juego ${this.gameName}. Saltando...`);
+              return null;
             }
+            return {
+              languageId: defaultLang.id,
+              conditionId: defaultCond.id,
+              finishId: finishId,
+              price: 0,
+              stock: 0
+            };
           })
-        );
+          .filter(Boolean) as any[];
 
-        results.forEach((res) => {
-          if (res.status === 'fulfilled') totalProcessed++;
-          else this.logger.error(`Error procesando carta: ${res.reason}`);
+        await this.prisma.product.upsert({
+          where: { externalId: productData.externalId },
+          update: {
+            name: productData.name,
+            imageUrl: productData.image,
+            cardDetail: {
+              update: {
+                expansion: productData.expansion,
+                rarity: productData.rarity,
+                collectorNum: productData.number,
+                attributes: productData.attributes
+              }
+            }
+          },
+          create: {
+            externalId: productData.externalId,
+            name: productData.name,
+            imageUrl: productData.image,
+            categoryId: categoryId,
+            cardDetail: {
+              create: {
+                expansion: productData.expansion,
+                rarity: productData.rarity,
+                collectorNum: productData.number,
+                game: this.gameName,
+                attributes: productData.attributes
+              }
+            },
+            items: {
+              create: inventoryToCreate
+            }
+          }
         });
 
-        // Reportar progreso después de cada lote
-        this.onProgress?.(gameType, totalProcessed, externalCards.length, 'import');
+        totalProcessed++;
+        this.onProgress?.(this.gameName, totalProcessed, externalCards.length, 'import');
       }
 
       this.logger.log(`Sincronización finalizada: ${totalProcessed} productos procesados.`);
-      return { success: true, count: totalProcessed };
+      return { total: totalProcessed };
     } catch (error) {
       this.logger.error(`Error sincronizando set ${setId}: ${error.message}`);
       throw error;
     }
   }
 
-  private async ensureInventoryItems(productId: string, langId: string, condId: string, existingItems: any[]) {
-    const hasNormal = existingItems.some(item => !item.isFoil);
-    const hasFoil = existingItems.some(item => item.isFoil);
+  /**
+   * Elimina los items de inventario que quedaron con precio 0 después de una sincronización.
+   * Esto limpia la base de datos de variantes que no existen en el mercado.
+   */
+  protected async cleanEmptyInventory(expansionName: string) {
+    this.logger.log(`Limpiando inventario vacío para expansión: ${expansionName}...`);
 
-    if (!hasNormal) {
-      await this.prisma.inventoryItem.create({
-        data: { productId, languageId: langId, conditionId: condId, isFoil: false, price: 0, stock: 0 }
-      });
-    }
+    const result = await this.prisma.inventoryItem.deleteMany({
+      where: {
+        price: 0,
+        stock: 0,
+        product: {
+          cardDetail: {
+            expansion: { equals: expansionName, mode: 'insensitive' },
+            game: this.gameName
+          }
+        }
+      }
+    });
 
-    if (!hasFoil) {
-      await this.prisma.inventoryItem.create({
-        data: { productId, languageId: langId, conditionId: condId, isFoil: true, price: 0, stock: 0 }
-      });
-    }
+    this.logger.log(`Se eliminaron ${result.count} variantes sin precio para ${expansionName}.`);
   }
 
   private async updateAttributes(productId: string, attributes: string[]) {
