@@ -26,14 +26,21 @@ const ProductItem = ({ item }: { item: Product }) => {
   };
 
   const handleItemToWishList = () => {
-    dispatch(
-      addItemToWishlist({
-        ...item,
-        status: "available",
-        quantity: 1,
-      })
-    );
-    showToast(`"${item.title}" agregado a tu wishlist`, "info");
+    const wishItem = {
+      id: item.id,
+      title: item.title || item.name,
+      price: item.price || 0,
+      discountedPrice: item.discountedPrice || 0,
+      quantity: 1,
+      status: "available",
+      imgs: item.imgs || {
+        thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+      },
+    };
+
+    dispatch(addItemToWishlist(wishItem));
+    showToast(`"${wishItem.title}" agregado a tu wishlist`, "info");
   };
 
   const handleProductDetails = () => {
@@ -43,10 +50,16 @@ const ProductItem = ({ item }: { item: Product }) => {
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#F6F7FB] min-h-[270px] mb-4">
-        <Image className="object-contain h-full w-full"  src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} alt="" width={250} height={250} />
+        <Image 
+          className="object-contain h-full w-full" 
+          src={item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png"} 
+          alt={item.title || item.name} 
+          width={250} 
+          height={250} 
+        />
 
         {/* Out of Stock Overlay */}
-        {item.stock === 0 && (
+        {(item.stock === 0 || (item.items && item.items.length > 0 && item.items.every(i => i.stock === 0))) && (
           <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
             <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
               Sin stock
@@ -90,11 +103,10 @@ const ProductItem = ({ item }: { item: Product }) => {
           <button
             onClick={() => handleAddToCart()}
             disabled={item.stock === 0 || isMaxStockReached}
-            className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${
-              item.stock === 0 || isMaxStockReached
+            className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${item.stock === 0 || isMaxStockReached
                 ? "bg-gray-4 cursor-not-allowed text-dark-4"
                 : "bg-blue hover:bg-blue-dark"
-            }`}
+              }`}
           >
             {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo" : "Add to cart")}
           </button>
@@ -126,31 +138,31 @@ const ProductItem = ({ item }: { item: Product }) => {
 
       <div className="flex items-center gap-2.5 mb-2">
         <div className="flex items-center gap-1">
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
             height={14}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={14}
@@ -165,12 +177,14 @@ const ProductItem = ({ item }: { item: Product }) => {
         className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
         onClick={() => handleProductDetails()}
       >
-        <Link href="/shop-details"> {item.title} </Link>
+        <Link href="/shop-details"> {item.title || item.name} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">${item.discountedPrice}</span>
-        <span className="text-dark-4 line-through">${item.price}</span>
+        <span className="text-dark">${item.discountedPrice ?? item.price ?? 0}</span>
+        {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
+          <span className="text-dark-4 line-through">${item.price}</span>
+        )}
       </span>
     </div>
   );

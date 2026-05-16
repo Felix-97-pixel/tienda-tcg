@@ -7,7 +7,7 @@ export const useProductCart = (item: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const { showToast } = useToast();
   const cartItems = useAppSelector((state: any) => state.cartReducer.items);
-  
+
   const cartItem = cartItems.find((ci: any) => ci.id === item?.id);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
   const availableStock = item?.stock !== undefined && item?.stock !== null ? item.stock - quantityInCart : 999;
@@ -26,14 +26,23 @@ export const useProductCart = (item: any) => {
       return;
     }
 
-    dispatch(
-      addItemToCart({
-        ...item,
-        quantity: quantityToAdd,
-      })
-    );
+    const cartItem = {
+      id: item.id,
+      title: item.title || item.name,
+      price: item.price || 0,
+      discountedPrice: item.discountedPrice || 0,
+      quantity: quantityToAdd,
+      imgs: item.imgs || {
+        thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+      },
+      stock: item.stock || 999,
+      inventoryItemId: item.inventoryItemId || (item.items?.[0]?.id),
+    };
 
-    showToast(`"${item.title}" agregado al carro`, "success");
+    dispatch(addItemToCart(cartItem));
+
+    showToast(`"${cartItem.title}" agregado al carro`, "success");
   };
 
   return { handleAddToCart, quantityInCart, isMaxStockReached, availableStock };

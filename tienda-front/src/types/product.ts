@@ -15,6 +15,7 @@ export interface Category {
   id: string;
   name: string;
   isTcg: boolean;
+  slug?: string;
 }
 
 export interface Brand {
@@ -35,9 +36,23 @@ export interface Product {
     game?: string;
     expansion: string;
     rarity: string;
+    collectorNum?: string | number;
+    attributes?: string[];
   };
   items: InventoryItem[];
   wishlistCount?: number;
+
+  // Campos de compatibilidad con la UI (mapeados en el frontend)
+  title?: string;
+  price?: number;
+  discountedPrice?: number;
+  stock?: number;
+  reviews?: number;
+  inventoryItemId?: string;
+  imgs?: {
+    thumbnails: string[];
+    previews: string[];
+  };
 }
 
 export interface ProductCreateInput {

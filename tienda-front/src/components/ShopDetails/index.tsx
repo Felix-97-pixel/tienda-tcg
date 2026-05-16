@@ -20,7 +20,7 @@ const ShopDetails = () => {
   
   const [selectedCondition, setSelectedCondition] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
-  const [selectedFoil, setSelectedFoil] = useState<boolean | null>(null);
+  const [selectedFinishId, setSelectedFinishId] = useState("");
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
   const [activeTab, setActiveTab] = useState("tabOne");
@@ -108,9 +108,9 @@ const ShopDetails = () => {
       if (product?.items && product.items.length > 0) {
         const firstItem = product.items[0];
         setSelectedItem(firstItem);
-        setSelectedCondition(firstItem.conditionId);
-        setSelectedLanguage(firstItem.languageId);
-        setSelectedFoil(firstItem.isFoil);
+        setSelectedCondition(firstItem.conditionId || "");
+        setSelectedLanguage(firstItem.languageId || "");
+        setSelectedFinishId(firstItem.finishId || "");
       }
     }
   }, [product, isMounted]);
@@ -120,13 +120,13 @@ const ShopDetails = () => {
       const match = product.items.find((i: InventoryItem) => 
         i.conditionId === selectedCondition && 
         i.languageId === selectedLanguage &&
-        i.isFoil === selectedFoil
+        i.finishId === selectedFinishId
       );
       if (match) {
         setSelectedItem(match);
       }
     }
-  }, [selectedCondition, selectedLanguage, selectedFoil, product]);
+  }, [selectedCondition, selectedLanguage, selectedFinishId, product]);
 
   // pass the product here when you get the real data.
   const handlePreviewSlider = () => {
@@ -137,7 +137,7 @@ const ShopDetails = () => {
     <>
       <Breadcrumb title={"Shop Details"} pages={["shop details"]} />
 
-      {product.title === "" ? (
+      {(product.title === "" && !product.name) ? (
         "Please add product"
       ) : (
         <>
@@ -169,10 +169,10 @@ const ShopDetails = () => {
                         </svg>
                       </button>
 
-                      {product.imgs?.previews?.[previewImg] && (
+                      {(product.imgs?.previews?.[previewImg] || product.imageUrl) && (
                         <Image
-                          src={product.imgs.previews[previewImg]}
-                          alt="products-details"
+                          src={product.imgs?.previews?.[previewImg] || product.imageUrl || "/images/products/product-1-bg-1.png"}
+                          alt={product.title || product.name || "products-details"}
                           width={400}
                           height={400}
                         />
@@ -182,7 +182,7 @@ const ShopDetails = () => {
 
                   {/* ?  &apos;border-blue &apos; :  &apos;border-transparent&apos; */}
                   <div className="flex flex-wrap sm:flex-nowrap gap-4.5 mt-6">
-                    {product.imgs?.thumbnails.map((item, key) => (
+                    {product.imgs?.thumbnails ? product.imgs.thumbnails.map((item, key) => (
                       <button
                         onClick={() => setPreviewImg(key)}
                         key={key}
@@ -198,7 +198,18 @@ const ShopDetails = () => {
                           alt="thumbnail"
                         />
                       </button>
-                    ))}
+                    )) : (
+                      <button
+                        className="flex items-center justify-center w-15 sm:w-25 h-15 sm:h-25 overflow-hidden rounded-lg bg-gray-2 shadow-1 border-2 border-blue"
+                      >
+                        <Image
+                          width={50}
+                          height={50}
+                          src={product.imageUrl || "/images/products/product-1-bg-1.png"}
+                          alt="thumbnail"
+                        />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -206,7 +217,7 @@ const ShopDetails = () => {
                 <div className="max-w-[539px] w-full">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="font-semibold text-xl sm:text-2xl xl:text-custom-3 text-dark">
-                      {product.title}
+                      {product.title || product.name}
                     </h2>
 
                     <div className="inline-flex font-medium text-custom-sm text-white bg-blue rounded py-0.5 px-2.5">
@@ -360,9 +371,9 @@ const ShopDetails = () => {
 
                   <h3 className="font-medium text-custom-1 mb-4.5">
                     <span className="text-sm sm:text-base text-dark">
-                      Price: ${selectedItem ? selectedItem.price : product.price}
+                      Price: ${selectedItem ? selectedItem.price : (product.price || 0)}
                     </span>
-                    {product.discountedPrice > 0 && (
+                    {(product.discountedPrice ?? 0) > 0 && (
                       <span className="line-through ml-2 text-gray-500">
                         ${product.discountedPrice}
                       </span>
@@ -425,16 +436,19 @@ const ShopDetails = () => {
                               <h4 className="font-medium text-dark">Condición:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {Array.from(new Map(product.items.map((i: any) => [i.conditionId, i.condition])).entries()).map(([id, cond]: any) => (
-                                <button
-                                  key={id}
-                                  type="button"
-                                  onClick={() => setSelectedCondition(id)}
-                                  className={`px-3 py-1 rounded border text-sm ${selectedCondition === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
-                                >
-                                  {cond.name}
-                                </button>
-                              ))}
+                              {Array.from(new Map(product.items.filter(i => i.conditionId && i.condition_rel).map((i) => [i.conditionId, i.condition_rel])).entries()).map(([id, cond]) => {
+                                const condition = cond as { name: string };
+                                return (
+                                  <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() => setSelectedCondition(id)}
+                                    className={`px-3 py-1 rounded border text-sm ${selectedCondition === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                  >
+                                    {condition?.name || 'Desconocida'}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -444,35 +458,41 @@ const ShopDetails = () => {
                               <h4 className="font-medium text-dark">Idioma:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {Array.from(new Map(product.items.map((i: any) => [i.languageId, i.language])).entries()).map(([id, lang]: any) => (
-                                <button
-                                  key={id}
-                                  type="button"
-                                  onClick={() => setSelectedLanguage(id)}
-                                  className={`px-3 py-1 rounded border text-sm ${selectedLanguage === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
-                                >
-                                  {lang.code.toUpperCase()}
-                                </button>
-                              ))}
+                              {Array.from(new Map(product.items.filter(i => i.languageId && i.language).map((i) => [i.languageId, i.language])).entries()).map(([id, lang]) => {
+                                const language = lang as { code: string; name: string };
+                                return (
+                                  <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() => setSelectedLanguage(id)}
+                                    className={`px-3 py-1 rounded border text-sm ${selectedLanguage === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                  >
+                                    {language?.code?.toUpperCase() || '??'}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 
-                          {/* TCG Foil Selector */}
+                          {/* TCG Finish Selector */}
                           <div className="flex items-center gap-4">
                             <div className="min-w-[85px]">
                               <h4 className="font-medium text-dark">Versión:</h4>
                             </div>
-                            <div className="flex gap-2">
-                              {Array.from(new Set(product.items.map((i: any) => i.isFoil))).sort().map((foil: any) => (
-                                <button
-                                  key={foil ? 'foil' : 'non-foil'}
-                                  type="button"
-                                  onClick={() => setSelectedFoil(foil)}
-                                  className={`px-3 py-1 rounded border text-sm ${selectedFoil === foil ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
-                                >
-                                  {foil ? 'Foil' : 'Normal'}
-                                </button>
-                              ))}
+                            <div className="flex flex-wrap gap-2">
+                              {Array.from(new Map(product.items.filter(i => i.finishId && i.finish).map((i) => [i.finishId, i.finish])).entries()).map(([id, fin]) => {
+                                const finish = fin as { name: string };
+                                return (
+                                  <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() => setSelectedFinishId(id)}
+                                    className={`px-3 py-1 rounded border text-sm ${selectedFinishId === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                  >
+                                    {finish?.name || 'Normal'}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
                         </>
@@ -754,10 +774,12 @@ const ShopDetails = () => {
                   {/* <!-- info item --> */}
                   <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">Brand</p>
+                      <p className="text-sm sm:text-base text-dark">Categoría</p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">Apple</p>
+                      <p className="text-sm sm:text-base text-dark">
+                        {typeof product.category === 'object' ? product.category.name : (product.category || "General")}
+                      </p>
                     </div>
                   </div>
 

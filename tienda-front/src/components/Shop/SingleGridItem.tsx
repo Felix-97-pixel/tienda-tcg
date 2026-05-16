@@ -29,35 +29,42 @@ const SingleGridItem = ({ item }: { item: Product }) => {
   };
 
   const handleItemToWishList = async () => {
-    dispatch(
-      addItemToWishlist({
-        ...item,
-        status: "available",
-        quantity: 1,
-      })
-    );
-    showToast(tw("added", { title: item.title }), "info");
+    const wishItem = {
+      id: item.id,
+      title: item.title || item.name,
+      price: item.price || 0,
+      discountedPrice: item.discountedPrice || 0,
+      quantity: 1,
+      status: "available",
+      imgs: item.imgs || {
+        thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+      },
+    };
+
+    dispatch(addItemToWishlist(wishItem));
+    showToast(tw("added", { title: wishItem.title }), "info");
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-white shadow-1 min-h-[300px] mb-4">
-        <Image  
-          src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
-          alt={item.title || "Product"} 
-          width={250} 
-          height={350} 
-          className="object-contain h-full w-full max-w-[220px]" 
+        <Image
+          src={item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png"}
+          alt={item.title || item.name || "Product"}
+          width={250}
+          height={350}
+          className="object-contain h-full w-full max-w-[220px]"
           priority={false}
         />
 
         {/* Out of Stock Overlay */}
-        {item.stock === 0 && (
+        {(item.stock === 0 || (item.items && item.items.length > 0 && item.items.every(i => i.stock === 0))) && (
           <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
             <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
               {t("outOfStock")}
@@ -99,16 +106,15 @@ const SingleGridItem = ({ item }: { item: Product }) => {
           </button>
 
           <button
-          onClick={() => handleAddToCart()}
-          disabled={item.stock === 0 || isMaxStockReached}
-          className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
-            item.stock === 0 || isMaxStockReached
-              ? "bg-gray-4 cursor-not-allowed text-dark-4"
-              : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
-          }`}
-        >
-          {item.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
-        </button>
+            onClick={() => handleAddToCart()}
+            disabled={item.stock === 0 || isMaxStockReached}
+            className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${item.stock === 0 || isMaxStockReached
+                ? "bg-gray-4 cursor-not-allowed text-dark-4"
+                : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
+              }`}
+          >
+            {(item.stock === 0 || (item.items && item.items.length > 0 && item.items.every(i => i.stock === 0))) ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
+          </button>
 
           <button
             onClick={() => handleItemToWishList()}
@@ -137,31 +143,31 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
       <div className="flex items-center gap-2.5 mb-2">
         <div className="flex items-center gap-1">
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
             height={15}
           />
-          <Image className="w-auto h-auto" 
+          <Image className="w-auto h-auto"
             src="/images/icons/icon-star.svg"
             alt="star icon"
             width={15}
@@ -173,12 +179,12 @@ const SingleGridItem = ({ item }: { item: Product }) => {
       </div>
 
       <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-        <Link href="/shop-details"> {item.title} </Link>
+        <Link href="/shop-details"> {item.title || item.name} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
-        {item.price > 0 ? (
-          <span className="text-dark">${item.price.toFixed(2)} <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
+        {(item.price ?? 0) > 0 ? (
+          <span className="text-dark">${(item.discountedPrice ?? item.price ?? 0).toFixed(2)} <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
         ) : (
           <span className="text-gray-400 text-sm italic">Sin precio</span>
         )}

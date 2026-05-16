@@ -28,14 +28,21 @@ const SingleListItem = ({ item }: { item: Product }) => {
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
 
   const handleItemToWishList = async () => {
-    dispatch(
-      addItemToWishlist({
-        ...item,
-        status: "available",
-        quantity: 1,
-      })
-    );
-    showToast(`"${item.title}" agregado a tu wishlist`, "info");
+    const wishItem = {
+      id: item.id,
+      title: item.title || item.name,
+      price: item.price || 0,
+      discountedPrice: item.discountedPrice || 0,
+      quantity: 1,
+      status: "available",
+      imgs: item.imgs || {
+        thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+      },
+    };
+
+    dispatch(addItemToWishlist(wishItem));
+    showToast(`"${wishItem.title}" agregado a tu wishlist`, "info");
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${item.id}`, { method: 'POST', credentials: 'include' });
@@ -48,8 +55,8 @@ const SingleListItem = ({ item }: { item: Product }) => {
       <div className="flex">
         <div className="shadow-list relative overflow-hidden flex items-center justify-center max-w-[270px] w-full sm:min-h-[300px] p-4">
           <Image  
-            src={item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
-            alt={item.title || "Product"} 
+            src={item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png"} 
+            alt={item.title || item.name || "Product"} 
             width={250} 
             height={350} 
             className="object-contain h-full w-full max-w-[200px]" 
@@ -136,12 +143,16 @@ const SingleListItem = ({ item }: { item: Product }) => {
         <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center justify-center sm:justify-between py-5 px-4 sm:px-7.5 lg:pl-11 lg:pr-12">
           <div>
             <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-              <Link href="/shop-details"> {item.title} </Link>
+              <Link href="/shop-details"> {item.title || item.name} </Link>
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">
               {item.price > 0 ? (
-                <span className="text-dark">${item.price.toFixed(2)} <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
+                <span className="text-dark">${item.discountedPrice ?? item.price ?? 0}
+                {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
+                  <span className="text-dark-4 line-through ml-2">${item.price}</span>
+                )}
+                <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
               ) : (
                 <span className="text-gray-400 text-sm italic">Sin precio</span>
               )}

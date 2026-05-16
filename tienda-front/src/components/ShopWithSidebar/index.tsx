@@ -119,12 +119,19 @@ const ShopWithSidebar = () => {
             return {
               id: item.id,
               title: item.name,
+              name: item.name, // duplicamos para compatibilidad
               reviews: 0,
               price: parseFloat(defaultPrice),
               discountedPrice: parseFloat(defaultPrice),
               inventoryItemId: item.items?.[0]?.id ?? undefined,
-              category: catName,
+              category: {
+                id: item.categoryId,
+                name: catName,
+                isTcg: item.category?.isTcg || false
+              },
               stock: parseInt(defaultStock, 10),
+              imageUrl: item.imageUrl,
+              items: item.items || [],
               imgs: {
                 thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
                 previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
