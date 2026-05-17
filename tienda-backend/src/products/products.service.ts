@@ -4,17 +4,19 @@ import { UploadService } from '../upload/upload.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { randomUUID } from 'crypto';
+import { MagicService } from '../sync/magic.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
-    private uploadService: UploadService
+    private uploadService: UploadService,
+    private magicService: MagicService
   ) { }
 
   async create(createProductDto: CreateProductDto) {
     const { price, stock, ...productData } = createProductDto;
-    
+
     const [defaultCond, defaultLang] = await Promise.all([
       this.prisma.condition.findFirst({ where: { name: 'near_mint' } }),
       this.prisma.language.findFirst({ where: { code: 'en' } })
@@ -36,6 +38,61 @@ export class ProductsService {
     });
   }
 
+  /**
+   * Crea un producto y su CardDetail correspondiente usando la información oficial obtenida de Scryfall.
+   * Este método es completamente reutilizable en cualquier otra parte de la aplicación.
+   */
+  async createProductFromScryfallCard(scryfallCard: any, categoryId: string, itemData?: any) {
+    const attrs: string[] = scryfallCard.colors || scryfallCard.card_faces?.[0]?.colors || [];
+    if (scryfallCard.oracle_text?.includes('{E}')) attrs.push('Energy');
+    if (scryfallCard.oracle_text?.toLowerCase().includes('devotion')) attrs.push('Devotion');
+
+    return this.prisma.product.create({
+      data: {
+        externalId: scryfallCard.id,
+        name: scryfallCard.name,
+        description: scryfallCard.oracle_text || null,
+        imageUrl: scryfallCard.image_uris?.normal || scryfallCard.card_faces?.[0]?.image_uris?.normal || '',
+        categoryId: categoryId,
+        cardDetail: {
+          create: {
+            expansion: scryfallCard.set_name || itemData?.expansion || 'Unknown Set',
+            rarity: scryfallCard.rarity || itemData?.rarity || 'Common',
+            collectorNum: scryfallCard.collector_number || itemData?.collectorNum || '',
+            game: 'Magic',
+            attributes: attrs
+          }
+        }
+      },
+      include: { items: true, cardDetail: true }
+    });
+  }
+
+  /**
+   * Crea un producto de forma manual utilizando exclusivamente los metadatos provistos en el CSV o formulario.
+   * Este método es completamente reutilizable en cualquier otra parte de la aplicación.
+   */
+  async createProductManually(itemData: any, categoryId: string) {
+    const manualExternalId = itemData.scryfallId || `manual-${Date.now()}-${randomUUID()}`;
+    return this.prisma.product.create({
+      data: {
+        externalId: manualExternalId,
+        name: itemData.name,
+        categoryId: categoryId,
+        cardDetail: {
+          create: {
+            expansion: itemData.expansion || 'Unknown Set',
+            rarity: itemData.rarity || 'Common',
+            collectorNum: itemData.collectorNum || '',
+            game: 'Magic',
+            attributes: []
+          }
+        }
+      },
+      include: { items: true, cardDetail: true }
+    });
+  }
+
   async bulkUpload(categoryId: string, items: any[]) {
     const category = await this.prisma.category.findUnique({ where: { id: categoryId } });
     if (!category) throw new Error("Category not found");
@@ -45,17 +102,28 @@ export class ProductsService {
     }
 
     const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
-    
-    // Pre-cargar idiomas y condiciones para evitar consultas repetitivas
-    const [languages, conditions] = await Promise.all([
+
+    // Pre-cargar idiomas, condiciones y acabados (finishes) para evitar consultas repetitivas
+    const [languages, conditions, finishes] = await Promise.all([
       this.prisma.language.findMany(),
-      this.prisma.condition.findMany()
+      this.prisma.condition.findMany(),
+      this.prisma.finish.findMany({ where: { game: 'Magic' } })
     ]);
 
     const langMap = new Map(languages.map(l => [l.code, l.id]));
     const condMap = new Map(conditions.map(c => [c.name, c.id]));
+    const finishMap = new Map(finishes.map(f => [f.name.toLowerCase(), f.id]));
     const defaultLang = languages.find(l => l.code === 'es')?.id || languages[0]?.id;
     const defaultCond = conditions.find(c => c.name === 'near_mint')?.id || conditions[0]?.id;
+
+    // Mapear finishes comunes a los nombres en nuestra base de datos
+    const finishNameMapping: { [key: string]: string } = {
+      'normal': 'normal',
+      'nonfoil': 'normal',
+      'foil': 'foil',
+      'etched': 'etched foil',
+      'glossy': 'glossy foil'
+    };
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -67,7 +135,7 @@ export class ProductsService {
             include: { items: true, cardDetail: true }
           });
         }
-        
+
         if (!product) {
           const products = await this.prisma.product.findMany({
             where: {
@@ -86,13 +154,38 @@ export class ProductsService {
           }
         }
 
+        // Si la carta aún no existe, la insertamos dinámicamente usando las funciones modulares
+        if (!product) {
+          if (item.scryfallId) {
+            try {
+              const scryfallCard = await this.magicService.fetchCardById(item.scryfallId);
+              if (scryfallCard) {
+                product = await this.createProductFromScryfallCard(scryfallCard, categoryId, item);
+                results.added++;
+              }
+            } catch (fetchErr: any) {
+              // Fallback a creación manual con los datos provistos en el CSV
+              product = await this.createProductManually(item, categoryId);
+              results.added++;
+            }
+          } else {
+            // Creación manual directa si no hay scryfallId
+            product = await this.createProductManually(item, categoryId);
+            results.added++;
+          }
+        }
+
         if (product) {
           const conditionId = condMap.get(item.condition || "") || defaultCond;
           const languageId = langMap.get(item.language || "") || defaultLang;
-          const finishId = item.finishId || null;
-          
-          const existingItem = product.items.find(i => 
-            i.conditionId === conditionId && 
+
+          // Resolver el finish correcto
+          const csvFinish = (item.finish || "").toLowerCase().trim();
+          const mappedFinishName = finishNameMapping[csvFinish] || csvFinish;
+          const finishId = item.finishId || finishMap.get(mappedFinishName) || null;
+
+          const existingItem = product.items.find(i =>
+            i.conditionId === conditionId &&
             i.languageId === languageId &&
             i.finishId === finishId
           );
@@ -121,13 +214,13 @@ export class ProductsService {
         } else {
           results.errors.push({
             index: item.originalIndex !== undefined ? item.originalIndex : i,
-            error: `No se encontró la carta '${item.name}' de la edición '${item.expansion}'. Asegúrate de sincronizar la edición primero.`
+            error: `No se pudo encontrar ni crear la carta '${item.name}' de la edición '${item.expansion}'.`
           });
         }
       } catch (err: any) {
         results.errors.push({
           index: item.originalIndex !== undefined ? item.originalIndex : i,
-          error: `Error with item ${item.name}: ${err.message}`
+          error: `Error al procesar la carta '${item.name}': ${err.message}`
         });
       }
     }
@@ -342,7 +435,7 @@ export class ProductsService {
 
     // Build where clause
     const whereClause: any = {};
-    
+
     if (searchName) {
       whereClause.name = {
         contains: searchName,

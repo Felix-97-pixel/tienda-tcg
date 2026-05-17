@@ -1,9 +1,9 @@
 import { TcgProvider } from './base-tcg.provider';
-import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RiftboundService } from '../riftbound.service';
 
 export class RiftboundProvider extends TcgProvider {
-  constructor(prisma: PrismaService) {
+  constructor(prisma: PrismaService, private readonly riftboundService: RiftboundService) {
     super('Riftbound', prisma);
   }
 
@@ -27,35 +27,9 @@ export class RiftboundProvider extends TcgProvider {
     return ['Normal', 'Foil'];
   }
 
-  /** Obtener cartas de Riftcodex */
+  /** Obtener cartas de Riftcodex delegando en RiftboundService */
   async fetchExternalSet(setId: string): Promise<any[]> {
-    let allCards = [];
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const url = `https://api.riftcodex.com/cards?set_id=${setId}&page=${page}`;
-      const res = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-      });
-
-      const data = res.data;
-      const cardList = data?.items || (Array.isArray(data) ? data : []);
-
-      if (cardList.length === 0) {
-        hasMore = false;
-        break;
-      }
-
-      allCards.push(...cardList);
-
-      if (data.page < data.pages) page++;
-      else hasMore = false;
-    }
-
-    return allCards;
+    return this.riftboundService.fetchCardsBySet(setId);
   }
 
   /** Mapear campos de Riftcodex a nuestro Producto */
@@ -72,7 +46,7 @@ export class RiftboundProvider extends TcgProvider {
     };
   }
 
-  /** Lógica de precios usando JustTCG */
+  /** Lógica de precios usando JustTCG (delegado en RiftboundService) */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Riftbound] Iniciando actualización vía JustTCG para: "${expansionName}" ===`);
 
@@ -82,16 +56,12 @@ export class RiftboundProvider extends TcgProvider {
       return { updated: 0, errors: 1 };
     }
 
-    const gameName = 'riftbound-league-of-legends-trading-card-game';
     let updatedCount = 0;
 
     try {
-      // 1. Resolver el ID real del set
+      // 1. Resolver el ID real del set usando RiftboundService
       this.logger.log(`[Riftbound] Buscando set "${expansionName}" en JustTCG...`);
-      const setsRes = await axios.get(`https://api.justtcg.com/v1/sets?game=${gameName}`, {
-        headers: { 'X-Api-Key': apiKey }
-      });
-      const sets = setsRes.data?.data || [];
+      const sets = await this.riftboundService.fetchJustTcgSets(apiKey);
       const match = sets.find((s: any) => s.name?.toLowerCase() === expansionName.toLowerCase());
 
       if (!match) {
@@ -103,8 +73,10 @@ export class RiftboundProvider extends TcgProvider {
       this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
 
       // Pre-cargar acabados
-      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Riftbound' } });
-      const foilFinish = await this.prisma.finish.findFirst({ where: { name: 'Foil', game: 'Riftbound' } });
+      const [normalFinish, foilFinish] = await Promise.all([
+        this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Riftbound' } }),
+        this.prisma.finish.findFirst({ where: { name: 'Foil', game: 'Riftbound' } })
+      ]);
 
       // 2. Cargar productos locales para match rápido
       const localProducts = await this.prisma.product.findMany({
@@ -122,16 +94,14 @@ export class RiftboundProvider extends TcgProvider {
       while (hasMore) {
         this.logger.log(`[Riftbound] Consultando cartas (Offset: ${offset})...`);
 
-        // El famoso delay de 8 segundos para no ser bloqueados
+        // Espera de 8 segundos para rate limiting
         if (offset > 0) {
           this.logger.log(`[Riftbound] Esperando 8 segundos para respetar Rate Limit...`);
           await new Promise(resolve => setTimeout(resolve, 8000));
         }
 
-        const url = `https://api.justtcg.com/v1/cards?game=${gameName}&set=${setSlug}&limit=${limit}&offset=${offset}`;
-        const res = await axios.get(url, { headers: { 'X-Api-Key': apiKey } });
-
-        const cards = res.data?.data || [];
+        const data = await this.riftboundService.fetchJustTcgCardsPage(apiKey, setSlug, limit, offset);
+        const cards = data?.data || [];
         if (cards.length === 0) break;
 
         for (const card of cards) {
@@ -161,7 +131,7 @@ export class RiftboundProvider extends TcgProvider {
           this.onProgress?.('riftbound', updatedCount, totalRift, 'price');
         }
         this.logger.log(`[Riftbound] Lote procesado. Progreso: ${updatedCount}/${totalRift}`);
-        hasMore = res.data?.meta?.hasMore || false;
+        hasMore = data?.meta?.hasMore || false;
         offset += limit;
       }
 
@@ -170,7 +140,7 @@ export class RiftboundProvider extends TcgProvider {
 
       this.logger.log(`[Riftbound] ¡Actualización completada! ${updatedCount} cartas procesadas.`);
       return { updated: updatedCount, errors: 0 };
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`[Riftbound] Error en JustTCG: ${err.message}`);
       return { updated: updatedCount, errors: 1 };
     }

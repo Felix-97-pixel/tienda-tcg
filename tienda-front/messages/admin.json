@@ -154,7 +154,10 @@
       "errorCsv": "Error al procesar el archivo CSV.",
       "errorCsvRead": "Error al leer el archivo CSV.",
       "successMessage": "productos procesados correctamente",
-      "errorMessage": "Se ha descargado un archivo con los errores detallados."
+      "errorMessage": "Se ha descargado un archivo con los errores detallados.",
+      "selectError": "Por favor selecciona un archivo CSV y una categoría",
+      "success": "Subida masiva completada exitosamente",
+      "error": "Error al subir los productos masivamente"
     },
     "create": {
       "title": "Agregar Producto",

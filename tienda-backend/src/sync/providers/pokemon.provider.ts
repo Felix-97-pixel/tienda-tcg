@@ -1,9 +1,9 @@
 import { TcgProvider } from './base-tcg.provider';
-import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PokemonService } from '../pokemon.service';
 
 export class PokemonProvider extends TcgProvider {
-  constructor(prisma: PrismaService) {
+  constructor(prisma: PrismaService, private readonly pokemonService: PokemonService) {
     super('Pokemon', prisma);
   }
 
@@ -26,32 +26,11 @@ export class PokemonProvider extends TcgProvider {
     return variants;
   }
 
+  /**
+   * Obtiene cartas externas delegando en PokemonService.
+   */
   async fetchExternalSet(setId: string): Promise<any[]> {
-    const allCards = [];
-    let page = 1;
-    const pageSize = 250;
-    let hasMore = true;
-
-    while (hasMore) {
-      try {
-        const url = `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}`;
-        const res = await axios.get(url);
-        const data = res.data;
-
-        if (data.data && data.data.length > 0) {
-          allCards.push(...data.data);
-          if (data.data.length < pageSize) hasMore = false;
-          else page++;
-        } else {
-          hasMore = false;
-        }
-      } catch (error) {
-        this.logger.error(`Error en PokemonTCG API: ${error.message}`);
-        hasMore = false;
-      }
-    }
-
-    return allCards;
+    return this.pokemonService.fetchCardsBySet(setId);
   }
 
   mapToProduct(c: any, categoryId: string) {
@@ -70,14 +49,13 @@ export class PokemonProvider extends TcgProvider {
     };
   }
 
-  /** Actualización de precios usando TCGPlayer (vía PokemonTCG API) */
+  /** Actualización de precios usando TCGPlayer (delegado en PokemonService) */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Pokémon] Iniciando actualización de precios para: "${expansionName}" ===`);
     
     try {
       // 1. Obtener el ID del set por nombre
-      const setsRes = await axios.get(`https://api.pokemontcg.io/v2/sets?q=name:"${expansionName}"`);
-      const set = setsRes.data?.data?.[0];
+      const set = await this.pokemonService.fetchSetByName(expansionName);
       if (!set) {
         this.logger.warn(`[Pokémon] Set "${expansionName}" no encontrado.`);
         return { updated: 0, errors: 1 };
@@ -87,10 +65,12 @@ export class PokemonProvider extends TcgProvider {
       this.logger.log(`[Pokémon] Set ID resuelto: ${setId}. Consultando cartas...`);
 
       // Pre-cargar acabados de Pokémon
-      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Pokemon' } });
-      const holoFinish = await this.prisma.finish.findFirst({ where: { name: 'Holofoil', game: 'Pokemon' } });
-      const reverseFinish = await this.prisma.finish.findFirst({ where: { name: 'Reverse Holofoil', game: 'Pokemon' } });
-      const unlimitedHoloFinish = await this.prisma.finish.findFirst({ where: { name: 'Unlimited Holofoil', game: 'Pokemon' } });
+      const [normalFinish, holoFinish, reverseFinish, unlimitedHoloFinish] = await Promise.all([
+        this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Pokemon' } }),
+        this.prisma.finish.findFirst({ where: { name: 'Holofoil', game: 'Pokemon' } }),
+        this.prisma.finish.findFirst({ where: { name: 'Reverse Holofoil', game: 'Pokemon' } }),
+        this.prisma.finish.findFirst({ where: { name: 'Unlimited Holofoil', game: 'Pokemon' } })
+      ]);
 
       let page = 1;
       const pageSize = 250;
@@ -100,10 +80,7 @@ export class PokemonProvider extends TcgProvider {
       // 2. Recorrer cartas y actualizar precios
       while (hasMore) {
         this.logger.log(`[Pokémon] Consultando página ${page}...`);
-        const url = `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}&select=id,tcgplayer`;
-        const res = await axios.get(url);
-        const cards = res.data?.data ?? [];
-        const totalCards = res.data?.totalCount || cards.length;
+        const { cards, totalCount } = await this.pokemonService.fetchCardsPageWithPrices(setId, page, pageSize);
 
         if (cards.length === 0) break;
 
@@ -139,15 +116,15 @@ export class PokemonProvider extends TcgProvider {
           updatedCount++;
         }
 
-        this.onProgress?.('pokemon', updatedCount, totalCards, 'price');
-        this.logger.log(`[Pokémon] Página ${page} procesada (${updatedCount}/${totalCards} cartas).`);
+        this.onProgress?.('pokemon', updatedCount, totalCount, 'price');
+        this.logger.log(`[Pokémon] Página ${page} procesada (${updatedCount}/${totalCount} cartas).`);
         if (cards.length < pageSize) hasMore = false;
         else page++;
       }
 
       this.logger.log(`[Pokémon] ¡Actualización completada! ${updatedCount} cartas procesadas.`);
       return { updated: updatedCount, errors: 0 };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`[Pokémon] Error: ${error.message}`);
       return { updated: 0, errors: 1 };
     }

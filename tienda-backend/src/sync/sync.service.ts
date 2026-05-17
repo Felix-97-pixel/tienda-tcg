@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import axios from 'axios';
 import { RiftboundProvider } from './providers/riftbound.provider';
 import { MagicProvider } from './providers/magic.provider';
 import { PokemonProvider } from './providers/pokemon.provider';
+import { MagicService } from './magic.service';
+import { PokemonService } from './pokemon.service';
+import { RiftboundService } from './riftbound.service';
 
 @Injectable()
 export class SyncService {
@@ -26,11 +28,16 @@ export class SyncService {
       },
     };
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private magicService: MagicService,
+    private pokemonService: PokemonService,
+    private riftboundService: RiftboundService
+  ) {
     this.providers = {
-      riftbound: new RiftboundProvider(this.prisma),
-      pokemon: new PokemonProvider(this.prisma),
-      magic: new MagicProvider(this.prisma),
+      riftbound: new RiftboundProvider(this.prisma, this.riftboundService),
+      pokemon: new PokemonProvider(this.prisma, this.pokemonService),
+      magic: new MagicProvider(this.prisma, this.magicService),
     };
 
     // Inyectamos el callback para reportar progreso
@@ -126,69 +133,24 @@ export class SyncService {
     return this.providers[gameLower] ? gameLower : '';
   }
 
-  // Los métodos de obtener listas de sets se mantienen por ahora 
-  // ya que son simples GETs, pero también podrían moverse a los providers.
-
   /**
-   * Obtiene la lista de ediciones de Magic desde MTGJSON
+   * Obtiene la lista de ediciones de Magic desde MagicService (MTGJSON)
    */
   async getMtgSets() {
-    const res = await axios.get('https://mtgjson.com/api/v5/SetList.json');
-    const data = res.data?.data || [];
-    // Ordenar por fecha descendente
-    return data.sort((a: any, b: any) =>
-      new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
-    );
+    return this.magicService.fetchSets();
   }
 
   /**
-   * Obtiene la lista de ediciones de Pokemon desde pokemontcg.io
+   * Obtiene la lista de ediciones de Pokemon desde PokemonService (pokemontcg.io)
    */
   async getPokemonSets() {
-    const res = await axios.get('https://api.pokemontcg.io/v2/sets');
-    const data = res.data?.data || [];
-    // Ordenar por fecha descendente
-    return data.sort((a: any, b: any) =>
-      new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
-    );
+    return this.pokemonService.fetchSets();
   }
 
   /**
-   * Obtiene la lista de ediciones de Riftbound desde Riftcodex
+   * Obtiene la lista de ediciones de Riftbound desde RiftboundService (Riftcodex)
    */
   async getRiftboundSets() {
-    try {
-      const res = await axios.get('https://api.riftcodex.com/sets/', {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-      });
-
-      // La API devuelve los sets en la propiedad 'items'
-      let results = [];
-      if (res.data && res.data.items) {
-        results = res.data.items;
-      } else if (res.data && res.data.results) {
-        results = res.data.results;
-      } else if (Array.isArray(res.data)) {
-        results = res.data;
-      }
-
-      const mappedSets = results.map((s: any) => ({
-        id: s.set_id || s.id || '',
-        name: s.name || 'Set sin nombre',
-        release_date: s.published_on || s.release_date || new Date().toISOString()
-      }));
-
-      // Ordenar por fecha descendente
-      return mappedSets.sort((a: any, b: any) => {
-        const dateA = new Date(a.release_date).getTime();
-        const dateB = new Date(b.release_date).getTime();
-        return (dateB || 0) - (dateA || 0);
-      });
-    } catch (error) {
-      console.error('❌ Error al obtener sets de Riftbound:', error.message);
-      return [];
-    }
+    return this.riftboundService.fetchSets();
   }
 }

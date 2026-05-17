@@ -1,9 +1,9 @@
 import { TcgProvider } from './base-tcg.provider';
-import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MagicService } from '../magic.service';
 
 export class MagicProvider extends TcgProvider {
-  constructor(prisma: PrismaService) {
+  constructor(prisma: PrismaService, private readonly magicService: MagicService) {
     super('Magic', prisma);
   }
 
@@ -23,30 +23,11 @@ export class MagicProvider extends TcgProvider {
     return variants.length > 0 ? variants : ['Normal', 'Foil'];
   }
 
+  /**
+   * Obtiene cartas externas delegando en MagicService.
+   */
   async fetchExternalSet(setId: string): Promise<any[]> {
-    const allCards = [];
-    let url = `https://api.scryfall.com/cards/search?q=set:${setId}+-is:digital&unique=prints`;
-    let hasMore = true;
-
-    while (hasMore) {
-      try {
-        const res = await axios.get(url);
-        const data = res.data;
-
-        if (data.data) allCards.push(...data.data);
-
-        if (data.has_more && data.next_page) {
-          url = data.next_page;
-        } else {
-          hasMore = false;
-        }
-      } catch (error) {
-        this.logger.error(`Error en Scryfall API: ${error.message}`);
-        hasMore = false;
-      }
-    }
-
-    return allCards;
+    return this.magicService.fetchCardsBySet(setId);
   }
 
   mapToProduct(c: any, categoryId: string) {
@@ -143,7 +124,7 @@ export class MagicProvider extends TcgProvider {
 
       this.logger.log(`[Magic] ¡Actualización completada! ${updated} productos actualizados.`);
       return { updated, errors: 0 };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error actualizando precios de Magic: ${error.message}`);
       return { updated: 0, errors: 1 };
     }
@@ -152,8 +133,8 @@ export class MagicProvider extends TcgProvider {
   // --- HELPERS ESPECÍFICOS DE MAGIC ---
 
   private async getSetCode(expansion: string): Promise<string | null> {
-    const response = await axios.get('https://api.scryfall.com/sets');
-    const match = response.data?.data?.find((s: any) => s.name?.toLowerCase() === expansion.toLowerCase());
+    const sets = await this.magicService.fetchScryfallSets();
+    const match = sets.find((s: any) => s.name?.toLowerCase() === expansion.toLowerCase());
     return match ? match.code.toUpperCase() : null;
   }
 

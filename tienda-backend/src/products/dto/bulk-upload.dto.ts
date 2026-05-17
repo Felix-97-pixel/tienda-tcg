@@ -35,6 +35,10 @@ export class BulkUploadItemDto {
 
   @IsOptional()
   @IsString()
+  finish?: string;
+
+  @IsOptional()
+  @IsString()
   language?: string;
 
   @IsOptional()
