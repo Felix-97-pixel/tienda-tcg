@@ -112,18 +112,8 @@ export class ProductsService {
 
     const langMap = new Map(languages.map(l => [l.code, l.id]));
     const condMap = new Map(conditions.map(c => [c.name, c.id]));
-    const finishMap = new Map(finishes.map(f => [f.name.toLowerCase(), f.id]));
     const defaultLang = languages.find(l => l.code === 'es')?.id || languages[0]?.id;
     const defaultCond = conditions.find(c => c.name === 'near_mint')?.id || conditions[0]?.id;
-
-    // Mapear finishes comunes a los nombres en nuestra base de datos
-    const finishNameMapping: { [key: string]: string } = {
-      'normal': 'normal',
-      'nonfoil': 'normal',
-      'foil': 'foil',
-      'etched': 'etched foil',
-      'glossy': 'glossy foil'
-    };
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -179,10 +169,12 @@ export class ProductsService {
           const conditionId = condMap.get(item.condition || "") || defaultCond;
           const languageId = langMap.get(item.language || "") || defaultLang;
 
-          // Resolver el finish correcto
+          // Resolver el finish correcto usando alias desde la BD (Data-Driven)
           const csvFinish = (item.finish || "").toLowerCase().trim();
-          const mappedFinishName = finishNameMapping[csvFinish] || csvFinish;
-          const finishId = item.finishId || finishMap.get(mappedFinishName) || null;
+          const matchedFinish = finishes.find(f =>
+            f.name.toLowerCase() === csvFinish || f.aliases.includes(csvFinish)
+          );
+          const finishId = item.finishId || matchedFinish?.id || null;
 
           const existingItem = product.items.find(i =>
             i.conditionId === conditionId &&

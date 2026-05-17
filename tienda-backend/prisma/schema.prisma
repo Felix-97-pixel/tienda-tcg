@@ -77,10 +77,11 @@ model InventoryItem {
 }
 
 model Finish {
-  id    String @id @default(uuid())
-  name  String 
-  game  String 
-  items InventoryItem[]
+  id      String          @id @default(uuid())
+  name    String 
+  game    String 
+  aliases String[]        @default([])
+  items   InventoryItem[]
 
   @@unique([name, game])
 }
