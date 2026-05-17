@@ -48,14 +48,20 @@ const QuickViewModal = () => {
   };
 
   const handleItemToWishList = async () => {
-    dispatch(
-      addItemToWishlist({
-        ...product,
-        status: "available",
-        quantity: 1,
-      })
-    );
-    showToast(tw("added", { title: product.title }), "info");
+    const wishItem = {
+      id: product.id,
+      title: product.title || product.name,
+      price: product.price || 0,
+      discountedPrice: product.discountedPrice || 0,
+      quantity: 1,
+      status: "available",
+      imgs: product.imgs || {
+        thumbnails: [product.imageUrl || "/images/products/product-1-bg-1.png"],
+        previews: [product.imageUrl || "/images/products/product-1-bg-1.png"],
+      },
+    };
+    dispatch(addItemToWishlist(wishItem));
+    showToast(tw("added", { title: wishItem.title }), "info");
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${product.id}`, { method: 'POST', credentials: 'include' });
@@ -115,7 +121,7 @@ const QuickViewModal = () => {
             <div className="max-w-[526px] w-full">
               <div className="flex gap-5">
                 <div className="flex flex-col gap-5">
-                  {product.imgs.thumbnails?.map((img, key) => (
+                  {product.imgs?.thumbnails?.map((img, key) => (
                     <button
                       onClick={() => setActivePreview(key)}
                       key={key}

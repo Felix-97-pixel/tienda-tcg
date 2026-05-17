@@ -22,13 +22,19 @@ const SingleItem = ({ item }: { item: Product }) => {
   };
 
   const handleItemToWishList = () => {
-    dispatch(
-      addItemToWishlist({
-        ...item,
-        status: "available",
-        quantity: 1,
-      })
-    );
+    const wishItem = {
+      id: item.id,
+      title: item.title || item.name,
+      price: item.price || 0,
+      discountedPrice: item.discountedPrice || 0,
+      quantity: 1,
+      status: "available",
+      imgs: item.imgs || {
+        thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+      },
+    };
+    dispatch(addItemToWishlist(wishItem));
   };
 
   return (
@@ -73,12 +79,14 @@ const SingleItem = ({ item }: { item: Product }) => {
           </div>
 
           <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
-            <Link href="/shop-details"> {item.title} </Link>
+            <Link href="/shop-details"> {item.title || item.name} </Link>
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
-            <span className="text-dark">${item.discountedPrice}</span>
-            <span className="text-dark-4 line-through">${item.price}</span>
+            <span className="text-dark">${item.discountedPrice ?? item.price ?? 0}</span>
+            {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
+              <span className="text-dark-4 line-through">${item.price}</span>
+            )}
           </span>
         </div>
 
