@@ -1,27 +1,8 @@
-export interface InventoryItem {
-  id: string;
-  price: number;
-  stock: number;
-  condition: string;
-  finishId?: string;
-  languageId?: string;
-  conditionId?: string;
-  language?: { name: string };
-  condition_rel?: { name: string };
-  finish?: { name: string };
-}
+import { InventoryItem } from './inventoryItem';
+import { Category } from './productCategory';
+import { Brand } from './brand';
 
-export interface Category {
-  id: string;
-  name: string;
-  isTcg: boolean;
-  slug?: string;
-}
 
-export interface Brand {
-  id: string;
-  name: string;
-}
 
 export interface Product {
   id: string;

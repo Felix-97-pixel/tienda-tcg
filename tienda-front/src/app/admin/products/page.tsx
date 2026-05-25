@@ -4,7 +4,9 @@ import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { useAdminProducts } from "@/hooks/useAdminProducts";
-import { Product, Category, Brand } from "@/types/product";
+import { Product } from "@/types/product";
+import { Category } from "@/types/productCategory";
+import { Brand } from "@/types/brand";
 
 // Componentes Extraídos
 import ProductFilters from "@/components/Admin/Products/ProductFilters";

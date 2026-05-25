@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
-import { Product, InventoryItem } from "@/types/product";
+import { Product } from "@/types/product";
+import { InventoryItem } from "@/types/inventoryItem";
 import SearchableSelect from "@/components/Common/SearchableSelect";
 
 interface InventoryModalProps {

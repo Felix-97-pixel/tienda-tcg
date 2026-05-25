@@ -6,7 +6,8 @@ import Newsletter from "../Common/Newsletter";
 import RecentlyViewdItems from "./RecentlyViewd";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { useAppSelector } from "@/redux/store";
-import { Product, InventoryItem } from "@/types/product";
+import { Product } from "@/types/product";
+import { InventoryItem } from "@/types/inventoryItem";
 
 const ShopDetails = () => {
   const [activeColor, setActiveColor] = useState("blue");
