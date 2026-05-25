@@ -393,7 +393,7 @@
     "noData": "Sin datos para el período seleccionado"
   },
   "wishlist": {
-    "title": "Análisis de Wishlist",
+    "adminTitle": "Análisis de Wishlist",
     "subtitle": "Descubre los productos más deseados por tus clientes",
     "stats": {
       "total": "{count} Deseos totales",

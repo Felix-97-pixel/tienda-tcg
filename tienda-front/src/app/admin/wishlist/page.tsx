@@ -112,7 +112,7 @@ export default function AdminWishlist() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-dark tracking-tight">{t("title")}</h1>
+          <h1 className="text-2xl font-bold text-dark tracking-tight">{t("adminTitle")}</h1>
           <p className="text-dark-4 text-sm font-medium mt-1">{t("subtitle")}</p>
         </div>
         <div className="px-4 py-2 rounded-2xl bg-pink-50 border border-pink-100 flex items-center gap-2">
