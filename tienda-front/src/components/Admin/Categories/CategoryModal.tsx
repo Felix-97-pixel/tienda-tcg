@@ -7,6 +7,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 interface Category {
   id: string;
@@ -150,18 +151,11 @@ export default function CategoryModal({ isOpen, onClose, category, onSuccess }: 
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-stroke">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                className="sr-only peer"
-                checked={formData.isTcg}
-                onChange={(e) => setFormData({ ...formData, isTcg: e.target.checked })}
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue"></div>
-            </label>
-            <span className="text-sm font-bold text-dark">{t("modal.isTcgLabel")}</span>
-          </div>
+          <Checkbox
+            checked={formData.isTcg}
+            onChange={(e) => setFormData({ ...formData, isTcg: e.target.checked })}
+            label={t("modal.isTcgLabel")}
+          />
 
           <div className="mt-8 flex gap-3">
             <Button
