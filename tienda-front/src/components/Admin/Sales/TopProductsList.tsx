@@ -2,17 +2,8 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
-
-interface TopProduct {
-  productId: string;
-  productName: string;
-  totalUnits: number;
-  timesOrdered: number;
-}
-
-interface TopProductsListProps {
-  products: TopProduct[];
-}
+import { TopProduct } from "@/types/adminSale";
+import { TopProductsListProps } from "@/types/adminProps";
 
 export default function TopProductsList({ products }: TopProductsListProps) {
   const t = useTranslations("sales");

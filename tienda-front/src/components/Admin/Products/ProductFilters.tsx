@@ -2,17 +2,7 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
-
-interface ProductFiltersProps {
-  searchTerm: string;
-  onSearchChange: (val: string) => void;
-  selectedCategory: string;
-  onCategoryChange: (val: string) => void;
-  selectedExpansion: string;
-  onExpansionChange: (val: string) => void;
-  categories: { id: string, name: string }[];
-  expansions: { name: string, products: number }[];
-}
+import { ProductFiltersProps } from "@/types/adminProps";
 
 export default function ProductFilters({
   searchTerm,

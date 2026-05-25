@@ -9,21 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Modal } from "@/components/ui/Modal";
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  imageUrl?: string;
-  isTcg?: boolean;
-}
-
-interface CategoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  category: Category | null;
-  onSuccess: () => void;
-}
+import { AdminCategory as Category } from "@/types/adminCategory";
+import { CategoryModalProps } from "@/types/adminProps";
 
 export default function CategoryModal({ isOpen, onClose, category, onSuccess }: CategoryModalProps) {
   const t = useTranslations("categories");

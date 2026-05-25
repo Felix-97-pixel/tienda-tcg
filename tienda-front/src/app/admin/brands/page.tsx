@@ -10,11 +10,7 @@ import BrandTable from "@/components/Admin/Brands/BrandTable";
 import BrandModal from "@/components/Admin/Brands/BrandModal";
 import { Button } from "@/components/ui/Button";
 
-interface Brand {
-  id: string;
-  name: string;
-  imageUrl?: string;
-}
+import { Brand } from "@/types/brand";
 
 export default function AdminBrands() {
   const t = useTranslations("brands");

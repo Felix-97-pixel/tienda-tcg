@@ -3,29 +3,10 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
+import { Order } from "@/types/order";
+import { OrderTableProps } from "@/types/adminProps";
 
 const LIMIT_PLACEHOLDER = 8;
-
-interface Order {
-  id: string;
-  buyOrder: string;
-  name: string;
-  email: string;
-  totalAmount: string;
-  status: string;
-  createdAt: string;
-}
-
-interface OrderTableProps {
-  orders: Order[];
-  loading: boolean;
-  statusClasses: Record<string, string>;
-  statusLabel: (status: string) => string;
-  onViewDetails: (order: Order) => void;
-  page?: number;
-  totalPages?: number;
-  onPageChange?: (page: number) => void;
-}
 
 export default function OrderTable({ orders, loading, statusClasses, statusLabel, onViewDetails, page, totalPages, onPageChange }: OrderTableProps) {
   const t = useTranslations("orders");

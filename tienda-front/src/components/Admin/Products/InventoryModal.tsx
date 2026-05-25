@@ -8,13 +8,7 @@ import { Modal } from "@/components/ui/Modal";
 import { InventoryItem } from "@/types/inventoryItem";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
-
-interface InventoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  product: Product | null;
-  onSuccess: () => void;
-}
+import { InventoryModalProps } from "@/types/adminProps";
 
 export default function InventoryModal({ isOpen, onClose, product: initialProduct, onSuccess }: InventoryModalProps) {
   const t = useTranslations("products");

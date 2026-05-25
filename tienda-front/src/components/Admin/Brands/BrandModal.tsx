@@ -8,19 +8,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
-
-interface Brand {
-  id: string;
-  name: string;
-  imageUrl?: string;
-}
-
-interface BrandModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  brand: Brand | null;
-  onSuccess: () => void;
-}
+import { Brand } from "@/types/brand";
+import { BrandModalProps } from "@/types/adminProps";
 
 export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandModalProps) {
   const t = useTranslations("brands");

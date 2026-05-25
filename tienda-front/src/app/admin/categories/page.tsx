@@ -10,13 +10,7 @@ import CategoryTable from "@/components/Admin/Categories/CategoryTable";
 import CategoryModal from "@/components/Admin/Categories/CategoryModal";
 import { Button } from "@/components/ui/Button";
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  imageUrl?: string;
-  isTcg?: boolean;
-}
+import { AdminCategory as Category } from "@/types/adminCategory";
 
 export default function AdminCategories() {
   const t = useTranslations("categories");

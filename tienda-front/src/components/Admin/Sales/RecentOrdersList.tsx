@@ -3,18 +3,8 @@ import React from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
-
-interface RecentOrder {
-  id: string;
-  buyOrder: string;
-  name: string;
-  totalAmount: string;
-  createdAt: string;
-}
-
-interface RecentOrdersListProps {
-  orders: RecentOrder[];
-}
+import { RecentOrder } from "@/types/adminSale";
+import { RecentOrdersListProps } from "@/types/adminProps";
 
 export default function RecentOrdersList({ orders }: RecentOrdersListProps) {
   const t = useTranslations("sales");

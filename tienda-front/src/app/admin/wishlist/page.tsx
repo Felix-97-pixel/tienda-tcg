@@ -5,17 +5,7 @@ import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { List, Column } from "@/components/ui/List";
-
-interface Product {
-  id: string;
-  name: string;
-  categoryId: string;
-  imageUrl?: string;
-  category?: { name: string };
-  cardDetail?: { expansion: string; rarity: string };
-  items: any[];
-  wishlistCount?: number;
-}
+import { Product } from "@/types/product";
 
 export default function AdminWishlist() {
   const t = useTranslations("wishlist");
