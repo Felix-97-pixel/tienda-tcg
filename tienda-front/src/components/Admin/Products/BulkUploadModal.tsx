@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
-import SearchableSelect from "@/components/Common/SearchableSelect";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 import Papa from "papaparse";
 
 interface BulkUploadModalProps {

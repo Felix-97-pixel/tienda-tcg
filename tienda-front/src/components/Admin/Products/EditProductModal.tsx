@@ -4,7 +4,7 @@ import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import SearchableSelect from "@/components/Common/SearchableSelect";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 import Image from "next/image";
 
 interface EditProductModalProps {

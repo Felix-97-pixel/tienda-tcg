@@ -35,6 +35,9 @@ const ShopWithoutSidebar = () => {
             price: parseFloat(defaultPrice),
             discountedPrice: parseFloat(defaultPrice),
             inventoryItemId: item.items?.[0]?.id ?? undefined,
+            description: item.description,
+            cardDetail: item.cardDetail,
+            items: item.items || [],
             imgs: {
               thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
               previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],

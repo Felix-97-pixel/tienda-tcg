@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import PreLoader from "@/components/Common/PreLoader";
-import SearchableSelect from "@/components/Common/SearchableSelect";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 import ProgressDisplay from "@/components/Sync/ProgressDisplay";
 import { useTcgSync } from "@/hooks/useTcgSync";
 

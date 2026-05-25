@@ -128,26 +128,10 @@ export default function AdminProducts() {
         onEdit={openEdit}
         onInventory={(p) => { setSelectedProduct(p); setIsInventoryOpen(true); }}
         onDelete={handleDelete}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
       />
-
-      {/* Paginación Simple */}
-      <div className="flex justify-between items-center bg-white rounded-2xl p-4 shadow-1">
-        <button 
-          disabled={page === 1} 
-          onClick={() => setPage(page - 1)}
-          className="px-4 py-2 rounded-xl border border-stroke text-sm font-bold text-dark-4 hover:bg-gray-1 disabled:opacity-30 transition-all"
-        >
-          {tc("previous")}
-        </button>
-        <span className="text-sm font-bold text-dark-4">{tc("page", { current: page, total: totalPages })}</span>
-        <button 
-          disabled={page === totalPages || totalPages === 0} 
-          onClick={() => setPage(page + 1)}
-          className="px-4 py-2 rounded-xl border border-stroke text-sm font-bold text-dark-4 hover:bg-gray-1 disabled:opacity-30 transition-all"
-        >
-          {tc("next")}
-        </button>
-      </div>
 
       {/* Modales */}
       <CreateProductModal 

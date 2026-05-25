@@ -3,7 +3,7 @@ import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
-import SearchableSelect from "../Common/SearchableSelect";
+import SearchableSelect from "../ui/SearchableSelect";
 import SizeDropdown from "./SizeDropdown";
 import ColorsDropdwon from "./ColorsDropdwon";
 import PriceDropdown from "./PriceDropdown";
@@ -131,6 +131,8 @@ const ShopWithSidebar = () => {
               },
               stock: parseInt(defaultStock, 10),
               imageUrl: item.imageUrl,
+              description: item.description,
+              cardDetail: item.cardDetail,
               items: item.items || [],
               imgs: {
                 thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],

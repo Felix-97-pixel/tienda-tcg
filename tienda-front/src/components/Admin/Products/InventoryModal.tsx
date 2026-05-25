@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { Product } from "@/types/product";
 import { InventoryItem } from "@/types/inventoryItem";
-import SearchableSelect from "@/components/Common/SearchableSelect";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
 interface InventoryModalProps {
   isOpen: boolean;

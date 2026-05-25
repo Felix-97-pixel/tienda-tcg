@@ -75,28 +75,10 @@ export default function AdminOrdersPage() {
         statusClasses={STATUS_CLS}
         statusLabel={statusLabel}
         onViewDetails={setSelectedOrder}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
       />
-
-      {/* Paginación */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white rounded-2xl p-4 shadow-1">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-            className="px-4 py-2 rounded-xl border border-stroke text-sm font-bold text-dark-4 hover:bg-gray-1 disabled:opacity-30 transition-all"
-          >
-            {tc("previous")}
-          </button>
-          <span className="text-sm font-bold text-dark-4">{tc("page", { current: page, total: totalPages })}</span>
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className="px-4 py-2 rounded-xl border border-stroke text-sm font-bold text-dark-4 hover:bg-gray-1 disabled:opacity-30 transition-all"
-          >
-            {tc("next")}
-          </button>
-        </div>
-      )}
 
       {/* Modal Detalles */}
       <OrderDetailsModal 

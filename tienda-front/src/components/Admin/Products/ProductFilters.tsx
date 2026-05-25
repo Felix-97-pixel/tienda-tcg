@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
-import SearchableSelect from "@/components/Common/SearchableSelect";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
 interface ProductFiltersProps {
   searchTerm: string;

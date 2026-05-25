@@ -1,19 +1,18 @@
 "use client";
 import { API_URL } from "@/utils/api";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { AppDispatch, useAppSelector } from "@/redux/store";
-import { addItemToCart } from "@/redux/features/cart-slice";
 import { addItemToWishlist } from "@/redux/features/wishlist-slice";
 import { useDispatch } from "react-redux";
 import Image from "next/image";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
-import { resetQuickView } from "@/redux/features/quickView-slice";
 import { updateproductDetails } from "@/redux/features/product-details";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
 import { useTranslations } from "next-intl";
+import { Select } from "@/components/ui/Select";
 
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
@@ -24,7 +23,68 @@ const QuickViewModal = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // get the product data
-  const product = useAppSelector((state) => state.quickViewReducer.value);
+  const originalProduct = useAppSelector((state) => state.quickViewReducer.value);
+  const isTcgProduct = !!originalProduct?.cardDetail || originalProduct?.category?.isTcg === true;
+
+  const getLangName = (i: any) => i.language?.name || (typeof i.language === 'string' ? i.language : null);
+  const getFinishName = (i: any) => i.finish?.name || (typeof i.finish === 'string' ? i.finish : null);
+  const getCondName = (i: any) => i.condition_rel?.name || i.condition?.name || (typeof i.condition === 'string' ? i.condition : null);
+
+  const availableLanguages = useMemo(() => Array.from(new Set(originalProduct.items?.map(getLangName).filter(Boolean))) as string[], [originalProduct]);
+  const availableFinishes = useMemo(() => Array.from(new Set(originalProduct.items?.map(getFinishName).filter(Boolean))) as string[], [originalProduct]);
+
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
+  const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
+
+  const availableConditions = useMemo(() => {
+    if (!originalProduct?.items) return [];
+    let items = originalProduct.items;
+
+    if (selectedLanguage) {
+      items = items.filter((i: any) => getLangName(i) === selectedLanguage);
+    }
+    if (selectedFinish) {
+      items = items.filter((i: any) => getFinishName(i) === selectedFinish);
+    }
+
+    return Array.from(new Set(items.map(getCondName).filter(Boolean))) as string[];
+  }, [originalProduct, selectedLanguage, selectedFinish]);
+
+  useEffect(() => {
+    if (availableConditions.length > 0 && selectedCondition && !availableConditions.includes(selectedCondition)) {
+      setSelectedCondition(availableConditions[0]);
+    }
+  }, [availableConditions, selectedCondition]);
+
+  useEffect(() => {
+    if (originalProduct?.items && originalProduct.items.length > 0) {
+      setSelectedLanguage(getLangName(originalProduct.items[0]));
+      setSelectedFinish(getFinishName(originalProduct.items[0]));
+      setSelectedCondition(getCondName(originalProduct.items[0]));
+    }
+  }, [originalProduct]);
+
+  const selectedItem = useMemo(() => {
+    if (!originalProduct?.items) return null;
+    return originalProduct.items.find((i: any) => 
+      getLangName(i) === selectedLanguage &&
+      getFinishName(i) === selectedFinish &&
+      getCondName(i) === selectedCondition
+    ) || null;
+  }, [originalProduct, selectedLanguage, selectedFinish, selectedCondition]);
+
+  const product = useMemo(() => {
+    if (!selectedItem) return originalProduct;
+    return {
+      ...originalProduct,
+      price: selectedItem.price,
+      discountedPrice: selectedItem.price,
+      stock: selectedItem.stock,
+      inventoryItemId: selectedItem.id,
+    };
+  }, [originalProduct, selectedItem]);
+
   const { handleAddToCart: addToCart, isMaxStockReached, availableStock } = useProductCart(product);
   const { showToast } = useToast();
 
@@ -65,7 +125,7 @@ const QuickViewModal = () => {
     if (isAuthenticated) {
       try {
         await fetch(`${API_URL}/wishlist/${product.id}`, { method: 'POST', credentials: 'include' });
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -128,7 +188,7 @@ const QuickViewModal = () => {
                       className={`flex items-center justify-center w-20 h-20 overflow-hidden rounded-lg bg-gray-1 ease-out duration-200 hover:border-2 hover:border-blue ${activePreview === key && "border-2 border-blue"
                         }`}
                     >
-                      <Image 
+                      <Image
                         src={img || ""}
                         alt="thumbnail"
                         width={61}
@@ -164,7 +224,7 @@ const QuickViewModal = () => {
                     </button>
 
                     {product?.imgs?.previews?.[activePreview] && (
-                      <Image className="w-auto h-auto" 
+                      <Image className="w-auto h-auto"
                         src={product.imgs.previews[activePreview]}
                         alt="products-details"
                         width={400}
@@ -329,10 +389,50 @@ const QuickViewModal = () => {
                 </div>
               </div>
 
-              <p>
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has.
-              </p>
+              {product?.description && (
+                <p className="whitespace-pre-line text-sm text-dark-4">
+                  {product.description}
+                </p>
+              )}
+
+              {isTcgProduct && (availableLanguages.length > 0 || availableFinishes.length > 0 || availableConditions.length > 0) && (
+                <div className="grid grid-cols-12 gap-3 mt-6 border-t border-stroke pt-5">
+                  {availableLanguages.length > 0 && (
+                    <div className="col-span-6 sm:col-span-4 flex flex-col">
+                      <label className="text-sm font-medium mb-2 text-dark truncate" title="Idioma">Idioma</label>
+                      <Select
+                        value={selectedLanguage || ""}
+                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                        options={availableLanguages.map((l) => ({ value: l, label: l }))}
+                      />
+                    </div>
+                  )}
+                  {availableFinishes.length > 0 && (
+                    <div className="col-span-6 sm:col-span-4 flex flex-col">
+                      <label className="text-sm font-medium mb-2 text-dark truncate" title="Acabado (Foil / Normal)">Acabado</label>
+                      <Select
+                        value={selectedFinish || ""}
+                        onChange={(e) => setSelectedFinish(e.target.value)}
+                        options={availableFinishes.map((f) => ({ value: f, label: f }))}
+                      />
+                    </div>
+                  )}
+                  {availableConditions.length > 0 && (
+                    <div className="col-span-6 sm:col-span-4 flex flex-col">
+                      <label className="text-sm font-medium mb-2 text-dark truncate" title="Condición">Condición</label>
+                      <Select
+                        value={selectedCondition || ""}
+                        onChange={(e) => setSelectedCondition(e.target.value)}
+                        options={availableConditions.map((c) => ({ value: c, label: c }))}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {isTcgProduct && originalProduct?.items?.length > 0 && !selectedItem && (
+                <p className="text-red font-medium mt-4">Esta combinación no está disponible.</p>
+              )}
 
               <div className="flex flex-wrap justify-between gap-5 mt-6 mb-7.5">
                 <div>
@@ -389,11 +489,10 @@ const QuickViewModal = () => {
                     <button
                       onClick={() => setQuantity(quantity + 1)}
                       aria-label="button for add product"
-                      className={`flex items-center justify-center w-10 h-10 rounded-[5px] bg-gray-2 ease-out duration-200 ${
-                        product?.stock === 0 || quantity >= availableStock
+                      className={`flex items-center justify-center w-10 h-10 rounded-[5px] bg-gray-2 ease-out duration-200 ${product?.stock === 0 || quantity >= availableStock
                           ? "text-gray-4 cursor-not-allowed"
                           : "text-dark hover:text-blue"
-                      }`}
+                        }`}
                       disabled={product?.stock === 0 || quantity >= availableStock}
                     >
                       <svg
@@ -425,12 +524,11 @@ const QuickViewModal = () => {
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={product?.stock === 0 || isMaxStockReached}
-                  className={`inline-flex py-3 px-6 rounded-md ease-out duration-200 ${
-                    product?.stock === 0 || isMaxStockReached
+                  disabled={product?.stock === 0 || isMaxStockReached || (isTcgProduct && originalProduct?.items?.length > 0 && !selectedItem)}
+                  className={`inline-flex py-3 px-6 rounded-md ease-out duration-200 ${product?.stock === 0 || isMaxStockReached || (isTcgProduct && originalProduct?.items?.length > 0 && !selectedItem)
                       ? "bg-gray-4 cursor-not-allowed text-dark-4"
                       : "text-white bg-blue hover:bg-blue-dark"
-                  }`}
+                    }`}
                 >
                   {product?.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
                 </button>
