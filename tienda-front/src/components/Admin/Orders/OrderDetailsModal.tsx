@@ -12,6 +12,8 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
 
   const formatMoney = (val: string) => `$${parseFloat(val).toLocaleString("es-CL")}`;
 
+  if (!isOpen || !order) return null;
+
   return (
     <Modal 
       isOpen={isOpen} 

@@ -118,6 +118,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     }
   };
 
+  if (!isOpen || !product) return null;
+
   return (
     <Modal
       isOpen={isOpen}
