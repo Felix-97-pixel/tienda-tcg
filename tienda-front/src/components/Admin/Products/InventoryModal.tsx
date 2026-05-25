@@ -4,6 +4,7 @@ import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { Product } from "@/types/product";
+import { Modal } from "@/components/ui/Modal";
 import { InventoryItem } from "@/types/inventoryItem";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
@@ -57,8 +58,6 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       }
     }
   }, [isOpen, product?.cardDetail?.game]);
-
-  if (!isOpen || !product) return null;
 
   const handleAddVariation = async () => {
     if (!newVariation.languageId || !newVariation.conditionId) {
@@ -126,12 +125,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-dark">{t("inventory.title")} - <span className="text-blue">{product.name}</span></h2>
-          <button onClick={onClose} className="text-dark-4 hover:text-dark">✕</button>
-        </div>
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={<>{t("inventory.title")} - <span className="text-blue">{product?.name}</span></>}
+      maxWidth="4xl"
+    >
 
         {/* Formulario Nueva Variación */}
         <div className="mb-8 p-5 bg-gray-1 rounded-2xl border border-stroke">
@@ -259,7 +258,6 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             {tc("close")}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

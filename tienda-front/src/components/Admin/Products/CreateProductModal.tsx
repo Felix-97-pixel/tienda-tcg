@@ -8,6 +8,7 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
+import { Modal } from "@/components/ui/Modal";
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -65,10 +66,13 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide">
-        <h2 className="mb-6 text-xl font-bold text-dark">{t("modal.createTitle")}</h2>
-
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={t("modal.createTitle")}
+      maxWidth="3xl"
+    >
+      <div className="space-y-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Nombre */}
           <div className="md:col-span-2">
@@ -190,6 +194,6 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
           </Button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -2,6 +2,7 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 
 interface OrderItem {
   id: string;
@@ -39,38 +40,36 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
   const t = useTranslations("orders");
   const tc = useTranslations("common");
 
-  if (!isOpen || !order) return null;
+  const formatMoney = (val: string) => `$${parseFloat(val).toLocaleString("es-CL")}`;
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-[560px] max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200" 
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-stroke">
-          <div>
-            <h2 className="font-bold text-dark text-xl">{t("detail.title")} <span className="text-blue">#{order.buyOrder}</span></h2>
-            <p className="text-dark-4 text-xs mt-0.5">{order.email}</p>
-          </div>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-1 text-dark-4 transition-all">✕</button>
-        </div>
-
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose}
+      title={`${t("detail.title")} #${order?.buyOrder}`}
+      maxWidth="xl"
+    >
         {/* Content */}
-        <div className="p-8 overflow-y-auto space-y-6 scrollbar-hide">
+        <div className="space-y-6">
           {/* Summary Card */}
           <div className="bg-gray-1 rounded-2xl p-6 space-y-3 border border-stroke">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-dark-4 font-medium">{t("table.customer")}</span>
-              <span className="font-bold text-dark">{order.name}</span>
+               <span className="text-dark-4 font-medium">{t("table.customer")}</span>
+               <span className="font-bold text-dark">{order?.name}</span>
             </div>
-            {order.phone && (
+            {order?.email && (
+              <div className="flex justify-between items-center text-sm">
+                 <span className="text-dark-4 font-medium">Email</span>
+                 <span className="font-bold text-dark">{order.email}</span>
+              </div>
+            )}
+            {order?.phone && (
               <div className="flex justify-between items-center text-sm">
                 <span className="text-dark-4 font-medium">{t("detail.phone")}</span>
                 <span className="font-bold text-dark">{order.phone}</span>
               </div>
             )}
-            {order.city && (
+            {order?.city && (
               <div className="flex justify-between items-center text-sm">
                 <span className="text-dark-4 font-medium">{t("detail.city")}</span>
                 <span className="font-bold text-dark">{order.city}</span>
@@ -113,7 +112,7 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-stroke bg-gray-50 flex justify-end">
+        <div className="mt-8 flex justify-end">
           <Button
             onClick={onClose}
             variant="secondary"
@@ -121,7 +120,6 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
             {tc("close")}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

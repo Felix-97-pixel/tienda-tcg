@@ -8,6 +8,7 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
+import { Modal } from "@/components/ui/Modal";
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -86,10 +87,12 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="mb-6 text-xl font-bold text-dark">{t("modal.editTitle")}</h2>
-
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={t("modal.editTitle")}
+      maxWidth="xl"
+    >
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.nameLabel")}</label>
@@ -196,7 +199,6 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
             {uploadingImage ? t("modal.uploading") : tc("save")}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

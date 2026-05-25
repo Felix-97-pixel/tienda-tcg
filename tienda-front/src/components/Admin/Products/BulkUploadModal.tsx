@@ -7,6 +7,7 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import Papa from "papaparse";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
+import { Modal } from "@/components/ui/Modal";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -23,8 +24,6 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleUpload = async () => {
     if (!bulkFile || !bulkCategory) {
@@ -117,10 +116,13 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="mb-2 text-xl font-bold text-dark">{t("bulk.title")}</h2>
-        <p className="mb-6 text-sm text-dark-4">{t("bulk.subtitle")}</p>
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={t("bulk.title")}
+      maxWidth="lg"
+    >
+        <p className="mb-8 text-sm font-medium leading-relaxed text-dark-4">{t("bulk.subtitle")}</p>
         
         <div className="space-y-4">
           <div>
@@ -158,7 +160,6 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             {isUploading ? tc("loading") : t("bulk.uploadButton")}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

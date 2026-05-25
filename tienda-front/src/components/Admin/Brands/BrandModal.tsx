@@ -7,6 +7,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
+import { Modal } from "@/components/ui/Modal";
 
 interface Brand {
   id: string;
@@ -65,13 +66,13 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="mb-6 text-xl font-bold text-dark">
-          {brand ? t("modal.editTitle") : t("modal.createTitle")}
-        </h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-5">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={brand ? t("modal.editTitle") : t("modal.createTitle")}
+      maxWidth="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="mb-2 block text-sm font-medium text-dark">{t("modal.nameLabel")}</label>
             <input
@@ -139,7 +140,6 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
