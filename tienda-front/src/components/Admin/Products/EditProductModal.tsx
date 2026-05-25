@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/useToast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
+import { FileInput } from "@/components/ui/FileInput";
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -147,11 +149,11 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
             <div className="flex items-center gap-4">
               <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border border-stroke flex items-center justify-center">
                 {form.imageUrl ? (
-                  <div className="relative h-full w-full">
+                  <div className="relative h-full w-full group">
                     <Image src={form.imageUrl} alt="Preview" fill className="object-cover" />
                     <button
                       onClick={() => { handleRemove(form.imageUrl); setForm({ ...form, imageUrl: "" }); }}
-                      className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow-sm hover:bg-red-600"
+                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
                     >
                       ✕
                     </button>
@@ -160,8 +162,8 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
                   <span className="text-[10px] text-dark-4 font-bold uppercase">{t("modal.noImage")}</span>
                 )}
               </div>
-              <input
-                type="file"
+              <FileInput
+                accept="image/*"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
@@ -170,26 +172,29 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
                   }
                 }}
                 disabled={uploadingImage}
-                className="flex-1 cursor-pointer text-xs text-dark-4 file:mr-3 file:rounded-lg file:border-0 file:bg-blue/10 file:px-3 file:py-2 file:font-bold file:text-blue hover:file:bg-blue/20 transition-all"
               />
             </div>
           </div>
         </div>
 
         <div className="mt-8 flex gap-3">
-          <button
+          <Button
+            type="button"
+            variant="secondary"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-stroke py-3 font-bold text-dark-4 hover:bg-gray-1 transition-all"
+            fullWidth
           >
             {tc("cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="success"
             onClick={handleUpdate}
-            disabled={uploadingImage}
-            className="flex-1 rounded-xl btn-green py-3 font-bold shadow-lg shadow-green-600/20 transition-all active:scale-95 disabled:opacity-50"
+            isLoading={uploadingImage}
+            fullWidth
           >
             {uploadingImage ? t("modal.uploading") : tc("save")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

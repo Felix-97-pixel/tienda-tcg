@@ -6,6 +6,7 @@ import PreLoader from "@/components/Common/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import ProgressDisplay from "@/components/Sync/ProgressDisplay";
 import { useTcgSync } from "@/hooks/useTcgSync";
+import { Button } from "@/components/ui/Button";
 
 export default function AdminSync() {
   const t = useTranslations("sync");
@@ -81,8 +82,6 @@ export default function AdminSync() {
     },
   ];
 
-  const buttonClass = "w-full mt-4 bg-blue text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed";
-
   return (
     <div className="p-6 space-y-6 pb-24">
       {anyLoading && <PreLoader message={tCommon("loading")} />}
@@ -119,13 +118,15 @@ export default function AdminSync() {
                 />
               </div>
               
-              <button 
+              <Button 
                 onClick={game.sync.syncSet} 
                 disabled={isAnyActive}
-                className={buttonClass}
+                isLoading={game.sync.importProgress.active}
+                fullWidth
+                className="mt-4"
               >
                 {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
-              </button>
+              </Button>
 
               <ProgressDisplay 
                 progress={game.sync.importProgress} 
@@ -150,13 +151,15 @@ export default function AdminSync() {
                 />
               </div>
               
-              <button 
+              <Button 
                 disabled={isAnyActive}
                 onClick={game.sync.syncPrices} 
-                className={buttonClass}
+                isLoading={game.sync.priceProgress.active}
+                fullWidth
+                className="mt-4"
               >
                 {game.sync.priceProgress.active ? t("inProgress") : game.priceBtn}
-              </button>
+              </Button>
               
               <ProgressDisplay 
                 progress={game.sync.priceProgress} 

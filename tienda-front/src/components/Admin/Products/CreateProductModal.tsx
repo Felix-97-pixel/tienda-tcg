@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/useToast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
+import { FileInput } from "@/components/ui/FileInput";
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -128,11 +130,11 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
             <div className="flex items-center gap-4">
               <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border-2 border-dashed border-stroke flex items-center justify-center">
                 {creatingProduct.imageUrl ? (
-                  <div className="relative h-full w-full">
+                  <div className="relative h-full w-full group">
                     <Image src={creatingProduct.imageUrl} alt="Preview" fill className="object-cover" />
                     <button
                       onClick={() => { handleRemove(creatingProduct.imageUrl); setCreatingProduct({ ...creatingProduct, imageUrl: "" }); }}
-                      className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition-all"
+                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
                     >
                       ✕
                     </button>
@@ -141,8 +143,8 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
                   <span className="text-[10px] text-dark-4 text-center px-1 font-bold uppercase">{t("modal.noImage")}</span>
                 )}
               </div>
-              <input
-                type="file"
+              <FileInput
+                accept="image/*"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
@@ -151,7 +153,6 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
                   }
                 }}
                 disabled={uploadingImage}
-                className="flex-1 cursor-pointer text-sm text-dark-4 file:mr-4 file:rounded-lg file:border-0 file:bg-blue/10 file:px-4 file:py-2 file:text-xs file:font-bold file:text-blue hover:file:bg-blue/20 transition-all"
               />
             </div>
           </div>
@@ -170,19 +171,23 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
         </div>
 
         <div className="mt-8 flex gap-3">
-          <button
+          <Button
+            type="button"
+            variant="secondary"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-stroke py-3 font-bold text-dark-4 hover:bg-gray-1 transition-all"
+            fullWidth
           >
             {tc("cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="success"
             onClick={handleCreateProduct}
-            disabled={uploadingImage}
-            className="flex-1 rounded-xl btn-green py-3 font-bold text-white shadow-lg shadow-green-600/20 transition-all active:scale-95 disabled:opacity-50"
+            isLoading={uploadingImage}
+            fullWidth
           >
             {uploadingImage ? t("modal.uploading") : t("modal.createButton")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

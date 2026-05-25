@@ -8,6 +8,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 // Componentes Extraídos
 import CategoryTable from "@/components/Admin/Categories/CategoryTable";
 import CategoryModal from "@/components/Admin/Categories/CategoryModal";
+import { Button } from "@/components/ui/Button";
 
 interface Category {
   id: string;
@@ -76,12 +77,11 @@ export default function AdminCategories() {
           <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
           <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <button
+        <Button
           onClick={() => { setSelectedCategory(null); setIsModalOpen(true); }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue text-white text-sm font-bold shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95"
         >
           {t("addCategory")}
-        </button>
+        </Button>
       </div>
 
       {/* Tabla */}

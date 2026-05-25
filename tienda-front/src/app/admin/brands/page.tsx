@@ -8,6 +8,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 // Componentes Extraídos
 import BrandTable from "@/components/Admin/Brands/BrandTable";
 import BrandModal from "@/components/Admin/Brands/BrandModal";
+import { Button } from "@/components/ui/Button";
 
 interface Brand {
   id: string;
@@ -74,12 +75,11 @@ export default function AdminBrands() {
           <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
           <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <button
+        <Button
           onClick={() => { setSelectedBrand(null); setIsModalOpen(true); }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue text-white text-sm font-bold shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95"
         >
           {t("addBrand")}
-        </button>
+        </Button>
       </div>
 
       {/* Tabla */}

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/Button";
 
 interface OrderItem {
   id: string;
@@ -112,13 +113,13 @@ export default function OrderDetailsModal({ isOpen, onClose, order, statusClasse
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-stroke bg-gray-50">
-          <button
+        <div className="p-6 border-t border-stroke bg-gray-50 flex justify-end">
+          <Button
             onClick={onClose}
-            className="w-full rounded-xl bg-dark py-3 font-bold text-white hover:bg-black transition-all active:scale-95 shadow-lg shadow-dark/10"
+            variant="secondary"
           >
             {tc("close")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

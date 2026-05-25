@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
+import { FileInput } from "@/components/ui/FileInput";
 
 interface Brand {
   id: string;
@@ -87,7 +89,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
             <div className="flex items-center gap-4">
               <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border border-stroke flex items-center justify-center">
                 {formData.imageUrl ? (
-                  <div className="relative h-full w-full">
+                  <div className="relative h-full w-full group">
                     <Image src={formData.imageUrl} alt="Preview" fill className="object-contain" />
                     <button
                       type="button"
@@ -95,7 +97,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
                         const success = await handleRemove(formData.imageUrl);
                         if (success) setFormData({ ...formData, imageUrl: "" });
                       }}
-                      className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition-all"
+                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
                     >
                       ✕
                     </button>
@@ -104,8 +106,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
                   <span className="text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
                 )}
               </div>
-              <input
-                type="file"
+              <FileInput
                 accept="image/*"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
@@ -115,27 +116,27 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
                   }
                 }}
                 disabled={isUploading}
-                className="flex-1 cursor-pointer text-xs text-dark-4 file:mr-3 file:rounded-lg file:border-0 file:bg-blue/10 file:px-3 file:py-2 file:font-bold file:text-blue hover:file:bg-blue/20 transition-all"
               />
             </div>
             {isUploading && <p className="mt-2 text-xs text-blue animate-pulse">{tc("uploading")}</p>}
           </div>
 
           <div className="mt-8 flex gap-3">
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-stroke py-3 font-bold text-dark-4 hover:bg-gray-1 transition-all"
+              fullWidth
             >
               {tc("cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={isUploading}
-              className="flex-1 rounded-xl bg-blue py-3 font-bold text-white shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+              isLoading={isUploading}
+              fullWidth
             >
               {isUploading ? tc("loading") : tc("save")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

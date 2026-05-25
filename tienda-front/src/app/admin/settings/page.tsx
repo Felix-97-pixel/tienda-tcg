@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
+import SearchableSelect from "@/components/ui/SearchableSelect";
+import { Button } from "@/components/ui/Button";
 
 export default function AdminSettings() {
   const t = useTranslations("settings");
@@ -107,27 +109,24 @@ export default function AdminSettings() {
                   <label className="mb-2 block text-xs font-black text-dark-4 uppercase tracking-widest transition-colors group-focus-within:text-blue">
                     {item.label}
                   </label>
-                  <select
+                  <SearchableSelect
                     value={item.val}
-                    onChange={(e) => item.set(e.target.value)}
-                    className="w-full rounded-2xl border border-stroke bg-gray-50 py-3 px-5 text-sm font-bold text-dark outline-none transition-all focus:border-blue focus:bg-white focus:ring-4 focus:ring-blue/5 appearance-none cursor-pointer"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.name}>{cat.name}</option>
-                    ))}
-                  </select>
+                    onChange={item.set}
+                    options={categories.map((cat) => ({ label: cat.name, value: cat.name }))}
+                    placeholder={`Selecciona categoría para ${item.label}`}
+                  />
                 </div>
               ))}
             </div>
 
             <div className="mt-10 pt-6 border-t border-stroke">
-              <button
+              <Button
                 onClick={handleSave}
-                disabled={saving}
-                className="w-full sm:w-auto px-10 py-3.5 rounded-2xl bg-blue text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+                isLoading={saving}
+                fullWidth
               >
-                {saving ? "Guardando..." : t("destinations.save")}
-              </button>
+                {t("destinations.save")}
+              </Button>
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { API_URL } from "@/utils/api";
 // Componentes Extraídos
 import OrderTable from "@/components/Admin/Orders/OrderTable";
 import OrderDetailsModal from "@/components/Admin/Orders/OrderDetailsModal";
+import { Button } from "@/components/ui/Button";
 
 const STATUS_CLS: Record<string, string> = {
   PENDING:   "bg-yellow-100 text-yellow-700 border border-yellow-200",
@@ -57,15 +58,17 @@ export default function AdminOrdersPage() {
           <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
           <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <button
+        <Button
+          variant="secondary"
           onClick={() => fetchOrders(page)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-stroke text-dark font-bold text-sm shadow-sm hover:bg-gray-1 transition-all active:scale-95"
+          leftIcon={
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+          }
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-          </svg>
           {tc("refresh")}
-        </button>
+        </Button>
       </div>
 
       {/* Tabla */}

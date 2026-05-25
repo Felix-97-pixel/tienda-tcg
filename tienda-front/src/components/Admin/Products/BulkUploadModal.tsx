@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import Papa from "papaparse";
+import { Button } from "@/components/ui/Button";
+import { FileInput } from "@/components/ui/FileInput";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -133,29 +135,28 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
 
           <div>
             <label className="mb-2 block text-sm font-medium text-dark">{t("bulk.fileLabel")}</label>
-            <input
-              type="file"
+            <FileInput
               accept=".csv"
               onChange={(e) => setBulkFile(e.target.files?.[0] || null)}
-              className="w-full cursor-pointer rounded-xl border border-stroke bg-gray-1 py-3 px-5 text-sm outline-none transition focus:border-blue file:mr-4 file:rounded-lg file:border-0 file:bg-blue file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-700"
             />
           </div>
         </div>
 
         <div className="mt-8 flex gap-3">
-          <button
+          <Button
+            variant="secondary"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-stroke py-3 font-bold text-dark-4 hover:bg-gray-1 transition-all"
+            fullWidth
           >
             {tc("cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleUpload}
-            disabled={isUploading}
-            className="flex-1 rounded-xl bg-blue py-3 font-bold text-white shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+            isLoading={isUploading}
+            fullWidth
           >
             {isUploading ? tc("loading") : t("bulk.uploadButton")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

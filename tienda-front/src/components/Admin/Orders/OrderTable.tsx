@@ -2,6 +2,7 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
+import { Button } from "@/components/ui/Button";
 
 const LIMIT_PLACEHOLDER = 8;
 
@@ -87,12 +88,13 @@ export default function OrderTable({ orders, loading, statusClasses, statusLabel
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (order) => (
-        <button 
+        <Button 
+          size="sm"
+          variant="secondary"
           onClick={() => onViewDetails(order)} 
-          className="px-4 py-2 rounded-xl bg-gray-1 text-dark-4 text-xs font-bold hover:bg-blue hover:text-white transition-all active:scale-95 shadow-sm"
         >
           {t("detail.title")}
-        </button>
+        </Button>
       ),
     },
   ];

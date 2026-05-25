@@ -8,6 +8,7 @@ import { API_URL } from "@/utils/api";
 import StatCard from "@/components/Admin/Sales/StatCard";
 import TopProductsList from "@/components/Admin/Sales/TopProductsList";
 import RecentOrdersList from "@/components/Admin/Sales/RecentOrdersList";
+import { Button } from "@/components/ui/Button";
 
 export default function AdminSalesPage() {
   const t = useTranslations("sales");
@@ -49,12 +50,12 @@ export default function AdminSalesPage() {
         <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
         <h2 className="text-xl font-bold text-dark mb-2">{t("errorTitle")}</h2>
         <p className="text-dark-4 text-sm mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
-        <button 
+        <Button 
           onClick={fetchStats} 
-          className="px-8 py-3 rounded-xl bg-blue text-white font-bold shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95"
+          size="lg"
         >
           {tc("refresh")}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -72,20 +73,21 @@ export default function AdminSalesPage() {
           <p className="text-dark-4 text-sm font-medium mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-3">
-          <button 
+          <Button 
+            variant="secondary"
             onClick={fetchStats} 
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-stroke text-dark font-bold text-sm shadow-sm hover:bg-gray-1 transition-all active:scale-95"
+            leftIcon={
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+              </svg>
+            }
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-            </svg>
             {tc("refresh")}
-          </button>
-          <Link 
-            href="/admin/orders" 
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue text-white text-sm font-black shadow-lg shadow-blue/20 hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-wider"
-          >
-            {to("title")} →
+          </Button>
+          <Link href="/admin/orders">
+            <Button rightIcon={<span>→</span>}>
+              {to("title")}
+            </Button>
           </Link>
         </div>
       </div>

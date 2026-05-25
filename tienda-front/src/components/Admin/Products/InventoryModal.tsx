@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/useToast";
 import { Product } from "@/types/product";
 import { InventoryItem } from "@/types/inventoryItem";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import { Button } from "@/components/ui/Button";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -182,12 +183,13 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               />
             </div>
             <div className="flex flex-col justify-end">
-              <button
+              <Button
+                variant="success"
                 onClick={handleAddVariation}
-                className="w-full rounded-xl btn-green py-3 text-sm font-bold shadow-lg shadow-green-600/10 transition-all active:scale-95"
+                fullWidth
               >
                 {t("inventory.add")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -234,13 +236,14 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     />
                   </td>
                   <td className="p-3 text-center">
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
                       onClick={() => handleDeleteItem(item.id)}
-                      className="text-red-500 hover:text-red-700 transition-colors p-2"
                       title={t("inventory.successDelete")}
                     >
                       ✕
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -249,12 +252,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         </div>
 
         <div className="mt-8 flex justify-end">
-          <button
+          <Button
+            variant="secondary"
             onClick={onClose}
-            className="px-8 rounded-xl bg-gray-2 py-3 font-bold text-dark hover:bg-gray-3 transition-all"
           >
             {tc("close")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
