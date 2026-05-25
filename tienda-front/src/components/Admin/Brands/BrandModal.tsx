@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
 import { Brand } from "@/types/brand";
 import { BrandModalProps } from "@/types/adminProps";
 
@@ -63,14 +64,13 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandM
     >
       <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark">{t("modal.nameLabel")}</label>
-            <input
+            <Input
+              label={t("modal.nameLabel")}
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder={t("modal.namePlaceholder")}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-3 px-5 text-sm outline-none transition focus:border-blue transition-all"
             />
           </div>
 

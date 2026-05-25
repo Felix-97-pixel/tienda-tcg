@@ -2,6 +2,7 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import { Input } from "@/components/ui/Input";
 import { ProductFiltersProps } from "@/types/adminProps";
 
 export default function ProductFilters({
@@ -22,13 +23,12 @@ export default function ProductFilters({
       <p className="text-sm font-medium text-dark mb-3">{tc("filters")}</p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-dark-4">{tc("search")}</label>
-          <input 
+          <Input 
+            label={tc("search")}
             type="text" 
             placeholder={t("filters.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full rounded-xl border border-gray-3 bg-gray-1 py-2 px-4 text-sm outline-none focus:border-blue transition-all" 
           />
         </div>
         <div>

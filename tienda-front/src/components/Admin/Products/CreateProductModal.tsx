@@ -9,6 +9,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
 import { CreateProductModalProps } from "@/types/adminProps";
 
 export default function CreateProductModal({ isOpen, onClose, categories, brands, onSuccess }: CreateProductModalProps) {
@@ -69,12 +71,11 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Nombre */}
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.nameLabel")}</label>
-            <input
+            <Input
+              label={t("modal.nameLabel")}
               type="text"
               value={creatingProduct.name}
               onChange={(e) => setCreatingProduct({ ...creatingProduct, name: e.target.value })}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
               placeholder={t("modal.namePlaceholder")}
             />
           </div>
@@ -103,21 +104,19 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
 
           {/* Precio y Stock */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.priceLabel")}</label>
-            <input
+            <Input
+              label={t("modal.priceLabel")}
               type="number"
               value={creatingProduct.price}
               onChange={(e) => setCreatingProduct({ ...creatingProduct, price: Number(e.target.value) })}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.stockLabel")}</label>
-            <input
+            <Input
+              label={t("modal.stockLabel")}
               type="number"
               value={creatingProduct.stock}
               onChange={(e) => setCreatingProduct({ ...creatingProduct, stock: Number(e.target.value) })}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
             />
           </div>
 
@@ -156,12 +155,11 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
 
           {/* Descripción */}
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.descriptionLabel")}</label>
-            <textarea
+            <Textarea
+              label={t("modal.descriptionLabel")}
               rows={3}
               value={creatingProduct.description}
               onChange={(e) => setCreatingProduct({ ...creatingProduct, description: e.target.value })}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-3 px-4 text-sm outline-none focus:border-blue transition-all"
               placeholder={t("modal.descriptionPlaceholder")}
             />
           </div>

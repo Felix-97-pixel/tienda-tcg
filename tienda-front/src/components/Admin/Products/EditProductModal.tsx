@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
 import { EditProductModalProps } from "@/types/adminProps";
 
 export default function EditProductModal({ isOpen, onClose, item, categories, brands, onSuccess }: EditProductModalProps) {
@@ -78,12 +79,11 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
     >
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.nameLabel")}</label>
-            <input
+            <Input
+              label={t("modal.nameLabel")}
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
               placeholder={t("modal.namePlaceholder")}
             />
           </div>
@@ -111,21 +111,19 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.priceLabel")}</label>
-              <input
+              <Input
+                label={t("modal.priceLabel")}
                 type="number"
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.stockLabel")}</label>
-              <input
+              <Input
+                label={t("modal.stockLabel")}
                 type="number"
                 value={form.stock}
                 onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
-                className="w-full rounded-xl border border-stroke bg-gray-1 py-2.5 px-4 text-sm outline-none focus:border-blue transition-all"
               />
             </div>
           </div>

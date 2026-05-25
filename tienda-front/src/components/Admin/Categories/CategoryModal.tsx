@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
 import { AdminCategory as Category } from "@/types/adminCategory";
 import { CategoryModalProps } from "@/types/adminProps";
 
@@ -80,26 +81,24 @@ export default function CategoryModal({ isOpen, onClose, category, onSuccess }: 
     >
       <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark">{t("modal.nameLabel")}</label>
-            <input
+            <Input
+              label={t("modal.nameLabel")}
               type="text"
               required
               value={formData.name}
               onChange={handleNameChange}
               placeholder={t("modal.namePlaceholder")}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-3 px-5 text-sm outline-none transition focus:border-blue transition-all"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark">{t("modal.slugLabel")}</label>
-            <input
+            <Input
+              label={t("modal.slugLabel")}
               type="text"
               required
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               placeholder={t("modal.slugPlaceholder")}
-              className="w-full rounded-xl border border-stroke bg-gray-1 py-3 px-5 text-sm outline-none transition focus:border-blue transition-all"
             />
           </div>
 
