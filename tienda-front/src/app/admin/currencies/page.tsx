@@ -7,7 +7,6 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { List, Column } from "@/components/ui/List";
-
 import { Currency } from "@/types/currency";
 
 export default function AdminCurrencies() {
@@ -85,7 +84,7 @@ export default function AdminCurrencies() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    
+
     const payload = {
       code,
       name,
@@ -95,7 +94,7 @@ export default function AdminCurrencies() {
     };
 
     try {
-      const url = selectedCurrency 
+      const url = selectedCurrency
         ? `${API_URL}/currencies/${selectedCurrency.id}`
         : `${API_URL}/currencies`;
       const method = selectedCurrency ? "PATCH" : "POST";
