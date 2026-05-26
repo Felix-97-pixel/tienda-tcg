@@ -107,7 +107,7 @@ const ShopDetails = () => {
       
       // Initialize TCG selection
       if (product?.items && product.items.length > 0) {
-        const firstItem = product.items[0];
+        const firstItem = product.items.find((i: InventoryItem) => i.stock > 0) || product.items[0];
         setSelectedItem(firstItem);
         setSelectedCondition(firstItem.conditionId || "");
         setSelectedLanguage(firstItem.languageId || "");
@@ -437,7 +437,7 @@ const ShopDetails = () => {
                               <h4 className="font-medium text-dark">Condición:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {Array.from(new Map(product.items.filter(i => i.conditionId && i.condition_rel).map((i) => [i.conditionId, i.condition_rel])).entries()).map(([id, cond]) => {
+                              {Array.from(new Map(product.items.filter(i => i.conditionId && i.condition_rel && i.stock > 0).map((i) => [i.conditionId, i.condition_rel])).entries()).map(([id, cond]) => {
                                 const condition = cond as { name: string };
                                 return (
                                   <button
@@ -459,7 +459,7 @@ const ShopDetails = () => {
                               <h4 className="font-medium text-dark">Idioma:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {Array.from(new Map(product.items.filter(i => i.languageId && i.language).map((i) => [i.languageId, i.language])).entries()).map(([id, lang]) => {
+                              {Array.from(new Map(product.items.filter(i => i.languageId && i.language && i.stock > 0).map((i) => [i.languageId, i.language])).entries()).map(([id, lang]) => {
                                 const language = lang as { code: string; name: string };
                                 return (
                                   <button
@@ -481,7 +481,7 @@ const ShopDetails = () => {
                               <h4 className="font-medium text-dark">Versión:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {Array.from(new Map(product.items.filter(i => i.finishId && i.finish).map((i) => [i.finishId, i.finish])).entries()).map(([id, fin]) => {
+                              {Array.from(new Map(product.items.filter(i => i.finishId && i.finish && i.stock > 0).map((i) => [i.finishId, i.finish])).entries()).map(([id, fin]) => {
                                 const finish = fin as { name: string };
                                 return (
                                   <button

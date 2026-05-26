@@ -1,17 +1,19 @@
 import React from "react";
 import { AppDispatch } from "@/redux/store";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   removeItemFromCart,
   updateCartItemQuantity,
 } from "@/redux/features/cart-slice";
 import { useToast } from "@/hooks/useToast";
+import { formatPrice } from "@/utils/currency";
 
 import Image from "next/image";
 
 const SingleItem = ({ item }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { showToast } = useToast();
+  const currency = useSelector((state: any) => state.currencyReducer);
 
   const handleRemoveFromCart = () => {
     dispatch(removeItemFromCart(item.id));
@@ -47,7 +49,7 @@ const SingleItem = ({ item }) => {
       </div>
 
       <div className="min-w-[180px]">
-        <p className="text-dark">${item.discountedPrice}</p>
+        <p className="text-dark">{formatPrice(item.discountedPrice, currency)}</p>
       </div>
 
       <div className="min-w-[275px]">
@@ -104,7 +106,7 @@ const SingleItem = ({ item }) => {
       </div>
 
       <div className="min-w-[200px]">
-        <p className="text-dark">${item.discountedPrice * item.quantity}</p>
+        <p className="text-dark">{formatPrice(item.discountedPrice * item.quantity, currency)}</p>
       </div>
 
       <div className="min-w-[50px] flex justify-end">

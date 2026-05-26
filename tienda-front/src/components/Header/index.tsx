@@ -11,6 +11,7 @@ import { selectTotalPrice } from "@/redux/features/cart-slice";
 import { logout } from "@/redux/features/auth-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import Image from "next/image";
+import { formatPrice } from "@/utils/currency";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,6 +22,7 @@ const Header = () => {
   const product = useAppSelector((state) => state.cartReducer.items);
   const totalPrice = useSelector(selectTotalPrice);
   const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
+  const currency = useAppSelector((state: any) => state.currencyReducer);
   const dispatch = useDispatch();
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -266,7 +268,7 @@ const Header = () => {
                       />
                     </svg>
 
-                    <span className="flex items-center justify-center font-medium text-2xs absolute -right-2 -top-2.5 bg-blue w-4.5 h-4.5 rounded-full text-white">
+                  <span className="flex items-center justify-center font-medium text-2xs absolute -right-2 -top-2.5 bg-blue w-4.5 h-4.5 rounded-full text-white">
                       {product.length}
                     </span>
                   </span>
@@ -276,7 +278,7 @@ const Header = () => {
                       cart
                     </span>
                     <p className="font-medium text-custom-sm text-dark">
-                      ${totalPrice}
+                      {formatPrice(totalPrice, currency)}
                     </p>
                   </div>
                 </button>

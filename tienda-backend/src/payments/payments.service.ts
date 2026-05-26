@@ -52,11 +52,22 @@ export class PaymentsService {
     userId: string | null,
     returnUrl: string,
   ) {
-    // Calcular total
-    const total = dto.items.reduce(
+    // Calcular total en la moneda base (USD típicamente)
+    const baseTotal = dto.items.reduce(
       (sum, i) => sum + i.unitPrice * i.quantity,
       0,
     );
+
+    // Get default currency
+    const defaultCurrency = await this.prisma.currency.findFirst({
+      where: { isDefault: true },
+    });
+
+    const currencyCode = dto.currency || defaultCurrency?.code || 'CLP';
+    const exchangeRate = Number(dto.exchangeRate || defaultCurrency?.exchangeRate || 1);
+
+    // Convert total to CLP using exchange rate since Webpay only accepts CLP
+    const total = baseTotal * exchangeRate;
 
     // Generar buyOrder único (máx 26 chars para Webpay)
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
@@ -74,6 +85,8 @@ export class PaymentsService {
         city: dto.city,
         notes: dto.notes,
         totalAmount: total,
+        currencyCode,
+        exchangeRate,
         status: 'PENDING',
         items: {
           create: dto.items.map((item) => ({
@@ -81,7 +94,7 @@ export class PaymentsService {
             inventoryItemId: item.inventoryItemId,
             productName: item.productName,
             quantity: item.quantity,
-            unitPrice: item.unitPrice,
+            unitPrice: item.unitPrice * exchangeRate,
           })),
         },
       },

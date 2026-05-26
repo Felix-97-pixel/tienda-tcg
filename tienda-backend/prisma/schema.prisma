@@ -112,6 +112,8 @@ model Order {
   city        String?
   notes       String?
   totalAmount Decimal     @db.Decimal(10, 2)
+  currencyCode String?    @default("CLP")
+  exchangeRate Decimal?   @db.Decimal(10, 2)
   status      OrderStatus @default(PENDING)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -181,4 +183,15 @@ model GlobalSetting {
   id    String @id @default(uuid())
   key   String @unique
   value String
+}
+
+model Currency {
+  id           String   @id @default(uuid())
+  code         String   @unique // e.g., "CLP", "USD"
+  name         String   // e.g., "Peso Chileno"
+  symbol       String   // e.g., "$"
+  exchangeRate Decimal  @db.Decimal(10, 2)
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

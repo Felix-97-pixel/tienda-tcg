@@ -12,6 +12,8 @@ import { AppDispatch } from "@/redux/store";
 import Link from "next/link";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
+import { formatPrice } from "@/utils/currency";
+import { useAppSelector } from "@/redux/store";
 
 const ProductItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
@@ -19,6 +21,7 @@ const ProductItem = ({ item }: { item: Product }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
   const { showToast } = useToast();
+  const currency = useAppSelector((state: any) => state.currencyReducer);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
@@ -181,9 +184,15 @@ const ProductItem = ({ item }: { item: Product }) => {
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">${item.discountedPrice ?? item.price ?? 0}</span>
-        {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
-          <span className="text-dark-4 line-through">${item.price}</span>
+        {(item.price ?? 0) > 0 ? (
+          <>
+            <span className="text-dark">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
+            {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
+              <span className="text-dark-4 line-through">{formatPrice(item.price ?? 0, currency)}</span>
+            )}
+          </>
+        ) : (
+          <span className="text-gray-400 text-sm italic">Sin precio</span>
         )}
       </span>
     </div>

@@ -3,10 +3,12 @@ import { useAppSelector } from "@/redux/store";
 import React from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
+import { formatPrice } from "@/utils/currency";
 
 const OrderSummary = () => {
   const cartItems = useAppSelector((state) => state.cartReducer.items);
   const totalPrice = useSelector(selectTotalPrice);
+  const currency = useSelector((state: any) => state.currencyReducer);
 
   return (
     <div className="lg:max-w-[455px] w-full">
@@ -35,7 +37,7 @@ const OrderSummary = () => {
               </div>
               <div>
                 <p className="text-dark text-right">
-                  ${item.discountedPrice * item.quantity}
+                  {formatPrice(item.discountedPrice * item.quantity, currency)}
                 </p>
               </div>
             </div>
@@ -48,7 +50,7 @@ const OrderSummary = () => {
             </div>
             <div>
               <p className="font-medium text-lg text-dark text-right">
-                ${totalPrice}
+                {formatPrice(totalPrice, currency)}
               </p>
             </div>
           </div>

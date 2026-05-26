@@ -14,11 +14,14 @@ import { useToast } from "@/hooks/useToast";
 import { useTranslations } from "next-intl";
 import { Select } from "@/components/ui/Select";
 
+import { formatPrice } from "@/utils/currency";
+
 const QuickViewModal = () => {
   const { isModalOpen, closeModal } = useModalContext();
   const { openPreviewModal } = usePreviewSlider();
   const [quantity, setQuantity] = useState(1);
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
+  const currency = useAppSelector((state: any) => state.currencyReducer);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -30,8 +33,8 @@ const QuickViewModal = () => {
   const getFinishName = (i: any) => i.finish?.name || (typeof i.finish === 'string' ? i.finish : null);
   const getCondName = (i: any) => i.condition_rel?.name || i.condition?.name || (typeof i.condition === 'string' ? i.condition : null);
 
-  const availableLanguages = useMemo(() => Array.from(new Set(originalProduct.items?.map(getLangName).filter(Boolean))) as string[], [originalProduct]);
-  const availableFinishes = useMemo(() => Array.from(new Set(originalProduct.items?.map(getFinishName).filter(Boolean))) as string[], [originalProduct]);
+  const availableLanguages = useMemo(() => Array.from(new Set(originalProduct.items?.filter((i: any) => i.stock > 0).map(getLangName).filter(Boolean))) as string[], [originalProduct]);
+  const availableFinishes = useMemo(() => Array.from(new Set(originalProduct.items?.filter((i: any) => i.stock > 0).map(getFinishName).filter(Boolean))) as string[], [originalProduct]);
 
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
@@ -39,7 +42,7 @@ const QuickViewModal = () => {
 
   const availableConditions = useMemo(() => {
     if (!originalProduct?.items) return [];
-    let items = originalProduct.items;
+    let items = originalProduct.items.filter((i: any) => i.stock > 0);
 
     if (selectedLanguage) {
       items = items.filter((i: any) => getLangName(i) === selectedLanguage);
@@ -59,9 +62,10 @@ const QuickViewModal = () => {
 
   useEffect(() => {
     if (originalProduct?.items && originalProduct.items.length > 0) {
-      setSelectedLanguage(getLangName(originalProduct.items[0]));
-      setSelectedFinish(getFinishName(originalProduct.items[0]));
-      setSelectedCondition(getCondName(originalProduct.items[0]));
+      const firstWithStock = originalProduct.items.find((i: any) => i.stock > 0) || originalProduct.items[0];
+      setSelectedLanguage(getLangName(firstWithStock));
+      setSelectedFinish(getFinishName(firstWithStock));
+      setSelectedCondition(getCondName(firstWithStock));
     }
   }, [originalProduct]);
 
@@ -442,11 +446,13 @@ const QuickViewModal = () => {
 
                   <span className="flex items-center gap-2">
                     <span className="font-semibold text-dark text-xl xl:text-heading-4">
-                      ${product.discountedPrice}
+                      {formatPrice(product.discountedPrice || product.price, currency)}
                     </span>
-                    <span className="font-medium text-dark-4 text-lg xl:text-2xl line-through">
-                      ${product.price}
-                    </span>
+                    {product.discountedPrice < product.price && (
+                      <span className="font-medium text-dark-4 text-lg xl:text-2xl line-through">
+                        {formatPrice(product.price, currency)}
+                      </span>
+                    )}
                   </span>
                 </div>
 

@@ -6,6 +6,7 @@ import wishlistReducer from "./features/wishlist-slice";
 import productDetailsReducer from "./features/product-details";
 import authReducer from "./features/auth-slice";
 import toastReducer from "./features/toast-slice";
+import currencyReducer from "./features/currency-slice";
 
 import { TypedUseSelectorHook, useSelector } from "react-redux";
 
@@ -17,6 +18,7 @@ export const store = configureStore({
     productDetailsReducer,
     authReducer,
     toastReducer,
+    currencyReducer,
   },
 });
 

@@ -14,6 +14,7 @@ import { UploadModule } from './upload/upload.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SettingsModule } from './settings/settings.module';
+import { CurrenciesModule } from './currencies/currencies.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { SettingsModule } from './settings/settings.module';
     UploadModule,
     WishlistModule,
     PaymentsModule,
-    SettingsModule
+    SettingsModule,
+    CurrenciesModule
   ],
   controllers: [AppController],
   providers: [AppService],

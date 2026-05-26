@@ -60,4 +60,12 @@ export class CreateOrderDto {
   @Type(() => OrderItemDto)
   @ArrayMinSize(1)
   items: OrderItemDto[];
+
+  @IsString()
+  @IsOptional()
+  currency?: string;
+
+  @IsNumber()
+  @IsOptional()
+  exchangeRate?: number;
 }

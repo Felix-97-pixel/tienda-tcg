@@ -65,6 +65,7 @@ export default async function AdminDashboard() {
     { href: "/admin/orders", key: "orders", color: "bg-orange-100", iconColor: "text-orange-600" },
     { href: "/admin/sync", key: "sync", color: "bg-red-100", iconColor: "text-red-500" },
     { href: "/admin/wishlist", key: "wishlist", color: "bg-pink-100", iconColor: "text-pink-500" },
+    { href: "/admin/currencies", key: "currencies", color: "bg-indigo-100", iconColor: "text-indigo-600", labelOverride: "Divisas", descOverride: "Administrar precios de divisas" },
     { href: "/admin/settings", key: "settings", color: "bg-gray-100", iconColor: "text-gray-600" },
   ];
 
@@ -100,10 +101,10 @@ export default async function AdminDashboard() {
             </div>
             <div>
               <p className="font-semibold text-dark group-hover:text-blue transition-colors">
-                {t(`modules.${card.key}`)}
+                {card.labelOverride || t(`modules.${card.key}`)}
               </p>
               <p className="text-dark-4 text-sm mt-0.5">
-                {t(`modules.${card.key}Desc`)}
+                {card.descOverride || t(`modules.${card.key}Desc`)}
               </p>
             </div>
           </Link>

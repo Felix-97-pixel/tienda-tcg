@@ -7,6 +7,8 @@ import Breadcrumb from "../Common/Breadcrumb";
 import { selectCartItems, selectTotalPrice, removeAllItemsFromCart } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 
+import { formatPrice } from "@/utils/currency";
+
 type BillingData = {
   name: string;
   email: string;
@@ -22,6 +24,7 @@ const CheckoutWebpay = () => {
   const cartItems = useSelector(selectCartItems);
   const total = useSelector(selectTotalPrice);
   const { isAuthenticated } = useSelector((s: RootState) => s.authReducer);
+  const currency = useSelector((state: any) => state.currencyReducer);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -88,6 +91,8 @@ const CheckoutWebpay = () => {
         address: billing.address,
         city: billing.city,
         notes: billing.notes,
+        currencyCode: currency.code,
+        exchangeRate: currency.exchangeRate,
         items: cartItems.map((item) => ({
           productId: String(item.id),
           inventoryItemId: item.inventoryItemId ?? null,
@@ -307,7 +312,7 @@ const CheckoutWebpay = () => {
                           </div>
                         </div>
                         <p className="text-dark text-right flex-shrink-0 font-medium">
-                          ${(item.discountedPrice * item.quantity).toLocaleString("es-CL")}
+                          {formatPrice(item.discountedPrice * item.quantity, currency)}
                         </p>
                       </div>
                     ))}
@@ -316,7 +321,7 @@ const CheckoutWebpay = () => {
                     <div className="flex items-center justify-between pt-5">
                       <p className="font-semibold text-lg text-dark">Total</p>
                       <p className="font-semibold text-lg text-dark">
-                        ${total.toLocaleString("es-CL")}
+                        {formatPrice(total, currency)}
                       </p>
                     </div>
                   </div>
@@ -349,7 +354,7 @@ const CheckoutWebpay = () => {
                         <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
                         <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
                       </svg>
-                      Pagar con Webpay · ${total.toLocaleString("es-CL")}
+                      Pagar con Webpay · {formatPrice(total, currency)}
                     </>
                   )}
                 </button>

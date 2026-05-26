@@ -44,6 +44,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
     { href: "/admin/sales",       label: t("modules.sales"),      icon: icons.sales },
     { href: "/admin/orders",      label: t("modules.orders"),     icon: icons.orders },
+    { href: "/admin/currencies",  label: "Divisas",               icon: icons.settings },
     { href: "/admin/settings",    label: t("modules.settings"),   icon: icons.settings },
   ];
 

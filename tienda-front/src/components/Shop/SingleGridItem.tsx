@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
 import { useTranslations } from "next-intl";
+import { formatPrice } from "@/utils/currency";
 
 const SingleGridItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
@@ -22,6 +23,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
   const { showToast } = useToast();
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
+  const currency = useAppSelector((state: any) => state.currencyReducer);
 
   // update the QuickView state
   const handleQuickViewUpdate = () => {
@@ -184,7 +186,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
       <span className="flex items-center gap-2 font-medium text-lg">
         {(item.price ?? 0) > 0 ? (
-          <span className="text-dark">${(item.discountedPrice ?? item.price ?? 0).toFixed(2)} <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
+          <span className="text-dark">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
         ) : (
           <span className="text-gray-400 text-sm italic">Sin precio</span>
         )}
