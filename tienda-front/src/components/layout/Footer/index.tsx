@@ -58,24 +58,24 @@ const Footer = () => {
             <div className="flex items-center gap-4.5 mt-8">
               {/* WhatsApp */}
               <a
-                href="https://wa.me/56950223095"
+                href="https://api.whatsapp.com/send/?phone=%2B56950223095&text&type=phone_number&app_absent=0"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="WhatsApp"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-blue hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-[#25D366] hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
-                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.729-1.452L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.019-5.117-2.875-6.976C16.606 1.907 14.122.887 11.49.887c-5.438 0-9.863 4.42-9.866 9.865-.001 1.77.478 3.49 1.388 5.061L1.93 22.07l6.326-1.658c-1.56.88-2.33 1.25-1.609 1.742z" />
+                  <path d="M12.004 2C6.51 2 2.014 6.5 2.014 12c0 2.14.67 4.12 1.82 5.75L2 22l4.41-1.35c1.51.87 3.27 1.35 5.59 1.35 5.49 0 9.99-4.5 9.99-10S17.494 2 12.004 2zm6.6 14.1c-.3.8-1.5 1.5-2.1 1.6-.6.1-1.3.2-3.8-.8-3.1-1.3-5.1-4.4-5.3-4.6-.2-.2-1.4-1.9-1.4-3.6 0-1.7.9-2.5 1.2-2.9.3-.3.7-.5 1-.5.3 0 .5.1.7.1.2 0 .5-.1.7.4.3.6 1 2.4 1.1 2.6.1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.4.4-.6.6-.2.2-.4.4-.6.6-.2.2-.4.4-.2.8.2.4.9 1.5 2 2.5 1.4 1.2 2.5 1.6 2.9 1.8.4.2.6.1.8-.1.2-.3.9-1 1.2-1.4.3-.4.5-.3.8-.2.3.1 2.1 1 2.5 1.2.4.2.6.3.7.4.1.3.1 1.1-.2 1.9z" />
                 </svg>
               </a>
 
               {/* Instagram */}
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/tiendabloodmoon/"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-blue hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-[#E1306C] hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
@@ -84,11 +84,11 @@ const Footer = () => {
 
               {/* Twitch */}
               <a
-                href="https://twitch.tv"
+                href="https://www.twitch.tv/tiendabloodmoon"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Twitch"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-blue hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-[#9146FF] hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
                   <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.857L9 18.857v-4.286H5.143V1.714h15.428z" />

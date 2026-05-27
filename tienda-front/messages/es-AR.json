@@ -105,5 +105,156 @@
   "footer": {
     "rights": "Todos los derechos reservados",
     "contact": "Contacto"
+  },
+  "terms": {
+    "pageTitle": "Términos y Condiciones",
+    "mainTitle": "Términos, Condiciones y Políticas de Compra",
+    "badge": "Políticas Oficiales",
+    "description": "Por favor, leé detalladamente los siguientes términos antes de realizar una transacción.",
+    "lastUpdated": "Última Actualización: 01 de Enero de 2025",
+    "backToShop": "Volver a la Tienda",
+    "navTitle": "Navegación Rápida",
+    "nav": {
+      "introduccion": "1. Introducción",
+      "informacion": "2. Información de la Tienda",
+      "precios": "3. Precios y Pagos",
+      "envios": "4. Envíos y Entregas",
+      "devoluciones": "5. Devoluciones y Reembolsos",
+      "privacidad": "6. Privacidad",
+      "responsabilidad": "7. Limitación de Responsabilidad",
+      "ley": "8. Ley y Jurisdicción",
+      "disposiciones": "9. Disposiciones Generales",
+      "creditos": "10. Créditos de Tienda",
+      "transferencias": "Transferencias Bancarias"
+    },
+    "introduccion": {
+      "title": "Introducción",
+      "p1": "Bienvenido a Blood Moon Games, una tienda Online dedicada a la venta de cartas sueltas de juegos de cartas coleccionables. Estas políticas, términos y condiciones se aplican a todas las compras realizadas en nuestra tienda Online. Al hacer una compra, usted acepta estas políticas, términos y condiciones. Si no está de acuerdo con alguna de ellas, no podrá realizar una compra en nuestra tienda.",
+      "p2": "Nos reservamos el derecho de actualizar, modificar o cambiar estas políticas, términos y condiciones en cualquier momento y sin previo aviso. Es responsabilidad del usuario revisar periódicamente estos términos y condiciones para estar al tanto de cualquier cambio."
+    },
+    "informacion": {
+      "title": "Información de la Tienda",
+      "p1": "Blood Moon Games es propiedad de BMG Spa 77930277-6, registrada en Chile.",
+      "p2": "Nuestra tienda Online está ubicada en la Región Metropolitana. Si necesita comunicarse con nosotros, puede hacerlo a través de nuestro correo electrónico tiendabloodmoon@gmail.com o por nuestros canales oficiales de contacto."
+    },
+    "precios": {
+      "title": "Precios y Pagos",
+      "p1": "Todos los precios que aparecen en nuestra tienda virtual están expresados en Pesos Chilenos (CLP) e incluyen el Impuesto al Valor Agregado (IVA).",
+      "p2": "Aceptamos las siguientes formas de pago electrónicas autorizadas: Débito y Crédito (a través de pasarelas de pago seguras).",
+      "p3": "El pago se realizará íntegramente en el momento de la compra. Una vez que se haya procesado y verificado el pago con éxito, se enviará un correo electrónico de confirmación automática al usuario."
+    },
+    "envios": {
+      "title": "Envíos y Entregas",
+      "p1": "Los productos se enviarán a la dirección exacta proporcionada por el usuario en el momento de la compra. El costo de envío se calculará de forma automática en función de la dirección de entrega seleccionada y del peso del paquete.",
+      "p2": "Hacemos todo lo posible para despachar y entregar los productos en el plazo indicado en la descripción de cada tipo de Envío. Sin embargo, no nos hacemos responsables de los retrasos operativos causados directamente por la empresa proveedora de servicios de envío.",
+      "p3": "El usuario es estrictamente responsable de proporcionar una dirección de entrega precisa, vigente y completa. Si el paquete es devuelto a nuestras instalaciones debido a una dirección incorrecta o incompleta, el usuario deberá asumir la totalidad de los costos asociados al reenvío del paquete.",
+      "scheduleTitle": "⏰ Horarios de Despacho y Retiro:",
+      "scheduleDesc": "Las compras realizadas antes de las 14:00 hrs pueden ser retiradas en tienda o enviadas el mismo día en que se realizaron, a partir de las 16:00 hrs. Si la compra se efectúa después de ese horario, el retiro o envío se programará para el día hábil siguiente, condicionado a la disponibilidad de recolección de los proveedores logísticos."
+    },
+    "devoluciones": {
+      "title": "Devoluciones y Reembolsos",
+      "p1": "Si el usuario no está completamente satisfecho con su compra, dispone de un plazo legal de 5 días continuos a partir de la fecha de entrega para devolver el producto. Para que proceda la devolución, el producto debe estar en idénticas condiciones en que fue recibido, sin señales de uso, con sellos intactos y en su embalaje original.",
+      "p2": "El usuario deberá asumir los costos de envío para proceder con la devolución del artículo. Una vez que hayamos recibido y verificado el estado del producto en nuestra tienda, realizaremos el reembolso completo en un plazo de 3 días hábiles si el pago fue mediante Crédito, y de 6 días hábiles si se pagó con Débito.",
+      "p3": "No se aceptarán devoluciones bajo ningún concepto de productos personalizados, cartas sueltas alteradas, ni productos que hayan sido abiertos o utilizados."
+    },
+    "privacidad": {
+      "title": "Privacidad",
+      "p1": "Nos comprometemos al resguardo y protección absoluta de la privacidad de los datos personales de nuestros usuarios. Para obtener información detallada respecto al tratamiento, almacenamiento y uso de su información de registro, le invitamos a consultar nuestra Política de Privacidad."
+    },
+    "responsabilidad": {
+      "title": "Limitación de Responsabilidad",
+      "p1": "No nos hacemos responsables de ningún tipo de daño directo, indirecto, incidental, especial o emergente que se deive del uso o de la imposibilidad de uso técnico de nuestra tienda virtual.",
+      "p2": "No podemos garantizar que la plataforma web esté completamente libre de fallos tipográficos, interrupciones o malware de terceros, aunque aplicamos los estándares de seguridad web pertinentes para mitigar estos riesgos.",
+      "p3": "En ningún caso la responsabilidad total de nuestra empresa superará el monto pagado por el usuario por el producto específico en cuestión."
+    },
+    "ley": {
+      "title": "Ley Aplicable y Jurisdicción",
+      "p1": "Estas políticas, términos y condiciones se rigen, regulan e interpretan de estricto acuerdo con las leyes vigentes de la República de Chile.",
+      "p2": "Cualquier litigio, disputa o controversia que surja en relación con estas políticas se someterá y resolverá de manera exclusiva ante la jurisdicción ordinaria de los tribunales de Santiago, Chile."
+    },
+    "disposiciones": {
+      "title": "Disposiciones Generales",
+      "p1": "Estos términos y condiciones constituyen el acuerdo vinculante y completo entre el usuario y Blood Moon Games en relación con el uso de la plataforma de comercio electrónico, sustituyendo cualquier negociación o comunicación previa.",
+      "p2": "Si alguna cláusula de este documento fuese declarada nula o inaplicable por un tribunal competente, dicha cláusula se reformulará intentando capturar la intención original de las partes bajo la ley vigente, permaneciendo todas las demás cláusulas plenamente activas y vigentes.",
+      "p3": "La falta de ejercicio o de exigencia por nuestra parte de cualquier derecho o disposición del presente texto no se interpretará en ningún caso como una renuncia implícita o explícita a dicho derecho o disposición."
+    },
+    "creditos": {
+      "title": "Políticas de Créditos de Tienda",
+      "p1": "Estas políticas, términos y condiciones constituyen el acuerdo completo entre el usuario y Blood Moon Games con respecto al uso de los créditos otorgados o acumulados en la tienda.",
+      "t1_title": "🎮 Créditos Ganados en Torneos:",
+      "t1_desc": "Cuando los Créditos de tienda son ganados en Torneos organizados por BMG, estos tendrán una vigencia estricta de 1 mes (30 días) para su utilización. De no ser utilizados dentro de ese lapso, pasados los 31 días de haber sido cargados a su cuenta virtual, el saldo acumulado de torneos se reducirá automáticamente a un límite máximo de $10.000 (CLP).",
+      "t2_title": "💰 Créditos por Venta de Cartas (Singles):",
+      "t2_desc": "Cuando los Créditos de tienda se obtengan mediante la venta de tus cartas sueltas (sistema Buyback/Singles), podrás hacer uso de ellos sin un límite de tiempo de caducidad. Excepción: Si la cantidad total acumulada por este concepto excede los $100.000 (CLP), dispondrás de un plazo máximo e improrrogable de 2 meses (60 días) a partir del saldo excedido para gastar el saldo completo.",
+      "p4_desc": "Los créditos de tienda podrán utilizarse como medio de pago para la adquisición de cualquier tipo de artículo disponible, con excepción de los siguientes conceptos:",
+      "p4_li1": "Costos de despacho o envíos a domicilio.",
+      "p4_li2": "Inscripciones directas a torneos presenciales, ligas o eventos especiales.",
+      "p4_li3": "Productos catalogados en etapa de Preventa (Pre-orders).",
+      "p5_desc": "Los Créditos virtuales de la tienda no son acumulables ni combinables en su uso con:",
+      "p5_li1": "Cupones promocionales de descuento web.",
+      "p5_li2": "Tarjetas o credenciales de descuento físico o presencial en tienda."
+    },
+    "transferencias": {
+      "title": "Pagos por Transferencia Bancaria",
+      "p1": "Los pedidos completados seleccionando el método de pago Transferencia Bancaria Directa deberán ser pagados y su respectivo comprobante enviado en un plazo máximo e improrrogable de 24 horas contadas a partir del correo de confirmación de reserva del pedido.",
+      "warning": "⚠️ Importante: Si el pago no es recibido, acreditado y confirmado de manera conforme dentro del plazo establecido de 24 horas, el pedido será cancelado automáticamente por el sistema informático, liberando el inventario de las cartas y dejándolas nuevamente disponibles para su venta."
+    }
+  },
+  "privacy": {
+    "pageTitle": "Política de Privacidad",
+    "mainTitle": "Política de Privacidad de Datos",
+    "badge": "Privacidad y Seguridad",
+    "description": "En Blood Moon Games nos tomamos muy en serio la seguridad y el resguardo de tu información personal.",
+    "lastUpdated": "Última Actualización: 01 de Enero de 2025",
+    "backToShop": "Volver a la Tienda",
+    "navTitle": "Navegación Rápida",
+    "nav": {
+      "introduccion": "Introducción",
+      "informacion": "1. Qué Información Recopilamos",
+      "uso": "2. Cómo Usamos tu Información Personal",
+      "compartir": "3. Compartir tu Información Personal",
+      "retencion": "4. Retención de Datos",
+      "contacto": "5. Cambios y Contacto"
+    },
+    "introduccion": {
+      "p1": "Esta Política de Privacidad describe cómo se recopila, utiliza y comparte tu información personal cuando visitas o realizas una compra en nuestro portal web oficial www.bloodmoongames.cl."
+    },
+    "informacion": {
+      "title": "Qué Información Personal Recopilamos",
+      "p1": "Cuando visitas el Sitio, recopilamos automáticamente cierta información sobre tu dispositivo, incluida información sobre tu navegador web, dirección IP, zona horaria y algunas de las cookies que están instaladas en tu dispositivo.",
+      "p2": "Además, a medida que navegas por el Sitio, recopilamos información sobre las páginas web individuales o los productos que ves, qué sitios web o términos de búsqueda te remiten al Sitio, e información sobre cómo interactúas con la plataforma. Nos referimos a esta información recopilada automáticamente como Información del Dispositivo.",
+      "techTitle": "🛠️ Tecnologías que utilizamos para recopilar esta información:",
+      "techLi1": "Cookies: Son pequeños archivos de datos que se colocan en tu dispositivo o computadora y con frecuencia incluyen un identificador único anónimo.",
+      "techLi2": "Archivos de registro (Log Files): Rastrean las acciones que ocurren en el Sitio y recopilan datos esenciales, incluida tu dirección IP, el tipo de navegador, el proveedor de servicios de Internet (ISP), las páginas de referencia/salida y las marcas exactas de fecha y hora.",
+      "orderTitle": "🛒 Información de Compras e Historial (Información del Pedido):",
+      "orderDesc": "Cuando efectúas una compra o intentas realizar una compra a través del Sitio, recopilamos de forma segura ciertos datos tuyos indispensables para la transacción: tu nombre completo, dirección de facturación, dirección de envío, información de pago, dirección de correo electrónico y tu número de teléfono de contacto.",
+      "p3": "Al referirnos a Información Personal en esta Política de Privacidad, estamos englobando tanto la Información del Dispositivo como la Información del Pedido recopiladas anteriormente."
+    },
+    "uso": {
+      "title": "Cómo Usamos tu Información Personal",
+      "p1": "Utilizamos la Información del Pedido que recopilamos por lo general para cumplir con los pedidos realizados a través del Sitio (incluido el procesamiento de tu información de pago, la organización logística del envío, y la entrega oportuna de boletas, facturas y/o confirmaciones de pedidos).",
+      "listTitle": "Adicionalmente, usamos esta Información del Pedido para:",
+      "listLi1": "Establecer comunicación directa y oportuna contigo sobre el estado de tu pedido.",
+      "listLi2": "Examinar y validar nuestros pedidos para detectar y prevenir de forma proactiva posibles riesgos o fraudes transaccionales.",
+      "listLi3": "Ofrecerte información y publicidad selectiva relacionada con nuestros productos, ofertas especiales o servicios (en línea con las preferencias de boletines informativos que has compartido voluntariamente con nosotros).",
+      "p2": "Utilizamos la Información del Dispositivo que recopilamos para ayudarnos a detectar posibles riesgos y fraudes (en particular, tu dirección IP) y, en general, para mejorar, depurar y optimizar el rendimiento y la experiencia de usuario de nuestra tienda online."
+    },
+    "compartir": {
+      "title": "Compartiendo tu Información Personal",
+      "p1": "Compartimos tu Información Personal con terceros proveedores logísticos, pasarelas de pago autorizadas y servicios analíticos para ayudarnos a utilizarla exactamente como se describió anteriormente. Por ejemplo, utilizamos nuestra pasarela para procesar transacciones bancarias de forma segura, y empresas de courier asociadas para que tu correspondencia llegue a destino.",
+      "analyticsTitle": "📊 Google Analytics:",
+      "analyticsDesc": "También empleamos la herramienta de Google Analytics para ayudarnos a comprender y analizar cómo interactúan nuestros clientes con Blood Moon Games, facilitándonos información para mejorar el inventario de cartas sueltas y productos. Puedes informarte sobre cómo usa Google tu información en sus términos oficiales de privacidad.",
+      "p2": "Finalmente, también podemos divulgar o compartir tu Información Personal en situaciones especiales para cumplir cabalmente con las leyes y regulaciones aplicables en Chile, responder a requerimientos legales de la autoridad competente (como una citación judicial o una orden de registro oficial), o bien para proteger y defender legítimamente nuestros derechos legales de propiedad."
+    },
+    "retencion": {
+      "title": "Retención de Datos",
+      "p1": "Cuando realices un pedido a través del Sitio, mantendremos la Información de Pedido en nuestros registros administrativos y contables de forma segura con el fin de procesar garantías, acumulaciones de créditos o validación de transacciones, a menos y hasta que nos solicites expresamente la eliminación parcial o total de esta información mediante nuestros canales oficiales."
+    },
+    "contacto": {
+      "title": "Cambios en las Políticas y Contacto",
+      "p1": "Podemos actualizar esta política de privacidad periódicamente para reflejar, por ejemplo, cambios en nuestras prácticas operativas internas, mejoras de seguridad, o bien por otras razones de índole operativa, legal o reglamentaria de acuerdo al marco legal en Chile.",
+      "boxTitle": "✉️ ¿Tienes dudas o preguntas?",
+      "boxDesc": "Escríbenos directamente y te responderemos a la brevedad.",
+      "btn": "tiendabloodmoon@gmail.com"
+    }
   }
 }
