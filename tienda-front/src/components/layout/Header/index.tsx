@@ -141,7 +141,7 @@ const Header = () => {
               <form>
                 <div className="flex items-center bg-white rounded-md shadow-sm border border-[#e5e7eb]">
                   <CustomSelect options={categoriesData} />
-                  <div className="relative max-w-[280px] sm:min-w-[200px] w-full">
+                  <div className="relative flex-1 w-full">
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-3"></span>
                     <input
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -219,12 +219,19 @@ const Header = () => {
                         {user?.name || user?.email}
                       </p>
                     </div>
-                    <button
-                      onClick={handleLogout}
-                      className="text-custom-sm font-semibold hover:bg-white hover:text-[#800D0D] bg-white/10 text-white py-1.5 px-3.5 rounded-md border border-white/20 transition-all duration-200"
+                    <Link
+                      href="/my-account"
+                      className="hover:bg-white hover:text-blue bg-white/10 text-white p-2 rounded-md border border-white/20 transition-all duration-200 flex items-center justify-center"
+                      title="Configuración de cuenta"
                     >
-                      Salir
-                    </button>
+                      <svg
+                        className="w-5 h-5 fill-current"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.53.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
+                      </svg>
+                    </Link>
                   </div>
                 ) : (
                   <Link href="/signin" className="flex items-center gap-2.5 group">
