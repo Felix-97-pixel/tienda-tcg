@@ -26,7 +26,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [isMounted, setIsMounted] = useState(false);
-  
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -73,17 +73,15 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${
-        stickyMenu ? "shadow-md bg-[#800D0D]" : "bg-transparent"
-      }`}
+      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${stickyMenu ? "shadow-md bg-[#800D0D]" : "bg-transparent"
+        }`}
     >
       {/* <!-- HEADER TOP BAR (Blood Moon Red) --> */}
       <div className="bg-blue text-white w-full border-b border-[#9c1818] transition-all duration-300">
         <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
           <div
-            className={`flex flex-col lg:flex-row gap-5 items-center justify-between ease-out duration-200 ${
-              stickyMenu ? "py-2.5" : "py-4.5"
-            }`}
+            className={`flex flex-col lg:flex-row gap-5 items-center justify-between ease-out duration-200 ${stickyMenu ? "py-2.5" : "py-4.5"
+              }`}
           >
             {/* <!-- Header Brand Logo --> */}
             <div className="flex w-full lg:w-auto items-center justify-between gap-5 sm:gap-10">
@@ -92,13 +90,12 @@ const Header = () => {
                   style={{
                     width: "100%",
                     maxWidth: "200px",
-                    height: "auto",
-                    filter: "invert(1) brightness(2)"
+                    height: "auto"
                   }}
-                  src="/images/logo/logo.svg"
+                  src="/images/logo/bloodmoon-logo.png"
                   alt="Blood Moon Games Logo"
-                  width={200}
-                  height={33}
+                  width={1024}
+                  height={252}
                 />
               </Link>
 
@@ -112,32 +109,27 @@ const Header = () => {
                 <span className="block relative cursor-pointer w-5.5 h-5.5">
                   <span className="du-block absolute right-0 w-full h-full">
                     <span
-                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${
-                        !navigationOpen && "!w-full delay-300"
-                      }`}
+                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${!navigationOpen && "!w-full delay-300"
+                        }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${
-                        !navigationOpen && "!w-full delay-400"
-                      }`}
+                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${!navigationOpen && "!w-full delay-400"
+                        }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${
-                        !navigationOpen && "!w-full delay-500"
-                      }`}
+                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${!navigationOpen && "!w-full delay-500"
+                        }`}
                     ></span>
                   </span>
 
                   <span className="block absolute right-0 w-full h-full rotate-45">
                     <span
-                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${
-                        !navigationOpen && "!h-0 delay-[0] "
-                      }`}
+                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${!navigationOpen && "!h-0 delay-[0] "
+                        }`}
                     ></span>
                     <span
-                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${
-                        !navigationOpen && "!h-0 delay-200"
-                      }`}
+                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${!navigationOpen && "!h-0 delay-200"
+                        }`}
                     ></span>
                   </span>
                 </span>
