@@ -15,7 +15,7 @@ const Dropdown = ({ menuItem, stickyMenu }) => {
     >
       <a
         href="#"
-        className={`hover:text-blue text-custom-sm font-medium text-dark flex items-center gap-1.5 capitalize ${
+        className={`hover:text-blue text-custom-sm font-semibold text-white flex items-center gap-1.5 capitalize ${
           stickyMenu ? "xl:py-4" : "xl:py-6"
         } ${pathUrl.includes(menuItem.title) && "!text-blue"}`}
       >

@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { removeAllItemsFromCart } from "@/redux/features/cart-slice";
-import Breadcrumb from "@/components/Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 type OrderDetail = {
   id: string;

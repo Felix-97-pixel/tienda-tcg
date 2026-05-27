@@ -4,7 +4,7 @@ import Discount from "./Discount";
 import OrderSummary from "./OrderSummary";
 import { useAppSelector } from "@/redux/store";
 import SingleItem from "./SingleItem";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import Link from "next/link";
 
 const Cart = () => {

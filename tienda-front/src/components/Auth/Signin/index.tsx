@@ -1,6 +1,6 @@
 "use client";
 import { API_URL } from "@/utils/api";
-import Breadcrumb from "@/components/Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";

@@ -5,10 +5,10 @@ import { ModalProvider } from "../context/QuickViewModalContext";
 import { CartModalProvider } from "../context/CartSidebarModalContext";
 import { ReduxProvider } from "@/redux/provider";
 import { PreviewSliderProvider } from "../context/PreviewSliderContext";
-import QuickViewModal from "@/components/Common/QuickViewModal";
-import CartSidebarModal from "@/components/Common/CartSidebarModal";
-import PreviewSliderModal from "@/components/Common/PreviewSlider";
-import ToastContainer from "@/components/Common/ToastContainer";
+import QuickViewModal from "@/components/Shop/widgets/QuickViewModal";
+import CartSidebarModal from "@/components/Shop/widgets/CartSidebarModal";
+import PreviewSliderModal from "@/components/Shop/widgets/PreviewSlider";
+import ToastContainer from "@/components/layout/ToastContainer";
 import { store } from "@/redux/store";
 import { fetchDefaultCurrency } from "@/redux/features/currency-slice";
 

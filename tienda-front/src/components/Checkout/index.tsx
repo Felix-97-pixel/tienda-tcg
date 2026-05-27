@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import { selectCartItems, selectTotalPrice, removeAllItemsFromCart } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 

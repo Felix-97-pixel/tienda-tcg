@@ -1,5 +1,5 @@
 import React from "react";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import SearchForm from "../Blog/SearchForm";
 import LatestPosts from "../Blog/LatestPosts";
 import LatestProducts from "../Blog/LatestProducts";

@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 import "../css/euclid-circular-a-font.css";
 import "../css/store-style.css";
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
-import ScrollToTop from "@/components/Common/ScrollToTop";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import ClientProviders from "./ClientProviders";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";

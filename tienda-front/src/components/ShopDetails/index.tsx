@@ -1,6 +1,6 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import Image from "next/image";
 import Newsletter from "../Common/Newsletter";
 import RecentlyViewdItems from "./RecentlyViewd";

@@ -1,7 +1,7 @@
 "use client";
 import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import CustomSelect from "./CustomSelect";
 import SearchableSelect from "../ui/SearchableSelect";
 import SizeDropdown from "./SizeDropdown";

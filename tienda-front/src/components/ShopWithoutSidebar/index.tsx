@@ -1,7 +1,7 @@
 "use client";
 import { API_URL } from "@/utils/api";
 import React, { useState } from "react";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";

@@ -1,7 +1,7 @@
 "use client";
 import { API_URL } from "@/utils/api";
 import React, { useEffect, useState } from "react";
-import Breadcrumb from "../Common/Breadcrumb";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 import { useAppSelector } from "@/redux/store";
 import SingleItem from "./SingleItem";
 
