@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import "../css/euclid-circular-a-font.css";
-import "../css/style.css";
+import "../css/store-style.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ScrollToTop from "@/components/Common/ScrollToTop";

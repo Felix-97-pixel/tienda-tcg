@@ -4,7 +4,7 @@ import { getMessages, getLocale } from "next-intl/server";
 import AdminLayoutClient from "@/components/Admin/AdminLayoutClient";
 
 import "../css/euclid-circular-a-font.css";
-import "../css/style.css";
+import "../css/admin-style.css";
 
 export default async function AdminLayout({
   children,
