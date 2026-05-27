@@ -1,11 +1,16 @@
-"use client";
 import React from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
 import { Brand } from "@/types/brand";
-import { BrandTableProps } from "@/types/adminProps";
+
+export interface BrandTableProps {
+  brands: Brand[];
+  loading: boolean;
+  onEdit: (brand: Brand) => void;
+  onDelete: (brand: Brand) => void;
+}
 
 export default function BrandTable({ brands, loading, onEdit, onDelete }: BrandTableProps) {
   const t = useTranslations("brands");

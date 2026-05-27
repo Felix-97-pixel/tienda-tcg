@@ -8,7 +8,14 @@ import { InventoryItem } from "@/types/inventoryItem";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { InventoryModalProps } from "@/types/adminProps";
+import { Product } from "@/types/product";
+
+export interface InventoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  product: Product | null;
+  onSuccess: () => void;
+}
 
 export default function InventoryModal({ isOpen, onClose, product: initialProduct, onSuccess }: InventoryModalProps) {
   const t = useTranslations("products");

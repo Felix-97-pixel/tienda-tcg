@@ -5,7 +5,13 @@ import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
 import { AdminCategory as Category } from "@/types/adminCategory";
-import { CategoryTableProps } from "@/types/adminProps";
+
+export interface CategoryTableProps {
+  categories: Category[];
+  loading: boolean;
+  onEdit: (cat: Category) => void;
+  onDelete: (cat: Category) => void;
+}
 
 export default function CategoryTable({ categories, loading, onEdit, onDelete }: CategoryTableProps) {
   const t = useTranslations("categories");

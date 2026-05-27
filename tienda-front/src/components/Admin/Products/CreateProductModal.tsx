@@ -11,7 +11,13 @@ import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { CreateProductModalProps } from "@/types/adminProps";
+export interface CreateProductModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: { id: string, name: string }[];
+  brands: { id: string, name: string }[];
+  onSuccess: () => void;
+}
 
 export default function CreateProductModal({ isOpen, onClose, categories, brands, onSuccess }: CreateProductModalProps) {
   const t = useTranslations("products");

@@ -10,7 +10,14 @@ import { FileInput } from "@/components/ui/FileInput";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { CategoryModalProps } from "@/types/adminProps";
+import { AdminCategory as Category } from "@/types/adminCategory";
+
+export interface CategoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  category: Category | null;
+  onSuccess: () => void;
+}
 
 export default function CategoryModal({ isOpen, onClose, category, onSuccess }: CategoryModalProps) {
   const t = useTranslations("categories");

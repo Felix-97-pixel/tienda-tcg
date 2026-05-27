@@ -10,7 +10,23 @@ import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { EditProductModalProps } from "@/types/adminProps";
+export interface EditProductModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  item: {
+    productId: string;
+    categoryId: string;
+    brandId: string;
+    imageUrl: string;
+    productName: string;
+    itemId: string;
+    price: number;
+    stock: number;
+  } | null;
+  categories: { id: string, name: string }[];
+  brands: { id: string, name: string }[];
+  onSuccess: () => void;
+}
 
 export default function EditProductModal({ isOpen, onClose, item, categories, brands, onSuccess }: EditProductModalProps) {
   const t = useTranslations("products");

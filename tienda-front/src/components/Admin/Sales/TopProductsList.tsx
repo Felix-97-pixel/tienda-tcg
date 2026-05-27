@@ -3,7 +3,10 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { TopProduct } from "@/types/adminSale";
-import { TopProductsListProps } from "@/types/adminProps";
+
+export interface TopProductsListProps {
+  products: TopProduct[];
+}
 
 export default function TopProductsList({ products }: TopProductsListProps) {
   const t = useTranslations("sales");

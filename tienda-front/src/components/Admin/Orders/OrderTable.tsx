@@ -4,7 +4,17 @@ import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
 import { Order } from "@/types/order";
-import { OrderTableProps } from "@/types/adminProps";
+
+export interface OrderTableProps {
+  orders: Order[];
+  loading: boolean;
+  statusClasses: Record<string, string>;
+  statusLabel: (status: string) => string;
+  onViewDetails: (order: Order) => void;
+  page?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+}
 
 const LIMIT_PLACEHOLDER = 8;
 

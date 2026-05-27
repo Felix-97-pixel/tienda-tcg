@@ -8,6 +8,7 @@ import { selectCartItems, selectTotalPrice, removeAllItemsFromCart } from "@/red
 import { RootState } from "@/redux/store";
 
 import { formatPrice } from "@/utils/currency";
+import { ShippingBadge } from "@/components/ui/ShippingBadge";
 
 type BillingData = {
   name: string;
@@ -38,6 +39,22 @@ const CheckoutWebpay = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shippingProviders, setShippingProviders] = useState<any[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const shippingCost = selectedProvider ? Number(selectedProvider.price) : 0;
+
+  // Carga dinámica de proveedores de envío
+  useEffect(() => {
+    fetch(`${API_URL}/shipping/providers`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setShippingProviders(data);
+          setSelectedProvider(data[0]); // Seleccionar el primero por defecto (Chilexpress)
+        }
+      })
+      .catch((err) => console.error("Error al cargar proveedores de envío:", err?.message || err));
+  }, []);
 
   // Auto-fill from saved profile
   useEffect(() => {
@@ -91,8 +108,9 @@ const CheckoutWebpay = () => {
         address: billing.address,
         city: billing.city,
         notes: billing.notes,
-        currencyCode: currency.code,
+        currency: currency.code,
         exchangeRate: currency.exchangeRate,
+        shippingProviderId: selectedProvider ? selectedProvider.id : null,
         items: cartItems.map((item) => ({
           productId: String(item.id),
           inventoryItemId: item.inventoryItemId ?? null,
@@ -317,11 +335,48 @@ const CheckoutWebpay = () => {
                       </div>
                     ))}
 
+                    {/* Subtotal */}
+                    <div className="flex items-center justify-between py-4 border-b border-gray-3">
+                      <p className="font-medium text-dark">Subtotal</p>
+                      <p className="font-semibold text-dark">
+                        {formatPrice(total, currency)}
+                      </p>
+                    </div>
+
+                    {/* Envío */}
+                    <div className="py-4 border-b border-gray-3 flex justify-between items-center gap-4">
+                      <span className="font-medium text-dark">Envío</span>
+                      <div className="flex flex-col gap-3 items-end">
+                        {shippingProviders.map((provider) => {
+                          const isChilexpress = provider.name.toUpperCase() === "CHILEXPRESS";
+                          return (
+                            <label key={provider.id} className="flex items-center gap-3 cursor-pointer w-full justify-end select-none">
+                              <input
+                                type="radio"
+                                name="shippingProvider"
+                                value={provider.name}
+                                checked={selectedProvider?.id === provider.id}
+                                onChange={() => setSelectedProvider(provider)}
+                                className="w-4 h-4 text-blue border-gray-3 focus:ring-blue cursor-pointer flex-shrink-0"
+                              />
+                              
+                              {/* Badge de Marca Estilizado */}
+                              <ShippingBadge name={provider.name} size="sm" />
+
+                              <div className="text-right font-bold text-green-600 text-sm min-w-[85px] flex-shrink-0">
+                                {formatPrice(Number(provider.price) / currency.exchangeRate, currency)}
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     {/* Total */}
                     <div className="flex items-center justify-between pt-5">
                       <p className="font-semibold text-lg text-dark">Total</p>
-                      <p className="font-semibold text-lg text-dark">
-                        {formatPrice(total, currency)}
+                      <p className="font-semibold text-lg text-green-600">
+                        {formatPrice(total + (shippingCost / currency.exchangeRate), currency)}
                       </p>
                     </div>
                   </div>
@@ -337,7 +392,7 @@ const CheckoutWebpay = () => {
                 {/* Botón pagar */}
                 <button
                   type="submit"
-                  disabled={loading || cartItems.length === 0}
+                  disabled={loading || cartItems.length === 0 || !selectedProvider}
                   className="w-full flex items-center justify-center gap-3 font-semibold text-white bg-gradient-to-r from-[#E2001A] to-[#1A1446] py-4 px-6 rounded-xl mt-7.5 transition-all duration-300 hover:opacity-90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
@@ -354,7 +409,7 @@ const CheckoutWebpay = () => {
                         <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
                         <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
                       </svg>
-                      Pagar con Webpay · {formatPrice(total, currency)}
+                      Pagar con Webpay · {formatPrice(total + (shippingCost / currency.exchangeRate), currency)}
                     </>
                   )}
                 </button>

@@ -52,7 +52,7 @@ export class PokemonProvider extends TcgProvider {
   /** Actualización de precios usando TCGPlayer (delegado en PokemonService) */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Pokémon] Iniciando actualización de precios para: "${expansionName}" ===`);
-    
+
     try {
       // 1. Obtener el ID del set por nombre
       const set = await this.pokemonService.fetchSetByName(expansionName);
@@ -112,7 +112,7 @@ export class PokemonProvider extends TcgProvider {
               data: { price: prices.unlimitedHolofoil.mid }
             });
           }
-          
+
           updatedCount++;
         }
 

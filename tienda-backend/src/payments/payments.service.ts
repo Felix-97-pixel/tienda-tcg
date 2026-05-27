@@ -68,6 +68,22 @@ export class PaymentsService {
 
     // Convert total to CLP using exchange rate since Webpay only accepts CLP
     const total = baseTotal * exchangeRate;
+    
+    // Obtener costo de envío dinámico y seguro desde la base de datos
+    if (!dto.shippingProviderId) {
+      throw new BadRequestException('El proveedor de envío es obligatorio.');
+    }
+
+    const provider = await this.prisma.shippingProvider.findUnique({
+      where: { id: dto.shippingProviderId }
+    });
+
+    if (!provider) {
+      throw new BadRequestException('El proveedor de envío seleccionado no es válido.');
+    }
+
+    const shippingCost = Number(provider.price);
+    const totalWithShipping = total + shippingCost;
 
     // Generar buyOrder único (máx 26 chars para Webpay)
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
@@ -84,9 +100,11 @@ export class PaymentsService {
         address: dto.address,
         city: dto.city,
         notes: dto.notes,
-        totalAmount: total,
+        totalAmount: totalWithShipping,
         currencyCode,
         exchangeRate,
+        shippingProviderId: dto.shippingProviderId,
+        shippingCost: shippingCost,
         status: 'PENDING',
         items: {
           create: dto.items.map((item) => ({
@@ -101,7 +119,7 @@ export class PaymentsService {
     });
 
     // Llamar a Webpay para crear transacción
-    const amountInCLP = Math.round(total); // Webpay usa enteros en CLP
+    const amountInCLP = Math.round(totalWithShipping); // Webpay usa enteros en CLP
     const response = await this.tx.create(
       buyOrder,
       sessionId,
@@ -114,12 +132,12 @@ export class PaymentsService {
       data: {
         orderId: order.id,
         token: response.token,
-        amount: total,
+        amount: totalWithShipping,
         status: 'PENDING',
       },
     });
 
-    this.logger.log(`Transacción iniciada: buyOrder=${buyOrder}, token=${response.token}`);
+    this.logger.log(`Transacción iniciada: buyOrder=${buyOrder}, token=${response.token}, total=${totalWithShipping}`);
 
     return {
       token: response.token,

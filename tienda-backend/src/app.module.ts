@@ -15,6 +15,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SettingsModule } from './settings/settings.module';
 import { CurrenciesModule } from './currencies/currencies.module';
+import { ShippingModule } from './shipping/shipping.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { CurrenciesModule } from './currencies/currencies.module';
     WishlistModule,
     PaymentsModule,
     SettingsModule,
-    CurrenciesModule
+    CurrenciesModule,
+    ShippingModule
   ],
   controllers: [AppController],
   providers: [AppService],

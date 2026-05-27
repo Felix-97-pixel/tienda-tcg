@@ -3,8 +3,15 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Order, OrderItem } from "@/types/order";
-import { OrderDetailsModalProps } from "@/types/adminProps";
+import { Order } from "@/types/order";
+
+export interface OrderDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  order: Order | null;
+  statusClasses: Record<string, string>;
+  statusLabel: (status: string) => string;
+}
 
 export default function OrderDetailsModal({ isOpen, onClose, order, statusClasses, statusLabel }: OrderDetailsModalProps) {
   const t = useTranslations("orders");

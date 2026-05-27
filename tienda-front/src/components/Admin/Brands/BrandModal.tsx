@@ -9,7 +9,14 @@ import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { BrandModalProps } from "@/types/adminProps";
+import { Brand } from "@/types/brand";
+
+export interface BrandModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  brand: Brand | null;
+  onSuccess: () => void;
+}
 
 export default function BrandModal({ isOpen, onClose, brand, onSuccess }: BrandModalProps) {
   const t = useTranslations("brands");

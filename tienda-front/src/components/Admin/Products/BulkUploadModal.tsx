@@ -8,7 +8,12 @@ import Papa from "papaparse";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
-import { BulkUploadModalProps } from "@/types/adminProps";
+export interface BulkUploadModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: { id: string, name: string }[];
+  onSuccess: () => void;
+}
 
 export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess }: BulkUploadModalProps) {
   const t = useTranslations("products");

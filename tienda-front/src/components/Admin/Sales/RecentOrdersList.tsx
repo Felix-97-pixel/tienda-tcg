@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { RecentOrder } from "@/types/adminSale";
-import { RecentOrdersListProps } from "@/types/adminProps";
+
+export interface RecentOrdersListProps {
+  orders: RecentOrder[];
+}
 
 export default function RecentOrdersList({ orders }: RecentOrdersListProps) {
   const t = useTranslations("sales");

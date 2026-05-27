@@ -1,6 +1,16 @@
-"use client";
 import React from "react";
-import { StatCardProps } from "@/types/adminProps";
+
+export interface StatCardProps {
+  label: string;
+  value: string | number;
+  sub?: string;
+  color: string;
+  icon: React.ReactNode;
+  trend?: {
+    value: number;
+    positive: boolean;
+  };
+}
 
 export default function StatCard({ label, value, sub, color, icon, trend }: StatCardProps) {
   return (

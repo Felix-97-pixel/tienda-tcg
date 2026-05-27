@@ -68,4 +68,8 @@ export class CreateOrderDto {
   @IsNumber()
   @IsOptional()
   exchangeRate?: number;
+
+  @IsString()
+  @IsNotEmpty()
+  shippingProviderId: string;
 }

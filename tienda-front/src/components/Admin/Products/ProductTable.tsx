@@ -4,8 +4,18 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
-import { ProductTableProps } from "@/types/adminProps";
 import { Product } from "@/types/product";
+
+export interface ProductTableProps {
+  products: Product[];
+  loading: boolean;
+  onEdit: (product: Product, item: any) => void;
+  onInventory: (product: Product) => void;
+  onDelete: (product: Product) => void;
+  page?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+}
 
 export default function ProductTable({ products, loading, onEdit, onInventory, onDelete, page, totalPages, onPageChange }: ProductTableProps) {
   const t = useTranslations("products");

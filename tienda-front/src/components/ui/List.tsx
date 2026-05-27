@@ -48,16 +48,15 @@ export function List<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`py-4 px-6 font-bold text-dark-4 text-xs uppercase tracking-wider ${
-                    col.headerClassName || ""
-                  }`}
+                  className={`py-4 px-6 font-bold text-dark-4 text-xs uppercase tracking-wider ${col.headerClassName || ""
+                    }`}
                 >
                   {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {loading ? (
               Array.from({ length: loadingItemsCount }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
@@ -98,9 +97,9 @@ export function List<T>({
 
       {totalPages && totalPages > 1 && page && onPageChange && (
         <div className="flex justify-between items-center px-6 py-4 border-t border-stroke bg-gray-50/50">
-          <button 
-            disabled={page === 1} 
-            onClick={() => onPageChange(page - 1)} 
+          <button
+            disabled={page === 1}
+            onClick={() => onPageChange(page - 1)}
             className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-stroke text-dark-4 hover:bg-white hover:text-blue hover:border-blue transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95"
           >
             {tc("previous")}
@@ -108,9 +107,9 @@ export function List<T>({
           <span className="text-[10px] font-black text-dark-4 uppercase tracking-[0.2em] bg-white px-4 py-2 rounded-lg border border-stroke shadow-sm">
             {tc("page", { current: page, total: totalPages })}
           </span>
-          <button 
-            disabled={page === totalPages} 
-            onClick={() => onPageChange(page + 1)} 
+          <button
+            disabled={page === totalPages}
+            onClick={() => onPageChange(page + 1)}
             className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-stroke text-dark-4 hover:bg-white hover:text-blue hover:border-blue transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95"
           >
             {tc("next")}
