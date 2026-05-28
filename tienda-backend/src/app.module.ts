@@ -16,6 +16,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { SettingsModule } from './settings/settings.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { ShippingModule } from './shipping/shipping.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { ShippingModule } from './shipping/shipping.module';
     PaymentsModule,
     SettingsModule,
     CurrenciesModule,
-    ShippingModule
+    ShippingModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

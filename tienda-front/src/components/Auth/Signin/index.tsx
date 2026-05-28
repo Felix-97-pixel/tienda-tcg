@@ -61,7 +61,24 @@ const Signin = () => {
             </div>
 
             <div>
-              {error && <p className="text-red-500 text-center mb-4 text-red">{error}</p>}
+              {error && (
+                error.toLowerCase().includes("verific") ? (
+                  <div className="mb-6 p-4 bg-yellow-100/50 border-l-4 border-yellow-500 rounded-r text-left text-custom-sm text-yellow-800 flex flex-col gap-1.5 leading-relaxed">
+                    <p className="font-bold flex items-center gap-2">
+                      <svg className="w-5 h-5 fill-current shrink-0 text-yellow-600" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      Cuenta no verificada
+                    </p>
+                    <p>{error}</p>
+                    <p className="text-xs text-gray-5 mt-1">
+                      Por favor busca el enlace de activación enviado por <strong>Blood Moon Games</strong> en tu casilla de correo o Spam.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-red-500 text-center mb-4 text-red">{error}</p>
+                )
+              )}
               <form onSubmit={handleSubmit}>
                 <div className="mb-5">
                   <label htmlFor="email" className="block mb-2.5">

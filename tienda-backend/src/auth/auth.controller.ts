@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
@@ -8,10 +8,8 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.register(registerDto);
-    this.setCookie(res, result.access_token);
-    return { user: result.user };
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -27,6 +25,11 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('verify')
+  async verify(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
   }
 
   private setCookie(res: Response, token: string) {

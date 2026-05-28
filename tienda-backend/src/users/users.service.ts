@@ -32,6 +32,20 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.prisma.user.findFirst({ where: { verificationToken: token } });
+  }
+
+  async verifyUser(id: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        isVerified: true,
+        verificationToken: null,
+      },
+    });
+  }
+
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');

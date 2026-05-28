@@ -87,18 +87,20 @@ model Finish {
 }
 
 model User {
-  id        String         @id @default(uuid())
-  email     String         @unique
-  password  String
-  name      String?
-  phone     String?
-  address   String?
-  city      String?
-  role      Role           @default(USER)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  wishlist  WishlistItem[]
-  orders    Order[]
+  id                String         @id @default(uuid())
+  email             String         @unique
+  password          String
+  name              String?
+  phone             String?
+  address           String?
+  city              String?
+  role              Role           @default(USER)
+  isVerified        Boolean        @default(false)
+  verificationToken String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  wishlist          WishlistItem[]
+  orders            Order[]
 }
 
 model Order {

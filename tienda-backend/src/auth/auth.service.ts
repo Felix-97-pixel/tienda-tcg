@@ -4,12 +4,15 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import axios from 'axios';
+import { MailService } from '../mail/mail.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private mailService: MailService
   ) {}
 
   async verifyCaptcha(token: string): Promise<boolean> {
@@ -47,15 +50,22 @@ export class AuthService {
     }
     
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const token = randomUUID();
+
     const user = await this.usersService.create({
       email: registerDto.email,
       password: hashedPassword,
       name: registerDto.name,
+      isVerified: false,
+      verificationToken: token,
     });
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    // Send the activation email
+    await this.mailService.sendVerificationEmail(user.email, user.name ?? 'Jugador', token);
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      success: true,
+      message: 'Registro exitoso. Se ha enviado un correo de verificación para activar tu cuenta.',
       user: {
         id: user.id,
         email: user.email,
@@ -81,6 +91,11 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    // Block login if user has not verified their email
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Tu cuenta no está verificada. Por favor verifica tu correo para poder ingresar.');
+    }
+
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -90,6 +105,21 @@ export class AuthService {
         name: user.name,
         role: user.role
       }
+    };
+  }
+
+  async verifyEmail(token: string) {
+    if (!token) {
+      throw new BadRequestException('Token de verificación requerido');
+    }
+    const user = await this.usersService.findByVerificationToken(token);
+    if (!user) {
+      throw new BadRequestException('Token de verificación inválido o expirado');
+    }
+    await this.usersService.verifyUser(user.id);
+    return {
+      success: true,
+      message: 'Cuenta verificada correctamente. Ya puedes iniciar sesión.'
     };
   }
 }
