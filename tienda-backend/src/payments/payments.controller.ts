@@ -10,14 +10,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { PaymentsService } from './payments.service';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/optional-jwt.guard';
+import { InitTransactionCommand } from './commands/impl/init-transaction.command';
+import { CommitTransactionCommand } from './commands/impl/commit-transaction.command';
+import { GetOrderStatusQuery } from './queries/impl/get-order-status.query';
+import { ListOrdersQuery } from './queries/impl/list-orders.query';
+import { GetSalesStatsQuery } from './queries/impl/get-sales-stats.query';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   /**
    * POST /payments/init
@@ -35,7 +43,9 @@ export class PaymentsController {
     const callbackUrl = `${backendUrl}/payments/commit`;
 
     const userId = req.user?.userId ?? null;
-    return this.paymentsService.initTransaction(dto, userId, callbackUrl);
+    return this.commandBus.execute(
+      new InitTransactionCommand(dto, userId, callbackUrl),
+    );
   }
 
   /**
@@ -61,7 +71,9 @@ export class PaymentsController {
     }
 
     try {
-      const result = await this.paymentsService.commitTransaction(token);
+      const result = await this.commandBus.execute(
+        new CommitTransactionCommand(token),
+      );
       const status = result.approved ? 'success' : 'failed';
       return res.redirect(
         `${frontendUrl}/checkout/result?status=${status}&orderId=${result.orderId}`,
@@ -77,7 +89,7 @@ export class PaymentsController {
    */
   @Get('order/:orderId')
   getOrderStatus(@Param('orderId') orderId: string) {
-    return this.paymentsService.getOrderStatus(orderId);
+    return this.queryBus.execute(new GetOrderStatusQuery(orderId));
   }
 
   /**
@@ -89,7 +101,7 @@ export class PaymentsController {
     @Query('page') page = '1',
     @Query('limit') limit = '20',
   ) {
-    return this.paymentsService.listOrders(+page, +limit);
+    return this.queryBus.execute(new ListOrdersQuery(+page, +limit));
   }
 
   /**
@@ -99,6 +111,6 @@ export class PaymentsController {
   @Get('stats')
   @UseGuards(JwtAuthGuard)
   getSalesStats() {
-    return this.paymentsService.getSalesStats();
+    return this.queryBus.execute(new GetSalesStatsQuery());
   }
 }
