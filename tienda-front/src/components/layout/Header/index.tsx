@@ -136,14 +136,15 @@ const Header = () => {
               </button>
             </div>
 
-            {/* <!-- Search Bar Capsule --> */}
-            <div className="max-w-[500px] xl:max-w-[600px] w-full flex-1 min-w-0">
-              <form>
-                <div className="flex items-center bg-white rounded-md shadow-sm border border-[#e5e7eb]">
-                  <CustomSelect options={categoriesData} />
-                  <div className="relative flex-1 w-full">
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-3"></span>
-                    <input
+            <div className="grid grid-cols-1 md:grid-cols-12 xl:flex xl:flex-row w-full xl:flex-1 items-center gap-5 xl:justify-between">
+              {/* <!-- Search Bar Capsule --> */}
+              <div className="md:col-span-6 xl:flex-1 xl:max-w-[600px] w-full min-w-0">
+                <form>
+                  <div className="flex items-center bg-white rounded-md shadow-sm border border-[#e5e7eb]">
+                    <CustomSelect options={categoriesData} />
+                    <div className="relative flex-1 w-full">
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-3"></span>
+                      <input
                       onChange={(e) => setSearchQuery(e.target.value)}
                       value={searchQuery}
                       type="search"
@@ -174,7 +175,7 @@ const Header = () => {
             </div>
 
             {/* <!-- Header Actions Group --> */}
-            <div className="flex w-full lg:w-auto items-center justify-center sm:justify-end gap-4 xl:gap-7.5">
+            <div className="flex w-full md:col-span-6 xl:w-auto items-center justify-center sm:justify-end gap-4 xl:gap-7.5">
               {/* Support */}
               <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
                 <svg
@@ -317,6 +318,7 @@ const Header = () => {
                   </div>
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </div>
