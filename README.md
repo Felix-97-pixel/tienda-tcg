@@ -95,7 +95,10 @@ Plataforma full-stack de e-commerce especializada en **Trading Card Games** (Mag
 | [Cloudinary](https://cloudinary.com/) | CDN de imágenes |
 | [Transbank](https://www.transbankdevelopers.cl/) | Pasarela de pagos (Webpay Plus) |
 | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) | CAPTCHA anti-bots |
-| [Resend](https://resend.com/) | Servicio SMTP para emails |
+| [Resend](https://resend.com/) | Servicio SMTP para emails transaccionales |
+| [Scryfall](https://scryfall.com/) & [MTGJSON](https://mtgjson.com/) | API para catálogos y precios de Magic |
+| [PokemonTCG.io](https://pokemontcg.io/) | API para catálogos y precios de Pokémon |
+| [Riftcodex](https://api.riftcodex.com) & [JustTCG](https://justtcg.com/) | APIs para catálogos y precios de Riftbound |
 
 ---
 
