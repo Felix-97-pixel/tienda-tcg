@@ -3,125 +3,93 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
-  title: "Dashboard - Admin Panel",
-  description: "Admin panel for managing the store",
+  title: "Seleccionar Módulo | TapTrade Admin",
+  description: "Selecciona el módulo de administración",
 };
 
-// Los iconos son JSX puro, no necesitan traducciones — van fuera de la función
-const icons = {
-  products: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
-      <path fillRule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd" />
-    </svg>
-  ),
-  categories: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-    </svg>
-  ),
-  brands: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-    </svg>
-  ),
-  sales: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-    </svg>
-  ),
-  orders: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clipRule="evenodd" />
-    </svg>
-  ),
-  sync: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-    </svg>
-  ),
-  wishlist: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-    </svg>
-  ),
-  settings: (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.533 1.533 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.533 1.533 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-    </svg>
-  ),
-};
-
-// La función es async porque getTranslations es asíncrono
-export default async function AdminDashboard() {
+export default async function AdminHub() {
   const t = await getTranslations("dashboard");
 
-  // Los arrays que usan t() van DENTRO de la función async
-  const cards = [
-    { href: "/admin/products", key: "products", color: "bg-blue/10", iconColor: "text-blue" },
-    { href: "/admin/categories", key: "categories", color: "bg-purple-100", iconColor: "text-purple-600" },
-    { href: "/admin/brands", key: "brands", color: "bg-green-100", iconColor: "text-green-600" },
-    { href: "/admin/sales", key: "sales", color: "bg-yellow-100", iconColor: "text-yellow-600" },
-    { href: "/admin/orders", key: "orders", color: "bg-orange-100", iconColor: "text-orange-600" },
-    { href: "/admin/sync", key: "sync", color: "bg-red-100", iconColor: "text-red-500" },
-    { href: "/admin/wishlist", key: "wishlist", color: "bg-pink-100", iconColor: "text-pink-500" },
-    { href: "/admin/currencies", key: "currencies", color: "bg-indigo-100", iconColor: "text-indigo-600", labelOverride: "Divisas", descOverride: "Administrar precios de divisas" },
-    { href: "/admin/settings", key: "settings", color: "bg-gray-100", iconColor: "text-gray-600" },
-  ];
-
-  const quickGuide = [
-    { key: "brands", descKey: "brandsDesc" },
-    { key: "categories", descKey: "categoriesDesc" },
-    { key: "products", descKey: "productsDesc" },
-    { key: "sync", descKey: "syncDesc" },
-    { key: "sales", descKey: "salesDesc" },
-    { key: "orders", descKey: "ordersDesc" },
-    { key: "wishlist", descKey: "wishlistDesc" },
-    { key: "settings", descKey: "settingsDesc" },
+  const modules = [
+    {
+      href: "/admin/products",
+      title: "Módulo de Catálogo",
+      description: "Administra tu inventario, agrega cartas, define precios y organiza tus colecciones de TCG.",
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      ),
+      color: "from-blue to-blue-light",
+      shadow: "shadow-blue/20"
+    },
+    {
+      href: "/admin/sales",
+      title: "Módulo de Estadísticas",
+      description: "Analiza tus ventas, gestiona las órdenes de tus clientes y monitorea el rendimiento de tu tienda.",
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      color: "from-teal to-teal-dark",
+      shadow: "shadow-teal/20"
+    },
+    {
+      href: "/admin/settings",
+      title: "Módulo de Configuración",
+      description: "Ajusta las divisas, los métodos de envío, sincronización y preferencias generales de tu negocio.",
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+      color: "from-orange to-yellow",
+      shadow: "shadow-orange/20"
+    }
   ];
 
   return (
-    <div className="p-6 space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
-        <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center p-6">
+      <div className="text-center mb-16 max-w-2xl">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+          Selecciona un Módulo
+        </h1>
+        <p className="text-lg text-gray-400">
+          Bienvenido a tu panel de control. Elige el área de trabajo a la que deseas ingresar para gestionar tu tienda.
+        </p>
       </div>
 
-      {/* Quick-access cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-        {cards.map((card) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+        {modules.map((mod) => (
           <Link
-            key={card.href}
-            href={card.href}
-            className="bg-white rounded-2xl shadow-1 p-6 flex items-start gap-4 hover:shadow-md transition-shadow group"
+            key={mod.href}
+            href={mod.href}
+            className="group relative bg-white/5 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-white/20 overflow-hidden"
           >
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${card.color} ${card.iconColor}`}>
-              {icons[card.key as keyof typeof icons]}
+            {/* Glow effect on hover */}
+            <div className={`absolute -inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none rounded-3xl`} />
+            
+            <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mod.color} text-white flex items-center justify-center mb-8 shadow-lg ${mod.shadow} group-hover:scale-110 transition-transform duration-300`}>
+              {mod.icon}
             </div>
-            <div>
-              <p className="font-semibold text-dark group-hover:text-blue transition-colors">
-                {card.labelOverride || t(`modules.${card.key}`)}
-              </p>
-              <p className="text-dark-4 text-sm mt-0.5">
-                {card.descOverride || t(`modules.${card.key}Desc`)}
-              </p>
+            
+            <h2 className="text-2xl font-bold text-white mb-3">
+              {mod.title}
+            </h2>
+            <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+              {mod.description}
+            </p>
+            
+            <div className="mt-8 flex items-center text-sm font-bold text-white uppercase tracking-wider group-hover:gap-2 transition-all opacity-80 group-hover:opacity-100">
+              <span>Ingresar al Módulo</span>
+              <svg className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
             </div>
           </Link>
         ))}
-      </div>
-
-      {/* Info panel */}
-      <div className="bg-white rounded-2xl shadow-1 p-6">
-        <h2 className="font-semibold text-dark text-lg mb-4">📋 {t("quickGuideTitle")}</h2>
-        <ul className="space-y-3 text-sm text-dark-4">
-          {quickGuide.map(({ key, descKey }) => (
-            <li key={key}>
-              <span className="font-medium text-dark">{t(`modules.${key}`)}:</span>{" "}
-              {t(`modules.${descKey}`)}
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

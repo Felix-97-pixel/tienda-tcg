@@ -14,6 +14,7 @@ model Category {
   isTcg    Boolean   @default(false)
   products Product[]
 }
+
 model Brand {
   id       String    @id @default(uuid())
   name     String    @unique
@@ -39,15 +40,15 @@ model Product {
 }
 
 model Language {
-  id    String @id @default(uuid())
-  name  String @unique // e.g., "Spanish", "English"
-  code  String @unique // e.g., "es", "en"
+  id    String          @id @default(uuid())
+  name  String          @unique // e.g., "Spanish", "English"
+  code  String          @unique // e.g., "es", "en"
   items InventoryItem[]
 }
 
 model Condition {
-  id    String @id @default(uuid())
-  name  String @unique // e.g., "near_mint", "poor"
+  id    String          @id @default(uuid())
+  name  String          @unique // e.g., "near_mint", "poor"
   items InventoryItem[]
 }
 
@@ -64,12 +65,14 @@ model CardDetail {
 
 model InventoryItem {
   id          String    @id @default(uuid())
+  storeId     String
   productId   String
   conditionId String
   languageId  String
   finishId    String?
   price       Decimal   @db.Decimal(10, 2)
   stock       Int       @default(0)
+  store       Store     @relation(fields: [storeId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
   condition   Condition @relation(fields: [conditionId], references: [id])
   language    Language  @relation(fields: [languageId], references: [id])
@@ -78,17 +81,33 @@ model InventoryItem {
 
 model Finish {
   id      String          @id @default(uuid())
-  name    String 
-  game    String 
+  name    String
+  game    String
   aliases String[]        @default([])
   items   InventoryItem[]
 
   @@unique([name, game])
 }
 
+model Store {
+  id           String             @id @default(uuid())
+  name         String
+  subdomain    String             @unique
+  customDomain String?            @unique
+  logoUrl      String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  users        User[]
+  inventory    InventoryItem[]
+  orders       Order[]
+  shipping     ShippingProvider[]
+  settings     StoreSetting[]
+}
+
 model User {
   id                String         @id @default(uuid())
-  email             String         @unique
+  storeId           String
+  email             String
   password          String
   name              String?
   phone             String?
@@ -99,32 +118,37 @@ model User {
   verificationToken String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
+  store             Store          @relation(fields: [storeId], references: [id])
   wishlist          WishlistItem[]
   orders            Order[]
+
+  @@unique([email, storeId])
 }
 
 model Order {
-  id          String      @id @default(uuid())
-  buyOrder    String      @unique
-  userId      String?
-  email       String
-  name        String
-  phone       String?
-  address     String?
-  city        String?
-  notes       String?
-  totalAmount Decimal     @db.Decimal(10, 2)
-  currencyCode String?    @default("CLP")
-  exchangeRate Decimal?   @db.Decimal(10, 2)
+  id                 String           @id @default(uuid())
+  storeId            String
+  buyOrder           String           @unique
+  userId             String?
+  email              String
+  name               String
+  phone              String?
+  address            String?
+  city               String?
+  notes              String?
+  totalAmount        Decimal          @db.Decimal(10, 2)
+  currencyCode       String?          @default("CLP")
+  exchangeRate       Decimal?         @db.Decimal(10, 2)
   shippingProviderId String
-  shippingCost     Decimal    @default(0) @db.Decimal(10, 2)
-  status      OrderStatus @default(PENDING)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  items       OrderItem[]
-  payment     Payment?
-  user        User?       @relation(fields: [userId], references: [id])
-  shippingProvider ShippingProvider @relation(fields: [shippingProviderId], references: [id])
+  shippingCost       Decimal          @default(0) @db.Decimal(10, 2)
+  status             OrderStatus      @default(PENDING)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  items              OrderItem[]
+  payment            Payment?
+  store              Store            @relation(fields: [storeId], references: [id])
+  user               User?            @relation(fields: [userId], references: [id])
+  shippingProvider   ShippingProvider @relation(fields: [shippingProviderId], references: [id])
 }
 
 model OrderItem {
@@ -139,19 +163,19 @@ model OrderItem {
 }
 
 model Payment {
-  id             String        @id @default(uuid())
-  orderId        String        @unique
-  token          String        @unique
-  status         PaymentStatus @default(PENDING)
-  amount         Decimal       @db.Decimal(10, 2)
-  authCode       String?
-  cardLast4      String?
-  paymentType    String?
-  installments   Int?
+  id              String        @id @default(uuid())
+  orderId         String        @unique
+  token           String        @unique
+  status          PaymentStatus @default(PENDING)
+  amount          Decimal       @db.Decimal(10, 2)
+  authCode        String?
+  cardLast4       String?
+  paymentType     String?
+  installments    Int?
   transactionDate DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  order          Order         @relation(fields: [orderId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  order           Order         @relation(fields: [orderId], references: [id])
 }
 
 model WishlistItem {
@@ -193,8 +217,8 @@ model GlobalSetting {
 model Currency {
   id           String   @id @default(uuid())
   code         String   @unique // e.g., "CLP", "USD"
-  name         String   // e.g., "Peso Chileno"
-  symbol       String   // e.g., "$"
+  name         String // e.g., "Peso Chileno"
+  symbol       String // e.g., "$"
   exchangeRate Decimal  @db.Decimal(10, 2)
   isDefault    Boolean  @default(false)
   createdAt    DateTime @default(now())
@@ -203,10 +227,24 @@ model Currency {
 
 model ShippingProvider {
   id        String   @id @default(uuid())
-  name      String   @unique // e.g. "CHILEXPRESS", "STARKEN"
+  storeId   String
+  name      String // e.g. "CHILEXPRESS", "STARKEN"
   price     Decimal  @db.Decimal(10, 2)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  store     Store    @relation(fields: [storeId], references: [id])
   orders    Order[]
+
+  @@unique([name, storeId])
+}
+
+model StoreSetting {
+  id      String @id @default(uuid())
+  storeId String
+  key     String
+  value   String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  @@unique([key, storeId])
 }

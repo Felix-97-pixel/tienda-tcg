@@ -1,16 +1,16 @@
-import Signin from "@/components/Auth/Signin";
+import AdminSignin from "@/components/Admin/AdminSignin";
 import React from "react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Signin Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Signin Page for NextCommerce Template",
+  title: "Admin Login | TapTrade",
+  description: "Acceso al panel de administración de tu tienda",
 };
 
 const SigninPage = () => {
   return (
     <main>
-      <Signin />
+      <AdminSignin />
     </main>
   );
 };

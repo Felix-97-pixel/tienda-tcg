@@ -11,9 +11,8 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     setIsMounted(true);
-    // Si no está cargando y no es admin, redirigir
     if (!isAuthenticated) {
-      router.push("/signin");
+      router.push("/admin/login");
     } else if (user?.role !== "ADMIN") {
       router.push("/");
     }

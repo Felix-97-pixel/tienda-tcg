@@ -31,6 +31,9 @@ const icons = {
   shipping: (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
   ),
+  back: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+  )
 };
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
@@ -39,18 +42,46 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const ts = useTranslations("sidebar");
   const tc = useTranslations("common");
 
-  const navItems = [
+  const catalogItems = [
     { href: "/admin/products",    label: t("modules.products"),   icon: icons.products },
     { href: "/admin/categories",  label: t("modules.categories"), icon: icons.categories },
     { href: "/admin/brands",      label: t("modules.brands"),     icon: icons.brands },
-    { href: "/admin/sync",        label: t("modules.sync"),       icon: icons.sync },
     { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
+  ];
+
+  const statsItems = [
     { href: "/admin/sales",       label: t("modules.sales"),      icon: icons.sales },
     { href: "/admin/orders",      label: t("modules.orders"),     icon: icons.orders },
+  ];
+
+  const configItems = [
     { href: "/admin/currencies",  label: "Divisas",               icon: icons.settings },
     { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
+    { href: "/admin/sync",        label: t("modules.sync"),       icon: icons.sync },
     { href: "/admin/settings",    label: t("modules.settings"),   icon: icons.settings },
   ];
+
+  const isCatalog = ["/admin/products", "/admin/categories", "/admin/brands", "/admin/wishlist"].some(p => pathname.startsWith(p));
+  const isStats = ["/admin/sales", "/admin/orders"].some(p => pathname.startsWith(p));
+  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/sync", "/admin/settings"].some(p => pathname.startsWith(p));
+
+  let navItems = [];
+  let moduleName = "";
+
+  if (isCatalog) {
+    navItems = catalogItems;
+    moduleName = "Módulo de Catálogo";
+  } else if (isStats) {
+    navItems = statsItems;
+    moduleName = "Módulo de Estadísticas";
+  } else if (isConfig) {
+    navItems = configItems;
+    moduleName = "Módulo de Configuración";
+  } else {
+    // Fallback
+    navItems = [...catalogItems, ...statsItems, ...configItems];
+    moduleName = "Todos los Módulos";
+  }
 
   return (
     <aside
@@ -62,7 +93,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
           <div className="w-10 h-10 bg-blue rounded-xl flex items-center justify-center shadow-lg shadow-blue/30 border border-white/10">
              <span className="text-white font-black text-xl">T</span>
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Tienda <span className="text-blue">Admin</span></h1>
+          <h1 className="text-xl font-bold text-white tracking-tight">Tap<span className="text-blue">Trade</span></h1>
         </Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="block lg:hidden text-gray-400 hover:text-white transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -71,8 +102,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear flex-1">
         <nav className="mt-2 py-4 px-4 lg:px-6">
+          
+          <div className="mb-8">
+            <Link 
+              href="/admin" 
+              className="group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm text-blue bg-blue/10 hover:bg-blue hover:text-white transition-all duration-200"
+            >
+              {icons.back}
+              Volver al Hub
+            </Link>
+          </div>
+
           <div className="mb-6">
-            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{ts("menu")}</h3>
+            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{moduleName}</h3>
             <ul className="space-y-1.5">
               {navItems.map(({ href, label, icon }) => {
                 const isActive = pathname === href || pathname.startsWith(href + "/");
@@ -113,9 +155,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
         </div>
       </div>
     </aside>
-
   );
 };
 
 export default Sidebar;
-
