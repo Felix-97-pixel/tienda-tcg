@@ -16,9 +16,9 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             ref={ref}
             {...props}
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue shadow-inner"></div>
+          <div className="w-11 h-6 bg-[#222630]00 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a1d24] after:border-white/1000 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue shadow-inner"></div>
         </label>
-        {label && <span className="text-sm font-bold text-dark">{label}</span>}
+        {label && <span className="text-sm font-bold text-white">{label}</span>}
       </div>
     );
   }

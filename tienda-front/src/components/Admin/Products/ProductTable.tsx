@@ -35,18 +35,18 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
       render: (product) => (
         <div className="flex items-center gap-3">
           <div 
-            className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-gray-1 border border-stroke cursor-zoom-in transition-transform group-hover:scale-105"
+            className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-[#1a1d24]/5 border border-white/10 cursor-zoom-in transition-transform group-hover:scale-105"
             onMouseEnter={() => product.imageUrl && setHoveredImage(product.imageUrl)}
             onMouseLeave={() => setHoveredImage(null)}
           >
             {product.imageUrl 
               ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
-              : <span className="text-[10px] text-dark-4 flex h-full items-center justify-center font-bold uppercase">{t("noImage")}</span>
+              : <span className="text-[10px] text-gray-5 flex h-full items-center justify-center font-bold uppercase">{t("noImage")}</span>
             }
           </div>
           <div>
-            <p className="text-dark font-bold text-sm leading-tight">{product.name}</p>
-            <p className="text-[10px] text-dark-4 mt-1 font-medium">{product.category?.name}</p>
+            <p className="text-white font-bold text-sm leading-tight">{product.name}</p>
+            <p className="text-[10px] text-gray-4 mt-1 font-medium">{product.category?.name}</p>
           </div>
         </div>
       ),
@@ -58,8 +58,8 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
       cellClassName: "hidden md:table-cell",
       render: (product) => (
         <>
-          <p className="text-dark font-medium text-sm">{product.cardDetail?.expansion || tc("notAvailable")}</p>
-          <p className="text-[10px] text-dark-4 font-bold uppercase">{product.cardDetail?.rarity}</p>
+          <p className="text-white font-medium text-sm">{product.cardDetail?.expansion || tc("notAvailable")}</p>
+          <p className="text-[10px] text-gray-4 font-bold uppercase">{product.cardDetail?.rarity}</p>
         </>
       ),
     },
@@ -123,7 +123,7 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
       {/* HOVER PREVIEW */}
       {hoveredImage && (
         <div 
-          className="fixed z-99999 pointer-events-none shadow-2xl rounded-2xl border-4 border-white bg-white overflow-hidden transition-all duration-200 animate-in fade-in zoom-in"
+          className="fixed z-99999 pointer-events-none shadow-2xl rounded-2xl border-4 border-[#1C2434] bg-[#1C2434] overflow-hidden transition-all duration-200 animate-in fade-in zoom-in"
           style={{ 
             top: mousePos.y > (typeof window !== 'undefined' ? window.innerHeight * 0.6 : 500) 
               ? mousePos.y - 440 

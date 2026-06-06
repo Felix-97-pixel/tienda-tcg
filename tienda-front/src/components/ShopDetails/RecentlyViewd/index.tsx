@@ -25,12 +25,12 @@ const RecentlyViewdItems = () => {
 
   return (
     <section className="overflow-hidden pt-17.5">
-      <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0 pb-15 border-b border-gray-3">
+      <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0 pb-15 border-b border-white/10">
         <div className="swiper categories-carousel common-carousel">
           {/* <!-- section title --> */}
           <div className="mb-10 flex items-center justify-between">
             <div>
-              <span className="flex items-center gap-2.5 font-medium text-dark mb-1.5">
+              <span className="flex items-center gap-2.5 font-medium text-white mb-1.5">
                 <Image
                   src="/images/icons/icon-05.svg"
                   width={17}
@@ -39,7 +39,7 @@ const RecentlyViewdItems = () => {
                 />
                 Categories
               </span>
-              <h2 className="font-semibold text-xl xl:text-heading-5 text-dark">
+              <h2 className="font-semibold text-xl xl:text-heading-5 text-white">
                 Browse by Category
               </h2>
             </div>

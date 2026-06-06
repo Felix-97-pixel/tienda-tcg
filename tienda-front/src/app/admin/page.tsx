@@ -56,7 +56,7 @@ export default async function AdminHub() {
         <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
           Selecciona un Módulo
         </h1>
-        <p className="text-lg text-gray-400">
+        <p className="text-lg text-gray-4">
           Bienvenido a tu panel de control. Elige el área de trabajo a la que deseas ingresar para gestionar tu tienda.
         </p>
       </div>
@@ -66,7 +66,7 @@ export default async function AdminHub() {
           <Link
             key={mod.href}
             href={mod.href}
-            className="group relative bg-white/5 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-white/20 overflow-hidden"
+            className="group relative bg-[#1a1d24]/5 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-white/20 overflow-hidden"
           >
             {/* Glow effect on hover */}
             <div className={`absolute -inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none rounded-3xl`} />
@@ -78,7 +78,7 @@ export default async function AdminHub() {
             <h2 className="text-2xl font-bold text-white mb-3">
               {mod.title}
             </h2>
-            <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+            <p className="text-gray-4 leading-relaxed group-hover:text-gray-3 transition-colors">
               {mod.description}
             </p>
             

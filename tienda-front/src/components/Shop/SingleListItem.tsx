@@ -51,7 +51,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
   };
 
   return (
-    <div className="group rounded-lg bg-white shadow-1">
+    <div className="group rounded-lg bg-[#1a1d24] shadow-1">
       <div className="flex">
         <div className="shadow-list relative overflow-hidden flex items-center justify-center max-w-[270px] w-full sm:min-h-[300px] p-4">
           <Image  
@@ -79,7 +79,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
                 handleQuickViewUpdate();
               }}
               aria-label="button for quick view"
-              className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+              className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
             >
               <svg
                 className="fill-current"
@@ -109,8 +109,8 @@ const SingleListItem = ({ item }: { item: Product }) => {
               disabled={item.stock === 0 || isMaxStockReached}
               className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
                 item.stock === 0 || isMaxStockReached
-                  ? "bg-gray-4 cursor-not-allowed text-dark-4"
-                  : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
+                  ? "bg-gray-4 cursor-not-allowed text-gray-4"
+                  : "text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
               }`}
             >
               {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
@@ -119,7 +119,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
             <button
               onClick={() => handleItemToWishList()}
               aria-label="button for favorite select"
-              className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+              className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
             >
               <svg
                 className="fill-current"
@@ -142,19 +142,19 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
         <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center justify-center sm:justify-between py-5 px-4 sm:px-7.5 lg:pl-11 lg:pr-12">
           <div>
-            <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
+            <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
               <Link href="/shop-details"> {item.title || item.name} </Link>
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">
               {item.price > 0 ? (
-                <span className="text-dark">${item.discountedPrice ?? item.price ?? 0}
+                <span className="text-white">${item.discountedPrice ?? item.price ?? 0}
                 {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
-                  <span className="text-dark-4 line-through ml-2">${item.price}</span>
+                  <span className="text-gray-4 line-through ml-2">${item.price}</span>
                 )}
-                <span className="text-xs font-normal text-gray-400">USD · CK</span></span>
+                <span className="text-xs font-normal text-gray-4">USD · CK</span></span>
               ) : (
-                <span className="text-gray-400 text-sm italic">Sin precio</span>
+                <span className="text-gray-4 text-sm italic">Sin precio</span>
               )}
             </span>
           </div>

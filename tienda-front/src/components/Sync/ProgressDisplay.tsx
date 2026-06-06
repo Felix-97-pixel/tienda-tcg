@@ -30,7 +30,7 @@ export default function ProgressDisplay({ progress, label }: ProgressDisplayProp
         <span>{isCompleted ? "✓ " + tc("completed") : active ? displayLabel : tc("completed")}</span>
         <span>{current} / {total} ({pct}%)</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-[#222630]00 rounded-full h-2 overflow-hidden">
         <div 
           className={`h-full transition-all duration-700 ease-out rounded-full ${
             isCompleted ? "bg-green-500" : "bg-blue"

@@ -26,7 +26,7 @@ export default function AdminLayoutClient({
         </>
       ) : (
         <AdminGuard>
-          <div className={`flex h-screen overflow-hidden ${isHub ? "bg-[#0f1115]" : "bg-gray-1"}`}>
+          <div className={`flex h-screen overflow-hidden ${isHub ? "bg-[#0f1115]" : "bg-[#111318]"}`}>
             {/* SIDEBAR */}
             {!isHub && <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />}
 

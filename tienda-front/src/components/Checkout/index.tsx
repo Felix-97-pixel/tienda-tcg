@@ -154,20 +154,20 @@ const CheckoutWebpay = () => {
   return (
     <>
       <Breadcrumb title="Checkout" pages={["checkout"]} />
-      <section className="overflow-hidden py-20 bg-gray-2">
+      <section className="overflow-hidden py-20 bg-[#222630]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col lg:flex-row gap-7.5 xl:gap-11">
               {/* ─── Formulario ─── */}
               <div className="lg:max-w-[670px] w-full">
-                <h2 className="font-medium text-dark text-xl sm:text-2xl mb-5.5">
+                <h2 className="font-medium text-white text-xl sm:text-2xl mb-5.5">
                   Datos de contacto
                 </h2>
 
-                <div className="bg-white shadow-1 rounded-[10px] p-4 sm:p-8.5">
+                <div className="bg-[#1a1d24] shadow-1 rounded-[10px] p-4 sm:p-8.5">
                   {/* Nombre */}
                   <div className="mb-5">
-                    <label htmlFor="name" className="block mb-2.5 font-medium text-dark">
+                    <label htmlFor="name" className="block mb-2.5 font-medium text-white">
                       Nombre completo <span className="text-red">*</span>
                     </label>
                     <input
@@ -178,13 +178,13 @@ const CheckoutWebpay = () => {
                       value={billing.name}
                       onChange={handleChange}
                       placeholder="Ej: Juan Pérez"
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
 
                   {/* Email */}
                   <div className="mb-5">
-                    <label htmlFor="email" className="block mb-2.5 font-medium text-dark">
+                    <label htmlFor="email" className="block mb-2.5 font-medium text-white">
                       Correo electrónico <span className="text-red">*</span>
                     </label>
                     <input
@@ -195,14 +195,14 @@ const CheckoutWebpay = () => {
                       value={billing.email}
                       onChange={handleChange}
                       placeholder="ejemplo@correo.com"
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-5 mb-5">
                     {/* Teléfono */}
                     <div className="w-full">
-                      <label htmlFor="phone" className="block mb-2.5 font-medium text-dark">
+                      <label htmlFor="phone" className="block mb-2.5 font-medium text-white">
                         Teléfono
                       </label>
                       <input
@@ -212,13 +212,13 @@ const CheckoutWebpay = () => {
                         value={billing.phone}
                         onChange={handleChange}
                         placeholder="+56 9 1234 5678"
-                        className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                        className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                       />
                     </div>
 
                     {/* Ciudad */}
                     <div className="w-full">
-                      <label htmlFor="city" className="block mb-2.5 font-medium text-dark">
+                      <label htmlFor="city" className="block mb-2.5 font-medium text-white">
                         Ciudad
                       </label>
                       <input
@@ -228,14 +228,14 @@ const CheckoutWebpay = () => {
                         value={billing.city}
                         onChange={handleChange}
                         placeholder="Santiago"
-                        className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                        className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                       />
                     </div>
                   </div>
 
                   {/* Dirección */}
                   <div className="mb-5">
-                    <label htmlFor="address" className="block mb-2.5 font-medium text-dark">
+                    <label htmlFor="address" className="block mb-2.5 font-medium text-white">
                       Dirección de envío
                     </label>
                     <input
@@ -245,13 +245,13 @@ const CheckoutWebpay = () => {
                       value={billing.address}
                       onChange={handleChange}
                       placeholder="Calle, número, depto..."
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
 
                   {/* Notas */}
                   <div>
-                    <label htmlFor="notes" className="block mb-2.5 font-medium text-dark">
+                    <label htmlFor="notes" className="block mb-2.5 font-medium text-white">
                       Notas adicionales (opcional)
                     </label>
                     <textarea
@@ -261,14 +261,14 @@ const CheckoutWebpay = () => {
                       value={billing.notes}
                       onChange={handleChange}
                       placeholder="Instrucciones especiales de entrega..."
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
                 </div>
 
                 {/* Banner Webpay */}
-                <div className="bg-white shadow-1 rounded-[10px] p-4 sm:p-8.5 mt-7.5">
-                  <h3 className="font-medium text-xl text-dark mb-4">
+                <div className="bg-[#1a1d24] shadow-1 rounded-[10px] p-4 sm:p-8.5 mt-7.5">
+                  <h3 className="font-medium text-xl text-white mb-4">
                     Método de pago
                   </h3>
                   <div className="flex items-center gap-4 p-4 border-2 border-blue rounded-xl bg-blue/5">
@@ -279,13 +279,13 @@ const CheckoutWebpay = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="font-semibold text-dark">Webpay Plus</p>
-                      <p className="text-sm text-dark-4">
+                      <p className="font-semibold text-white">Webpay Plus</p>
+                      <p className="text-sm text-gray-4">
                         Paga con tarjeta de débito o crédito de forma segura. Serás redirigido al portal de Transbank.
                       </p>
                     </div>
                   </div>
-                  <p className="mt-3 text-xs text-dark-4 flex items-center gap-1.5">
+                  <p className="mt-3 text-xs text-gray-4 flex items-center gap-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
                     </svg>
@@ -296,23 +296,23 @@ const CheckoutWebpay = () => {
 
               {/* ─── Resumen ─── */}
               <div className="max-w-[455px] w-full">
-                <div className="bg-white shadow-1 rounded-[10px]">
-                  <div className="border-b border-gray-3 py-5 px-4 sm:px-8.5">
-                    <h3 className="font-medium text-xl text-dark">Tu pedido</h3>
+                <div className="bg-[#1a1d24] shadow-1 rounded-[10px]">
+                  <div className="border-b border-white/10 py-5 px-4 sm:px-8.5">
+                    <h3 className="font-medium text-xl text-white">Tu pedido</h3>
                   </div>
 
                   <div className="pt-2.5 pb-8.5 px-4 sm:px-8.5">
                     {/* Header */}
-                    <div className="flex items-center justify-between py-4 border-b border-gray-3">
-                      <span className="font-medium text-dark">Producto</span>
-                      <span className="font-medium text-dark">Subtotal</span>
+                    <div className="flex items-center justify-between py-4 border-b border-white/10">
+                      <span className="font-medium text-white">Producto</span>
+                      <span className="font-medium text-white">Subtotal</span>
                     </div>
 
                     {/* Items */}
                     {cartItems.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between py-4 border-b border-gray-3 gap-4"
+                        className="flex items-center justify-between py-4 border-b border-white/10 gap-4"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           {item.imgs?.thumbnails?.[0] && (
@@ -325,27 +325,27 @@ const CheckoutWebpay = () => {
                             />
                           )}
                           <div className="min-w-0">
-                            <p className="text-dark text-sm font-medium truncate">{item.title}</p>
-                            <p className="text-dark-4 text-xs">× {item.quantity}</p>
+                            <p className="text-white text-sm font-medium truncate">{item.title}</p>
+                            <p className="text-gray-4 text-xs">× {item.quantity}</p>
                           </div>
                         </div>
-                        <p className="text-dark text-right flex-shrink-0 font-medium">
+                        <p className="text-white text-right flex-shrink-0 font-medium">
                           {formatPrice(item.discountedPrice * item.quantity, currency)}
                         </p>
                       </div>
                     ))}
 
                     {/* Subtotal */}
-                    <div className="flex items-center justify-between py-4 border-b border-gray-3">
-                      <p className="font-medium text-dark">Subtotal</p>
-                      <p className="font-semibold text-dark">
+                    <div className="flex items-center justify-between py-4 border-b border-white/10">
+                      <p className="font-medium text-white">Subtotal</p>
+                      <p className="font-semibold text-white">
                         {formatPrice(total, currency)}
                       </p>
                     </div>
 
                     {/* Envío */}
-                    <div className="py-4 border-b border-gray-3 flex justify-between items-center gap-4">
-                      <span className="font-medium text-dark">Envío</span>
+                    <div className="py-4 border-b border-white/10 flex justify-between items-center gap-4">
+                      <span className="font-medium text-white">Envío</span>
                       <div className="flex flex-col gap-3 items-end">
                         {shippingProviders.map((provider) => {
                           const isChilexpress = provider.name.toUpperCase() === "CHILEXPRESS";
@@ -357,7 +357,7 @@ const CheckoutWebpay = () => {
                                 value={provider.name}
                                 checked={selectedProvider?.id === provider.id}
                                 onChange={() => setSelectedProvider(provider)}
-                                className="w-4 h-4 text-blue border-gray-3 focus:ring-blue cursor-pointer flex-shrink-0"
+                                className="w-4 h-4 text-blue border-white/10 focus:ring-blue cursor-pointer flex-shrink-0"
                               />
                               
                               {/* Badge de Marca Estilizado */}
@@ -374,7 +374,7 @@ const CheckoutWebpay = () => {
 
                     {/* Total */}
                     <div className="flex items-center justify-between pt-5">
-                      <p className="font-semibold text-lg text-dark">Total</p>
+                      <p className="font-semibold text-lg text-white">Total</p>
                       <p className="font-semibold text-lg text-green-600">
                         {formatPrice(total + (shippingCost / currency.exchangeRate), currency)}
                       </p>

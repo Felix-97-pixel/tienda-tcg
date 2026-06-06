@@ -136,11 +136,11 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     >
 
       {/* Formulario Nueva Variación */}
-      <div className="mb-8 p-5 bg-gray-1 rounded-2xl border border-stroke">
-        <h3 className="text-sm font-bold text-dark mb-4">{t("inventory.addVariation")}</h3>
+      <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
+        <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
           <div>
-            <label className="mb-1 block text-xs font-medium text-dark-4">{t("inventory.language")}</label>
+            <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
             <SearchableSelect
               options={languages.map(l => ({ label: l.name, value: l.id }))}
               value={newVariation.languageId}
@@ -149,7 +149,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-dark-4">{t("inventory.condition")}</label>
+            <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
             <SearchableSelect
               options={conditions.map(c => ({ label: c.name, value: c.id }))}
               value={newVariation.conditionId}
@@ -174,7 +174,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-dark-4">Acabado</label>
+            <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
             <SearchableSelect
               options={finishes.map(f => ({ label: f.name, value: f.id }))}
               value={newVariation.finishId}
@@ -198,24 +198,24 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       <div className="overflow-x-auto rounded-xl border border-stroke">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="bg-gray-1 border-b border-stroke">
-              <th className="p-3 font-bold text-dark-4">{t("inventory.language")}</th>
-              <th className="p-3 font-bold text-dark-4">{t("inventory.condition")}</th>
-              <th className="p-3 font-bold text-dark-4">Acabado</th>
-              <th className="p-3 font-bold text-dark-4">{t("inventory.price")}</th>
-              <th className="p-3 font-bold text-dark-4">{t("inventory.stock")}</th>
-              <th className="p-3 font-bold text-dark-4 text-center">{tc("actions")}</th>
+            <tr className="bg-[#111318] border-b border-stroke">
+              <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
+              <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
+              <th className="p-3 font-bold text-gray-4">Acabado</th>
+              <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
+              <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
+              <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
             </tr>
           </thead>
           <tbody>
             {product.items.map((item: InventoryItem) => (
               <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
-                <td className="p-3 font-medium text-dark">{item.language?.name || "N/A"}</td>
-                <td className="p-3 text-dark">
+                <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
+                <td className="p-3 text-white">
                   {item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).name : item.condition) || "N/A"}
                 </td>
                 <td className="p-3">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-500'}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
                     {item.finish?.name || "Normal"}
                   </span>
                 </td>
@@ -230,7 +230,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <td className="p-3">
                   <input
                     type="number"
-                    className="w-16 rounded border border-stroke p-1 text-xs text-dark"
+                    className="w-16 rounded border border-stroke p-1 text-xs text-white"
                     defaultValue={item.stock}
                     onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value))}
                   />

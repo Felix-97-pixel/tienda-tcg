@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import PoliticaPrivacidadClient from "./PoliticaPrivacidadClient";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad | Blood Moon Games",
-  description: "Detalles y políticas de privacidad oficiales sobre el tratamiento de tus datos personales en Blood Moon Games.",
+  title: "Política de Privacidad | TapTrade",
+  description: "Detalles y políticas de privacidad oficiales sobre el tratamiento de tus datos personales en TapTrade.",
 };
 
 const PoliticaPrivacidadPage = () => {

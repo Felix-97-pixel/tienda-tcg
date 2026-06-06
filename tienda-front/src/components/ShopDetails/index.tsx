@@ -146,12 +146,12 @@ const ShopDetails = () => {
             <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
               <div className="flex flex-col lg:flex-row gap-7.5 xl:gap-17.5">
                 <div className="lg:max-w-[570px] w-full">
-                  <div className="lg:min-h-[512px] rounded-lg shadow-1 bg-gray-2 p-4 sm:p-7.5 relative flex items-center justify-center">
+                  <div className="lg:min-h-[512px] rounded-lg shadow-1 bg-[#222630] p-4 sm:p-7.5 relative flex items-center justify-center">
                     <div>
                       <button
                         onClick={handlePreviewSlider}
                         aria-label="button for zoom"
-                        className="gallery__Image w-11 h-11 rounded-[5px] bg-gray-1 shadow-1 flex items-center justify-center ease-out duration-200 text-dark hover:text-blue absolute top-4 lg:top-6 right-4 lg:right-6 z-50"
+                        className="gallery__Image w-11 h-11 rounded-[5px] bg-[#111318] shadow-1 flex items-center justify-center ease-out duration-200 text-white hover:text-blue absolute top-4 lg:top-6 right-4 lg:right-6 z-50"
                       >
                         <svg
                           className="fill-current"
@@ -187,7 +187,7 @@ const ShopDetails = () => {
                       <button
                         onClick={() => setPreviewImg(key)}
                         key={key}
-                        className={`flex items-center justify-center w-15 sm:w-25 h-15 sm:h-25 overflow-hidden rounded-lg bg-gray-2 shadow-1 ease-out duration-200 border-2 hover:border-blue ${key === previewImg
+                        className={`flex items-center justify-center w-15 sm:w-25 h-15 sm:h-25 overflow-hidden rounded-lg bg-[#222630] shadow-1 ease-out duration-200 border-2 hover:border-blue ${key === previewImg
                           ? "border-blue"
                           : "border-transparent"
                           }`}
@@ -201,7 +201,7 @@ const ShopDetails = () => {
                       </button>
                     )) : (
                       <button
-                        className="flex items-center justify-center w-15 sm:w-25 h-15 sm:h-25 overflow-hidden rounded-lg bg-gray-2 shadow-1 border-2 border-blue"
+                        className="flex items-center justify-center w-15 sm:w-25 h-15 sm:h-25 overflow-hidden rounded-lg bg-[#222630] shadow-1 border-2 border-blue"
                       >
                         <Image
                           width={50}
@@ -217,7 +217,7 @@ const ShopDetails = () => {
                 {/* <!-- product content --> */}
                 <div className="max-w-[539px] w-full">
                   <div className="flex items-center justify-between mb-3">
-                    <h2 className="font-semibold text-xl sm:text-2xl xl:text-custom-3 text-dark">
+                    <h2 className="font-semibold text-xl sm:text-2xl xl:text-custom-3 text-white">
                       {product.title || product.name}
                     </h2>
 
@@ -371,11 +371,11 @@ const ShopDetails = () => {
                   </div>
 
                   <h3 className="font-medium text-custom-1 mb-4.5">
-                    <span className="text-sm sm:text-base text-dark">
+                    <span className="text-sm sm:text-base text-white">
                       Price: ${selectedItem ? selectedItem.price : (product.price || 0)}
                     </span>
                     {(product.discountedPrice ?? 0) > 0 && (
-                      <span className="line-through ml-2 text-gray-500">
+                      <span className="line-through ml-2 text-gray-5">
                         ${product.discountedPrice}
                       </span>
                     )}
@@ -428,13 +428,13 @@ const ShopDetails = () => {
                   </ul>
 
                   <form onSubmit={(e) => e.preventDefault()}>
-                    <div className="flex flex-col gap-4.5 border-y border-gray-3 mt-7.5 mb-9 py-9">
+                    <div className="flex flex-col gap-4.5 border-y border-white/10 mt-7.5 mb-9 py-9">
                       {product.category?.isTcg ? (
                         <>
                           {/* TCG Condition Selector */}
                           <div className="flex items-center gap-4">
                             <div className="min-w-[85px]">
-                              <h4 className="font-medium text-dark">Condición:</h4>
+                              <h4 className="font-medium text-white">Condición:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {Array.from(new Map(product.items.filter(i => i.conditionId && i.condition_rel && i.stock > 0).map((i) => [i.conditionId, i.condition_rel])).entries()).map(([id, cond]) => {
@@ -444,7 +444,7 @@ const ShopDetails = () => {
                                     key={id}
                                     type="button"
                                     onClick={() => setSelectedCondition(id)}
-                                    className={`px-3 py-1 rounded border text-sm ${selectedCondition === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                    className={`px-3 py-1 rounded border text-sm ${selectedCondition === id ? 'bg-blue text-white border-blue' : 'border-white/20 text-white hover:border-blue'}`}
                                   >
                                     {condition?.name || 'Desconocida'}
                                   </button>
@@ -456,7 +456,7 @@ const ShopDetails = () => {
                           {/* TCG Language Selector */}
                           <div className="flex items-center gap-4">
                             <div className="min-w-[85px]">
-                              <h4 className="font-medium text-dark">Idioma:</h4>
+                              <h4 className="font-medium text-white">Idioma:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {Array.from(new Map(product.items.filter(i => i.languageId && i.language && i.stock > 0).map((i) => [i.languageId, i.language])).entries()).map(([id, lang]) => {
@@ -466,7 +466,7 @@ const ShopDetails = () => {
                                     key={id}
                                     type="button"
                                     onClick={() => setSelectedLanguage(id)}
-                                    className={`px-3 py-1 rounded border text-sm ${selectedLanguage === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                    className={`px-3 py-1 rounded border text-sm ${selectedLanguage === id ? 'bg-blue text-white border-blue' : 'border-white/20 text-white hover:border-blue'}`}
                                   >
                                     {language?.code?.toUpperCase() || '??'}
                                   </button>
@@ -478,7 +478,7 @@ const ShopDetails = () => {
                           {/* TCG Finish Selector */}
                           <div className="flex items-center gap-4">
                             <div className="min-w-[85px]">
-                              <h4 className="font-medium text-dark">Versión:</h4>
+                              <h4 className="font-medium text-white">Versión:</h4>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {Array.from(new Map(product.items.filter(i => i.finishId && i.finish && i.stock > 0).map((i) => [i.finishId, i.finish])).entries()).map(([id, fin]) => {
@@ -488,7 +488,7 @@ const ShopDetails = () => {
                                     key={id}
                                     type="button"
                                     onClick={() => setSelectedFinishId(id)}
-                                    className={`px-3 py-1 rounded border text-sm ${selectedFinishId === id ? 'bg-blue text-white border-blue' : 'border-gray-4 text-dark hover:border-blue'}`}
+                                    className={`px-3 py-1 rounded border text-sm ${selectedFinishId === id ? 'bg-blue text-white border-blue' : 'border-white/20 text-white hover:border-blue'}`}
                                   >
                                     {finish?.name || 'Normal'}
                                   </button>
@@ -503,7 +503,7 @@ const ShopDetails = () => {
                           {/* <!-- details item --> */}
                           <div className="flex items-center gap-4">
                             <div className="min-w-[65px]">
-                              <h4 className="font-medium text-dark">Color:</h4>
+                              <h4 className="font-medium text-white">Color:</h4>
                             </div>
 
                             <div className="flex items-center gap-2.5">
@@ -540,7 +540,7 @@ const ShopDetails = () => {
                           {/* <!-- details item --> */}
                           <div className="flex items-center gap-4">
                             <div className="min-w-[65px]">
-                              <h4 className="font-medium text-dark">Storage:</h4>
+                              <h4 className="font-medium text-white">Storage:</h4>
                             </div>
 
                             <div className="flex items-center gap-4">
@@ -563,7 +563,7 @@ const ShopDetails = () => {
                                     <div
                                       className={`mr-2 flex h-4 w-4 items-center justify-center rounded border ${storage === item.id
                                         ? "border-blue bg-blue"
-                                        : "border-gray-4"
+                                        : "border-white/20"
                                         } `}
                                     >
                                       <span
@@ -608,7 +608,7 @@ const ShopDetails = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4.5">
-                      <div className="flex items-center rounded-md border border-gray-3">
+                      <div className="flex items-center rounded-md border border-white/10">
                         <button
                           aria-label="button for remove product"
                           className="flex items-center justify-center w-12 h-12 ease-out duration-200 hover:text-blue"
@@ -631,7 +631,7 @@ const ShopDetails = () => {
                           </svg>
                         </button>
 
-                        <span className="flex items-center justify-center w-16 h-12 border-x border-gray-4">
+                        <span className="flex items-center justify-center w-16 h-12 border-x border-white/20">
                           {quantity}
                         </span>
 
@@ -669,7 +669,7 @@ const ShopDetails = () => {
 
                       <a
                         href="#"
-                        className="flex items-center justify-center w-12 h-12 rounded-md border border-gray-3 ease-out duration-200 hover:text-white hover:bg-dark hover:border-transparent"
+                        className="flex items-center justify-center w-12 h-12 rounded-md border border-white/10 ease-out duration-200 hover:text-white hover:bg-dark hover:border-transparent"
                       >
                         <svg
                           className="fill-current"
@@ -694,17 +694,17 @@ const ShopDetails = () => {
             </div>
           </section>
 
-          <section className="overflow-hidden bg-gray-2 py-20">
+          <section className="overflow-hidden bg-[#222630] py-20">
             <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
               {/* <!--== tab header start ==--> */}
-              <div className="flex flex-wrap items-center bg-white rounded-[10px] shadow-1 gap-5 xl:gap-12.5 py-4.5 px-4 sm:px-6">
+              <div className="flex flex-wrap items-center bg-[#1a1d24] rounded-[10px] shadow-1 gap-5 xl:gap-12.5 py-4.5 px-4 sm:px-6">
                 {tabs.map((item, key) => (
                   <button
                     key={key}
                     onClick={() => setActiveTab(item.id)}
                     className={`font-medium lg:text-lg ease-out duration-200 hover:text-blue relative before:h-0.5 before:bg-blue before:absolute before:left-0 before:bottom-0 before:ease-out before:duration-200 hover:before:w-full ${activeTab === item.id
                       ? "text-blue before:w-full"
-                      : "text-dark before:w-0"
+                      : "text-white before:w-0"
                       }`}
                   >
                     {item.title}
@@ -721,7 +721,7 @@ const ShopDetails = () => {
                     }`}
                 >
                   <div className="max-w-[670px] w-full">
-                    <h2 className="font-medium text-2xl text-dark mb-7">
+                    <h2 className="font-medium text-2xl text-white mb-7">
                       Specifications:
                     </h2>
 
@@ -745,7 +745,7 @@ const ShopDetails = () => {
                   </div>
 
                   <div className="max-w-[447px] w-full">
-                    <h2 className="font-medium text-2xl text-dark mb-7">
+                    <h2 className="font-medium text-2xl text-white mb-7">
                       Care & Maintenance:
                     </h2>
 
@@ -769,56 +769,56 @@ const ShopDetails = () => {
               {/* <!-- tab content two start --> */}
               <div>
                 <div
-                  className={`rounded-xl bg-white shadow-1 p-4 sm:p-6 mt-10 ${activeTab === "tabTwo" ? "block" : "hidden"
+                  className={`rounded-xl bg-[#1a1d24] shadow-1 p-4 sm:p-6 mt-10 ${activeTab === "tabTwo" ? "block" : "hidden"
                     }`}
                 >
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">Categoría</p>
+                      <p className="text-sm sm:text-base text-white">Categoría</p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         {typeof product.category === 'object' ? product.category.name : (product.category || "General")}
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">Model</p>
+                      <p className="text-sm sm:text-base text-white">Model</p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         iPhone 14 Plus
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Display Size
                       </p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         6.7 inches
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Display Type
                       </p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Super Retina XDR OLED, HDR10, Dolby Vision, 800 nits
                         (HBM), 1200 nits (peak)
                       </p>
@@ -826,66 +826,66 @@ const ShopDetails = () => {
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Display Resolution
                       </p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         1284 x 2778 pixels, 19.5:9 ratio
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">Chipset</p>
+                      <p className="text-sm sm:text-base text-white">Chipset</p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Apple A15 Bionic (5 nm)
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">Memory</p>
+                      <p className="text-sm sm:text-base text-white">Memory</p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         128GB 6GB RAM | 256GB 6GB RAM | 512GB 6GB RAM
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Main Camera
                       </p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         12MP + 12MP | 4K@24/25/30/60fps, stereo sound rec.
                       </p>
                     </div>
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Selfie Camera
                       </p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         12 MP | 4K@24/25/30/60fps, 1080p@25/30/60/120fps,
                         gyro-EIS
                       </p>
@@ -893,14 +893,14 @@ const ShopDetails = () => {
                   </div>
 
                   {/* <!-- info item --> */}
-                  <div className="rounded-md even:bg-gray-1 flex py-4 px-4 sm:px-5">
+                  <div className="rounded-md even:bg-[#111318] flex py-4 px-4 sm:px-5">
                     <div className="max-w-[450px] min-w-[140px] w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Battery Info
                       </p>
                     </div>
                     <div className="w-full">
-                      <p className="text-sm sm:text-base text-dark">
+                      <p className="text-sm sm:text-base text-white">
                         Li-Ion 4323 mAh, non-removable | 15W wireless (MagSafe),
                         7.5W wireless (Qi)
                       </p>
@@ -917,13 +917,13 @@ const ShopDetails = () => {
                     }`}
                 >
                   <div className="max-w-[570px] w-full">
-                    <h2 className="font-medium text-2xl text-dark mb-9">
+                    <h2 className="font-medium text-2xl text-white mb-9">
                       03 Review for this product
                     </h2>
 
                     <div className="flex flex-col gap-6">
                       {/* <!-- review item --> */}
-                      <div className="rounded-xl bg-white shadow-1 p-4 sm:p-6">
+                      <div className="rounded-xl bg-[#1a1d24] shadow-1 p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                           <a href="#" className="flex items-center gap-4">
                             <div className="w-12.5 h-12.5 rounded-full overflow-hidden">
@@ -937,7 +937,7 @@ const ShopDetails = () => {
                             </div>
 
                             <div>
-                              <h3 className="font-medium text-dark">
+                              <h3 className="font-medium text-white">
                                 Davis Dorwart
                               </h3>
                               <p className="text-custom-sm">
@@ -1029,7 +1029,7 @@ const ShopDetails = () => {
                           </div>
                         </div>
 
-                        <p className="text-dark mt-6">
+                        <p className="text-white mt-6">
                           “Lorem ipsum dolor sit amet, adipiscing elit. Donec
                           malesuada justo vitaeaugue suscipit beautiful
                           vehicula’’
@@ -1037,7 +1037,7 @@ const ShopDetails = () => {
                       </div>
 
                       {/* <!-- review item --> */}
-                      <div className="rounded-xl bg-white shadow-1 p-4 sm:p-6">
+                      <div className="rounded-xl bg-[#1a1d24] shadow-1 p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                           <a href="#" className="flex items-center gap-4">
                             <div className="w-12.5 h-12.5 rounded-full overflow-hidden">
@@ -1051,7 +1051,7 @@ const ShopDetails = () => {
                             </div>
 
                             <div>
-                              <h3 className="font-medium text-dark">
+                              <h3 className="font-medium text-white">
                                 Davis Dorwart
                               </h3>
                               <p className="text-custom-sm">
@@ -1143,7 +1143,7 @@ const ShopDetails = () => {
                           </div>
                         </div>
 
-                        <p className="text-dark mt-6">
+                        <p className="text-white mt-6">
                           “Lorem ipsum dolor sit amet, adipiscing elit. Donec
                           malesuada justo vitaeaugue suscipit beautiful
                           vehicula’’
@@ -1151,7 +1151,7 @@ const ShopDetails = () => {
                       </div>
 
                       {/* <!-- review item --> */}
-                      <div className="rounded-xl bg-white shadow-1 p-4 sm:p-6">
+                      <div className="rounded-xl bg-[#1a1d24] shadow-1 p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                           <a href="#" className="flex items-center gap-4">
                             <div className="w-12.5 h-12.5 rounded-full overflow-hidden">
@@ -1165,7 +1165,7 @@ const ShopDetails = () => {
                             </div>
 
                             <div>
-                              <h3 className="font-medium text-dark">
+                              <h3 className="font-medium text-white">
                                 Davis Dorwart
                               </h3>
                               <p className="text-custom-sm">
@@ -1257,7 +1257,7 @@ const ShopDetails = () => {
                           </div>
                         </div>
 
-                        <p className="text-dark mt-6">
+                        <p className="text-white mt-6">
                           “Lorem ipsum dolor sit amet, adipiscing elit. Donec
                           malesuada justo vitaeaugue suscipit beautiful
                           vehicula’’
@@ -1268,7 +1268,7 @@ const ShopDetails = () => {
 
                   <div className="max-w-[550px] w-full">
                     <form>
-                      <h2 className="font-medium text-2xl text-dark mb-3.5">
+                      <h2 className="font-medium text-2xl text-white mb-3.5">
                         Add a Review
                       </h2>
 
@@ -1363,7 +1363,7 @@ const ShopDetails = () => {
                         </div>
                       </div>
 
-                      <div className="rounded-xl bg-white shadow-1 p-4 sm:p-6">
+                      <div className="rounded-xl bg-[#1a1d24] shadow-1 p-4 sm:p-6">
                         <div className="mb-5">
                           <label htmlFor="comments" className="block mb-2.5">
                             Comments
@@ -1374,14 +1374,14 @@ const ShopDetails = () => {
                             id="comments"
                             rows={5}
                             placeholder="Your comments"
-                            className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                            className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                           ></textarea>
 
                           <span className="flex items-center justify-between mt-2.5">
-                            <span className="text-custom-sm text-dark-4">
+                            <span className="text-custom-sm text-gray-4">
                               Maximum
                             </span>
-                            <span className="text-custom-sm text-dark-4">
+                            <span className="text-custom-sm text-gray-4">
                               0/250
                             </span>
                           </span>
@@ -1398,7 +1398,7 @@ const ShopDetails = () => {
                               name="name"
                               id="name"
                               placeholder="Your name"
-                              className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                              className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                             />
                           </div>
 
@@ -1412,7 +1412,7 @@ const ShopDetails = () => {
                               name="email"
                               id="email"
                               placeholder="Your email"
-                              className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                              className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                             />
                           </div>
                         </div>

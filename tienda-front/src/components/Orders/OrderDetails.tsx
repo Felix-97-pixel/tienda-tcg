@@ -5,37 +5,37 @@ const OrderDetails = ({ orderItem }: any) => {
     <>
       <div className="items-center justify-between py-4.5 px-7.5 hidden md:flex ">
         <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Order</p>
+          <p className="text-custom-sm text-white">Order</p>
         </div>
         <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Date</p>
+          <p className="text-custom-sm text-white">Date</p>
         </div>
 
         <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Status</p>
+          <p className="text-custom-sm text-white">Status</p>
         </div>
 
         {/* <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Title</p>
+          <p className="text-custom-sm text-white">Title</p>
         </div> */}
 
         <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Total</p>
+          <p className="text-custom-sm text-white">Total</p>
         </div>
 
         {/* <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">Action</p>
+          <p className="text-custom-sm text-white">Action</p>
         </div> */}
       </div>
 
-      <div className="items-center justify-between border-t border-gray-3 py-5 px-7.5 hidden md:flex">
+      <div className="items-center justify-between border-t border-white/10 py-5 px-7.5 hidden md:flex">
         <div className="min-w-[111px]">
           <p className="text-custom-sm text-red">
             #{orderItem.orderId.slice(-8)}
           </p>
         </div>
         <div className="min-w-[175px]">
-          <p className="text-custom-sm text-dark">
+          <p className="text-custom-sm text-white">
             {orderItem.createdAt}
           </p>
         </div>
@@ -57,11 +57,11 @@ const OrderDetails = ({ orderItem }: any) => {
         </div>
 
         {/* <div className="min-w-[213px]">
-          <p className="text-custom-sm text-dark">{orderItem.orderTitle}</p>
+          <p className="text-custom-sm text-white">{orderItem.orderTitle}</p>
         </div> */}
 
         <div className="min-w-[113px]">
-          <p className="text-custom-sm text-dark">
+          <p className="text-custom-sm text-white">
             {orderItem.total}
           </p>
         </div>

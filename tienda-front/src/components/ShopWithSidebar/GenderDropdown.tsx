@@ -10,7 +10,7 @@ const EditionItem = ({ category, isSelected, onClick }) => {
     >
       <div className="flex items-start gap-2 flex-1">
         <div
-          className={`cursor-pointer mt-0.5 flex-shrink-0 flex items-center justify-center rounded w-4 h-4 border ${isSelected ? "border-blue bg-blue" : "bg-white border-gray-3"
+          className={`cursor-pointer mt-0.5 flex-shrink-0 flex items-center justify-center rounded w-4 h-4 border ${isSelected ? "border-blue bg-blue" : "bg-[#1a1d24] border-white/10"
             }`}
         >
           <svg
@@ -35,7 +35,7 @@ const EditionItem = ({ category, isSelected, onClick }) => {
       </div>
 
       <span
-        className={`${isSelected ? "text-white bg-blue" : "bg-gray-2"
+        className={`${isSelected ? "text-white bg-blue" : "bg-[#222630]"
           } flex-shrink-0 inline-flex rounded-[30px] text-custom-xs px-2 ease-out duration-200 group-hover:text-white group-hover:bg-blue`}
       >
         {category.products}
@@ -50,17 +50,17 @@ const GenderDropdown = ({ expansions = [], selectedExpansion, onSelect }: any) =
   if (!expansions || expansions.length === 0) return null;
 
   return (
-    <div className="bg-white shadow-1 rounded-lg">
+    <div className="bg-[#1a1d24] shadow-1 rounded-lg">
       <div
         onClick={() => setToggleDropdown(!toggleDropdown)}
         className={`cursor-pointer flex items-center justify-between py-3 pl-6 pr-5.5 ${toggleDropdown && "shadow-filter"
           }`}
       >
-        <p className="text-dark font-medium">Ediciones</p>
+        <p className="text-white font-medium">Ediciones</p>
         <button
           onClick={() => setToggleDropdown(!toggleDropdown)}
           aria-label="button for gender dropdown"
-          className={`text-dark ease-out duration-200 ${toggleDropdown && "rotate-180"
+          className={`text-white ease-out duration-200 ${toggleDropdown && "rotate-180"
             }`}
         >
           <svg

@@ -8,11 +8,11 @@ const PromoBanner = () => {
         {/* <!-- promo banner big --> */}
         <div className="relative z-1 overflow-hidden rounded-lg bg-[#F5F5F7] py-12.5 lg:py-17.5 xl:py-22.5 px-4 sm:px-7.5 lg:px-14 xl:px-19 mb-7.5">
           <div className="max-w-[550px] w-full">
-            <span className="block font-medium text-xl text-dark mb-3">
+            <span className="block font-medium text-xl text-white mb-3">
               Apple iPhone 14 Plus
             </span>
 
-            <h2 className="font-bold text-xl lg:text-heading-4 xl:text-heading-3 text-dark mb-5">
+            <h2 className="font-bold text-xl lg:text-heading-4 xl:text-heading-3 text-white mb-5">
               UP TO 30% OFF
             </h2>
 
@@ -52,11 +52,11 @@ const PromoBanner = () => {
             />
 
             <div className="text-right">
-              <span className="block text-lg text-dark mb-1.5">
+              <span className="block text-lg text-white mb-1.5">
                 Foldable Motorised Treadmill
               </span>
 
-              <h2 className="font-bold text-xl lg:text-heading-4 text-dark mb-2.5">
+              <h2 className="font-bold text-xl lg:text-heading-4 text-white mb-2.5">
                 Workout At Home
               </h2>
 
@@ -85,11 +85,11 @@ const PromoBanner = () => {
             />
 
             <div>
-              <span className="block text-lg text-dark mb-1.5">
+              <span className="block text-lg text-white mb-1.5">
                 Apple Watch Ultra
               </span>
 
-              <h2 className="font-bold text-xl lg:text-heading-4 text-dark mb-2.5">
+              <h2 className="font-bold text-xl lg:text-heading-4 text-white mb-2.5">
                 Up to <span className="text-orange">40%</span> off
               </h2>
 

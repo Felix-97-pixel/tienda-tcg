@@ -26,12 +26,12 @@ const AddressModal = ({ isOpen, closeModal }) => {
       <div className="flex items-center justify-center ">
         <div
           x-show="addressModal"
-          className="w-full max-w-[1100px] rounded-xl shadow-3 bg-white p-7.5 relative modal-content"
+          className="w-full max-w-[1100px] rounded-xl shadow-3 bg-[#1a1d24] p-7.5 relative modal-content"
         >
           <button
             onClick={closeModal}
             aria-label="button for close modal"
-            className="absolute top-0 right-0 sm:top-3 sm:right-3 flex items-center justify-center w-10 h-10 rounded-full ease-in duration-150 bg-meta text-body hover:text-dark"
+            className="absolute top-0 right-0 sm:top-3 sm:right-3 flex items-center justify-center w-10 h-10 rounded-full ease-in duration-150 bg-meta text-body hover:text-white"
           >
             <svg
               className="fill-current"
@@ -62,7 +62,7 @@ const AddressModal = ({ isOpen, closeModal }) => {
                     type="text"
                     name="name"
                     value="James Septimus"
-                    className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
 
@@ -75,7 +75,7 @@ const AddressModal = ({ isOpen, closeModal }) => {
                     type="email"
                     name="email"
                     value="jamse@example.com"
-                    className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
               </div>
@@ -90,7 +90,7 @@ const AddressModal = ({ isOpen, closeModal }) => {
                     type="text"
                     name="phone"
                     value="1234 567890"
-                    className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
 
@@ -103,7 +103,7 @@ const AddressModal = ({ isOpen, closeModal }) => {
                     type="text"
                     name="address"
                     value="7398 Smoke Ranch RoadLas Vegas, Nevada 89128"
-                    className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
               </div>

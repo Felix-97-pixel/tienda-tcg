@@ -13,17 +13,14 @@ const Footer = () => {
           {/* Logo & Brand Column */}
           <div className="max-w-[340px] w-full flex flex-col gap-6">
             <Link href="/" className="inline-block">
-              <img
-                style={{
-                  width: "100%",
-                  maxWidth: "220px",
-                  height: "auto"
-                }}
-                src="/images/logo/bloodmoon-logo.png"
-                alt="Blood Moon Games Logo"
-                width={1024}
-                height={252}
-              />
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded bg-gradient-to-tr from-red to-orange flex items-center justify-center shadow-lg shadow-red/20">
+                  <span className="text-white font-bold text-lg">T</span>
+                </div>
+                <span className="text-2xl font-extrabold tracking-tight text-white">
+                  TapTrade
+                </span>
+              </div>
             </Link>
             <p className="text-custom-sm text-gray-4 leading-relaxed">
               Tu tienda especializada en cartas Magic: The Gathering, Pokémon TCG, Yu-Gi-Oh!, accesorios y más. Únete a la comunidad de jugadores más grande.
@@ -62,7 +59,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="WhatsApp"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-[#25D366] hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1a1d24]/5 hover:bg-[#25D366] hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
                   <path d="M12.004 2C6.51 2 2.014 6.5 2.014 12c0 2.14.67 4.12 1.82 5.75L2 22l4.41-1.35c1.51.87 3.27 1.35 5.59 1.35 5.49 0 9.99-4.5 9.99-10S17.494 2 12.004 2zm6.6 14.1c-.3.8-1.5 1.5-2.1 1.6-.6.1-1.3.2-3.8-.8-3.1-1.3-5.1-4.4-5.3-4.6-.2-.2-1.4-1.9-1.4-3.6 0-1.7.9-2.5 1.2-2.9.3-.3.7-.5 1-.5.3 0 .5.1.7.1.2 0 .5-.1.7.4.3.6 1 2.4 1.1 2.6.1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.4.4-.6.6-.2.2-.4.4-.6.6-.2.2-.4.4-.2.8.2.4.9 1.5 2 2.5 1.4 1.2 2.5 1.6 2.9 1.8.4.2.6.1.8-.1.2-.3.9-1 1.2-1.4.3-.4.5-.3.8-.2.3.1 2.1 1 2.5 1.2.4.2.6.3.7.4.1.3.1 1.1-.2 1.9z" />
@@ -71,11 +68,11 @@ const Footer = () => {
 
               {/* Instagram */}
               <a
-                href="https://www.instagram.com/tiendabloodmoon/"
+                href="https://www.instagram.com/tiendaTapTrade/"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-[#E1306C] hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1a1d24]/5 hover:bg-[#E1306C] hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
@@ -84,11 +81,11 @@ const Footer = () => {
 
               {/* Twitch */}
               <a
-                href="https://www.twitch.tv/tiendabloodmoon"
+                href="https://www.twitch.tv/tiendaTapTrade"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Twitch"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-[#9146FF] hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1a1d24]/5 hover:bg-[#9146FF] hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
                   <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.857L9 18.857v-4.286H5.143V1.714h15.428z" />
@@ -97,9 +94,9 @@ const Footer = () => {
 
               {/* Mail */}
               <a
-                href="mailto:Tiendabloodmoon@Gmail.Com"
+                href="mailto:TiendaTapTrade@Gmail.Com"
                 aria-label="Mail"
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-blue hover:text-white transition ease-out duration-200 text-gray-4"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1a1d24]/5 hover:bg-blue hover:text-white transition ease-out duration-200 text-gray-4"
               >
                 <svg className="fill-current w-5 h-5" viewBox="0 0 24 24">
                   <path d="M0 3v18h24V3H0zm21.518 2L12 12.75 2.482 5h19.036zM2 19V6.883l10 8.1 10-8.1V19H2z" />
@@ -139,7 +136,7 @@ const Footer = () => {
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                   </svg>
                 </span>
-                <span>Tiendabloodmoon@Gmail.Com</span>
+                <span>TiendaTapTrade@Gmail.Com</span>
               </li>
             </ul>
           </div>
@@ -152,7 +149,7 @@ const Footer = () => {
         <div className="max-w-[1170px] mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex gap-5 flex-wrap items-center justify-between">
             <p className="text-gray-4 font-medium text-custom-sm">
-              &copy; {year} Bloodmoon Games. Todos los derechos reservados.
+              &copy; {year} TapTrade. Todos los derechos reservados.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 text-custom-sm text-gray-4">

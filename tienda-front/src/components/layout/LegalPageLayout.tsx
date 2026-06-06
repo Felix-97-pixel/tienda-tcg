@@ -100,21 +100,21 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
     
     return isActive
       ? `${baseClass} text-blue border-blue`
-      : `${baseClass} text-gray-6 border-transparent hover:text-blue hover:border-gray-4`;
+      : `${baseClass} text-gray-6 border-transparent hover:text-blue hover:border-white/20`;
   };
 
   return (
     <>
       <Breadcrumb title={title} pages={[title]} />
       
-      <section className="bg-gray-2 py-15 lg:py-25">
+      <section className="bg-[#222630] py-15 lg:py-25">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           
           <div className="flex flex-col lg:flex-row gap-10 xl:gap-15 items-start">
             
             {/* Quick Navigation Sidebar */}
-            <aside className="w-full lg:w-[280px] shrink-0 sticky top-[160px] bg-white rounded-lg shadow-1 p-6 hidden lg:block">
-              <h3 className="font-bold text-dark text-base mb-4 border-b border-gray-3 pb-3">
+            <aside className="w-full lg:w-[280px] shrink-0 sticky top-[160px] bg-[#1a1d24] rounded-lg shadow-1 p-6 hidden lg:block">
+              <h3 className="font-bold text-white text-base mb-4 border-b border-white/10 pb-3">
                 {navTitle}
               </h3>
               <ul className="flex flex-col gap-2.5">
@@ -129,11 +129,11 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
             </aside>
 
             {/* Document Content */}
-            <article className="flex-1 bg-white rounded-lg shadow-1 p-6 sm:p-10 lg:p-12 w-full">
+            <article className="flex-1 bg-[#1a1d24] rounded-lg shadow-1 p-6 sm:p-10 lg:p-12 w-full">
               {children}
 
               {/* Footer Box */}
-              <div className="border-t border-gray-3 pt-6 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="border-t border-white/10 pt-6 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <span className="text-custom-xs text-gray-5 font-semibold">
                   {lastUpdated}
                 </span>

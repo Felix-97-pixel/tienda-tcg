@@ -69,7 +69,7 @@ export default function AdminSettings() {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-dark-4 text-xs font-black uppercase tracking-widest animate-pulse">Cargando configuración...</p>
+        <p className="text-gray-4 text-xs font-black uppercase tracking-widest animate-pulse">Cargando configuración...</p>
       </div>
     );
   }
@@ -78,14 +78,14 @@ export default function AdminSettings() {
     <div className="p-6 space-y-8 pb-24">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-dark tracking-tight">{t("title")}</h1>
-        <p className="text-dark-4 text-sm font-medium mt-1">{t("subtitle")}</p>
+        <h1 className="text-2xl font-bold text-white tracking-tight">{t("title")}</h1>
+        <p className="text-gray-4 text-sm font-medium mt-1">{t("subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Settings Card */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-3xl shadow-1 p-8 border border-transparent hover:border-stroke transition-all duration-300">
+          <div className="bg-[#1a1d24] rounded-3xl shadow-1 p-8 border border-transparent hover:border-stroke transition-all duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 rounded-2xl bg-blue/10 flex items-center justify-center shadow-inner">
                 <svg className="w-6 h-6 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,8 +94,8 @@ export default function AdminSettings() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-black text-dark uppercase tracking-tight">{t("destinations.title")}</h2>
-                <p className="text-dark-4 text-xs font-medium">{t("destinations.subtitle")}</p>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">{t("destinations.title")}</h2>
+                <p className="text-gray-4 text-xs font-medium">{t("destinations.subtitle")}</p>
               </div>
             </div>
 
@@ -106,7 +106,7 @@ export default function AdminSettings() {
                 { id: "rfb", label: t("destinations.riftbound"), val: riftboundDest, set: setRiftboundDest }
               ].map((item) => (
                 <div key={item.id} className="group">
-                  <label className="mb-2 block text-xs font-black text-dark-4 uppercase tracking-widest transition-colors group-focus-within:text-blue">
+                  <label className="mb-2 block text-xs font-black text-gray-4 uppercase tracking-widest transition-colors group-focus-within:text-blue">
                     {item.label}
                   </label>
                   <SearchableSelect
@@ -134,20 +134,20 @@ export default function AdminSettings() {
         {/* Info Sidebar */}
         <div className="space-y-6">
           <div className="bg-dark rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all"></div>
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#1a1d24]/10 rounded-full blur-2xl group-hover:bg-[#1a1d24]/20 transition-all"></div>
             <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
               <span className="w-2 h-2 bg-blue rounded-full animate-pulse"></span>
               Sincronización TCG
             </h3>
-            <p className="text-xs text-gray-400 leading-relaxed font-medium mb-6">
+            <p className="text-xs text-gray-4 leading-relaxed font-medium mb-6">
               Estas configuraciones definen a qué categorías se moverán automáticamente los productos cuando utilices la herramienta de sincronización externa.
             </p>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-300">
+            <div className="p-4 rounded-2xl bg-[#1a1d24]/5 border border-white/10 space-y-3">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-3">
                 <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
                 Asignación inteligente
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-300">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-3">
                 <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
                 Actualización en tiempo real
               </div>

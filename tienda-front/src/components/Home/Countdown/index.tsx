@@ -35,7 +35,7 @@ const CounDown = () => {
               Don’t Miss!!
             </span>
 
-            <h2 className="font-bold text-dark text-xl lg:text-heading-4 xl:text-heading-3 mb-3">
+            <h2 className="font-bold text-white text-xl lg:text-heading-4 xl:text-heading-3 mb-3">
               Enhance Your Music Experience
             </h2>
 
@@ -50,13 +50,13 @@ const CounDown = () => {
               {/* <!-- timer day --> */}
               <div>
                 <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
+                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-white rounded-lg flex items-center justify-center bg-[#1a1d24] shadow-2 px-4 mb-2"
                   x-text="days"
                 >
                   {" "}
                   {days < 10 ? "0" + days : days}{" "}
                 </span>
-                <span className="block text-custom-sm text-dark text-center">
+                <span className="block text-custom-sm text-white text-center">
                   Days
                 </span>
               </div>
@@ -64,13 +64,13 @@ const CounDown = () => {
               {/* <!-- timer hours --> */}
               <div>
                 <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
+                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-white rounded-lg flex items-center justify-center bg-[#1a1d24] shadow-2 px-4 mb-2"
                   x-text="hours"
                 >
                   {" "}
                   {hours < 10 ? "0" + hours : hours}{" "}
                 </span>
-                <span className="block text-custom-sm text-dark text-center">
+                <span className="block text-custom-sm text-white text-center">
                   Hours
                 </span>
               </div>
@@ -78,12 +78,12 @@ const CounDown = () => {
               {/* <!-- timer minutes --> */}
               <div>
                 <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
+                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-white rounded-lg flex items-center justify-center bg-[#1a1d24] shadow-2 px-4 mb-2"
                   x-text="minutes"
                 >
                   {minutes < 10 ? "0" + minutes : minutes}{" "}
                 </span>
-                <span className="block text-custom-sm text-dark text-center">
+                <span className="block text-custom-sm text-white text-center">
                   Minutes
                 </span>
               </div>
@@ -91,12 +91,12 @@ const CounDown = () => {
               {/* <!-- timer seconds --> */}
               <div>
                 <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
+                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-white rounded-lg flex items-center justify-center bg-[#1a1d24] shadow-2 px-4 mb-2"
                   x-text="seconds"
                 >
                   {seconds < 10 ? "0" + seconds : seconds}{" "}
                 </span>
-                <span className="block text-custom-sm text-dark text-center">
+                <span className="block text-custom-sm text-white text-center">
                   Seconds
                 </span>
               </div>

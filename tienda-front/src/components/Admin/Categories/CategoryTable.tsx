@@ -22,11 +22,11 @@ export default function CategoryTable({ categories, loading, onEdit, onDelete }:
       key: "image",
       header: t("table.image"),
       render: (category) => (
-        <div className="relative h-12 w-20 rounded-xl bg-gray-1 overflow-hidden border border-stroke transition-transform group-hover:scale-105">
+        <div className="relative h-12 w-20 rounded-xl bg-[#111318] overflow-hidden border border-stroke transition-transform group-hover:scale-105">
           {category.imageUrl ? (
             <Image src={category.imageUrl} alt={category.name} fill sizes="80px" className="object-contain p-1" />
           ) : (
-            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-dark-4 font-bold tracking-tight">{tc("noImage")}</span>
+            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-gray-4 font-bold tracking-tight">{tc("noImage")}</span>
           )}
         </div>
       ),
@@ -35,7 +35,7 @@ export default function CategoryTable({ categories, loading, onEdit, onDelete }:
       key: "name",
       header: t("table.name"),
       render: (category) => (
-        <p className="text-dark font-bold text-sm">{category.name}</p>
+        <p className="text-white font-bold text-sm">{category.name}</p>
       ),
     },
     {
@@ -44,7 +44,7 @@ export default function CategoryTable({ categories, loading, onEdit, onDelete }:
       headerClassName: "hidden md:table-cell",
       cellClassName: "hidden md:table-cell",
       render: (category) => (
-        <code className="text-[10px] font-bold text-dark-4 bg-gray-1 px-2 py-1 rounded-lg border border-stroke">
+        <code className="text-[10px] font-bold text-gray-4 bg-[#111318] px-2 py-1 rounded-lg border border-stroke">
           {category.slug}
         </code>
       ),

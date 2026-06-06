@@ -126,35 +126,35 @@ export default function AdminCurrencies() {
       key: "code",
       header: "Código",
       render: (currency) => (
-        <span className="font-semibold text-dark">{currency.code}</span>
+        <span className="font-semibold text-white">{currency.code}</span>
       ),
     },
     {
       key: "name",
       header: "Nombre",
       render: (currency) => (
-        <span className="text-dark-4">{currency.name || "-"}</span>
+        <span className="text-gray-4">{currency.name || "-"}</span>
       ),
     },
     {
       key: "symbol",
       header: "Símbolo",
       render: (currency) => (
-        <span className="text-dark-4">{currency.symbol || "-"}</span>
+        <span className="text-gray-4">{currency.symbol || "-"}</span>
       ),
     },
     {
       key: "exchangeRate",
       header: "Tasa de Cambio",
       render: (currency) => (
-        <span className="text-dark-4">{currency.exchangeRate}</span>
+        <span className="text-gray-4">{currency.exchangeRate}</span>
       ),
     },
     {
       key: "isDefault",
       header: "Principal",
       render: (currency) => (
-        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${currency.isDefault ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${currency.isDefault ? 'bg-green-100 text-green-700' : 'bg-[#111318]00 text-gray-700'}`}>
           {currency.isDefault ? "Sí" : "No"}
         </span>
       ),
@@ -192,8 +192,8 @@ export default function AdminCurrencies() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-dark">Divisas</h1>
-          <p className="text-dark-4 text-sm mt-1">Administra los precios de cambio (Ej: Dólar a Pesos)</p>
+          <h1 className="text-2xl font-bold text-white">Divisas</h1>
+          <p className="text-gray-4 text-sm mt-1">Administra los precios de cambio (Ej: Dólar a Pesos)</p>
         </div>
         <Button onClick={() => openModal()}>
           Agregar Divisa
@@ -253,7 +253,7 @@ export default function AdminCurrencies() {
               onChange={(e) => setExchangeRate(e.target.value ? Number(e.target.value) : "")}
               placeholder="950"
             />
-            <p className="text-xs text-dark-4 mt-1.5 ml-1">Valor de 1 unidad de esta divisa en la moneda principal (Ej: 1 USD = 950 CLP)</p>
+            <p className="text-xs text-gray-4 mt-1.5 ml-1">Valor de 1 unidad de esta divisa en la moneda principal (Ej: 1 USD = 950 CLP)</p>
           </div>
 
           <div className="pt-2">

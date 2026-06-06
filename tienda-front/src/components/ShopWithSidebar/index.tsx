@@ -217,14 +217,14 @@ const ShopWithSidebar = () => {
             {/* <!-- Sidebar Start --> */}
             <div
               className={`sidebar-content fixed xl:z-1 z-9999 left-0 top-0 xl:translate-x-0 xl:static max-w-[310px] xl:max-w-[270px] w-full ease-out duration-200 ${productSidebar
-                ? "translate-x-0 bg-white p-5 h-screen overflow-y-auto"
+                ? "translate-x-0 bg-[#1a1d24] p-5 h-screen overflow-y-auto"
                 : "-translate-x-full"
                 }`}
             >
               <button
                 onClick={() => setProductSidebar(!productSidebar)}
                 aria-label="button for product sidebar toggle"
-                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-white shadow-1 ${stickyMenu
+                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-[#1a1d24] shadow-1 ${stickyMenu
                   ? "lg:top-20 sm:top-34.5 top-35"
                   : "lg:top-24 sm:top-39 top-37"
                   }`}
@@ -255,7 +255,7 @@ const ShopWithSidebar = () => {
               <form onSubmit={(e) => e.preventDefault()}>
                 <div className="flex flex-col gap-6">
                   {/* <!-- filter box --> */}
-                  <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                  <div className="bg-[#1a1d24] shadow-1 rounded-lg py-4 px-5">
                     <div className="flex items-center justify-between">
                       <p>{t('filters')}:</p>
                       <button className="text-blue" onClick={(e) => {
@@ -267,7 +267,7 @@ const ShopWithSidebar = () => {
                   </div>
 
                   {/* <!-- search box --> */}
-                  <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                  <div className="bg-[#1a1d24] shadow-1 rounded-lg py-4 px-5">
                     <h3 className="mb-3 text-lg font-bold text-black">{t('search')}</h3>
                     <input
                       type="text"
@@ -277,12 +277,12 @@ const ShopWithSidebar = () => {
                         setSearchTerm(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full rounded border border-stroke bg-white py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary"
+                      className="w-full rounded border border-stroke bg-[#1a1d24] py-3 px-5 font-medium text-black outline-none transition focus:border-primary active:border-primary"
                     />
                   </div>
 
                   {/* <!-- category box --> */}
-                  <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                  <div className="bg-[#1a1d24] shadow-1 rounded-lg py-4 px-5">
                     <h3 className="mb-3 text-lg font-bold text-black">{t('category')}</h3>
                     <SearchableSelect
                       options={categoriesData.map((c: any) => ({ label: c.name, value: c.name }))}
@@ -294,7 +294,7 @@ const ShopWithSidebar = () => {
 
                   {/* <!-- expansions box (formerly gender) --> */}
                   {(!selectedCategory || categoriesData.find((c: any) => c.name === selectedCategory)?.isTcg) && (
-                    <div className="bg-white shadow-1 rounded-lg py-4 px-5">
+                    <div className="bg-[#1a1d24] shadow-1 rounded-lg py-4 px-5">
                       <h3 className="mb-3 text-lg font-bold text-black">{t('expansion')}</h3>
                       <SearchableSelect
                         options={expansionsData.map((e: any) => ({ label: `${e.name} (${e.products})`, value: e.name }))}
@@ -327,14 +327,14 @@ const ShopWithSidebar = () => {
 
             {/* // <!-- Content Start --> */}
             <div className="xl:max-w-[870px] w-full">
-              <div className="rounded-lg bg-white shadow-1 pl-3 pr-2.5 py-2.5 mb-6">
+              <div className="rounded-lg bg-[#1a1d24] shadow-1 pl-3 pr-2.5 py-2.5 mb-6">
                 <div className="flex items-center justify-between">
                   {/* <!-- top bar left --> */}
                   <div className="flex flex-wrap items-center gap-4">
                     <CustomSelect options={options} />
 
                     <p>
-                      Showing <span className="text-dark">9 of 50</span>{" "}
+                      Showing <span className="text-white">9 of 50</span>{" "}
                       Products
                     </p>
                   </div>
@@ -346,7 +346,7 @@ const ShopWithSidebar = () => {
                       aria-label="button for product grid tab"
                       className={`${productStyle === "grid"
                         ? "bg-blue border-blue text-white"
-                        : "text-dark bg-gray-1 border-gray-3"
+                        : "text-white bg-[#111318] border-white/10"
                         } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
@@ -389,7 +389,7 @@ const ShopWithSidebar = () => {
                       aria-label="button for product list tab"
                       className={`${productStyle === "list"
                         ? "bg-blue border-blue text-white"
-                        : "text-dark bg-gray-1 border-gray-3"
+                        : "text-white bg-[#111318] border-white/10"
                         } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
@@ -461,7 +461,7 @@ const ShopWithSidebar = () => {
               {/* <!-- Products Pagination Start --> */}
               {selectedCategory && totalPages > 0 && (
                 <div className="flex justify-center mt-15">
-                  <div className="bg-white shadow-1 rounded-md p-2">
+                  <div className="bg-[#1a1d24] shadow-1 rounded-md p-2">
                     <ul className="flex items-center">
                       <li>
                         <button
@@ -506,7 +506,7 @@ const ShopWithSidebar = () => {
                           if (page === '...') {
                             return (
                               <li key={`ellipsis-${index}`}>
-                                <span className="flex py-1.5 px-3.5 duration-200 rounded-[3px] text-dark">...</span>
+                                <span className="flex py-1.5 px-3.5 duration-200 rounded-[3px] text-white">...</span>
                               </li>
                             );
                           }
@@ -519,7 +519,7 @@ const ShopWithSidebar = () => {
                                 }}
                                 className={`flex py-1.5 px-3.5 duration-200 rounded-[3px] ${currentPage === page
                                   ? "bg-blue text-white"
-                                  : "hover:text-white hover:bg-blue text-dark"
+                                  : "hover:text-white hover:bg-blue text-white"
                                   }`}
                               >
                                 {page}

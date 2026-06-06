@@ -14,6 +14,22 @@ import { Role } from '@prisma/client';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  @Post('global')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN)
+  createGlobal(@Body() body: any) {
+    // Reutilizamos el servicio para crear desde Scryfall, asegurando categoryId
+    return this.productsService.createProductFromScryfallCard(body.scryfallCard, body.categoryId, body);
+  }
+
+  @Get('global')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN)
+  getGlobalProducts(@Query('search') search?: string) {
+    // Retornamos los productos sin store (storeId: null)
+    return this.productsService.getGlobalProducts(search);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

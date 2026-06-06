@@ -34,11 +34,11 @@ const PoliticaPrivacidadClient = () => {
       backToShopText={t("backToShop")}
     >
       {/* Header Box */}
-      <div className="border-b border-gray-3 pb-8 mb-10">
-        <div className="inline-block bg-[#800D0D]/10 text-[#800D0D] font-bold text-xs uppercase px-3 py-1 rounded-full mb-4">
+      <div className="border-b border-white/10 pb-8 mb-10">
+        <div className="inline-block bg-red/10 text-red font-bold text-xs uppercase px-3 py-1 rounded-full mb-4">
           {t("badge")}
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-dark tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           {t("mainTitle")}
         </h2>
         <p className="text-gray-5 text-custom-sm mt-2">
@@ -52,13 +52,13 @@ const PoliticaPrivacidadClient = () => {
         
         return (
           <React.Fragment key={section.id}>
-            {!isFirst && <hr className="border-gray-3 my-8" />}
+            {!isFirst && <hr className="border-white/10 my-8" />}
             
             {section.type === "intro" && (
               <LegalSection id={section.id}>
                 <div className="flex flex-col gap-3">
                   <p>
-                    El sitio oficial <strong className="text-dark">www.bloodmoongames.cl</strong> es operado con altos estándares de resguardo. {t("introduccion.p1")}
+                    El sitio oficial <strong className="text-white">www.TapTradegames.cl</strong> es operado con altos estándares de resguardo. {t("introduccion.p1")}
                   </p>
                 </div>
               </LegalSection>
@@ -70,8 +70,8 @@ const PoliticaPrivacidadClient = () => {
                   <p>{t("informacion.p1")}</p>
                   <p>{t("informacion.p2")}</p>
 
-                  <div className="bg-gray-2 p-5 rounded-lg border-l-4 border-[#800D0D] flex flex-col gap-3">
-                    <p className="font-bold text-dark mb-1">{t("informacion.techTitle")}</p>
+                  <div className="bg-[#222630] p-5 rounded-lg border-l-4 border-red flex flex-col gap-3">
+                    <p className="font-bold text-white mb-1">{t("informacion.techTitle")}</p>
                     <ul className="list-disc pl-5 flex flex-col gap-2">
                       <li>{t("informacion.techLi1")}</li>
                       <li>{t("informacion.techLi2")}</li>
@@ -93,7 +93,7 @@ const PoliticaPrivacidadClient = () => {
                 <div className="flex flex-col gap-4">
                   <p>{t("uso.p1")}</p>
                   <div>
-                    <strong className="text-dark">{t("uso.listTitle")}</strong>
+                    <strong className="text-white">{t("uso.listTitle")}</strong>
                     <ul className="list-disc pl-5 mt-2 flex flex-col gap-1.5">
                       <li>{t("uso.listLi1")}</li>
                       <li>{t("uso.listLi2")}</li>
@@ -110,8 +110,8 @@ const PoliticaPrivacidadClient = () => {
                 <div className="flex flex-col gap-4">
                   <p>{t("compartir.p1")}</p>
                   
-                  <div className="bg-[#800D0D]/5 border border-[#800D0D]/10 p-4.5 rounded">
-                    <p className="font-semibold text-dark mb-1">{t("compartir.analyticsTitle")}</p>
+                  <div className="bg-red/5 border border-red/10 p-4.5 rounded">
+                    <p className="font-semibold text-white mb-1">{t("compartir.analyticsTitle")}</p>
                     <p>{t("compartir.analyticsDesc")}</p>
                   </div>
 
@@ -133,17 +133,17 @@ const PoliticaPrivacidadClient = () => {
                 id={section.id}
                 num={section.num}
                 title={t("contacto.title")}
-                className="bg-[#800D0D]/5 border border-[#800D0D]/20 rounded-lg p-6 sm:p-8"
+                className="bg-red/5 border border-red/20 rounded-lg p-6 sm:p-8"
               >
                 <div className="flex flex-col gap-4">
                   <p>{t("contacto.p1")}</p>
                   
-                  <div className="bg-white p-4.5 rounded shadow-sm border border-gray-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="bg-[#1a1d24] p-4.5 rounded shadow-sm border border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <p className="font-bold text-dark">{t("contacto.boxTitle")}</p>
+                      <p className="font-bold text-white">{t("contacto.boxTitle")}</p>
                       <p className="text-xs text-gray-5">{t("contacto.boxDesc")}</p>
                     </div>
-                    <a href="mailto:tiendabloodmoon@gmail.com" className="bg-[#800D0D] hover:bg-dark text-white font-bold text-custom-sm py-2 px-4 rounded transition duration-200">
+                    <a href="mailto:tiendaTapTrade@gmail.com" className="bg-red hover:bg-dark text-white font-bold text-custom-sm py-2 px-4 rounded transition duration-200">
                       {t("contacto.btn")}
                     </a>
                   </div>

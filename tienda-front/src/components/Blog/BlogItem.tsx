@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const BlogItem = ({ blog }: { blog: BlogItem }) => {
   return (
-    <div className="shadow-1 bg-white rounded-xl px-4 sm:px-5 pt-5 pb-4">
+    <div className="shadow-1 bg-[#1a1d24] rounded-xl px-4 sm:px-5 pt-5 pb-4">
       <Link href="/blogs/blog-details" className="rounded-md overflow-hidden">
         <Image
           src={blog.img}
@@ -36,7 +36,7 @@ const BlogItem = ({ blog }: { blog: BlogItem }) => {
           </a>
         </span>
 
-        <h2 className="font-medium text-dark text-lg sm:text-xl ease-out duration-200 mb-4 hover:text-blue">
+        <h2 className="font-medium text-white text-lg sm:text-xl ease-out duration-200 mb-4 hover:text-blue">
           <Link href="/blogs/blog-details">{blog.title}</Link>
         </h2>
 

@@ -94,8 +94,8 @@ export default function AdminProducts() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
-          <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
+          <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-3">
           <Button 

@@ -36,7 +36,7 @@ export default function OrderTable({ orders, loading, statusClasses, statusLabel
       key: "customer",
       header: t("table.customer"),
       render: (order) => (
-        <p className="font-bold text-dark">{order.name}</p>
+        <p className="font-bold text-white">{order.name}</p>
       ),
     },
     {
@@ -45,13 +45,13 @@ export default function OrderTable({ orders, loading, statusClasses, statusLabel
       headerClassName: "hidden xl:table-cell",
       cellClassName: "hidden xl:table-cell",
       render: (order) => (
-        <p className="text-dark-4 font-medium">{order.email}</p>
+        <p className="text-gray-4 font-medium">{order.email}</p>
       ),
     },
     {
       key: "total",
       header: t("table.total"),
-      cellClassName: "font-black text-dark",
+      cellClassName: "font-black text-white",
       render: (order) => (
         `$${parseFloat(order.totalAmount).toLocaleString("es-CL")}`
       ),
@@ -68,7 +68,7 @@ export default function OrderTable({ orders, loading, statusClasses, statusLabel
     {
       key: "date",
       header: t("table.date"),
-      cellClassName: "text-dark-4 font-medium text-xs",
+      cellClassName: "text-gray-4 font-medium text-xs",
       render: (order) => (
         new Date(order.createdAt).toLocaleDateString("es-CL")
       ),

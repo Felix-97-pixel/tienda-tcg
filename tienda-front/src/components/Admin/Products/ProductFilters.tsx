@@ -28,8 +28,8 @@ export default function ProductFilters({
   const tc = useTranslations("common");
 
   return (
-    <div className="bg-white rounded-2xl shadow-1 p-5 mb-6">
-      <p className="text-sm font-medium text-dark mb-3">{tc("filters")}</p>
+    <div className="bg-[#1a1d24] rounded-2xl shadow-1 p-5 mb-6">
+      <p className="text-sm font-medium text-white mb-3">{tc("filters")}</p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
           <Input 
@@ -41,7 +41,7 @@ export default function ProductFilters({
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.category")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("filters.category")}</label>
           <SearchableSelect 
             options={[
               { label: t("filters.allCategories"), value: "" },
@@ -53,7 +53,7 @@ export default function ProductFilters({
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("filters.expansion")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("filters.expansion")}</label>
           <SearchableSelect 
             options={[
               { label: t("filters.allExpansions"), value: "" },

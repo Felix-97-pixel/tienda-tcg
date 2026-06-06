@@ -45,12 +45,12 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-all">
       <div 
-        className={`w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide ${className}`}
+        className={`w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] overflow-y-auto rounded-2xl bg-[#1a1d24] p-8 shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide ${className}`}
       >
         {(title || onClose) && (
           <div className="flex justify-between items-center mb-6">
             {title ? (
-              <h2 className="text-xl font-bold text-dark">{title}</h2>
+              <h2 className="text-xl font-bold text-white">{title}</h2>
             ) : (
               <div></div> /* Spacer si no hay titulo pero si boton de cerrar */
             )}
@@ -58,7 +58,7 @@ export const Modal: React.FC<ModalProps> = ({
             {onClose && (
               <button 
                 onClick={onClose} 
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-1 text-dark-4 hover:bg-gray-2 hover:text-dark transition-all active:scale-95"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#111318] text-gray-4 hover:bg-[#222630] hover:text-white transition-all active:scale-95"
                 type="button"
                 aria-label="Cerrar modal"
               >

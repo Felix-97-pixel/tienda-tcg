@@ -15,7 +15,11 @@ export interface Order {
   totalAmount: string;
   status: string;
   createdAt: string;
-  items: OrderItem[];
+  vendorOrders: {
+    id: string;
+    store: { id: string; name: string };
+    items: OrderItem[];
+  }[];
   payment?: {
     status: string;
     authCode?: string;

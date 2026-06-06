@@ -87,22 +87,22 @@ export default function AdminSync() {
       {anyLoading && <PreLoader message={tCommon("loading")} />}
 
       <div>
-        <h1 className="text-2xl font-bold text-dark">{t("title")}</h1>
-        <p className="text-dark-4 text-sm mt-1">{t("subtitle")}</p>
+        <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
+        <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {games.map((game) => (
           <React.Fragment key={game.id}>
             {/* Card de Importación de Edición */}
-            <div className={`bg-white rounded-2xl shadow-1 p-6 border-l-4 ${game.color} flex flex-col`}>
+            <div className={`bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-l-4 ${game.color} flex flex-col`}>
               <div className="flex-1">
-                <h2 className="font-bold text-dark mb-1">{game.title}</h2>
-                <p className="text-xs text-dark-4 mb-4">{game.subtitle}</p>
+                <h2 className="font-bold text-white mb-1">{game.title}</h2>
+                <p className="text-xs text-gray-4 mb-4">{game.subtitle}</p>
                 
                 <div className="mb-4">
-                  <label className="mb-1 block text-xs font-medium text-dark-4">{t("configuredDestination")}</label>
-                  <div className="text-sm font-bold text-blue bg-blue/5 p-2 rounded border border-blue/10">
+                  <label className="mb-1 block text-xs font-medium text-gray-4">{t("configuredDestination")}</label>
+                  <div className="text-sm font-bold text-purple-400 bg-purple-500/10 p-2 rounded border border-purple-500/20">
                     {categories[game.id as keyof typeof categories]}
                   </div>
                 </div>
@@ -123,7 +123,7 @@ export default function AdminSync() {
                 disabled={isAnyActive}
                 isLoading={game.sync.importProgress.active}
                 fullWidth
-                className="mt-4"
+                className="mt-4 bg-purple-600 hover:bg-purple-500 text-white"
               >
                 {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
               </Button>
@@ -135,10 +135,10 @@ export default function AdminSync() {
             </div>
 
             {/* Card de Actualización de Precios */}
-            <div className={`bg-white rounded-2xl shadow-1 p-6 border-l-4 ${game.color} flex flex-col`}>
+            <div className={`bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-l-4 ${game.color} flex flex-col`}>
               <div className="flex-1">
-                <h2 className="font-bold text-dark mb-1">{game.priceTitle}</h2>
-                <p className="text-xs text-dark-4 mb-4">{game.priceSubtitle}</p>
+                <h2 className="font-bold text-white mb-1">{game.priceTitle}</h2>
+                <p className="text-xs text-gray-4 mb-4">{game.priceSubtitle}</p>
                 
                 <SearchableSelect 
                   options={game.sync.expansionsList.map(e => ({ 
@@ -156,7 +156,7 @@ export default function AdminSync() {
                 onClick={game.sync.syncPrices} 
                 isLoading={game.sync.priceProgress.active}
                 fullWidth
-                className="mt-4"
+                className="mt-4 bg-purple-600 hover:bg-purple-500 text-white"
               >
                 {game.sync.priceProgress.active ? t("inProgress") : game.priceBtn}
               </Button>

@@ -43,10 +43,10 @@ export class GetSalesStatsHandler
       this.prisma.orderItem.groupBy({
         by: ['productId', 'productName'],
         where: {
-          order: { status: 'PAID' },
+          vendorOrder: { status: 'PAID' },
         },
         _sum: { quantity: true },
-        _count: { orderId: true }, // en cuántas órdenes apareció
+        _count: { vendorOrderId: true }, // en cuántas órdenes apareció
         orderBy: { _sum: { quantity: 'desc' } },
         take: 10,
       }),
@@ -105,7 +105,7 @@ export class GetSalesStatsHandler
       productId: p.productId,
       productName: p.productName,
       totalUnits: p._sum.quantity ?? 0,
-      timesOrdered: p._count.orderId,
+      timesOrdered: p._count.vendorOrderId,
     }));
 
     return {

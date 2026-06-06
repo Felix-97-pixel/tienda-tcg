@@ -19,7 +19,9 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          items: true,
+          vendorOrders: {
+            include: { items: true, store: true },
+          },
           payment: { select: { status: true, authCode: true } },
         },
       }),

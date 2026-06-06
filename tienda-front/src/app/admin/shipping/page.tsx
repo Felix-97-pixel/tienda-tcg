@@ -96,7 +96,7 @@ export default function AdminShipping() {
         return (
           <div className="flex items-center gap-3.5">
             <ShippingBadge name={provider.name} size="sm" />
-            <span className="font-bold text-dark text-sm tracking-wide">
+            <span className="font-bold text-white text-sm tracking-wide">
               {provider.name.toUpperCase()}
             </span>
           </div>
@@ -151,15 +151,15 @@ export default function AdminShipping() {
       {/* Header */}
       <div className="flex items-center justify-between  pb-5">
         <div>
-          <h1 className="text-2xl font-black text-dark tracking-tight">Métodos de Envío</h1>
-          <p className="text-dark-4 text-sm mt-1.5 font-medium">
+          <h1 className="text-2xl font-black text-white tracking-tight">Métodos de Envío</h1>
+          <p className="text-gray-4 text-sm mt-1.5 font-medium">
             Configura las tarifas y disponibilidad de los proveedores de despacho a domicilio
           </p>
         </div>
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-[10px] shadow-1 overflow-hidden">
+      <div className="bg-[#1a1d24] rounded-[10px] shadow-1 overflow-hidden">
         <List
           columns={columns}
           data={providers}
@@ -178,7 +178,7 @@ export default function AdminShipping() {
         {selectedProvider && (
           <form onSubmit={handleSave} className="space-y-6">
             {/* Visual Brand Badge Header inside the Modal */}
-            <div className="flex items-center justify-center p-6 bg-gray-2 rounded-xl border border-stroke mb-4">
+            <div className="flex items-center justify-center p-6 bg-[#222630] rounded-xl border border-stroke mb-4">
               <ShippingBadge name={selectedProvider.name} size="lg" className="scale-110" />
             </div>
 
@@ -192,9 +192,9 @@ export default function AdminShipping() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ej: 9990"
-                className="font-bold text-dark"
+                className="font-bold text-white"
               />
-              <p className="text-xs text-dark-4 font-semibold ml-1">
+              <p className="text-xs text-gray-4 font-semibold ml-1">
                 Ingresa el valor total que se cobrará al cliente por este método de envío.
               </p>
             </div>
@@ -205,7 +205,7 @@ export default function AdminShipping() {
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
               />
-              <p className="text-xs text-dark-4 font-medium ml-7 mt-1.5">
+              <p className="text-xs text-gray-4 font-medium ml-7 mt-1.5">
                 Si se desactiva, este courier no aparecerá como opción disponible para los clientes en la página de checkout.
               </p>
             </div>

@@ -1,19 +1,16 @@
 import React from "react";
-import ShopWithSidebar from "@/components/ShopWithSidebar";
-
+import Home from "@/components/Home";
 import { Metadata } from "next";
+
 export const metadata: Metadata = {
-  title: "Shop Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Shop Page for NextCommerce Template",
-  // other metadata
+  title: "Inicio | TapTrade",
+  description: "Marketplace de cartas TCG",
 };
 
-const ShopWithSidebarPage = () => {
+export default function StoreFrontHomePage() {
   return (
-    <main>
-      <ShopWithSidebar />
-    </main>
+    <>
+      <Home />
+    </>
   );
-};
-
-export default ShopWithSidebarPage;
+}

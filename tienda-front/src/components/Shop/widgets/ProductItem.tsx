@@ -78,7 +78,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             }}
             id="newOne"
             aria-label="button for quick view"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
           >
             <svg
               className="fill-current"
@@ -107,7 +107,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             onClick={() => handleAddToCart()}
             disabled={item.stock === 0 || isMaxStockReached}
             className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${item.stock === 0 || isMaxStockReached
-                ? "bg-gray-4 cursor-not-allowed text-dark-4"
+                ? "bg-gray-4 cursor-not-allowed text-gray-4"
                 : "bg-blue hover:bg-blue-dark"
               }`}
           >
@@ -118,7 +118,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             onClick={() => handleItemToWishList()}
             aria-label="button for favorite select"
             id="favOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
           >
             <svg
               className="fill-current"
@@ -177,7 +177,7 @@ const ProductItem = ({ item }: { item: Product }) => {
       </div>
 
       <h3
-        className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5"
+        className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5"
         onClick={() => handleProductDetails()}
       >
         <Link href="/shop-details"> {item.title || item.name} </Link>
@@ -186,13 +186,13 @@ const ProductItem = ({ item }: { item: Product }) => {
       <span className="flex items-center gap-2 font-medium text-lg">
         {(item.price ?? 0) > 0 ? (
           <>
-            <span className="text-dark">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
+            <span className="text-white">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
             {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
-              <span className="text-dark-4 line-through">{formatPrice(item.price ?? 0, currency)}</span>
+              <span className="text-gray-4 line-through">{formatPrice(item.price ?? 0, currency)}</span>
             )}
           </>
         ) : (
-          <span className="text-gray-400 text-sm italic">Sin precio</span>
+          <span className="text-gray-4 text-sm italic">Sin precio</span>
         )}
       </span>
     </div>

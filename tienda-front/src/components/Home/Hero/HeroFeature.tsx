@@ -33,7 +33,7 @@ const HeroFeature = () => {
             <Image src={item.img} alt="icons" width={40} height={41} />
 
             <div>
-              <h3 className="font-medium text-lg text-dark">{item.title}</h3>
+              <h3 className="font-medium text-lg text-white">{item.title}</h3>
               <p className="text-sm">{item.description}</p>
             </div>
           </div>

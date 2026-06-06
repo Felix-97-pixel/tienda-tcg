@@ -15,7 +15,12 @@ export class GetOrderStatusHandler
   async execute(query: GetOrderStatusQuery) {
     const order = await this.prisma.order.findUnique({
       where: { id: query.orderId },
-      include: { items: true, payment: true },
+      include: {
+        vendorOrders: {
+          include: { items: true, store: true },
+        },
+        payment: true,
+      },
     });
 
     if (!order) {

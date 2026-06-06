@@ -27,7 +27,11 @@ export class CommitTransactionHandler
       where: { token },
       include: {
         order: {
-          include: { items: true },
+          include: {
+            vendorOrders: {
+              include: { items: true },
+            },
+          },
         },
       },
     });
@@ -60,41 +64,63 @@ export class CommitTransactionHandler
         },
       });
 
-      // 2. Actualizar orden
+      // 2. Actualizar Master Order
       await tx.order.update({
         where: { id: payment.orderId },
         data: { status: isApproved ? 'PAID' : 'FAILED' },
       });
 
-      // 3. Descontar stock solo si el pago fue aprobado
-      if (isApproved) {
-        const itemsConInventario = payment.order.items.filter(
-          (i) => i.inventoryItemId,
-        );
+      // 3. Procesar VendorOrders
+      for (const vendorOrder of payment.order.vendorOrders) {
+        // Actualizar estado de la sub-orden
+        await tx.vendorOrder.update({
+          where: { id: vendorOrder.id },
+          data: { status: isApproved ? 'PAID' : 'FAILED' },
+        });
 
-        for (const item of itemsConInventario) {
-          const inventory = await tx.inventoryItem.findUnique({
-            where: { id: item.inventoryItemId! },
-          });
+        if (isApproved) {
+          // Descontar stock
+          const itemsConInventario = vendorOrder.items.filter(
+            (i) => i.inventoryItemId,
+          );
 
-          if (!inventory) {
-            this.logger.warn(
-              `InventoryItem ${item.inventoryItemId} no encontrado al descontar stock`,
-            );
-            continue;
+          for (const item of itemsConInventario) {
+            const inventory = await tx.inventoryItem.findUnique({
+              where: { id: item.inventoryItemId! },
+            });
+
+            if (inventory) {
+              const newStock = Math.max(0, inventory.stock - item.quantity);
+              await tx.inventoryItem.update({
+                where: { id: item.inventoryItemId! },
+                data: { stock: newStock },
+              });
+            }
           }
 
-          const newStock = Math.max(0, inventory.stock - item.quantity);
+          // Abonar a la Billetera del Vendedor (El vendedor recibe lo que pidió originalmente + envío)
+          // El subtotal ya trae el 5% extra, así que el precio original es subtotal / 1.05
+          const baseSubtotal = Number(vendorOrder.subtotal) / 1.05;
+          const totalAbono = baseSubtotal + Number(vendorOrder.shippingCost);
+          
+          // La comisión que se queda la plataforma
+          const commission = Number(vendorOrder.subtotal) - baseSubtotal;
 
-          await tx.inventoryItem.update({
-            where: { id: item.inventoryItemId! },
-            data: { stock: newStock },
+          // Actualizar balance del vendedor (recibe íntegro lo que pidió + envío)
+          await tx.store.update({
+            where: { id: vendorOrder.storeId },
+            data: { balance: { increment: totalAbono } },
           });
 
-          this.logger.log(
-            `Stock descontado: inventoryItem=${item.inventoryItemId}, ` +
-              `-${item.quantity} → stock=${newStock}`,
-          );
+          // Registrar en historial de billetera
+          await tx.walletTransaction.create({
+            data: {
+              storeId: vendorOrder.storeId,
+              amount: totalAbono,
+              type: 'SALE',
+              reference: `Order: ${vendorOrder.id} (Commission kept: ${commission.toFixed(0)})`,
+            },
+          });
         }
       }
     });

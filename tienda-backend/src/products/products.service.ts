@@ -652,4 +652,16 @@ export class ProductsService {
       }
     });
   }
+
+  async getGlobalProducts(search?: string) {
+    const where: any = { storeId: null };
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    return this.prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: { category: true, cardDetail: true }
+    });
+  }
 }

@@ -30,14 +30,14 @@ const HeroCarousal = () => {
               <span className="block font-semibold text-heading-3 sm:text-heading-1 text-blue">
                 30%
               </span>
-              <span className="block text-dark text-sm sm:text-custom-1 sm:leading-[24px]">
+              <span className="block text-white text-sm sm:text-custom-1 sm:leading-[24px]">
                 Sale
                 <br />
                 Off
               </span>
             </div>
 
-            <h1 className="font-semibold text-dark text-xl sm:text-3xl mb-3">
+            <h1 className="font-semibold text-white text-xl sm:text-3xl mb-3">
               <a href="#">True Wireless Noise Cancelling Headphone</a>
             </h1>
 
@@ -71,14 +71,14 @@ const HeroCarousal = () => {
               <span className="block font-semibold text-heading-3 sm:text-heading-1 text-blue">
                 30%
               </span>
-              <span className="block text-dark text-sm sm:text-custom-1 sm:leading-[24px]">
+              <span className="block text-white text-sm sm:text-custom-1 sm:leading-[24px]">
                 Sale
                 <br />
                 Off
               </span>
             </div>
 
-            <h1 className="font-semibold text-dark text-xl sm:text-3xl mb-3">
+            <h1 className="font-semibold text-white text-xl sm:text-3xl mb-3">
               <a href="#">True Wireless Noise Cancelling Headphone</a>
             </h1>
 

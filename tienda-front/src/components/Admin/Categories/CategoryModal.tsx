@@ -109,9 +109,9 @@ export default function CategoryModal({ isOpen, onClose, category, onSuccess }: 
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-dark">{t("modal.imageLabel")}</label>
+          <label className="mb-2 block text-sm font-medium text-white">{t("modal.imageLabel")}</label>
           <div className="flex items-center gap-4">
-            <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border border-stroke flex items-center justify-center">
+            <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border border-stroke flex items-center justify-center">
               {formData.imageUrl ? (
                 <div className="relative h-full w-full group">
                   <Image src={formData.imageUrl} alt="Preview" fill className="object-contain" />
@@ -127,7 +127,7 @@ export default function CategoryModal({ isOpen, onClose, category, onSuccess }: 
                   </button>
                 </div>
               ) : (
-                <span className="text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
+                <span className="text-[10px] text-gray-4 font-bold">{tc("noImage")}</span>
               )}
             </div>
             <FileInput

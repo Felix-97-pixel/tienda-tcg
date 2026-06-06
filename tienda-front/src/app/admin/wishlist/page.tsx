@@ -61,12 +61,12 @@ export default function AdminWishlist() {
       header: t("table.product"),
       render: (product) => (
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-1 border border-stroke transition-transform group-hover:scale-110">
+          <div className="h-12 w-12 rounded-2xl overflow-hidden flex-shrink-0 bg-[#111318] border border-stroke transition-transform group-hover:scale-110">
             {product.imageUrl
               ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
-              : <div className="h-full w-full flex items-center justify-center text-[10px] font-black text-dark-4 uppercase">{tc("noImage")}</div>}
+              : <div className="h-full w-full flex items-center justify-center text-[10px] font-black text-gray-4 uppercase">{tc("noImage")}</div>}
           </div>
-          <p className="text-dark font-black text-sm tracking-tight">{product.name}</p>
+          <p className="text-white font-black text-sm tracking-tight">{product.name}</p>
         </div>
       ),
     },
@@ -77,7 +77,7 @@ export default function AdminWishlist() {
       cellClassName: "hidden md:table-cell",
       render: (product) => (
         <>
-          <p className="text-dark font-bold text-xs">{product.cardDetail?.expansion || tc("general")}</p>
+          <p className="text-white font-bold text-xs">{product.cardDetail?.expansion || tc("general")}</p>
           <p className="text-blue font-black text-[9px] uppercase tracking-widest mt-1 opacity-60">{product.cardDetail?.rarity}</p>
         </>
       ),
@@ -100,7 +100,7 @@ export default function AdminWishlist() {
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (product) => (
-        <p className="text-sm font-black text-dark tracking-tighter">
+        <p className="text-sm font-black text-white tracking-tighter">
           ${Number(product.items[0]?.price || 0).toLocaleString('es-CL')}
         </p>
       ),
@@ -112,8 +112,8 @@ export default function AdminWishlist() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-dark tracking-tight">{t("adminTitle")}</h1>
-          <p className="text-dark-4 text-sm font-medium mt-1">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">{t("adminTitle")}</h1>
+          <p className="text-gray-4 text-sm font-medium mt-1">{t("subtitle")}</p>
         </div>
         <div className="px-4 py-2 rounded-2xl bg-pink-50 border border-pink-100 flex items-center gap-2">
           <span className="text-pink-500 text-xl animate-pulse">♥</span>
@@ -122,23 +122,23 @@ export default function AdminWishlist() {
       </div>
 
       {/* Filtros Premium */}
-      <div className="bg-white rounded-3xl shadow-1 p-6 border border-transparent hover:border-stroke transition-all duration-300">
+      <div className="bg-[#1a1d24] rounded-3xl shadow-1 p-6 border border-transparent hover:border-stroke transition-all duration-300">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div>
-            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{tc("search")}</label>
+            <label className="mb-2 block text-[10px] font-black text-gray-4 uppercase tracking-widest">{tc("search")}</label>
             <div className="relative">
               <input
                 type="text"
                 placeholder={t("filters.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-                className="w-full rounded-2xl border border-stroke bg-gray-50 py-3 px-5 text-sm font-medium outline-none focus:border-blue focus:bg-white focus:ring-4 focus:ring-blue/5 transition-all"
+                className="w-full rounded-2xl border border-stroke bg-gray-50 py-3 px-5 text-sm font-medium outline-none focus:border-blue focus:bg-[#1a1d24] focus:ring-4 focus:ring-blue/5 transition-all"
               />
-              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{t("filters.category")}</label>
+            <label className="mb-2 block text-[10px] font-black text-gray-4 uppercase tracking-widest">{t("filters.category")}</label>
             <SearchableSelect
               options={[{ label: t("filters.allCategories"), value: "" }, ...categoriesList.map(c => ({ label: c.name, value: c.name }))]}
               value={selectedCategory}
@@ -147,7 +147,7 @@ export default function AdminWishlist() {
             />
           </div>
           <div>
-            <label className="mb-2 block text-[10px] font-black text-dark-4 uppercase tracking-widest">{t("filters.expansion")}</label>
+            <label className="mb-2 block text-[10px] font-black text-gray-4 uppercase tracking-widest">{t("filters.expansion")}</label>
             <SearchableSelect
               options={[{ label: t("filters.allExpansions"), value: "" }, ...expansionsList.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))]}
               value={selectedExpansion}

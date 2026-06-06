@@ -60,14 +60,14 @@ const ShopWithoutSidebar = () => {
           <div className="flex gap-7.5">
             {/* // <!-- Content Start --> */}
             <div className="w-full">
-              <div className="rounded-lg bg-white shadow-1 pl-3 pr-2.5 py-2.5 mb-6">
+              <div className="rounded-lg bg-[#1a1d24] shadow-1 pl-3 pr-2.5 py-2.5 mb-6">
                 <div className="flex items-center justify-between">
                   {/* <!-- top bar left --> */}
                   <div className="flex flex-wrap items-center gap-4">
                     <CustomSelect options={options} />
 
                     <p>
-                      Showing <span className="text-dark">9 of 50</span>{" "}
+                      Showing <span className="text-white">9 of 50</span>{" "}
                       Products
                     </p>
                   </div>
@@ -79,7 +79,7 @@ const ShopWithoutSidebar = () => {
                       aria-label="button for product grid tab"
                       className={`${productStyle === "grid"
                         ? "bg-blue border-blue text-white"
-                        : "text-dark bg-gray-1 border-gray-3"
+                        : "text-white bg-[#111318] border-white/10"
                         } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
@@ -122,7 +122,7 @@ const ShopWithoutSidebar = () => {
                       aria-label="button for product list tab"
                       className={`${productStyle === "list"
                         ? "bg-blue border-blue text-white"
-                        : "text-dark bg-gray-1 border-gray-3"
+                        : "text-white bg-[#111318] border-white/10"
                         } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
@@ -174,7 +174,7 @@ const ShopWithoutSidebar = () => {
 
               {/* <!-- Products Pagination Start --> */}
               <div className="flex justify-center mt-15">
-                <div className="bg-white shadow-1 rounded-md p-2">
+                <div className="bg-[#1a1d24] shadow-1 rounded-md p-2">
                   <ul className="flex items-center">
                     <li>
                       <button

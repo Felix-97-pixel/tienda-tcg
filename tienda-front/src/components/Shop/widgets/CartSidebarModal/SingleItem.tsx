@@ -29,17 +29,17 @@ const SingleItem = ({ item, removeItemFromCart }) => {
   return (
     <div className="flex items-center justify-between gap-5">
       <div className="w-full flex items-center gap-6">
-        <div className="flex items-center justify-center rounded-[10px] bg-gray-3 max-w-[90px] w-full h-22.5 overflow-hidden p-1">
+        <div className="flex items-center justify-center rounded-[10px] bg-[#2a2d36] max-w-[90px] w-full h-22.5 overflow-hidden p-1">
           <Image className="max-h-full max-w-full object-contain" src={item.imgs?.thumbnails[0]} alt="product" width={100} height={100} />
         </div>
 
         <div>
-          <h3 className="font-medium text-dark mb-1 ease-out duration-200 hover:text-blue">
+          <h3 className="font-medium text-white mb-1 ease-out duration-200 hover:text-blue">
             <a href="#"> {item.title} </a>
           </h3>
           <p className="text-custom-sm mb-2">{t("price")}: ${item.discountedPrice}</p>
           
-          <div className="w-max flex items-center rounded-md border border-gray-3">
+          <div className="w-max flex items-center rounded-md border border-white/10">
             <button
               onClick={() => handleDecreaseQuantity()}
               aria-label="button for remove product quantity"
@@ -60,7 +60,7 @@ const SingleItem = ({ item, removeItemFromCart }) => {
               </svg>
             </button>
 
-            <span className="flex items-center justify-center w-10 h-8 border-x border-gray-4 text-sm">
+            <span className="flex items-center justify-center w-10 h-8 border-x border-white/20 text-sm">
               {item.quantity}
             </span>
 
@@ -95,7 +95,7 @@ const SingleItem = ({ item, removeItemFromCart }) => {
       <button
         onClick={handleRemoveFromCart}
         aria-label="button for remove product from cart"
-        className="flex items-center justify-center rounded-lg max-w-[38px] w-full h-9.5 bg-gray-2 border border-gray-3 text-dark ease-out duration-200 hover:bg-red-light-6 hover:border-red-light-4 hover:text-red"
+        className="flex items-center justify-center rounded-lg max-w-[38px] w-full h-9.5 bg-[#222630] border border-white/10 text-white ease-out duration-200 hover:bg-red-light-6 hover:border-red-light-4 hover:text-red"
       >
         <svg
           className="fill-current"

@@ -15,8 +15,8 @@ const LegalSection: React.FC<LegalSectionProps> = ({
   id,
   title,
   num,
-  badgeColor = "bg-[#800D0D]",
-  titleColor = "text-[#800D0D]",
+  badgeColor = "bg-red",
+  titleColor = "text-red",
   className = "",
   children
 }) => {

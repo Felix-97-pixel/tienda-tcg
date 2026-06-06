@@ -57,13 +57,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const configItems = [
     { href: "/admin/currencies",  label: "Divisas",               icon: icons.settings },
     { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
-    { href: "/admin/sync",        label: t("modules.sync"),       icon: icons.sync },
     { href: "/admin/settings",    label: t("modules.settings"),   icon: icons.settings },
   ];
 
   const isCatalog = ["/admin/products", "/admin/categories", "/admin/brands", "/admin/wishlist"].some(p => pathname.startsWith(p));
   const isStats = ["/admin/sales", "/admin/orders"].some(p => pathname.startsWith(p));
-  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/sync", "/admin/settings"].some(p => pathname.startsWith(p));
+  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/settings"].some(p => pathname.startsWith(p));
 
   let navItems = [];
   let moduleName = "";
@@ -85,7 +84,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   return (
     <aside
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-70 flex-col overflow-y-hidden bg-[#1C2434] duration-300 ease-linear lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`absolute left-0 top-0 z-9999 flex h-screen w-70 flex-col overflow-y-hidden bg-[#0f1115] border-r border-white/5 duration-300 ease-linear lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Logo Area */}
       <div className="flex items-center justify-between gap-2 px-6 py-8">
@@ -95,7 +94,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">Tap<span className="text-blue">Trade</span></h1>
         </Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="block lg:hidden text-gray-400 hover:text-white transition-colors">
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="block lg:hidden text-gray-4 hover:text-white transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
@@ -114,7 +113,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
           </div>
 
           <div className="mb-6">
-            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{moduleName}</h3>
+            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-5">{moduleName}</h3>
             <ul className="space-y-1.5">
               {navItems.map(({ href, label, icon }) => {
                 const isActive = pathname === href || pathname.startsWith(href + "/");
@@ -125,15 +124,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                       className={`group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm transition-all duration-200 ${
                         isActive 
                           ? "bg-blue text-white shadow-xl shadow-blue/20" 
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                          : "text-gray-4 hover:bg-[#1a1d24]/5 hover:text-white"
                       }`}
                     >
-                      <span className={`${isActive ? "text-white" : "text-gray-500 group-hover:text-blue transition-colors"}`}>
+                      <span className={`${isActive ? "text-white" : "text-gray-5 group-hover:text-blue transition-colors"}`}>
                         {icon}
                       </span>
                       {label}
                       {isActive && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-white rounded-l-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-[#1a1d24] rounded-l-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
                       )}
                     </Link>
                   </li>
@@ -146,11 +145,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
       {/* Footer Info */}
       <div className="p-6 border-t border-white/5">
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all">
+        <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#1a1d24]/5 border border-white/5 group hover:bg-[#1a1d24]/10 transition-all">
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue to-indigo-600 flex items-center justify-center text-xs font-black text-white shadow-lg">AD</div>
           <div className="flex-1 overflow-hidden">
             <p className="text-xs font-black text-white truncate uppercase tracking-tighter">{tc("admin")}</p>
-            <p className="text-[9px] text-gray-500 truncate font-bold">{ts("version")}</p>
+            <p className="text-[9px] text-gray-5 truncate font-bold">{ts("version")}</p>
           </div>
         </div>
       </div>

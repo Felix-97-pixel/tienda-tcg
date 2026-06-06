@@ -121,11 +121,11 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
       title={t("bulk.title")}
       maxWidth="lg"
     >
-        <p className="mb-8 text-sm font-medium leading-relaxed text-dark-4">{t("bulk.subtitle")}</p>
+        <p className="mb-8 text-sm font-medium leading-relaxed text-gray-4">{t("bulk.subtitle")}</p>
         
         <div className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark">{t("modal.categoryLabel")}</label>
+            <label className="mb-2 block text-sm font-medium text-white">{t("modal.categoryLabel")}</label>
             <SearchableSelect
               options={categories.map(c => ({ label: c.name, value: c.id }))}
               value={bulkCategory}
@@ -135,7 +135,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-dark">{t("bulk.fileLabel")}</label>
+            <label className="mb-2 block text-sm font-medium text-white">{t("bulk.fileLabel")}</label>
             <FileInput
               accept=".csv"
               onChange={(e) => setBulkFile(e.target.files?.[0] || null)}

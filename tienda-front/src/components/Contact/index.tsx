@@ -6,12 +6,12 @@ const Contact = () => {
     <>
       <Breadcrumb title={"Contact"} pages={["contact"]} />
 
-      <section className="overflow-hidden py-20 bg-gray-2">
+      <section className="overflow-hidden py-20 bg-[#222630]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex flex-col xl:flex-row gap-7.5">
-            <div className="xl:max-w-[370px] w-full bg-white rounded-xl shadow-1">
-              <div className="py-5 px-4 sm:px-7.5 border-b border-gray-3">
-                <p className="font-medium text-xl text-dark">
+            <div className="xl:max-w-[370px] w-full bg-[#1a1d24] rounded-xl shadow-1">
+              <div className="py-5 px-4 sm:px-7.5 border-b border-white/10">
+                <p className="font-medium text-xl text-white">
                   Contact Information
                 </p>
               </div>
@@ -86,7 +86,7 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="xl:max-w-[770px] w-full bg-white rounded-xl shadow-1 p-4 sm:p-7.5 xl:p-10">
+            <div className="xl:max-w-[770px] w-full bg-[#1a1d24] rounded-xl shadow-1 p-4 sm:p-7.5 xl:p-10">
               <form>
                 <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 mb-5">
                   <div className="w-full">
@@ -99,7 +99,7 @@ const Contact = () => {
                       name="firstName"
                       id="firstName"
                       placeholder="Jhon"
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
 
@@ -113,7 +113,7 @@ const Contact = () => {
                       name="lastName"
                       id="lastName"
                       placeholder="Deo"
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
                 </div>
@@ -129,7 +129,7 @@ const Contact = () => {
                       name="subject"
                       id="subject"
                       placeholder="Type your subject"
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
 
@@ -143,7 +143,7 @@ const Contact = () => {
                       name="phone"
                       id="phone"
                       placeholder="Enter your phone"
-                      className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
                 </div>
@@ -158,7 +158,7 @@ const Contact = () => {
                     id="message"
                     rows={5}
                     placeholder="Type your message"
-                    className="rounded-md border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   ></textarea>
                 </div>
 

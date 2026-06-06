@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 :root {
-  /* Blood Moon Games Palette - White, Black, Red */
-  --color-blue-default: #800D0D;      /* Rojo sangre principal de la marca */
-  --color-blue-dark: #660A0A;         /* Rojo sangre más oscuro para estados hover */
-  --color-blue-light: #B81D1D;        /* Rojo escarlata brillante para ofertas/destacados */
-  --color-blue-light-2: #D13B3B;
-  --color-blue-light-3: #E06E6E;
-  --color-blue-light-4: #F0A3A3;
-  --color-blue-light-5: #FCE8E8;
+  /* TapTrade Palette */
+  --color-blue-default: #ef4444;      /* Tailwind Red 500 */
+  --color-blue-dark: #dc2626;         /* Tailwind Red 600 */
+  --color-blue-light: #f87171;        /* Tailwind Red 400 */
+  --color-blue-light-2: #fca5a5;
+  --color-blue-light-3: #fecaca;
+  --color-blue-light-4: #fee2e2;
+  --color-blue-light-5: #fef2f2;
 
-  --color-dark-default: #111111;      /* Negro Noche para títulos y textos de alto contraste */
-  --color-dark-2: #1A1A1A;            /* Negro carbón para menús secundarios y fondos */
-  --color-dark-3: #374151;            /* Gris oscuro para el texto de cuerpo */
-  --color-dark-4: #6B7280;            /* Gris neutro para metadatos y descripciones */
-  --color-dark-5: #9CA3AF;            /* Gris claro para bordes y estados inactivos */
+  --color-dark-default: #ffffff;      
+  --color-dark-2: #f3f4f6;            
+  --color-dark-3: #d1d5db;            
+  --color-dark-4: #9ca3af;            
+  --color-dark-5: #6b7280;            
 }
 
-/* SVG Interceptor to dynamically recolor template hardcoded blue icons to Blood Moon Red */
+/* SVG Interceptor to dynamically recolor template hardcoded blue icons to TapTrade Red */
 svg [fill="#3C50E0"],
 svg [fill="#3c50e0"],
 svg path[fill="#3C50E0"],
@@ -42,7 +42,7 @@ svg path[stroke="#3c50e0"] {
   }
 
   body {
-    @apply font-euclid-circular-a font-normal text-base text-dark-3 relative z-1 bg-white;
+    @apply font-euclid-circular-a font-normal text-base text-gray-3 relative z-1 bg-[#0f1115];
   }
 }
 

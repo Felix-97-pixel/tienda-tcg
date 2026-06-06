@@ -39,17 +39,17 @@ export default function AdminSalesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-dark-4 text-xs font-black uppercase tracking-widest animate-pulse">{t("loading")}</p>
+        <p className="text-gray-4 text-xs font-black uppercase tracking-widest animate-pulse">{t("loading")}</p>
       </div>
     );
   }
 
   if (error || !stats) {
     return (
-      <div className="p-6 text-center py-32 bg-white rounded-2xl shadow-1 border border-stroke">
+      <div className="p-6 text-center py-32 bg-[#1a1d24] rounded-2xl shadow-1 border border-stroke">
         <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
-        <h2 className="text-xl font-bold text-dark mb-2">{t("errorTitle")}</h2>
-        <p className="text-dark-4 text-sm mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
+        <h2 className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h2>
+        <p className="text-gray-4 text-sm mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
         <Button 
           onClick={fetchStats} 
           size="lg"
@@ -69,8 +69,8 @@ export default function AdminSalesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-dark tracking-tight">{t("title")}</h1>
-          <p className="text-dark-4 text-sm font-medium mt-1">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">{t("title")}</h1>
+          <p className="text-gray-4 text-sm font-medium mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-3">
           <Button 

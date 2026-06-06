@@ -42,12 +42,17 @@ const AdminSignin = () => {
       }
       
       // Asegurarse de que el usuario es administrador o dueño de tienda
-      if (data.user.role !== "ADMIN") {
+      if (data.user.role !== "ADMIN" && data.user.role !== "SUPERADMIN") {
         throw new Error("Acceso denegado. No tienes permisos de administrador.");
       }
       
       dispatch(loginSuccess({ user: data.user }));
-      router.push("/admin");
+
+      if (data.user.role === "SUPERADMIN") {
+        router.push("/superadmin");
+      } else {
+        router.push("/admin");
+      }
     } catch (err: any) {
       setError(err.message);
       setIsLoading(false);
@@ -71,10 +76,10 @@ const AdminSignin = () => {
             <span className="text-2xl font-bold tracking-tight text-white">TapTrade Admin</span>
           </Link>
           <h2 className="text-2xl font-bold text-white mb-2">Bienvenido de vuelta</h2>
-          <p className="text-gray-400 text-sm">Ingresa a tu panel de administración</p>
+          <p className="text-gray-4 text-sm">Ingresa a tu panel de administración</p>
         </div>
 
-        <div className="bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-md shadow-2xl">
+        <div className="bg-[#1a1d24]/5 border border-white/10 p-8 rounded-2xl backdrop-blur-md shadow-2xl">
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
               {error}
@@ -83,7 +88,7 @@ const AdminSignin = () => {
           
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-3 mb-1.5">
                 Correo Electrónico
               </label>
               <input
@@ -98,7 +103,7 @@ const AdminSignin = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-3 mb-1.5">
                 Contraseña
               </label>
               <input
@@ -123,7 +128,7 @@ const AdminSignin = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-white text-[#111111] font-semibold rounded-lg py-3 hover:bg-gray-200 transition-all ease-out duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.2)] flex justify-center items-center gap-2"
+              className="w-full bg-[#1a1d24] text-[#111111] font-semibold rounded-lg py-3 hover:bg-[#222630]00 transition-all ease-out duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.2)] flex justify-center items-center gap-2"
             >
               {isLoading ? (
                 <>

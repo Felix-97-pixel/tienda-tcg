@@ -34,12 +34,12 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
 
   return (
-    <div className="flex items-center border-t border-gray-3 py-5 px-10">
+    <div className="flex items-center border-t border-white/10 py-5 px-10">
       <div className="min-w-[83px]">
         <button
           onClick={() => handleRemoveFromWishlist()}
           aria-label="button for remove product from wishlist"
-          className="flex items-center justify-center rounded-lg max-w-[38px] w-full h-9.5 bg-gray-2 border border-gray-3 ease-out duration-200 hover:bg-red-light-6 hover:border-red-light-4 hover:text-red"
+          className="flex items-center justify-center rounded-lg max-w-[38px] w-full h-9.5 bg-[#222630] border border-white/10 ease-out duration-200 hover:bg-red-light-6 hover:border-red-light-4 hover:text-red"
         >
           <svg
             className="fill-current"
@@ -66,12 +66,12 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
       <div className="min-w-[387px]">
         <div className="flex items-center justify-between gap-5">
           <div className="w-full flex items-center gap-5.5">
-            <div className="flex items-center justify-center rounded-[5px] bg-gray-2 max-w-[80px] w-full h-17.5">
+            <div className="flex items-center justify-center rounded-[5px] bg-[#222630] max-w-[80px] w-full h-17.5">
               <Image className="object-contain h-full w-full"  src={item.imgs?.thumbnails[0]} alt="product" width={200} height={200} />
             </div>
 
             <div>
-              <h3 className="text-dark ease-out duration-200 hover:text-blue">
+              <h3 className="text-white ease-out duration-200 hover:text-blue">
                 <a href="#"> {item.title} </a>
               </h3>
             </div>
@@ -80,7 +80,7 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
       </div>
 
       <div className="min-w-[205px]">
-        <p className="text-dark">${item.discountedPrice}</p>
+        <p className="text-white">${item.discountedPrice}</p>
       </div>
 
       <div className="min-w-[265px]">
@@ -102,7 +102,7 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
                     </clipPath>
                   </defs>
                 </svg>
-                <span className="text-green-500 font-medium text-dark"> {t("inStock")} </span>
+                <span className="text-green-500 font-medium text-white"> {t("inStock")} </span>
               </>
             ) : (
               <>
@@ -123,8 +123,8 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
           disabled={item.stock === 0 || isMaxStockReached}
           className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
             item.stock === 0 || isMaxStockReached
-              ? "bg-gray-4 cursor-not-allowed text-dark-4"
-              : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
+              ? "bg-gray-4 cursor-not-allowed text-gray-4"
+              : "text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
           }`}
         >
           {item.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}

@@ -40,7 +40,7 @@ const BlogGridWithSidebar = () => {
     <>
       <Breadcrumb title={"Blog Grid Sidebar"} pages={["blog grid sidebar"]} />
 
-      <section className="overflow-hidden py-20 bg-gray-2">
+      <section className="overflow-hidden py-20 bg-[#222630]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex flex-col lg:flex-row gap-7.5">
             {/* <!-- blog grid --> */}
@@ -53,7 +53,7 @@ const BlogGridWithSidebar = () => {
 
               {/* <!-- Blog Pagination Start --> */}
               <div className="flex justify-center mt-15">
-                <div className="bg-white shadow-1 rounded-md p-2">
+                <div className="bg-[#1a1d24] shadow-1 rounded-md p-2">
                   <ul className="flex items-center">
                     <li>
                       <button
@@ -185,64 +185,64 @@ const BlogGridWithSidebar = () => {
               <Categories categories={categories} />
 
               {/* <!-- Tags box --> */}
-              <div className="shadow-1 bg-white rounded-xl mt-7.5">
-                <div className="px-4 sm:px-6 py-4.5 border-b border-gray-3">
-                  <h2 className="font-medium text-lg text-dark">Tags</h2>
+              <div className="shadow-1 bg-[#1a1d24] rounded-xl mt-7.5">
+                <div className="px-4 sm:px-6 py-4.5 border-b border-white/10">
+                  <h2 className="font-medium text-lg text-white">Tags</h2>
                 </div>
 
                 <div className="p-4 sm:p-6">
                   <div className="flex flex-wrap gap-3.5">
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       Desktop
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       Macbook
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       PC
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       Watch
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       USB Cable
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       Mouse
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       Windows PC
                     </a>
 
                     <a
-                      className="inline-flex hover:text-white border border-gray-3 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
+                      className="inline-flex hover:text-white border border-white/10 py-2 px-4 rounded-md ease-out duration-200 hover:bg-blue hover:border-blue"
                       href="#"
                     >
                       Monitor

@@ -21,11 +21,11 @@ export default function BrandTable({ brands, loading, onEdit, onDelete }: BrandT
       key: "image",
       header: t("table.image"),
       render: (brand) => (
-        <div className="relative h-12 w-20 rounded-xl bg-gray-1 overflow-hidden border border-stroke transition-transform group-hover:scale-105">
+        <div className="relative h-12 w-20 rounded-xl bg-[#111318] overflow-hidden border border-stroke transition-transform group-hover:scale-105">
           {brand.imageUrl ? (
             <Image src={brand.imageUrl} alt={brand.name} fill sizes="80px" className="object-contain p-1" />
           ) : (
-            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-dark-4 font-bold">{tc("noImage")}</span>
+            <span className="absolute inset-0 flex items-center justify-center text-[10px] text-gray-4 font-bold">{tc("noImage")}</span>
           )}
         </div>
       ),
@@ -34,7 +34,7 @@ export default function BrandTable({ brands, loading, onEdit, onDelete }: BrandT
       key: "name",
       header: t("table.name"),
       render: (brand) => (
-        <p className="text-dark font-bold text-sm">{brand.name}</p>
+        <p className="text-white font-bold text-sm">{brand.name}</p>
       ),
     },
     {

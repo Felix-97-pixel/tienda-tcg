@@ -54,11 +54,11 @@ const Signin = () => {
   return (
     <>
       <Breadcrumb title={"Signin"} pages={["Signin"]} />
-      <section className="overflow-hidden py-20 bg-gray-2">
+      <section className="overflow-hidden py-20 bg-[#222630]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          <div className="max-w-[570px] w-full mx-auto rounded-xl bg-white shadow-1 p-4 sm:p-7.5 xl:p-11">
+          <div className="max-w-[570px] w-full mx-auto rounded-xl bg-[#1a1d24] shadow-1 p-4 sm:p-7.5 xl:p-11">
             <div className="text-center mb-11">
-              <h2 className="font-semibold text-xl sm:text-2xl xl:text-heading-5 text-dark mb-1.5">
+              <h2 className="font-semibold text-xl sm:text-2xl xl:text-heading-5 text-white mb-1.5">
                 Sign In to Your Account
               </h2>
               <p>Enter your detail below</p>
@@ -76,7 +76,7 @@ const Signin = () => {
                     </p>
                     <p>{error}</p>
                     <p className="text-xs text-gray-5 mt-1">
-                      Por favor busca el enlace de activación enviado por <strong>Blood Moon Games</strong> en tu casilla de correo o Spam.
+                      Por favor busca el enlace de activación enviado por <strong>TapTrade</strong> en tu casilla de correo o Spam.
                     </p>
                   </div>
                 ) : (
@@ -96,7 +96,7 @@ const Signin = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="Enter your email"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-lg border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
 
@@ -113,7 +113,7 @@ const Signin = () => {
                     required
                     placeholder="Enter your password"
                     autoComplete="on"
-                    className="rounded-lg border border-gray-3 bg-gray-1 placeholder:text-dark-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                    className="rounded-lg border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-3 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                   />
                 </div>
 
@@ -142,7 +142,7 @@ const Signin = () => {
                   Don&apos;t have an account?
                   <Link
                     href="/signup"
-                    className="text-dark ease-out duration-200 hover:text-blue pl-2"
+                    className="text-white ease-out duration-200 hover:text-blue pl-2"
                   >
                     Sign Up Now!
                   </Link>

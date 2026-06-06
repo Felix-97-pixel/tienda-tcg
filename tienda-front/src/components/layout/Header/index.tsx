@@ -73,10 +73,10 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${stickyMenu ? "shadow-md bg-[#800D0D]" : "bg-transparent"
+      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${stickyMenu ? "shadow-md bg-red" : "bg-transparent"
         }`}
     >
-      {/* <!-- HEADER TOP BAR (Blood Moon Red) --> */}
+      {/* <!-- HEADER TOP BAR (TapTrade Red) --> */}
       <div className="bg-blue text-white w-full border-b border-[#9c1818] transition-all duration-300">
         <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
           <div
@@ -86,49 +86,47 @@ const Header = () => {
             {/* <!-- Header Brand Logo --> */}
             <div className="flex w-full lg:w-auto items-center justify-between gap-5 sm:gap-10">
               <Link className="flex-shrink-0" href="/">
-                <img
-                  style={{
-                    width: "100%",
-                    maxWidth: "200px",
-                    height: "auto"
-                  }}
-                  src="/images/logo/bloodmoon-logo.png"
-                  alt="Blood Moon Games Logo"
-                  width={1024}
-                  height={252}
-                />
+                {/* Logo Text TapTrade */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded bg-gradient-to-tr from-red to-orange flex items-center justify-center shadow-lg shadow-red/20">
+                    <span className="text-white font-bold text-lg">T</span>
+                  </div>
+                  <span className="text-2xl font-extrabold tracking-tight text-white hidden sm:block">
+                    TapTrade
+                  </span>
+                </div>
               </Link>
 
               {/* <!-- Mobile Menu Hamburger Toggle --> */}
               <button
                 id="Toggle"
                 aria-label="Toggler"
-                className="xl:hidden block text-white p-2 hover:bg-white/10 rounded-md transition"
+                className="xl:hidden block text-white p-2 hover:bg-[#1a1d24]/10 rounded-md transition"
                 onClick={() => setNavigationOpen(!navigationOpen)}
               >
                 <span className="block relative cursor-pointer w-5.5 h-5.5">
                   <span className="du-block absolute right-0 w-full h-full">
                     <span
-                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${!navigationOpen && "!w-full delay-300"
+                      className={`block relative top-0 left-0 bg-[#1a1d24] rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${!navigationOpen && "!w-full delay-300"
                         }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${!navigationOpen && "!w-full delay-400"
+                      className={`block relative top-0 left-0 bg-[#1a1d24] rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${!navigationOpen && "!w-full delay-400"
                         }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${!navigationOpen && "!w-full delay-500"
+                      className={`block relative top-0 left-0 bg-[#1a1d24] rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${!navigationOpen && "!w-full delay-500"
                         }`}
                     ></span>
                   </span>
 
                   <span className="block absolute right-0 w-full h-full rotate-45">
                     <span
-                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${!navigationOpen && "!h-0 delay-[0] "
+                      className={`block bg-[#1a1d24] rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${!navigationOpen && "!h-0 delay-[0] "
                         }`}
                     ></span>
                     <span
-                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${!navigationOpen && "!h-0 delay-200"
+                      className={`block bg-[#1a1d24] rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${!navigationOpen && "!h-0 delay-200"
                         }`}
                     ></span>
                   </span>
@@ -140,10 +138,10 @@ const Header = () => {
               {/* <!-- Search Bar Capsule --> */}
               <div className="md:col-span-6 xl:flex-1 xl:max-w-[600px] w-full min-w-0">
                 <form>
-                  <div className="flex items-center bg-white rounded-md shadow-sm border border-[#e5e7eb]">
+                  <div className="flex items-center bg-[#1a1d24] rounded-md shadow-sm border border-[#e5e7eb]">
                     <CustomSelect options={categoriesData} />
                     <div className="relative flex-1 w-full">
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-gray-3"></span>
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-[#2a2d36]"></span>
                       <input
                       onChange={(e) => setSearchQuery(e.target.value)}
                       value={searchQuery}
@@ -152,13 +150,13 @@ const Header = () => {
                       id="search"
                       placeholder="Buscar productos..."
                       autoComplete="off"
-                      className="custom-search w-full bg-transparent text-dark py-2.5 pl-4 pr-10 outline-none ease-in duration-200 placeholder:text-gray-4"
+                      className="custom-search w-full bg-transparent text-white py-2.5 pl-4 pr-10 outline-none ease-in duration-200 placeholder:text-gray-4"
                     />
 
                     <button
                       id="search-btn"
                       aria-label="Search"
-                      className="flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 text-dark hover:text-blue transition duration-200"
+                      className="flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-blue transition duration-200"
                     >
                       <svg
                         className="fill-current w-4.5 h-4.5"
@@ -203,7 +201,7 @@ const Header = () => {
               </div>
 
               {/* Divider */}
-              <span className="hidden xl:block w-px h-7.5 bg-white/20"></span>
+              <span className="hidden xl:block w-px h-7.5 bg-[#1a1d24]/20"></span>
 
               {/* Account & Cart */}
               <div className="flex items-center gap-4 xl:gap-5">
@@ -222,7 +220,7 @@ const Header = () => {
                     </div>
                     <Link
                       href="/my-account"
-                      className="hover:bg-white hover:text-blue bg-white/10 text-white p-2 rounded-md border border-white/20 transition-all duration-200 flex items-center justify-center"
+                      className="hover:bg-[#1a1d24] hover:text-blue bg-[#1a1d24]/10 text-white p-2 rounded-md border border-white/20 transition-all duration-200 flex items-center justify-center"
                       title="Configuración de cuenta"
                     >
                       <svg
@@ -303,7 +301,7 @@ const Header = () => {
                       />
                     </svg>
 
-                    <span className="flex items-center justify-center font-bold text-2xs absolute -right-2 -top-2.5 bg-white w-4.5 h-4.5 rounded-full text-blue shadow-sm">
+                    <span className="flex items-center justify-center font-bold text-2xs absolute -right-2 -top-2.5 bg-[#1a1d24] w-4.5 h-4.5 rounded-full text-blue shadow-sm">
                       {product.length}
                     </span>
                   </span>

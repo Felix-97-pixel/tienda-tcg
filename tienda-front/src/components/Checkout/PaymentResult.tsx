@@ -14,11 +14,15 @@ type OrderDetail = {
   totalAmount: string;
   status: string;
   createdAt: string;
-  items: {
+  vendorOrders: {
     id: string;
-    productName: string;
-    quantity: number;
-    unitPrice: string;
+    store: { id: string; name: string };
+    items: {
+      id: string;
+      productName: string;
+      quantity: number;
+      unitPrice: string;
+    }[];
   }[];
   payment?: {
     authCode?: string;
@@ -67,13 +71,13 @@ const PaymentResultPage = () => {
     return (
       <>
         <Breadcrumb title="Resultado del pago" pages={["checkout", "resultado"]} />
-        <div className="flex items-center justify-center py-20 bg-gray-2">
+        <div className="flex items-center justify-center py-20 bg-[#222630]">
           <div className="flex flex-col items-center gap-4">
             <svg className="animate-spin h-12 w-12 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <p className="text-dark-4">Verificando tu pago...</p>
+            <p className="text-gray-4">Verificando tu pago...</p>
           </div>
         </div>
       </>
@@ -88,10 +92,10 @@ const PaymentResultPage = () => {
         title={isSuccess ? "¡Pago exitoso!" : "Resultado del pago"}
         pages={["checkout", "resultado"]}
       />
-      <section className="bg-gray-2 pb-20 pt-10">
+      <section className="bg-[#222630] pb-20 pt-10">
         <div className="max-w-[680px] w-full mx-auto px-4 sm:px-8 xl:px-0">
         {/* ─── Card resultado ─── */}
-        <div className="bg-white shadow-1 rounded-2xl overflow-hidden">
+        <div className="bg-[#1a1d24] shadow-1 rounded-2xl overflow-hidden">
           {/* Header */}
           <div
             className={`p-8 text-center ${
@@ -101,7 +105,7 @@ const PaymentResultPage = () => {
             }`}
           >
             <div className="flex justify-center mb-4">
-              <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-[#1a1d24]/20 flex items-center justify-center">
                 {isSuccess ? (
                   <svg className="w-10 h-10 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -132,58 +136,63 @@ const PaymentResultPage = () => {
           {/* Detalles de la orden */}
           {order && (
             <div className="p-6 sm:p-8">
-              <h2 className="font-semibold text-dark text-lg mb-4">
+              <h2 className="font-semibold text-white text-lg mb-4">
                 Detalle del pedido
               </h2>
 
-              <div className="bg-gray-1 rounded-xl p-4 mb-5 space-y-2 text-sm">
+              <div className="bg-[#111318] rounded-xl p-4 mb-5 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-dark-4">N° Orden</span>
-                  <span className="font-medium text-dark font-mono">{order.buyOrder}</span>
+                  <span className="text-gray-4">N° Orden</span>
+                  <span className="font-medium text-white font-mono">{order.buyOrder}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-dark-4">Cliente</span>
-                  <span className="font-medium text-dark">{order.name}</span>
+                  <span className="text-gray-4">Cliente</span>
+                  <span className="font-medium text-white">{order.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-dark-4">Email</span>
-                  <span className="font-medium text-dark">{order.email}</span>
+                  <span className="text-gray-4">Email</span>
+                  <span className="font-medium text-white">{order.email}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-dark-4">Total</span>
-                  <span className="font-semibold text-dark">
+                  <span className="text-gray-4">Total</span>
+                  <span className="font-semibold text-white">
                     ${parseFloat(order.totalAmount).toLocaleString("es-CL")}
                   </span>
                 </div>
                 {order.payment?.authCode && (
                   <div className="flex justify-between">
-                    <span className="text-dark-4">Código auth.</span>
-                    <span className="font-medium text-dark font-mono">{order.payment.authCode}</span>
+                    <span className="text-gray-4">Código auth.</span>
+                    <span className="font-medium text-white font-mono">{order.payment.authCode}</span>
                   </div>
                 )}
                 {order.payment?.cardLast4 && (
                   <div className="flex justify-between">
-                    <span className="text-dark-4">Tarjeta</span>
-                    <span className="font-medium text-dark">•••• {order.payment.cardLast4}</span>
+                    <span className="text-gray-4">Tarjeta</span>
+                    <span className="font-medium text-white">•••• {order.payment.cardLast4}</span>
                   </div>
                 )}
               </div>
 
-              {/* Items */}
-              <h3 className="font-medium text-dark mb-3">Productos</h3>
-              <div className="space-y-2 mb-5">
-                {order.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-center py-2 border-b border-gray-3 text-sm"
-                  >
-                    <div>
-                      <p className="font-medium text-dark">{item.productName}</p>
-                      <p className="text-dark-4 text-xs">× {item.quantity}</p>
-                    </div>
-                    <p className="font-medium text-dark">
-                      ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
-                    </p>
+              {/* Items por Tienda */}
+              <h3 className="font-medium text-white mb-3">Productos por Tienda</h3>
+              <div className="space-y-4 mb-5">
+                {order.vendorOrders?.map((vo) => (
+                  <div key={vo.id} className="bg-[#111318] rounded-xl p-4 border border-white/5">
+                    <p className="text-gray-4 text-xs mb-2 uppercase tracking-widest font-bold">Vendedor: {vo.store.name}</p>
+                    {vo.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 text-sm"
+                      >
+                        <div>
+                          <p className="font-medium text-white">{item.productName}</p>
+                          <p className="text-gray-4 text-xs">× {item.quantity}</p>
+                        </div>
+                        <p className="font-medium text-white">
+                          ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -191,7 +200,7 @@ const PaymentResultPage = () => {
           )}
 
           {fetchError && orderId && (
-            <div className="p-6 text-sm text-dark-4 text-center">
+            <div className="p-6 text-sm text-gray-4 text-center">
               No pudimos cargar el detalle de la orden en este momento.
             </div>
           )}

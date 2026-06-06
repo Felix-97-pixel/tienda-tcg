@@ -78,14 +78,14 @@ const SingleItem = ({ item }: { item: Product }) => {
             <p className="text-custom-sm">({item.reviews})</p>
           </div>
 
-          <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
+          <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
             <Link href="/shop-details"> {item.title || item.name} </Link>
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
-            <span className="text-dark">${item.discountedPrice ?? item.price ?? 0}</span>
+            <span className="text-white">${item.discountedPrice ?? item.price ?? 0}</span>
             {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
-              <span className="text-dark-4 line-through">${item.price}</span>
+              <span className="text-gray-4 line-through">${item.price}</span>
             )}
           </span>
         </div>
@@ -102,7 +102,7 @@ const SingleItem = ({ item }: { item: Product }) => {
             }}
             aria-label="button for quick view"
             id="bestOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-white hover:bg-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
           >
             <svg
               className="fill-current"
@@ -132,7 +132,7 @@ const SingleItem = ({ item }: { item: Product }) => {
             disabled={item.stock === 0 || isMaxStockReached}
             aria-label="button for add to cart"
             id="addCartOne"
-            className={`flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 ${item.stock === 0 || isMaxStockReached ? "bg-gray-4 cursor-not-allowed text-dark-4" : "text-dark bg-white hover:text-white hover:bg-blue"}`}
+            className={`flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 ${item.stock === 0 || isMaxStockReached ? "bg-gray-4 cursor-not-allowed text-gray-4" : "text-white bg-[#1a1d24] hover:text-white hover:bg-blue"}`}
           >
             <svg
               className="fill-current"
@@ -169,7 +169,7 @@ const SingleItem = ({ item }: { item: Product }) => {
             }}
             aria-label="button for add to fav"
             id="addFavOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-white hover:bg-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
           >
             <svg
               className="fill-current"

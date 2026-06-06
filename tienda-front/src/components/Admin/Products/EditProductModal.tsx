@@ -106,7 +106,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.categoryLabel")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.categoryLabel")}</label>
             <SearchableSelect
               options={categories.map(c => ({ label: c.name, value: c.id }))}
               value={form.categoryId}
@@ -115,7 +115,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.brandLabel")}</label>
+            <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.brandLabel")}</label>
             <SearchableSelect
               options={brands.map(b => ({ label: b.name, value: b.id }))}
               value={form.brandId}
@@ -145,9 +145,9 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-dark-4">{t("modal.imageLabel")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.imageLabel")}</label>
           <div className="flex items-center gap-4">
-            <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-1 border border-stroke flex items-center justify-center">
+            <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border border-stroke flex items-center justify-center">
               {form.imageUrl ? (
                 <div className="relative h-full w-full group">
                   <Image src={form.imageUrl} alt="Preview" fill className="object-cover" />
@@ -159,7 +159,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
                   </button>
                 </div>
               ) : (
-                <span className="text-[10px] text-dark-4 font-bold uppercase">{t("modal.noImage")}</span>
+                <span className="text-[10px] text-gray-4 font-bold uppercase">{t("modal.noImage")}</span>
               )}
             </div>
             <FileInput

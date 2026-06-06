@@ -55,7 +55,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
   return (
     <div className="group">
-      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-white shadow-1 min-h-[300px] mb-4">
+      <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-[#1a1d24] shadow-1 min-h-[300px] mb-4">
         <Image
           src={item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png"}
           alt={item.title || item.name || "Product"}
@@ -82,7 +82,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
             }}
             id="newOne"
             aria-label="button for quick view"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
           >
             <svg
               className="fill-current"
@@ -111,8 +111,8 @@ const SingleGridItem = ({ item }: { item: Product }) => {
             onClick={() => handleAddToCart()}
             disabled={item.stock === 0 || isMaxStockReached}
             className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${item.stock === 0 || isMaxStockReached
-                ? "bg-gray-4 cursor-not-allowed text-dark-4"
-                : "text-dark hover:text-white bg-gray-1 border border-gray-3 hover:bg-blue hover:border-blue"
+                ? "bg-gray-4 cursor-not-allowed text-gray-4"
+                : "text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
               }`}
           >
             {(item.stock === 0 || (item.items && item.items.length > 0 && item.items.every(i => i.stock === 0))) ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
@@ -122,7 +122,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
             onClick={() => handleItemToWishList()}
             aria-label="button for favorite select"
             id="favOne"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
           >
             <svg
               className="fill-current"
@@ -180,15 +180,15 @@ const SingleGridItem = ({ item }: { item: Product }) => {
         <p className="text-custom-sm">({item.reviews})</p>
       </div>
 
-      <h3 className="font-medium text-dark ease-out duration-200 hover:text-blue mb-1.5">
+      <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
         <Link href="/shop-details"> {item.title || item.name} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
         {(item.price ?? 0) > 0 ? (
-          <span className="text-dark">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
+          <span className="text-white">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
         ) : (
-          <span className="text-gray-400 text-sm italic">Sin precio</span>
+          <span className="text-gray-4 text-sm italic">Sin precio</span>
         )}
       </span>
     </div>

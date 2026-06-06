@@ -15,7 +15,7 @@ const NewArrival = async () => {
         {/* <!-- section title --> */}
         <div className="mb-7 flex items-center justify-between">
           <div>
-            <span className="flex items-center gap-2.5 font-medium text-dark mb-1.5">
+            <span className="flex items-center gap-2.5 font-medium text-white mb-1.5">
               <svg
                 width="20"
                 height="20"
@@ -37,14 +37,14 @@ const NewArrival = async () => {
               </svg>
               This Week’s
             </span>
-            <h2 className="font-semibold text-xl xl:text-heading-5 text-dark">
+            <h2 className="font-semibold text-xl xl:text-heading-5 text-white">
               New Arrivals
             </h2>
           </div>
 
           <Link
             href="/shop"
-            className="inline-flex font-medium text-custom-sm py-2.5 px-7 rounded-md border-gray-3 border bg-gray-1 text-dark ease-out duration-200 hover:bg-dark hover:text-white hover:border-transparent"
+            className="inline-flex font-medium text-custom-sm py-2.5 px-7 rounded-md border-white/10 border bg-[#111318] text-white ease-out duration-200 hover:bg-dark hover:text-white hover:border-transparent"
           >
             View All
           </Link>

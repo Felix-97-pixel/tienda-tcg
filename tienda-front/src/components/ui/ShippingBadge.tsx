@@ -51,9 +51,9 @@ const carrierStyles: Record<ShippingCarrier, { wrapper: string; renderContent: (
     ),
   },
   default: {
-    wrapper: "bg-gray-1 border border-stroke",
+    wrapper: "bg-[#111318] border border-stroke",
     renderContent: (size) => (
-      <span className={`font-black uppercase tracking-widest text-dark-4 leading-none ${size.text}`}>
+      <span className={`font-black uppercase tracking-widest text-gray-4 leading-none ${size.text}`}>
         despacho
       </span>
     ),

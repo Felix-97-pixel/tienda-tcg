@@ -61,16 +61,16 @@ const ColorsDropdwon: React.FC<ColorsDropdownProps> = ({
   const title = isPokemon ? "Tipos" : isMagic ? "Identidad de Color" : "Atributos";
 
   return (
-    <div className="bg-white shadow-1 rounded-lg">
+    <div className="bg-[#1a1d24] shadow-1 rounded-lg">
       <div
         onClick={() => setToggleDropdown(!toggleDropdown)}
         className={`cursor-pointer flex items-center justify-between py-3 pl-6 pr-5.5 ${toggleDropdown ? "border-b border-stroke" : ""
           }`}
       >
-        <p className="text-dark font-medium">{title}</p>
+        <p className="text-white font-medium">{title}</p>
         <button
           aria-label="button for colors dropdown"
-          className={`text-dark ease-out duration-200 ${toggleDropdown && "rotate-180"
+          className={`text-white ease-out duration-200 ${toggleDropdown && "rotate-180"
             }`}
           onClick={(e) => { e.preventDefault(); setToggleDropdown(!toggleDropdown); }}
         >
@@ -103,7 +103,7 @@ const ColorsDropdwon: React.FC<ColorsDropdownProps> = ({
           return (
             <label
               key={key}
-              className="cursor-pointer select-none flex items-center justify-between hover:bg-gray-1 px-2 py-1 rounded"
+              className="cursor-pointer select-none flex items-center justify-between hover:bg-[#111318] px-2 py-1 rounded"
               onClick={(e) => {
                 e.preventDefault();
                 onSelect(attr.name);
@@ -120,11 +120,11 @@ const ColorsDropdwon: React.FC<ColorsDropdownProps> = ({
                     style={{ backgroundColor: hexColor }}
                   ></span>
                 </div>
-                <span className={`text-base ${isSelected ? "text-blue font-medium" : "text-dark"}`}>
+                <span className={`text-base ${isSelected ? "text-blue font-medium" : "text-white"}`}>
                   {displayName}
                 </span>
               </div>
-              <span className="text-gray-500 text-sm">({attr.products})</span>
+              <span className="text-gray-5 text-sm">({attr.products})</span>
             </label>
           );
         })}

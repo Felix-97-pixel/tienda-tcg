@@ -22,11 +22,29 @@ export class InitTransactionHandler
   async execute(command: InitTransactionCommand) {
     const { dto, userId, returnUrl } = command;
 
-    // Calcular total en la moneda base (USD típicamente)
-    const baseTotal = dto.items.reduce(
-      (sum, i) => sum + i.unitPrice * i.quantity,
-      0,
+    // 1. Obtener información de inventario para saber el storeId de cada item
+    const itemsWithStoreId = await Promise.all(
+      dto.items.map(async (item) => {
+        let storeId = 'admin-store'; // Default o deberías manejar un store global
+        if (item.inventoryItemId) {
+          const inv = await this.prisma.inventoryItem.findUnique({
+            where: { id: item.inventoryItemId },
+            select: { storeId: true }
+          });
+          if (inv && inv.storeId) storeId = inv.storeId;
+        }
+        return { ...item, storeId };
+      })
     );
+
+    // 2. Agrupar items por storeId
+    const vendorGroups = itemsWithStoreId.reduce((acc, item) => {
+      if (!acc[item.storeId]) {
+        acc[item.storeId] = [];
+      }
+      acc[item.storeId].push(item);
+      return acc;
+    }, {} as Record<string, typeof itemsWithStoreId>);
 
     // Get default currency
     const defaultCurrency = await this.prisma.currency.findFirst({
@@ -36,26 +54,57 @@ export class InitTransactionHandler
     const currencyCode = dto.currency || defaultCurrency?.code || 'CLP';
     const exchangeRate = Number(dto.exchangeRate || defaultCurrency?.exchangeRate || 1);
 
-    // Convert total to CLP using exchange rate since Webpay only accepts CLP
-    const total = baseTotal * exchangeRate;
-
-    // Obtener costo de envío dinámico y seguro desde la base de datos
+    // Obtener costo de envío
     if (!dto.shippingProviderId) {
       throw new BadRequestException('El proveedor de envío es obligatorio.');
     }
-
     const provider = await this.prisma.shippingProvider.findUnique({
       where: { id: dto.shippingProviderId },
     });
-
     if (!provider) {
       throw new BadRequestException('El proveedor de envío seleccionado no es válido.');
     }
+    const baseShippingCost = Number(provider.price);
 
-    const shippingCost = Number(provider.price);
-    const totalWithShipping = total + shippingCost;
+    // Calcular totales
+    let globalSubtotal = 0;
+    const vendorOrdersData = [];
 
-    // Generar buyOrder único (máx 26 chars para Webpay)
+    for (const [storeId, items] of Object.entries(vendorGroups)) {
+      const vendorBaseSubtotal = items.reduce(
+        (sum, i) => sum + i.unitPrice * i.quantity * exchangeRate,
+        0,
+      );
+      
+      // Agregar 5% de comisión al subtotal para que lo pague el comprador
+      const commission = vendorBaseSubtotal * 0.05;
+      const vendorSubtotalWithCommission = vendorBaseSubtotal + commission;
+
+      globalSubtotal += vendorSubtotalWithCommission;
+      
+      vendorOrdersData.push({
+        storeId,
+        shippingProviderId: dto.shippingProviderId,
+        shippingCost: baseShippingCost,
+        subtotal: vendorSubtotalWithCommission,
+        status: 'PENDING',
+        items: {
+          create: items.map((item) => ({
+            productId: item.productId,
+            inventoryItemId: item.inventoryItemId,
+            productName: item.productName,
+            quantity: item.quantity,
+            // El precio unitario guardado en la orden incluye el 5% de markup
+            unitPrice: (item.unitPrice * exchangeRate) * 1.05,
+          })),
+        },
+      });
+    }
+
+    const totalShippingCost = baseShippingCost * Object.keys(vendorGroups).length; // Cobra un envío por cada vendedor
+    const totalWithShipping = globalSubtotal + totalShippingCost;
+
+    // Generar buyOrder único
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
     const sessionId = `SES-${Date.now()}`.slice(0, 61);
 
@@ -73,17 +122,9 @@ export class InitTransactionHandler
         totalAmount: totalWithShipping,
         currencyCode,
         exchangeRate,
-        shippingProviderId: dto.shippingProviderId,
-        shippingCost: shippingCost,
         status: 'PENDING',
-        items: {
-          create: dto.items.map((item) => ({
-            productId: item.productId,
-            inventoryItemId: item.inventoryItemId,
-            productName: item.productName,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice * exchangeRate,
-          })),
+        vendorOrders: {
+          create: vendorOrdersData as any,
         },
       },
     });

@@ -24,18 +24,20 @@ model Brand {
 
 model Product {
   id           String          @id @default(uuid())
-  externalId   String          @unique
+  externalId   String?         @unique // Opcional para custom products
   name         String
   description  String?
   imageUrl     String?
   categoryId   String
   brandId      String?
+  storeId      String? // NULL = Global, con ID = Custom de tienda
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   cardDetail   CardDetail?
   items        InventoryItem[]
   category     Category        @relation(fields: [categoryId], references: [id])
   brand        Brand?          @relation(fields: [brandId], references: [id])
+  store        Store?          @relation("StoreCustomProducts", fields: [storeId], references: [id])
   wishlistedBy WishlistItem[]
 }
 
@@ -65,14 +67,14 @@ model CardDetail {
 
 model InventoryItem {
   id          String    @id @default(uuid())
-  storeId     String
+  storeId     String?
   productId   String
   conditionId String
   languageId  String
   finishId    String?
   price       Decimal   @db.Decimal(10, 2)
   stock       Int       @default(0)
-  store       Store     @relation(fields: [storeId], references: [id])
+  store       Store?    @relation(fields: [storeId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
   condition   Condition @relation(fields: [conditionId], references: [id])
   language    Language  @relation(fields: [languageId], references: [id])
@@ -90,24 +92,28 @@ model Finish {
 }
 
 model Store {
-  id           String             @id @default(uuid())
-  name         String
-  subdomain    String             @unique
-  customDomain String?            @unique
-  logoUrl      String?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  users        User[]
-  inventory    InventoryItem[]
-  orders       Order[]
-  shipping     ShippingProvider[]
-  settings     StoreSetting[]
+  id             String              @id @default(uuid())
+  ownerId        String              @unique
+  name           String
+  subdomain      String              @unique
+  customDomain   String?             @unique
+  logoUrl        String?
+  balance        Decimal             @default(0) @db.Decimal(10, 2)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  owner          User                @relation(fields: [ownerId], references: [id])
+  inventory      InventoryItem[]
+  customProducts Product[]           @relation("StoreCustomProducts")
+  vendorOrders   VendorOrder[]
+  shipping       ShippingProvider[]
+  settings       StoreSetting[]
+  transactions   WalletTransaction[]
+  withdrawals    WithdrawalRequest[]
 }
 
 model User {
   id                String         @id @default(uuid())
-  storeId           String
-  email             String
+  email             String         @unique
   password          String
   name              String?
   phone             String?
@@ -118,48 +124,57 @@ model User {
   verificationToken String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-  store             Store          @relation(fields: [storeId], references: [id])
+  store             Store?
   wishlist          WishlistItem[]
   orders            Order[]
-
-  @@unique([email, storeId])
 }
 
 model Order {
+  id           String        @id @default(uuid())
+  buyOrder     String        @unique
+  userId       String?
+  email        String
+  name         String
+  phone        String?
+  address      String?
+  city         String?
+  notes        String?
+  totalAmount  Decimal       @db.Decimal(10, 2)
+  currencyCode String?       @default("CLP")
+  exchangeRate Decimal?      @db.Decimal(10, 2)
+  status       OrderStatus   @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  payment      Payment?
+  user         User?         @relation(fields: [userId], references: [id])
+  vendorOrders VendorOrder[]
+}
+
+model VendorOrder {
   id                 String           @id @default(uuid())
+  orderId            String
   storeId            String
-  buyOrder           String           @unique
-  userId             String?
-  email              String
-  name               String
-  phone              String?
-  address            String?
-  city               String?
-  notes              String?
-  totalAmount        Decimal          @db.Decimal(10, 2)
-  currencyCode       String?          @default("CLP")
-  exchangeRate       Decimal?         @db.Decimal(10, 2)
   shippingProviderId String
   shippingCost       Decimal          @default(0) @db.Decimal(10, 2)
+  subtotal           Decimal          @default(0) @db.Decimal(10, 2)
   status             OrderStatus      @default(PENDING)
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
-  items              OrderItem[]
-  payment            Payment?
+  order              Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
   store              Store            @relation(fields: [storeId], references: [id])
-  user               User?            @relation(fields: [userId], references: [id])
   shippingProvider   ShippingProvider @relation(fields: [shippingProviderId], references: [id])
+  items              OrderItem[]
 }
 
 model OrderItem {
-  id              String  @id @default(uuid())
-  orderId         String
+  id              String      @id @default(uuid())
+  vendorOrderId   String
   productId       String
   inventoryItemId String?
   productName     String
   quantity        Int
-  unitPrice       Decimal @db.Decimal(10, 2)
-  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  unitPrice       Decimal     @db.Decimal(10, 2)
+  vendorOrder     VendorOrder @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
 }
 
 model Payment {
@@ -191,6 +206,7 @@ model WishlistItem {
 enum Role {
   USER
   ADMIN
+  SUPERADMIN
 }
 
 enum OrderStatus {
@@ -226,15 +242,15 @@ model Currency {
 }
 
 model ShippingProvider {
-  id        String   @id @default(uuid())
-  storeId   String
-  name      String // e.g. "CHILEXPRESS", "STARKEN"
-  price     Decimal  @db.Decimal(10, 2)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  store     Store    @relation(fields: [storeId], references: [id])
-  orders    Order[]
+  id           String        @id @default(uuid())
+  storeId      String?
+  name         String // e.g. "CHILEXPRESS", "STARKEN"
+  price        Decimal       @db.Decimal(10, 2)
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  store        Store?        @relation(fields: [storeId], references: [id])
+  vendorOrders VendorOrder[]
 
   @@unique([name, storeId])
 }
@@ -247,4 +263,39 @@ model StoreSetting {
   store   Store  @relation(fields: [storeId], references: [id])
 
   @@unique([key, storeId])
+}
+
+model WalletTransaction {
+  id        String          @id @default(uuid())
+  storeId   String
+  amount    Decimal         @db.Decimal(10, 2)
+  type      TransactionType
+  reference String?
+  createdAt DateTime        @default(now())
+  store     Store           @relation(fields: [storeId], references: [id])
+}
+
+enum TransactionType {
+  SALE
+  COMMISSION
+  WITHDRAWAL
+  REFUND
+}
+
+model WithdrawalRequest {
+  id          String           @id @default(uuid())
+  storeId     String
+  amount      Decimal          @db.Decimal(10, 2)
+  status      WithdrawalStatus @default(PENDING)
+  bankDetails String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  store       Store            @relation(fields: [storeId], references: [id])
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
 }

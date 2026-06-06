@@ -20,12 +20,12 @@ export default function RecentOrdersList({ orders }: RecentOrdersListProps) {
       header: to("table.order"),
       render: (order) => (
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gray-1 flex items-center justify-center text-dark-4 group-hover:bg-blue/10 group-hover:text-blue transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-[#111318] flex items-center justify-center text-gray-4 group-hover:bg-blue/10 group-hover:text-blue transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
           </div>
           <div>
-            <p className="text-sm font-bold text-dark leading-tight">{order.name}</p>
-            <p className="text-[10px] text-dark-4 font-black uppercase mt-1 tracking-tighter">ORDEN #{order.buyOrder}</p>
+            <p className="text-sm font-bold text-white leading-tight">{order.name}</p>
+            <p className="text-[10px] text-gray-4 font-black uppercase mt-1 tracking-tighter">ORDEN #{order.buyOrder}</p>
           </div>
         </div>
       ),
@@ -37,8 +37,8 @@ export default function RecentOrdersList({ orders }: RecentOrdersListProps) {
       cellClassName: "text-right",
       render: (order) => (
         <div>
-          <p className="text-sm font-black text-dark">${parseFloat(order.totalAmount).toLocaleString("es-CL")}</p>
-          <p className="text-[10px] text-dark-4 font-bold mt-1">
+          <p className="text-sm font-black text-white">${parseFloat(order.totalAmount).toLocaleString("es-CL")}</p>
+          <p className="text-[10px] text-gray-4 font-bold mt-1">
             {new Date(order.createdAt).toLocaleDateString("es-CL", { 
               day: "2-digit", 
               month: "short", 
@@ -52,9 +52,9 @@ export default function RecentOrdersList({ orders }: RecentOrdersListProps) {
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-1 overflow-hidden border border-transparent hover:border-stroke transition-colors h-full flex flex-col">
+    <div className="bg-[#1a1d24] rounded-2xl shadow-1 overflow-hidden border border-transparent hover:border-stroke transition-colors h-full flex flex-col">
       <div className="flex items-center justify-between px-6 py-5 border-b border-stroke bg-gray-50/50 shrink-0">
-        <h2 className="font-black text-dark text-sm uppercase tracking-widest flex items-center gap-2">
+        <h2 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
           <span className="text-xl">🕐</span> {t("charts.revenueTitle")}
         </h2>
         <Link href="/admin/orders" className="text-[10px] font-black text-blue hover:text-blue-700 uppercase tracking-widest transition-colors flex items-center gap-1">

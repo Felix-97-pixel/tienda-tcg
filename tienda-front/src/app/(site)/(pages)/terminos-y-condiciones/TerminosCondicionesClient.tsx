@@ -44,11 +44,11 @@ const TerminosCondicionesClient = () => {
       backToShopText={t("backToShop")}
     >
       {/* Header Box */}
-      <div className="border-b border-gray-3 pb-8 mb-10">
-        <div className="inline-block bg-[#800D0D]/10 text-[#800D0D] font-bold text-xs uppercase px-3 py-1 rounded-full mb-4">
+      <div className="border-b border-white/10 pb-8 mb-10">
+        <div className="inline-block bg-red/10 text-red font-bold text-xs uppercase px-3 py-1 rounded-full mb-4">
           {t("badge")}
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-dark tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           {t("mainTitle")}
         </h2>
         <p className="text-gray-5 text-custom-sm mt-2">
@@ -62,14 +62,14 @@ const TerminosCondicionesClient = () => {
         
         return (
           <React.Fragment key={section.id}>
-            {!isFirst && <hr className="border-gray-3 my-8" />}
+            {!isFirst && <hr className="border-white/10 my-8" />}
             
             {section.type === "standard" && (
               <LegalSection id={section.id} num={section.num} title={t(`${section.key}.title`)}>
                 <div className="flex flex-col gap-3">
                   {section.paragraphs?.map((p, pIdx) => (
                     <p key={pIdx}>
-                      <strong className="text-dark">{section.num}.{pIdx + 1}</strong> {t(`${section.key}.${p}`)}
+                      <strong className="text-white">{section.num}.{pIdx + 1}</strong> {t(`${section.key}.${p}`)}
                     </p>
                   ))}
                 </div>
@@ -80,18 +80,18 @@ const TerminosCondicionesClient = () => {
               <LegalSection id={section.id} num={section.num} title={t(`${section.key}.title`)}>
                 <div className="flex flex-col gap-3">
                   <p>
-                    <strong className="text-dark">4.1</strong> {t("envios.p1")}
+                    <strong className="text-white">4.1</strong> {t("envios.p1")}
                   </p>
                   <p>
-                    <strong className="text-dark">4.2</strong> {t("envios.p2")}
+                    <strong className="text-white">4.2</strong> {t("envios.p2")}
                   </p>
                   <p>
-                    <strong className="text-dark">4.3</strong> {t("envios.p3")}
+                    <strong className="text-white">4.3</strong> {t("envios.p3")}
                   </p>
-                  <div className="bg-gray-2 border-l-4 border-blue p-4.5 rounded-r-[5px] mt-2">
-                    <p className="font-semibold text-dark mb-1">{t("envios.scheduleTitle")}</p>
+                  <div className="bg-[#222630] border-l-4 border-blue p-4.5 rounded-r-[5px] mt-2">
+                    <p className="font-semibold text-white mb-1">{t("envios.scheduleTitle")}</p>
                     <p className="text-custom-sm">
-                      <strong className="text-dark">4.4</strong> {t("envios.scheduleDesc")}
+                      <strong className="text-white">4.4</strong> {t("envios.scheduleDesc")}
                     </p>
                   </div>
                 </div>
@@ -112,14 +112,14 @@ const TerminosCondicionesClient = () => {
                     <strong className="text-white">10.1</strong> {t("creditos.p1")}
                   </p>
                   
-                  <div className="border border-white/10 rounded p-4 bg-white/5">
+                  <div className="border border-white/10 rounded p-4 bg-[#1a1d24]/5">
                     <p className="font-bold text-blue mb-1">{t("creditos.t1_title")}</p>
                     <p>
                       <strong className="text-white">10.2</strong> {t("creditos.t1_desc")}
                     </p>
                   </div>
 
-                  <div className="border border-white/10 rounded p-4 bg-white/5">
+                  <div className="border border-white/10 rounded p-4 bg-[#1a1d24]/5">
                     <p className="font-bold text-blue mb-1">{t("creditos.t2_title")}</p>
                     <p>
                       <strong className="text-white">10.3</strong> {t("creditos.t2_desc")}
@@ -149,9 +149,9 @@ const TerminosCondicionesClient = () => {
             {section.type === "transferencias" && (
               <LegalSection
                 id={section.id}
-                className="bg-[#800D0D]/5 border border-[#800D0D]/20 rounded-lg p-6 sm:p-8"
+                className="bg-red/5 border border-red/20 rounded-lg p-6 sm:p-8"
               >
-                <h3 className="text-lg font-bold text-[#800D0D] mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-red mb-4 flex items-center gap-2">
                   <svg className="w-6 h-6 fill-current shrink-0" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
                   </svg>
@@ -161,7 +161,7 @@ const TerminosCondicionesClient = () => {
                   <p>
                     {t("transferencias.p1")}
                   </p>
-                  <p className="font-medium text-dark bg-yellow-100/50 p-3.5 border-l-2 border-yellow-500 rounded-r">
+                  <p className="font-medium text-white bg-yellow-100/50 p-3.5 border-l-2 border-yellow-500 rounded-r">
                     {t("transferencias.warning")}
                   </p>
                 </div>
