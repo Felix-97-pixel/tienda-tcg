@@ -12,7 +12,7 @@ import SingleListItem from "../Shop/SingleListItem";
 import { Product } from "@/types/product";
 import { useTranslations } from "next-intl";
 
-const ShopWithSidebar = () => {
+const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
   const t = useTranslations('shop');
   const [products, setProducts] = useState<Product[]>([]);
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
@@ -102,6 +102,9 @@ const ShopWithSidebar = () => {
       }
       if (selectedAttribute) {
         url += `&attribute=${encodeURIComponent(selectedAttribute)}`;
+      }
+      if (storeId) {
+        url += `&storeId=${encodeURIComponent(storeId)}`;
       }
 
       setIsFetching(true);
@@ -224,9 +227,9 @@ const ShopWithSidebar = () => {
               <button
                 onClick={() => setProductSidebar(!productSidebar)}
                 aria-label="button for product sidebar toggle"
-                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-[#1a1d24] shadow-1 ${stickyMenu
-                  ? "lg:top-20 sm:top-34.5 top-35"
-                  : "lg:top-24 sm:top-39 top-37"
+                className={`xl:hidden absolute flex items-center justify-center w-8 h-8 rounded-md bg-[#1a1d24] shadow-1 transition-all duration-300 ${productSidebar
+                    ? "right-4 top-4 border border-white/10"
+                    : "-right-8 top-32 border-y border-r border-white/10 rounded-l-none"
                   }`}
               >
                 <svg
@@ -253,7 +256,7 @@ const ShopWithSidebar = () => {
               </button>
 
               <form onSubmit={(e) => e.preventDefault()}>
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 py-10">
                   {/* <!-- filter box --> */}
                   <div className="bg-[#1a1d24] shadow-1 rounded-lg py-4 px-5">
                     <div className="flex items-center justify-between">

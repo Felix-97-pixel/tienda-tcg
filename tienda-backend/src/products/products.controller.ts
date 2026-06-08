@@ -138,11 +138,12 @@ export class ProductsController {
     @Query('category') category?: string,
     @Query('expansion') expansion?: string,
     @Query('attribute') attribute?: string,
-    @Query('search') searchName?: string
+    @Query('search') searchName?: string,
+    @Query('storeId') storeId?: string
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50; // default 50 limits
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName);
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, storeId);
   }
 
   @Get('meta/languages')

@@ -422,7 +422,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string) {
     const skip = (page - 1) * limit;
 
     // Build where clause
@@ -438,6 +438,15 @@ export class ProductsService {
     if (categoryName) {
       whereClause.category = {
         name: categoryName
+      };
+    }
+
+    if (storeId) {
+      // Filtrar productos que tengan inventario (items) en este storeId
+      whereClause.items = {
+        some: {
+          storeId: storeId
+        }
       };
     }
     if (expansionName || attributeValue) {

@@ -18,6 +18,8 @@ import { CurrenciesModule } from './currencies/currencies.module';
 import { ShippingModule } from './shipping/shipping.module';
 import { MailModule } from './mail/mail.module';
 
+import { StoresModule } from './stores/stores.module';
+
 @Module({
   imports: [
     // 1. PRIMERO cargamos la configuración (isGlobal: true lo hace disponible para el resto)
@@ -40,7 +42,8 @@ import { MailModule } from './mail/mail.module';
     SettingsModule,
     CurrenciesModule,
     ShippingModule,
-    MailModule
+    MailModule,
+    StoresModule
   ],
   controllers: [AppController],
   providers: [AppService],
