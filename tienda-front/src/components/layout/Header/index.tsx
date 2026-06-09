@@ -73,11 +73,11 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${stickyMenu ? "shadow-md bg-red" : "bg-transparent"
+      className={`fixed left-0 top-0 w-full z-9999 transition-all ease-in-out duration-300 ${stickyMenu ? "shadow-lg bg-[#111318] border-b border-white/5" : "bg-transparent"
         }`}
     >
-      {/* <!-- HEADER TOP BAR (TapTrade Red) --> */}
-      <div className="bg-blue text-white w-full border-b border-[#9c1818] transition-all duration-300">
+      {/* <!-- HEADER TOP BAR --> */}
+      <div className="bg-[#111318] text-white w-full border-b border-white/5 transition-all duration-300">
         <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
           <div
             className={`flex flex-col lg:flex-row gap-5 items-center justify-between ease-out duration-200 ${stickyMenu ? "py-2.5" : "py-4.5"
@@ -107,26 +107,26 @@ const Header = () => {
                 <span className="block relative cursor-pointer w-5.5 h-5.5">
                   <span className="du-block absolute right-0 w-full h-full">
                     <span
-                      className={`block relative top-0 left-0 bg-[#1a1d24] rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${!navigationOpen && "!w-full delay-300"
+                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${!navigationOpen && "!w-full delay-300"
                         }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-[#1a1d24] rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${!navigationOpen && "!w-full delay-400"
+                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${!navigationOpen && "!w-full delay-400"
                         }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-[#1a1d24] rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${!navigationOpen && "!w-full delay-500"
+                      className={`block relative top-0 left-0 bg-white rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${!navigationOpen && "!w-full delay-500"
                         }`}
                     ></span>
                   </span>
 
                   <span className="block absolute right-0 w-full h-full rotate-45">
                     <span
-                      className={`block bg-[#1a1d24] rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${!navigationOpen && "!h-0 delay-[0] "
+                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${!navigationOpen && "!h-0 delay-[0] "
                         }`}
                     ></span>
                     <span
-                      className={`block bg-[#1a1d24] rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${!navigationOpen && "!h-0 delay-200"
+                      className={`block bg-white rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${!navigationOpen && "!h-0 delay-200"
                         }`}
                     ></span>
                   </span>
@@ -322,8 +322,8 @@ const Header = () => {
         </div>
       </div>
 
-      {/* <!-- HEADER NAVIGATION BAR (Elegant Pitch Black) --> */}
-      <div className="bg-dark text-white border-t border-white/10 hidden xl:block shadow-sm">
+      {/* <!-- HEADER NAVIGATION BAR --> */}
+      <div className="bg-[#0f1115] text-white border-b border-white/5 hidden xl:block shadow-sm">
         <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
           <div className="flex items-center justify-between">
             {/* <!-- Main Nav Desktop --> */}
@@ -409,7 +409,7 @@ const Header = () => {
 
       {/* <!-- MOBILE NAVIGATION DRAWER (Slide out from absolute position) --> */}
       {navigationOpen && (
-        <div className="xl:hidden absolute top-full left-0 w-full bg-dark border-t border-white/10 shadow-lg z-9999 max-h-[400px] overflow-y-auto py-5 px-4 transition-all duration-300">
+        <div className="xl:hidden absolute top-full left-0 w-full bg-[#111318] border-t border-white/5 shadow-lg z-9999 max-h-[400px] overflow-y-auto py-5 px-4 transition-all duration-300">
           <nav>
             <ul className="flex flex-col gap-4">
               {menuData.map((menuItem, i) =>

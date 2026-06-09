@@ -126,9 +126,13 @@ export class SyncService {
     const settingsMap = new Map(settings.map(s => [s.key, s.value.toLowerCase()]));
     const gameLower = game.toLowerCase();
 
-    if (gameLower === settingsMap.get('mtg_sync_destination')) return 'magic';
-    if (gameLower === settingsMap.get('pokemon_sync_destination')) return 'pokemon';
-    if (gameLower === settingsMap.get('riftbound_sync_destination')) return 'riftbound';
+    const mtgDest = settingsMap.get('mtg_sync_destination') || 'singles magic the gathering';
+    const pkmDest = settingsMap.get('pokemon_sync_destination') || 'singles pokemon';
+    const rbDest = settingsMap.get('riftbound_sync_destination') || 'singles riftbound';
+
+    if (gameLower === mtgDest) return 'magic';
+    if (gameLower === pkmDest) return 'pokemon';
+    if (gameLower === rbDest) return 'riftbound';
 
     return this.providers[gameLower] ? gameLower : '';
   }

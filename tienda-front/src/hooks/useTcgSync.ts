@@ -100,10 +100,11 @@ export function useTcgSync(game: string, defaultCategory: string) {
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message, "success");
+        showToast(data.message || "Operación iniciada", "success");
         startPolling();
       } else {
-        showToast(data.error, "error");
+        const errMsg = data.error || (Array.isArray(data.message) ? data.message[0] : data.message) || "Ocurrió un error";
+        showToast(errMsg, "error");
       }
     } catch {
       showToast("Error de red", "error");
@@ -125,10 +126,11 @@ export function useTcgSync(game: string, defaultCategory: string) {
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message, "success");
+        showToast(data.message || "Importación iniciada", "success");
         startPolling();
       } else {
-        showToast(data.error, "error");
+        const errMsg = data.error || (Array.isArray(data.message) ? data.message[0] : data.message) || "Ocurrió un error";
+        showToast(errMsg, "error");
       }
     } catch {
       showToast("Error de red", "error");

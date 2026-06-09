@@ -5,7 +5,7 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-dark text-white border-t border-white/5 overflow-hidden">
+    <footer className="bg-[#111318] text-white border-t border-white/5 overflow-hidden">
       <div className="max-w-[1170px] mx-auto px-4 sm:px-8 xl:px-0">
         {/* <!-- footer menu start --> */}
         <div className="flex flex-wrap xl:flex-nowrap gap-10 xl:gap-20 justify-between pt-17.5 xl:pt-22.5 pb-10 xl:pb-15">
@@ -145,7 +145,7 @@ const Footer = () => {
       </div>
 
       {/* <!-- footer bottom start --> */}
-      <div className="py-6 bg-[#0c0c0e] border-t border-white/5">
+      <div className="py-6 bg-[#0f1115] border-t border-white/5">
         <div className="max-w-[1170px] mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex gap-5 flex-wrap items-center justify-between">
             <p className="text-gray-4 font-medium text-custom-sm">
