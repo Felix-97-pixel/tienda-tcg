@@ -29,56 +29,57 @@ export default function AdminSync() {
           riftbound: data.riftbound_sync_destination || "Singles Riftbound",
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
-  // Usamos nuestro Hook personalizado para cada juego
+
+  // Usamos nuestro Hook personalizado para cada juego
   const magic = useTcgSync("magic", categories.magic);
   const pokemon = useTcgSync("pokemon", categories.pokemon);
   const riftbound = useTcgSync("riftbound", categories.riftbound);
 
-  const isAnyActive = 
-    magic.priceProgress.active || magic.importProgress.active || 
-    pokemon.priceProgress.active || pokemon.importProgress.active || 
+  const isAnyActive =
+    magic.priceProgress.active || magic.importProgress.active ||
+    pokemon.priceProgress.active || pokemon.importProgress.active ||
     riftbound.priceProgress.active || riftbound.importProgress.active;
-    
+
   const anyLoading = magic.loading || pokemon.loading || riftbound.loading;
 
   const games = [
-    { 
-      id: "magic", 
-      sync: magic, 
-      title: t("mtgjson.title"), 
-      subtitle: t("mtgjson.subtitle"), 
-      priceTitle: t("cardkingdom.title"), 
+    {
+      id: "magic",
+      sync: magic,
+      title: t("mtgjson.title"),
+      subtitle: t("mtgjson.subtitle"),
+      priceTitle: t("cardkingdom.title"),
       priceSubtitle: t("cardkingdom.subtitle"),
       priceBtn: t("cardkingdom.button"),
       importBtn: t("mtgjson.button"),
       placeholder: t("mtgjson.placeholder"),
-      color: "border-blue" 
+      color: "border-blue"
     },
-    { 
-      id: "pokemon", 
-      sync: pokemon, 
-      title: t("pokemon.title"), 
-      subtitle: t("pokemon.subtitle"), 
-      priceTitle: t("tcgplayer.title"), 
+    {
+      id: "pokemon",
+      sync: pokemon,
+      title: t("pokemon.title"),
+      subtitle: t("pokemon.subtitle"),
+      priceTitle: t("tcgplayer.title"),
       priceSubtitle: t("tcgplayer.subtitle"),
       priceBtn: t("tcgplayer.button"),
       importBtn: t("pokemon.button"),
       placeholder: t("pokemon.placeholder"),
-      color: "border-blue" 
+      color: "border-blue"
     },
-    { 
-      id: "riftbound", 
-      sync: riftbound, 
-      title: t("riftbound.title"), 
-      subtitle: t("riftbound.subtitle"), 
-      priceTitle: t("riftboundPrice.title"), 
+    {
+      id: "riftbound",
+      sync: riftbound,
+      title: t("riftbound.title"),
+      subtitle: t("riftbound.subtitle"),
+      priceTitle: t("riftboundPrice.title"),
       priceSubtitle: t("riftboundPrice.subtitle"),
       priceBtn: t("riftboundPrice.button"),
       importBtn: t("riftbound.button"),
       placeholder: t("riftbound.placeholder"),
-      color: "border-blue" 
+      color: "border-blue"
     },
   ];
 
@@ -99,7 +100,7 @@ export default function AdminSync() {
               <div className="flex-1">
                 <h2 className="font-bold text-white mb-1">{game.title}</h2>
                 <p className="text-xs text-gray-4 mb-4">{game.subtitle}</p>
-                
+
                 <div className="mb-4">
                   <label className="mb-1 block text-xs font-medium text-gray-4">{t("configuredDestination")}</label>
                   <div className="text-sm font-bold text-purple-400 bg-purple-500/10 p-2 rounded border border-purple-500/20">
@@ -107,20 +108,20 @@ export default function AdminSync() {
                   </div>
                 </div>
 
-                <SearchableSelect 
-                  options={game.sync.sets.map(s => ({ 
-                    label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name, 
-                    value: s.id 
-                  }))} 
-                  value={game.sync.selectedSetId} 
-                  onChange={game.sync.setSelectedSetId} 
-                  placeholder={game.placeholder} 
+                <SearchableSelect
+                  options={game.sync.sets.map(s => ({
+                    label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name,
+                    value: s.id
+                  }))}
+                  value={game.sync.selectedSetId}
+                  onChange={game.sync.setSelectedSetId}
+                  placeholder={game.placeholder}
                 />
               </div>
-              
+
               <div className="flex flex-col gap-2 mt-4">
-                <Button 
-                  onClick={game.sync.syncSet} 
+                <Button
+                  onClick={game.sync.syncSet}
                   disabled={isAnyActive}
                   isLoading={game.sync.importProgress.active}
                   fullWidth
@@ -130,8 +131,8 @@ export default function AdminSync() {
                 </Button>
 
                 {game.id === "magic" && (
-                  <Button 
-                    variant="ghost"
+                  <Button
+                    variant="primary"
                     className="w-full flex justify-center py-2 text-xs border border-white/10 hover:bg-white/5"
                     onClick={() => {
                       game.sync.setSelectedSetId("ALL");
@@ -144,9 +145,9 @@ export default function AdminSync() {
                 )}
               </div>
 
-              <ProgressDisplay 
-                progress={game.sync.importProgress} 
-                label={tCommon("importing")} 
+              <ProgressDisplay
+                progress={game.sync.importProgress}
+                label={tCommon("importing")}
               />
             </div>
 
@@ -155,31 +156,31 @@ export default function AdminSync() {
               <div className="flex-1">
                 <h2 className="font-bold text-white mb-1">{game.priceTitle}</h2>
                 <p className="text-xs text-gray-4 mb-4">{game.priceSubtitle}</p>
-                
-                <SearchableSelect 
-                  options={game.sync.expansionsList.map(e => ({ 
-                    label: `${e.name} (${e.products})`, 
-                    value: e.name 
-                  }))} 
-                  value={game.sync.selectedExpansion} 
-                  onChange={game.sync.setSelectedExpansion} 
-                  placeholder={game.placeholder} 
+
+                <SearchableSelect
+                  options={game.sync.expansionsList.map(e => ({
+                    label: `${e.name} (${e.products})`,
+                    value: e.name
+                  }))}
+                  value={game.sync.selectedExpansion}
+                  onChange={game.sync.setSelectedExpansion}
+                  placeholder={game.placeholder}
                 />
               </div>
-              
-              <Button 
+
+              <Button
                 disabled={isAnyActive}
-                onClick={game.sync.syncPrices} 
+                onClick={game.sync.syncPrices}
                 isLoading={game.sync.priceProgress.active}
                 fullWidth
                 className="mt-4 bg-purple-600 hover:bg-purple-500 text-white"
               >
                 {game.sync.priceProgress.active ? t("inProgress") : game.priceBtn}
               </Button>
-              
-              <ProgressDisplay 
-                progress={game.sync.priceProgress} 
-                label={tCommon("updating")} 
+
+              <ProgressDisplay
+                progress={game.sync.priceProgress}
+                label={tCommon("updating")}
               />
             </div>
           </React.Fragment>
