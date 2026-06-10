@@ -15,8 +15,11 @@ export default function ProgressDisplay({ progress, label }: ProgressDisplayProp
   
   if (!active && current === 0) return null;
   
-  const pct = total > 0 ? Math.round((current / total) * 100) : 0;
-  const isCompleted = !active && pct === 100;
+  // Forzar 100% si el proceso ya no está activo pero tiene progreso
+  const isFinished = !active && current > 0;
+  const pct = isFinished ? 100 : (total > 0 ? Math.round((current / total) * 100) : 0);
+  const displayCurrent = isFinished ? total : current;
+  const isCompleted = isFinished;
   
   return (
     <div className={`mt-4 p-3 rounded-xl border transition-all duration-500 ${
@@ -28,7 +31,7 @@ export default function ProgressDisplay({ progress, label }: ProgressDisplayProp
         isCompleted ? "text-green-600" : "text-blue"
       }`}>
         <span>{isCompleted ? "✓ " + tc("completed") : active ? displayLabel : tc("completed")}</span>
-        <span>{current} / {total} ({pct}%)</span>
+        <span>{displayCurrent} / {total} ({pct}%)</span>
       </div>
       <div className="w-full bg-[#222630]00 rounded-full h-2 overflow-hidden">
         <div 

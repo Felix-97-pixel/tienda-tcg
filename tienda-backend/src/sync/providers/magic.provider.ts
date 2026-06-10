@@ -104,13 +104,13 @@ export class MagicProvider extends TcgProvider {
         const productId = mtgjsonUUIDtoProductId.get(mtgjsonUUID)!;
         if (normal > 0 && normalFinish) {
           await this.prisma.inventoryItem.updateMany({
-            where: { productId, finishId: normalFinish.id },
+            where: { productId, finishId: normalFinish.id, storeId: null },
             data: { price: normal }
           });
         }
         if (foil > 0 && foilFinish) {
           await this.prisma.inventoryItem.updateMany({
-            where: { productId, finishId: foilFinish.id },
+            where: { productId, finishId: foilFinish.id, storeId: null },
             data: { price: foil }
           });
         }

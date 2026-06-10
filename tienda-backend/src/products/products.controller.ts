@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException, Req } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -208,7 +208,7 @@ export class ProductsController {
   @Post(':productId/inventory')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  addInventoryItem(@Param('productId') productId: string, @Body() body: any) {
-    return this.productsService.addInventoryItem(productId, body);
+  addInventoryItem(@Req() req: any, @Param('productId') productId: string, @Body() body: any) {
+    return this.productsService.addInventoryItem(productId, body, req.user?.userId);
   }
 }

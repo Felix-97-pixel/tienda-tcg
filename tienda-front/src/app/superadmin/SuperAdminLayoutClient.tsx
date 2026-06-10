@@ -14,17 +14,12 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const { user } = useAppSelector((state) => state.authReducer) || { user: null };
 
-  const menuItems = [
+  const superAdminItems = [
     {
       path: "/superadmin",
       label: "Dashboard",
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
       exact: true
-    },
-    {
-      path: "/superadmin/catalog",
-      label: "Catálogo Maestro",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>,
     },
     {
       path: "/superadmin/stores",
@@ -36,6 +31,29 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
       label: "Sincronización",
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
     }
+  ];
+
+  const catalogItems = [
+    {
+      path: "/superadmin/products",
+      label: "Productos",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>,
+    },
+    {
+      path: "/superadmin/categories",
+      label: "Categorías",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>,
+    },
+    {
+      path: "/superadmin/brands",
+      label: "Marcas",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" /></svg>,
+    }
+  ];
+
+  const menuSections = [
+    { title: "PANEL SUPERADMIN", items: superAdminItems },
+    { title: "MÓDULO DE CATÁLOGO", items: catalogItems }
   ];
 
   return (
@@ -67,34 +85,36 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                 </Link>
               </div>
 
-              <div className="mb-6">
-                <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-5">PANEL SUPERADMIN</h3>
-                <ul className="space-y-1.5">
-                  {menuItems.map((item) => {
-                    const isActive = item.exact ? pathname === item.path : pathname.startsWith(item.path);
-                    return (
-                      <li key={item.path}>
-                        <Link 
-                          href={item.path} 
-                          className={`group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm transition-all duration-200 ${
-                            isActive 
-                              ? "bg-blue text-white shadow-xl shadow-blue/20" 
-                              : "text-gray-4 hover:bg-[#1a1d24]/5 hover:text-white"
-                          }`}
-                        >
-                          <span className={`${isActive ? "text-white" : "text-gray-5 group-hover:text-blue transition-colors"}`}>
-                            {item.icon}
-                          </span>
-                          {item.label}
-                          {isActive && (
-                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-[#1a1d24] rounded-l-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
-                          )}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+              {menuSections.map((section, idx) => (
+                <div key={idx} className="mb-6">
+                  <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-5">{section.title}</h3>
+                  <ul className="space-y-1.5">
+                    {section.items.map((item: any) => {
+                      const isActive = item.exact ? pathname === item.path : pathname.startsWith(item.path);
+                      return (
+                        <li key={item.path}>
+                          <Link 
+                            href={item.path} 
+                            className={`group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm transition-all duration-200 ${
+                              isActive 
+                                ? "bg-blue text-white shadow-xl shadow-blue/20" 
+                                : "text-gray-4 hover:bg-[#1a1d24]/5 hover:text-white"
+                            }`}
+                          >
+                            <span className={`${isActive ? "text-white" : "text-gray-5 group-hover:text-blue transition-colors"}`}>
+                              {item.icon}
+                            </span>
+                            {item.label}
+                            {isActive && (
+                              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-[#1a1d24] rounded-l-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
+                            )}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
             </nav>
           </div>
 

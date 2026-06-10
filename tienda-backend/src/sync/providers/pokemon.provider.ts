@@ -90,25 +90,25 @@ export class PokemonProvider extends TcgProvider {
 
           if (prices.normal?.mid > 0 && normalFinish) {
             await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: normalFinish.id },
+              where: { product: { externalId: card.id }, finishId: normalFinish.id, storeId: null },
               data: { price: prices.normal.mid }
             });
           }
           if (prices.holofoil?.mid > 0 && holoFinish) {
             await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: holoFinish.id },
+              where: { product: { externalId: card.id }, finishId: holoFinish.id, storeId: null },
               data: { price: prices.holofoil.mid }
             });
           }
           if (prices.reverseHolofoil?.mid > 0 && reverseFinish) {
             await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: reverseFinish.id },
+              where: { product: { externalId: card.id }, finishId: reverseFinish.id, storeId: null },
               data: { price: prices.reverseHolofoil.mid }
             });
           }
           if (prices.unlimitedHolofoil?.mid > 0 && unlimitedHoloFinish) {
             await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: unlimitedHoloFinish.id },
+              where: { product: { externalId: card.id }, finishId: unlimitedHoloFinish.id, storeId: null },
               data: { price: prices.unlimitedHolofoil.mid }
             });
           }

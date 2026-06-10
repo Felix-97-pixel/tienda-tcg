@@ -120,7 +120,7 @@ export class RiftboundProvider extends TcgProvider {
 
               if (targetFinishId) {
                 await this.prisma.inventoryItem.updateMany({
-                  where: { productId: matchLocal.id, finishId: targetFinishId },
+                  where: { productId: matchLocal.id, finishId: targetFinishId, storeId: null },
                   data: { price: finalPrice }
                 });
               }

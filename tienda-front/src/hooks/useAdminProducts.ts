@@ -13,6 +13,14 @@ export function useAdminProducts() {
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchProducts = useCallback(async () => {
+    // No cargar nada si no hay filtros aplicados (mejora de rendimiento)
+    if (!searchTerm && !selectedCategory && !selectedExpansion) {
+      setProducts([]);
+      setTotalPages(1);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const url = new URL(`${API_URL}/products`);

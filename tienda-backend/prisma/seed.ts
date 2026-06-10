@@ -48,7 +48,7 @@ async function main() {
       data: { name: 'Singles Pokemon', slug: 'singles-pokemon', isTcg: true }
     });
     const catRift = await prisma.category.create({
-      data: { name: 'Riftbound', slug: 'riftbound', isTcg: true }
+      data: { name: 'Singles Riftbound', slug: 'riftbound', isTcg: true }
     });
 
     await prisma.brand.createMany({

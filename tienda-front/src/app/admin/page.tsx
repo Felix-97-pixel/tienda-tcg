@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import SyncDealerPricesBtn from "./SyncDealerPricesBtn";
 
 export const metadata = {
   title: "Seleccionar Módulo | TapTrade Admin",
@@ -90,6 +91,17 @@ export default async function AdminHub() {
             </div>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-12 w-full max-w-6xl">
+        <h2 className="text-xl font-bold text-white mb-4">Acciones Rápidas</h2>
+        <div className="bg-[#1a1d24]/5 rounded-3xl p-6 shadow-lg border border-white/10 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-white">Sincronizar Precios</h3>
+            <p className="text-sm text-gray-4">Actualiza todos tus precios basándote en el catálogo maestro.</p>
+          </div>
+          <SyncDealerPricesBtn />
+        </div>
       </div>
     </div>
   );

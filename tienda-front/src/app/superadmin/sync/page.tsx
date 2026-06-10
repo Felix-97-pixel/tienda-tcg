@@ -118,15 +118,31 @@ export default function AdminSync() {
                 />
               </div>
               
-              <Button 
-                onClick={game.sync.syncSet} 
-                disabled={isAnyActive}
-                isLoading={game.sync.importProgress.active}
-                fullWidth
-                className="mt-4 bg-purple-600 hover:bg-purple-500 text-white"
-              >
-                {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
-              </Button>
+              <div className="flex flex-col gap-2 mt-4">
+                <Button 
+                  onClick={game.sync.syncSet} 
+                  disabled={isAnyActive}
+                  isLoading={game.sync.importProgress.active}
+                  fullWidth
+                  className="bg-purple-600 hover:bg-purple-500 text-white"
+                >
+                  {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
+                </Button>
+
+                {game.id === "magic" && (
+                  <Button 
+                    variant="ghost"
+                    className="w-full flex justify-center py-2 text-xs border border-white/10 hover:bg-white/5"
+                    onClick={() => {
+                      game.sync.setSelectedSetId("ALL");
+                      setTimeout(() => game.sync.syncSet(), 100);
+                    }}
+                    disabled={isAnyActive || game.sync.importProgress.active}
+                  >
+                    Sincronizar Catálogo Completo (Masivo)
+                  </Button>
+                )}
+              </div>
 
               <ProgressDisplay 
                 progress={game.sync.importProgress} 

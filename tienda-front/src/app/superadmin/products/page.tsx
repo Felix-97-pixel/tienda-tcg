@@ -98,13 +98,13 @@ export default function AdminProducts() {
           <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-3">
-          <Button 
-            variant="success" 
+          <Button
+            variant="success"
             onClick={() => setIsBulkOpen(true)}
           >
             {t("bulkUpload")}
           </Button>
-          <Button 
+          <Button
             onClick={() => setIsCreateOpen(true)}
           >
             {t("addProduct")}
@@ -113,7 +113,7 @@ export default function AdminProducts() {
       </div>
 
       {/* Filtros */}
-      <ProductFilters 
+      <ProductFilters
         searchTerm={searchTerm} onSearchChange={setSearchTerm}
         selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory}
         selectedExpansion={selectedExpansion} onExpansionChange={setSelectedExpansion}
@@ -122,47 +122,61 @@ export default function AdminProducts() {
       />
 
       {/* Tabla Principal */}
-      <ProductTable 
-        products={products}
-        loading={loading}
-        onEdit={openEdit}
-        onInventory={(p) => { setSelectedProduct(p); setIsInventoryOpen(true); }}
-        onDelete={handleDelete}
-        page={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+      {!searchTerm && !selectedCategory && !selectedExpansion ? (
+        <div className="flex flex-col items-center justify-center p-16 bg-[#1a1d24] border border-white/5 rounded-3xl text-center shadow-lg">
+          <div className="w-20 h-20 bg-blue/10 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-white mb-3">Usa los filtros para buscar productos</h3>
+          <p className="text-sm text-gray-4 max-w-md mx-auto font-medium">
+            Por favor, ingresa el nombre de una carta o selecciona una categoría / expansión para comenzar a cargar el catálogo.
+          </p>
+        </div>
+      ) : (
+        <ProductTable
+          products={products}
+          loading={loading}
+          onEdit={openEdit}
+          onInventory={(p) => { setSelectedProduct(p); setIsInventoryOpen(true); }}
+          onDelete={handleDelete}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
       {/* Modales */}
-      <CreateProductModal 
-        isOpen={isCreateOpen} 
-        onClose={() => setIsCreateOpen(false)} 
-        categories={categories} 
-        brands={brands} 
-        onSuccess={refresh} 
+      <CreateProductModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        categories={categories}
+        brands={brands}
+        onSuccess={refresh}
       />
 
-      <EditProductModal 
-        isOpen={isEditOpen} 
-        onClose={() => setIsEditOpen(false)} 
-        item={editingItem} 
-        categories={categories} 
-        brands={brands} 
-        onSuccess={refresh} 
+      <EditProductModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        item={editingItem}
+        categories={categories}
+        brands={brands}
+        onSuccess={refresh}
       />
 
-      <InventoryModal 
-        isOpen={isInventoryOpen} 
-        onClose={() => setIsInventoryOpen(false)} 
-        product={selectedProduct} 
-        onSuccess={refresh} 
+      <InventoryModal
+        isOpen={isInventoryOpen}
+        onClose={() => setIsInventoryOpen(false)}
+        product={selectedProduct}
+        onSuccess={refresh}
       />
 
-      <BulkUploadModal 
-        isOpen={isBulkOpen} 
-        onClose={() => setIsBulkOpen(false)} 
-        categories={categories} 
-        onSuccess={refresh} 
+      <BulkUploadModal
+        isOpen={isBulkOpen}
+        onClose={() => setIsBulkOpen(false)}
+        categories={categories}
+        onSuccess={refresh}
       />
     </div>
   );

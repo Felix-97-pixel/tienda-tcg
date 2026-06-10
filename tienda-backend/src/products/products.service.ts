@@ -634,28 +634,57 @@ export class ProductsService {
     });
   }
 
-  async addInventoryItem(productId: string, data: any) {
+  async addInventoryItem(productId: string, data: any, userId: string | null = null) {
     const { languageId, conditionId, price, stock, finishId } = data;
+
+    let storeId: string | null = null;
+    if (userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: { store: true }
+      });
+      if (user?.email !== 'f.pinto.97@gmail.com' && user?.store) {
+        storeId = user.store.id;
+      }
+    }
 
     const exists = await this.prisma.inventoryItem.findFirst({
       where: {
         productId,
         languageId,
         conditionId,
-        finishId: finishId || null
+        finishId: finishId || null,
+        storeId
       }
     });
 
     if (exists) {
-      throw new BadRequestException("Esta combinación de idioma, condición y versión ya existe para este producto.");
+      throw new BadRequestException("Esta combinación de idioma, condición y versión ya existe para este producto en esta tienda.");
+    }
+
+    let finalPrice = Number(price) || 0;
+    
+    // Si la tienda está agregando (storeId != null) y el precio es 0, intentar heredar del maestro
+    if (storeId && finalPrice === 0) {
+      const masterItem = await this.prisma.inventoryItem.findFirst({
+        where: {
+          productId,
+          finishId: finishId || null,
+          storeId: null
+        }
+      });
+      if (masterItem && Number(masterItem.price) > 0) {
+        finalPrice = Number(masterItem.price);
+      }
     }
 
     return this.prisma.inventoryItem.create({
       data: {
+        storeId,
         productId,
         languageId,
         conditionId,
-        price: Number(price) || 0,
+        price: finalPrice,
         stock: Number(stock) || 0,
         finishId: finishId || undefined
       }

@@ -62,9 +62,9 @@ export function useTcgSync(game: string, defaultCategory: string) {
           
           // Limpieza suave después de un delay
           setTimeout(() => {
-            setImportProgress(prev => ({ ...prev, active: false }));
-            setPriceProgress(prev => ({ ...prev, active: false }));
-          }, 2500);
+            setImportProgress({ current: 0, total: 0, active: false });
+            setPriceProgress({ current: 0, total: 0, active: false });
+          }, 3500);
         }
       } catch {
         clearInterval(interval);

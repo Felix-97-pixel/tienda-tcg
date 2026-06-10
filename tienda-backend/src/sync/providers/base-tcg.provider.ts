@@ -134,6 +134,7 @@ export abstract class TcgProvider {
       where: {
         price: 0,
         stock: 0,
+        storeId: null, // SOLO limpiar inventario maestro vacío
         product: {
           cardDetail: {
             expansion: { equals: expansionName, mode: 'insensitive' },

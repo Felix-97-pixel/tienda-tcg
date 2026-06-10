@@ -92,6 +92,54 @@ export class SyncService {
   }
 
   /**
+   * Importación Masiva de TODO Magic The Gathering
+   */
+  async syncAllMtgSets(game: string) {
+    const providerKey = 'magic';
+    const provider = this.providers[providerKey];
+    if (!provider) throw new Error(`La categoría '${game}' no está configurada.`);
+
+    this.setStatus(providerKey, 'import', true);
+
+    // Ejecución en segundo plano
+    (async () => {
+      try {
+        const sets = await this.magicService.fetchScryfallSets();
+        // Filtrar solo sets físicos jugables para evitar llenar la DB de basura digital/tokens
+        const validTypes = ['core', 'expansion', 'masters', 'draft_innovation'];
+        const setsToSync = sets.filter(s => validTypes.includes(s.set_type));
+        
+        console.log(`[SyncService] Iniciando sincronización masiva de ${setsToSync.length} expansiones de MTG...`);
+        
+        let completed = 0;
+        for (const set of setsToSync) {
+          console.log(`[SyncService] Sincronizando expansión: ${set.name} (${set.code}) [${completed + 1}/${setsToSync.length}]`);
+          try {
+            await provider.syncSet(set.code, game);
+            completed++;
+            // Actualizar progreso total basado en los sets completados
+            if (this.syncProgress[providerKey]) {
+              this.syncProgress[providerKey].import.current = completed;
+              this.syncProgress[providerKey].import.total = setsToSync.length;
+            }
+            // Pequeña pausa entre expansiones para no saturar
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } catch (err) {
+            console.error(`[SyncService] Error sincronizando expansión ${set.code}:`, err.message);
+          }
+        }
+        console.log(`[SyncService] Sincronización masiva de MTG completada.`);
+        this.setStatus(providerKey, 'import', false);
+      } catch (err) {
+        console.error(`[SyncService] Error en sincronización masiva:`, err.message);
+        this.setStatus(providerKey, 'import', false);
+      }
+    })();
+
+    return { message: `Sincronización masiva iniciada en segundo plano.`, active: true };
+  }
+
+  /**
    * Actualización de Precios (Movido desde PriceUpdaterService)
    */
   async updatePrices(game: string, expansion: string) {
@@ -156,5 +204,29 @@ export class SyncService {
    */
   async getRiftboundSets() {
     return this.riftboundService.fetchSets();
+  }
+  /**
+   * Sincroniza los precios de una tienda copiando los precios del catálogo maestro.
+   */
+  async syncDealerPrices(storeId: string) {
+    if (!storeId) throw new Error('Store ID is required');
+
+    try {
+      // Usamos una consulta cruda para máxima eficiencia
+      const result = await this.prisma.$executeRaw`
+        UPDATE "InventoryItem" AS d
+        SET price = m.price
+        FROM "InventoryItem" AS m
+        WHERE d."productId" = m."productId"
+          AND (d."finishId" = m."finishId" OR (d."finishId" IS NULL AND m."finishId" IS NULL))
+          AND m."storeId" IS NULL
+          AND d."storeId" = ${storeId}
+          AND m.price > 0;
+      `;
+      return { success: true, updatedCount: Number(result) };
+    } catch (e: any) {
+      console.error("Error syncing dealer prices", e);
+      throw new Error("Error sincronizando los precios.");
+    }
   }
 }

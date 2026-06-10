@@ -1,15 +1,20 @@
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param, Req, BadRequestException } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
+import { PrismaService } from '../prisma/prisma.service';
+
 @Controller('sync')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class SyncController {
-  constructor(private readonly syncService: SyncService) { }
+  constructor(
+    private readonly syncService: SyncService,
+    private readonly prisma: PrismaService
+  ) { }
 
   @Get('magic-sets')
   async getMtgSets() {
@@ -36,6 +41,23 @@ export class SyncController {
   async syncSet(
     @Body() body: { game: string; setId: string }
   ) {
+    if (body.setId === 'ALL' && body.game.toLowerCase().includes('magic')) {
+      return this.syncService.syncAllMtgSets(body.game);
+    }
     return this.syncService.syncSet(body.game, body.setId);
+  }
+
+  @Post('dealer-prices')
+  async syncDealerPrices(@Req() req: any) {
+    if (req.user.email === 'f.pinto.97@gmail.com') {
+      throw new BadRequestException("El Superadmin no usa esta función. Solo las tiendas.");
+    }
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: req.user.userId }
+    });
+    if (!store) {
+      throw new BadRequestException("No se encontró una tienda para este usuario.");
+    }
+    return this.syncService.syncDealerPrices(store.id);
   }
 }
