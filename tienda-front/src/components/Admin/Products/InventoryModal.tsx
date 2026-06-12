@@ -15,9 +15,10 @@ export interface InventoryModalProps {
   onClose: () => void;
   product: Product | null;
   onSuccess: () => void;
+  isGlobalCatalog?: boolean;
 }
 
-export default function InventoryModal({ isOpen, onClose, product: initialProduct, onSuccess }: InventoryModalProps) {
+export default function InventoryModal({ isOpen, onClose, product: initialProduct, onSuccess, isGlobalCatalog = false }: InventoryModalProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
   const { showToast } = useToast();
@@ -208,44 +209,61 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             </tr>
           </thead>
           <tbody>
-            {product.items.map((item: InventoryItem) => (
-              <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
-                <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
-                <td className="p-3 text-white">
-                  {item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).name : item.condition) || "N/A"}
-                </td>
+            {isGlobalCatalog && product.marketPrices?.map((mp: any) => (
+              <tr key={mp.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
+                <td className="p-3 font-medium text-white">English</td>
+                <td className="p-3 text-white">Near Mint</td>
                 <td className="p-3">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
-                    {item.finish?.name || "Normal"}
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mp.finish?.name && mp.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
+                    {mp.finish?.name || "-"}
                   </span>
                 </td>
-                <td className="p-3">
-                  <input
-                    type="number"
-                    className="w-20 rounded border border-stroke p-1 text-xs font-bold text-blue"
-                    defaultValue={item.price}
-                    onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock)}
-                  />
+                <td className="p-3 font-bold text-green-400">
+                  ${Number(mp.price).toLocaleString()}
                 </td>
-                <td className="p-3">
-                  <input
-                    type="number"
-                    className="w-16 rounded border border-stroke p-1 text-xs text-white"
-                    defaultValue={item.stock}
-                    onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value))}
-                  />
-                </td>
-                <td className="p-3 text-center">
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteItem(item.id)}
-                    title={t("inventory.successDelete")}
-                  >
-                    ✕
-                  </Button>
-                </td>
+                <td className="p-3 text-gray-5 text-xs font-medium">Oficial</td>
+                <td className="p-3 text-center">-</td>
               </tr>
+            ))}
+            
+            {product.items?.map((item: InventoryItem) => (
+                <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
+                <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
+                  <td className="p-3 text-white">
+                    {item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).name : item.condition) || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
+                      {item.finish?.name || "Normal"}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    <input
+                      type="number"
+                      className="w-20 rounded border border-stroke p-1 text-xs font-bold text-blue"
+                      defaultValue={item.price}
+                      onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock)}
+                    />
+                  </td>
+                  <td className="p-3">
+                    <input
+                      type="number"
+                      className="w-16 rounded border border-stroke p-1 text-xs text-white"
+                      defaultValue={item.stock}
+                      onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value))}
+                    />
+                  </td>
+                  <td className="p-3 text-center">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteItem(item.id)}
+                      title={t("inventory.successDelete")}
+                    >
+                      ✕
+                    </Button>
+                  </td>
+                </tr>
             ))}
           </tbody>
         </table>
@@ -262,3 +280,4 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     </Modal>
   );
 }
+

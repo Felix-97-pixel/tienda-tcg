@@ -64,57 +64,46 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
       ),
     },
     {
-      key: "stock",
-      header: t("table.stock"),
-      render: (product) => {
-        const totalStock = product.items.reduce((sum, item) => sum + item.stock, 0);
-        return (
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
-            totalStock > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-          }`}>
-            {t("table.stockCount", { count: totalStock })}
-          </span>
-        );
-      },
-    },
-    {
       key: "actions",
       header: t("table.actions"),
       headerClassName: "text-right",
       cellClassName: "text-right",
-      render: (product) => (
-        <div className="flex items-center justify-end gap-2">
-          {product.category?.isTcg ? (
-            <Button 
-              size="sm"
-              onClick={() => onInventory(product)}
-            >
-              {t("table.manage", { count: product.items.length })}
-            </Button>
-          ) : (
-            <>
+      render: (product) => {
+        const isGlobal = !product.storeId;
+        const variationsCount = isGlobal ? (product.marketPrices?.length || 0) : (product.items?.length || 0);
+
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {product.category?.isTcg && (
               <Button 
                 size="sm"
-                variant="secondary"
-                className="px-3 bg-blue/10 text-blue hover:bg-blue hover:text-white"
-                onClick={() => onEdit(product, product.items[0])}
-                title={tc("edit")}
+                onClick={() => onInventory(product)}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                {t("table.manage", { count: variationsCount })}
               </Button>
-              <Button 
-                size="sm"
-                variant="danger"
-                className="px-3"
-                onClick={() => onDelete(product)}
-                title={tc("delete")}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              </Button>
-            </>
-          )}
+            )}
+          
+          <Button 
+            size="sm"
+            variant="secondary"
+            className="px-3 bg-blue/10 text-blue hover:bg-blue hover:text-white"
+            onClick={() => onEdit(product, product.items?.[0])}
+            title={tc("edit")}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+          </Button>
+          <Button 
+            size="sm"
+            variant="danger"
+            className="px-3"
+            onClick={() => onDelete(product)}
+            title={tc("delete")}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          </Button>
         </div>
-      ),
+        );
+      },
     },
   ];
 

@@ -19,6 +19,7 @@ import { ShippingModule } from './shipping/shipping.module';
 import { MailModule } from './mail/mail.module';
 
 import { StoresModule } from './stores/stores.module';
+import { ExpansionsModule } from './expansions/expansions.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { StoresModule } from './stores/stores.module';
     CurrenciesModule,
     ShippingModule,
     MailModule,
-    StoresModule
+    StoresModule,
+    ExpansionsModule
   ],
   controllers: [AppController],
   providers: [AppService],

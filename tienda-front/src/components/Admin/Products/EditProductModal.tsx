@@ -19,6 +19,7 @@ export interface EditProductModalProps {
     brandId: string;
     imageUrl: string;
     productName: string;
+    description: string;
     itemId: string;
     price: number;
     stock: number;
@@ -39,6 +40,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
     categoryId: "",
     brandId: "",
     imageUrl: "",
+    description: "",
     price: 0,
     stock: 0,
   });
@@ -50,6 +52,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
         categoryId: item.categoryId,
         brandId: item.brandId || "",
         imageUrl: item.imageUrl || "",
+        description: item.description || "",
         price: item.price,
         stock: item.stock,
       });
@@ -65,9 +68,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
-          categoryId: form.categoryId,
-          brandId: form.brandId || null,
-          imageUrl: form.imageUrl,
+          description: form.description,
           price: form.price,
           stock: form.stock,
         }),
@@ -104,59 +105,14 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.categoryLabel")}</label>
-            <SearchableSelect
-              options={categories.map(c => ({ label: c.name, value: c.id }))}
-              value={form.categoryId}
-              onChange={(val) => setForm({ ...form, categoryId: val })}
-              placeholder={t("modal.categoryPlaceholder")}
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.brandLabel")}</label>
-            <SearchableSelect
-              options={brands.map(b => ({ label: b.name, value: b.id }))}
-              value={form.brandId}
-              onChange={(val) => setForm({ ...form, brandId: val })}
-              placeholder={t("modal.brandPlaceholder")}
-            />
-          </div>
-        </div>
-
-
-
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.imageLabel")}</label>
-          <div className="flex items-center gap-4">
-            <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border border-stroke flex items-center justify-center">
-              {form.imageUrl ? (
-                <div className="relative h-full w-full group">
-                  <Image src={form.imageUrl} alt="Preview" fill className="object-cover" />
-                  <button
-                    onClick={() => { handleRemove(form.imageUrl); setForm({ ...form, imageUrl: "" }); }}
-                    className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : (
-                <span className="text-[10px] text-gray-4 font-bold uppercase">{t("modal.noImage")}</span>
-              )}
-            </div>
-            <FileInput
-              accept="image/*"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const url = await handleUpload(file, form.imageUrl, 'products');
-                  if (url) setForm({ ...form, imageUrl: url });
-                }
-              }}
-              disabled={uploadingImage}
-            />
-          </div>
+          <label className="mb-1.5 block text-xs font-medium text-gray-4">Descripción</label>
+          <textarea
+            className="w-full rounded-xl border border-stroke bg-[#111318] px-4 py-3 text-white focus:border-blue focus:outline-none transition-all resize-y min-h-[100px]"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="Descripción del producto..."
+          />
         </div>
       </div>
 

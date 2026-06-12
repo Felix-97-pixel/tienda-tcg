@@ -483,6 +483,9 @@ export class ProductsService {
           category: true,
           brand: true,
           cardDetail: true,
+          marketPrices: {
+            include: { finish: true }
+          },
           items: {
             include: {
               language: true,
@@ -514,6 +517,9 @@ export class ProductsService {
         category: true,
         brand: true,
         cardDetail: true,
+        marketPrices: {
+          include: { finish: true }
+        },
         items: {
           include: {
             condition: true,
@@ -709,7 +715,11 @@ export class ProductsService {
     return this.prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: { category: true, cardDetail: true }
+      include: { 
+        category: true, 
+        cardDetail: true,
+        marketPrices: { include: { finish: true } }
+      }
     });
   }
 }

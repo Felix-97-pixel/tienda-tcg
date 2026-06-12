@@ -42,6 +42,7 @@ export class RiftboundProvider extends TcgProvider {
     return {
       externalId: c.tcgplayer_id ? String(c.tcgplayer_id) : `rb-${c.id}`,
       name: c.name,
+      description: c.text || c.effect || c.description || c.flavor_text || c.rules_text || '',
       image: c.media?.image_url || '',
       expansion: c.set?.label || 'Riftbound',
       rarity: c.classification?.rarity || c.rarity || 'Common',

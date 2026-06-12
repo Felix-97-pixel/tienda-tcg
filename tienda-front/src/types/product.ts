@@ -9,6 +9,7 @@ export interface Product {
   name: string;
   categoryId: string;
   brandId?: string;
+  storeId?: string | null;
   imageUrl?: string;
   description?: string;
   category?: Category;
@@ -21,6 +22,12 @@ export interface Product {
     attributes?: string[];
   };
   items: InventoryItem[];
+  marketPrices?: {
+    id: string;
+    finish?: { id: string; name: string };
+    price: number | string;
+    updatedAt: string;
+  }[];
   wishlistCount?: number;
 
   // Campos de compatibilidad con la UI (mapeados en el frontend)

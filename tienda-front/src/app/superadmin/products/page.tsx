@@ -82,9 +82,10 @@ export default function AdminProducts() {
       brandId: product.brandId || "",
       imageUrl: product.imageUrl || "",
       productName: product.name,
-      itemId: item.id,
-      price: item.price,
-      stock: item.stock,
+      description: product.description || "",
+      itemId: item?.id || "",
+      price: item?.price || 0,
+      stock: item?.stock || 0,
     });
     setIsEditOpen(true);
   };
@@ -170,6 +171,7 @@ export default function AdminProducts() {
         onClose={() => setIsInventoryOpen(false)}
         product={selectedProduct}
         onSuccess={refresh}
+        isGlobalCatalog={true}
       />
 
       <BulkUploadModal
