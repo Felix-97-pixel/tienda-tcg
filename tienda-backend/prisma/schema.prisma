@@ -39,6 +39,10 @@ model Product {
   brand        Brand?          @relation(fields: [brandId], references: [id])
   store        Store?          @relation("StoreCustomProducts", fields: [storeId], references: [id])
   wishlistedBy WishlistItem[]
+
+  @@index([name])
+  @@index([categoryId])
+  @@index([storeId])
 }
 
 model Language {
@@ -60,9 +64,14 @@ model CardDetail {
   rarity       String
   collectorNum String
   game         String
-  attributes   String[] @default([])
-  productId    String   @unique
+  attributes        String[]  @default([])
+  marketPriceNormal Decimal?  @db.Decimal(10, 2)
+  marketPriceFoil   Decimal?  @db.Decimal(10, 2)
+  productId         String    @unique
   product      Product  @relation(fields: [productId], references: [id])
+
+  @@index([expansion])
+  @@index([productId])
 }
 
 model InventoryItem {
@@ -79,6 +88,10 @@ model InventoryItem {
   condition   Condition @relation(fields: [conditionId], references: [id])
   language    Language  @relation(fields: [languageId], references: [id])
   finish      Finish?   @relation(fields: [finishId], references: [id])
+
+  @@index([storeId])
+  @@index([productId])
+  @@index([storeId, productId])
 }
 
 model Finish {

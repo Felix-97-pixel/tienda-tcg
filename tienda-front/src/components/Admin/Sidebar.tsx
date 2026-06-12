@@ -55,6 +55,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   ];
 
   const configItems = [
+    { href: "/admin/profile",     label: "Mi Tienda",             icon: icons.settings },
     { href: "/admin/currencies",  label: "Divisas",               icon: icons.settings },
     { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
     { href: "/admin/settings",    label: t("modules.settings"),   icon: icons.settings },
@@ -62,7 +63,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   const isCatalog = ["/admin/products", "/admin/categories", "/admin/brands", "/admin/wishlist"].some(p => pathname.startsWith(p));
   const isStats = ["/admin/sales", "/admin/orders"].some(p => pathname.startsWith(p));
-  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/settings"].some(p => pathname.startsWith(p));
+  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/settings", "/admin/profile"].some(p => pathname.startsWith(p));
 
   let navItems = [];
   let moduleName = "";

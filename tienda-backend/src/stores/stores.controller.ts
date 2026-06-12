@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
@@ -13,6 +13,18 @@ export class StoresController {
   @Get('public/:subdomain')
   getPublicStore(@Param('subdomain') subdomain: string) {
     return this.storesService.getPublicStoreBySubdomain(subdomain);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getStoreByOwner(@Request() req: any) {
+    return this.storesService.getStoreByOwner(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  updateStoreByOwner(@Request() req: any, @Body() data: any) {
+    return this.storesService.updateStoreByOwner(req.user.userId, data);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

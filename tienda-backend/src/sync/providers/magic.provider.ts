@@ -38,6 +38,7 @@ export class MagicProvider extends TcgProvider {
     return {
       externalId: c.id,
       name: c.name,
+      description: c.oracle_text || c.card_faces?.[0]?.oracle_text || null,
       image: c.image_uris?.normal || c.card_faces?.[0]?.image_uris?.normal || '',
       expansion: c.set_name,
       rarity: c.rarity || 'Common',
@@ -102,16 +103,13 @@ export class MagicProvider extends TcgProvider {
       
       for (const [mtgjsonUUID, { normal, foil }] of prices) {
         const productId = mtgjsonUUIDtoProductId.get(mtgjsonUUID)!;
-        if (normal > 0 && normalFinish) {
-          await this.prisma.inventoryItem.updateMany({
-            where: { productId, finishId: normalFinish.id, storeId: null },
-            data: { price: normal }
-          });
-        }
-        if (foil > 0 && foilFinish) {
-          await this.prisma.inventoryItem.updateMany({
-            where: { productId, finishId: foilFinish.id, storeId: null },
-            data: { price: foil }
+        if (normal > 0 || foil > 0) {
+          await this.prisma.cardDetail.update({
+            where: { productId: productId },
+            data: {
+              marketPriceNormal: normal > 0 ? normal : undefined,
+              marketPriceFoil: foil > 0 ? foil : undefined
+            }
           });
         }
         updated++;

@@ -16,6 +16,7 @@ export class StoresService {
         name: true,
         subdomain: true,
         logoUrl: true,
+        settings: true,
       }
     });
 
@@ -24,6 +25,75 @@ export class StoresService {
     }
 
     return store;
+  }
+
+  async getStoreByOwner(userId: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: userId },
+      include: {
+        settings: true,
+      }
+    });
+
+    if (!store) {
+      throw new NotFoundException('No tienes una tienda asignada');
+    }
+
+    return store;
+  }
+
+  async updateStoreByOwner(userId: string, data: any) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    if (!store) {
+      throw new NotFoundException('No tienes una tienda asignada');
+    }
+
+    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website } = data;
+
+    // Actualizar nombre y logo de la tienda
+    await this.prisma.store.update({
+      where: { id: store.id },
+      data: {
+        name: name !== undefined ? name : undefined,
+        logoUrl: logoUrl !== undefined ? logoUrl : undefined,
+      }
+    });
+
+    // Keys de settings
+    const settingsKeys = {
+      description,
+      facebook,
+      instagram,
+      twitter,
+      twitch,
+      whatsapp,
+      email,
+      address,
+      website
+    };
+
+    // Upsert para cada setting que fue enviado (no undefined)
+    for (const [key, value] of Object.entries(settingsKeys)) {
+      if (value !== undefined) {
+        await this.prisma.storeSetting.upsert({
+          where: {
+            key_storeId: {
+              key,
+              storeId: store.id
+            }
+          },
+          update: { value: value as string },
+          create: {
+            key,
+            value: value as string,
+            storeId: store.id
+          }
+        });
+      }
+    }
+
+    // Retornar tienda actualizada
+    return this.getStoreByOwner(userId);
   }
 
   async findAll() {

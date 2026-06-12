@@ -1,0 +1,288 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { API_URL } from "@/utils/api";
+import { useToast } from "@/hooks/useToast";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import Image from "next/image";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { FileInput } from "@/components/ui/FileInput";
+
+export default function AdminStoreProfile() {
+  const { showToast } = useToast();
+  const { isUploading, handleUpload, handleRemove } = useImageUpload();
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    logoUrl: "",
+    description: "",
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    twitch: "",
+    whatsapp: "",
+    website: "",
+    email: "",
+    address: "",
+  });
+
+  useEffect(() => {
+    fetchStore();
+  }, []);
+
+  const fetchStore = async () => {
+    try {
+      const res = await fetch(`${API_URL}/stores/me`, { credentials: "include" });
+      if (res.ok) {
+        const store = await res.json();
+        const s = (store.settings || []).reduce((acc: any, curr: any) => {
+          acc[curr.key] = curr.value;
+          return acc;
+        }, {});
+
+        setFormData({
+          name: store.name || "",
+          logoUrl: store.logoUrl || "",
+          description: s.description || "",
+          facebook: s.facebook || "",
+          instagram: s.instagram || "",
+          twitter: s.twitter || "",
+          twitch: s.twitch || "",
+          whatsapp: s.whatsapp || "",
+          website: s.website || "",
+          email: s.email || "",
+          address: s.address || "",
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching store:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/stores/me`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        showToast("Perfil de tienda guardado con éxito", "success");
+      } else {
+        showToast("Error al guardar el perfil", "error");
+      }
+    } catch (error) {
+      showToast("Error de conexión", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-4 text-xs font-black uppercase tracking-widest animate-pulse">Cargando perfil...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-8 pb-24">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-white tracking-tight">Mi Tienda</h1>
+        <p className="text-gray-4 text-sm font-medium mt-1">Configura los detalles públicos y datos de contacto de tu tienda.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Form Card */}
+        <div className="lg:col-span-2 space-y-6">
+          <form onSubmit={handleSave} className="bg-[#1a1d24] rounded-3xl shadow-1 p-8 border border-transparent hover:border-stroke transition-all duration-300 space-y-6">
+            
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-blue/10 flex items-center justify-center shadow-inner">
+                <svg className="w-6 h-6 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">Información Principal</h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <Input
+                label="Nombre de la Tienda"
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-white">Logo de la Tienda</label>
+                <div className="flex items-center gap-4">
+                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border border-stroke flex items-center justify-center">
+                    {formData.logoUrl ? (
+                      <div className="relative h-full w-full group">
+                        <Image src={formData.logoUrl} alt="Logo" fill className="object-contain" />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const success = await handleRemove(formData.logoUrl);
+                            if (success) setFormData({ ...formData, logoUrl: "" });
+                          }}
+                          className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-gray-4 font-bold text-center">Sin Logo</span>
+                    )}
+                  </div>
+                  <FileInput
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = await handleUpload(file, formData.logoUrl, 'stores');
+                        if (url) setFormData({ ...formData, logoUrl: url });
+                      }
+                    }}
+                    disabled={isUploading}
+                  />
+                </div>
+                {isUploading && <p className="mt-2 text-xs text-blue animate-pulse">Subiendo imagen...</p>}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-white">Descripción de la Tienda</label>
+                <textarea
+                  className="w-full rounded-xl border border-stroke bg-[#111318] px-4 py-3 text-white focus:border-blue focus:ring-1 focus:ring-blue focus:outline-none transition-all placeholder:text-gray-5 min-h-[100px]"
+                  placeholder="Cuenta a tus clientes sobre tu tienda..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 mb-6 mt-10">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center shadow-inner">
+                <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">Contacto y Redes Sociales</h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Email de Contacto"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="contacto@mitienda.com"
+              />
+              <div className="md:col-span-1">
+                <Input
+                  label="Dirección"
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Av. Providencia 1234, Local 5"
+                />
+              </div>
+              <Input
+                label="Página Web (URL)"
+                type="url"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                placeholder="https://mitienda.com"
+              />
+              <Input
+                label="Facebook (URL)"
+                type="url"
+                value={formData.facebook}
+                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                placeholder="https://facebook.com/mitienda"
+              />
+              <Input
+                label="Instagram (URL)"
+                type="url"
+                value={formData.instagram}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                placeholder="https://instagram.com/mitienda"
+              />
+              <Input
+                label="Twitch (URL)"
+                type="url"
+                value={formData.twitch}
+                onChange={(e) => setFormData({ ...formData, twitch: e.target.value })}
+                placeholder="https://twitch.tv/mitienda"
+              />
+              <Input
+                label="WhatsApp (Número)"
+                type="text"
+                value={formData.whatsapp}
+                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                placeholder="+56 9 1234 5678"
+              />
+              <Input
+                label="Twitter/X (URL)"
+                type="url"
+                value={formData.twitter}
+                onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                placeholder="https://twitter.com/mitienda"
+              />
+            </div>
+
+            <div className="mt-10 pt-6 border-t border-stroke flex justify-end">
+              <div className="w-full md:w-1/3">
+                <Button
+                  type="submit"
+                  isLoading={saving || isUploading}
+                  fullWidth
+                >
+                  Guardar Cambios
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Info Sidebar */}
+        <div className="space-y-6">
+          <div className="bg-dark rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#1a1d24]/10 rounded-full blur-2xl group-hover:bg-[#1a1d24]/20 transition-all"></div>
+            <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue rounded-full animate-pulse"></span>
+              Perfil Público
+            </h3>
+            <p className="text-xs text-gray-4 leading-relaxed font-medium mb-6">
+              Toda la información ingresada aquí será visible en el perfil público de tu tienda en TapTrade.
+            </p>
+            <div className="p-4 rounded-2xl bg-[#1a1d24]/5 border border-white/10 space-y-3">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-3">
+                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                Actualización instantánea
+              </div>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-3">
+                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                Íconos automáticos
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

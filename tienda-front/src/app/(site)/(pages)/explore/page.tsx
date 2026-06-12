@@ -1,12 +1,13 @@
+import React from "react";
 import Home from "@/components/Home";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TapTrade",
-  description: "Tienda especializada en TCG",
+  title: "Inicio | TapTrade",
+  description: "Marketplace de cartas TCG",
 };
 
-export default function HomePage() {
+export default function StoreFrontHomePage() {
   return (
     <>
       <Home />
