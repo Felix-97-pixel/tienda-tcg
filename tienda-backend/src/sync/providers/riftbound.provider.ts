@@ -64,17 +64,48 @@ export class RiftboundProvider extends TcgProvider {
     let updatedCount = 0;
 
     try {
-      // 1. Resolver el ID real del set usando RiftboundService
-      this.logger.log(`[Riftbound] Buscando set "${expansionName}" en JustTCG...`);
-      const sets = await this.riftboundService.fetchJustTcgSets(apiKey);
-      const match = sets.find((s: any) => s.name?.toLowerCase() === expansionName.toLowerCase());
+      this.logger.log(`[Riftbound] Resolviendo expansión "${expansionName}"...`);
+      const expansion = await this.prisma.expansion.findFirst({
+        where: {
+          OR: [
+            { id: expansionName },
+            { name: { equals: expansionName, mode: 'insensitive' } }
+          ],
+          game: 'Riftbound'
+        }
+      });
 
-      if (!match) {
-        this.logger.warn(`[Riftbound] No se encontró el set "${expansionName}" en JustTCG.`);
-        return { updated: 0, errors: 1 };
+      let setSlug = expansion?.externalId;
+      const resolvedName = expansion?.name || expansionName;
+
+      // Si no tenemos el externalId guardado, hacemos fallback a buscar en la API de JustTCG
+      if (!setSlug) {
+        this.logger.log(`[Riftbound] Buscando set "${resolvedName}" en JustTCG...`);
+        const sets = await this.riftboundService.fetchJustTcgSets(apiKey);
+        let match = sets.find((s: any) => s.name?.toLowerCase() === resolvedName.toLowerCase());
+        
+        if (!match) {
+          match = sets.find((s: any) => 
+            s.name?.toLowerCase().includes(resolvedName.toLowerCase()) || 
+            resolvedName.toLowerCase().includes(s.name?.toLowerCase())
+          );
+        }
+
+        if (!match) {
+          this.logger.warn(`[Riftbound] No se encontró el set "${resolvedName}" en JustTCG.`);
+          return { updated: 0, errors: 1 };
+        }
+        setSlug = match.set_id || match.slug || match.id;
+        
+        // Guardar el externalId para futuras consultas si tenemos el registro
+        if (expansion) {
+          await this.prisma.expansion.update({
+            where: { id: expansion.id },
+            data: { externalId: setSlug }
+          });
+        }
       }
 
-      const setSlug = match.set_id || match.slug || match.id;
       this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
 
       // Pre-cargar acabados
@@ -85,7 +116,7 @@ export class RiftboundProvider extends TcgProvider {
 
       // 2. Cargar productos locales para match rápido
       const localProducts = await this.prisma.product.findMany({
-        where: { cardDetail: { expansion: { equals: expansionName, mode: 'insensitive' } } },
+        where: { cardDetail: { expansion: { equals: resolvedName, mode: 'insensitive' } } },
         select: { id: true, externalId: true }
       });
 

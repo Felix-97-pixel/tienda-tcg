@@ -42,6 +42,21 @@ export class StoresService {
     return store;
   }
 
+  async getStoreById(id: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { id },
+      include: {
+        settings: true,
+      }
+    });
+
+    if (!store) {
+      throw new NotFoundException('Tienda no encontrada');
+    }
+
+    return store;
+  }
+
   async updateStoreByOwner(userId: string, data: any) {
     const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
     if (!store) {
@@ -94,6 +109,59 @@ export class StoresService {
 
     // Retornar tienda actualizada
     return this.getStoreByOwner(userId);
+  }
+
+  async updateStoreById(storeId: string, data: any) {
+    const store = await this.prisma.store.findUnique({ where: { id: storeId } });
+    if (!store) {
+      throw new NotFoundException('Tienda no encontrada');
+    }
+
+    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website } = data;
+
+    // Actualizar nombre y logo de la tienda
+    await this.prisma.store.update({
+      where: { id: store.id },
+      data: {
+        name: name !== undefined ? name : undefined,
+        logoUrl: logoUrl !== undefined ? logoUrl : undefined,
+      }
+    });
+
+    // Keys de settings
+    const settingsKeys = {
+      description,
+      facebook,
+      instagram,
+      twitter,
+      twitch,
+      whatsapp,
+      email,
+      address,
+      website
+    };
+
+    // Upsert para cada setting que fue enviado (no undefined)
+    for (const [key, value] of Object.entries(settingsKeys)) {
+      if (value !== undefined) {
+        await this.prisma.storeSetting.upsert({
+          where: {
+            key_storeId: {
+              key,
+              storeId: store.id
+            }
+          },
+          update: { value: value as string },
+          create: {
+            key,
+            value: value as string,
+            storeId: store.id
+          }
+        });
+      }
+    }
+
+    return this.getStoreById(store.id);
   }
 
   async findAll() {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
+import Link from "next/link";
 
 interface Owner {
   id: string;
@@ -161,7 +162,15 @@ export default function StoresClient() {
                   </td>
                   <td className="px-4 py-3">${store.balance}</td>
                   <td className="px-4 py-3 flex gap-2">
-                    {/* Placeholder for Edit */}
+                    <Link href={`/superadmin/stores/${store.id}/edit`}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="px-3"
+                      >
+                        Editar
+                      </Button>
+                    </Link>
                     <Button
                       size="sm"
                       variant="danger"

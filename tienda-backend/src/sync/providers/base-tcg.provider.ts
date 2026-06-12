@@ -61,6 +61,26 @@ export abstract class TcgProvider {
         const productData = this.mapToProduct(card, categoryId);
         const expectedVariantNames = this.getExpectedVariants(card);
 
+        let expansionRecord = await this.prisma.expansion.findFirst({
+          where: { name: productData.expansion, game: this.gameName }
+        });
+
+        if (!expansionRecord) {
+          expansionRecord = await this.prisma.expansion.create({
+            data: {
+              name: productData.expansion,
+              game: this.gameName,
+              externalId: setId // setId es usualmente el slug de la API
+            }
+          });
+        } else if (!expansionRecord.externalId && setId) {
+          // Si existía sin externalId (ej. migración), lo actualizamos
+          expansionRecord = await this.prisma.expansion.update({
+            where: { id: expansionRecord.id },
+            data: { externalId: setId }
+          });
+        }
+
 
         await this.prisma.product.upsert({
           where: { externalId: productData.externalId },
@@ -71,6 +91,7 @@ export abstract class TcgProvider {
             cardDetail: {
               update: {
                 expansion: productData.expansion,
+                expansionId: expansionRecord.id,
                 rarity: productData.rarity,
                 collectorNum: productData.number,
                 attributes: productData.attributes
@@ -86,6 +107,7 @@ export abstract class TcgProvider {
             cardDetail: {
               create: {
                 expansion: productData.expansion,
+                expansionId: expansionRecord.id,
                 rarity: productData.rarity,
                 collectorNum: productData.number,
                 game: this.gameName,

@@ -77,10 +77,31 @@ export class MagicProvider extends TcgProvider {
 
       this.logger.log(`[Magic] ${products.length} productos locales encontrados. Resolviendo código de set...`);
 
-      // 1. Obtener código de set (ej: BLB)
-      const setCode = await this.getSetCode(expansionName);
+      // 1. Resolver Expansion
+      const expansion = await this.prisma.expansion.findFirst({
+        where: {
+          OR: [
+            { id: expansionName },
+            { name: { equals: expansionName, mode: 'insensitive' } }
+          ],
+          game: 'Magic'
+        }
+      });
+      const resolvedName = expansion?.name || expansionName;
+
+      let setCode = expansion?.externalId;
       if (!setCode) {
-        this.logger.error(`[Magic] No se pudo resolver el código de set para: ${expansionName}`);
+        setCode = await this.getSetCode(resolvedName);
+        if (setCode && expansion) {
+          await this.prisma.expansion.update({
+            where: { id: expansion.id },
+            data: { externalId: setCode }
+          });
+        }
+      }
+
+      if (!setCode) {
+        this.logger.error(`[Magic] No se pudo resolver el código de set para: ${resolvedName}`);
         return { updated: 0, errors: 1 };
       }
       this.logger.log(`[Magic] Código de set resuelto: ${setCode}. Obteniendo mapeo de UUIDs...`);
@@ -145,7 +166,13 @@ export class MagicProvider extends TcgProvider {
 
   private async getSetCode(expansion: string): Promise<string | null> {
     const sets = await this.magicService.fetchScryfallSets();
-    const match = sets.find((s: any) => s.name?.toLowerCase() === expansion.toLowerCase());
+    let match = sets.find((s: any) => s.name?.toLowerCase() === expansion.toLowerCase());
+    if (!match) {
+      match = sets.find((s: any) => 
+        s.name?.toLowerCase().includes(expansion.toLowerCase()) || 
+        expansion.toLowerCase().includes(s.name?.toLowerCase())
+      );
+    }
     return match ? match.code.toUpperCase() : null;
   }
 

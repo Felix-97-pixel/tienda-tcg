@@ -59,14 +59,37 @@ export class PokemonProvider extends TcgProvider {
     this.logger.log(`=== [Pokémon] Iniciando actualización de precios para: "${expansionName}" ===`);
 
     try {
-      // 1. Obtener el ID del set por nombre
-      const set = await this.pokemonService.fetchSetByName(expansionName);
-      if (!set) {
-        this.logger.warn(`[Pokémon] Set "${expansionName}" no encontrado.`);
+      // 1. Resolver Expansion
+      const expansion = await this.prisma.expansion.findFirst({
+        where: {
+          OR: [
+            { id: expansionName },
+            { name: { equals: expansionName, mode: 'insensitive' } }
+          ],
+          game: 'Pokemon'
+        }
+      });
+      const resolvedName = expansion?.name || expansionName;
+
+      let setId = expansion?.externalId;
+      if (!setId) {
+        const set = await this.pokemonService.fetchSetByName(resolvedName);
+        if (set && expansion) {
+          setId = set.id;
+          await this.prisma.expansion.update({
+            where: { id: expansion.id },
+            data: { externalId: setId }
+          });
+        } else if (set) {
+          setId = set.id;
+        }
+      }
+
+      if (!setId) {
+        this.logger.warn(`[Pokémon] Set "${resolvedName}" no encontrado.`);
         return { updated: 0, errors: 1 };
       }
 
-      const setId = set.id;
       this.logger.log(`[Pokémon] Set ID resuelto: ${setId}. Consultando cartas...`);
 
       // Pre-cargar acabados de Pokémon

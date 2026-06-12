@@ -36,6 +36,20 @@ export class StoresController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
+  @Get(':id/full')
+  getStoreFull(@Param('id') id: string) {
+    return this.storesService.getStoreById(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN')
+  @Patch(':id/full')
+  updateStoreFull(@Param('id') id: string, @Body() data: any) {
+    return this.storesService.updateStoreById(id, data);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN')
   @Post()
   create(@Body() createStoreDto: CreateStoreDto) {
     return this.storesService.create(createStoreDto);

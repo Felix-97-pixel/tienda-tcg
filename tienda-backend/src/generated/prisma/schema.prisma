@@ -61,7 +61,22 @@ model CardDetail {
   game         String
   attributes   String[] @default([])
   productId    String   @unique
+  expansionId  String?
+  expansionRel Expansion? @relation(fields: [expansionId], references: [id])
   product      Product  @relation(fields: [productId], references: [id])
+}
+
+model Expansion {
+  id          String       @id @default(uuid())
+  externalId  String?
+  name        String
+  game        String
+  releaseDate DateTime?
+  imageUrl    String?
+
+  cardDetails CardDetail[]
+
+  @@unique([externalId, game])
 }
 
 model InventoryItem {
