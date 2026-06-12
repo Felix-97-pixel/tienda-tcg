@@ -33,6 +33,11 @@ export class PokemonProvider extends TcgProvider {
     return this.pokemonService.fetchCardsBySet(setId);
   }
 
+  async fetchAllSets(): Promise<{id: string, name: string}[]> {
+    const sets = await this.pokemonService.fetchSets();
+    return sets.map(s => ({ id: s.id, name: s.name }));
+  }
+
   mapToProduct(c: any, categoryId: string) {
     const attrs = c.types ? [...c.types] : [];
     if (c.supertype === 'Energy' && !attrs.includes('Energy')) attrs.push('Energy');

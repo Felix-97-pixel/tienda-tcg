@@ -41,8 +41,8 @@ export class SyncController {
   async syncSet(
     @Body() body: { game: string; setId: string }
   ) {
-    if (body.setId === 'ALL' && body.game.toLowerCase().includes('magic')) {
-      return this.syncService.syncAllMtgSets(body.game);
+    if (body.setId === 'ALL') {
+      return this.syncService.syncAllSets(body.game);
     }
     return this.syncService.syncSet(body.game, body.setId);
   }

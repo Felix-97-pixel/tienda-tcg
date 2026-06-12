@@ -30,6 +30,14 @@ export class MagicProvider extends TcgProvider {
     return this.magicService.fetchCardsBySet(setId);
   }
 
+  async fetchAllSets(): Promise<{id: string, name: string}[]> {
+    const sets = await this.magicService.fetchScryfallSets();
+    const invalidTypes = ['token', 'memorabilia', 'alchemy', 'funny'];
+    return sets
+      .filter(s => !invalidTypes.includes(s.set_type) && !s.digital)
+      .map(s => ({ id: s.code, name: s.name }));
+  }
+
   mapToProduct(c: any, categoryId: string) {
     const attrs: string[] = c.colors || c.card_faces?.[0]?.colors || [];
     if (c.oracle_text?.includes('{E}')) attrs.push('Energy');

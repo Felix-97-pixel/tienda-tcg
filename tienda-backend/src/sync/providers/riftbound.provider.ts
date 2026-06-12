@@ -32,6 +32,11 @@ export class RiftboundProvider extends TcgProvider {
     return this.riftboundService.fetchCardsBySet(setId);
   }
 
+  async fetchAllSets(): Promise<{id: string, name: string}[]> {
+    const sets = await this.riftboundService.fetchSets();
+    return sets.map(s => ({ id: s.id, name: s.name }));
+  }
+
   /** Mapear campos de Riftcodex a nuestro Producto */
   mapToProduct(c: any, categoryId: string) {
     return {

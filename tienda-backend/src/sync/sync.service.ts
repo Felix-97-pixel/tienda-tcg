@@ -92,10 +92,10 @@ export class SyncService {
   }
 
   /**
-   * Importación Masiva de TODO Magic The Gathering
+   * Importación Masiva Genérica (Strategy Pattern)
    */
-  async syncAllMtgSets(game: string) {
-    const providerKey = 'magic';
+  async syncAllSets(game: string) {
+    const providerKey = await this.resolveProviderKey(game);
     const provider = this.providers[providerKey];
     if (!provider) throw new Error(`La categoría '${game}' no está configurada.`);
 
@@ -104,28 +104,24 @@ export class SyncService {
     // Ejecución en segundo plano
     (async () => {
       try {
-        const sets = await this.magicService.fetchScryfallSets();
-        // Filtrar basura digital/tokens, pero incluir Commander, promos, etc.
-        const invalidTypes = ['token', 'memorabilia', 'alchemy', 'funny'];
-        const setsToSync = sets.filter(s => !invalidTypes.includes(s.set_type) && !s.digital);
-        
-        console.log(`[SyncService] Iniciando sincronización masiva de ${setsToSync.length} expansiones de MTG...`);
+        const sets = await provider.fetchAllSets();
+        console.log(`[SyncService] Iniciando sincronización masiva de ${sets.length} expansiones de ${game}...`);
         
         let completed = 0;
-        const totalSets = setsToSync.length;
+        const totalSets = sets.length;
         
         // Deshabilitamos temporalmente el reporte individual de cartas para que la barra no salte
         const originalOnProgress = provider.onProgress;
         provider.onProgress = undefined;
 
-        for (const set of setsToSync) {
-          console.log(`[SyncService] Sincronizando expansión: ${set.name} (${set.code}) [${completed + 1}/${totalSets}]`);
+        for (const set of sets) {
+          console.log(`[SyncService] Sincronizando expansión: ${set.name} (${set.id}) [${completed + 1}/${totalSets}]`);
           try {
-            await provider.syncSet(set.code, game);
+            await provider.syncSet(set.id, game);
             // Pequeña pausa entre expansiones para no saturar
             await new Promise(resolve => setTimeout(resolve, 2000));
           } catch (err: any) {
-            console.error(`[SyncService] Error sincronizando expansión ${set.code}:`, err.message);
+            console.error(`[SyncService] Error sincronizando expansión ${set.id}:`, err.message);
           } finally {
             completed++;
             // Actualizar progreso total basado en los sets completados
@@ -137,10 +133,10 @@ export class SyncService {
         }
         
         provider.onProgress = originalOnProgress;
-        console.log(`[SyncService] Sincronización masiva de MTG completada.`);
+        console.log(`[SyncService] Sincronización masiva de ${game} completada.`);
         this.setStatus(providerKey, 'import', false);
       } catch (err) {
-        console.error(`[SyncService] Error en sincronización masiva:`, err.message);
+        console.error(`[SyncService] Error en sincronización masiva de ${game}:`, err.message);
         this.setStatus(providerKey, 'import', false);
       }
     })();

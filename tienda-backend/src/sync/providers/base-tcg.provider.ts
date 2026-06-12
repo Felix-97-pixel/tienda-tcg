@@ -21,8 +21,10 @@ export abstract class TcgProvider {
   /** Obtener datos de la API externa (Scryfall, PokemonTCG, Riftcodex, etc.) */
   abstract fetchExternalSet(setId: string): Promise<any[]>;
 
-  /** Formatear los datos externos al modelo de nuestra base de datos */
   abstract mapToProduct(externalCard: any, categoryId: string): any;
+
+  /** Obtiene la lista de todos los sets posibles para este juego para sincronización masiva */
+  abstract fetchAllSets(): Promise<{id: string, name: string}[]>;
 
   /** Lógica específica de actualización de precios para este juego */
   abstract updateGamePrices(expansionName: string): Promise<{ updated: number; errors: number }>;
