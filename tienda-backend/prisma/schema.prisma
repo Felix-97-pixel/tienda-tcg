@@ -356,3 +356,11 @@ enum WithdrawalStatus {
   REJECTED
   COMPLETED
 }
+
+model SyncBackup {
+  id        String   @id @default(uuid())
+  game      String
+  filename  String
+  csvData   String
+  createdAt DateTime @default(now())
+}

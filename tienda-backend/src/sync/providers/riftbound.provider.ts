@@ -127,6 +127,7 @@ export class RiftboundProvider extends TcgProvider {
       let offset = 0;
       const limit = 20;
       let hasMore = true;
+      const csvRecords: string[] = ['productId,finishId,price'];
 
       while (hasMore) {
         this.logger.log(`[Riftbound] Consultando cartas (Offset: ${offset})...`);
@@ -164,6 +165,7 @@ export class RiftboundProvider extends TcgProvider {
                   create: { productId: matchLocal.id, finishId: targetFinishId, price: finalPrice },
                   update: { price: finalPrice }
                 });
+                csvRecords.push(`${matchLocal.id},${targetFinishId},${finalPrice}`);
               }
             }
           }
@@ -178,6 +180,22 @@ export class RiftboundProvider extends TcgProvider {
 
       // 3. Limpiar variantes que quedaron vacías
       await this.cleanEmptyInventory(expansionName);
+
+      // Guardar CSV de respaldo en BD
+      if (csvRecords.length > 1) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `riftbound_sync_${timestamp}.csv`;
+        const csvData = csvRecords.join('\n');
+        
+        await this.prisma.syncBackup.create({
+          data: {
+            game: 'riftbound',
+            filename: fileName,
+            csvData: csvData
+          }
+        });
+        this.logger.log(`[Riftbound] Backup CSV guardado en BD: ${fileName}`);
+      }
 
       this.logger.log(`[Riftbound] ¡Actualización completada! ${updatedCount} cartas procesadas.`);
       return { updated: updatedCount, errors: 0 };

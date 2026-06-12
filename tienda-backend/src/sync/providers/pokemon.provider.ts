@@ -104,6 +104,7 @@ export class PokemonProvider extends TcgProvider {
       const pageSize = 250;
       let hasMore = true;
       let updatedCount = 0;
+      const csvRecords: string[] = ['productId,finishId,price'];
 
       // 2. Recorrer cartas y actualizar precios
       while (hasMore) {
@@ -125,6 +126,7 @@ export class PokemonProvider extends TcgProvider {
               create: { productId: product.id, finishId: normalFinish.id, price: prices.normal.mid },
               update: { price: prices.normal.mid }
             });
+            csvRecords.push(`${product.id},${normalFinish.id},${prices.normal.mid}`);
           }
           if (prices.holofoil?.mid > 0 && holoFinish) {
             await this.prisma.marketPrice.upsert({
@@ -132,6 +134,7 @@ export class PokemonProvider extends TcgProvider {
               create: { productId: product.id, finishId: holoFinish.id, price: prices.holofoil.mid },
               update: { price: prices.holofoil.mid }
             });
+            csvRecords.push(`${product.id},${holoFinish.id},${prices.holofoil.mid}`);
           }
           if (prices.reverseHolofoil?.mid > 0 && reverseFinish) {
             await this.prisma.marketPrice.upsert({
@@ -139,6 +142,7 @@ export class PokemonProvider extends TcgProvider {
               create: { productId: product.id, finishId: reverseFinish.id, price: prices.reverseHolofoil.mid },
               update: { price: prices.reverseHolofoil.mid }
             });
+            csvRecords.push(`${product.id},${reverseFinish.id},${prices.reverseHolofoil.mid}`);
           }
           if (prices.unlimitedHolofoil?.mid > 0 && unlimitedHoloFinish) {
             await this.prisma.marketPrice.upsert({
@@ -146,6 +150,7 @@ export class PokemonProvider extends TcgProvider {
               create: { productId: product.id, finishId: unlimitedHoloFinish.id, price: prices.unlimitedHolofoil.mid },
               update: { price: prices.unlimitedHolofoil.mid }
             });
+            csvRecords.push(`${product.id},${unlimitedHoloFinish.id},${prices.unlimitedHolofoil.mid}`);
           }
 
           updatedCount++;
@@ -155,6 +160,21 @@ export class PokemonProvider extends TcgProvider {
         this.logger.log(`[Pokémon] Página ${page} procesada (${updatedCount}/${totalCount} cartas).`);
         if (cards.length < pageSize) hasMore = false;
         else page++;
+      }
+
+      // 3. Limpiar variantes que quedaron vacías
+      await this.cleanEmptyInventory(expansionName);
+
+      // Guardar CSV de respaldo en BD
+      if (csvRecords.length > 1) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `pokemon_sync_${timestamp}.csv`;
+        const csvData = csvRecords.join('\n');
+        
+        await this.prisma.syncBackup.create({
+          data: { game: 'pokemon', filename: fileName, csvData }
+        });
+        this.logger.log(`[Pokémon] Backup CSV guardado en BD: ${fileName}`);
       }
 
       this.logger.log(`[Pokémon] ¡Actualización completada! ${updatedCount} cartas procesadas.`);

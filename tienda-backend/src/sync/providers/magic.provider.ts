@@ -129,6 +129,7 @@ export class MagicProvider extends TcgProvider {
 
       let updated = 0;
       const total = mtgjsonUUIDtoProductId.size;
+      const csvRecords: string[] = ['productId,finishId,price'];
       
       for (const [mtgjsonUUID, { normal, foil }] of prices) {
         const productId = mtgjsonUUIDtoProductId.get(mtgjsonUUID)!;
@@ -138,6 +139,7 @@ export class MagicProvider extends TcgProvider {
             create: { productId: productId, finishId: normalFinish.id, price: normal },
             update: { price: normal }
           });
+          csvRecords.push(`${productId},${normalFinish.id},${normal}`);
         }
         if (foil > 0 && foilFinish) {
           await this.prisma.marketPrice.upsert({
@@ -145,6 +147,7 @@ export class MagicProvider extends TcgProvider {
             create: { productId: productId, finishId: foilFinish.id, price: foil },
             update: { price: foil }
           });
+          csvRecords.push(`${productId},${foilFinish.id},${foil}`);
         }
         updated++;
         
@@ -152,6 +155,18 @@ export class MagicProvider extends TcgProvider {
           this.onProgress?.('magic', updated, total, 'price');
           this.logger.log(`[Magic] Progreso: ${updated}/${total} productos actualizados...`);
         }
+      }
+
+      // Guardar CSV de respaldo en BD
+      if (csvRecords.length > 1) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `magic_sync_${timestamp}.csv`;
+        const csvData = csvRecords.join('\n');
+        
+        await this.prisma.syncBackup.create({
+          data: { game: 'magic', filename: fileName, csvData }
+        });
+        this.logger.log(`[Magic] Backup CSV guardado en BD: ${fileName}`);
       }
 
       this.logger.log(`[Magic] ¡Actualización completada! ${updated} productos actualizados.`);
