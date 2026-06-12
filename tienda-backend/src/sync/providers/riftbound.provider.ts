@@ -42,7 +42,7 @@ export class RiftboundProvider extends TcgProvider {
     return {
       externalId: c.tcgplayer_id ? String(c.tcgplayer_id) : `rb-${c.id}`,
       name: c.name,
-      description: c.text || c.effect || c.description || c.flavor_text || c.rules_text || '',
+      description: c.text?.plain || c.text?.rich || c.effect || c.description || c.flavor_text || c.rules_text || '',
       image: c.media?.image_url || '',
       expansion: c.set?.label || 'Riftbound',
       rarity: c.classification?.rarity || c.rarity || 'Common',
@@ -150,7 +150,10 @@ export class RiftboundProvider extends TcgProvider {
 
           // Procesar variantes
           for (const variant of card.variants || []) {
-            if (variant.condition === 'Near Mint' && (variant.marketPrice > 0 || variant.price > 0)) {
+            // Filtrar variantes fantasma (Foil sin sku) o con precio nulo/0.01
+            if (!variant.tcgplayerSkuId || (variant.marketPrice || variant.price) <= 0.01) continue;
+
+            if (variant.condition === 'Near Mint') {
               const finalPrice = variant.marketPrice || variant.price;
               const isVariantFoil = variant.printing === 'Foil';
               const targetFinishId = isVariantFoil ? foilFinish?.id : normalFinish?.id;
