@@ -95,23 +95,62 @@ export class SyncController {
     
     if (lines.length < 2) throw new BadRequestException("El archivo CSV está vacío o es inválido.");
     
-    // Asumimos formato: productId,finishId,price
+    // Formato: productId,finishId,price
+    let restoredCount = 0;
     let deletedCount = 0;
     
     for (let i = 1; i < lines.length; i++) {
       const [productId, finishId] = lines[i].split(',');
-      if (productId && finishId) {
-        try {
-          await this.prisma.marketPrice.deleteMany({
-            where: { productId, finishId }
+      if (!productId || !finishId) continue;
+
+      try {
+        // 1. Buscar el MarketPrice actual
+        const marketPrice = await this.prisma.marketPrice.findUnique({
+          where: { productId_finishId: { productId, finishId } }
+        });
+        if (!marketPrice) continue;
+
+        // 2. Buscar el último registro del historial (el más reciente)
+        const latestHistory = await this.prisma.marketPriceHistory.findFirst({
+          where: { marketPriceId: marketPrice.id },
+          orderBy: { createdAt: 'desc' }
+        });
+
+        if (latestHistory) {
+          // Borrar solo el último registro del historial
+          await this.prisma.marketPriceHistory.delete({
+            where: { id: latestHistory.id }
+          });
+        }
+
+        // 3. Ver si queda un registro anterior en el historial
+        const previousHistory = await this.prisma.marketPriceHistory.findFirst({
+          where: { marketPriceId: marketPrice.id },
+          orderBy: { createdAt: 'desc' }
+        });
+
+        if (previousHistory) {
+          // Restaurar el precio al valor anterior
+          await this.prisma.marketPrice.update({
+            where: { id: marketPrice.id },
+            data: { price: previousHistory.price }
+          });
+          restoredCount++;
+        } else {
+          // No queda historial, borrar el MarketPrice por completo
+          await this.prisma.marketPrice.delete({
+            where: { id: marketPrice.id }
           });
           deletedCount++;
-        } catch (e) {
-          console.error("Error deleting rollback price:", e);
         }
+      } catch (e) {
+        console.error("Error en rollback de precio:", e);
       }
     }
     
-    return { success: true, message: `Se revirtieron ${deletedCount} precios de manera exitosa.` };
+    return { 
+      success: true, 
+      message: `Rollback completado: ${restoredCount} precios restaurados al valor anterior, ${deletedCount} precios eliminados (sin historial previo).` 
+    };
   }
 }
