@@ -437,7 +437,7 @@ export class ProductsService {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: any = { isDeleted: false };
 
     if (searchName) {
       whereClause.name = {
@@ -556,33 +556,23 @@ export class ProductsService {
     return this.findOne(id);
   }
 
-  // CAMBIO CLAVE: 'id' ahora es 'string'
   async remove(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: { category: true }
     });
     if (!product) throw new Error("Producto no encontrado");
-    if (product.category.isTcg) throw new Error("No se pueden eliminar cartas sueltas (TCG)");
 
-    if (product.imageUrl) {
-      await this.uploadService.deleteImage(product.imageUrl);
-    }
-
-    // Borramos dependencias primero
-    await this.prisma.inventoryItem.deleteMany({
-      where: { productId: id }
-    });
-    await this.prisma.wishlistItem.deleteMany({
-      where: { productId: id }
-    });
-    await this.prisma.cardDetail.deleteMany({
-      where: { productId: id }
-    });
-
-    return this.prisma.product.delete({
+    // Borrado Lógico
+    await this.prisma.product.update({
       where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date()
+      }
     });
+
+    return { message: "Producto eliminado (Soft Delete)" };
   }
 
   async updateInventoryItem(itemId: string, data: { price?: number; stock?: number }) {

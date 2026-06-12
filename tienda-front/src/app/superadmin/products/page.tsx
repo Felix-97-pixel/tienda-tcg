@@ -16,6 +16,7 @@ import EditProductModal from "@/components/Admin/Products/EditProductModal";
 import InventoryModal from "@/components/Admin/Products/InventoryModal";
 import BulkUploadModal from "@/components/Admin/Products/BulkUploadModal";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 
 export default function AdminProducts() {
   const t = useTranslations("products");
@@ -44,6 +45,7 @@ export default function AdminProducts() {
 
   // Ítems Seleccionados para Modales
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // Cargar Metadatos al Montar
@@ -60,12 +62,17 @@ export default function AdminProducts() {
   }, [selectedCategory]);
 
   // Handlers
-  const handleDelete = async (product: Product) => {
-    if (!confirm(t("deleteConfirm") || "¿Seguro que deseas eliminar este producto?")) return;
+  const confirmDelete = (product: Product) => {
+    setProductToDelete(product);
+  };
+
+  const handleDelete = async () => {
+    if (!productToDelete) return;
     try {
-      const res = await fetch(`${API_URL}/products/${product.id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`${API_URL}/products/${productToDelete.id}`, { method: "DELETE", credentials: "include" });
       if (res.ok) {
         showToast(tc("success"), "success");
+        setProductToDelete(null);
         refresh();
       } else {
         showToast(tc("error"), "error");
@@ -141,7 +148,7 @@ export default function AdminProducts() {
           loading={loading}
           onEdit={openEdit}
           onInventory={(p) => { setSelectedProduct(p); setIsInventoryOpen(true); }}
-          onDelete={handleDelete}
+          onDelete={confirmDelete}
           page={page}
           totalPages={totalPages}
           onPageChange={setPage}
@@ -180,6 +187,29 @@ export default function AdminProducts() {
         categories={categories}
         onSuccess={refresh}
       />
+
+      <Modal isOpen={!!productToDelete} onClose={() => setProductToDelete(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center text-red">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h3 className="text-xl font-bold text-white">¿Eliminar permanentemente?</h3>
+            <p className="text-gray-4">
+              ¿Estás seguro que deseas eliminar el producto <span className="text-white font-bold">{productToDelete?.name}</span>? 
+              Esta acción lo ocultará de los inventarios activos.
+            </p>
+          </div>
+          <div className="flex gap-3 mt-8">
+            <Button variant="secondary" className="flex-1" onClick={() => setProductToDelete(null)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" className="flex-1" onClick={handleDelete}>
+              Sí, eliminar
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -23,6 +23,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const tc = useTranslations("common");
   const { showToast } = useToast();
   const [product, setProduct] = useState(initialProduct);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const refreshProduct = async () => {
     try {
@@ -109,13 +110,18 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     }
   };
 
-  const handleDeleteItem = async (id: string) => {
-    if (!confirm(t("inventory.deleteConfirm"))) return;
+  const confirmDelete = (id: string) => {
+    setItemToDelete(id);
+  };
+
+  const handleDeleteItem = async () => {
+    if (!itemToDelete) return;
 
     try {
-      const res = await fetch(`${API_URL}/products/inventory/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`${API_URL}/products/inventory/${itemToDelete}`, { method: "DELETE", credentials: "include" });
       if (res.ok) {
         showToast(t("inventory.successDelete"), "success");
+        setItemToDelete(null);
         await refreshProduct();
         onSuccess();
       } else {
@@ -129,6 +135,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   if (!isOpen || !product) return null;
 
   return (
+    <>
     <Modal
       isOpen={isOpen}
       onClose={onClose}
@@ -254,13 +261,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     />
                   </td>
                   <td className="p-3 text-center">
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDeleteItem(item.id)}
-                      title={t("inventory.successDelete")}
-                    >
-                      ✕
+                    <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </Button>
                   </td>
                 </tr>
@@ -278,6 +280,29 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         </Button>
       </div>
     </Modal>
+
+      {/* Modal de confirmación de eliminación */}
+      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirmar Eliminación">
+        <div className="p-6">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center text-red">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h3 className="text-xl font-bold text-white">¿Eliminar variante?</h3>
+            <p className="text-gray-4">
+              ¿Estás seguro que deseas eliminar esta variante de precio permanentemente?
+            </p>
+          </div>
+          <div className="flex gap-3 mt-8">
+            <Button variant="secondary" className="flex-1" onClick={() => setItemToDelete(null)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" className="flex-1" onClick={handleDeleteItem}>
+              Sí, eliminar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 }
-
