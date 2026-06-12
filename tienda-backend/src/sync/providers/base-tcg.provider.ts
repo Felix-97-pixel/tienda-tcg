@@ -59,29 +59,13 @@ export abstract class TcgProvider {
         const productData = this.mapToProduct(card, categoryId);
         const expectedVariantNames = this.getExpectedVariants(card);
 
-        // Mapear los nombres de acabado a sus IDs reales
-        const inventoryToCreate = expectedVariantNames
-          .map(name => {
-            const finishId = finishMap.get(name);
-            if (!finishId) {
-              this.logger.warn(`Finish '${name}' no encontrado en BD para el juego ${this.gameName}. Saltando...`);
-              return null;
-            }
-            return {
-              languageId: defaultLang.id,
-              conditionId: defaultCond.id,
-              finishId: finishId,
-              price: 0,
-              stock: 0
-            };
-          })
-          .filter(Boolean) as any[];
 
         await this.prisma.product.upsert({
           where: { externalId: productData.externalId },
           update: {
             name: productData.name,
             imageUrl: productData.image,
+            description: productData.description,
             cardDetail: {
               update: {
                 expansion: productData.expansion,
@@ -95,6 +79,7 @@ export abstract class TcgProvider {
             externalId: productData.externalId,
             name: productData.name,
             imageUrl: productData.image,
+            description: productData.description,
             categoryId: categoryId,
             cardDetail: {
               create: {
@@ -104,9 +89,6 @@ export abstract class TcgProvider {
                 game: this.gameName,
                 attributes: productData.attributes
               }
-            },
-            items: {
-              create: inventoryToCreate
             }
           }
         });

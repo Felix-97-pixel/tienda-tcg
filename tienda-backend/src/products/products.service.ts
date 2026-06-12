@@ -290,11 +290,14 @@ export class ProductsService {
     });
   }
 
-  async getCategories() {
+  async getCategories(storeId?: string) {
+    const whereClause = storeId ? { items: { some: { storeId } } } : undefined;
+    
     const categories = await this.prisma.category.findMany({
+      where: storeId ? { products: { some: whereClause } } : undefined,
       include: {
         _count: {
-          select: { products: true }
+          select: { products: { where: whereClause } }
         }
       }
     });
@@ -371,16 +374,17 @@ export class ProductsService {
     });
   }
 
-  async getExpansions(categoryName?: string) {
+  async getExpansions(categoryName?: string, storeId?: string) {
+    const where: any = {};
+    if (categoryName || storeId) {
+      where.product = {};
+      if (categoryName) where.product.category = { name: categoryName };
+      if (storeId) where.product.items = { some: { storeId } };
+    }
+
     const cardDetails = await this.prisma.cardDetail.groupBy({
       by: ['expansion'],
-      where: categoryName ? {
-        product: {
-          category: {
-            name: categoryName
-          }
-        }
-      } : undefined,
+      where: Object.keys(where).length > 0 ? where : undefined,
       _count: {
         expansion: true
       }
@@ -392,10 +396,12 @@ export class ProductsService {
     }));
   }
 
-  async getAttributes(categoryName?: string, expansionName?: string) {
+  async getAttributes(categoryName?: string, expansionName?: string, storeId?: string) {
     const where: any = {};
-    if (categoryName) {
-      where.product = { category: { name: categoryName } };
+    if (categoryName || storeId) {
+      where.product = {};
+      if (categoryName) where.product.category = { name: categoryName };
+      if (storeId) where.product.items = { some: { storeId } };
     }
     if (expansionName) {
       where.expansion = expansionName;

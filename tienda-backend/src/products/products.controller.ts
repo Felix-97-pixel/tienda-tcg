@@ -64,8 +64,8 @@ export class ProductsController {
   }
 
   @Get('meta/categories')
-  getCategories() {
-    return this.productsService.getCategories();
+  getCategories(@Query('storeId') storeId?: string) {
+    return this.productsService.getCategories(storeId);
   }
 
   @Patch('meta/categories/:id')
@@ -119,16 +119,17 @@ export class ProductsController {
   }
 
   @Get('meta/expansions')
-  getExpansions(@Query('category') category?: string) {
-    return this.productsService.getExpansions(category);
+  getExpansions(@Query('category') category?: string, @Query('storeId') storeId?: string) {
+    return this.productsService.getExpansions(category, storeId);
   }
 
   @Get('meta/attributes')
   getAttributes(
     @Query('category') category?: string,
     @Query('expansion') expansion?: string,
+    @Query('storeId') storeId?: string
   ) {
-    return this.productsService.getAttributes(category, expansion);
+    return this.productsService.getAttributes(category, expansion, storeId);
   }
 
   @Get()

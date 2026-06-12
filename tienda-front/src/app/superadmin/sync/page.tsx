@@ -109,10 +109,13 @@ export default function AdminSync() {
                 </div>
 
                 <SearchableSelect
-                  options={game.sync.sets.map(s => ({
-                    label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name,
-                    value: s.id
-                  }))}
+                  options={[
+                    ...(game.id === 'magic' ? [{ label: "⭐ TODAS LAS EDICIONES (Masivo)", value: "ALL" }] : []),
+                    ...game.sync.sets.map(s => ({
+                      label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name,
+                      value: s.id
+                    }))
+                  ]}
                   value={game.sync.selectedSetId}
                   onChange={game.sync.setSelectedSetId}
                   placeholder={game.placeholder}
@@ -130,19 +133,6 @@ export default function AdminSync() {
                   {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
                 </Button>
 
-                {game.id === "magic" && (
-                  <Button
-                    variant="primary"
-                    className="w-full flex justify-center py-2 text-xs border border-white/10 hover:bg-white/5"
-                    onClick={() => {
-                      game.sync.setSelectedSetId("ALL");
-                      setTimeout(() => game.sync.syncSet(), 100);
-                    }}
-                    disabled={isAnyActive || game.sync.importProgress.active}
-                  >
-                    Sincronizar Catálogo Completo (Masivo)
-                  </Button>
-                )}
               </div>
 
               <ProgressDisplay

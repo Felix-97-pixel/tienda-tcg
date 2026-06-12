@@ -8,3 +8,4 @@ export const getApiUrl = () => {
 };
 
 export const API_URL = getApiUrl();
+// Recompile trigger

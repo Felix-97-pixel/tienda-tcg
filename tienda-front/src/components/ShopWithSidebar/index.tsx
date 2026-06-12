@@ -47,13 +47,16 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
 
   // Initial fetch for categories
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories`)
+    let catUrl = `${API_URL}/products/meta/categories`;
+    if (storeId) catUrl += `?storeId=${storeId}`;
+    
+    fetch(catUrl)
       .then((res) => res.json())
       .then((data) => {
         setCategoriesData(data);
       })
       .catch((err) => console.error("Error fetching categories:", err));
-  }, []);
+  }, [storeId]);
 
   // Fetch expansions and attributes when a category is selected
   useEffect(() => {
@@ -69,8 +72,16 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
     if (selectedExpansion) {
       attributesUrl += `&expansion=${encodeURIComponent(selectedExpansion)}`;
     }
+    if (storeId) {
+      attributesUrl += `&storeId=${storeId}`;
+    }
 
-    const fetchExpansions = fetch(`${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
+    let expansionsUrl = `${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`;
+    if (storeId) {
+      expansionsUrl += `&storeId=${storeId}`;
+    }
+
+    const fetchExpansions = fetch(expansionsUrl)
       .then((res) => res.json());
 
     const fetchAttributes = fetch(attributesUrl)
@@ -82,13 +93,21 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
         if (Array.isArray(attributesResponse)) setAttributesData(attributesResponse);
       })
       .catch((err) => console.error("Error fetching category meta:", err));
-  }, [selectedCategory, selectedExpansion]);
+  }, [selectedCategory, selectedExpansion, storeId]);
 
   // Fetch products
   useEffect(() => {
 
     // Debounce the search term to avoid spamming the API on every keystroke
     const timeoutId = setTimeout(() => {
+      // Por rendimiento, no cargar productos si no hay ningún filtro aplicado
+      if (!selectedCategory && !searchTerm && !selectedExpansion && !selectedAttribute) {
+        setProducts([]);
+        setTotalPages(0);
+        setIsFetching(false);
+        return;
+      }
+
       let url = `${API_URL}/products?page=${currentPage}&limit=20`;
 
       if (selectedCategory) {
@@ -212,9 +231,10 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
     <>
       <Breadcrumb
         title={"Explore All Products"}
-        pages={["shop", "/", "shop with sidebar"]}
+        pages={["Shop"]}
+        hidePadding={!!storeId}
       />
-      <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-[#f3f4f6]">
+      <section className={`overflow-hidden relative pb-20 ${storeId ? "pt-5" : "pt-5 lg:pt-20 xl:pt-28"} bg-[#0f1115]`}>
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex gap-7.5">
             {/* <!-- Sidebar Start --> */}
@@ -228,8 +248,8 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
                 onClick={() => setProductSidebar(!productSidebar)}
                 aria-label="button for product sidebar toggle"
                 className={`xl:hidden absolute flex items-center justify-center w-8 h-8 rounded-md bg-[#1a1d24] shadow-1 transition-all duration-300 ${productSidebar
-                    ? "right-4 top-4 border border-white/10"
-                    : "-right-8 top-32 border-y border-r border-white/10 rounded-l-none"
+                  ? "right-4 top-4 border border-white/10"
+                  : "-right-8 top-32 border-y border-r border-white/10 rounded-l-none"
                   }`}
               >
                 <svg
