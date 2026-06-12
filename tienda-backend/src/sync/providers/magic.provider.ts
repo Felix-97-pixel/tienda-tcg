@@ -103,13 +103,18 @@ export class MagicProvider extends TcgProvider {
       
       for (const [mtgjsonUUID, { normal, foil }] of prices) {
         const productId = mtgjsonUUIDtoProductId.get(mtgjsonUUID)!;
-        if (normal > 0 || foil > 0) {
-          await this.prisma.cardDetail.update({
-            where: { productId: productId },
-            data: {
-              marketPriceNormal: normal > 0 ? normal : undefined,
-              marketPriceFoil: foil > 0 ? foil : undefined
-            }
+        if (normal > 0 && normalFinish) {
+          await this.prisma.marketPrice.upsert({
+            where: { productId_finishId: { productId: productId, finishId: normalFinish.id } },
+            create: { productId: productId, finishId: normalFinish.id, price: normal },
+            update: { price: normal }
+          });
+        }
+        if (foil > 0 && foilFinish) {
+          await this.prisma.marketPrice.upsert({
+            where: { productId_finishId: { productId: productId, finishId: foilFinish.id } },
+            create: { productId: productId, finishId: foilFinish.id, price: foil },
+            update: { price: foil }
           });
         }
         updated++;

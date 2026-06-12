@@ -119,9 +119,10 @@ export class RiftboundProvider extends TcgProvider {
               const targetFinishId = isVariantFoil ? foilFinish?.id : normalFinish?.id;
 
               if (targetFinishId) {
-                await this.prisma.inventoryItem.updateMany({
-                  where: { productId: matchLocal.id, finishId: targetFinishId, storeId: null },
-                  data: { price: finalPrice }
+                await this.prisma.marketPrice.upsert({
+                  where: { productId_finishId: { productId: matchLocal.id, finishId: targetFinishId } },
+                  create: { productId: matchLocal.id, finishId: targetFinishId, price: finalPrice },
+                  update: { price: finalPrice }
                 });
               }
             }

@@ -35,6 +35,7 @@ model Product {
   updatedAt    DateTime        @updatedAt
   cardDetail   CardDetail?
   items        InventoryItem[]
+  marketPrices MarketPrice[]
   category     Category        @relation(fields: [categoryId], references: [id])
   brand        Brand?          @relation(fields: [brandId], references: [id])
   store        Store?          @relation("StoreCustomProducts", fields: [storeId], references: [id])
@@ -65,8 +66,6 @@ model CardDetail {
   collectorNum String
   game         String
   attributes        String[]  @default([])
-  marketPriceNormal Decimal?  @db.Decimal(10, 2)
-  marketPriceFoil   Decimal?  @db.Decimal(10, 2)
   productId         String    @unique
   product      Product  @relation(fields: [productId], references: [id])
 
@@ -100,8 +99,35 @@ model Finish {
   game    String
   aliases String[]        @default([])
   items   InventoryItem[]
+  marketPrices MarketPrice[]
 
   @@unique([name, game])
+}
+
+model MarketPrice {
+  id          String   @id @default(uuid())
+  productId   String
+  finishId    String?
+  price       Decimal  @db.Decimal(10, 2)
+  updatedAt   DateTime @updatedAt
+  
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  finish      Finish?  @relation(fields: [finishId], references: [id], onDelete: Cascade)
+  history     MarketPriceHistory[]
+
+  @@unique([productId, finishId])
+}
+
+model MarketPriceHistory {
+  id              String      @id @default(uuid())
+  marketPriceId   String
+  price           Decimal     @db.Decimal(10, 2)
+  createdAt       DateTime    @default(now())
+
+  marketPrice     MarketPrice @relation(fields: [marketPriceId], references: [id], onDelete: Cascade)
+
+  @@index([marketPriceId])
+  @@index([createdAt])
 }
 
 model Store {

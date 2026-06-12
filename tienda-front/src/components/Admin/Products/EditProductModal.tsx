@@ -125,24 +125,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Input
-              label={t("modal.priceLabel")}
-              type="number"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-            />
-          </div>
-          <div>
-            <Input
-              label={t("modal.stockLabel")}
-              type="number"
-              value={form.stock}
-              onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
-            />
-          </div>
-        </div>
+
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.imageLabel")}</label>

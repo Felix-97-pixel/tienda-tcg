@@ -1,59 +1,91 @@
 import React from "react";
 import Link from "next/link";
 
-export default function SuperAdminDashboard() {
-  const stats = [
-    { label: "Tiendas Activas", value: "24", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
-    { label: "Cartas en Catálogo Global", value: "14,520", icon: "M4 6h16M4 10h16M4 14h16M4 18h16" },
-    { label: "Usuarios Registrados", value: "1,204", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
+export const metadata = {
+  title: "Seleccionar Módulo | TapMaster Superadmin",
+  description: "Selecciona el módulo de administración global",
+};
+
+export default function SuperAdminHub() {
+  const modules = [
+    {
+      href: "/superadmin/products",
+      title: "Módulo de Catálogo",
+      description: "Administra el catálogo global, agrega cartas base, define categorías y organiza las marcas de la plataforma.",
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      ),
+      color: "from-blue to-blue-light",
+      shadow: "shadow-blue/20"
+    },
+    {
+      href: "/superadmin/stores",
+      title: "Módulo de Tiendas",
+      description: "Supervisa a los tenants registrados, monitorea la actividad de cada tienda y aprueba nuevos vendedores.",
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      ),
+      color: "from-teal to-teal-dark",
+      shadow: "shadow-teal/20"
+    },
+    {
+      href: "/superadmin/sync",
+      title: "Módulo de Sincronización",
+      description: "Sincroniza masivamente el catálogo desde Scryfall y actualiza los precios oficiales de referencia.",
+      icon: (
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      ),
+      color: "from-orange to-yellow",
+      shadow: "shadow-orange/20"
+    }
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">TapMaster Dashboard</h1>
-        <p className="text-gray-4">Bienvenido al panel de control central. Aquí administras el SaaS, los tenants y el catálogo global.</p>
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center p-6">
+      <div className="text-center mb-16 max-w-2xl">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+          Selecciona un Módulo
+        </h1>
+        <p className="text-lg text-gray-4">
+          Bienvenido al panel central de TapMaster. Elige el área de trabajo global a la que deseas ingresar.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-[#1a1d24]/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
-            <div className="absolute -inset-0 bg-gradient-to-br from-purple-500 to-indigo-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={stat.icon} />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-4 uppercase tracking-wider">{stat.label}</p>
-                <p className="text-3xl font-black text-white mt-1">{stat.value}</p>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+        {modules.map((mod) => (
+          <Link
+            key={mod.href}
+            href={mod.href}
+            className="group relative bg-[#1a1d24]/5 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-white/20 overflow-hidden"
+          >
+            {/* Glow effect on hover */}
+            <div className={`absolute -inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none rounded-3xl`} />
+            
+            <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mod.color} text-white flex items-center justify-center mb-8 shadow-lg ${mod.shadow} group-hover:scale-110 transition-transform duration-300`}>
+              {mod.icon}
             </div>
-          </div>
+            
+            <h2 className="text-2xl font-bold text-white mb-3">
+              {mod.title}
+            </h2>
+            <p className="text-gray-4 leading-relaxed group-hover:text-gray-3 transition-colors">
+              {mod.description}
+            </p>
+            
+            <div className="mt-8 flex items-center text-sm font-bold text-white uppercase tracking-wider group-hover:gap-2 transition-all opacity-80 group-hover:opacity-100">
+              <span>Ingresar al Módulo</span>
+              <svg className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+          </Link>
         ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Acceso Rápido Catálogo */}
-        <div className="bg-[#1a1d24]/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-4">Gestión de Catálogo Global</h2>
-          <p className="text-gray-4 mb-6">Administra las cartas base, productos sellados globales y accesorios que todas las tiendas pueden vender.</p>
-          <Link href="/superadmin/catalog" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition-colors">
-            Ir al Catálogo Maestro
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-          </Link>
-        </div>
-
-        {/* Acceso Rápido Tiendas */}
-        <div className="bg-[#1a1d24]/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-4">Gestión de Tiendas (Tenants)</h2>
-          <p className="text-gray-4 mb-6">Monitorea la actividad de las tiendas, suspende cuentas o aprueba nuevos registros de vendedores.</p>
-          <Link href="/superadmin/stores" className="inline-flex items-center gap-2 px-6 py-3 bg-[#1a1d24]/10 hover:bg-[#1a1d24]/20 border border-white/10 text-white font-bold rounded-xl transition-colors">
-            Ver Directorio de Tiendas
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-          </Link>
-        </div>
       </div>
     </div>
   );

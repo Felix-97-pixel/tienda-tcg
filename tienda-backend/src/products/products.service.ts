@@ -28,10 +28,15 @@ export class ProductsService {
         externalId: productData.externalId || `manual-${Date.now()}-${randomUUID()}`,
         items: {
           create: {
-            price: price || 0,
+            price: 0,
             stock: stock || 0,
             conditionId: defaultCond?.id || "",
             languageId: defaultLang?.id || ""
+          }
+        },
+        marketPrices: {
+          create: {
+            price: price || 0
           }
         }
       },
@@ -672,15 +677,14 @@ export class ProductsService {
     
     // Si la tienda está agregando (storeId != null) y el precio es 0, intentar heredar del maestro
     if (storeId && finalPrice === 0) {
-      const masterItem = await this.prisma.inventoryItem.findFirst({
+      const masterPrice = await this.prisma.marketPrice.findFirst({
         where: {
           productId,
-          finishId: finishId || null,
-          storeId: null
+          finishId: finishId || null
         }
       });
-      if (masterItem && Number(masterItem.price) > 0) {
-        finalPrice = Number(masterItem.price);
+      if (masterPrice && Number(masterPrice.price) > 0) {
+        finalPrice = Number(masterPrice.price);
       }
     }
 

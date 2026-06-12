@@ -1,203 +1,59 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useTranslations } from "next-intl";
-import { API_URL } from "@/utils/api";
-import PreLoader from "@/components/layout/PreLoader";
-import SearchableSelect from "@/components/ui/SearchableSelect";
-import ProgressDisplay from "@/components/Sync/ProgressDisplay";
-import { useTcgSync } from "@/hooks/useTcgSync";
-import { Button } from "@/components/ui/Button";
 
 export default function AdminSync() {
   const t = useTranslations("sync");
-  const tCommon = useTranslations("common");
-
-  // Configuraciones de categorías (vienen de la DB)
-  const [categories, setCategories] = useState({
-    magic: "Singles Magic The Gathering",
-    pokemon: "Singles Pokemon",
-    riftbound: "Singles Riftbound",
-  });
-
-  useEffect(() => {
-    fetch(`${API_URL}/settings`)
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories({
-          magic: data.mtg_sync_destination || "Singles Magic The Gathering",
-          pokemon: data.pokemon_sync_destination || "Singles Pokemon",
-          riftbound: data.riftbound_sync_destination || "Singles Riftbound",
-        });
-      })
-      .catch(() => { });
-  }, []);
-
-  // Usamos nuestro Hook personalizado para cada juego
-  const magic = useTcgSync("magic", categories.magic);
-  const pokemon = useTcgSync("pokemon", categories.pokemon);
-  const riftbound = useTcgSync("riftbound", categories.riftbound);
-
-  const isAnyActive =
-    magic.priceProgress.active || magic.importProgress.active ||
-    pokemon.priceProgress.active || pokemon.importProgress.active ||
-    riftbound.priceProgress.active || riftbound.importProgress.active;
-
-  const anyLoading = magic.loading || pokemon.loading || riftbound.loading;
-
-  const games = [
-    {
-      id: "magic",
-      sync: magic,
-      title: t("mtgjson.title"),
-      subtitle: t("mtgjson.subtitle"),
-      priceTitle: t("cardkingdom.title"),
-      priceSubtitle: t("cardkingdom.subtitle"),
-      priceBtn: t("cardkingdom.button"),
-      importBtn: t("mtgjson.button"),
-      placeholder: t("mtgjson.placeholder"),
-      color: "border-blue"
-    },
-    {
-      id: "pokemon",
-      sync: pokemon,
-      title: t("pokemon.title"),
-      subtitle: t("pokemon.subtitle"),
-      priceTitle: t("tcgplayer.title"),
-      priceSubtitle: t("tcgplayer.subtitle"),
-      priceBtn: t("tcgplayer.button"),
-      importBtn: t("pokemon.button"),
-      placeholder: t("pokemon.placeholder"),
-      color: "border-blue"
-    },
-    {
-      id: "riftbound",
-      sync: riftbound,
-      title: t("riftbound.title"),
-      subtitle: t("riftbound.subtitle"),
-      priceTitle: t("riftboundPrice.title"),
-      priceSubtitle: t("riftboundPrice.subtitle"),
-      priceBtn: t("riftboundPrice.button"),
-      importBtn: t("riftbound.button"),
-      placeholder: t("riftbound.placeholder"),
-      color: "border-blue"
-    },
-  ];
 
   return (
-    <div className="p-6 space-y-6 pb-24">
-      {anyLoading && <PreLoader message={tCommon("loading")} />}
-
+    <div className="p-6 space-y-8 pb-24 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
-        <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
+        <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Módulo de Sincronización</h1>
+        <p className="text-gray-4 text-base">
+          Bienvenido al centro neurálgico de catálogo y precios de TapMaster.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {games.map((game) => (
-          <React.Fragment key={game.id}>
-            {/* Card de Importación de Edición */}
-            <div className={`bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-l-4 ${game.color} flex flex-col`}>
-              <div className="flex-1">
-                <h2 className="font-bold text-white mb-1">{game.title}</h2>
-                <p className="text-xs text-gray-4 mb-4">{game.subtitle}</p>
+      <div className="bg-[#0f1115] rounded-3xl p-8 border border-white/10 shadow-2xl relative overflow-hidden">
+        {/* Glow de fondo */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue/20 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div className="relative z-10 space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <svg className="w-6 h-6 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              ¿Cómo funciona este módulo?
+            </h2>
+            <p className="text-gray-4 text-sm leading-relaxed">
+              Este módulo es exclusivo para Super Administradores y te permite inyectar productos oficiales y actualizar precios de referencia globales para que las tiendas puedan basar sus catálogos en datos reales y actualizados.
+            </p>
+          </div>
 
-                <div className="mb-4">
-                  <label className="mb-1 block text-xs font-medium text-gray-4">{t("configuredDestination")}</label>
-                  <div className="text-sm font-bold text-purple-400 bg-purple-500/10 p-2 rounded border border-purple-500/20">
-                    {categories[game.id as keyof typeof categories]}
-                  </div>
-                </div>
-
-                <SearchableSelect
-<<<<<<< HEAD
-                  options={game.sync.sets.map(s => ({
-                    label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name,
-                    value: s.id
-                  }))}
-=======
-                  options={[
-                    ...(game.id === 'magic' ? [{ label: "⭐ TODAS LAS EDICIONES (Masivo)", value: "ALL" }] : []),
-                    ...game.sync.sets.map(s => ({
-                      label: game.id === 'magic' ? `${s.name} (${s.id.toUpperCase()})` : s.name,
-                      value: s.id
-                    }))
-                  ]}
->>>>>>> cambios-sass
-                  value={game.sync.selectedSetId}
-                  onChange={game.sync.setSelectedSetId}
-                  placeholder={game.placeholder}
-                />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div className="bg-[#1a1d24]/50 p-6 rounded-2xl border border-white/5">
+              <div className="w-10 h-10 bg-blue/20 text-blue rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
               </div>
-
-              <div className="flex flex-col gap-2 mt-4">
-                <Button
-                  onClick={game.sync.syncSet}
-                  disabled={isAnyActive}
-                  isLoading={game.sync.importProgress.active}
-                  fullWidth
-                  className="bg-purple-600 hover:bg-purple-500 text-white"
-                >
-                  {game.sync.importProgress.active ? t("inProgress") : game.importBtn}
-                </Button>
-
-<<<<<<< HEAD
-                {game.id === "magic" && (
-                  <Button
-                    variant="primary"
-                    className="w-full flex justify-center py-2 text-xs border border-white/10 hover:bg-white/5"
-                    onClick={() => {
-                      game.sync.setSelectedSetId("ALL");
-                      setTimeout(() => game.sync.syncSet(), 100);
-                    }}
-                    disabled={isAnyActive || game.sync.importProgress.active}
-                  >
-                    Sincronizar Catálogo Completo (Masivo)
-                  </Button>
-                )}
-=======
->>>>>>> cambios-sass
-              </div>
-
-              <ProgressDisplay
-                progress={game.sync.importProgress}
-                label={tCommon("importing")}
-              />
+              <h3 className="text-white font-bold mb-1">Importación de Expansiones</h3>
+              <p className="text-xs text-gray-5 leading-relaxed">Descarga catálogos masivos directamente desde Scryfall, TCGPlayer o bases de datos propias para armar el catálogo global.</p>
             </div>
 
-            {/* Card de Actualización de Precios */}
-            <div className={`bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-l-4 ${game.color} flex flex-col`}>
-              <div className="flex-1">
-                <h2 className="font-bold text-white mb-1">{game.priceTitle}</h2>
-                <p className="text-xs text-gray-4 mb-4">{game.priceSubtitle}</p>
-
-                <SearchableSelect
-                  options={game.sync.expansionsList.map(e => ({
-                    label: `${e.name} (${e.products})`,
-                    value: e.name
-                  }))}
-                  value={game.sync.selectedExpansion}
-                  onChange={game.sync.setSelectedExpansion}
-                  placeholder={game.placeholder}
-                />
+            <div className="bg-[#1a1d24]/50 p-6 rounded-2xl border border-white/5">
+              <div className="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-
-              <Button
-                disabled={isAnyActive}
-                onClick={game.sync.syncPrices}
-                isLoading={game.sync.priceProgress.active}
-                fullWidth
-                className="mt-4 bg-purple-600 hover:bg-purple-500 text-white"
-              >
-                {game.sync.priceProgress.active ? t("inProgress") : game.priceBtn}
-              </Button>
-
-              <ProgressDisplay
-                progress={game.sync.priceProgress}
-                label={tCommon("updating")}
-              />
+              <h3 className="text-white font-bold mb-1">Actualización de Precios</h3>
+              <p className="text-xs text-gray-5 leading-relaxed">Sincroniza los precios de mercado en tiempo real para que los vendedores tengan una referencia clara al publicar.</p>
             </div>
-          </React.Fragment>
-        ))}
+          </div>
+
+          <div className="mt-8 p-4 bg-blue/10 border border-blue/20 rounded-xl">
+            <p className="text-sm text-blue font-medium flex items-center gap-2">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              Selecciona un juego en la barra lateral izquierda para comenzar a sincronizar.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

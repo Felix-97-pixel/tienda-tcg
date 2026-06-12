@@ -225,10 +225,9 @@ export class SyncService {
       const result = await this.prisma.$executeRaw`
         UPDATE "InventoryItem" AS d
         SET price = m.price
-        FROM "InventoryItem" AS m
+        FROM "MarketPrice" AS m
         WHERE d."productId" = m."productId"
           AND (d."finishId" = m."finishId" OR (d."finishId" IS NULL AND m."finishId" IS NULL))
-          AND m."storeId" IS NULL
           AND d."storeId" = ${storeId}
           AND m.price > 0;
       `;

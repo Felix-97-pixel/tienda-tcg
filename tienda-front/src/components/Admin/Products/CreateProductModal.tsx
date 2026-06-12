@@ -108,23 +108,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
             />
           </div>
 
-          {/* Precio y Stock */}
-          <div>
-            <Input
-              label={t("modal.priceLabel")}
-              type="number"
-              value={creatingProduct.price}
-              onChange={(e) => setCreatingProduct({ ...creatingProduct, price: Number(e.target.value) })}
-            />
-          </div>
-          <div>
-            <Input
-              label={t("modal.stockLabel")}
-              type="number"
-              value={creatingProduct.stock}
-              onChange={(e) => setCreatingProduct({ ...creatingProduct, stock: Number(e.target.value) })}
-            />
-          </div>
+
 
           {/* Imagen */}
           <div className="md:col-span-2">

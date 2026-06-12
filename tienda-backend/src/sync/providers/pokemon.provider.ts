@@ -88,28 +88,35 @@ export class PokemonProvider extends TcgProvider {
           const prices = card.tcgplayer?.prices;
           if (!prices) continue;
 
+          const product = await this.prisma.product.findUnique({ where: { externalId: card.id }, select: { id: true } });
+          if (!product) continue;
+
           if (prices.normal?.mid > 0 && normalFinish) {
-            await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: normalFinish.id, storeId: null },
-              data: { price: prices.normal.mid }
+            await this.prisma.marketPrice.upsert({
+              where: { productId_finishId: { productId: product.id, finishId: normalFinish.id } },
+              create: { productId: product.id, finishId: normalFinish.id, price: prices.normal.mid },
+              update: { price: prices.normal.mid }
             });
           }
           if (prices.holofoil?.mid > 0 && holoFinish) {
-            await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: holoFinish.id, storeId: null },
-              data: { price: prices.holofoil.mid }
+            await this.prisma.marketPrice.upsert({
+              where: { productId_finishId: { productId: product.id, finishId: holoFinish.id } },
+              create: { productId: product.id, finishId: holoFinish.id, price: prices.holofoil.mid },
+              update: { price: prices.holofoil.mid }
             });
           }
           if (prices.reverseHolofoil?.mid > 0 && reverseFinish) {
-            await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: reverseFinish.id, storeId: null },
-              data: { price: prices.reverseHolofoil.mid }
+            await this.prisma.marketPrice.upsert({
+              where: { productId_finishId: { productId: product.id, finishId: reverseFinish.id } },
+              create: { productId: product.id, finishId: reverseFinish.id, price: prices.reverseHolofoil.mid },
+              update: { price: prices.reverseHolofoil.mid }
             });
           }
           if (prices.unlimitedHolofoil?.mid > 0 && unlimitedHoloFinish) {
-            await this.prisma.inventoryItem.updateMany({
-              where: { product: { externalId: card.id }, finishId: unlimitedHoloFinish.id, storeId: null },
-              data: { price: prices.unlimitedHolofoil.mid }
+            await this.prisma.marketPrice.upsert({
+              where: { productId_finishId: { productId: product.id, finishId: unlimitedHoloFinish.id } },
+              create: { productId: product.id, finishId: unlimitedHoloFinish.id, price: prices.unlimitedHolofoil.mid },
+              update: { price: prices.unlimitedHolofoil.mid }
             });
           }
 

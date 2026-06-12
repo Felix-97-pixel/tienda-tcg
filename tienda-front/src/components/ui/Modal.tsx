@@ -43,10 +43,11 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-all">
-      <div 
-        className={`w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] overflow-y-auto rounded-2xl bg-[#1a1d24] p-8 shadow-2xl animate-in zoom-in-95 duration-200 scrollbar-hide ${className}`}
-      >
+    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50 backdrop-blur-sm transition-all">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div 
+          className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-2xl bg-[#1a1d24] p-8 shadow-2xl animate-in zoom-in-95 duration-200 ${className}`}
+        >
         {(title || onClose) && (
           <div className="flex justify-between items-center mb-6">
             {title ? (
@@ -70,6 +71,7 @@ export const Modal: React.FC<ModalProps> = ({
         
         <div className="relative">
           {children}
+        </div>
         </div>
       </div>
     </div>
