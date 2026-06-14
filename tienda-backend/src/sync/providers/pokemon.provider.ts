@@ -66,7 +66,7 @@ export class PokemonProvider extends TcgProvider {
             { id: expansionName },
             { name: { equals: expansionName, mode: 'insensitive' } }
           ],
-          game: 'Pokemon'
+          gameId: await this.getGameId()
         }
       });
       const resolvedName = expansion?.name || expansionName;
@@ -93,11 +93,12 @@ export class PokemonProvider extends TcgProvider {
       this.logger.log(`[Pokémon] Set ID resuelto: ${setId}. Consultando cartas...`);
 
       // Pre-cargar acabados de Pokémon
+      const gameId = await this.getGameId();
       const [normalFinish, holoFinish, reverseFinish, unlimitedHoloFinish] = await Promise.all([
-        this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Pokemon' } }),
-        this.prisma.finish.findFirst({ where: { name: 'Holofoil', game: 'Pokemon' } }),
-        this.prisma.finish.findFirst({ where: { name: 'Reverse Holofoil', game: 'Pokemon' } }),
-        this.prisma.finish.findFirst({ where: { name: 'Unlimited Holofoil', game: 'Pokemon' } })
+        this.prisma.finish.findFirst({ where: { name: 'Normal', gameId } }),
+        this.prisma.finish.findFirst({ where: { name: 'Holofoil', gameId } }),
+        this.prisma.finish.findFirst({ where: { name: 'Reverse Holofoil', gameId } }),
+        this.prisma.finish.findFirst({ where: { name: 'Unlimited Holofoil', gameId } })
       ]);
 
       let page = 1;

@@ -22,20 +22,25 @@ async function main() {
   await prisma.condition.upsert({ where: { name: 'mint' }, update: {}, create: { name: 'mint' } });
   await prisma.condition.upsert({ where: { name: 'light_played' }, update: {}, create: { name: 'light_played' } });
   
+  // Games
+  const magicGame = await prisma.game.upsert({ where: { slug: 'magic' }, update: {}, create: { name: 'Magic: The Gathering', slug: 'magic' } });
+  const pokemonGame = await prisma.game.upsert({ where: { slug: 'pokemon' }, update: {}, create: { name: 'Pokémon TCG', slug: 'pokemon' } });
+  const riftboundGame = await prisma.game.upsert({ where: { slug: 'riftbound' }, update: {}, create: { name: 'Riftbound', slug: 'riftbound' } });
+
   // Finishes
   const finishes = [
-    { name: 'Normal', game: 'Magic' },
-    { name: 'Foil', game: 'Magic' },
-    { name: 'Etched Foil', game: 'Magic' },
-    { name: 'Normal', game: 'Pokemon' },
-    { name: 'Holo', game: 'Pokemon' },
-    { name: 'Reverse Holo', game: 'Pokemon' },
-    { name: 'Normal', game: 'Riftbound' },
-    { name: 'Foil', game: 'Riftbound' },
+    { name: 'Normal', gameId: magicGame.id },
+    { name: 'Foil', gameId: magicGame.id },
+    { name: 'Etched Foil', gameId: magicGame.id },
+    { name: 'Normal', gameId: pokemonGame.id },
+    { name: 'Holo', gameId: pokemonGame.id },
+    { name: 'Reverse Holo', gameId: pokemonGame.id },
+    { name: 'Normal', gameId: riftboundGame.id },
+    { name: 'Foil', gameId: riftboundGame.id },
   ];
 
   for (const f of finishes) {
-    const exists = await prisma.finish.findFirst({ where: { name: f.name, game: f.game } });
+    const exists = await prisma.finish.findFirst({ where: { name: f.name, gameId: f.gameId } });
     if (!exists) {
       await prisma.finish.create({ data: f });
     }

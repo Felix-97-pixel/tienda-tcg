@@ -72,7 +72,7 @@ export class RiftboundProvider extends TcgProvider {
             { id: expansionName },
             { name: { equals: expansionName, mode: 'insensitive' } }
           ],
-          game: 'Riftbound'
+          gameId: await this.getGameId()
         }
       });
 
@@ -110,9 +110,10 @@ export class RiftboundProvider extends TcgProvider {
       this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
 
       // Pre-cargar acabados
+      const gameId = await this.getGameId();
       const [normalFinish, foilFinish] = await Promise.all([
-        this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Riftbound' } }),
-        this.prisma.finish.findFirst({ where: { name: 'Foil', game: 'Riftbound' } })
+        this.prisma.finish.findFirst({ where: { name: 'Normal', gameId } }),
+        this.prisma.finish.findFirst({ where: { name: 'Foil', gameId } })
       ]);
 
       // 2. Cargar productos locales para match rápido

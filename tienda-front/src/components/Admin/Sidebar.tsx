@@ -44,8 +44,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   const catalogItems = [
     { href: "/admin/products",    label: t("modules.products"),   icon: icons.products },
-    { href: "/admin/categories",  label: t("modules.categories"), icon: icons.categories },
-    { href: "/admin/brands",      label: t("modules.brands"),     icon: icons.brands },
     { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
   ];
 
@@ -60,7 +58,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
   ];
 
-  const isCatalog = ["/admin/products", "/admin/categories", "/admin/brands", "/admin/wishlist"].some(p => pathname.startsWith(p));
+  const isCatalog = ["/admin/products", "/admin/wishlist"].some(p => pathname.startsWith(p));
   const isStats = ["/admin/sales", "/admin/orders"].some(p => pathname.startsWith(p));
   const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile"].some(p => pathname.startsWith(p));
 

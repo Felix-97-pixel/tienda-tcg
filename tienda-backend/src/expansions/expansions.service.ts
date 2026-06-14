@@ -16,7 +16,7 @@ export class ExpansionsService {
   async getExpansions(page: number = 1, limit: number = 50, game?: string, search?: string) {
     const where: any = {};
     if (game && game !== 'all') {
-      where.game = { equals: game, mode: 'insensitive' };
+      where.gameRel = { name: { equals: game, mode: 'insensitive' } };
     }
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
@@ -29,6 +29,7 @@ export class ExpansionsService {
       skip: (page - 1) * limit,
       take: limit,
       include: {
+        gameRel: true,
         _count: {
           select: { cardDetails: true }
         }
@@ -40,7 +41,7 @@ export class ExpansionsService {
         id: e.id,
         externalId: e.externalId,
         name: e.name,
-        game: e.game,
+        game: e.gameRel?.name,
         productsCount: e._count.cardDetails,
         releaseDate: e.releaseDate
       })),
@@ -59,7 +60,7 @@ export class ExpansionsService {
       const conflict = await this.prisma.expansion.findFirst({
         where: {
           externalId: data.externalId,
-          game: expansion.game,
+          gameId: expansion.gameId,
           id: { not: id } // Exclude the current expansion
         }
       });
@@ -126,7 +127,7 @@ export class ExpansionsService {
     // 2. Fix wrongly mapped promos: if a "Promos" expansion stole a base set's code, unmap it
     const allMapped = await this.prisma.expansion.findMany({
       where: {
-        game: { equals: game, mode: 'insensitive' },
+        gameRel: { name: { equals: game, mode: 'insensitive' } },
         externalId: { not: null }
       },
       include: { _count: { select: { cardDetails: true } } }
@@ -151,7 +152,7 @@ export class ExpansionsService {
     // 3. Fetch ALL unmapped expansions (including ones we just unmapped)
     const unmapped = await this.prisma.expansion.findMany({
       where: {
-        game: { equals: game, mode: 'insensitive' },
+        gameRel: { name: { equals: game, mode: 'insensitive' } },
         OR: [
           { externalId: null },
           { externalId: '' }
@@ -170,7 +171,7 @@ export class ExpansionsService {
     // 5. Collect already-used externalIds
     const alreadyMapped2 = await this.prisma.expansion.findMany({
       where: {
-        game: { equals: game, mode: 'insensitive' },
+        gameRel: { name: { equals: game, mode: 'insensitive' } },
         externalId: { not: null }
       },
       select: { externalId: true }

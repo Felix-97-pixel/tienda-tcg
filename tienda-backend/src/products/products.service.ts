@@ -64,7 +64,7 @@ export class ProductsService {
             expansion: scryfallCard.set_name || itemData?.expansion || 'Unknown Set',
             rarity: scryfallCard.rarity || itemData?.rarity || 'Common',
             collectorNum: scryfallCard.collector_number || itemData?.collectorNum || '',
-            game: 'Magic',
+            gameRel: { connect: { slug: 'magic' } },
             attributes: attrs
           }
         }
@@ -89,7 +89,7 @@ export class ProductsService {
             expansion: itemData.expansion || 'Unknown Set',
             rarity: itemData.rarity || 'Common',
             collectorNum: itemData.collectorNum || '',
-            game: 'Magic',
+            gameRel: { connect: { slug: 'magic' } },
             attributes: []
           }
         }
@@ -112,7 +112,7 @@ export class ProductsService {
     const [languages, conditions, finishes] = await Promise.all([
       this.prisma.language.findMany(),
       this.prisma.condition.findMany(),
-      this.prisma.finish.findMany({ where: { game: 'Magic' } })
+      this.prisma.finish.findMany({ where: { gameRel: { slug: 'magic' } } })
     ]);
 
     const langMap = new Map(languages.map(l => [l.code, l.id]));
@@ -295,23 +295,34 @@ export class ProductsService {
     });
   }
 
-  async getCategories(storeId?: string) {
+  async getCategories(storeId?: string, allowedGames?: any[]) {
     const whereClause = storeId ? { items: { some: { storeId } } } : undefined;
     
-    const categories = await this.prisma.category.findMany({
-      where: storeId ? { products: { some: whereClause } } : undefined,
-      include: {
+    let categories = await this.prisma.category.findMany({
+      where: whereClause ? { products: { some: whereClause } } : undefined,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+        isTcg: true,
         _count: {
-          select: { products: { where: whereClause } }
+          select: { products: true }
         }
       }
     });
+
+    if (allowedGames && allowedGames.length > 0) {
+      categories = categories.filter(c => {
+        const nameLower = c.name.toLowerCase();
+        // Return true if any allowed game name is part of the category name
+        return allowedGames.some(g => nameLower.includes(g.name.toLowerCase()));
+      });
+    }
+
     return categories.map(c => ({
-      id: c.id,
-      name: c.name,
-      imageUrl: c.imageUrl,
-      isTcg: c.isTcg,
-      products: c._count.products
+      ...c,
+      productsCount: c._count.products
     }));
   }
 
@@ -379,12 +390,29 @@ export class ProductsService {
     });
   }
 
-  async getExpansions(categoryName?: string, storeId?: string) {
+  async getStoreGamesByUserId(userId: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: userId },
+      select: { supportedGames: true }
+    });
+    return store?.supportedGames?.length > 0 ? store.supportedGames : undefined;
+  }
+
+  async getGames() {
+    return this.prisma.game.findMany({
+      orderBy: { name: 'asc' }
+    });
+  }
+
+  async getExpansions(categoryName?: string, storeId?: string, allowedGames?: any[]) {
     const where: any = {};
     if (categoryName || storeId) {
       where.product = {};
       if (categoryName) where.product.category = { name: categoryName };
       if (storeId) where.product.items = { some: { storeId } };
+    }
+    if (allowedGames && allowedGames.length > 0) {
+      where.gameId = { in: allowedGames.map(g => g.id) };
     }
 
     const cardDetails = await this.prisma.cardDetail.groupBy({
@@ -401,7 +429,7 @@ export class ProductsService {
     }));
   }
 
-  async getAttributes(categoryName?: string, expansionName?: string, storeId?: string) {
+  async getAttributes(categoryName?: string, expansionName?: string, storeId?: string, allowedGames?: any[]) {
     const where: any = {};
     if (categoryName || storeId) {
       where.product = {};
@@ -410,6 +438,9 @@ export class ProductsService {
     }
     if (expansionName) {
       where.expansion = expansionName;
+    }
+    if (allowedGames && allowedGames.length > 0) {
+      where.gameId = { in: allowedGames.map(g => g.id) };
     }
 
     const cardDetails = await this.prisma.cardDetail.findMany({
@@ -433,7 +464,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, allowedGames?: any[]) {
     const skip = (page - 1) * limit;
 
     // Build where clause
@@ -460,7 +491,8 @@ export class ProductsService {
         }
       };
     }
-    if (expansionName || attributeValue) {
+
+    if (expansionName || attributeValue || (allowedGames && allowedGames.length > 0)) {
       whereClause.cardDetail = { is: {} };
       if (expansionName) {
         whereClause.cardDetail.is.expansion = expansionName;
@@ -471,6 +503,9 @@ export class ProductsService {
         } else {
           whereClause.cardDetail.is.attributes = { has: attributeValue };
         }
+      }
+      if (allowedGames && allowedGames.length > 0) {
+        whereClause.cardDetail.is.gameId = { in: allowedGames.map(g => g.id) };
       }
     }
 
@@ -617,26 +652,29 @@ export class ProductsService {
 
     // 1. Obtener todos los nombres de juegos base desde la tabla Finish ("Magic", "Pokemon", etc.)
     const availableGames = await this.prisma.finish.findMany({
-      select: { game: true },
-      distinct: ['game']
+      select: { gameId: true, gameRel: { select: { slug: true, name: true } } },
+      distinct: ['gameId']
     });
 
     // 2. Buscar dinámicamente cuál de los juegos base está contenido en el parámetro recibido
-    let targetGame = game;
+    let targetGameId: string | undefined;
     const lowerInput = game.toLowerCase();
 
     for (const record of availableGames) {
-      const lowerBaseGame = record.game.toLowerCase();
+      if (!record.gameRel) continue;
+      const lowerBaseGame = record.gameRel.name.toLowerCase();
       // Verificamos si el string recibido (ej. "Singles Magic The Gathering") contiene el nombre de la BD ("Magic")
       if (lowerInput.indexOf(lowerBaseGame) !== -1) {
-        targetGame = record.game;
+        targetGameId = record.gameId;
         break;
       }
     }
 
     // 3. Consultar la base de datos usando el nombre real encontrado
+    if (!targetGameId) return [];
+    
     return this.prisma.finish.findMany({
-      where: { game: { equals: targetGame, mode: 'insensitive' as any } },
+      where: { gameId: targetGameId },
       orderBy: { name: 'asc' },
     });
   }

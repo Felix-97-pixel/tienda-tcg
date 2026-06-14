@@ -40,6 +40,18 @@ export abstract class TcgProvider {
   }
 
   /**
+   * Obtiene el gameId oficial configurado en Settings.
+   */
+  protected async getGameId(): Promise<string> {
+    const configKey = `${this.gameName}_sync_game_id`;
+    const setting = await this.prisma.globalSetting.findUnique({ where: { key: configKey } });
+    if (!setting || !setting.value) {
+      throw new Error(`El Juego (Game ID) no está configurado para el destino '${this.gameName}'. Ve a Configuración -> Destinos de Sincronización.`);
+    }
+    return setting.value;
+  }
+
+  /**
    * Flujo estándar de importación de un Set.
    */
   async syncSet(setId: string, categoryName: string) {
@@ -47,13 +59,14 @@ export abstract class TcgProvider {
 
     try {
       const categoryId = await this.getCategoryId(categoryName);
+      const gameId = await this.getGameId();
       const { defaultLang, defaultCond } = await this.getSyncDefaults();
       const externalCards = await this.fetchExternalSet(setId);
 
       this.logger.log(`Se obtuvieron ${externalCards.length} cartas de la API.`);
 
       // Pre-cargar todos los finishes de este juego para resolver IDs rápido
-      const allFinishes = await this.prisma.finish.findMany({ where: { game: this.gameName } });
+      const allFinishes = await this.prisma.finish.findMany({ where: { gameId: gameId } });
       const finishMap = new Map(allFinishes.map(f => [f.name, f.id]));
 
       let totalProcessed = 0;
@@ -62,14 +75,14 @@ export abstract class TcgProvider {
         const expectedVariantNames = this.getExpectedVariants(card);
 
         let expansionRecord = await this.prisma.expansion.findFirst({
-          where: { name: productData.expansion, game: this.gameName }
+          where: { name: productData.expansion, gameId: gameId }
         });
 
         if (!expansionRecord) {
           expansionRecord = await this.prisma.expansion.create({
             data: {
               name: productData.expansion,
-              game: this.gameName,
+              gameId: gameId,
               externalId: setId // setId es usualmente el slug de la API
             }
           });
@@ -110,7 +123,7 @@ export abstract class TcgProvider {
                 expansionId: expansionRecord.id,
                 rarity: productData.rarity,
                 collectorNum: productData.number,
-                game: this.gameName,
+                gameId: gameId,
                 attributes: productData.attributes
               }
             }
@@ -144,7 +157,7 @@ export abstract class TcgProvider {
         product: {
           cardDetail: {
             expansion: { equals: expansionName, mode: 'insensitive' },
-            game: this.gameName
+            gameId: await this.getGameId()
           }
         }
       }

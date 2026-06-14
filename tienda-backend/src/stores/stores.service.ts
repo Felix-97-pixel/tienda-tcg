@@ -17,6 +17,7 @@ export class StoresService {
         subdomain: true,
         logoUrl: true,
         settings: true,
+        supportedGames: true,
       }
     });
 
@@ -32,6 +33,7 @@ export class StoresService {
       where: { ownerId: userId },
       include: {
         settings: true,
+        supportedGames: true,
       }
     });
 
@@ -47,6 +49,7 @@ export class StoresService {
       where: { id },
       include: {
         settings: true,
+        supportedGames: true,
       }
     });
 
@@ -117,15 +120,22 @@ export class StoresService {
       throw new NotFoundException('Tienda no encontrada');
     }
 
-    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website } = data;
+    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website, games } = data;
 
-    // Actualizar nombre y logo de la tienda
+    const updateData: any = {
+      name: name !== undefined ? name : undefined,
+      logoUrl: logoUrl !== undefined ? logoUrl : undefined,
+    };
+
+    if (games !== undefined && Array.isArray(games)) {
+      updateData.supportedGames = {
+        set: games.map((id: string) => ({ id }))
+      };
+    }
+
     await this.prisma.store.update({
       where: { id: store.id },
-      data: {
-        name: name !== undefined ? name : undefined,
-        logoUrl: logoUrl !== undefined ? logoUrl : undefined,
-      }
+      data: updateData
     });
 
     // Keys de settings
@@ -214,6 +224,7 @@ export class StoresService {
             subdomain,
             logoUrl,
             ownerId: user.id,
+            supportedGames: createStoreDto.games?.length ? { connect: createStoreDto.games.map((id: string) => ({ id })) } : undefined,
           },
           include: {
             owner: {

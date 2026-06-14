@@ -19,9 +19,11 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [availableGames, setAvailableGames] = useState<{id: string, name: string}[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     logoUrl: "",
+    games: [] as string[],
     description: "",
     facebook: "",
     instagram: "",
@@ -44,6 +46,15 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
   const fetchStore = async () => {
     try {
       setLoading(true);
+      
+      // Fetch available games in parallel if superadmin
+      let fetchedGames: {id: string, name: string}[] = [];
+      if (storeId !== "me") {
+        const gamesRes = await fetch(`${API_URL}/products/meta/games`);
+        if (gamesRes.ok) fetchedGames = await gamesRes.json();
+        setAvailableGames(fetchedGames);
+      }
+
       const res = await fetch(getEndpoint(), { credentials: "include" });
       if (res.ok) {
         const store = await res.json();
@@ -55,6 +66,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
         setFormData({
           name: store.name || "",
           logoUrl: store.logoUrl || "",
+          games: store.supportedGames ? store.supportedGames.map((g: any) => g.id) : [],
           description: s.description || "",
           facebook: s.facebook || "",
           instagram: s.instagram || "",
@@ -247,6 +259,51 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 placeholder="https://twitter.com/mitienda"
               />
             </div>
+
+            {/* Juegos Suscritos (Solo visible para SuperAdmin) */}
+            {storeId !== "me" && (
+              <>
+                <div className="flex items-center gap-4 mb-6 mt-10">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center shadow-inner">
+                    <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Juegos Suscritos</h2>
+                    <p className="text-xs text-gray-4 font-medium mt-1">Selecciona los juegos a los que esta tienda tiene acceso.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#111318] border border-stroke p-6 rounded-2xl">
+                  {availableGames.map(game => (
+                    <label key={game.id} className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative flex items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={formData.games.includes(game.id)}
+                          onChange={(e) => {
+                            const isChecked = e.target.checked;
+                            setFormData(prev => ({
+                              ...prev,
+                              games: isChecked 
+                                ? [...prev.games, game.id] 
+                                : prev.games.filter(id => id !== game.id)
+                            }));
+                          }}
+                        />
+                        <div className="w-5 h-5 rounded border border-gray-5 bg-transparent peer-checked:bg-blue peer-checked:border-blue transition-colors flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-gray-3 group-hover:text-white transition-colors uppercase">{game.name}</span>
+                    </label>
+                  ))}
+                  {availableGames.length === 0 && (
+                    <p className="text-gray-5 text-sm col-span-2">No hay juegos disponibles.</p>
+                  )}
+                </div>
+              </>
+            )}
 
             <div className="mt-10 pt-6 border-t border-stroke flex justify-end">
               <div className="w-full md:w-1/3">

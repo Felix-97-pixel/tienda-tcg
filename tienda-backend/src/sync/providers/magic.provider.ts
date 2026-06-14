@@ -71,9 +71,9 @@ export class MagicProvider extends TcgProvider {
         return { updated: 0, errors: 1 };
       }
 
-      // Obtener los IDs de los finishes para Magic
-      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', game: 'Magic' } });
-      const foilFinish = await this.prisma.finish.findFirst({ where: { name: 'Foil', game: 'Magic' } });
+      const gameId = await this.getGameId();
+      const normalFinish = await this.prisma.finish.findFirst({ where: { name: 'Normal', gameId } });
+      const foilFinish = await this.prisma.finish.findFirst({ where: { name: 'Foil', gameId } });
 
       this.logger.log(`[Magic] ${products.length} productos locales encontrados. Resolviendo código de set...`);
 
@@ -84,7 +84,7 @@ export class MagicProvider extends TcgProvider {
             { id: expansionName },
             { name: { equals: expansionName, mode: 'insensitive' } }
           ],
-          game: 'Magic'
+          gameId: await this.getGameId()
         }
       });
       const resolvedName = expansion?.name || expansionName;

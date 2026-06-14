@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, IsArray } from 'class-validator';
 
 export class CreateStoreDto {
   @IsString()
@@ -12,6 +12,11 @@ export class CreateStoreDto {
   @IsString()
   @IsOptional()
   logoUrl?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  games?: string[];
 
   @IsEmail()
   @IsNotEmpty()

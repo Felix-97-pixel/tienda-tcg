@@ -12,28 +12,42 @@ export default function AdminSettings() {
   const { showToast } = useToast();
 
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [games, setGames] = useState<{ id: string; name: string }[]>([]);
   const [mtgDest, setMtgDest] = useState("");
+  const [mtgGame, setMtgGame] = useState("");
   const [pokemonDest, setPokemonDest] = useState("");
+  const [pokemonGame, setPokemonGame] = useState("");
   const [riftboundDest, setRiftboundDest] = useState("");
+  const [riftboundGame, setRiftboundGame] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`${API_URL}/products/meta/categories`).then(res => res.json()),
-      fetch(`${API_URL}/settings`).then(res => res.json())
+      fetch(`${API_URL}/products/meta/categories`, { credentials: "include" }).then(res => res.json()),
+      fetch(`${API_URL}/games`, { credentials: "include" }).then(res => res.json()),
+      fetch(`${API_URL}/settings`, { credentials: "include" }).then(res => res.json())
     ])
-      .then(([categoriesData, settingsData]) => {
+      .then(([categoriesData, gamesData, settingsData]) => {
         setCategories(categoriesData);
+        setGames(gamesData);
 
         const savedMtg = settingsData.mtg_sync_destination;
+        const savedMtgGame = settingsData.mtg_sync_game_id;
         const savedPokemon = settingsData.pokemon_sync_destination;
+        const savedPokemonGame = settingsData.pokemon_sync_game_id;
         const savedRiftbound = settingsData.riftbound_sync_destination;
+        const savedRiftboundGame = settingsData.riftbound_sync_game_id;
 
         setMtgDest(savedMtg || categoriesData.find((c: any) => c.name.toLowerCase().includes("magic"))?.name || "");
+        setMtgGame(savedMtgGame || gamesData.find((g: any) => g.name.toLowerCase().includes("magic"))?.id || "");
+        
         setPokemonDest(savedPokemon || categoriesData.find((c: any) => c.name.toLowerCase().includes("pokemon"))?.name || "");
+        setPokemonGame(savedPokemonGame || gamesData.find((g: any) => g.name.toLowerCase().includes("pokemon"))?.id || "");
+        
         setRiftboundDest(savedRiftbound || categoriesData.find((c: any) => c.name.toLowerCase().includes("riftbound"))?.name || "");
+        setRiftboundGame(savedRiftboundGame || gamesData.find((g: any) => g.name.toLowerCase().includes("riftbound"))?.id || "");
       })
       .catch((err) => console.error("Error fetching settings:", err))
       .finally(() => setLoading(false));
@@ -47,8 +61,11 @@ export default function AdminSettings() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mtg_sync_destination: mtgDest,
+          mtg_sync_game_id: mtgGame,
           pokemon_sync_destination: pokemonDest,
+          pokemon_sync_game_id: pokemonGame,
           riftbound_sync_destination: riftboundDest,
+          riftbound_sync_game_id: riftboundGame,
         }),
         credentials: "include",
       });
@@ -101,20 +118,39 @@ export default function AdminSettings() {
 
             <div className="space-y-6">
               {[
-                { id: "mtg", label: t("destinations.magic"), val: mtgDest, set: setMtgDest },
-                { id: "pkm", label: t("destinations.pokemon"), val: pokemonDest, set: setPokemonDest },
-                { id: "rfb", label: t("destinations.riftbound"), val: riftboundDest, set: setRiftboundDest }
+                { id: "mtg", label: t("destinations.magic"), val: mtgDest, set: setMtgDest, gameVal: mtgGame, setGame: setMtgGame },
+                { id: "pkm", label: t("destinations.pokemon"), val: pokemonDest, set: setPokemonDest, gameVal: pokemonGame, setGame: setPokemonGame },
+                { id: "rfb", label: t("destinations.riftbound"), val: riftboundDest, set: setRiftboundDest, gameVal: riftboundGame, setGame: setRiftboundGame }
               ].map((item) => (
-                <div key={item.id} className="group">
-                  <label className="mb-2 block text-xs font-black text-gray-4 uppercase tracking-widest transition-colors group-focus-within:text-blue">
+                <div key={item.id} className="group bg-dark/50 p-4 rounded-xl border border-white/5">
+                  <h3 className="text-sm font-black text-white uppercase mb-4 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-blue rounded-full"></span>
                     {item.label}
-                  </label>
-                  <SearchableSelect
-                    value={item.val}
-                    onChange={item.set}
-                    options={categories.map((cat) => ({ label: cat.name, value: cat.name }))}
-                    placeholder={`Selecciona categoría para ${item.label}`}
-                  />
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="mb-2 block text-xs font-bold text-gray-4 uppercase tracking-widest">
+                        Categoría Destino
+                      </label>
+                      <SearchableSelect
+                        value={item.val}
+                        onChange={item.set}
+                        options={categories.map((cat) => ({ label: cat.name, value: cat.name }))}
+                        placeholder="Selecciona Categoría"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-xs font-bold text-gray-4 uppercase tracking-widest">
+                        Juego Principal
+                      </label>
+                      <SearchableSelect
+                        value={item.gameVal}
+                        onChange={item.setGame}
+                        options={games.map((g) => ({ label: g.name, value: g.id }))}
+                        placeholder="Selecciona Juego"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

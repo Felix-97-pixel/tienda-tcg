@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException, Req } from '@nestjs/common';
+import { Request } from 'express';
+import * as jwt from 'jsonwebtoken';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -13,6 +15,20 @@ import { Role } from '@prisma/client';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
+
+  private async getAllowedGames(req: Request): Promise<any[] | undefined> {
+    const token = req.cookies?.access_token;
+    if (!token) return undefined;
+    try {
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || '');
+      if (decoded && decoded.role === 'ADMIN') {
+        return this.productsService.getStoreGamesByUserId(decoded.sub);
+      }
+    } catch (e) {
+      return undefined;
+    }
+    return undefined;
+  }
 
   @Post('global')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -64,8 +80,9 @@ export class ProductsController {
   }
 
   @Get('meta/categories')
-  getCategories(@Query('storeId') storeId?: string) {
-    return this.productsService.getCategories(storeId);
+  async getCategories(@Req() req: Request, @Query('storeId') storeId?: string) {
+    const allowedGames = await this.getAllowedGames(req);
+    return this.productsService.getCategories(storeId, allowedGames);
   }
 
   @Patch('meta/categories/:id')
@@ -118,22 +135,31 @@ export class ProductsController {
     }
   }
 
+  @Get('meta/games')
+  getGames() {
+    return this.productsService.getGames();
+  }
+
   @Get('meta/expansions')
-  getExpansions(@Query('category') category?: string, @Query('storeId') storeId?: string) {
-    return this.productsService.getExpansions(category, storeId);
+  async getExpansions(@Req() req: Request, @Query('category') category?: string, @Query('storeId') storeId?: string) {
+    const allowedGames = await this.getAllowedGames(req);
+    return this.productsService.getExpansions(category, storeId, allowedGames);
   }
 
   @Get('meta/attributes')
-  getAttributes(
+  async getAttributes(
+    @Req() req: Request,
     @Query('category') category?: string,
     @Query('expansion') expansion?: string,
     @Query('storeId') storeId?: string
   ) {
-    return this.productsService.getAttributes(category, expansion, storeId);
+    const allowedGames = await this.getAllowedGames(req);
+    return this.productsService.getAttributes(category, expansion, storeId, allowedGames);
   }
 
   @Get()
-  findAll(
+  async findAll(
+    @Req() req: Request,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('category') category?: string,
@@ -142,9 +168,10 @@ export class ProductsController {
     @Query('search') searchName?: string,
     @Query('storeId') storeId?: string
   ) {
+    const allowedGames = await this.getAllowedGames(req);
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50; // default 50 limits
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, storeId);
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, storeId, allowedGames);
   }
 
   @Get('meta/languages')
