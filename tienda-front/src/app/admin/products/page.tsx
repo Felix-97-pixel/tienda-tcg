@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/useToast";
 import { useAdminProducts } from "@/hooks/useAdminProducts";
 import { Product } from "@/types/product";
 import { Category } from "@/types/productCategory";
+import { useAppSelector } from "@/redux/store";
 
 // Componentes Extraídos
 import ProductFilters from "@/components/Admin/Products/ProductFilters";
@@ -41,10 +42,26 @@ export default function StoreAdminProducts() {
   // Ítems Seleccionados para Modales
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  const { features } = useAppSelector((state) => state.authReducer);
+
   // Cargar Metadatos al Montar
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories`).then(r => r.json()).then(setCategories);
-  }, []);
+    fetch(`${API_URL}/products/meta/categories`).then(r => r.json()).then(data => {
+      // Filter categories based on active features
+      const filtered = data.filter((c: Category) => {
+        // Si no tiene module:non_tcg, ocultar categorias que no sean cartas (en este caso asumimos que todo lo que no sea mtg/riftbound es non-tcg o según lógica de negocio. Para simplificar, si no hay feature de non_tcg, las bloqueamos).
+        // Por ahora lo hacemos por nombre o ID
+        if (c.name.toLowerCase().includes('magic') && !features.includes('game:magic')) return false;
+        if (c.name.toLowerCase().includes('riftbound') && !features.includes('game:riftbound')) return false;
+        
+        const isGame = c.name.toLowerCase().includes('magic') || c.name.toLowerCase().includes('riftbound');
+        if (!isGame && !features.includes('module:non_tcg')) return false;
+        
+        return true;
+      });
+      setCategories(filtered);
+    });
+  }, [features]);
 
   // Cargar Expansiones cuando cambia la categoría
   useEffect(() => {

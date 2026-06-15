@@ -17,8 +17,10 @@ export class StoresController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getStoreByOwner(@Request() req: any) {
-    return this.storesService.getStoreByOwner(req.user.userId);
+  async getStoreByOwner(@Request() req: any) {
+    const store = await this.storesService.getStoreByOwner(req.user.userId);
+    const features = await this.storesService.getStoreFeatures(store.id);
+    return { ...store, activeFeatures: features };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,8 +39,10 @@ export class StoresController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Get(':id/full')
-  getStoreFull(@Param('id') id: string) {
-    return this.storesService.getStoreById(id);
+  async getStoreFull(@Param('id') id: string) {
+    const store = await this.storesService.getStoreById(id);
+    const features = await this.storesService.getStoreFeatures(store.id);
+    return { ...store, activeFeatures: features };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

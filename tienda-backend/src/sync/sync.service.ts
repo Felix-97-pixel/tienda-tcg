@@ -191,6 +191,14 @@ export class SyncService {
   }
 
   /**
+   * Resuelve y devuelve el Provider instanciado en base al nombre de la categoría o juego.
+   */
+  async getProviderForCategory(categoryName: string) {
+    const providerKey = await this.resolveProviderKey(categoryName);
+    return this.providers[providerKey] || null;
+  }
+
+  /**
    * Obtiene la lista de ediciones de Magic desde MagicService (MTGJSON)
    */
   async getMtgSets() {

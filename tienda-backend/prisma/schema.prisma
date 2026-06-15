@@ -7,13 +7,13 @@ datasource db {
 }
 
 model Game {
-  id          String       @id @default(uuid())
-  name        String       @unique
-  slug        String       @unique
-  logoUrl     String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   cardDetails CardDetail[]
   expansions  Expansion[]
@@ -71,9 +71,10 @@ model Language {
 }
 
 model Condition {
-  id    String          @id @default(uuid())
-  name  String          @unique // e.g., "near_mint", "poor"
-  items InventoryItem[]
+  id           String                      @id @default(uuid())
+  name         String                      @unique // e.g., "near_mint", "poor"
+  items        InventoryItem[]
+  devaluations StoreConditionDevaluation[]
 }
 
 model CardDetail {
@@ -81,29 +82,29 @@ model CardDetail {
   expansion    String
   rarity       String
   collectorNum String
-  attributes        String[]  @default([])
-  productId         String    @unique
+  attributes   String[] @default([])
+  productId    String   @unique
   product      Product  @relation(fields: [productId], references: [id])
 
   expansionId  String?
   expansionRel Expansion? @relation(fields: [expansionId], references: [id])
-  
-  gameId       String
-  gameRel      Game       @relation(fields: [gameId], references: [id])
-  
+
+  gameId  String
+  gameRel Game   @relation(fields: [gameId], references: [id])
+
   @@index([expansion])
   @@index([productId])
 }
 
 model Expansion {
-  id          String       @id @default(uuid())
+  id          String    @id @default(uuid())
   externalId  String?
   name        String
   releaseDate DateTime?
   imageUrl    String?
 
-  gameId      String
-  gameRel     Game         @relation(fields: [gameId], references: [id])
+  gameId  String
+  gameRel Game   @relation(fields: [gameId], references: [id])
 
   cardDetails CardDetail[]
 
@@ -136,58 +137,64 @@ model Finish {
   aliases String[]        @default([])
   items   InventoryItem[]
 
-  gameId  String
-  gameRel Game            @relation(fields: [gameId], references: [id])
+  gameId       String
+  gameRel      Game          @relation(fields: [gameId], references: [id])
   marketPrices MarketPrice[]
 
   @@unique([name, gameId])
 }
 
 model MarketPrice {
-  id          String   @id @default(uuid())
-  productId   String
-  finishId    String?
-  price       Decimal  @db.Decimal(10, 2)
-  updatedAt   DateTime @updatedAt
-  
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  finish      Finish?  @relation(fields: [finishId], references: [id], onDelete: Cascade)
-  history     MarketPriceHistory[]
+  id        String   @id @default(uuid())
+  productId String
+  finishId  String?
+  price     Decimal  @db.Decimal(10, 2)
+  updatedAt DateTime @updatedAt
+
+  product Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  finish  Finish?              @relation(fields: [finishId], references: [id], onDelete: Cascade)
+  history MarketPriceHistory[]
 
   @@unique([productId, finishId])
 }
 
 model MarketPriceHistory {
-  id              String      @id @default(uuid())
-  marketPriceId   String
-  price           Decimal     @db.Decimal(10, 2)
-  createdAt       DateTime    @default(now())
+  id            String   @id @default(uuid())
+  marketPriceId String
+  price         Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
 
-  marketPrice     MarketPrice @relation(fields: [marketPriceId], references: [id], onDelete: Cascade)
+  marketPrice MarketPrice @relation(fields: [marketPriceId], references: [id], onDelete: Cascade)
 
   @@index([marketPriceId])
   @@index([createdAt])
 }
 
 model Store {
-  id             String              @id @default(uuid())
-  ownerId        String              @unique
+  id             String                      @id @default(uuid())
+  ownerId        String                      @unique
   name           String
-  subdomain      String              @unique
-  customDomain   String?             @unique
+  subdomain      String                      @unique
+  customDomain   String?                     @unique
   logoUrl        String?
-  supportedGames Game[]              @relation("StoreGames")
-  balance        Decimal             @default(0) @db.Decimal(10, 2)
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  owner          User                @relation(fields: [ownerId], references: [id])
+  supportedGames Game[]                      @relation("StoreGames")
+  balance        Decimal                     @default(0) @db.Decimal(10, 2)
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+  owner          User                        @relation(fields: [ownerId], references: [id])
   inventory      InventoryItem[]
-  customProducts Product[]           @relation("StoreCustomProducts")
+  customProducts Product[]                   @relation("StoreCustomProducts")
   vendorOrders   VendorOrder[]
   shipping       ShippingProvider[]
   settings       StoreSetting[]
   transactions   WalletTransaction[]
   withdrawals    WithdrawalRequest[]
+  devaluations   StoreConditionDevaluation[]
+
+  subscriptionPlanId String?
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  
+  customFeatures     Feature[] @relation("StoreCustomFeatures")
 }
 
 model User {
@@ -320,6 +327,18 @@ model Currency {
   updatedAt    DateTime @updatedAt
 }
 
+model StoreConditionDevaluation {
+  id          String  @id @default(uuid())
+  storeId     String
+  conditionId String
+  multiplier  Decimal @db.Decimal(5, 4) // e.g. 0.8000
+
+  store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  condition Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, conditionId])
+}
+
 model ShippingProvider {
   id           String        @id @default(uuid())
   storeId      String?
@@ -385,4 +404,25 @@ model SyncBackup {
   filename  String
   csvData   String
   createdAt DateTime @default(now())
+}
+
+model Feature {
+  id          String   @id @default(uuid())
+  key         String   @unique // e.g. "game:magic", "module:statistics"
+  name        String
+  description String?
+  price       Decimal  @default(0) @db.Decimal(10, 2)
+  
+  plans       SubscriptionPlan[] @relation("PlanFeatures")
+  stores      Store[]            @relation("StoreCustomFeatures")
+}
+
+model SubscriptionPlan {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  price       Decimal  @default(0) @db.Decimal(10, 2)
+  
+  features    Feature[] @relation("PlanFeatures")
+  stores      Store[]
 }

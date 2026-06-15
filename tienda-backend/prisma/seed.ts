@@ -3,6 +3,7 @@ import { seedCore } from './seeders/seed-core';
 import { seedGamesTcg } from './seeders/seed-games-tcg';
 import { seedSettings } from './seeders/seed-settings';
 import { seedSuperAdmin } from './seeders/seed-superadmin';
+import { seedStoreDevaluations } from './seeders/seed-devaluations';
 
 import 'dotenv/config';
 import { Pool } from 'pg';
@@ -32,6 +33,9 @@ async function main() {
 
     // 4. Usuario SuperAdmin por defecto
     await seedSuperAdmin(prisma);
+
+    // 5. Devaluaciones por defecto de las tiendas
+    await seedStoreDevaluations(prisma);
 
     console.log('✅ Seeding Maestro completado exitosamente.');
   } catch (error) {

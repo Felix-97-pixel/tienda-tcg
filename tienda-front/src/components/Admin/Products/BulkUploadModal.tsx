@@ -36,18 +36,54 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
+        if (results.data.length > 0) {
+          const category = categories.find(c => c.id === bulkCategory);
+          const categoryName = category?.name.toLowerCase() || "";
+          const headers = Object.keys(results.data[0]);
+
+          if (categoryName.includes("riftbound")) {
+            if (headers.includes("Scryfall ID")) {
+              showToast("Archivo incorrecto: Estás intentando subir un archivo de Magic en Riftbound.", "error");
+              setIsUploading(false);
+              return;
+            }
+            if (!headers.includes("Card Name") && !headers.includes("Name")) {
+              showToast("Estructura inválida. El CSV debe contener la columna 'Card Name' o 'Name'.", "error");
+              setIsUploading(false);
+              return;
+            }
+          } else if (categoryName.includes("magic")) {
+            if (headers.includes("Variant Number") || headers.includes("Card Name")) {
+              showToast("Archivo incorrecto: Estás intentando subir un archivo de Riftbound en Magic.", "error");
+              setIsUploading(false);
+              return;
+            }
+            if (!headers.includes("Scryfall ID") && !headers.includes("Name")) {
+              showToast("Estructura inválida. El CSV debe contener la columna 'Scryfall ID' o 'Name'.", "error");
+              setIsUploading(false);
+              return;
+            }
+          }
+        }
+
         const parsedItems = results.data.map((row: any, index: number) => {
+          let finishStr = row["Foil"] || "normal";
+          if (row["Foil"] && row["Foil"].toString().toUpperCase() === "TRUE") finishStr = "foil";
+          else if (row["Foil"] && row["Foil"].toString().toUpperCase() === "FALSE") finishStr = "normal";
+          
+          if (row["Variant Type"] === "Promo") finishStr = "promo";
+
           return {
             scryfallId: row["Scryfall ID"] || undefined,
-            name: row["Name"] || "",
-            expansion: row["Set name"] || "",
+            name: row["Name"] || row["Card Name"] || "",
+            expansion: row["Set name"] || row["Set"] || "",
             rarity: row["Rarity"] || "",
-            collectorNum: String(row["Collector number"] || ""),
+            collectorNum: String(row["Collector number"] || row["Variant Number"] || ""),
             quantity: Number(row["Quantity"]) || 1,
             price: Number(row["Purchase price"]) || 0,
             condition: row["Condition"] || "near_mint",
             language: row["Language"] || "en",
-            finish: row["Foil"] || "normal",
+            finish: finishStr,
             originalIndex: index
           };
         });
@@ -135,7 +171,15 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-white">{t("bulk.fileLabel")}</label>
+            <div className="mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-white">{t("bulk.fileLabel")}</label>
+              <div className="group relative flex cursor-help items-center text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <div className="absolute bottom-full left-1/2 mb-2 hidden w-64 -translate-x-1/2 rounded border border-gray-700 bg-[#1C1E26] p-3 text-xs leading-relaxed text-gray-300 shadow-xl group-hover:block z-50">
+                  Asegúrate de exportar tu inventario en CSV directamente desde <strong className="text-white">Manabox</strong> (para Magic) o <strong className="text-white">Riftscan</strong> (para Riftbound).
+                </div>
+              </div>
+            </div>
             <FileInput
               accept=".csv"
               onChange={(e) => setBulkFile(e.target.files?.[0] || null)}

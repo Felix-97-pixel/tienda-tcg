@@ -62,6 +62,42 @@ export class PokemonProvider extends TcgProvider {
     };
   }
 
+  /**
+   * Busca o crea un producto en la BD para la subida masiva.
+   * En Pokémon, buscamos por número y expansión, o por nombre.
+   */
+  async findProductForBulkUpload(itemData: any, categoryId: string): Promise<any> {
+    let product = null;
+
+    if (itemData.collectorNum) {
+      product = await this.prisma.product.findFirst({
+        where: {
+          categoryId,
+          cardDetail: {
+            expansion: itemData.expansion,
+            collectorNum: itemData.collectorNum
+          }
+        },
+        include: { items: true, marketPrices: true }
+      });
+    }
+
+    if (!product) {
+      product = await this.prisma.product.findFirst({
+        where: {
+          categoryId,
+          name: itemData.name,
+          cardDetail: { expansion: itemData.expansion }
+        },
+        include: { items: true, marketPrices: true }
+      });
+    }
+
+    // Como no tenemos un ID de Pokémon TCG API en itemData por ahora en el CSV genérico,
+    // simplemente retornaremos el producto local si se encontró.
+    return { product, externalData: null };
+  }
+
   /** Actualización de precios usando TCGPlayer (delegado en PokemonService) */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Pokémon] Iniciando actualización de precios para: "${expansionName}" ===`);

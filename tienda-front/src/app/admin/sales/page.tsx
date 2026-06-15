@@ -9,6 +9,8 @@ import StatCard from "@/components/Admin/Sales/StatCard";
 import TopProductsList from "@/components/Admin/Sales/TopProductsList";
 import RecentOrdersList from "@/components/Admin/Sales/RecentOrdersList";
 import { Button } from "@/components/ui/Button";
+import { useAppSelector } from "@/redux/store";
+import UpsellBanner from "@/components/Admin/UpsellBanner";
 
 export default function AdminSalesPage() {
   const t = useTranslations("sales");
@@ -33,7 +35,21 @@ export default function AdminSalesPage() {
     }
   }, []);
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  const { features } = useAppSelector((state) => state.authReducer);
+
+  useEffect(() => { 
+    if (features.includes("module:statistics")) {
+      fetchStats(); 
+    }
+  }, [fetchStats, features]);
+
+  if (!features.includes("module:statistics")) {
+    return (
+      <div className="p-6 pb-24">
+        <UpsellBanner featureName="Estadísticas Avanzadas" />
+      </div>
+    );
+  }
 
   if (loading) {
     return (

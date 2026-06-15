@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useAppSelector } from "@/redux/store";
 
 const icons = {
   products: (
@@ -62,13 +63,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const isStats = ["/admin/sales", "/admin/orders"].some(p => pathname.startsWith(p));
   const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile"].some(p => pathname.startsWith(p));
 
+  const { features } = useAppSelector((state) => state.authReducer);
+
   let navItems = [];
   let moduleName = "";
 
   if (isCatalog) {
     navItems = catalogItems;
     moduleName = "Módulo de Catálogo";
-  } else if (isStats) {
+  } else if (isStats && features.includes("module:statistics")) {
     navItems = statsItems;
     moduleName = "Módulo de Estadísticas";
   } else if (isConfig) {
@@ -76,7 +79,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     moduleName = "Módulo de Configuración";
   } else {
     // Fallback
-    navItems = [...catalogItems, ...statsItems, ...configItems];
+    navItems = [...catalogItems, ...configItems];
+    if (features.includes("module:statistics")) {
+      navItems = [...catalogItems, ...statsItems, ...configItems];
+    }
     moduleName = "Todos los Módulos";
   }
 

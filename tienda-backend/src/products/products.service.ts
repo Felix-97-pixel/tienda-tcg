@@ -5,13 +5,15 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { randomUUID } from 'crypto';
 import { MagicService } from '../sync/magic.service';
+import { SyncService } from '../sync/sync.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private uploadService: UploadService,
-    private magicService: MagicService
+    private magicService: MagicService,
+    private syncService: SyncService
   ) { }
 
   async create(createProductDto: CreateProductDto) {
@@ -95,80 +97,54 @@ export class ProductsService {
     const storeId = store?.id;
     const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
 
-    // Pre-cargar idiomas, condiciones y acabados (finishes) para evitar consultas repetitivas
-    const [languages, conditions, finishes] = await Promise.all([
+    const category = await this.prisma.category.findUnique({ where: { id: categoryId } });
+    const provider = category ? await this.syncService.getProviderForCategory(category.name) : null;
+
+    // Pre-cargar idiomas, condiciones, acabados y devaluaciones
+    const [languages, conditions, finishes, devaluations] = await Promise.all([
       this.prisma.language.findMany(),
       this.prisma.condition.findMany(),
-      this.prisma.finish.findMany({ where: { gameRel: { slug: 'magic' } } })
+      this.prisma.finish.findMany(), // Traemos todos o podríamos filtrar por juego si lo tuviéramos
+      storeId ? this.prisma.storeConditionDevaluation.findMany({ where: { storeId } }) : Promise.resolve([])
     ]);
 
     const langMap = new Map(languages.map(l => [l.code, l.id]));
     const condMap = new Map(conditions.map(c => [c.name, c.id]));
-    const defaultLang = languages.find(l => l.code === 'es')?.id || languages[0]?.id;
+    const devalMap = new Map(devaluations.map(d => [d.conditionId, Number(d.multiplier)]));
+    const defaultLang = languages.find(l => l.code === 'en')?.id || languages[0]?.id;
     const defaultCond = conditions.find(c => c.name === 'near_mint')?.id || conditions[0]?.id;
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       try {
-        let product;
-        if (item.scryfallId) {
-          product = await this.prisma.product.findUnique({
-            where: { externalId: item.scryfallId },
-            include: { items: true, cardDetail: true }
-          });
-        }
+        let product = null;
 
-        if (!product) {
-          const products = await this.prisma.product.findMany({
+        if (provider) {
+          const result = await provider.findProductForBulkUpload(item, categoryId);
+          product = result.product;
+        } else {
+          // Búsqueda genérica en DB si no hay provider (ej. Carpetas, Accesorios)
+          product = await this.prisma.product.findFirst({
             where: {
               categoryId: categoryId,
               name: item.name,
-              cardDetail: {
-                expansion: item.expansion,
-                rarity: item.rarity,
-                collectorNum: item.collectorNum
-              }
+              ...(item.expansion ? { cardDetail: { expansion: item.expansion } } : {})
             },
-            include: { items: true, cardDetail: true }
+            include: { items: true, cardDetail: true, marketPrices: true }
           });
-          if (products.length > 0) {
-            product = products[0];
-          }
-        }
-
-        // Si la carta aún no existe, la insertamos dinámicamente usando las funciones modulares
-        if (!product) {
-          if (item.scryfallId) {
-            try {
-              const scryfallCard = await this.magicService.fetchCardById(item.scryfallId);
-              if (scryfallCard) {
-                product = await this.createProductFromScryfallCard(scryfallCard, categoryId, item);
-                results.added++;
-              }
-            } catch (fetchErr: any) {
-              // Fallback a creación manual con los datos provistos en el CSV
-              product = await this.createProductManually(item, categoryId);
-              results.added++;
-            }
-          } else {
-            // Creación manual directa si no hay scryfallId
-            product = await this.createProductManually(item, categoryId);
-            results.added++;
-          }
         }
 
         if (product) {
           const conditionId = condMap.get(item.condition || "") || defaultCond;
           const languageId = langMap.get(item.language || "") || defaultLang;
 
-          // Resolver el finish correcto usando alias desde la BD (Data-Driven)
           const csvFinish = (item.finish || "").toLowerCase().trim();
           const matchedFinish = finishes.find(f =>
             f.name.toLowerCase() === csvFinish || f.aliases.includes(csvFinish)
           );
           const finishId = item.finishId || matchedFinish?.id || null;
 
-          const existingItem = product.items.find(i =>
+          const existingItem = product.items?.find((i: any) =>
             i.conditionId === conditionId &&
             i.languageId === languageId &&
             i.finishId === finishId &&
@@ -176,12 +152,21 @@ export class ProductsService {
           );
 
           if (storeId) {
+            // Calcular devaluación si el precio es 0 o indefinido
+            let finalPrice = item.price;
+            if (!finalPrice) {
+              const marketPriceObj = product.marketPrices?.find((mp: any) => mp.finishId === finishId) || product.marketPrices?.[0];
+              const basePrice = marketPriceObj ? Number(marketPriceObj.price) : 0;
+              const multiplier = devalMap.get(conditionId) || 1.0;
+              finalPrice = basePrice * multiplier;
+            }
+
             if (existingItem) {
               await this.prisma.inventoryItem.update({
                 where: { id: existingItem.id },
                 data: {
                   stock: existingItem.stock + item.quantity,
-                  price: item.price !== undefined ? item.price : existingItem.price
+                  price: finalPrice !== undefined ? finalPrice : existingItem.price
                 }
               });
             } else {
@@ -189,7 +174,7 @@ export class ProductsService {
                 data: {
                   storeId: storeId,
                   productId: product.id,
-                  price: item.price || 0,
+                  price: finalPrice || 0,
                   stock: item.quantity,
                   conditionId: conditionId,
                   languageId: languageId,
@@ -202,7 +187,7 @@ export class ProductsService {
         } else {
           results.errors.push({
             index: item.originalIndex !== undefined ? item.originalIndex : i,
-            error: `No se pudo encontrar ni crear la carta '${item.name}' de la edición '${item.expansion}'.`
+            error: `No se encontró en el catálogo maestro la carta '${item.name}' de la edición '${item.expansion}'.`
           });
         }
       } catch (err: any) {

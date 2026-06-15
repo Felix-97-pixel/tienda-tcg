@@ -21,6 +21,7 @@ import { MailModule } from './mail/mail.module';
 import { StoresModule } from './stores/stores.module';
 import { ExpansionsModule } from './expansions/expansions.module';
 import { GamesModule } from './games/games.module';
+import { FeaturesModule } from './features/features.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { GamesModule } from './games/games.module';
     MailModule,
     StoresModule,
     ExpansionsModule,
-    GamesModule
+    GamesModule,
+    FeaturesModule
   ],
   controllers: [AppController],
   providers: [AppService],

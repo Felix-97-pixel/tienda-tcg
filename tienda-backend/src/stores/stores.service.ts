@@ -34,6 +34,10 @@ export class StoresService {
       include: {
         settings: true,
         supportedGames: true,
+        subscriptionPlan: {
+          include: { features: true }
+        },
+        customFeatures: true,
       }
     });
 
@@ -44,12 +48,42 @@ export class StoresService {
     return store;
   }
 
+  async findByUserId(userId: string) {
+    return this.prisma.store.findUnique({
+      where: { ownerId: userId },
+      include: {
+        subscriptionPlan: { include: { features: true } },
+        customFeatures: true,
+      }
+    });
+  }
+
+  async getStoreFeatures(storeId: string): Promise<string[]> {
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      include: {
+        subscriptionPlan: { include: { features: true } },
+        customFeatures: true,
+      }
+    });
+
+    if (!store) return [];
+
+    const planFeatures = store.subscriptionPlan?.features.map(f => f.key) || [];
+    const customFeats = store.customFeatures.map(f => f.key) || [];
+    
+    // Union unique
+    return Array.from(new Set([...planFeatures, ...customFeats]));
+  }
+
   async getStoreById(id: string) {
     const store = await this.prisma.store.findUnique({
       where: { id },
       include: {
         settings: true,
         supportedGames: true,
+        subscriptionPlan: { include: { features: true } },
+        customFeatures: true,
       }
     });
 

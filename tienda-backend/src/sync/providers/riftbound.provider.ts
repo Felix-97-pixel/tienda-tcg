@@ -60,6 +60,52 @@ export class RiftboundProvider extends TcgProvider {
     };
   }
 
+  /**
+   * Busca o crea un producto en la BD para la subida masiva.
+   * En Riftbound, buscamos fuertemente por collectorNum y expansion, o por name.
+   */
+  async findProductForBulkUpload(itemData: any, categoryId: string): Promise<any> {
+    let product = null;
+
+    // Intentar buscar por Variant Number (collectorNum) si está disponible
+    if (itemData.collectorNum) {
+      const numStr = itemData.collectorNum.toString();
+      const cleanNum = numStr.replace(/\D/g, '');
+      const parsedNum = cleanNum ? parseInt(cleanNum, 10).toString() : numStr;
+
+      product = await this.prisma.product.findFirst({
+        where: {
+          categoryId,
+          cardDetail: {
+            expansion: itemData.expansion,
+            OR: [
+              { collectorNum: numStr },
+              { collectorNum: parsedNum }
+            ]
+          }
+        },
+        include: { items: true, marketPrices: true }
+      });
+    }
+
+    // Fallback: Buscar por nombre y expansión
+    if (!product) {
+      const normalizedNameDash = itemData.name.replace(/,\s*/g, ' - ');
+      const normalizedNameComma = itemData.name.replace(/\s*-\s*/g, ', ');
+
+      product = await this.prisma.product.findFirst({
+        where: {
+          categoryId,
+          name: { in: [itemData.name, normalizedNameDash, normalizedNameComma] },
+          cardDetail: { expansion: itemData.expansion }
+        },
+        include: { items: true, marketPrices: true }
+      });
+    }
+
+    return { product, externalData: null };
+  }
+
   /** Lógica de precios usando JustTCG (delegado en RiftboundService) */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Riftbound] Iniciando actualización vía JustTCG para: "${expansionName}" ===`);

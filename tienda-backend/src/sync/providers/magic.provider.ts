@@ -64,6 +64,53 @@ export class MagicProvider extends TcgProvider {
     };
   }
 
+  /**
+   * Busca o crea un producto en la BD para la subida masiva.
+   * En Magic, si tenemos scryfallId, podemos hacer fetch directo para crear si no existe.
+   */
+  async findProductForBulkUpload(itemData: any, categoryId: string): Promise<any> {
+    // 1. Buscar en BD local por scryfallId (externalId) o nombre/expansión
+    let product = null;
+
+    if (itemData.scryfallId) {
+      product = await this.prisma.product.findUnique({
+        where: { externalId: itemData.scryfallId },
+        include: { items: true, marketPrices: true }
+      });
+    }
+
+    if (!product) {
+      product = await this.prisma.product.findFirst({
+        where: {
+          categoryId,
+          name: itemData.name,
+          cardDetail: { expansion: itemData.expansion }
+        },
+        include: { items: true, marketPrices: true }
+      });
+    }
+
+    // 2. Si no existe y tenemos scryfallId, intentar traer de Scryfall
+    if (!product && itemData.scryfallId) {
+      try {
+        const scryfallCard = await this.magicService.fetchCardById(itemData.scryfallId);
+        if (scryfallCard) {
+          const productData = this.mapToProduct(scryfallCard, categoryId);
+          // Necesita llamar al create de alguna manera. Lo simplificaremos devolviendo un flag para crearlo o creando aquí
+          // Pero base-tcg no tiene createProduct. Devolveremos null para que ProductsService lo cree manualmente, 
+          // O podemos crearlo aquí. Como ProductsService ya tiene lógica de create, mejor devolvemos null o lo creamos.
+          // En la refactorización, lo ideal es delegar la creación aquí si es posible.
+          // Por simplicidad, retornaremos `scryfallCard` en una propiedad `externalData` si no se encontró en BD.
+          return { product: null, externalData: scryfallCard };
+        }
+      } catch (e) {
+        this.logger.warn(`No se pudo obtener ${itemData.scryfallId} de Scryfall.`);
+      }
+    }
+
+    return { product, externalData: null };
+  }
+
   /** Actualización de precios usando MTGJSON (CardKingdom) */
   async updateGamePrices(expansionName: string) {
     this.logger.log(`=== [Magic] Iniciando actualización de precios para: "${expansionName}" ===`);

@@ -184,7 +184,7 @@ export class ProductsController {
     @Query('inventoryOnly') inventoryOnly?: string
   ) {
     const allowedGames = await this.getAllowedGames(req);
-    
+
     let resolvedStoreId = storeId;
     if (inventoryOnly === 'true') {
       const tokenStoreId = await this.getStoreIdFromToken(req);

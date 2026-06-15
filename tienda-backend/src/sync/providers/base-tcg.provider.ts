@@ -29,6 +29,9 @@ export abstract class TcgProvider {
   /** Lógica específica de actualización de precios para este juego */
   abstract updateGamePrices(expansionName: string): Promise<{ updated: number; errors: number }>;
 
+  /** Busca o crea un producto en la BD para la subida masiva según la lógica específica del juego */
+  abstract findProductForBulkUpload(itemData: any, categoryId: string): Promise<any>;
+
   // --- MÉTODOS COMPARTIDOS (Lógica común) ---
 
   /**
