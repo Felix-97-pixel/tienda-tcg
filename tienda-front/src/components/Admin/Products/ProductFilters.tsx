@@ -3,7 +3,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 
 export interface ProductFiltersProps {
   searchTerm: string;
@@ -42,7 +42,7 @@ export default function ProductFilters({
             <label className="text-sm text-gray-4 cursor-pointer select-none" onClick={() => onInventoryOnlyChange(!isInventoryOnly)}>
               Mostrar solo mi inventario
             </label>
-            <Checkbox 
+            <Switch 
               checked={isInventoryOnly} 
               onChange={(e) => onInventoryOnlyChange(e.target.checked)} 
             />

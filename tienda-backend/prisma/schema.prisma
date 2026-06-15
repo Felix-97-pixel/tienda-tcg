@@ -191,8 +191,7 @@ model Store {
   withdrawals    WithdrawalRequest[]
   devaluations   StoreConditionDevaluation[]
 
-  subscriptionPlanId String?
-  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlans  SubscriptionPlan[] @relation("StoreSubscriptionPlans")
   
   customFeatures     Feature[] @relation("StoreCustomFeatures")
 }
@@ -424,5 +423,5 @@ model SubscriptionPlan {
   price       Decimal  @default(0) @db.Decimal(10, 2)
   
   features    Feature[] @relation("PlanFeatures")
-  stores      Store[]
+  stores      Store[]   @relation("StoreSubscriptionPlans")
 }

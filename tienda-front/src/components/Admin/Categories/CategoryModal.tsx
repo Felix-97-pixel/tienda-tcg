@@ -7,7 +7,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { AdminCategory as Category } from "@/types/adminCategory";
@@ -144,7 +144,7 @@ export default function CategoryModal({ isOpen, onClose, category, onSuccess }: 
           </div>
         </div>
 
-        <Checkbox
+        <Switch
           checked={formData.isTcg}
           onChange={(e) => setFormData({ ...formData, isTcg: e.target.checked })}
           label={t("modal.isTcgLabel")}

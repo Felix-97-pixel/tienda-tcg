@@ -34,7 +34,7 @@ export class StoresService {
       include: {
         settings: true,
         supportedGames: true,
-        subscriptionPlan: {
+        subscriptionPlans: {
           include: { features: true }
         },
         customFeatures: true,
@@ -52,7 +52,7 @@ export class StoresService {
     return this.prisma.store.findUnique({
       where: { ownerId: userId },
       include: {
-        subscriptionPlan: { include: { features: true } },
+        subscriptionPlans: { include: { features: true } },
         customFeatures: true,
       }
     });
@@ -62,14 +62,14 @@ export class StoresService {
     const store = await this.prisma.store.findUnique({
       where: { id: storeId },
       include: {
-        subscriptionPlan: { include: { features: true } },
+        subscriptionPlans: { include: { features: true } },
         customFeatures: true,
       }
     });
 
     if (!store) return [];
 
-    const planFeatures = store.subscriptionPlan?.features.map(f => f.key) || [];
+    const planFeatures = store.subscriptionPlans?.flatMap(p => p.features.map(f => f.key)) || [];
     const customFeats = store.customFeatures.map(f => f.key) || [];
     
     // Union unique
@@ -82,7 +82,7 @@ export class StoresService {
       include: {
         settings: true,
         supportedGames: true,
-        subscriptionPlan: { include: { features: true } },
+        subscriptionPlans: { include: { features: true } },
         customFeatures: true,
       }
     });
@@ -154,16 +154,22 @@ export class StoresService {
       throw new NotFoundException('Tienda no encontrada');
     }
 
-    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website, games } = data;
+    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website, subscriptionPlanIds, customFeatureIds } = data;
 
     const updateData: any = {
       name: name !== undefined ? name : undefined,
       logoUrl: logoUrl !== undefined ? logoUrl : undefined,
     };
 
-    if (games !== undefined && Array.isArray(games)) {
-      updateData.supportedGames = {
-        set: games.map((id: string) => ({ id }))
+    if (subscriptionPlanIds !== undefined && Array.isArray(subscriptionPlanIds)) {
+      updateData.subscriptionPlans = {
+        set: subscriptionPlanIds.map((id: string) => ({ id }))
+      };
+    }
+
+    if (customFeatureIds !== undefined && Array.isArray(customFeatureIds)) {
+      updateData.customFeatures = {
+        set: customFeatureIds.map((id: string) => ({ id }))
       };
     }
 

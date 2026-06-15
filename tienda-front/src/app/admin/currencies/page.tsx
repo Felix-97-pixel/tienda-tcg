@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { List, Column } from "@/components/ui/List";
 import { Currency } from "@/types/currency";
 
@@ -257,7 +257,7 @@ export default function AdminCurrencies() {
           </div>
 
           <div className="pt-2">
-            <Checkbox
+            <Switch
               label="Divisa Principal"
               checked={isDefault}
               onChange={(e) => setIsDefault(e.target.checked)}

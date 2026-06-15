@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { List, Column } from "@/components/ui/List";
 import { ShippingProvider } from "@/types/shippingProvider";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
@@ -200,7 +200,7 @@ export default function AdminShipping() {
             </div>
 
             <div className="pt-2">
-              <Checkbox
+              <Switch
                 label="Proveedor de Envío Activo"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 interface StoreProfileFormProps {
   storeId: string; // "me" for normal admin, or the specific store ID for superadmin
@@ -19,11 +20,13 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [availableGames, setAvailableGames] = useState<{id: string, name: string}[]>([]);
+  const [availableFeatures, setAvailableFeatures] = useState<{id: string, name: string, key: string, price: number}[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<{id: string, name: string, price: number}[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     logoUrl: "",
-    games: [] as string[],
+    subscriptionPlanIds: [] as string[],
+    customFeatureIds: [] as string[],
     description: "",
     facebook: "",
     instagram: "",
@@ -47,12 +50,15 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
     try {
       setLoading(true);
       
-      // Fetch available games in parallel if superadmin
-      let fetchedGames: {id: string, name: string}[] = [];
+      // Fetch available features and plans in parallel if superadmin
       if (storeId !== "me") {
-        const gamesRes = await fetch(`${API_URL}/products/meta/games`);
-        if (gamesRes.ok) fetchedGames = await gamesRes.json();
-        setAvailableGames(fetchedGames);
+        const [featuresRes, plansRes] = await Promise.all([
+          fetch(`${API_URL}/features`, { credentials: "include" }),
+          fetch(`${API_URL}/features/plans`, { credentials: "include" })
+        ]);
+        
+        if (featuresRes.ok) setAvailableFeatures(await featuresRes.json());
+        if (plansRes.ok) setAvailablePlans(await plansRes.json());
       }
 
       const res = await fetch(getEndpoint(), { credentials: "include" });
@@ -66,7 +72,8 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
         setFormData({
           name: store.name || "",
           logoUrl: store.logoUrl || "",
-          games: store.supportedGames ? store.supportedGames.map((g: any) => g.id) : [],
+          subscriptionPlanIds: store.subscriptionPlans ? store.subscriptionPlans.map((p: any) => p.id) : [],
+          customFeatureIds: store.customFeatures ? store.customFeatures.map((f: any) => f.id) : [],
           description: s.description || "",
           facebook: s.facebook || "",
           instagram: s.instagram || "",
@@ -260,7 +267,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               />
             </div>
 
-            {/* Juegos Suscritos (Solo visible para SuperAdmin) */}
+            {/* Asignación de Planes y Features (Solo visible para SuperAdmin) */}
             {storeId !== "me" && (
               <>
                 <div className="flex items-center gap-4 mb-6 mt-10">
@@ -268,39 +275,39 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Juegos Suscritos</h2>
-                    <p className="text-xs text-gray-4 font-medium mt-1">Selecciona los juegos a los que esta tienda tiene acceso.</p>
+                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Suscripción y Módulos</h2>
+                    <p className="text-xs text-gray-4 font-medium mt-1">Configura a qué módulos y planes tiene acceso esta tienda.</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#111318] border border-stroke p-6 rounded-2xl">
-                  {availableGames.map(game => (
-                    <label key={game.id} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center">
-                        <input
-                          type="checkbox"
-                          className="peer sr-only"
-                          checked={formData.games.includes(game.id)}
-                          onChange={(e) => {
-                            const isChecked = e.target.checked;
-                            setFormData(prev => ({
-                              ...prev,
-                              games: isChecked 
-                                ? [...prev.games, game.id] 
-                                : prev.games.filter(id => id !== game.id)
-                            }));
-                          }}
-                        />
-                        <div className="w-5 h-5 rounded border border-gray-5 bg-transparent peer-checked:bg-blue peer-checked:border-blue transition-colors flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-gray-3 group-hover:text-white transition-colors uppercase">{game.name}</span>
-                    </label>
-                  ))}
-                  {availableGames.length === 0 && (
-                    <p className="text-gray-5 text-sm col-span-2">No hay juegos disponibles.</p>
-                  )}
+                <div className="bg-[#111318] border border-stroke p-6 rounded-2xl space-y-6">
+                  {/* Selector de Planes */}
+                  <Checkbox
+                    label="Planes de Suscripción"
+                    description="Añade los planes base que cubren múltiples funcionalidades."
+                    placeholder="Buscar y seleccionar plan a añadir..."
+                    options={availablePlans.map(plan => ({
+                      label: `${plan.name} ($${plan.price})`,
+                      value: plan.id
+                    }))}
+                    selectedValues={formData.subscriptionPlanIds}
+                    onChange={(values) => setFormData(prev => ({ ...prev, subscriptionPlanIds: values }))}
+                    badgeColor="blue"
+                  />
+
+                  {/* Selector de Features Extras */}
+                  <Checkbox
+                    label="Funciones Extra (Add-ons)"
+                    description="Añade módulos o juegos individuales por separado."
+                    placeholder="Buscar y seleccionar función a añadir..."
+                    options={availableFeatures.map(feat => ({
+                      label: `${feat.name} ($${feat.price})`,
+                      value: feat.id
+                    }))}
+                    selectedValues={formData.customFeatureIds}
+                    onChange={(values) => setFormData(prev => ({ ...prev, customFeatureIds: values }))}
+                    badgeColor="emerald"
+                  />
                 </div>
               </>
             )}
