@@ -402,6 +402,14 @@ export class ProductsService {
     return store?.supportedGames?.length > 0 ? store.supportedGames : undefined;
   }
 
+  async getStoreIdByUserId(userId: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: userId },
+      select: { id: true }
+    });
+    return store?.id;
+  }
+
   async getGames() {
     return this.prisma.game.findMany({
       orderBy: { name: 'asc' }

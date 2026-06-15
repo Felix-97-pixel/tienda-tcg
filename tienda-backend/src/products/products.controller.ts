@@ -30,6 +30,20 @@ export class ProductsController {
     return undefined;
   }
 
+  private async getStoreIdFromToken(req: Request): Promise<string | undefined> {
+    const token = req.cookies?.access_token;
+    if (!token) return undefined;
+    try {
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || '');
+      if (decoded && decoded.sub) {
+        return this.productsService.getStoreIdByUserId(decoded.sub);
+      }
+    } catch (e) {
+      return undefined;
+    }
+    return undefined;
+  }
+
   @Post('global')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPERADMIN)
@@ -166,12 +180,22 @@ export class ProductsController {
     @Query('expansion') expansion?: string,
     @Query('attribute') attribute?: string,
     @Query('search') searchName?: string,
-    @Query('storeId') storeId?: string
+    @Query('storeId') storeId?: string,
+    @Query('inventoryOnly') inventoryOnly?: string
   ) {
     const allowedGames = await this.getAllowedGames(req);
+    
+    let resolvedStoreId = storeId;
+    if (inventoryOnly === 'true') {
+      const tokenStoreId = await this.getStoreIdFromToken(req);
+      if (tokenStoreId) {
+        resolvedStoreId = tokenStoreId;
+      }
+    }
+
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50; // default 50 limits
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, storeId, allowedGames);
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, allowedGames);
   }
 
   @Get('meta/languages')

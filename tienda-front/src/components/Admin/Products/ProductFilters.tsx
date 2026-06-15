@@ -3,6 +3,8 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Input } from "@/components/ui/Input";
+import { Checkbox } from "@/components/ui/Checkbox";
+
 export interface ProductFiltersProps {
   searchTerm: string;
   onSearchChange: (val: string) => void;
@@ -12,6 +14,8 @@ export interface ProductFiltersProps {
   onExpansionChange: (val: string) => void;
   categories: { id: string, name: string }[];
   expansions: { name: string, products: number }[];
+  isInventoryOnly?: boolean;
+  onInventoryOnlyChange?: (val: boolean) => void;
 }
 
 export default function ProductFilters({
@@ -22,14 +26,29 @@ export default function ProductFilters({
   selectedExpansion,
   onExpansionChange,
   categories,
-  expansions
+  expansions,
+  isInventoryOnly,
+  onInventoryOnlyChange
 }: ProductFiltersProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
 
   return (
     <div className="bg-[#1a1d24] rounded-2xl shadow-1 p-5 mb-6">
-      <p className="text-sm font-medium text-white mb-3">{tc("filters")}</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-sm font-medium text-white">{tc("filters")}</p>
+        {isInventoryOnly !== undefined && onInventoryOnlyChange && (
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-4 cursor-pointer select-none" onClick={() => onInventoryOnlyChange(!isInventoryOnly)}>
+              Mostrar solo mi inventario
+            </label>
+            <Checkbox 
+              checked={isInventoryOnly} 
+              onChange={(e) => onInventoryOnlyChange(e.target.checked)} 
+            />
+          </div>
+        )}
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
           <Input 

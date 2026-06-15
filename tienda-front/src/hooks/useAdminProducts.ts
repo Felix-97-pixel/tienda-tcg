@@ -3,12 +3,13 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "@/utils/api";
 import { Product } from "@/types/product";
 
-export function useAdminProducts() {
+export function useAdminProducts(initialInventoryOnly: boolean = false) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedExpansion, setSelectedExpansion] = useState("");
+  const [isInventoryOnly, setIsInventoryOnly] = useState(initialInventoryOnly);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -29,6 +30,7 @@ export function useAdminProducts() {
       if (searchTerm) url.searchParams.append("search", searchTerm);
       if (selectedCategory) url.searchParams.append("category", selectedCategory);
       if (selectedExpansion) url.searchParams.append("expansion", selectedExpansion);
+      if (isInventoryOnly) url.searchParams.append("inventoryOnly", "true");
 
       const res = await fetch(url.toString(), { credentials: "include" });
       const data = await res.json();
@@ -39,7 +41,7 @@ export function useAdminProducts() {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, selectedCategory, selectedExpansion]);
+  }, [page, searchTerm, selectedCategory, selectedExpansion, isInventoryOnly]);
 
   useEffect(() => {
     const timeoutId = setTimeout(fetchProducts, 400);
@@ -49,7 +51,7 @@ export function useAdminProducts() {
   // Reset to page 1 when filters change to avoid "stuck on empty page" bug
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, selectedCategory, selectedExpansion]);
+  }, [searchTerm, selectedCategory, selectedExpansion, isInventoryOnly]);
 
   return {
     products,
@@ -61,6 +63,8 @@ export function useAdminProducts() {
     setSelectedCategory,
     selectedExpansion,
     setSelectedExpansion,
+    isInventoryOnly,
+    setIsInventoryOnly,
     page,
     setPage,
     totalPages,

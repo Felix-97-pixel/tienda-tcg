@@ -26,8 +26,9 @@ export default function StoreAdminProducts() {
     searchTerm, setSearchTerm,
     selectedCategory, setSelectedCategory,
     selectedExpansion, setSelectedExpansion,
+    isInventoryOnly, setIsInventoryOnly,
     page, setPage, totalPages
-  } = useAdminProducts();
+  } = useAdminProducts(true);
 
   // Estados de Metadatos
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,9 +58,14 @@ export default function StoreAdminProducts() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Catálogo Global</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {isInventoryOnly ? "Mi Inventario" : "Catálogo Global"}
+          </h1>
           <p className="text-gray-4 text-sm mt-1">
-            Busca productos en el catálogo oficial y añade tu inventario para publicarlos en tu tienda.
+            {isInventoryOnly 
+              ? "Revisa y gestiona las cartas que actualmente tienes en tu inventario."
+              : "Busca productos en el catálogo oficial y añade tu inventario para publicarlos en tu tienda."
+            }
           </p>
         </div>
         <div className="flex gap-3">
@@ -80,10 +86,12 @@ export default function StoreAdminProducts() {
         selectedExpansion={selectedExpansion} onExpansionChange={setSelectedExpansion}
         categories={categories}
         expansions={expansions}
+        isInventoryOnly={isInventoryOnly}
+        onInventoryOnlyChange={setIsInventoryOnly}
       />
 
       {/* Tabla Principal */}
-      {!searchTerm && !selectedCategory && !selectedExpansion ? (
+      {!searchTerm && !selectedCategory && !selectedExpansion && !isInventoryOnly ? (
         <div className="flex flex-col items-center justify-center p-16 bg-[#1a1d24] border border-white/5 rounded-3xl text-center shadow-lg">
           <div className="w-20 h-20 bg-blue/10 rounded-full flex items-center justify-center mb-6">
             <svg className="w-10 h-10 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
