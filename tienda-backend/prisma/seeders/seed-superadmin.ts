@@ -1,50 +1,25 @@
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+export async function seedSuperAdmin(prisma: PrismaClient) {
+  console.log('--- Seeding SuperAdmin ---');
 
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+  const email = 'superadmin@example.com';
+  const password = await bcrypt.hash('superadmin123', 10);
 
-async function main() {
-  const email = 'felix@taptrade.cl';
-  const password = '123456';
-  
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const superAdmin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email },
     update: {
-      password: hashedPassword,
-      role: 'SUPERADMIN',
+      role: Role.SUPERADMIN,
     },
     create: {
       email,
-      name: 'Félix (Super Admin)',
-      password: hashedPassword,
-      role: 'SUPERADMIN',
+      password,
+      name: 'Super Admin',
+      role: Role.SUPERADMIN,
       isVerified: true,
     },
   });
 
-  console.log('✅ Super Admin created successfully!');
-  console.log(`Email: ${superAdmin.email}`);
-  console.log(`Role: ${superAdmin.role}`);
+  console.log('Superadmin configurado exitosamente.');
 }
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-    await pool.end();
-  });
