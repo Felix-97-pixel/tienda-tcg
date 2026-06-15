@@ -4,7 +4,7 @@ export async function seedSettings(prisma: PrismaClient) {
   console.log('--- Seeding Global Settings ---');
 
   const magic = await prisma.game.findUnique({ where: { name: 'Magic: The Gathering' } });
-  const pokemon = await prisma.game.findUnique({ where: { name: 'Pokémon' } });
+  const pokemon = await prisma.game.findUnique({ where: { name: 'Pokémon TCG' } });
   const riftbound = await prisma.game.findUnique({ where: { name: 'Riftbound' } });
 
   const settingsData = [
