@@ -45,6 +45,11 @@ export class MagicService {
         // Delay para respetar el Rate Limiting solicitado por Scryfall
         await new Promise((resolve) => setTimeout(resolve, 80));
       } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+          const msg = `La expansión '${setCode}' aún no tiene cartas disponibles en Scryfall (posiblemente porque no han iniciado los spoilers oficiales). Puedes verificarlo manualmente buscando "set:${setCode}" en scryfall.com`;
+          this.logger.warn(`Set no encontrado o sin spoilers: ${setCode}`);
+          throw new Error(msg);
+        }
         this.logger.error(`Error al consultar el set ${setCode} en Scryfall: ${error.message}`);
         throw new Error(`Scryfall API Error: ${error.message}`);
       }

@@ -13,10 +13,10 @@ export class ExpansionsService {
     private readonly riftboundService: RiftboundService
   ) {}
 
-  async getExpansions(page: number = 1, limit: number = 50, game?: string, search?: string) {
+  async getExpansions(page: number = 1, limit: number = 50, gameId?: string, search?: string) {
     const where: any = {};
-    if (game && game !== 'all') {
-      where.gameRel = { name: { equals: game, mode: 'insensitive' } };
+    if (gameId && gameId !== 'all') {
+      where.gameId = gameId;
     }
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };

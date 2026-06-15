@@ -26,14 +26,6 @@ export class ProductsService {
       data: {
         ...productData,
         externalId: productData.externalId || `manual-${Date.now()}-${randomUUID()}`,
-        items: {
-          create: {
-            price: 0,
-            stock: stock || 0,
-            conditionId: defaultCond?.id || "",
-            languageId: defaultLang?.id || ""
-          }
-        },
         marketPrices: {
           create: {
             price: price || 0
@@ -98,14 +90,9 @@ export class ProductsService {
     });
   }
 
-  async bulkUpload(categoryId: string, items: any[]) {
-    const category = await this.prisma.category.findUnique({ where: { id: categoryId } });
-    if (!category) throw new Error("Category not found");
-
-    if (category.name !== "Singles Magic The Gathering") {
-      throw new Error("La carga masiva actualmente solo está soportada para Singles Magic The Gathering.");
-    }
-
+  async bulkUpload(categoryId: string, items: any[], userId: string) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const storeId = store?.id;
     const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
 
     // Pre-cargar idiomas, condiciones y acabados (finishes) para evitar consultas repetitivas
@@ -184,28 +171,32 @@ export class ProductsService {
           const existingItem = product.items.find(i =>
             i.conditionId === conditionId &&
             i.languageId === languageId &&
-            i.finishId === finishId
+            i.finishId === finishId &&
+            i.storeId === storeId
           );
 
-          if (existingItem) {
-            await this.prisma.inventoryItem.update({
-              where: { id: existingItem.id },
-              data: {
-                stock: existingItem.stock + item.quantity,
-                price: item.price !== undefined ? item.price : existingItem.price
-              }
-            });
-          } else {
-            await this.prisma.inventoryItem.create({
-              data: {
-                productId: product.id,
-                price: item.price || 0,
-                stock: item.quantity,
-                conditionId: conditionId,
-                languageId: languageId,
-                finishId: finishId || undefined
-              }
-            });
+          if (storeId) {
+            if (existingItem) {
+              await this.prisma.inventoryItem.update({
+                where: { id: existingItem.id },
+                data: {
+                  stock: existingItem.stock + item.quantity,
+                  price: item.price !== undefined ? item.price : existingItem.price
+                }
+              });
+            } else {
+              await this.prisma.inventoryItem.create({
+                data: {
+                  storeId: storeId,
+                  productId: product.id,
+                  price: item.price || 0,
+                  stock: item.quantity,
+                  conditionId: conditionId,
+                  languageId: languageId,
+                  finishId: finishId || undefined
+                }
+              });
+            }
           }
           results.updated++;
         } else {
@@ -236,7 +227,9 @@ export class ProductsService {
     });
   }
 
-  async bulkUpdateStock(items: { id: string, stock: number, originalIndex?: number }[]) {
+  async bulkUpdateStock(items: { id: string, stock: number, originalIndex?: number }[], userId: string) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const storeId = store?.id;
     const results = { updated: 0, errors: [] as { index: number, error: string }[] };
 
     for (let i = 0; i < items.length; i++) {
@@ -247,30 +240,41 @@ export class ProductsService {
           include: { items: true }
         });
 
-        if (product && product.items.length > 0) {
-          await this.prisma.inventoryItem.update({
-            where: { id: product.items[0].id },
-            data: { stock: product.items[0].stock + item.stock }
-          });
-          results.updated++;
-        } else if (product && product.items.length === 0) {
-          const defaultLang = await this.prisma.language.findFirst({ where: { code: 'en' } });
-          const defaultCond = await this.prisma.condition.findFirst({ where: { name: 'near_mint' } });
+        // Encontrar el item existente de ESTA tienda
+        const storeItem = storeId ? product?.items.find(i => i.storeId === storeId) : null;
 
-          await this.prisma.inventoryItem.create({
-            data: {
-              productId: product.id,
-              price: 0,
-              stock: item.stock,
-              conditionId: defaultCond?.id || "",
-              languageId: defaultLang?.id || ""
-            }
-          });
-          results.updated++;
+        if (storeId) {
+          if (storeItem) {
+            await this.prisma.inventoryItem.update({
+              where: { id: storeItem.id },
+              data: { stock: storeItem.stock + item.stock }
+            });
+            results.updated++;
+          } else if (product) {
+            const defaultLang = await this.prisma.language.findFirst({ where: { code: 'en' } });
+            const defaultCond = await this.prisma.condition.findFirst({ where: { name: 'near_mint' } });
+
+            await this.prisma.inventoryItem.create({
+              data: {
+                storeId: storeId,
+                productId: product.id,
+                price: 0,
+                stock: item.stock,
+                conditionId: defaultCond?.id || "",
+                languageId: defaultLang?.id || ""
+              }
+            });
+            results.updated++;
+          } else {
+            results.errors.push({
+              index: item.originalIndex !== undefined ? item.originalIndex : i,
+              error: `No se encontró el producto con ID: ${item.id}`
+            });
+          }
         } else {
           results.errors.push({
             index: item.originalIndex !== undefined ? item.originalIndex : i,
-            error: `No se encontró el producto con ID: ${item.id}`
+            error: `Operación de inventario inválida sin tienda asignada.`
           });
         }
       } catch (err: any) {

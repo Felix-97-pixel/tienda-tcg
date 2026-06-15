@@ -14,13 +14,13 @@ export class ExpansionsController {
   async getExpansions(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-    @Query('game') game?: string,
+    @Query('gameId') gameId?: string,
     @Query('search') search?: string
   ) {
     return this.expansionsService.getExpansions(
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 50,
-      game,
+      gameId,
       search
     );
   }

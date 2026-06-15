@@ -52,10 +52,13 @@ export default function PokemonSyncPage() {
             </div>
 
             <SearchableSelect
-              options={sync.sets.map(s => ({
-                label: s.name,
-                value: s.id
-              }))}
+              options={[
+                { label: "⭐ TODAS LAS EDICIONES (Masivo)", value: "ALL" },
+                ...sync.sets.map(s => ({
+                  label: s.name,
+                  value: s.id
+                }))
+              ]}
               value={sync.selectedSetId}
               onChange={sync.setSelectedSetId}
               placeholder={t("pokemon.placeholder")}

@@ -18,6 +18,7 @@ export default function ExpansionsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [gameFilter, setGameFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [games, setGames] = useState<{id: string, name: string}[]>([]);
 
   // Modals
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -28,7 +29,7 @@ export default function ExpansionsPage() {
     setLoading(true);
     try {
       let url = `${API_URL}/expansions?page=${page}&limit=50`;
-      if (gameFilter !== "all") url += `&game=${gameFilter}`;
+      if (gameFilter !== "all") url += `&gameId=${gameFilter}`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
       
       const res = await fetch(url, { credentials: "include" });
@@ -43,6 +44,22 @@ export default function ExpansionsPage() {
       setLoading(false);
     }
   };
+
+  const fetchGames = async () => {
+    try {
+      const res = await fetch(`${API_URL}/games`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setGames(data || []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
 
   useEffect(() => {
     fetchExpansions();
@@ -106,9 +123,9 @@ export default function ExpansionsPage() {
           className="bg-[#111318] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue/50"
         >
           <option value="all">Todos los Juegos</option>
-          <option value="Magic">Magic: The Gathering</option>
-          <option value="Pokemon">Pokémon TCG</option>
-          <option value="Riftbound">Riftbound</option>
+          {games.map(g => (
+            <option key={g.id} value={g.id}>{g.name}</option>
+          ))}
         </select>
       </div>
 

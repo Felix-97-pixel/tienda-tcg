@@ -7,6 +7,14 @@ export class PokemonProvider extends TcgProvider {
     super('Pokemon', prisma);
   }
 
+  protected override async getGameId(): Promise<string> {
+    const setting = await this.prisma.globalSetting.findUnique({ where: { key: 'pokemon_sync_game_id' } });
+    if (!setting || !setting.value) {
+      throw new Error(`El Juego (Game ID) no está configurado para el destino 'Pokemon'. Ve a Configuración -> Destinos de Sincronización.`);
+    }
+    return setting.value;
+  }
+
   /**
    * Detecta versiones automáticamente desde los precios de TCGPlayer
    */
@@ -94,11 +102,21 @@ export class PokemonProvider extends TcgProvider {
 
       // Pre-cargar acabados de Pokémon
       const gameId = await this.getGameId();
+      
+      const ensureFinish = async (name: string) => {
+        let finish = await this.prisma.finish.findFirst({ where: { name, gameId } });
+        if (!finish) {
+          finish = await this.prisma.finish.create({ data: { name, gameId } });
+          this.logger.log(`[Pokémon] Creado nuevo acabado dinámicamente: ${name}`);
+        }
+        return finish;
+      };
+
       const [normalFinish, holoFinish, reverseFinish, unlimitedHoloFinish] = await Promise.all([
-        this.prisma.finish.findFirst({ where: { name: 'Normal', gameId } }),
-        this.prisma.finish.findFirst({ where: { name: 'Holofoil', gameId } }),
-        this.prisma.finish.findFirst({ where: { name: 'Reverse Holofoil', gameId } }),
-        this.prisma.finish.findFirst({ where: { name: 'Unlimited Holofoil', gameId } })
+        ensureFinish('Normal'),
+        ensureFinish('Holofoil'),
+        ensureFinish('Reverse Holofoil'),
+        ensureFinish('Unlimited Holofoil')
       ]);
 
       let page = 1;

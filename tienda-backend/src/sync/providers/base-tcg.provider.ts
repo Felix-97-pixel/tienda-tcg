@@ -107,6 +107,7 @@ export abstract class TcgProvider {
                 expansionId: expansionRecord.id,
                 rarity: productData.rarity,
                 collectorNum: productData.number,
+                gameId: gameId,
                 attributes: productData.attributes
               }
             }

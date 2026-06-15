@@ -51,9 +51,20 @@ export function useTcgSync(game: string, defaultCategory: string) {
         const res = await fetch(`${API_URL}/sync/status/${game}`, { credentials: "include" });
         const data = await res.json();
         
-        // Actualizar ambos estados desde la misma respuesta
-        setImportProgress(data.import);
-        setPriceProgress(data.price);
+        // Actualizar estados usando callback para detectar cuándo terminan
+        setImportProgress(prev => {
+          if (prev.active && !data.import.active) {
+            showToast("Catálogo sincronizado exitosamente", "success");
+          }
+          return data.import;
+        });
+
+        setPriceProgress(prev => {
+          if (prev.active && !data.price.active) {
+            showToast("Precios actualizados exitosamente", "success");
+          }
+          return data.price;
+        });
         
         if (!data.import.active && !data.price.active) {
           clearInterval(interval);

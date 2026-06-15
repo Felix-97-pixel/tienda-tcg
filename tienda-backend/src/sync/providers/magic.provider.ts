@@ -7,6 +7,14 @@ export class MagicProvider extends TcgProvider {
     super('Magic', prisma);
   }
 
+  protected override async getGameId(): Promise<string> {
+    const setting = await this.prisma.globalSetting.findUnique({ where: { key: 'mtg_sync_game_id' } });
+    if (!setting || !setting.value) {
+      throw new Error(`El Juego (Game ID) no está configurado para el destino 'Magic'. Ve a Configuración -> Destinos de Sincronización.`);
+    }
+    return setting.value;
+  }
+
   /**
    * Detecta versiones automáticamente desde Scryfall (finishes)
    */

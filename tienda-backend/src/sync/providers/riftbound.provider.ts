@@ -7,6 +7,14 @@ export class RiftboundProvider extends TcgProvider {
     super('Riftbound', prisma);
   }
 
+  protected override async getGameId(): Promise<string> {
+    const setting = await this.prisma.globalSetting.findUnique({ where: { key: 'riftbound_sync_game_id' } });
+    if (!setting || !setting.value) {
+      throw new Error(`El Juego (Game ID) no está configurado para el destino 'Riftbound'. Ve a Configuración -> Destinos de Sincronización.`);
+    }
+    return setting.value;
+  }
+
   /**
    * Detecta versiones automáticamente desde la API de Riftcodex.
    */

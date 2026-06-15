@@ -56,15 +56,15 @@ export class ProductsController {
   @Post('bulk-upload')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  bulkUpload(@Body() bulkUploadDto: BulkUploadDto) {
-    return this.productsService.bulkUpload(bulkUploadDto.categoryId, bulkUploadDto.items);
+  bulkUpload(@Req() req: any, @Body() bulkUploadDto: BulkUploadDto) {
+    return this.productsService.bulkUpload(bulkUploadDto.categoryId, bulkUploadDto.items, req.user.userId);
   }
 
   @Post('bulk-update-stock')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  bulkUpdateStock(@Body() bulkUpdateStockDto: any) {
-    return this.productsService.bulkUpdateStock(bulkUpdateStockDto.items);
+  bulkUpdateStock(@Req() req: any, @Body() bulkUpdateStockDto: any) {
+    return this.productsService.bulkUpdateStock(bulkUpdateStockDto.items, req.user.userId);
   }
 
   @Get('meta/categories/admin')
