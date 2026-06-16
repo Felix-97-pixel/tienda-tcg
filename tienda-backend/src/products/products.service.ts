@@ -38,36 +38,6 @@ export class ProductsService {
   }
 
   /**
-   * Crea un producto y su CardDetail correspondiente usando la información oficial obtenida de Scryfall.
-   * Este método es completamente reutilizable en cualquier otra parte de la aplicación.
-   */
-  async createProductFromScryfallCard(scryfallCard: any, categoryId: string, itemData?: any) {
-    const attrs: string[] = scryfallCard.colors || scryfallCard.card_faces?.[0]?.colors || [];
-    if (scryfallCard.oracle_text?.includes('{E}')) attrs.push('Energy');
-    if (scryfallCard.oracle_text?.toLowerCase().includes('devotion')) attrs.push('Devotion');
-
-    return this.prisma.product.create({
-      data: {
-        externalId: scryfallCard.id,
-        name: scryfallCard.name,
-        description: scryfallCard.oracle_text || null,
-        imageUrl: scryfallCard.image_uris?.normal || scryfallCard.card_faces?.[0]?.image_uris?.normal || '',
-        categoryId: categoryId,
-        cardDetail: {
-          create: {
-            expansion: scryfallCard.set_name || itemData?.expansion || 'Unknown Set',
-            rarity: scryfallCard.rarity || itemData?.rarity || 'Common',
-            collectorNum: scryfallCard.collector_number || itemData?.collectorNum || '',
-            gameRel: { connect: { slug: 'magic' } },
-            attributes: attrs
-          }
-        }
-      },
-      include: { items: true, cardDetail: true }
-    });
-  }
-
-  /**
    * Crea un producto de forma manual utilizando exclusivamente los metadatos provistos en el CSV o formulario.
    * Este método es completamente reutilizable en cualquier otra parte de la aplicación.
    */
@@ -208,7 +178,7 @@ export class ProductsService {
       try {
         let finalImageUrl = null;
         let finalBrandId = null;
-        
+
         if (!item['Categoria']) {
           throw new BadRequestException('Falta la columna Categoria');
         }
@@ -348,11 +318,11 @@ export class ProductsService {
 
   async getCategories(storeId?: string, isTcg: boolean = false) {
     const whereClause: any = storeId ? { products: { some: { items: { some: { storeId } } } } } : {};
-    
+
     if (isTcg) {
       whereClause.isTcg = false;
     }
-    
+
     const categories = await this.prisma.category.findMany({
       where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
       select: {
@@ -708,7 +678,7 @@ export class ProductsService {
 
     // 3. Consultar la base de datos usando el nombre real encontrado
     if (!targetGameId) return [];
-    
+
     return this.prisma.finish.findMany({
       where: { gameId: targetGameId },
       orderBy: { name: 'asc' },
@@ -744,7 +714,7 @@ export class ProductsService {
     }
 
     let finalPrice = Number(price) || 0;
-    
+
     // Si la tienda está agregando (storeId != null) y el precio es 0, intentar heredar del maestro
     if (storeId && finalPrice === 0) {
       const masterPrice = await this.prisma.marketPrice.findFirst({
@@ -771,19 +741,5 @@ export class ProductsService {
     });
   }
 
-  async getGlobalProducts(search?: string) {
-    const where: any = { storeId: null };
-    if (search) {
-      where.name = { contains: search, mode: 'insensitive' };
-    }
-    return this.prisma.product.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: { 
-        category: true, 
-        cardDetail: true,
-        marketPrices: { include: { finish: true } }
-      }
-    });
-  }
+
 }
