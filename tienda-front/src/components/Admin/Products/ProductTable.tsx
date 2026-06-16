@@ -87,18 +87,18 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
             <Button 
               size="sm"
               variant="secondary"
-              className="px-3 bg-blue/10 text-blue hover:bg-blue hover:text-white"
+              className="!px-3 !py-2.5 hover:border-blue hover:text-blue group"
               onClick={() => onEdit(product, product.items?.[0])}
               title={tc("edit")}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              <svg className="w-4 h-4 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
             </Button>
           )}
           {onDelete && (
             <Button 
               size="sm"
               variant="danger"
-              className="px-3"
+              className="!px-3 !py-2.5"
               onClick={() => onDelete(product)}
               title={tc("delete")}
             >

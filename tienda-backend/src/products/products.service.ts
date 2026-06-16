@@ -284,10 +284,10 @@ export class ProductsService {
     });
   }
 
-  async getCategories(storeId?: string, allowedGames?: any[]) {
+  async getCategories(storeId?: string) {
     const whereClause = storeId ? { items: { some: { storeId } } } : undefined;
     
-    let categories = await this.prisma.category.findMany({
+    const categories = await this.prisma.category.findMany({
       where: whereClause ? { products: { some: whereClause } } : undefined,
       select: {
         id: true,
@@ -300,14 +300,6 @@ export class ProductsService {
         }
       }
     });
-
-    if (allowedGames && allowedGames.length > 0) {
-      categories = categories.filter(c => {
-        const nameLower = c.name.toLowerCase();
-        // Return true if any allowed game name is part of the category name
-        return allowedGames.some(g => nameLower.includes(g.name.toLowerCase()));
-      });
-    }
 
     return categories.map(c => ({
       ...c,
@@ -379,13 +371,6 @@ export class ProductsService {
     });
   }
 
-  async getStoreGamesByUserId(userId: string) {
-    const store = await this.prisma.store.findUnique({
-      where: { ownerId: userId },
-      select: { supportedGames: true }
-    });
-    return store?.supportedGames?.length > 0 ? store.supportedGames : undefined;
-  }
 
   async getStoreIdByUserId(userId: string) {
     const store = await this.prisma.store.findUnique({
@@ -401,15 +386,12 @@ export class ProductsService {
     });
   }
 
-  async getExpansions(categoryName?: string, storeId?: string, allowedGames?: any[]) {
+  async getExpansions(categoryName?: string, storeId?: string) {
     const where: any = {};
     if (categoryName || storeId) {
       where.product = {};
       if (categoryName) where.product.category = { name: categoryName };
       if (storeId) where.product.items = { some: { storeId } };
-    }
-    if (allowedGames && allowedGames.length > 0) {
-      where.gameId = { in: allowedGames.map(g => g.id) };
     }
 
     const cardDetails = await this.prisma.cardDetail.groupBy({
@@ -426,7 +408,7 @@ export class ProductsService {
     }));
   }
 
-  async getAttributes(categoryName?: string, expansionName?: string, storeId?: string, allowedGames?: any[]) {
+  async getAttributes(categoryName?: string, expansionName?: string, storeId?: string) {
     const where: any = {};
     if (categoryName || storeId) {
       where.product = {};
@@ -435,9 +417,6 @@ export class ProductsService {
     }
     if (expansionName) {
       where.expansion = expansionName;
-    }
-    if (allowedGames && allowedGames.length > 0) {
-      where.gameId = { in: allowedGames.map(g => g.id) };
     }
 
     const cardDetails = await this.prisma.cardDetail.findMany({
@@ -448,7 +427,6 @@ export class ProductsService {
     const counts = new Map<string, number>();
 
     cardDetails.forEach((c: any) => {
-      // Si la carta no tiene atributos, la consideramos "Incolora"
       if (!c.attributes || c.attributes.length === 0) {
         counts.set("Incolora", (counts.get("Incolora") || 0) + 1);
       } else {
@@ -461,35 +439,24 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, allowedGames?: any[]) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string) {
     const skip = (page - 1) * limit;
 
-    // Build where clause
     const whereClause: any = { isDeleted: false };
 
     if (searchName) {
-      whereClause.name = {
-        contains: searchName,
-        mode: 'insensitive'
-      };
+      whereClause.name = { contains: searchName, mode: 'insensitive' };
     }
 
     if (categoryName) {
-      whereClause.category = {
-        name: categoryName
-      };
+      whereClause.category = { name: categoryName };
     }
 
     if (storeId) {
-      // Filtrar productos que tengan inventario (items) en este storeId
-      whereClause.items = {
-        some: {
-          storeId: storeId
-        }
-      };
+      whereClause.items = { some: { storeId } };
     }
 
-    if (expansionName || attributeValue || (allowedGames && allowedGames.length > 0)) {
+    if (expansionName || attributeValue) {
       whereClause.cardDetail = { is: {} };
       if (expansionName) {
         whereClause.cardDetail.is.expansion = expansionName;
@@ -500,9 +467,6 @@ export class ProductsService {
         } else {
           whereClause.cardDetail.is.attributes = { has: attributeValue };
         }
-      }
-      if (allowedGames && allowedGames.length > 0) {
-        whereClause.cardDetail.is.gameId = { in: allowedGames.map(g => g.id) };
       }
     }
 

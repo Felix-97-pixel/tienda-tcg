@@ -29,7 +29,7 @@ export default function StoreAdminProducts() {
     selectedExpansion, setSelectedExpansion,
     isInventoryOnly, setIsInventoryOnly,
     page, setPage, totalPages
-  } = useAdminProducts(true);
+  } = useAdminProducts(false);
 
   // Estados de Metadatos
   const [categories, setCategories] = useState<Category[]>([]);
@@ -47,19 +47,9 @@ export default function StoreAdminProducts() {
   // Cargar Metadatos al Montar
   useEffect(() => {
     fetch(`${API_URL}/products/meta/categories`).then(r => r.json()).then(data => {
-      // Filter categories based on active features
-      const filtered = data.filter((c: Category) => {
-        // Si no tiene module:non_tcg, ocultar categorias que no sean cartas (en este caso asumimos que todo lo que no sea mtg/riftbound es non-tcg o según lógica de negocio. Para simplificar, si no hay feature de non_tcg, las bloqueamos).
-        // Por ahora lo hacemos por nombre o ID
-        if (c.name.toLowerCase().includes('magic') && !features.includes('game:magic')) return false;
-        if (c.name.toLowerCase().includes('riftbound') && !features.includes('game:riftbound')) return false;
-        
-        const isGame = c.name.toLowerCase().includes('magic') || c.name.toLowerCase().includes('riftbound');
-        if (!isGame && !features.includes('module:non_tcg')) return false;
-        
-        return true;
-      });
-      setCategories(filtered);
+      // El backend ya filtra las categorías usando las tablas específicas (supportedGames).
+      // Solo actualizamos el estado con la respuesta filtrada del backend.
+      setCategories(data);
     });
   }, [features]);
 

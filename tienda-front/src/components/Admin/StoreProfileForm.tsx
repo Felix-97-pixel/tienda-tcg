@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Checkbox } from "@/components/ui/Checkbox";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(() => import("@/components/Admin/LocationPicker"), { ssr: false });
 
 interface StoreProfileFormProps {
   storeId: string; // "me" for normal admin, or the specific store ID for superadmin
@@ -36,6 +39,8 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
     website: "",
     email: "",
     address: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
 
   const getEndpoint = () => {
@@ -82,7 +87,9 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
           whatsapp: s.whatsapp || "",
           website: s.website || "",
           email: s.email || "",
-          address: s.address || "",
+          address: store.address || s.address || "",
+          latitude: store.latitude || null,
+          longitude: store.longitude || null,
         });
       }
     } catch (err) {
@@ -214,13 +221,20 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="contacto@mitienda.com"
               />
-              <div className="md:col-span-1">
-                <Input
-                  label="Dirección"
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="Av. Providencia 1234, Local 5"
+              <div className="md:col-span-2 mt-4">
+                <label className="block text-sm font-semibold text-white mb-2">Ubicación Física</label>
+                <LocationPicker 
+                  initialAddress={formData.address}
+                  initialLat={formData.latitude}
+                  initialLng={formData.longitude}
+                  onLocationChange={(lat, lng, address) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      latitude: lat,
+                      longitude: lng,
+                      address: address
+                    }));
+                  }}
                 />
               </div>
               <Input

@@ -16,19 +16,7 @@ import { Role } from '@prisma/client';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
-  private async getAllowedGames(req: Request): Promise<any[] | undefined> {
-    const token = req.cookies?.access_token;
-    if (!token) return undefined;
-    try {
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || '');
-      if (decoded && decoded.role === 'ADMIN') {
-        return this.productsService.getStoreGamesByUserId(decoded.sub);
-      }
-    } catch (e) {
-      return undefined;
-    }
-    return undefined;
-  }
+
 
   private async getStoreIdFromToken(req: Request): Promise<string | undefined> {
     const token = req.cookies?.access_token;
@@ -95,8 +83,7 @@ export class ProductsController {
 
   @Get('meta/categories')
   async getCategories(@Req() req: Request, @Query('storeId') storeId?: string) {
-    const allowedGames = await this.getAllowedGames(req);
-    return this.productsService.getCategories(storeId, allowedGames);
+    return this.productsService.getCategories(storeId);
   }
 
   @Patch('meta/categories/:id')
@@ -156,8 +143,7 @@ export class ProductsController {
 
   @Get('meta/expansions')
   async getExpansions(@Req() req: Request, @Query('category') category?: string, @Query('storeId') storeId?: string) {
-    const allowedGames = await this.getAllowedGames(req);
-    return this.productsService.getExpansions(category, storeId, allowedGames);
+    return this.productsService.getExpansions(category, storeId);
   }
 
   @Get('meta/attributes')
@@ -167,8 +153,7 @@ export class ProductsController {
     @Query('expansion') expansion?: string,
     @Query('storeId') storeId?: string
   ) {
-    const allowedGames = await this.getAllowedGames(req);
-    return this.productsService.getAttributes(category, expansion, storeId, allowedGames);
+    return this.productsService.getAttributes(category, expansion, storeId);
   }
 
   @Get()
@@ -183,9 +168,9 @@ export class ProductsController {
     @Query('storeId') storeId?: string,
     @Query('inventoryOnly') inventoryOnly?: string
   ) {
-    const allowedGames = await this.getAllowedGames(req);
-
+    // El storeId restringe los resultados al inventario de la tienda cuando aplica.
     let resolvedStoreId = storeId;
+
     if (inventoryOnly === 'true') {
       const tokenStoreId = await this.getStoreIdFromToken(req);
       if (tokenStoreId) {
@@ -194,8 +179,8 @@ export class ProductsController {
     }
 
     const pageNumber = page ? parseInt(page, 10) : 1;
-    const limitNumber = limit ? parseInt(limit, 10) : 50; // default 50 limits
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, allowedGames);
+    const limitNumber = limit ? parseInt(limit, 10) : 50;
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId);
   }
 
   @Get('meta/languages')

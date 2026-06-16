@@ -196,7 +196,7 @@ export default function AdminProducts() {
             </div>
             <h3 className="text-xl font-bold text-white">¿Eliminar permanentemente?</h3>
             <p className="text-gray-4">
-              ¿Estás seguro que deseas eliminar el producto <span className="text-white font-bold">{productToDelete?.name}</span>? 
+              ¿Estás seguro que deseas eliminar el producto <span className="text-white font-bold">{productToDelete?.name}</span>?
               Esta acción lo ocultará de los inventarios activos.
             </p>
           </div>

@@ -221,27 +221,20 @@ export class SyncService {
   /**
    * Sincroniza los precios de una tienda copiando los precios del catálogo maestro.
    */
-  async syncDealerPrices(storeId: string, allowedGames: any[]) {
+  async syncDealerPrices(storeId: string) {
     if (!storeId) throw new Error('Store ID is required');
-
-    if (!allowedGames || allowedGames.length === 0) {
-      return { success: true, updatedCount: 0 };
-    }
 
     try {
       // Usamos una consulta cruda para máxima eficiencia
-      // Hacemos JOIN con Product y CardDetail para filtrar por los juegos permitidos
+      // Sincroniza todos los precios del inventario de la tienda sin restricción de juego
       const result = await this.prisma.$executeRaw`
         UPDATE "InventoryItem" AS d
         SET price = m.price
         FROM "MarketPrice" AS m
-        JOIN "Product" AS p ON m."productId" = p.id
-        LEFT JOIN "CardDetail" AS cd ON p.id = cd."productId"
         WHERE d."productId" = m."productId"
           AND (d."finishId" = m."finishId" OR (d."finishId" IS NULL AND m."finishId" IS NULL))
           AND d."storeId" = ${storeId}
-          AND m.price > 0
-          AND cd."gameId" = ANY(${allowedGames.map(g => g.id)}::text[]);
+          AND m.price > 0;
       `;
       return { success: true, updatedCount: Number(result) };
     } catch (e: any) {

@@ -55,13 +55,12 @@ export class SyncController {
       throw new BadRequestException("El Superadmin no usa esta función. Solo las tiendas.");
     }
     const store = await this.prisma.store.findUnique({
-      where: { ownerId: req.user.userId },
-      include: { supportedGames: true }
+      where: { ownerId: req.user.userId }
     });
     if (!store) {
       throw new BadRequestException("No se encontró una tienda para este usuario.");
     }
-    return this.syncService.syncDealerPrices(store.id, store.supportedGames);
+    return this.syncService.syncDealerPrices(store.id);
   }
 
   @Get('backups/:game')

@@ -14,8 +14,8 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchProducts = useCallback(async () => {
-    // No cargar nada si no hay filtros aplicados (mejora de rendimiento)
-    if (!searchTerm && !selectedCategory && !selectedExpansion) {
+    // No cargar nada si no hay filtros aplicados, excepto si queremos ver el inventario
+    if (!searchTerm && !selectedCategory && !selectedExpansion && !isInventoryOnly) {
       setProducts([]);
       setTotalPages(1);
       setLoading(false);

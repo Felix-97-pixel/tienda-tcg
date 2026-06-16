@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class StoresService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getPublicStoreBySubdomain(subdomain: string) {
     const store = await this.prisma.store.findUnique({
@@ -16,8 +16,10 @@ export class StoresService {
         name: true,
         subdomain: true,
         logoUrl: true,
+        address: true,
+        latitude: true,
+        longitude: true,
         settings: true,
-        supportedGames: true,
       }
     });
 
@@ -33,7 +35,6 @@ export class StoresService {
       where: { ownerId: userId },
       include: {
         settings: true,
-        supportedGames: true,
         subscriptionPlans: {
           include: { features: true }
         },
@@ -71,7 +72,7 @@ export class StoresService {
 
     const planFeatures = store.subscriptionPlans?.flatMap(p => p.features.map(f => f.key)) || [];
     const customFeats = store.customFeatures.map(f => f.key) || [];
-    
+
     // Union unique
     return Array.from(new Set([...planFeatures, ...customFeats]));
   }
@@ -81,7 +82,6 @@ export class StoresService {
       where: { id },
       include: {
         settings: true,
-        supportedGames: true,
         subscriptionPlans: { include: { features: true } },
         customFeatures: true,
       }
@@ -100,14 +100,17 @@ export class StoresService {
       throw new NotFoundException('No tienes una tienda asignada');
     }
 
-    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website } = data;
+    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website } = data;
 
-    // Actualizar nombre y logo de la tienda
+    // Actualizar nombre, logo y ubicación de la tienda
     await this.prisma.store.update({
       where: { id: store.id },
       data: {
         name: name !== undefined ? name : undefined,
         logoUrl: logoUrl !== undefined ? logoUrl : undefined,
+        address: address !== undefined ? address : undefined,
+        latitude: latitude !== undefined ? latitude : undefined,
+        longitude: longitude !== undefined ? longitude : undefined,
       }
     });
 
@@ -120,7 +123,6 @@ export class StoresService {
       twitch,
       whatsapp,
       email,
-      address,
       website
     };
 
@@ -154,11 +156,14 @@ export class StoresService {
       throw new NotFoundException('Tienda no encontrada');
     }
 
-    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, website, subscriptionPlanIds, customFeatureIds } = data;
+    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website, subscriptionPlanIds, customFeatureIds } = data;
 
     const updateData: any = {
       name: name !== undefined ? name : undefined,
       logoUrl: logoUrl !== undefined ? logoUrl : undefined,
+      address: address !== undefined ? address : undefined,
+      latitude: latitude !== undefined ? latitude : undefined,
+      longitude: longitude !== undefined ? longitude : undefined,
     };
 
     if (subscriptionPlanIds !== undefined && Array.isArray(subscriptionPlanIds)) {
@@ -264,7 +269,6 @@ export class StoresService {
             subdomain,
             logoUrl,
             ownerId: user.id,
-            supportedGames: createStoreDto.games?.length ? { connect: createStoreDto.games.map((id: string) => ({ id })) } : undefined,
           },
           include: {
             owner: {

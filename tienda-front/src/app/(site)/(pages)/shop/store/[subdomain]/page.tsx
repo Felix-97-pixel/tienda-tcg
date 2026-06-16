@@ -76,15 +76,19 @@ const StoreProfilePage = async ({ params }: { params: Promise<{ subdomain: strin
               <div className="mt-6 flex flex-wrap gap-4 items-center justify-center md:justify-start">
                 <>
                       {s.address && (
-                        <div className="flex items-center gap-2 text-gray-400 text-sm bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                          {s.address}
-                        </div>
+                        <a 
+                          href={store.latitude && store.longitude ? `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-1.5 bg-blue/10 text-blue rounded-lg border border-blue/20 hover:bg-blue hover:text-white transition"
+                          title="Ver ubicación en Google Maps"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </a>
                       )}
                       {s.email && (
-                        <a href={`mailto:${s.email}`} className="flex items-center gap-2 text-gray-400 text-sm bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 hover:text-white transition">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                          {s.email}
+                        <a href={`mailto:${s.email}`} className="group p-1.5 bg-white/5 text-gray-5 rounded-lg border border-white/10 hover:bg-white transition" title={s.email}>
+                          <svg className="group-hover:text-[#000000] transition-colors" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                         </a>
                       )}
                       {s.whatsapp && (
