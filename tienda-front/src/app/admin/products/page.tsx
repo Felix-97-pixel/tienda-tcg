@@ -29,7 +29,7 @@ export default function StoreAdminProducts() {
     selectedExpansion, setSelectedExpansion,
     isInventoryOnly, setIsInventoryOnly,
     page, setPage, totalPages
-  } = useAdminProducts(false);
+  } = useAdminProducts(true);
 
   // Estados de Metadatos
   const [categories, setCategories] = useState<Category[]>([]);
@@ -69,7 +69,7 @@ export default function StoreAdminProducts() {
             {isInventoryOnly ? "Mi Inventario" : "Catálogo Global"}
           </h1>
           <p className="text-gray-4 text-sm mt-1">
-            {isInventoryOnly 
+            {isInventoryOnly
               ? "Revisa y gestiona las cartas que actualmente tienes en tu inventario."
               : "Busca productos en el catálogo oficial y añade tu inventario para publicarlos en tu tienda."
             }
