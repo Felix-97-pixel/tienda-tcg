@@ -62,6 +62,13 @@ export class ProductsController {
     return this.productsService.bulkUpload(bulkUploadDto.categoryId, bulkUploadDto.items, req.user.userId);
   }
 
+  @Post('bulk-create-global')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN)
+  bulkCreateGlobal(@Body() body: { items: any[] }) {
+    return this.productsService.bulkCreateGlobal(body.items);
+  }
+
   @Post('bulk-update-stock')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

@@ -188,6 +188,7 @@ export default function AdminProducts() {
         onClose={() => setIsBulkOpen(false)}
         categories={modalCategories}
         onSuccess={refresh}
+        isGlobal={true}
       />
 
       <Modal isOpen={!!productToDelete} onClose={() => setProductToDelete(null)} title="Confirmar Eliminación">

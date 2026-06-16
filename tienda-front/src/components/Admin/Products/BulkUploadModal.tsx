@@ -13,9 +13,10 @@ export interface BulkUploadModalProps {
   onClose: () => void;
   categories: { id: string, name: string }[];
   onSuccess: () => void;
+  isGlobal?: boolean;
 }
 
-export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess }: BulkUploadModalProps) {
+export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess, isGlobal = false }: BulkUploadModalProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
   const { showToast } = useToast();
@@ -25,7 +26,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   const [isUploading, setIsUploading] = useState(false);
 
   const handleUpload = async () => {
-    if (!bulkFile || !bulkCategory) {
+    if (!bulkFile || (!isGlobal && !bulkCategory)) {
       showToast(t("bulk.selectError"), "error");
       return;
     }
@@ -36,7 +37,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
-        if (results.data.length > 0) {
+        if (!isGlobal && results.data.length > 0) {
           const category = categories.find(c => c.id === bulkCategory);
           const categoryName = category?.name.toLowerCase() || "";
           const headers = Object.keys(results.data[0]);
@@ -66,30 +67,43 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
           }
         }
 
-        const parsedItems = results.data.map((row: any, index: number) => {
-          let finishStr = row["Foil"] || "normal";
-          if (row["Foil"] && row["Foil"].toString().toUpperCase() === "TRUE") finishStr = "foil";
-          else if (row["Foil"] && row["Foil"].toString().toUpperCase() === "FALSE") finishStr = "normal";
-          
-          if (row["Variant Type"] === "Promo") finishStr = "promo";
-
-          return {
-            scryfallId: row["Scryfall ID"] || undefined,
-            name: row["Name"] || row["Card Name"] || "",
-            expansion: row["Set name"] || row["Set"] || "",
-            rarity: row["Rarity"] || "",
-            collectorNum: String(row["Collector number"] || row["Variant Number"] || ""),
-            quantity: Number(row["Quantity"]) || 1,
-            price: Number(row["Purchase price"]) || 0,
-            condition: row["Condition"] || "near_mint",
-            language: row["Language"] || "en",
-            finish: finishStr,
+        let parsedItems: any[] = [];
+        
+        if (isGlobal) {
+          parsedItems = results.data.map((row: any, index: number) => ({
+            "Nombre": row["Nombre"],
+            "Categoria": row["Categoria"],
+            "Marca": row["Marca"],
+            "Descripcion": row["Descripcion"],
             originalIndex: index
-          };
-        });
+          }));
+        } else {
+          parsedItems = results.data.map((row: any, index: number) => {
+            let finishStr = row["Foil"] || "normal";
+            if (row["Foil"] && row["Foil"].toString().toUpperCase() === "TRUE") finishStr = "foil";
+            else if (row["Foil"] && row["Foil"].toString().toUpperCase() === "FALSE") finishStr = "normal";
+            
+            if (row["Variant Type"] === "Promo") finishStr = "promo";
+
+            return {
+              scryfallId: row["Scryfall ID"] || undefined,
+              name: row["Name"] || row["Card Name"] || "",
+              expansion: row["Set name"] || row["Set"] || "",
+              rarity: row["Rarity"] || "",
+              collectorNum: String(row["Collector number"] || row["Variant Number"] || ""),
+              quantity: Number(row["Quantity"]) || 1,
+              price: Number(row["Purchase price"]) || 0,
+              condition: row["Condition"] || "near_mint",
+              language: row["Language"] || "en",
+              finish: finishStr,
+              originalIndex: index
+            };
+          });
+        }
 
         try {
-          const res = await fetch(`${API_URL}/products/bulk-upload`, {
+          const endpoint = isGlobal ? '/products/bulk-create-global' : '/products/bulk-upload';
+          const res = await fetch(`${API_URL}${endpoint}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -150,25 +164,55 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
     });
   };
 
+  const handleDownloadTemplate = () => {
+    if (isGlobal) {
+      const csvContent = "Nombre,Categoria,Marca,Descripcion\nDado Rojo 20 D20,Dados,Chessex,Dado de 20 caras color rojo.\nFunda Transparente 100u,Fundas,DragonShield,Pack de 100 fundas transparentes tamaño standard.\n";
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "plantilla_productos_global.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <Modal 
       isOpen={isOpen} 
       onClose={onClose} 
-      title={t("bulk.title")}
-      maxWidth="lg"
+      title={isGlobal ? "Subida Masiva de Productos (Global)" : t("bulk.title")}
+      maxWidth="md"
     >
-        <p className="mb-8 text-sm font-medium leading-relaxed text-gray-4">{t("bulk.subtitle")}</p>
+      <div className="space-y-4">
+        <p className="mb-8 text-sm font-medium leading-relaxed text-gray-4">
+          {isGlobal ? "Sube múltiples productos al catálogo global mediante un archivo CSV." : t("bulk.subtitle")}
+        </p>
         
         <div className="space-y-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-white">{t("modal.categoryLabel")}</label>
-            <SearchableSelect
-              options={categories.map(c => ({ label: c.name, value: c.id }))}
-              value={bulkCategory}
-              onChange={setBulkCategory}
-              placeholder={t("modal.categoryPlaceholder")}
-            />
-          </div>
+          {!isGlobal && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-white">{t("modal.categoryLabel")}</label>
+              <SearchableSelect
+                options={categories.map(c => ({ label: c.name, value: c.id }))}
+                value={bulkCategory}
+                onChange={setBulkCategory}
+                placeholder={t("modal.categoryPlaceholder")}
+              />
+            </div>
+          )}
+          {isGlobal && (
+            <div className="flex justify-start mt-2 px-1">
+              <button
+                type="button"
+                onClick={handleDownloadTemplate}
+                className="text-xs text-blue hover:text-blue-dark underline underline-offset-2 transition-colors font-medium"
+              >
+                Descargar Plantilla de CSV
+              </button>
+            </div>
+          )}
 
           <div>
             <div className="mb-2 flex items-center gap-2">
@@ -203,6 +247,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             {isUploading ? tc("loading") : t("bulk.uploadButton")}
           </Button>
         </div>
+      </div>
     </Modal>
   );
 }

@@ -21,6 +21,19 @@ export class UploadService {
     });
   }
 
+  async uploadImageFromUrl(
+    imageUrl: string,
+    folder: string = 'tienda/general'
+  ): Promise<UploadApiResponse> {
+    try {
+      const result = await cloudinary.uploader.upload(imageUrl, { folder });
+      return result;
+    } catch (error) {
+      console.error("Error uploading image from URL:", error);
+      throw error;
+    }
+  }
+
   async deleteImage(url: string): Promise<any> {
     try {
       if (!url.includes('cloudinary.com')) return null;

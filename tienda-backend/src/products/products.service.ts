@@ -200,6 +200,62 @@ export class ProductsService {
     return results;
   }
 
+  async bulkCreateGlobal(items: any[]) {
+    const results = { created: 0, errors: [] as { index: number, error: string }[] };
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      try {
+        let finalImageUrl = null;
+        let finalBrandId = null;
+        
+        if (!item['Categoria']) {
+          throw new BadRequestException('Falta la columna Categoria');
+        }
+
+        const catName = String(item['Categoria']).trim();
+        const category = await this.prisma.category.findFirst({
+          where: { name: { equals: catName, mode: 'insensitive' } }
+        });
+
+        if (!category) {
+          throw new BadRequestException(`La categoría '${catName}' no existe.`);
+        }
+
+        if (item['Marca']) {
+          const brandName = String(item['Marca']).trim();
+          let brand = await this.prisma.brand.findFirst({
+            where: { name: { equals: brandName, mode: 'insensitive' } }
+          });
+          if (!brand) {
+            brand = await this.prisma.brand.create({
+              data: { name: brandName }
+            });
+          }
+          finalBrandId = brand.id;
+        }
+
+        await this.prisma.product.create({
+          data: {
+            name: item['Nombre'],
+            description: item['Descripcion'] || '',
+            imageUrl: finalImageUrl,
+            categoryId: category.id,
+            brandId: finalBrandId,
+            externalId: `global-bulk-${Date.now()}-${randomUUID()}`,
+          }
+        });
+        results.created++;
+      } catch (err: any) {
+        results.errors.push({
+          index: item.originalIndex !== undefined ? item.originalIndex : i,
+          error: `Error al procesar el producto '${item['Nombre']}': ${err.message}`
+        });
+      }
+    }
+    return results;
+  }
+
   async getAdminCategories(isTcg: boolean = false) {
     let whereClause: any = undefined;
     if (isTcg) {
@@ -569,12 +625,21 @@ export class ProductsService {
     });
     if (!product) throw new Error("Producto no encontrado");
 
+    if (product.imageUrl) {
+      try {
+        await this.uploadService.deleteImage(product.imageUrl);
+      } catch (e) {
+        console.error("Error deleting image from Cloudinary:", e);
+      }
+    }
+
     // Borrado Lógico
     await this.prisma.product.update({
       where: { id },
       data: {
         isDeleted: true,
-        deletedAt: new Date()
+        deletedAt: new Date(),
+        imageUrl: null
       }
     });
 
