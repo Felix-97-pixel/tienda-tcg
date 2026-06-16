@@ -24,7 +24,7 @@ export interface EditProductModalProps {
     price: number;
     stock: number;
   } | null;
-  categories: { id: string, name: string }[];
+  categories: { id: string, name: string, isTcg?: boolean }[];
   brands: { id: string, name: string }[];
   onSuccess: () => void;
 }
@@ -71,6 +71,9 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           description: form.description,
           price: form.price,
           stock: form.stock,
+          categoryId: form.categoryId,
+          brandId: form.brandId || null,
+          imageUrl: form.imageUrl || null,
         }),
         credentials: "include",
       });
@@ -86,6 +89,8 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
       showToast(tc("networkError"), "error");
     }
   };
+
+  const isTcg = categories.find(c => c.id === item.categoryId)?.isTcg;
 
   return (
     <Modal
@@ -104,6 +109,66 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
             placeholder={t("modal.namePlaceholder")}
           />
         </div>
+
+        {!isTcg && (
+          <>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.categoryLabel")}</label>
+              <SearchableSelect
+                options={categories.filter(c => !c.isTcg).map(c => ({ label: c.name, value: c.id }))}
+                value={form.categoryId}
+                onChange={(val) => setForm({ ...form, categoryId: val })}
+                placeholder={t("modal.categoryPlaceholder")}
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.brandLabel")}</label>
+              <SearchableSelect
+                options={brands.map(b => ({ label: b.name, value: b.id }))}
+                value={form.brandId}
+                onChange={(val) => setForm({ ...form, brandId: val })}
+                placeholder={t("modal.brandPlaceholder")}
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("modal.imageLabel")}</label>
+              <div className="flex items-center gap-4">
+                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border-2 border-dashed border-stroke flex items-center justify-center">
+                  {form.imageUrl ? (
+                    <div className="relative h-full w-full group">
+                      <Image src={form.imageUrl} alt="Preview" fill className="object-cover" />
+                      <button
+                        onClick={() => { handleRemove(form.imageUrl); setForm({ ...form, imageUrl: "" }); }}
+                        className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-gray-4 text-center px-1 font-bold uppercase">{t("modal.noImage")}</span>
+                  )}
+                </div>
+                <FileInput
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const category = categories.find(c => c.id === form.categoryId);
+                      const folderName = category 
+                        ? `products/${category.name.toLowerCase().replace(/\s+/g, '-')}` 
+                        : 'products';
+                      const url = await handleUpload(file, form.imageUrl, folderName);
+                      if (url) setForm({ ...form, imageUrl: url });
+                    }
+                  }}
+                  disabled={uploadingImage}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-4">Descripción</label>

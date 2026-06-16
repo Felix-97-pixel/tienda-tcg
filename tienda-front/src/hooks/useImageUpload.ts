@@ -25,7 +25,8 @@ export const useImageUpload = () => {
         }).catch((err) => console.error("No se pudo borrar imagen antigua", err));
       }
 
-      const res = await fetch(`${API_URL}/upload/image?folder=${folder}`, {
+      //console.log("Enviando petición a:", `${API_URL}/upload/image?folder=${encodeURIComponent(folder)}`);
+      const res = await fetch(`${API_URL}/upload/image?folder=${encodeURIComponent(folder)}`, {
         method: "POST",
         body: uploadData,
         credentials: "include",

@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/Textarea";
 export interface CreateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  categories: { id: string, name: string }[];
+  categories: { id: string, name: string, isTcg?: boolean }[];
   brands: { id: string, name: string }[];
   onSuccess: () => void;
 }
@@ -132,9 +132,20 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
               <FileInput
                 accept="image/*"
                 onChange={async (e) => {
+                  if (!creatingProduct.categoryId) {
+                    showToast("Por favor, selecciona una categoría primero para organizar la imagen.", "warning");
+                    e.target.value = "";
+                    return;
+                  }
+                  
                   const file = e.target.files?.[0];
                   if (file) {
-                    const url = await handleUpload(file, "", 'products');
+                    const category = categories.find(c => c.id === creatingProduct.categoryId);
+                    const folderName = category 
+                      ? `products/${category.name.toLowerCase().replace(/\s+/g, '-')}` 
+                      : 'products';
+                      
+                    const url = await handleUpload(file, "", folderName);
                     if (url) setCreatingProduct({ ...creatingProduct, imageUrl: url });
                   }
                 }}

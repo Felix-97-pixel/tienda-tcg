@@ -12,7 +12,7 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('image')
-  @Roles(Role.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
@@ -25,7 +25,7 @@ export class UploadController {
   }
 
   @Delete('image')
-  @Roles(Role.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   async deleteImage(@Body('url') url: string) {
     if (!url) {
       return { success: false, message: 'URL is required' };
