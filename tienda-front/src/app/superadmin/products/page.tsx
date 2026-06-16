@@ -34,6 +34,7 @@ export default function AdminProducts() {
 
   // Estados de Metadatos
   const [categories, setCategories] = useState<Category[]>([]);
+  const [modalCategories, setModalCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [expansions, setExpansions] = useState<{ name: string; products: number }[]>([]);
 
@@ -51,6 +52,7 @@ export default function AdminProducts() {
   // Cargar Metadatos al Montar
   useEffect(() => {
     fetch(`${API_URL}/products/meta/categories/admin`).then(r => r.json()).then(setCategories);
+    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`).then(r => r.json()).then(setModalCategories);
     fetch(`${API_URL}/products/meta/brands`).then(r => r.json()).then(setBrands);
   }, []);
 
@@ -159,7 +161,7 @@ export default function AdminProducts() {
       <CreateProductModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        categories={categories}
+        categories={modalCategories}
         brands={brands}
         onSuccess={refresh}
       />
@@ -184,7 +186,7 @@ export default function AdminProducts() {
       <BulkUploadModal
         isOpen={isBulkOpen}
         onClose={() => setIsBulkOpen(false)}
-        categories={categories}
+        categories={modalCategories}
         onSuccess={refresh}
       />
 

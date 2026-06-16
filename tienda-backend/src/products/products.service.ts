@@ -200,8 +200,14 @@ export class ProductsService {
     return results;
   }
 
-  async getAdminCategories() {
+  async getAdminCategories(isTcg: boolean = false) {
+    let whereClause: any = undefined;
+    if (isTcg) {
+      whereClause = { isTcg: false };
+    }
+
     return this.prisma.category.findMany({
+      where: whereClause,
       select: {
         id: true,
         name: true,
@@ -284,11 +290,15 @@ export class ProductsService {
     });
   }
 
-  async getCategories(storeId?: string) {
-    const whereClause = storeId ? { items: { some: { storeId } } } : undefined;
+  async getCategories(storeId?: string, isTcg: boolean = false) {
+    const whereClause: any = storeId ? { products: { some: { items: { some: { storeId } } } } } : {};
+    
+    if (isTcg) {
+      whereClause.isTcg = false;
+    }
     
     const categories = await this.prisma.category.findMany({
-      where: whereClause ? { products: { some: whereClause } } : undefined,
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
       select: {
         id: true,
         name: true,

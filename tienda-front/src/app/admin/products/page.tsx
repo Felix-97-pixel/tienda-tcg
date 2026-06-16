@@ -33,6 +33,7 @@ export default function StoreAdminProducts() {
 
   // Estados de Metadatos
   const [categories, setCategories] = useState<Category[]>([]);
+  const [modalCategories, setModalCategories] = useState<Category[]>([]);
   const [expansions, setExpansions] = useState<{ name: string; products: number }[]>([]);
 
   // Estados de Modales
@@ -46,12 +47,9 @@ export default function StoreAdminProducts() {
 
   // Cargar Metadatos al Montar
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories`).then(r => r.json()).then(data => {
-      // El backend ya filtra las categorías usando las tablas específicas (supportedGames).
-      // Solo actualizamos el estado con la respuesta filtrada del backend.
-      setCategories(data);
-    });
-  }, [features]);
+    fetch(`${API_URL}/products/meta/categories/admin`).then(r => r.json()).then(setCategories);
+    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`).then(r => r.json()).then(setModalCategories);
+  }, []);
 
   // Cargar Expansiones cuando cambia la categoría
   useEffect(() => {
@@ -133,7 +131,7 @@ export default function StoreAdminProducts() {
       <BulkUploadModal
         isOpen={isBulkOpen}
         onClose={() => setIsBulkOpen(false)}
-        categories={categories}
+        categories={modalCategories}
         onSuccess={refresh}
       />
     </div>

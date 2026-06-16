@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException, Req, ParseBoolPipe } from '@nestjs/common';
 import { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { ProductsService } from './products.service';
@@ -70,8 +70,8 @@ export class ProductsController {
   }
 
   @Get('meta/categories/admin')
-  getAdminCategories() {
-    return this.productsService.getAdminCategories();
+  getAdminCategories(@Query('isTcg', new ParseBoolPipe({ optional: true })) isTcg?: boolean) {
+    return this.productsService.getAdminCategories(isTcg);
   }
 
   @Post('meta/categories')
@@ -82,8 +82,8 @@ export class ProductsController {
   }
 
   @Get('meta/categories')
-  async getCategories(@Req() req: Request, @Query('storeId') storeId?: string) {
-    return this.productsService.getCategories(storeId);
+  async getCategories(@Req() req: Request, @Query('storeId') storeId?: string, @Query('isTcg', new ParseBoolPipe({ optional: true })) isTcg?: boolean) {
+    return this.productsService.getCategories(storeId, isTcg);
   }
 
   @Patch('meta/categories/:id')
