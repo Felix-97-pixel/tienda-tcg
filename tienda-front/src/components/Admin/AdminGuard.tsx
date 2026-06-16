@@ -23,21 +23,22 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     } else if (user?.role !== "ADMIN") {
       router.push("/");
     } else {
-      // Fetch features for ADMIN
+      // Fetch features for ADMIN always to avoid stale features
       if (features.length === 0) {
         setLoadingFeatures(true);
-        fetch(`${API_URL}/stores/me`, { credentials: "include" })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.activeFeatures) {
-              dispatch(updateFeatures(data.activeFeatures));
-            }
-          })
-          .catch(console.error)
-          .finally(() => setLoadingFeatures(false));
       }
+      fetch(`${API_URL}/stores/me`, { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.activeFeatures) {
+            dispatch(updateFeatures(data.activeFeatures));
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoadingFeatures(false));
     }
-  }, [isAuthenticated, user, router, features.length, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user, router, dispatch]);
 
   // Wait until mounted to prevent hydration errors, and show spinner if not admin
   if (!isMounted || !isAuthenticated || user?.role !== "ADMIN" || loadingFeatures) {

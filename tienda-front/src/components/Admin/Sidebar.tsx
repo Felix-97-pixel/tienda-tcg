@@ -49,8 +49,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   ];
 
   const statsItems = [
-    { href: "/admin/sales",       label: t("modules.sales"),      icon: icons.sales },
     { href: "/admin/orders",      label: t("modules.orders"),     icon: icons.orders },
+    { href: "/admin/statistics",  label: t("modules.statistics"), icon: icons.sales }, // Reusing the sales icon for statistics for now
+    { href: "/admin/sales",       label: t("modules.sales"),      icon: icons.sales },
   ];
 
   const configItems = [
@@ -60,7 +61,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   ];
 
   const isCatalog = ["/admin/products", "/admin/wishlist"].some(p => pathname.startsWith(p));
-  const isStats = ["/admin/sales", "/admin/orders"].some(p => pathname.startsWith(p));
+  const isStats = ["/admin/sales", "/admin/orders", "/admin/statistics"].some(p => pathname.startsWith(p));
   const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile"].some(p => pathname.startsWith(p));
 
   const { features } = useAppSelector((state) => state.authReducer);
@@ -71,9 +72,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   if (isCatalog) {
     navItems = catalogItems;
     moduleName = "Módulo de Catálogo";
-  } else if (isStats && features.includes("module:statistics")) {
+  } else if (isStats) {
     navItems = statsItems;
-    moduleName = "Módulo de Estadísticas";
+    moduleName = "Módulo de Ventas";
   } else if (isConfig) {
     navItems = configItems;
     moduleName = "Módulo de Configuración";

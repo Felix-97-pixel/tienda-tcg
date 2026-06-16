@@ -25,8 +25,8 @@ export default async function AdminHub() {
       shadow: "shadow-blue/20"
     },
     {
-      href: "/admin/sales",
-      title: "Módulo de Estadísticas",
+      href: "/admin/orders",
+      title: "Módulo de Ventas",
       description: "Analiza tus ventas, gestiona las órdenes de tus clientes y monitorea el rendimiento de tu tienda.",
       icon: (
         <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -52,8 +52,15 @@ export default async function AdminHub() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center p-6">
-      <div className="text-center mb-16 max-w-2xl">
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center p-6 relative">
+      <div className="absolute top-6 left-6 z-10">
+        <Link href="/" className="group flex items-center gap-2 rounded-xl py-2 px-4 font-bold text-sm text-blue bg-blue/10 hover:bg-blue hover:text-white transition-all duration-200">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Volver a la Tienda
+        </Link>
+      </div>
+
+      <div className="text-center mb-16 max-w-2xl mt-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
           Selecciona un Módulo
         </h1>

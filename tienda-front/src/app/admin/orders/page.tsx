@@ -7,8 +7,6 @@ import { API_URL } from "@/utils/api";
 import OrderTable from "@/components/Admin/Orders/OrderTable";
 import OrderDetailsModal from "@/components/Admin/Orders/OrderDetailsModal";
 import { Button } from "@/components/ui/Button";
-import { useAppSelector } from "@/redux/store";
-import UpsellBanner from "@/components/Admin/UpsellBanner";
 
 const STATUS_CLS: Record<string, string> = {
   PENDING:   "bg-yellow-100 text-yellow-700 border border-yellow-200",
@@ -45,21 +43,9 @@ export default function AdminOrdersPage() {
     }
   }, []);
 
-  const { features } = useAppSelector((state) => state.authReducer);
-
   useEffect(() => { 
-    if (features.includes("module:statistics")) {
-      fetchOrders(page); 
-    }
-  }, [page, fetchOrders, features]);
-
-  if (!features.includes("module:statistics")) {
-    return (
-      <div className="p-6 pb-24">
-        <UpsellBanner featureName="Órdenes e Historial" />
-      </div>
-    );
-  }
+    fetchOrders(page); 
+  }, [page, fetchOrders]);
 
   const totalPages = Math.ceil(total / LIMIT);
   const statusLabel = (status: string) => t(`status.${status}` as any) ?? status;
