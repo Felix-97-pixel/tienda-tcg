@@ -9,7 +9,7 @@ export default function AdminSalesPage() {
   const t = useTranslations("sales");
   const { features } = useAppSelector((state) => state.authReducer);
 
-  if (!features.includes("module:statistics")) {
+  if (!features.includes("function:statistics")) {
     return (
       <div className="p-6 pb-24">
         <UpsellBanner featureName="Reportes Avanzados" />
@@ -33,7 +33,7 @@ export default function AdminSalesPage() {
         </div>
         <h2 className="text-xl font-bold text-white mb-2">Próximamente</h2>
         <p className="text-gray-4 text-sm max-w-sm mx-auto">
-          Aquí podrás ver y gestionar tus ventas de forma avanzada. 
+          Aquí podrás ver y gestionar tus ventas de forma avanzada.
           Por ahora, dirígete a Órdenes o Estadísticas para monitorear tu negocio.
         </p>
       </div>
