@@ -16,6 +16,8 @@ interface Plan {
   name: string;
   description: string;
   price: string;
+  skuLimit: number;
+  commissionRate: string | number;
   features: Feature[];
 }
 
@@ -30,7 +32,7 @@ export default function PlansPage() {
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   
   // Form state
-  const [formData, setFormData] = useState({ name: "", description: "", price: "0", featureIds: [] as string[] });
+  const [formData, setFormData] = useState({ name: "", description: "", price: "0", skuLimit: "-1", commissionRate: "0", featureIds: [] as string[] });
 
   useEffect(() => {
     fetchData();
@@ -61,11 +63,13 @@ export default function PlansPage() {
         name: plan.name,
         description: plan.description || "",
         price: plan.price ? String(plan.price) : "0",
+        skuLimit: plan.skuLimit !== undefined ? String(plan.skuLimit) : "-1",
+        commissionRate: plan.commissionRate ? String(Number(plan.commissionRate) * 100) : "0",
         featureIds: plan.features.map(f => f.id)
       });
     } else {
       setEditingPlan(null);
-      setFormData({ name: "", description: "", price: "0", featureIds: [] });
+      setFormData({ name: "", description: "", price: "0", skuLimit: "-1", commissionRate: "0", featureIds: [] });
     }
     setIsModalOpen(true);
   };
@@ -90,7 +94,9 @@ export default function PlansPage() {
       
       const payload = {
         ...formData,
-        price: parseFloat(formData.price) || 0
+        price: parseFloat(formData.price) || 0,
+        skuLimit: parseInt(formData.skuLimit, 10),
+        commissionRate: (parseFloat(formData.commissionRate) || 0) / 100
       };
 
       const res = await fetch(url, {
@@ -159,6 +165,17 @@ export default function PlansPage() {
               <div className="text-3xl font-black text-white mb-6">
                 ${Number(plan.price).toLocaleString()} <span className="text-sm font-medium text-gray-5">/mes</span>
               </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-[#111318] rounded-xl p-3 flex-1 border border-white/5">
+                  <p className="text-[10px] text-gray-5 font-bold uppercase tracking-wider mb-1">SKUs Máximos</p>
+                  <p className="text-sm font-bold text-white">{plan.skuLimit === -1 ? "Ilimitado" : plan.skuLimit.toLocaleString()}</p>
+                </div>
+                <div className="bg-[#111318] rounded-xl p-3 flex-1 border border-white/5">
+                  <p className="text-[10px] text-gray-5 font-bold uppercase tracking-wider mb-1">Comisión</p>
+                  <p className="text-sm font-bold text-white">{(Number(plan.commissionRate) * 100).toFixed(1)}%</p>
+                </div>
+              </div>
 
               <div className="flex-1">
                 <p className="text-xs font-bold text-gray-5 uppercase tracking-widest mb-3">Funciones Incluidas ({plan.features.length})</p>
@@ -213,6 +230,26 @@ export default function PlansPage() {
                     required 
                     value={formData.price}
                     onChange={e => setFormData({...formData, price: e.target.value})}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input 
+                    label="Límite de SKUs (-1 para Ilimitado)" 
+                    type="number" 
+                    required 
+                    value={formData.skuLimit}
+                    onChange={e => setFormData({...formData, skuLimit: e.target.value})}
+                  />
+                  <Input 
+                    label="Comisión por Venta (%)" 
+                    type="number" 
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    required 
+                    value={formData.commissionRate}
+                    onChange={e => setFormData({...formData, commissionRate: e.target.value})}
                   />
                 </div>
                 <div>

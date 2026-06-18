@@ -89,12 +89,16 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     }
   };
 
-  const handleUpdateItem = async (itemId: string, price: number, stock: number) => {
+  const handleUpdateItem = async (itemId: string, price: number, stock: number, isPublished?: boolean) => {
     try {
+      const payload: any = { price, stock };
+      if (isPublished !== undefined) {
+        payload.isPublished = isPublished;
+      }
       const res = await fetch(`${API_URL}/products/inventory/${itemId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ price, stock }),
+        body: JSON.stringify(payload),
         credentials: "include",
       });
 
@@ -212,6 +216,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               <th className="p-3 font-bold text-gray-4">Acabado</th>
               <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
               <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
+              <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
               <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
             </tr>
           </thead>
@@ -230,6 +235,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 </td>
                 <td className="p-3 text-gray-5 text-xs font-medium">Oficial</td>
                 <td className="p-3 text-center">-</td>
+                <td className="p-3 text-center">-</td>
               </tr>
             ))}
             
@@ -247,18 +253,26 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                   <td className="p-3">
                     <input
                       type="number"
-                      className="w-20 rounded border border-stroke p-1 text-xs font-bold text-blue"
+                      className="w-20 rounded border border-stroke p-1 text-xs font-bold text-blue bg-transparent"
                       defaultValue={item.price}
-                      onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock)}
+                      onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
                     />
                   </td>
                   <td className="p-3">
                     <input
                       type="number"
-                      className="w-16 rounded border border-stroke p-1 text-xs text-white"
+                      className="w-16 rounded border border-stroke p-1 text-xs text-white bg-transparent"
                       defaultValue={item.stock}
-                      onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value))}
+                      onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
                     />
+                  </td>
+                  <td className="p-3 text-center">
+                    <button
+                      onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all text-white ${item.isPublished ? "bg-green hover:bg-green-dark border border-green" : "bg-yellow hover:bg-yellow-dark border border-yellow"}`}
+                    >
+                      {item.isPublished ? "Publicado" : "Pausado"}
+                    </button>
                   </td>
                   <td className="p-3 text-center">
                     <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>

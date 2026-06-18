@@ -62,10 +62,38 @@ export class ProductsService {
     });
   }
 
+  async bulkPublishStoreInventory(userId: string) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true } });
+    if (!store) throw new BadRequestException('Tienda no encontrada.');
+
+    const skuLimit = store.subscriptionPlans?.[0]?.skuLimit ?? -1;
+    if (skuLimit !== -1) {
+      // Si el plan tiene límite, no pueden publicar todo a lo loco si ya excedieron el límite.
+      // (En realidad, el límite es sobre el total de cartas, publicadas o no, así que publicar no cuesta extra de límite.
+      // Ya están creadas en la base de datos).
+    }
+
+    const res = await this.prisma.inventoryItem.updateMany({
+      where: { storeId: store.id, isPublished: false },
+      data: { isPublished: true }
+    });
+
+    return { published: res.count };
+  }
+
   async bulkUpload(categoryId: string, items: any[], userId: string) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true } });
     const storeId = store?.id;
     const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
+
+    let skuLimit = -1;
+    let currentCount = 0;
+    if (store && store.subscriptionPlans && store.subscriptionPlans.length > 0) {
+      skuLimit = store.subscriptionPlans[0].skuLimit;
+      if (skuLimit !== -1) {
+        currentCount = await this.prisma.inventoryItem.count({ where: { storeId: store.id } });
+      }
+    }
 
     const category = await this.prisma.category.findUnique({ where: { id: categoryId } });
     const provider = category ? await this.syncService.getProviderForCategory(category.name) : null;
@@ -139,7 +167,15 @@ export class ProductsService {
                   price: finalPrice !== undefined ? finalPrice : existingItem.price
                 }
               });
+              results.updated++;
             } else {
+              if (skuLimit !== -1 && currentCount >= skuLimit) {
+                results.errors.push({
+                  index: item.originalIndex !== undefined ? item.originalIndex : i,
+                  error: `No se pudo añadir. Has alcanzado el límite de ${skuLimit} SKUs de tu plan.`
+                });
+                continue;
+              }
               await this.prisma.inventoryItem.create({
                 data: {
                   storeId: storeId,
@@ -148,12 +184,14 @@ export class ProductsService {
                   stock: item.quantity,
                   conditionId: conditionId,
                   languageId: languageId,
-                  finishId: finishId || undefined
+                  finishId: finishId || undefined,
+                  isPublished: false // Las cargas masivas entran pausadas por defecto
                 }
               });
+              currentCount++;
+              results.added++;
             }
           }
-          results.updated++;
         } else {
           results.errors.push({
             index: item.originalIndex !== undefined ? item.originalIndex : i,
@@ -226,10 +264,10 @@ export class ProductsService {
     return results;
   }
 
-  async getAdminCategories(isTcg: boolean = false) {
+  async getAdminCategories(isTcg?: boolean) {
     let whereClause: any = undefined;
-    if (isTcg) {
-      whereClause = { isTcg: false };
+    if (isTcg !== undefined) {
+      whereClause = { isTcg: isTcg };
     }
 
     return this.prisma.category.findMany({
@@ -475,7 +513,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all') {
     const skip = (page - 1) * limit;
 
     const whereClause: any = { isDeleted: false };
@@ -488,8 +526,20 @@ export class ProductsService {
       whereClause.category = { name: categoryName };
     }
 
+    // Determine the isPublished filter based on publicOnly and publishState
+    let isPublishedFilter: any = undefined;
+    if (publicOnly) {
+      isPublishedFilter = true;
+    } else if (publishState === 'published') {
+      isPublishedFilter = true;
+    } else if (publishState === 'paused') {
+      isPublishedFilter = false;
+    }
+
     if (storeId) {
-      whereClause.items = { some: { storeId } };
+      whereClause.items = { some: { storeId, ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {}) } };
+    } else if (isPublishedFilter !== undefined) {
+      whereClause.items = { some: { isPublished: isPublishedFilter } };
     }
 
     if (expansionName || attributeValue) {
@@ -519,6 +569,10 @@ export class ProductsService {
             include: { finish: true }
           },
           items: {
+            where: {
+              ...(storeId ? { storeId } : {}),
+              ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {})
+            },
             include: {
               language: true,
               condition: true,
@@ -616,7 +670,7 @@ export class ProductsService {
     return { message: "Producto eliminado (Soft Delete)" };
   }
 
-  async updateInventoryItem(itemId: string, data: { price?: number; stock?: number }) {
+  async updateInventoryItem(itemId: string, data: { price?: number; stock?: number; isPublished?: boolean }) {
     return this.prisma.inventoryItem.update({
       where: { id: itemId },
       data
@@ -708,6 +762,20 @@ export class ProductsService {
         storeId
       }
     });
+
+    if (!exists && storeId) {
+      const store = await this.prisma.store.findUnique({
+        where: { id: storeId },
+        include: { subscriptionPlans: true }
+      });
+      const skuLimit = store?.subscriptionPlans?.[0]?.skuLimit ?? -1;
+      if (skuLimit !== -1) {
+        const currentCount = await this.prisma.inventoryItem.count({ where: { storeId } });
+        if (currentCount >= skuLimit) {
+          throw new BadRequestException(`Has alcanzado el límite de ${skuLimit} SKUs de tu plan.`);
+        }
+      }
+    }
 
     if (exists) {
       throw new BadRequestException("Esta combinación de idioma, condición y versión ya existe para este producto en esta tienda.");

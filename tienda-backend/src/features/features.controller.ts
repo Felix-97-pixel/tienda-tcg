@@ -43,14 +43,14 @@ export class FeaturesController {
   }
 
   @Post('plans')
-  createPlan(@Body() data: { name: string; description?: string; price?: number; featureIds?: string[] }) {
+  createPlan(@Body() data: { name: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }) {
     return this.featuresService.createPlan(data);
   }
 
   @Patch('plans/:id')
   updatePlan(
     @Param('id') id: string,
-    @Body() data: { name?: string; description?: string; price?: number; featureIds?: string[] }
+    @Body() data: { name?: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }
   ) {
     return this.featuresService.updatePlan(id, data);
   }

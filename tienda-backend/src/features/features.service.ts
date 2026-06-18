@@ -68,12 +68,14 @@ export class FeaturesService {
     return plan;
   }
 
-  async createPlan(data: { name: string; description?: string; price?: number; featureIds?: string[] }) {
+  async createPlan(data: { name: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }) {
     return this.prisma.subscriptionPlan.create({
       data: {
         name: data.name,
         description: data.description,
         price: data.price || 0,
+        skuLimit: data.skuLimit !== undefined ? data.skuLimit : -1,
+        commissionRate: data.commissionRate || 0,
         features: {
           connect: (data.featureIds || []).map(id => ({ id }))
         }
@@ -82,7 +84,7 @@ export class FeaturesService {
     });
   }
 
-  async updatePlan(id: string, data: { name?: string; description?: string; price?: number; featureIds?: string[] }) {
+  async updatePlan(id: string, data: { name?: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }) {
     await this.getPlanById(id);
     return this.prisma.subscriptionPlan.update({
       where: { id },
@@ -90,6 +92,8 @@ export class FeaturesService {
         name: data.name,
         description: data.description,
         price: data.price !== undefined ? data.price : undefined,
+        skuLimit: data.skuLimit !== undefined ? data.skuLimit : undefined,
+        commissionRate: data.commissionRate !== undefined ? data.commissionRate : undefined,
         features: data.featureIds ? {
           set: data.featureIds.map(id => ({ id }))
         } : undefined

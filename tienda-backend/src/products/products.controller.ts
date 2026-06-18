@@ -158,7 +158,8 @@ export class ProductsController {
     @Query('attribute') attribute?: string,
     @Query('search') searchName?: string,
     @Query('storeId') storeId?: string,
-    @Query('inventoryOnly') inventoryOnly?: string
+    @Query('inventoryOnly') inventoryOnly?: string,
+    @Query('publishState') publishState?: string
   ) {
     // El storeId restringe los resultados al inventario de la tienda cuando aplica.
     let resolvedStoreId = storeId;
@@ -170,9 +171,12 @@ export class ProductsController {
       }
     }
 
+    const isPublic = inventoryOnly !== 'true';
+
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50;
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId);
+    const state = publishState || 'all';
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state);
   }
 
   @Get('meta/languages')
@@ -215,10 +219,17 @@ export class ProductsController {
     }
   }
 
+  @Patch('inventory/bulk-publish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  bulkPublishStoreInventory(@Req() req: any) {
+    return this.productsService.bulkPublishStoreInventory(req.user.userId);
+  }
+
   @Patch('inventory/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  updateInventoryItem(@Param('id') id: string, @Body() body: { price?: number; stock?: number }) {
+  updateInventoryItem(@Param('id') id: string, @Body() body: { price?: number; stock?: number; isPublished?: boolean }) {
     return this.productsService.updateInventoryItem(id, body);
   }
 

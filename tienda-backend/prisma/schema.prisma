@@ -120,6 +120,7 @@ model InventoryItem {
   finishId    String?
   price       Decimal   @db.Decimal(10, 2)
   stock       Int       @default(0)
+  isPublished Boolean   @default(true)
   store       Store?    @relation(fields: [storeId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
   condition   Condition @relation(fields: [conditionId], references: [id])
@@ -420,11 +421,13 @@ model Feature {
 }
 
 model SubscriptionPlan {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  price       Decimal  @default(0) @db.Decimal(10, 2)
+  id             String    @id @default(uuid())
+  name           String    @unique
+  description    String?
+  price          Decimal   @default(0) @db.Decimal(10, 2)
+  skuLimit       Int       @default(-1)
+  commissionRate Decimal   @default(0) @db.Decimal(5, 4)
   
-  features    Feature[] @relation("PlanFeatures")
-  stores      Store[]   @relation("StoreSubscriptionPlans")
+  features       Feature[] @relation("PlanFeatures")
+  stores         Store[]   @relation("StoreSubscriptionPlans")
 }

@@ -9,6 +9,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedExpansion, setSelectedExpansion] = useState("");
+  const [publishState, setPublishState] = useState("all");
   const [isInventoryOnly, setIsInventoryOnly] = useState(initialInventoryOnly);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -30,6 +31,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
       if (searchTerm) url.searchParams.append("search", searchTerm);
       if (selectedCategory) url.searchParams.append("category", selectedCategory);
       if (selectedExpansion) url.searchParams.append("expansion", selectedExpansion);
+      if (publishState !== "all") url.searchParams.append("publishState", publishState);
       if (isInventoryOnly) url.searchParams.append("inventoryOnly", "true");
 
       const res = await fetch(url.toString(), { credentials: "include" });
@@ -41,7 +43,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, selectedCategory, selectedExpansion, isInventoryOnly]);
+  }, [page, searchTerm, selectedCategory, selectedExpansion, publishState, isInventoryOnly]);
 
   useEffect(() => {
     const timeoutId = setTimeout(fetchProducts, 400);
@@ -51,7 +53,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
   // Reset to page 1 when filters change to avoid "stuck on empty page" bug
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, selectedCategory, selectedExpansion, isInventoryOnly]);
+  }, [searchTerm, selectedCategory, selectedExpansion, publishState, isInventoryOnly]);
 
   return {
     products,
@@ -63,6 +65,8 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
     setSelectedCategory,
     selectedExpansion,
     setSelectedExpansion,
+    publishState,
+    setPublishState,
     isInventoryOnly,
     setIsInventoryOnly,
     page,

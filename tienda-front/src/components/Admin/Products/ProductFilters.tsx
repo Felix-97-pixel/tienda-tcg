@@ -3,7 +3,6 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Input } from "@/components/ui/Input";
-import { Switch } from "@/components/ui/Switch";
 
 export interface ProductFiltersProps {
   searchTerm: string;
@@ -14,8 +13,8 @@ export interface ProductFiltersProps {
   onExpansionChange: (val: string) => void;
   categories: { id: string, name: string }[];
   expansions: { name: string, products: number }[];
-  isInventoryOnly?: boolean;
-  onInventoryOnlyChange?: (val: boolean) => void;
+  publishState?: string;
+  onPublishStateChange?: (val: string) => void;
 }
 
 export default function ProductFilters({
@@ -27,8 +26,8 @@ export default function ProductFilters({
   onExpansionChange,
   categories,
   expansions,
-  isInventoryOnly,
-  onInventoryOnlyChange
+  publishState,
+  onPublishStateChange
 }: ProductFiltersProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
@@ -37,23 +36,36 @@ export default function ProductFilters({
     <div className="bg-[#1a1d24] rounded-2xl shadow-1 p-5 mb-6">
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-medium text-white">{tc("filters")}</p>
-        {isInventoryOnly !== undefined && onInventoryOnlyChange && (
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-4 cursor-pointer select-none" onClick={() => onInventoryOnlyChange(!isInventoryOnly)}>
-              Mostrar solo mi inventario
-            </label>
-            <Switch 
-              checked={isInventoryOnly} 
-              onChange={(e) => onInventoryOnlyChange(e.target.checked)} 
-            />
-          </div>
-        )}
+        <div className="flex items-center gap-6">
+          {publishState !== undefined && onPublishStateChange && (
+            <div className="flex bg-black/20 p-1 rounded-lg border border-white/5">
+              <button
+                onClick={() => onPublishStateChange('all')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${publishState === 'all' ? 'bg-blue text-white shadow-sm' : 'text-gray-4 hover:text-white hover:bg-white/10'}`}
+              >
+                Todos
+              </button>
+              <button
+                onClick={() => onPublishStateChange('published')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${publishState === 'published' ? 'bg-green text-white shadow-sm' : 'text-gray-4 hover:text-white hover:bg-white/10'}`}
+              >
+                Publicados
+              </button>
+              <button
+                onClick={() => onPublishStateChange('paused')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${publishState === 'paused' ? 'bg-yellow text-white shadow-sm' : 'text-gray-4 hover:text-white hover:bg-white/10'}`}
+              >
+                Pausados
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
-          <Input 
+          <Input
             label={tc("search")}
-            type="text" 
+            type="text"
             placeholder={t("filters.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -61,11 +73,11 @@ export default function ProductFilters({
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("filters.category")}</label>
-          <SearchableSelect 
+          <SearchableSelect
             options={[
               { label: t("filters.allCategories"), value: "" },
               ...categories.map(c => ({ label: c.name, value: c.name }))
-            ]} 
+            ]}
             value={selectedCategory}
             onChange={onCategoryChange}
             placeholder={t("filters.allCategories")}
@@ -73,11 +85,11 @@ export default function ProductFilters({
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("filters.expansion")}</label>
-          <SearchableSelect 
+          <SearchableSelect
             options={[
               { label: t("filters.allExpansions"), value: "" },
               ...expansions.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))
-            ]} 
+            ]}
             value={selectedExpansion}
             onChange={onExpansionChange}
             placeholder={t("filters.allExpansions")}

@@ -4,6 +4,7 @@ import { seedGamesTcg } from './seeders/seed-games-tcg';
 import { seedSettings } from './seeders/seed-settings';
 import { seedSuperAdmin } from './seeders/seed-superadmin';
 import { seedStoreDevaluations } from './seeders/seed-devaluations';
+import { seedPlansAndFeatures } from './seeders/seed-plans';
 
 import 'dotenv/config';
 import { Pool } from 'pg';
@@ -36,6 +37,9 @@ async function main() {
 
     // 5. Devaluaciones por defecto de las tiendas
     await seedStoreDevaluations(prisma);
+
+    // 6. Planes de Suscripción y Features B2B
+    await seedPlansAndFeatures(prisma);
 
     console.log('✅ Seeding Maestro completado exitosamente.');
   } catch (error) {

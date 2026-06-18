@@ -58,10 +58,14 @@ export default function AdminProducts() {
 
   // Cargar Expansiones cuando cambia la categoría
   useEffect(() => {
-    let url = `${API_URL}/products/meta/expansions`;
-    if (selectedCategory) url += `?category=${encodeURIComponent(selectedCategory)}`;
+    if (!selectedCategory) {
+      setExpansions([]);
+      setSelectedExpansion("");
+      return;
+    }
+    const url = `${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`;
     fetch(url).then(r => r.json()).then(setExpansions);
-  }, [selectedCategory]);
+  }, [selectedCategory, setSelectedExpansion]);
 
   // Handlers
   const confirmDelete = (product: Product) => {
