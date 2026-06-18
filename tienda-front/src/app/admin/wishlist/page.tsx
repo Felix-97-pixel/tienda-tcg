@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
+import { useAppSelector } from "@/redux/store";
+import UpsellBanner from "@/components/Admin/UpsellBanner";
 
 interface WishlistProduct {
   id: string;
@@ -19,6 +21,7 @@ export default function AdminWishlist() {
   const { showToast } = useToast();
   const [products, setProducts] = useState<WishlistProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const { features } = useAppSelector((state) => state.authReducer);
 
   useEffect(() => {
     fetchWishlistData();
@@ -43,6 +46,14 @@ export default function AdminWishlist() {
       setLoading(false);
     }
   };
+
+  if (!features.includes("addon:radar")) {
+    return (
+      <div className="p-6 pb-24">
+        <UpsellBanner featureName="Radar de Demanda" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

@@ -121,6 +121,8 @@ model InventoryItem {
   price       Decimal   @db.Decimal(10, 2)
   stock       Int       @default(0)
   isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
   store       Store?    @relation(fields: [storeId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
   condition   Condition @relation(fields: [conditionId], references: [id])

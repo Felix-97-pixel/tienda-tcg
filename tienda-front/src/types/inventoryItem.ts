@@ -10,4 +10,6 @@ export interface InventoryItem {
   condition_rel?: { name: string };
   finish?: { name: string };
   isPublished?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
