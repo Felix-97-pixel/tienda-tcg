@@ -62,7 +62,7 @@ export default function AdminSalesPage() {
           <h1 className="text-3xl font-black text-white tracking-tight">Panel de Estadísticas</h1>
           <p className="text-gray-4 text-sm font-medium mt-1">Monitorea el pulso diario de tus operaciones</p>
         </div>
-        <UpsellBanner addon="addon:reports" title="Estadísticas y Alertas" />
+        <UpsellBanner featureName="Estadísticas y Alertas" />
       </div>
     );
   }
