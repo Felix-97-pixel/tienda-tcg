@@ -160,10 +160,14 @@ export class ProductsController {
     @Query('storeId') storeId?: string,
     @Query('inventoryOnly') inventoryOnly?: string,
     @Query('publishState') publishState?: string,
-    @Query('isTcg') isTcg?: string
+    @Query('isTcg') isTcg?: string,
+    @Query('buylistOnly') buylistOnly?: string,
+    @Query('buylistState') buylistState?: string,
+    @Query('adminCatalog') adminCatalog?: string
   ) {
     // El storeId restringe los resultados al inventario de la tienda cuando aplica.
     let resolvedStoreId = storeId;
+    let resolvedBuylistStoreId = undefined;
 
     if (inventoryOnly === 'true') {
       const tokenStoreId = await this.getStoreIdFromToken(req);
@@ -172,17 +176,26 @@ export class ProductsController {
       }
     }
 
-    const isPublic = inventoryOnly !== 'true';
+    if (buylistOnly === 'true') {
+      const tokenStoreId = await this.getStoreIdFromToken(req);
+      if (tokenStoreId) {
+        resolvedBuylistStoreId = tokenStoreId;
+      }
+    }
+
+    const isAdminCatalog = adminCatalog === 'true';
+    const isPublic = inventoryOnly !== 'true' && buylistOnly !== 'true' && !isAdminCatalog;
 
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50;
     const state = publishState || 'all';
+    const bState = buylistState || 'all';
     
     let isTcgBool: boolean | undefined = undefined;
     if (isTcg === 'true') isTcgBool = true;
     if (isTcg === 'false') isTcgBool = false;
 
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool);
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState);
   }
 
   @Get('meta/languages')

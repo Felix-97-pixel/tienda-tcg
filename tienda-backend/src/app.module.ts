@@ -22,6 +22,8 @@ import { StoresModule } from './stores/stores.module';
 import { ExpansionsModule } from './expansions/expansions.module';
 import { GamesModule } from './games/games.module';
 import { FeaturesModule } from './features/features.module';
+import { BuylistModule } from './buylist/buylist.module';
+import { StoreCreditModule } from './store-credit/store-credit.module';
 
 @Module({
   imports: [
@@ -49,7 +51,9 @@ import { FeaturesModule } from './features/features.module';
     StoresModule,
     ExpansionsModule,
     GamesModule,
-    FeaturesModule
+    FeaturesModule,
+    BuylistModule,
+    StoreCreditModule
   ],
   controllers: [AppController],
   providers: [AppService],

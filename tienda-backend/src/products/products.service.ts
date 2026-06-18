@@ -513,7 +513,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all') {
     const skip = (page - 1) * limit;
 
     const whereClause: any = { isDeleted: false };
@@ -533,7 +533,7 @@ export class ProductsService {
       };
     }
 
-    // Determine the isPublished filter based on publicOnly and publishState
+    // Filtros de inventario
     let isPublishedFilter: any = undefined;
     if (publicOnly) {
       isPublishedFilter = true;
@@ -545,8 +545,27 @@ export class ProductsService {
 
     if (storeId) {
       whereClause.items = { some: { storeId, ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {}) } };
-    } else if (isPublishedFilter !== undefined) {
+    } else if (isPublishedFilter !== undefined && !buylistStoreId) {
+      // Si no hay storeId ni buylistStoreId, aplicar a items generales (legacy behaviour)
       whereClause.items = { some: { isPublished: isPublishedFilter } };
+    }
+
+    // Filtros de Buylist
+    let isBuylistActiveFilter: any = undefined;
+    if (buylistState === 'active') {
+      isBuylistActiveFilter = true;
+    } else if (buylistState === 'paused') {
+      isBuylistActiveFilter = false;
+    }
+
+    if (buylistStoreId) {
+      const buylistCondition: any = { storeId: buylistStoreId };
+      if (isBuylistActiveFilter !== undefined) {
+        buylistCondition.isActive = isBuylistActiveFilter;
+      }
+      
+      // Si ya hay un filtro en whereClause (ej: items), lo metemos usando AND o agregamos buyListItems
+      whereClause.buyListItems = { some: buylistCondition };
     }
 
     if (expansionName || attributeValue) {
@@ -586,6 +605,16 @@ export class ProductsService {
               finish: true
             }
           },
+          buyListItems: buylistStoreId ? {
+            where: {
+              storeId: buylistStoreId,
+              ...(isBuylistActiveFilter !== undefined ? { isActive: isBuylistActiveFilter } : {})
+            },
+            include: {
+              language: true,
+              condition: true
+            }
+          } : false,
         },
       }),
       this.prisma.product.count({ where: whereClause })

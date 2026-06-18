@@ -57,6 +57,7 @@ model Product {
   brand        Brand?          @relation(fields: [brandId], references: [id])
   store        Store?          @relation("StoreCustomProducts", fields: [storeId], references: [id])
   wishlistedBy WishlistItem[]
+  buyListItems BuyListItem[]
 
   @@index([name])
   @@index([categoryId])
@@ -64,10 +65,11 @@ model Product {
 }
 
 model Language {
-  id    String          @id @default(uuid())
-  name  String          @unique // e.g., "Spanish", "English"
-  code  String          @unique // e.g., "es", "en"
-  items InventoryItem[]
+  id           String          @id @default(uuid())
+  name         String          @unique // e.g., "Spanish", "English"
+  code         String          @unique // e.g., "es", "en"
+  items        InventoryItem[]
+  buyListItems BuyListItem[]
 }
 
 model Condition {
@@ -75,6 +77,7 @@ model Condition {
   name         String                      @unique // e.g., "near_mint", "poor"
   items        InventoryItem[]
   devaluations StoreConditionDevaluation[]
+  buyListItems BuyListItem[]
 }
 
 model CardDetail {
@@ -197,27 +200,32 @@ model Store {
   withdrawals    WithdrawalRequest[]
   devaluations   StoreConditionDevaluation[]
 
-  subscriptionPlans  SubscriptionPlan[] @relation("StoreSubscriptionPlans")
-  
-  customFeatures     Feature[] @relation("StoreCustomFeatures")
+  subscriptionPlans SubscriptionPlan[] @relation("StoreSubscriptionPlans")
+
+  customFeatures     Feature[]                @relation("StoreCustomFeatures")
+  buyListItems       BuyListItem[]
+  storeCredits       StoreCredit[]
+  creditTransactions StoreCreditTransaction[]
 }
 
 model User {
-  id                String         @id @default(uuid())
-  email             String         @unique
-  password          String
-  name              String?
-  phone             String?
-  address           String?
-  city              String?
-  role              Role           @default(USER)
-  isVerified        Boolean        @default(false)
-  verificationToken String?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  store             Store?
-  wishlist          WishlistItem[]
-  orders            Order[]
+  id                 String                   @id @default(uuid())
+  email              String                   @unique
+  password           String
+  name               String?
+  phone              String?
+  address            String?
+  city               String?
+  role               Role                     @default(USER)
+  isVerified         Boolean                  @default(false)
+  verificationToken  String?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  store              Store?
+  wishlist           WishlistItem[]
+  orders             Order[]
+  storeCredits       StoreCredit[]
+  creditTransactions StoreCreditTransaction[]
 }
 
 model Order {
@@ -412,24 +420,72 @@ model SyncBackup {
 }
 
 model Feature {
-  id          String   @id @default(uuid())
-  key         String   @unique // e.g. "game:magic", "module:statistics"
+  id          String  @id @default(uuid())
+  key         String  @unique // e.g. "game:magic", "module:statistics"
   name        String
   description String?
-  price       Decimal  @default(0) @db.Decimal(10, 2)
-  
-  plans       SubscriptionPlan[] @relation("PlanFeatures")
-  stores      Store[]            @relation("StoreCustomFeatures")
+  price       Decimal @default(0) @db.Decimal(10, 2)
+
+  plans  SubscriptionPlan[] @relation("PlanFeatures")
+  stores Store[]            @relation("StoreCustomFeatures")
 }
 
 model SubscriptionPlan {
-  id             String    @id @default(uuid())
-  name           String    @unique
+  id             String  @id @default(uuid())
+  name           String  @unique
   description    String?
-  price          Decimal   @default(0) @db.Decimal(10, 2)
-  skuLimit       Int       @default(-1)
-  commissionRate Decimal   @default(0) @db.Decimal(5, 4)
-  
-  features       Feature[] @relation("PlanFeatures")
-  stores         Store[]   @relation("StoreSubscriptionPlans")
+  price          Decimal @default(0) @db.Decimal(10, 2)
+  skuLimit       Int     @default(-1)
+  commissionRate Decimal @default(0) @db.Decimal(5, 4)
+
+  features Feature[] @relation("PlanFeatures")
+  stores   Store[]   @relation("StoreSubscriptionPlans")
+}
+
+model BuyListItem {
+  id             String   @id @default(uuid())
+  storeId        String
+  productId      String
+  conditionId    String
+  languageId     String
+  quantityWanted Int      @default(1)
+  cashPrice      Decimal  @default(0) @db.Decimal(10, 2)
+  creditPrice    Decimal  @default(0) @db.Decimal(10, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  condition Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  language  Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, productId, conditionId, languageId])
+}
+
+model StoreCredit {
+  id        String   @id @default(uuid())
+  storeId   String
+  userId    String
+  balance   Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, userId])
+}
+
+model StoreCreditTransaction {
+  id        String   @id @default(uuid())
+  storeId   String
+  userId    String
+  amount    Decimal  @db.Decimal(10, 2)
+  type      String // e.g. "BUYLIST_TRADE", "MANUAL_ADD", "MANUAL_SUBTRACT", "PURCHASE"
+  reference String?
+  createdAt DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

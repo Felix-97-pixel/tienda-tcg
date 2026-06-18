@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Request } from 'express';
@@ -8,6 +11,15 @@ import { Request } from 'express';
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('search')
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @UseGuards(RolesGuard)
+  async searchUsers(@Query('email') email: string) {
+    if (!email || email.length < 3) return [];
+    const users = await this.usersService.searchUsersByEmail(email);
+    return users.map(u => ({ id: u.id, email: u.email, name: u.name }));
+  }
 
   /** GET /users/me — Perfil del usuario autenticado */
   @Get('me')

@@ -47,6 +47,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/products",    label: "Singles",               icon: icons.products },
     { href: "/admin/sealed",      label: "Sellado y Otros",       icon: icons.categories },
     { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
+    { href: "/admin/buylist",     label: "Buylist",               icon: icons.orders },
+    { href: "/admin/store-credit",label: "Crédito de Tienda",     icon: icons.sales },
   ];
 
   const statsItems = [
@@ -61,7 +63,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
   ];
 
-  const isCatalog = ["/admin/products", "/admin/sealed", "/admin/wishlist"].some(p => pathname.startsWith(p));
+  const isCatalog = ["/admin/products", "/admin/sealed", "/admin/wishlist", "/admin/buylist", "/admin/store-credit"].some(p => pathname.startsWith(p));
   const isStats = ["/admin/sales", "/admin/orders", "/admin/statistics"].some(p => pathname.startsWith(p));
   const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile"].some(p => pathname.startsWith(p));
 
