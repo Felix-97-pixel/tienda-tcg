@@ -1,6 +1,6 @@
-# 🏗️ Arquitectura del Sistema — TCG E-commerce Platform
+# 🏗️ Arquitectura del Sistema — TapTrade (SaaS Multi-tenant)
 
-Este documento describe la arquitectura técnica, los patrones de diseño empleados, el modelo de datos y los flujos de operación del sistema.
+Este documento describe la arquitectura técnica, los patrones de diseño empleados, el modelo de datos y los flujos de operación de la plataforma SaaS y Marketplace B2B/B2C.
 
 ---
 
@@ -19,51 +19,58 @@ Este documento describe la arquitectura técnica, los patrones de diseño emplea
 
 ## Vista General
 
-El sistema se compone de dos aplicaciones independientes que se comunican vía REST API:
+El sistema se compone de una arquitectura SaaS Multi-tenant (Software as a Service) con un frontend unificado que actúa tanto como Marketplace para compradores, como Panel de Control para tiendas y administradores.
 
 ```mermaid
 graph TB
     subgraph "Cliente (Browser)"
-        FE["Next.js 16<br/>App Router + Redux"]
+        FE["Next.js 16 (App Router)"]
+        subgraph "Módulos UI"
+            MKT["Marketplace Público"]
+            SA["SuperAdmin Panel"]
+            TEN["Store Tenant Panel"]
+        end
+        FE --> MKT
+        FE --> SA
+        FE --> TEN
     end
 
     subgraph "Servicios Externos"
         TBK["Transbank<br/>Webpay Plus"]
         SCR["Scryfall API"]
         PKM["PokemonTCG.io"]
-        RFT["Riftcodex /<br/>JustTCG API"]
+        RFT["Riftcodex API"]
         CLD["Cloudinary<br/>CDN"]
         SMTP["SMTP<br/>Resend"]
-        CF["Cloudflare<br/>Turnstile"]
     end
 
-    subgraph "Backend (NestJS 11)"
+    subgraph "Backend SaaS (NestJS 11)"
         API["REST API<br/>/api/v1"]
         AUTH["Auth Module"]
-        PROD["Products Module"]
+        TENANT["Tenant/Store Module"]
+        PROD["Products/Inventory Module"]
         PAY["Payments Module<br/>(CQRS)"]
         SYNC["Sync Module<br/>(Strategy)"]
-        MAIL["Mail Module"]
-        UP["Upload Module"]
     end
 
-    subgraph "Datos"
-        DB[("PostgreSQL<br/>Neon")]
+    subgraph "Base de Datos"
+        DB[("PostgreSQL (Neon)<br/>Esquema Multi-tenant")]
     end
 
-    FE -->|"HTTPS"| API
+    MKT -->|"Búsqueda Global"| API
+    TEN -->|"Gestión de Inventario"| API
+    SA -->|"Gestión de Plataforma"| API
     API --> AUTH
+    API --> TENANT
     API --> PROD
     API --> PAY
     API --> SYNC
-    AUTH -->|"Verify CAPTCHA"| CF
-    PAY -->|"Create/Commit Tx"| TBK
-    SYNC -->|"Fetch Sets"| SCR
-    SYNC -->|"Fetch Sets"| PKM
-    SYNC -->|"Fetch Sets"| RFT
-    UP -->|"Upload/Delete"| CLD
-    MAIL -->|"Send Email"| SMTP
+    PAY -->|"Procesa Pagos"| TBK
+    SYNC -->|"Catálogos Maestros"| SCR
+    SYNC -->|"Catálogos Maestros"| PKM
+    SYNC -->|"Catálogos Maestros"| RFT
     AUTH --> DB
+    TENANT --> DB
     PROD --> DB
     PAY --> DB
     SYNC --> DB
@@ -622,19 +629,22 @@ graph TB
 
 ---
 
-## Decisiones de Diseño
+## Decisiones de Diseño B2B SaaS
+
+### ¿Por qué Arquitectura Multi-tenant en la misma Base de Datos?
+Se optó por un esquema multi-tenant lógico (usando `storeId` en las tablas clave como `InventoryItem` y `Order`) en lugar de esquemas físicos separados. Esto permite que el Marketplace público (TapTrade) realice búsquedas globales (Global Search) cruzando el inventario de todas las tiendas de forma rápida y con índices eficientes en PostgreSQL.
+
+### ¿Por qué cobrar por Límites de SKUs en lugar de "Por Carta"?
+En los planes de suscripción, se limita la cantidad de *SKUs (InventoryItems únicos)* en lugar de limitar el número total absoluto de cartas físicas. Esto incentiva a las tiendas a subir grandes volúmenes de las mismas cartas comunes (dando profundidad al mercado) y desincentiva prácticas abusivas donde las tiendas borran cartas para hacer espacio, protegiendo así la integridad estadística de los catálogos y reduciendo la carga de base de datos.
 
 ### ¿Por qué CQRS solo en Payments?
-El módulo de pagos es el más complejo y con más efectos secundarios (llamadas a Webpay, descuento de stock, notificaciones). CQRS permite aislar y testear cada operación. Los otros módulos usan el patrón service/controller estándar de NestJS porque su complejidad no justifica la sobrecarga de CQRS.
+El módulo de pagos es el más complejo y con más efectos secundarios (llamadas a Webpay, descuento de stock, split de pagos entre tiendas, notificaciones). CQRS permite aislar y testear cada operación. Los otros módulos usan el patrón service/controller estándar de NestJS porque su complejidad no justifica la sobrecarga de CQRS.
 
-### ¿Por qué Prisma en vez de TypeORM?
-Prisma ofrece un cliente type-safe auto-generado que reduce errores en tiempo de compilación. El schema declarativo (`schema.prisma`) es más legible que los decoradores de TypeORM, y las migraciones son más predecibles.
-
-### ¿Por qué InventoryItem separado de Product?
-Un producto TCG (ej: "Black Lotus") puede tener múltiples variantes: Near Mint en inglés normal, Near Mint en inglés foil, etc. Cada variante tiene su propio precio y stock. Esta normalización permite gestionar inventario a nivel granular.
+### Payouts a las Tiendas (Próximamente)
+Actualmente, el sistema está diseñado para que TapTrade procese el pago íntegro centralizado (vía Webpay) del carrito unificado del jugador. En futuras iteraciones, el backend calculará el monto correspondiente a cada `VendorOrder`, deducirá la comisión correspondiente según el plan de la tienda, e ingresará un saldo pendiente en la Wallet de cada tienda (`Balance`). La liquidación de estos fondos a las cuentas bancarias de las tiendas requerirá procesos de facturación que están siendo evaluados.
 
 ### ¿Por qué Puppeteer para precios?
 Algunos sitios de referencia de precios no ofrecen APIs públicas. Puppeteer permite scraping controlado. Sin embargo, este componente es **frágil** y requiere mantenimiento cuando los sitios cambian su estructura HTML.
 
 ### ¿Por qué next-intl sin prefijos de URL?
-El locale se resuelve en el servidor (`src/i18n/request.ts`) sin prefijos en la URL. `/shop` funciona igual para todos los locales. Esto simplifica las URLs y el SEO, ya que el contenido es el mismo en las 3 variantes de español.
+El locale se resuelve en el servidor (`src/i18n/request.ts`) sin prefijos en la URL. `/shop` funciona igual para todos los locales. Esto simplifica las URLs y el SEO, ya que el contenido es el mismo en las variantes regionales, cambiando principalmente símbolos de moneda o pequeños textos locales.

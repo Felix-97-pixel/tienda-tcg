@@ -1,8 +1,11 @@
-# 📡 API Reference — TCG E-commerce Platform
+# 📡 API Reference — TapTrade (SaaS Multi-tenant)
 
 Documentación completa de la API REST del backend. Todos los endpoints usan el prefijo base `/api/v1`.
 
 > **Swagger UI** disponible en `http://localhost:3001/api/docs` cuando el backend está corriendo.
+
+## Nota sobre Arquitectura Multi-tenant
+Dado que la plataforma opera bajo un modelo SaaS, los endpoints de creación y gestión de inventario (`POST /products/inventory`, etc.) ahora leen automáticamente el `storeId` del administrador logueado a través del token JWT y validan que el usuario cumpla con los límites de su **Plan de Suscripción**. Las búsquedas públicas (`GET /products`) permiten buscar transversalmente en todas las tiendas.
 
 ---
 
