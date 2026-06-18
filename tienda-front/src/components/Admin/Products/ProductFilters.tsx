@@ -9,10 +9,10 @@ export interface ProductFiltersProps {
   onSearchChange: (val: string) => void;
   selectedCategory: string;
   onCategoryChange: (val: string) => void;
-  selectedExpansion: string;
-  onExpansionChange: (val: string) => void;
+  selectedExpansion?: string;
+  onExpansionChange?: (val: string) => void;
   categories: { id: string, name: string }[];
-  expansions: { name: string, products: number }[];
+  expansions?: { name: string, products: number }[];
   publishState?: string;
   onPublishStateChange?: (val: string) => void;
 }
@@ -83,19 +83,21 @@ export default function ProductFilters({
             placeholder={t("filters.allCategories")}
           />
         </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("filters.expansion")}</label>
-          <SearchableSelect
-            options={[
-              { label: t("filters.allExpansions"), value: "" },
-              ...expansions.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))
-            ]}
-            value={selectedExpansion}
-            onChange={onExpansionChange}
-            placeholder={t("filters.allExpansions")}
-            disabled={expansions.length === 0}
-          />
-        </div>
+        {expansions && selectedExpansion !== undefined && onExpansionChange && (
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("filters.expansion")}</label>
+            <SearchableSelect
+              options={[
+                { label: t("filters.allExpansions"), value: "" },
+                ...expansions.map(e => ({ label: `${e.name} (${e.products})`, value: e.name }))
+              ]}
+              value={selectedExpansion}
+              onChange={onExpansionChange}
+              placeholder={t("filters.allExpansions")}
+              disabled={expansions.length === 0}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

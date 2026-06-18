@@ -9,4 +9,5 @@ export interface InventoryItem {
   language?: { name: string };
   condition_rel?: { name: string };
   finish?: { name: string };
+  isPublished?: boolean;
 }

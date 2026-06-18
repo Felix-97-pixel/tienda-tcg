@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "@/utils/api";
 import { Product } from "@/types/product";
 
-export function useAdminProducts(initialInventoryOnly: boolean = false) {
+export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: boolean) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +33,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
       if (selectedExpansion) url.searchParams.append("expansion", selectedExpansion);
       if (publishState !== "all") url.searchParams.append("publishState", publishState);
       if (isInventoryOnly) url.searchParams.append("inventoryOnly", "true");
+      if (isTcg !== undefined) url.searchParams.append("isTcg", isTcg.toString());
 
       const res = await fetch(url.toString(), { credentials: "include" });
       const data = await res.json();
@@ -43,7 +44,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false) {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, selectedCategory, selectedExpansion, publishState, isInventoryOnly]);
+  }, [page, searchTerm, selectedCategory, selectedExpansion, publishState, isInventoryOnly, isTcg]);
 
   useEffect(() => {
     const timeoutId = setTimeout(fetchProducts, 400);

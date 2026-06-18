@@ -159,7 +159,8 @@ export class ProductsController {
     @Query('search') searchName?: string,
     @Query('storeId') storeId?: string,
     @Query('inventoryOnly') inventoryOnly?: string,
-    @Query('publishState') publishState?: string
+    @Query('publishState') publishState?: string,
+    @Query('isTcg') isTcg?: string
   ) {
     // El storeId restringe los resultados al inventario de la tienda cuando aplica.
     let resolvedStoreId = storeId;
@@ -176,7 +177,12 @@ export class ProductsController {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50;
     const state = publishState || 'all';
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state);
+    
+    let isTcgBool: boolean | undefined = undefined;
+    if (isTcg === 'true') isTcgBool = true;
+    if (isTcg === 'false') isTcgBool = false;
+
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool);
   }
 
   @Get('meta/languages')

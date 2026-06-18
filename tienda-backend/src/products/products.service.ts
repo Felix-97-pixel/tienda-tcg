@@ -513,7 +513,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all') {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean) {
     const skip = (page - 1) * limit;
 
     const whereClause: any = { isDeleted: false };
@@ -524,6 +524,13 @@ export class ProductsService {
 
     if (categoryName) {
       whereClause.category = { name: categoryName };
+    }
+
+    if (isTcg !== undefined) {
+      whereClause.category = {
+        ...whereClause.category,
+        isTcg: isTcg
+      };
     }
 
     // Determine the isPublished filter based on publicOnly and publishState

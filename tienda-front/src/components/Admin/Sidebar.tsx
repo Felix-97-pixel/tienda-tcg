@@ -44,7 +44,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const tc = useTranslations("common");
 
   const catalogItems = [
-    { href: "/admin/products",    label: t("modules.products"),   icon: icons.products },
+    { href: "/admin/products",    label: "Singles",               icon: icons.products },
+    { href: "/admin/sealed",      label: "Sellado y Otros",       icon: icons.categories },
     { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
   ];
 
@@ -60,7 +61,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
     { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
   ];
 
-  const isCatalog = ["/admin/products", "/admin/wishlist"].some(p => pathname.startsWith(p));
+  const isCatalog = ["/admin/products", "/admin/sealed", "/admin/wishlist"].some(p => pathname.startsWith(p));
   const isStats = ["/admin/sales", "/admin/orders", "/admin/statistics"].some(p => pathname.startsWith(p));
   const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile"].some(p => pathname.startsWith(p));
 

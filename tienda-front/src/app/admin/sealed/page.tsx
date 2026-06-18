@@ -30,12 +30,11 @@ export default function StoreAdminProducts() {
     selectedExpansion, setSelectedExpansion,
     publishState, setPublishState,
     page, setPage, totalPages
-  } = useAdminProducts(true, true);
+  } = useAdminProducts(true, false);
 
   // Estados de Metadatos
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalCategories, setModalCategories] = useState<Category[]>([]);
-  const [expansions, setExpansions] = useState<{ name: string; products: number }[]>([]);
 
   // Estados de Modales
   const [isBulkOpen, setIsBulkOpen] = useState(false);
@@ -49,7 +48,7 @@ export default function StoreAdminProducts() {
 
   // Cargar Metadatos al Montar
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`)
+    fetch(`${API_URL}/products/meta/categories/admin?isTcg=false`)
       .then(r => r.json())
       .then(data => {
         setCategories(data);
@@ -57,27 +56,16 @@ export default function StoreAdminProducts() {
       });
   }, []);
 
-  // Cargar Expansiones cuando cambia la categoría
-  useEffect(() => {
-    if (!selectedCategory) {
-      setExpansions([]);
-      setSelectedExpansion(""); // Resetear la expansión seleccionada si se limpia la categoría
-      return;
-    }
-    const url = `${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`;
-    fetch(url).then(r => r.json()).then(setExpansions);
-  }, [selectedCategory, setSelectedExpansion]);
-
   return (
     <div className="p-6 space-y-6 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">
-            Mi Inventario
+            Inventario Sellado y Accesorios
           </h1>
           <p className="text-gray-4 text-sm mt-1">
-            Revisa y gestiona las cartas que actualmente tienes en tu inventario.
+            Revisa y gestiona los productos sellados, accesorios y dados que tienes en tu inventario.
           </p>
         </div>
         <div className="flex gap-3">
@@ -101,9 +89,7 @@ export default function StoreAdminProducts() {
       <ProductFilters
         searchTerm={searchTerm} onSearchChange={setSearchTerm}
         selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory}
-        selectedExpansion={selectedExpansion} onExpansionChange={setSelectedExpansion}
         categories={categories}
-        expansions={expansions}
         publishState={publishState}
         onPublishStateChange={setPublishState}
       />
