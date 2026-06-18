@@ -27,7 +27,6 @@ export default function StoreAdminProducts() {
     products, setProducts, loading, refresh,
     searchTerm, setSearchTerm,
     selectedCategory, setSelectedCategory,
-    selectedExpansion, setSelectedExpansion,
     publishState, setPublishState,
     page, setPage, totalPages
   } = useAdminProducts(true, false);
