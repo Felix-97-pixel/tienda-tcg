@@ -5,11 +5,12 @@ import { useToast } from "@/hooks/useToast";
 
 interface StoreCreditModalProps {
   preselectedUser: any | null;
+  defaultType?: "MANUAL_ADD" | "MANUAL_SUBTRACT";
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }: StoreCreditModalProps) {
+export default function StoreCreditModal({ preselectedUser, defaultType = "MANUAL_ADD", onClose, onSuccess }: StoreCreditModalProps) {
   const { showToast } = useToast();
 
   const [loading, setLoading] = useState(false);
@@ -22,10 +23,16 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
 
   // Formulario General
   const [amount, setAmount] = useState<number | "">("");
-  const [type, setType] = useState<"MANUAL_ADD" | "MANUAL_SUBTRACT">("MANUAL_ADD");
+  const [type, setType] = useState<"MANUAL_ADD" | "MANUAL_SUBTRACT">(defaultType);
   const [reference, setReference] = useState("");
 
-  // Búsqueda de Cartas (Trade-in)
+  // Metadatos para Filtros
+  const [categories, setCategories] = useState<any[]>([]);
+  const [expansions, setExpansions] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedExpansion, setSelectedExpansion] = useState("");
+
+  // Búsqueda de Cartas / Productos (Trade-in / Compra)
   const [cardSearchTerm, setCardSearchTerm] = useState("");
   const [cardSearchResults, setCardSearchResults] = useState<any[]>([]);
   const [searchingCards, setSearchingCards] = useState(false);
@@ -39,7 +46,7 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
     }
     const delay = setTimeout(() => {
       setSearching(true);
-      fetch(`${API_URL}/users/search?email=${encodeURIComponent(searchTerm)}`, { credentials: "include" })
+      fetch(`${API_URL}/users/search?query=${encodeURIComponent(searchTerm)}`, { credentials: "include" })
         .then(r => r.json())
         .then(data => setSearchResults(data || []))
         .finally(() => setSearching(false));
@@ -47,21 +54,55 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
     return () => clearTimeout(delay);
   }, [searchTerm]);
 
-  // Buscar Cartas
+  // Cargar Categorías
   useEffect(() => {
-    if (cardSearchTerm.length < 3) {
+    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`)
+      .then(r => r.json())
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
+
+  // Cargar Expansiones al cambiar Categoría
+  useEffect(() => {
+    if (!selectedCategory) {
+      setExpansions([]);
+      setSelectedExpansion("");
+      return;
+    }
+    fetch(`${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
+      .then(r => r.json())
+      .then(setExpansions)
+      .catch(() => {});
+  }, [selectedCategory]);
+
+  // Buscar Cartas / Productos
+  useEffect(() => {
+    if (cardSearchTerm.length < 3 && !selectedCategory && !selectedExpansion) {
       setCardSearchResults([]);
       return;
     }
     const delay = setTimeout(() => {
       setSearchingCards(true);
-      fetch(`${API_URL}/products?search=${encodeURIComponent(cardSearchTerm)}&limit=5`)
+      
+      let productUrl = `${API_URL}/products?search=${encodeURIComponent(cardSearchTerm)}&limit=10`;
+      
+      // Lógica Dual
+      if (type === "MANUAL_ADD") {
+        productUrl += `&adminCatalog=true`;
+      } else {
+        productUrl += `&inventoryOnly=true`;
+      }
+
+      if (selectedCategory) productUrl += `&category=${encodeURIComponent(selectedCategory)}`;
+      if (selectedExpansion) productUrl += `&expansion=${encodeURIComponent(selectedExpansion)}`;
+
+      fetch(productUrl, { credentials: "include" })
         .then(r => r.json())
         .then(data => setCardSearchResults(data.data || []))
         .finally(() => setSearchingCards(false));
     }, 500);
     return () => clearTimeout(delay);
-  }, [cardSearchTerm]);
+  }, [cardSearchTerm, selectedCategory, selectedExpansion, type]);
 
   // Auto-calcular monto si hay cartas
   useEffect(() => {
@@ -105,7 +146,7 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
     let finalReference = reference;
     if (tradeInCards.length > 0) {
       const cardsText = tradeInCards.map(c => `${c.quantity}x ${c.product.name} ($${c.price})`).join(', ');
-      finalReference = reference ? `${reference} | Cartas: ${cardsText}` : `Trade-in: ${cardsText}`;
+      finalReference = reference ? `${reference} | Productos: ${cardsText}` : `${type === 'MANUAL_ADD' ? 'Trade-in' : 'Compra en tienda'}: ${cardsText}`;
     }
 
     try {
@@ -115,7 +156,7 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
         body: JSON.stringify({
           userId: selectedUser.id,
           amount: finalAmount,
-          type: tradeInCards.length > 0 ? "BUYLIST_TRADE" : type,
+          type: tradeInCards.length > 0 ? (type === "MANUAL_ADD" ? "BUYLIST_TRADE" : "STORE_PURCHASE") : type,
           reference: finalReference || "Ajuste Manual"
         }),
         credentials: "include"
@@ -142,10 +183,10 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
         {/* Buscador de usuario si no hay uno seleccionado */}
         {!selectedUser && (
           <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-4 uppercase">Buscar Cliente por Email</label>
+            <label className="text-xs font-bold text-gray-4 uppercase">Buscar Cliente en TapTrade (Nombre o Email)</label>
             <input
-              type="email"
-              placeholder="Escribe el email del usuario..."
+              type="text"
+              placeholder="Escribe el nombre o email del usuario..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none"
@@ -184,18 +225,7 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-4 uppercase">Operación</label>
-            <select
-              value={type}
-              onChange={(e: any) => setType(e.target.value)}
-              className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none"
-            >
-              <option value="MANUAL_ADD">Abonar Saldo (+)</option>
-              <option value="MANUAL_SUBTRACT">Descontar Saldo (-)</option>
-            </select>
-          </div>
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-4 uppercase">Monto Total ($ SC)</label>
             <input
@@ -211,84 +241,108 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
           </div>
         </div>
 
-        {/* Sección de Cartas (Solo para Abonar) */}
-        {type === "MANUAL_ADD" && (
-          <div className="space-y-4 border-t border-white/10 pt-4">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <span className="text-lg">🃏</span> Cartas Recibidas (Opcional)
-            </h3>
+        {/* Sección de Cartas / Productos (Ambos Flujos) */}
+        <div className="space-y-4 border-t border-white/10 pt-4">
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <span className="text-lg">{type === "MANUAL_ADD" ? "🃏" : "🛒"}</span> 
+            {type === "MANUAL_ADD" ? "Productos Recibidos (Trade-in)" : "Productos Comprados por el Cliente"} <span className="text-gray-4 text-xs font-normal normal-case">(Opcional)</span>
+          </h3>
+          
+          <div className="p-4 bg-[#111318] rounded-xl border border-white/10 space-y-3 relative">
             
-            <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <input
                 type="text"
-                placeholder="Buscar cartas recibidas del cliente..."
+                placeholder={type === "MANUAL_ADD" ? "Buscar en catálogo global..." : "Buscar en tu inventario..."}
                 value={cardSearchTerm}
                 onChange={(e) => setCardSearchTerm(e.target.value)}
-                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none"
+                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
               />
-              {searchingCards && <p className="absolute right-4 top-3 text-xs text-blue">Buscando...</p>}
-              
-              {cardSearchResults.length > 0 && (
-                <div className="absolute z-50 w-full bg-[#0f1115] border border-white/10 rounded-xl max-h-60 overflow-y-auto mt-2 p-2 space-y-1 shadow-2xl">
-                  {cardSearchResults.map((res: any) => (
-                    <div
-                      key={res.id}
-                      onClick={() => handleAddCard(res)}
-                      className="flex items-center gap-3 p-2 hover:bg-white/5 rounded cursor-pointer"
-                    >
-                      <div className="w-8 h-10 bg-black rounded overflow-hidden flex-shrink-0">
-                        {res.imageUrl && <img src={res.imageUrl} className="w-full h-full object-cover" />}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-white leading-tight">{res.name}</p>
-                        <p className="text-xs text-gray-4">{res.setName}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <select
+                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="">Categorías</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+              <select
+                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
+                value={selectedExpansion}
+                onChange={(e) => setSelectedExpansion(e.target.value)}
+                disabled={!selectedCategory}
+              >
+                <option value="">{!selectedCategory ? "Elige Categoría..." : "Expansiones"}</option>
+                {expansions.map((e, idx) => (
+                  <option key={idx} value={e.name}>{e.name}</option>
+                ))}
+              </select>
             </div>
 
-            {/* Lista de Cartas Seleccionadas */}
-            {tradeInCards.length > 0 && (
-              <div className="space-y-2">
-                {tradeInCards.map((c, index) => (
-                  <div key={index} className="flex items-center gap-3 bg-[#1a1d24] p-3 rounded-xl border border-white/5">
-                    <div className="w-10 h-14 bg-black rounded overflow-hidden flex-shrink-0">
-                      {c.product.imageUrl && <img src={c.product.imageUrl} className="w-full h-full object-cover" />}
+            {searchingCards && <p className="text-xs text-blue">Buscando...</p>}
+            
+            {cardSearchResults.length > 0 && (
+              <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-[#0f1115] border border-white/10 rounded-xl max-h-60 overflow-y-auto p-2 space-y-1 shadow-2xl">
+                {cardSearchResults.map((res: any) => (
+                  <div
+                    key={res.id}
+                    onClick={() => handleAddCard(res)}
+                    className="flex items-center gap-3 p-2 hover:bg-white/5 rounded cursor-pointer"
+                  >
+                    <div className="w-8 h-10 bg-black rounded overflow-hidden flex-shrink-0">
+                      {res.imageUrl && <img src={res.imageUrl} className="w-full h-full object-cover" />}
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-white leading-tight line-clamp-1">{c.product.name}</p>
-                      <div className="flex gap-2 mt-2">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-gray-4">Cant:</span>
-                          <input 
-                            type="number" min="1" 
-                            className="w-16 bg-[#0f1115] border border-white/10 rounded px-2 py-1 text-xs text-white"
-                            value={c.quantity}
-                            onChange={e => handleUpdateCard(index, 'quantity', Number(e.target.value))}
-                          />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-gray-4">Precio SC:</span>
-                          <input 
-                            type="number" min="0" 
-                            className="w-24 bg-[#0f1115] border border-white/10 rounded px-2 py-1 text-xs text-blue font-bold"
-                            value={c.price}
-                            onChange={e => handleUpdateCard(index, 'price', Number(e.target.value))}
-                          />
-                        </div>
-                      </div>
+                    <div>
+                      <p className="text-sm font-bold text-white leading-tight">{res.name}</p>
+                      <p className="text-xs text-gray-4">{res.setName}</p>
                     </div>
-                    <button type="button" onClick={() => handleRemoveCard(index)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        )}
+
+          {/* Lista de Cartas Seleccionadas */}
+          {tradeInCards.length > 0 && (
+            <div className="space-y-2">
+              {tradeInCards.map((c, index) => (
+                <div key={index} className="flex items-center gap-3 bg-[#1a1d24] p-3 rounded-xl border border-white/5">
+                  <div className="w-10 h-14 bg-black rounded overflow-hidden flex-shrink-0">
+                    {c.product.imageUrl && <img src={c.product.imageUrl} className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white leading-tight line-clamp-1">{c.product.name}</p>
+                    <div className="flex gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-4">Cant:</span>
+                        <input 
+                          type="number" min="1" 
+                          className="w-16 bg-[#0f1115] border border-white/10 rounded px-2 py-1 text-xs text-white"
+                          value={c.quantity}
+                          onChange={e => handleUpdateCard(index, 'quantity', Number(e.target.value))}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-4">Precio SC:</span>
+                        <input 
+                          type="number" min="0" 
+                          className="w-24 bg-[#0f1115] border border-white/10 rounded px-2 py-1 text-xs text-blue font-bold"
+                          value={c.price}
+                          onChange={e => handleUpdateCard(index, 'price', Number(e.target.value))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => handleRemoveCard(index)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="space-y-2 border-t border-white/10 pt-4">
           <label className="text-xs font-bold text-gray-4 uppercase">Notas / Referencia Adicional</label>
@@ -297,7 +351,7 @@ export default function StoreCreditModal({ preselectedUser, onClose, onSuccess }
             value={reference}
             onChange={(e) => setReference(e.target.value)}
             className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none"
-            placeholder={tradeInCards.length > 0 ? "Ej: Cartas recibidas en evento" : "Ej: Ajuste manual por error"}
+            placeholder={tradeInCards.length > 0 ? (type === "MANUAL_ADD" ? "Ej: Cartas recibidas en evento" : "Ej: Compra presencial en tienda") : "Ej: Ajuste manual por error"}
             required={tradeInCards.length === 0}
           />
         </div>

@@ -15,9 +15,9 @@ export class UsersController {
   @Get('search')
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   @UseGuards(RolesGuard)
-  async searchUsers(@Query('email') email: string) {
-    if (!email || email.length < 3) return [];
-    const users = await this.usersService.searchUsersByEmail(email);
+  async searchUsers(@Query('query') query: string) {
+    if (!query || query.length < 3) return [];
+    const users = await this.usersService.searchUsers(query);
     return users.map(u => ({ id: u.id, email: u.email, name: u.name }));
   }
 

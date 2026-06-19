@@ -33,8 +33,11 @@ export default function AdminStoreCreditPage() {
     fetchCredits();
   }, [fetchCredits]);
 
-  const handleAdjust = (credit?: any) => {
+  const [defaultType, setDefaultType] = useState<"MANUAL_ADD" | "MANUAL_SUBTRACT">("MANUAL_ADD");
+
+  const handleAdjust = (type: "MANUAL_ADD" | "MANUAL_SUBTRACT", credit?: any) => {
     setSelectedUser(credit?.user || null);
+    setDefaultType(type);
     setIsModalOpen(true);
   };
 
@@ -47,13 +50,22 @@ export default function AdminStoreCreditPage() {
             Gestiona los saldos a favor (Store Credit) de tus clientes.
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => handleAdjust()}
-          leftIcon={<span className="text-lg">+</span>}
-        >
-          Abonar / Descontar Saldo
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            variant="primary"
+            onClick={() => handleAdjust("MANUAL_ADD")}
+            leftIcon={<span className="text-lg">+</span>}
+          >
+            Abonar (Trade-in)
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => handleAdjust("MANUAL_SUBTRACT")}
+            leftIcon={<span className="text-lg">-</span>}
+          >
+            Descontar (Compra)
+          </Button>
+        </div>
       </div>
 
       <div className="bg-[#1a1d24] rounded-2xl shadow-1 border border-white/5 overflow-hidden min-h-[500px]">
@@ -87,9 +99,12 @@ export default function AdminStoreCreditPage() {
                   <td className="px-6 py-4 text-right font-black text-blue text-lg">
                     ${Number(c.balance).toLocaleString('es-CL')}
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <Button size="sm" variant="secondary" onClick={() => handleAdjust(c)}>
-                      Ajustar Saldo
+                  <td className="px-6 py-4 text-right flex justify-end gap-2">
+                    <Button size="sm" variant="success" onClick={() => handleAdjust("MANUAL_ADD", c)}>
+                      + Abonar
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => handleAdjust("MANUAL_SUBTRACT", c)}>
+                      - Descontar
                     </Button>
                   </td>
                 </tr>
@@ -100,14 +115,21 @@ export default function AdminStoreCreditPage() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <StoreCreditModal
-          preselectedUser={selectedUser}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={() => {
-            setIsModalOpen(false);
-            fetchCredits();
-          }}
-        />
+        {isModalOpen && (
+          <StoreCreditModal
+            preselectedUser={selectedUser}
+            defaultType={defaultType}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedUser(null);
+            }}
+            onSuccess={() => {
+              setIsModalOpen(false);
+              setSelectedUser(null);
+              fetchCredits();
+            }}
+          />
+        )}
       </Modal>
     </div>
   );
