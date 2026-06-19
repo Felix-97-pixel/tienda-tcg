@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
 interface StoreCreditModalProps {
   preselectedUser: any | null;
@@ -37,6 +38,17 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
   const [cardSearchResults, setCardSearchResults] = useState<any[]>([]);
   const [searchingCards, setSearchingCards] = useState(false);
   const [tradeInCards, setTradeInCards] = useState<any[]>([]);
+
+  // Metadatos adicionales para Trade-in
+  const [languages, setLanguages] = useState<any[]>([]);
+  const [conditions, setConditions] = useState<any[]>([]);
+  const [finishes, setFinishes] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/products/meta/languages`).then(r => r.json()).then(setLanguages).catch(() => {});
+    fetch(`${API_URL}/products/meta/conditions`).then(r => r.json()).then(setConditions).catch(() => {});
+    fetch(`${API_URL}/products/meta/finishes`).then(r => r.json()).then(setFinishes).catch(() => {});
+  }, []);
 
   // Buscar Usuario
   useEffect(() => {
@@ -113,12 +125,15 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
   }, [tradeInCards]);
 
   const handleAddCard = (product: any) => {
-    setTradeInCards([...tradeInCards, { product, quantity: 1, price: 0 }]);
+    const defaultCondition = conditions.length > 0 ? conditions[0].name : "NM";
+    const defaultLanguage = languages.length > 0 ? languages[0].name : "EN";
+    const defaultFinish = finishes.length > 0 ? finishes[0].name : "Normal";
+    setTradeInCards([...tradeInCards, { product, quantity: 1, price: 0, condition: defaultCondition, language: defaultLanguage, finish: defaultFinish }]);
     setCardSearchTerm("");
     setCardSearchResults([]);
   };
 
-  const handleUpdateCard = (index: number, field: string, value: number) => {
+  const handleUpdateCard = (index: number, field: string, value: any) => {
     const updated = [...tradeInCards];
     updated[index][field] = value;
     setTradeInCards(updated);
@@ -145,7 +160,7 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
 
     let finalReference = reference;
     if (tradeInCards.length > 0) {
-      const cardsText = tradeInCards.map(c => `${c.quantity}x ${c.product.name} ($${c.price})`).join(', ');
+      const cardsText = tradeInCards.map(c => `${c.quantity}x ${c.product.name} [${c.condition || 'NM'}, ${c.language || 'EN'}, ${c.finish || 'Normal'}] ($${c.price})`).join(', ');
       finalReference = reference ? `${reference} | Productos: ${cardsText}` : `${type === 'MANUAL_ADD' ? 'Trade-in' : 'Compra en tienda'}: ${cardsText}`;
     }
 
@@ -157,7 +172,8 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
           userId: selectedUser.id,
           amount: finalAmount,
           type: tradeInCards.length > 0 ? (type === "MANUAL_ADD" ? "BUYLIST_TRADE" : "STORE_PURCHASE") : type,
-          reference: finalReference || "Ajuste Manual"
+          reference: finalReference || "Ajuste Manual",
+          itemsData: tradeInCards.length > 0 ? tradeInCards : undefined
         }),
         credentials: "include"
       });
@@ -250,7 +266,7 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
           
           <div className="p-4 bg-[#111318] rounded-xl border border-white/10 space-y-3 relative">
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="relative z-[60] grid grid-cols-1 md:grid-cols-3 gap-3">
               <input
                 type="text"
                 placeholder={type === "MANUAL_ADD" ? "Buscar en catálogo global..." : "Buscar en tu inventario..."}
@@ -258,27 +274,25 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
                 onChange={(e) => setCardSearchTerm(e.target.value)}
                 className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
               />
-              <select
-                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
+              <SearchableSelect
+                options={[
+                  { label: "Todas las Categorías", value: "" },
+                  ...categories.map(c => ({ label: c.name, value: c.name }))
+                ]}
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="">Categorías</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-              <select
-                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
+                onChange={setSelectedCategory}
+                placeholder="Categorías"
+              />
+              <SearchableSelect
+                options={[
+                  { label: !selectedCategory ? "Elige Categoría..." : "Todas las Expansiones", value: "" },
+                  ...expansions.map(e => ({ label: e.name, value: e.name }))
+                ]}
                 value={selectedExpansion}
-                onChange={(e) => setSelectedExpansion(e.target.value)}
+                onChange={setSelectedExpansion}
+                placeholder={!selectedCategory ? "Elige Categoría..." : "Buscar expansión..."}
                 disabled={!selectedCategory}
-              >
-                <option value="">{!selectedCategory ? "Elige Categoría..." : "Expansiones"}</option>
-                {expansions.map((e, idx) => (
-                  <option key={idx} value={e.name}>{e.name}</option>
-                ))}
-              </select>
+              />
             </div>
 
             {searchingCards && <p className="text-xs text-blue">Buscando...</p>}
@@ -314,6 +328,44 @@ export default function StoreCreditModal({ preselectedUser, defaultType = "MANUA
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-white leading-tight line-clamp-1">{c.product.name}</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-gray-4 uppercase">Condición:</span>
+                        <select
+                          className="bg-[#0f1115] border border-white/10 rounded px-1.5 py-1 text-[10px] text-white outline-none focus:border-blue"
+                          value={c.condition || (conditions[0]?.name || "NM")}
+                          onChange={(e) => handleUpdateCard(index, 'condition', e.target.value)}
+                        >
+                          {conditions.map(cond => (
+                            <option key={cond.id} value={cond.name}>{cond.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-gray-4 uppercase">Idioma:</span>
+                        <select
+                          className="bg-[#0f1115] border border-white/10 rounded px-1.5 py-1 text-[10px] text-white outline-none focus:border-blue"
+                          value={c.language || (languages[0]?.name || "EN")}
+                          onChange={(e) => handleUpdateCard(index, 'language', e.target.value)}
+                        >
+                          {languages.map(lang => (
+                            <option key={lang.id} value={lang.name}>{lang.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-gray-4 uppercase">Acabado:</span>
+                        <select
+                          className="bg-[#0f1115] border border-white/10 rounded px-1.5 py-1 text-[10px] text-white outline-none focus:border-blue"
+                          value={c.finish || (finishes[0]?.name || "Normal")}
+                          onChange={(e) => handleUpdateCard(index, 'finish', e.target.value)}
+                        >
+                          {finishes.map(fin => (
+                            <option key={fin.id} value={fin.name}>{fin.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                     <div className="flex gap-2 mt-2">
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-gray-4">Cant:</span>

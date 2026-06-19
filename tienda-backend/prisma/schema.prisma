@@ -484,6 +484,7 @@ model StoreCreditTransaction {
   amount    Decimal  @db.Decimal(10, 2)
   type      String // e.g. "BUYLIST_TRADE", "MANUAL_ADD", "MANUAL_SUBTRACT", "PURCHASE"
   reference String?
+  itemsData Json?
   createdAt DateTime @default(now())
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)

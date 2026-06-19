@@ -5,6 +5,9 @@ import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import StoreCreditModal from "@/components/Admin/StoreCredit/StoreCreditModal";
+import StoreCreditHistoryModal from "@/components/Admin/StoreCredit/StoreCreditHistoryModal";
+import UpsellBanner from "@/components/Admin/UpsellBanner";
+import { useAppSelector } from "@/redux/store";
 
 export default function AdminStoreCreditPage() {
   const { showToast } = useToast();
@@ -13,6 +16,11 @@ export default function AdminStoreCreditPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyUser, setHistoryUser] = useState<any>(null);
+
+  const { features } = useAppSelector((state) => state.authReducer);
 
   const fetchCredits = useCallback(async () => {
     setLoading(true);
@@ -40,6 +48,15 @@ export default function AdminStoreCreditPage() {
     setDefaultType(type);
     setIsModalOpen(true);
   };
+
+  if (!features.includes("addon:store_credit")) {
+    return (
+      <div className="p-6 pb-24">
+        <UpsellBanner featureName="Crédito de Tienda" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="p-6 space-y-6 pb-24">
@@ -82,35 +99,41 @@ export default function AdminStoreCreditPage() {
             </p>
           </div>
         ) : (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#0f1115] border-b border-white/5 text-xs uppercase tracking-wider text-gray-5 font-bold">
-                <th className="px-6 py-4">Cliente</th>
-                <th className="px-6 py-4">Email</th>
-                <th className="px-6 py-4 text-right">Saldo Actual</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {credits.map((c) => (
-                <tr key={c.id} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-4 font-bold text-white">{c.user?.name || 'Usuario'}</td>
-                  <td className="px-6 py-4 text-gray-4 text-sm">{c.user?.email}</td>
-                  <td className="px-6 py-4 text-right font-black text-blue text-lg">
-                    ${Number(c.balance).toLocaleString('es-CL')}
-                  </td>
-                  <td className="px-6 py-4 text-right flex justify-end gap-2">
-                    <Button size="sm" variant="success" onClick={() => handleAdjust("MANUAL_ADD", c)}>
-                      + Abonar
-                    </Button>
-                    <Button size="sm" variant="secondary" onClick={() => handleAdjust("MANUAL_SUBTRACT", c)}>
-                      - Descontar
-                    </Button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr className="bg-[#0f1115] border-b border-white/5 text-xs uppercase tracking-wider text-gray-5 font-bold">
+                  <th className="px-6 py-4">Cliente</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4 text-right">Saldo Actual</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {credits.map((c) => (
+                  <tr key={c.id} className="hover:bg-white/[0.02]">
+                    <td className="px-6 py-4 font-bold text-white">{c.user?.name || 'Usuario'}</td>
+                    <td className="px-6 py-4 text-gray-4 text-sm">{c.user?.email}</td>
+                    <td className="px-6 py-4 text-right font-black text-blue text-lg">
+                      ${Number(c.balance).toLocaleString('es-CL')}
+                    </td>
+                    <td className="px-6 py-4 text-right flex justify-end gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => { setHistoryUser(c.user); setIsHistoryModalOpen(true); }}>
+                        <svg className="w-4 h-4 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Historial
+                      </Button>
+                      <Button size="sm" variant="success" onClick={() => handleAdjust("MANUAL_ADD", c)}>
+                        + Abonar
+                      </Button>
+                      <Button size="sm" variant="secondary" onClick={() => handleAdjust("MANUAL_SUBTRACT", c)}>
+                        - Descontar
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -128,6 +151,16 @@ export default function AdminStoreCreditPage() {
               setSelectedUser(null);
               fetchCredits();
             }}
+          />
+        )}
+      </Modal>
+
+      <Modal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} maxWidth="3xl">
+        {isHistoryModalOpen && historyUser && (
+          <StoreCreditHistoryModal
+            userId={historyUser.id}
+            userName={historyUser.name || historyUser.email}
+            onClose={() => setIsHistoryModalOpen(false)}
           />
         )}
       </Modal>

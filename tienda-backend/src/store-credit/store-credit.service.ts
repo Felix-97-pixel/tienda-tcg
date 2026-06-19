@@ -31,7 +31,7 @@ export class StoreCreditService {
     });
   }
 
-  async adjustCredit(storeId: string, userId: string, amount: number, type: string, reference: string = '') {
+  async adjustCredit(storeId: string, userId: string, amount: number, type: string, reference: string = '', itemsData: any = null) {
     if (amount === 0) throw new BadRequestException('Amount cannot be zero');
 
     return this.prisma.$transaction(async (tx) => {
@@ -55,7 +55,8 @@ export class StoreCreditService {
           userId,
           amount,
           type,
-          reference
+          reference,
+          itemsData
         }
       });
 

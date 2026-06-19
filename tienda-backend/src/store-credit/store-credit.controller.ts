@@ -33,8 +33,8 @@ export class StoreCreditController {
 
   @UseGuards(JwtAuthGuard)
   @Post('adjust')
-  async adjustCredit(@Request() req: any, @Body() data: { userId: string; amount: number; type: string; reference?: string }) {
+  async adjustCredit(@Request() req: any, @Body() data: { userId: string; amount: number; type: string; reference?: string; itemsData?: any }) {
     const store = await this.storesService.getStoreByOwner(req.user.userId);
-    return this.storeCreditService.adjustCredit(store.id, data.userId, data.amount, data.type, data.reference);
+    return this.storeCreditService.adjustCredit(store.id, data.userId, data.amount, data.type, data.reference, data.itemsData);
   }
 }
