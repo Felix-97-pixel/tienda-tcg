@@ -18,8 +18,8 @@ export class WishlistController {
   @Get('count')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  getWishlistCount() {
-    return this.wishlistService.getWishlistCount();
+  getWishlistCount(@Req() req: any) {
+    return this.wishlistService.getWishlistCount(req.user.userId);
   }
 
   @Post(':productId')

@@ -44,23 +44,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const tc = useTranslations("common");
 
   const catalogItems = [
-    { href: "/admin/products",    label: "Singles",               icon: icons.products },
-    { href: "/admin/sealed",      label: "Sellado y Otros",       icon: icons.categories },
-    { href: "/admin/wishlist",    label: t("modules.wishlist"),   icon: icons.wishlist },
-    { href: "/admin/buylist",     label: "Buylist",               icon: icons.orders },
-    { href: "/admin/store-credit",label: "Crédito de Tienda",     icon: icons.sales },
+    { href: "/admin/products", label: "Singles", icon: icons.products },
+    { href: "/admin/sealed", label: "Sellado", icon: icons.categories },
+    { href: "/admin/wishlist", label: t("modules.wishlist"), icon: icons.wishlist },
+    { href: "/admin/buylist", label: "Buylist", icon: icons.orders },
+    { href: "/admin/store-credit", label: "Crédito de Tienda", icon: icons.sales },
   ];
 
   const statsItems = [
-    { href: "/admin/orders",      label: t("modules.orders"),     icon: icons.orders },
-    { href: "/admin/statistics",  label: t("modules.statistics"), icon: icons.sales }, // Reusing the sales icon for statistics for now
-    { href: "/admin/sales",       label: t("modules.sales"),      icon: icons.sales },
+    { href: "/admin/orders", label: t("modules.orders"), icon: icons.orders },
+    { href: "/admin/statistics", label: t("modules.statistics"), icon: icons.sales }, // Reusing the sales icon for statistics for now
+    { href: "/admin/sales", label: t("modules.sales"), icon: icons.sales },
   ];
 
   const configItems = [
-    { href: "/admin/profile",     label: "Mi Tienda",             icon: icons.settings },
-    { href: "/admin/currencies",  label: "Divisas",               icon: icons.settings },
-    { href: "/admin/shipping",    label: "Métodos de Envío",      icon: icons.shipping },
+    { href: "/admin/profile", label: "Mi Tienda", icon: icons.settings },
+    { href: "/admin/currencies", label: "Divisas", icon: icons.settings },
+    { href: "/admin/shipping", label: "Métodos de Envío", icon: icons.shipping },
   ];
 
   const isCatalog = ["/admin/products", "/admin/sealed", "/admin/wishlist", "/admin/buylist", "/admin/store-credit"].some(p => pathname.startsWith(p));
@@ -98,7 +98,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
       <div className="flex items-center justify-between gap-2 px-6 py-8">
         <Link href="/admin" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue rounded-xl flex items-center justify-center shadow-lg shadow-blue/30 border border-white/10">
-             <span className="text-white font-black text-xl">T</span>
+            <span className="text-white font-black text-xl">T</span>
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">Tap<span className="text-blue">Trade</span></h1>
         </Link>
@@ -109,10 +109,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear flex-1">
         <nav className="mt-2 py-4 px-4 lg:px-6">
-          
+
           <div className="mb-8">
-            <Link 
-              href="/admin" 
+            <Link
+              href="/admin"
               className="group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm text-blue bg-blue/10 hover:bg-blue hover:text-white transition-all duration-200"
             >
               {icons.back}
@@ -129,11 +129,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                   <li key={href}>
                     <Link
                       href={href}
-                      className={`group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm transition-all duration-200 ${
-                        isActive 
-                          ? "bg-blue text-white shadow-xl shadow-blue/20" 
+                      className={`group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm transition-all duration-200 ${isActive
+                          ? "bg-blue text-white shadow-xl shadow-blue/20"
                           : "text-gray-4 hover:bg-[#1a1d24]/5 hover:text-white"
-                      }`}
+                        }`}
                     >
                       <span className={`${isActive ? "text-white" : "text-gray-5 group-hover:text-blue transition-colors"}`}>
                         {icon}

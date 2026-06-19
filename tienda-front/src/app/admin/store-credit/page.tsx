@@ -114,7 +114,7 @@ export default function AdminStoreCreditPage() {
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="3xl">
         {isModalOpen && (
           <StoreCreditModal
             preselectedUser={selectedUser}

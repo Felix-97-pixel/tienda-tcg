@@ -21,7 +21,12 @@ export class WishlistService {
     return items.map(item => item.product);
   }
 
-  async getWishlistCount() {
+  async getWishlistCount(userId: string) {
+    // Find store for the admin
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: userId }
+    });
+
     const products = await this.prisma.product.findMany({
       where: {
         wishlistedBy: {
@@ -31,7 +36,16 @@ export class WishlistService {
       include: {
         category: true,
         cardDetail: true,
-        items: true,
+        items: store ? {
+          where: { storeId: store.id }
+        } : false,
+        buyListItems: store ? {
+          where: { storeId: store.id }
+        } : false,
+        marketPrices: {
+          take: 1,
+          orderBy: { updatedAt: 'desc' }
+        },
         _count: {
           select: { wishlistedBy: true }
         }
@@ -44,10 +58,24 @@ export class WishlistService {
     });
 
     return products.map(p => {
-      const { _count, ...rest } = p;
+      const { _count, items, buyListItems, marketPrices, ...rest } = p as any;
+      
+      const totalStock = items ? items.reduce((acc: number, item: any) => acc + item.stock, 0) : 0;
+      const inStock = totalStock > 0;
+      const isOnBuylist = buyListItems ? buyListItems.length > 0 : false;
+      const marketPrice = marketPrices && marketPrices.length > 0 ? Number(marketPrices[0].price) : 0;
+      
+      // Calculate store price based on first available stock item (assuming they price similarly or just taking first)
+      const storePrice = inStock && items[0].price ? Number(items[0].price) : 0;
+
       return {
         ...rest,
-        wishlistCount: _count.wishlistedBy
+        wishlistCount: _count.wishlistedBy,
+        inStock,
+        stockCount: totalStock,
+        isOnBuylist,
+        marketPrice,
+        storePrice
       };
     });
   }
