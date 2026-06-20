@@ -1,135 +1,24 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-
-interface Feature {
-  id: string;
-  key: string;
-  name: string;
-}
-
-interface Plan {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  skuLimit: number;
-  commissionRate: string | number;
-  features: Feature[];
-}
+import { useSuperAdminPlans } from "@/components/Admin/Config/hooks/useSuperAdminPlans";
 
 export default function PlansPage() {
-  const { showToast } = useToast();
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [allFeatures, setAllFeatures] = useState<Feature[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
-  
-  // Form state
-  const [formData, setFormData] = useState({ name: "", description: "", price: "0", skuLimit: "-1", commissionRate: "0", featureIds: [] as string[] });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [plansRes, featuresRes] = await Promise.all([
-        fetch(`${API_URL}/features/plans`, { credentials: "include" }),
-        fetch(`${API_URL}/features`, { credentials: "include" })
-      ]);
-      
-      if (plansRes.ok) setPlans(await plansRes.json());
-      if (featuresRes.ok) setAllFeatures(await featuresRes.json());
-    } catch (e) {
-      console.error(e);
-      showToast("Error al cargar datos", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpenModal = (plan?: Plan) => {
-    if (plan) {
-      setEditingPlan(plan);
-      setFormData({
-        name: plan.name,
-        description: plan.description || "",
-        price: plan.price ? String(plan.price) : "0",
-        skuLimit: plan.skuLimit !== undefined ? String(plan.skuLimit) : "-1",
-        commissionRate: plan.commissionRate ? String(Number(plan.commissionRate) * 100) : "0",
-        featureIds: plan.features.map(f => f.id)
-      });
-    } else {
-      setEditingPlan(null);
-      setFormData({ name: "", description: "", price: "0", skuLimit: "-1", commissionRate: "0", featureIds: [] });
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleToggleFeature = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      featureIds: prev.featureIds.includes(id) 
-        ? prev.featureIds.filter(fId => fId !== id)
-        : [...prev.featureIds, id]
-    }));
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const url = editingPlan 
-        ? `${API_URL}/features/plans/${editingPlan.id}`
-        : `${API_URL}/features/plans`;
-      
-      const method = editingPlan ? "PATCH" : "POST";
-      
-      const payload = {
-        ...formData,
-        price: parseFloat(formData.price) || 0,
-        skuLimit: parseInt(formData.skuLimit, 10),
-        commissionRate: (parseFloat(formData.commissionRate) || 0) / 100
-      };
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        credentials: "include"
-      });
-
-      if (!res.ok) throw new Error("Error al guardar");
-      
-      showToast(editingPlan ? "Plan actualizado" : "Plan creado", "success");
-      setIsModalOpen(false);
-      fetchData();
-    } catch (err) {
-      showToast("Hubo un error al guardar", "error");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Seguro que deseas eliminar este Plan?")) return;
-    try {
-      const res = await fetch(`${API_URL}/features/plans/${id}`, {
-        method: "DELETE",
-        credentials: "include"
-      });
-      if (!res.ok) throw new Error();
-      showToast("Plan eliminado", "success");
-      fetchData();
-    } catch {
-      showToast("Error al eliminar", "error");
-    }
-  };
+  const {
+    plans,
+    allFeatures,
+    loading,
+    isModalOpen,
+    editingPlan,
+    formData,
+    setFormData,
+    handleOpenModal,
+    handleCloseModal,
+    handleToggleFeature,
+    handleSave,
+    handleDelete
+  } = useSuperAdminPlans();
 
   return (
     <div className="p-6 max-w-5xl mx-auto pb-24">
@@ -207,7 +96,7 @@ export default function PlansPage() {
           <div className="bg-[#1a1d24] border border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
               <h2 className="text-lg font-bold text-white">{editingPlan ? "Editar Plan" : "Nuevo Plan"}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-4 hover:text-white">
+              <button onClick={handleCloseModal} className="text-gray-4 hover:text-white">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -296,7 +185,7 @@ export default function PlansPage() {
             </div>
 
             <div className="p-6 border-t border-white/10 shrink-0 flex justify-end gap-3 bg-[#111318]">
-              <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+              <Button type="button" variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
               <Button type="submit" form="plan-form">Guardar Plan</Button>
             </div>
           </div>

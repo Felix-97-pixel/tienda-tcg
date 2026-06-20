@@ -1,94 +1,21 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React from "react";
 import Image from "next/image";
 import GameFormModal from "@/components/Admin/Games/GameFormModal";
-
-interface Game {
-  id: string;
-  name: string;
-  slug: string;
-  logoUrl?: string | null;
-  isActive: boolean;
-  _count?: {
-    expansions: number;
-    cardDetails: number;
-    stores: number;
-  };
-}
+import { useSuperAdminGames } from "@/components/Admin/Config/hooks/useSuperAdminGames";
 
 export default function GamesConfigPage() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const { showToast } = useToast();
-
-  const fetchGames = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/games`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setGames(data);
-      } else {
-        showToast("Error al cargar juegos", "error");
-      }
-    } catch (err) {
-      showToast("Error de conexión", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchGames();
-  }, []);
-
-  const handleSaveGame = async (data: Partial<Game>) => {
-    try {
-      const url = selectedGame ? `${API_URL}/games/${selectedGame.id}` : `${API_URL}/games`;
-      const method = selectedGame ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        showToast(`Juego ${selectedGame ? "actualizado" : "creado"} correctamente`, "success");
-        fetchGames();
-      } else {
-        const err = await res.json();
-        showToast(err.message || "Error al guardar el juego", "error");
-        throw new Error(err.message);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const handleToggleStatus = async (game: Game) => {
-    try {
-      const res = await fetch(`${API_URL}/games/${game.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !game.isActive }),
-        credentials: "include",
-      });
-      if (res.ok) {
-        showToast(`Estado de ${game.name} actualizado`, "success");
-        setGames(games.map(g => g.id === game.id ? { ...g, isActive: !g.isActive } : g));
-      } else {
-        showToast("Error al actualizar estado", "error");
-      }
-    } catch (err) {
-      showToast("Error de conexión", "error");
-    }
-  };
+  const {
+    games,
+    loading,
+    isModalOpen,
+    selectedGame,
+    handleSaveGame,
+    handleToggleStatus,
+    openModalForNew,
+    openModalForEdit,
+    closeModal
+  } = useSuperAdminGames();
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -102,10 +29,7 @@ export default function GamesConfigPage() {
           </p>
         </div>
         <button
-          onClick={() => {
-            setSelectedGame(null);
-            setIsModalOpen(true);
-          }}
+          onClick={openModalForNew}
           className="bg-blue hover:bg-blue-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue/20"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
@@ -175,10 +99,7 @@ export default function GamesConfigPage() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <button
-                        onClick={() => {
-                          setSelectedGame(game);
-                          setIsModalOpen(true);
-                        }}
+                        onClick={() => openModalForEdit(game)}
                         className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-blue/10 text-blue font-bold text-xs hover:bg-blue hover:text-white transition-colors"
                         title="Editar Juego"
                       >
@@ -204,7 +125,7 @@ export default function GamesConfigPage() {
       {isModalOpen && (
         <GameFormModal
           game={selectedGame}
-          onClose={() => setIsModalOpen(false)}
+          onClose={closeModal}
           onSave={handleSaveGame}
         />
       )}

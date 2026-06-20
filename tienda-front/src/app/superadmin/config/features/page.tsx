@@ -1,110 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-
-interface Feature {
-  id: string;
-  key: string;
-  name: string;
-  description: string;
-  price: string;
-}
+import { useSuperAdminFeatures } from "@/components/Admin/Config/hooks/useSuperAdminFeatures";
 
 export default function FeaturesPage() {
-  const { showToast } = useToast();
-  const [features, setFeatures] = useState<Feature[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingFeature, setEditingFeature] = useState<Feature | null>(null);
-  
-  // Form state
-  const [formData, setFormData] = useState({ key: "", name: "", description: "", price: "0" });
-
-  useEffect(() => {
-    fetchFeatures();
-  }, []);
-
-  const fetchFeatures = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/features`, { credentials: "include" });
-      if (res.ok) {
-        setFeatures(await res.json());
-      }
-    } catch (e) {
-      console.error(e);
-      showToast("Error al cargar features", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpenModal = (feature?: Feature) => {
-    if (feature) {
-      setEditingFeature(feature);
-      setFormData({
-        key: feature.key,
-        name: feature.name,
-        description: feature.description || "",
-        price: feature.price ? String(feature.price) : "0",
-      });
-    } else {
-      setEditingFeature(null);
-      setFormData({ key: "", name: "", description: "", price: "0" });
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const url = editingFeature 
-        ? `${API_URL}/features/${editingFeature.id}`
-        : `${API_URL}/features`;
-      
-      const method = editingFeature ? "PATCH" : "POST";
-      
-      const payload = {
-        ...formData,
-        price: parseFloat(formData.price) || 0
-      };
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        credentials: "include"
-      });
-
-      if (!res.ok) throw new Error("Error al guardar");
-      
-      showToast(editingFeature ? "Función actualizada" : "Función creada", "success");
-      setIsModalOpen(false);
-      fetchFeatures();
-    } catch (err) {
-      showToast("Hubo un error al guardar", "error");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Seguro que deseas eliminar esta Función?")) return;
-    try {
-      const res = await fetch(`${API_URL}/features/${id}`, {
-        method: "DELETE",
-        credentials: "include"
-      });
-      if (!res.ok) throw new Error();
-      showToast("Función eliminada", "success");
-      fetchFeatures();
-    } catch {
-      showToast("Error al eliminar", "error");
-    }
-  };
+  const {
+    features,
+    loading,
+    isModalOpen,
+    editingFeature,
+    formData,
+    setFormData,
+    handleOpenModal,
+    handleCloseModal,
+    handleSave,
+    handleDelete
+  } = useSuperAdminFeatures();
 
   return (
     <div className="p-6 max-w-5xl mx-auto pb-24">
@@ -172,7 +84,7 @@ export default function FeaturesPage() {
           <div className="bg-[#1a1d24] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">{editingFeature ? "Editar Función" : "Nueva Función"}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-4 hover:text-white">
+              <button onClick={handleCloseModal} className="text-gray-4 hover:text-white">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -210,7 +122,7 @@ export default function FeaturesPage() {
                 onChange={e => setFormData({...formData, price: e.target.value})}
               />
               <div className="pt-4 flex justify-end gap-3">
-                <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+                <Button type="button" variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
                 <Button type="submit">Guardar Función</Button>
               </div>
             </form>
