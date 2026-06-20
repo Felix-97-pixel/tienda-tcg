@@ -3,7 +3,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import PreLoader from "@/components/layout/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
-import ProgressDisplay from "@/components/Sync/ProgressDisplay";
+import ProgressDisplay from "@/app/superadmin/_components/Sync/ProgressDisplay";
 import { usePokemonSync } from "@/app/superadmin/_components/Sync/hooks/usePokemonSync";
 import { Button } from "@/components/ui/Button";
 

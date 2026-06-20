@@ -3,7 +3,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import PreLoader from "@/components/layout/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
-import ProgressDisplay from "@/components/Sync/ProgressDisplay";
+import ProgressDisplay from "@/app/superadmin/_components/Sync/ProgressDisplay";
 import { useMagicSync } from "@/app/superadmin/_components/Sync/hooks/useMagicSync";
 import { Button } from "@/components/ui/Button";
 
