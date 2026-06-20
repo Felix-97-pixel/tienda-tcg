@@ -1,11 +1,26 @@
-import { Metadata } from 'next';
-import StoresClient from './StoresClient';
+"use client";
+import React from "react";
+import { Button } from "@/components/ui/Button";
+import { useSuperAdminStores } from "@/components/Admin/Stores/hooks/useSuperAdminStores";
 
-export const metadata: Metadata = {
-  title: 'Tiendas | SuperAdmin',
-};
+// Componentes Extraídos
+import StoreTable from "@/components/Admin/Stores/StoreTable";
+import CreateStoreModal from "@/components/Admin/Stores/CreateStoreModal";
 
 export default function StoresPage() {
+  const {
+    stores,
+    loading,
+    isModalOpen,
+    isSubmitting,
+    formData,
+    handleInputChange,
+    handleCreateStore,
+    handleDelete,
+    openCreateModal,
+    closeCreateModal
+  } = useSuperAdminStores();
+
   return (
     <>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -13,7 +28,32 @@ export default function StoresPage() {
           Gestión de Tiendas (Dealers)
         </h2>
       </div>
-      <StoresClient />
+
+      <div className="rounded-xl border border-white/5 bg-[#1a1d24] shadow-lg p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-bold text-white">Lista de Tiendas</h3>
+          <Button onClick={openCreateModal}>
+            + Agregar Dealer
+          </Button>
+        </div>
+
+        {/* Tabla Principal */}
+        <StoreTable
+          stores={stores}
+          loading={loading}
+          onDelete={handleDelete}
+        />
+
+        {/* Modal de Creación */}
+        <CreateStoreModal
+          isOpen={isModalOpen}
+          onClose={closeCreateModal}
+          onSubmit={handleCreateStore}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          isSubmitting={isSubmitting}
+        />
+      </div>
     </>
   );
 }

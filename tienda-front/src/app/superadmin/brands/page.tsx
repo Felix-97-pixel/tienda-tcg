@@ -1,67 +1,27 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { API_URL } from "@/utils/api";
+import React from "react";
 import { useTranslations } from "next-intl";
-import { useToast } from "@/hooks/useToast";
-import { useImageUpload } from "@/hooks/useImageUpload";
+import { useSuperAdminBrands } from "@/components/Admin/Brands/hooks/useSuperAdminBrands";
 
 // Componentes Extraídos
 import BrandTable from "@/components/Admin/Brands/BrandTable";
 import BrandModal from "@/components/Admin/Brands/BrandModal";
 import { Button } from "@/components/ui/Button";
 
-import { Brand } from "@/types/brand";
-
 export default function AdminBrands() {
   const t = useTranslations("brands");
-  const tc = useTranslations("common");
-  const { showToast } = useToast();
-  const { handleRemove } = useImageUpload();
 
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
-
-  const fetchBrands = () => {
-    setLoading(true);
-    fetch(`${API_URL}/products/meta/brands`)
-      .then((res) => res.json())
-      .then((data) => {
-        setBrands(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching brands:", err);
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    fetchBrands();
-  }, []);
-
-  const handleDelete = async (brand: Brand) => {
-    if (!confirm(t("deleteConfirm") || "¿Seguro que deseas eliminar esta marca?")) return;
-    try {
-      if (brand.imageUrl) {
-        await handleRemove(brand.imageUrl);
-      }
-      const res = await fetch(`${API_URL}/products/meta/brands/${brand.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        showToast(tc("success"), "success");
-        fetchBrands();
-      } else {
-        const errData = await res.json();
-        showToast(errData.message || tc("error"), "error");
-      }
-    } catch (e) {
-      showToast(tc("networkError"), "error");
-    }
-  };
+  const {
+    brands,
+    loading,
+    isModalOpen,
+    selectedBrand,
+    fetchBrands,
+    handleDelete,
+    openCreateModal,
+    openEditModal,
+    closeModal
+  } = useSuperAdminBrands();
 
   return (
     <div className="p-6 space-y-6">
@@ -71,9 +31,7 @@ export default function AdminBrands() {
           <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
           <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <Button
-          onClick={() => { setSelectedBrand(null); setIsModalOpen(true); }}
-        >
+        <Button onClick={openCreateModal}>
           {t("addBrand")}
         </Button>
       </div>
@@ -82,14 +40,14 @@ export default function AdminBrands() {
       <BrandTable 
         brands={brands} 
         loading={loading} 
-        onEdit={(brand) => { setSelectedBrand(brand); setIsModalOpen(true); }} 
+        onEdit={openEditModal} 
         onDelete={handleDelete} 
       />
 
       {/* Modal */}
       <BrandModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={closeModal} 
         brand={selectedBrand} 
         onSuccess={fetchBrands} 
       />
