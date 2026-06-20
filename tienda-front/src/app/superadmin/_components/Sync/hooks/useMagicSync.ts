@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
-import { useTcgSync } from "@/hooks/useTcgSync";
+import { useTcgSync } from "@/app/superadmin/_components/Sync/hooks/useTcgSync";
 
 export function useMagicSync() {
   const [destination, setDestination] = useState("Singles Magic The Gathering");

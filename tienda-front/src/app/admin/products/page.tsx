@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useAdminProducts } from "@/hooks/useAdminProducts";
-import { useProductMetadata } from "@/hooks/useProductMetadata";
+import { useAdminProducts } from "@/app/admin/_components/hooks/useAdminProducts";
+import { useProductMetadata } from "@/app/admin/_components/hooks/useProductMetadata";
 import { Product } from "@/types/product";
 
 // Componentes Extraídos

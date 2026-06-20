@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
-import { useAdminProducts } from "@/hooks/useAdminProducts";
+import { useAdminProducts } from "@/app/admin/_components/hooks/useAdminProducts";
 import { Product } from "@/types/product";
 import { Category } from "@/types/productCategory";
 import { Brand } from "@/types/brand";
