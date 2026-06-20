@@ -840,7 +840,8 @@ export class ProductsService {
         conditionId,
         price: finalPrice,
         stock: Number(stock) || 0,
-        finishId: finishId || undefined
+        finishId: finishId || undefined,
+        isPublished: data.isPublished !== undefined ? data.isPublished : true
       }
     });
   }
