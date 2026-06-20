@@ -1,7 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Checkbox } from "@/components/ui/Checkbox";
 import dynamic from "next/dynamic";
+import { useStoreProfile } from "./hooks/useStoreProfile";
 
 const LocationPicker = dynamic(() => import("@/components/Admin/LocationPicker"), { ssr: false });
 
@@ -17,109 +16,21 @@ interface StoreProfileFormProps {
 }
 
 export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
-  const { showToast } = useToast();
   const { isUploading, handleUpload, handleRemove } = useImageUpload();
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  const [availableFeatures, setAvailableFeatures] = useState<{id: string, name: string, key: string, price: number}[]>([]);
-  const [availablePlans, setAvailablePlans] = useState<{id: string, name: string, price: number}[]>([]);
-  const [formData, setFormData] = useState({
-    name: "",
-    logoUrl: "",
-    subscriptionPlanIds: [] as string[],
-    customFeatureIds: [] as string[],
-    description: "",
-    facebook: "",
-    instagram: "",
-    twitter: "",
-    twitch: "",
-    whatsapp: "",
-    website: "",
-    email: "",
-    address: "",
-    latitude: null as number | null,
-    longitude: null as number | null,
-  });
-
-  const getEndpoint = () => {
-    return storeId === "me" ? `${API_URL}/stores/me` : `${API_URL}/stores/${storeId}/full`;
-  };
-
-  useEffect(() => {
-    fetchStore();
-  }, [storeId]);
-
-  const fetchStore = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch available features and plans in parallel if superadmin
-      if (storeId !== "me") {
-        const [featuresRes, plansRes] = await Promise.all([
-          fetch(`${API_URL}/features`, { credentials: "include" }),
-          fetch(`${API_URL}/features/plans`, { credentials: "include" })
-        ]);
-        
-        if (featuresRes.ok) setAvailableFeatures(await featuresRes.json());
-        if (plansRes.ok) setAvailablePlans(await plansRes.json());
-      }
-
-      const res = await fetch(getEndpoint(), { credentials: "include" });
-      if (res.ok) {
-        const store = await res.json();
-        const s = (store.settings || []).reduce((acc: any, curr: any) => {
-          acc[curr.key] = curr.value;
-          return acc;
-        }, {});
-
-        setFormData({
-          name: store.name || "",
-          logoUrl: store.logoUrl || "",
-          subscriptionPlanIds: store.subscriptionPlans ? store.subscriptionPlans.map((p: any) => p.id) : [],
-          customFeatureIds: store.customFeatures ? store.customFeatures.map((f: any) => f.id) : [],
-          description: s.description || "",
-          facebook: s.facebook || "",
-          instagram: s.instagram || "",
-          twitter: s.twitter || "",
-          twitch: s.twitch || "",
-          whatsapp: s.whatsapp || "",
-          website: s.website || "",
-          email: s.email || "",
-          address: store.address || s.address || "",
-          latitude: store.latitude || null,
-          longitude: store.longitude || null,
-        });
-      }
-    } catch (err) {
-      console.error("Error fetching store:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    loading,
+    saving,
+    formData,
+    setFormData,
+    availableFeatures,
+    availablePlans,
+    saveProfile,
+  } = useStoreProfile(storeId);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
-    try {
-      const res = await fetch(getEndpoint(), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        showToast("Perfil de tienda guardado con éxito", "success");
-      } else {
-        showToast("Error al guardar el perfil", "error");
-      }
-    } catch (error) {
-      showToast("Error de conexión", "error");
-    } finally {
-      setSaving(false);
-    }
+    await saveProfile();
   };
 
   if (loading) {

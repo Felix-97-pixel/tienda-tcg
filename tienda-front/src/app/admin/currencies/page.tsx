@@ -1,124 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
-import { Switch } from "@/components/ui/Switch";
 import { List, Column } from "@/components/ui/List";
 import { Currency } from "@/types/currency";
 
-export default function AdminCurrencies() {
-  const { showToast } = useToast();
+// Custom Hook y Subcomponentes
+import { useCurrencies } from "@/components/Admin/Currencies/hooks/useCurrencies";
+import CurrencyModal from "@/components/Admin/Currencies/CurrencyModal";
 
-  const [currencies, setCurrencies] = useState<Currency[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function AdminCurrencies() {
+  const { currencies, loading, refresh, deleteCurrency } = useCurrencies();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null);
 
-  // Form states
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [symbol, setSymbol] = useState("");
-  const [exchangeRate, setExchangeRate] = useState<number | "">("");
-  const [isDefault, setIsDefault] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const fetchCurrencies = () => {
-    setLoading(true);
-    fetch(`${API_URL}/currencies`)
-      .then((res) => res.json())
-      .then((data) => {
-        setCurrencies(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching currencies:", err);
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    fetchCurrencies();
-  }, []);
-
   const openModal = (currency?: Currency) => {
-    if (currency) {
-      setSelectedCurrency(currency);
-      setCode(currency.code);
-      setName(currency.name || "");
-      setSymbol(currency.symbol || "$");
-      setExchangeRate(currency.exchangeRate);
-      setIsDefault(currency.isDefault);
-    } else {
-      setSelectedCurrency(null);
-      setCode("");
-      setName("");
-      setSymbol("$");
-      setExchangeRate("");
-      setIsDefault(false);
-    }
+    setSelectedCurrency(currency || null);
     setIsModalOpen(true);
-  };
-
-  const handleDelete = async (currency: Currency) => {
-    if (!confirm(`¿Seguro que deseas eliminar la divisa ${currency.code}?`)) return;
-    try {
-      const res = await fetch(`${API_URL}/currencies/${currency.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        showToast("Divisa eliminada", "success");
-        fetchCurrencies();
-      } else {
-        const errData = await res.json();
-        showToast(errData.message || "Error al eliminar divisa", "error");
-      }
-    } catch (e) {
-      showToast("Error de red", "error");
-    }
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-
-    const payload = {
-      code,
-      name,
-      symbol,
-      exchangeRate: Number(exchangeRate),
-      isDefault
-    };
-
-    try {
-      const url = selectedCurrency
-        ? `${API_URL}/currencies/${selectedCurrency.id}`
-        : `${API_URL}/currencies`;
-      const method = selectedCurrency ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        showToast("Divisa guardada correctamente", "success");
-        setIsModalOpen(false);
-        fetchCurrencies();
-      } else {
-        const errData = await res.json();
-        showToast(errData.message || "Error al guardar la divisa", "error");
-      }
-    } catch (error) {
-      showToast("Error de red", "error");
-    } finally {
-      setSaving(false);
-    }
   };
 
   const columns: Column<Currency>[] = [
@@ -178,7 +76,7 @@ export default function AdminCurrencies() {
             size="sm"
             variant="danger"
             className="px-3"
-            onClick={() => handleDelete(currency)}
+            onClick={() => deleteCurrency(currency)}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
           </Button>
@@ -209,75 +107,12 @@ export default function AdminCurrencies() {
       />
 
       {/* Modal */}
-      <Modal
+      <CurrencyModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedCurrency ? "Editar Divisa" : "Agregar Divisa"}
-        maxWidth="md"
-      >
-        <form onSubmit={handleSave} className="space-y-5">
-          <Input
-            label="Código (Ej: USD) *"
-            type="text"
-            required
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="USD"
-          />
-
-          <Input
-            label="Nombre (Ej: Dólar Estadounidense)"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Dólar Estadounidense"
-          />
-
-          <Input
-            label="Símbolo (Ej: $) *"
-            type="text"
-            required
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            placeholder="$"
-          />
-
-          <div>
-            <Input
-              label="Tasa de Cambio *"
-              type="number"
-              required
-              step="0.01"
-              min="0.01"
-              value={exchangeRate}
-              onChange={(e) => setExchangeRate(e.target.value ? Number(e.target.value) : "")}
-              placeholder="950"
-            />
-            <p className="text-xs text-gray-4 mt-1.5 ml-1">Valor de 1 unidad de esta divisa en la moneda principal (Ej: 1 USD = 950 CLP)</p>
-          </div>
-
-          <div className="pt-2">
-            <Switch
-              label="Divisa Principal"
-              checked={isDefault}
-              onChange={(e) => setIsDefault(e.target.checked)}
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-6 border-t border-stroke mt-6">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" isLoading={saving}>
-              Guardar
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        currency={selectedCurrency}
+        onSuccess={refresh}
+      />
     </div>
   );
 }
