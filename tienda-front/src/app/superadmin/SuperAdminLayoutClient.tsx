@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import SuperAdminGuard from "@/app/admin/_components/SuperAdminGuard";
+import SuperAdminGuard from "@/app/superadmin/_components/SuperAdminGuard";
 import { ReduxProvider } from "@/redux/provider";
 import ToastContainer from "@/components/layout/ToastContainer";
 import { useAppSelector } from "@/redux/store";

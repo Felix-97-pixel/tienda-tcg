@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
-import { useSuperAdminBrands } from "@/app/admin/_components/Brands/hooks/useSuperAdminBrands";
+import { useSuperAdminBrands } from "@/app/superadmin/_components/Brands/hooks/useSuperAdminBrands";
 
 // Componentes Extraídos
-import BrandTable from "@/app/admin/_components/Brands/BrandTable";
-import BrandModal from "@/app/admin/_components/Brands/BrandModal";
+import BrandTable from "@/app/superadmin/_components/Brands/BrandTable";
+import BrandModal from "@/app/superadmin/_components/Brands/BrandModal";
 import { Button } from "@/components/ui/Button";
 
 export default function AdminBrands() {

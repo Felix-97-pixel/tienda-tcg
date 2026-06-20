@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import PreLoader from "@/components/layout/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import ProgressDisplay from "@/components/Sync/ProgressDisplay";
-import { usePokemonSync } from "@/app/admin/_components/Sync/hooks/usePokemonSync";
+import { usePokemonSync } from "@/app/superadmin/_components/Sync/hooks/usePokemonSync";
 import { Button } from "@/components/ui/Button";
 
 export default function PokemonSyncPage() {
