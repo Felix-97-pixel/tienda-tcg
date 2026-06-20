@@ -1,31 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useTranslations } from "next-intl";
-import { API_URL } from "@/utils/api";
 import PreLoader from "@/components/layout/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import ProgressDisplay from "@/components/Sync/ProgressDisplay";
-import { useTcgSync } from "@/hooks/useTcgSync";
+import { useMagicSync } from "@/components/Admin/Sync/hooks/useMagicSync";
 import { Button } from "@/components/ui/Button";
 
 export default function MagicSyncPage() {
   const t = useTranslations("sync");
   const tCommon = useTranslations("common");
 
-  const [destination, setDestination] = useState("Singles Magic The Gathering");
-
-  useEffect(() => {
-    fetch(`${API_URL}/settings`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.mtg_sync_destination) {
-          setDestination(data.mtg_sync_destination);
-        }
-      })
-      .catch(() => { });
-  }, []);
-
-  const sync = useTcgSync("magic", destination);
+  const sync = useMagicSync();
   const isAnyActive = sync.priceProgress.active || sync.importProgress.active;
 
   return (
@@ -47,7 +33,7 @@ export default function MagicSyncPage() {
             <div className="mb-4">
               <label className="mb-1 block text-xs font-medium text-gray-4">{t("configuredDestination")}</label>
               <div className="text-sm font-bold text-purple-400 bg-purple-500/10 p-2 rounded border border-purple-500/20">
-                {destination}
+                {sync.destination}
               </div>
             </div>
 

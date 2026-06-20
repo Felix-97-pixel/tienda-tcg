@@ -1,75 +1,22 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
+import { useSuperAdminBackups } from "@/components/Admin/Sync/hooks/useSuperAdminBackups";
+import RollbackConfirmModal from "@/components/Admin/Sync/RollbackConfirmModal";
 
 export default function BackupsPage() {
-  const [backups, setBackups] = useState<{ id: string; filename: string; game: string; createdAt: string }[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { showToast } = useToast();
-
-  const fetchBackups = async () => {
-    try {
-      const res = await fetch(`${API_URL}/sync/backups/all`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setBackups(data);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  useEffect(() => {
-    fetchBackups();
-  }, []);
-
-  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPendingFile(file);
-    setShowConfirmModal(true);
-  };
-
-  const handleConfirmRollback = async () => {
-    if (!pendingFile) return;
-
-    const formData = new FormData();
-    formData.append('file', pendingFile);
-    
-    setShowConfirmModal(false);
-    setIsUploading(true);
-    try {
-      const res = await fetch(`${API_URL}/sync/rollback`, {
-        method: "POST",
-        credentials: "include",
-        body: formData
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(data.message || "Rollback exitoso", "success");
-      } else {
-        showToast(data.message || "Error al hacer rollback", "error");
-      }
-    } catch (err) {
-      showToast("Error de conexión", "error");
-    } finally {
-      setIsUploading(false);
-      setPendingFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleCancelRollback = () => {
-    setShowConfirmModal(false);
-    setPendingFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  const {
+    backups,
+    fetchBackups,
+    isUploading,
+    pendingFile,
+    showConfirmModal,
+    fileInputRef,
+    handleFileSelected,
+    handleConfirmRollback,
+    handleCancelRollback
+  } = useSuperAdminBackups();
 
   return (
     <div className="p-6 space-y-6 pb-24">
@@ -146,42 +93,12 @@ export default function BackupsPage() {
         </div>
       </div>
 
-      {/* Modal de Confirmación de Rollback */}
-      <Modal isOpen={showConfirmModal} onClose={handleCancelRollback} maxWidth="sm">
-        <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold text-white mb-2">¿Confirmar Rollback?</h3>
-          <p className="text-sm text-gray-400 mb-2">
-            Estás a punto de revertir los precios usando el archivo:
-          </p>
-          <p className="text-sm font-bold text-red mb-4 break-all">
-            {pendingFile?.name}
-          </p>
-          <p className="text-xs text-gray-500 mb-6">
-            Esta acción eliminará de la base de datos todos los precios que estén registrados en el CSV. No se puede deshacer.
-          </p>
-          <div className="flex gap-3 w-full">
-            <Button 
-              variant="secondary" 
-              onClick={handleCancelRollback} 
-              className="flex-1"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              variant="danger" 
-              onClick={handleConfirmRollback} 
-              className="flex-1"
-            >
-              Sí, Revertir
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <RollbackConfirmModal
+        isOpen={showConfirmModal}
+        onClose={handleCancelRollback}
+        onConfirm={handleConfirmRollback}
+        pendingFile={pendingFile}
+      />
     </div>
   );
 }

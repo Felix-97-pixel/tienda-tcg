@@ -1,31 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useTranslations } from "next-intl";
-import { API_URL } from "@/utils/api";
 import PreLoader from "@/components/layout/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import ProgressDisplay from "@/components/Sync/ProgressDisplay";
-import { useTcgSync } from "@/hooks/useTcgSync";
+import { useRiftboundSync } from "@/components/Admin/Sync/hooks/useRiftboundSync";
 import { Button } from "@/components/ui/Button";
 
 export default function RiftboundSyncPage() {
   const t = useTranslations("sync");
   const tCommon = useTranslations("common");
 
-  const [destination, setDestination] = useState("Singles Riftbound");
-
-  useEffect(() => {
-    fetch(`${API_URL}/settings`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.riftbound_sync_destination) {
-          setDestination(data.riftbound_sync_destination);
-        }
-      })
-      .catch(() => { });
-  }, []);
-
-  const sync = useTcgSync("riftbound", destination);
+  const sync = useRiftboundSync();
   const isAnyActive = sync.priceProgress.active || sync.importProgress.active;
 
   return (
@@ -39,15 +25,15 @@ export default function RiftboundSyncPage() {
 
       <div className="flex flex-col xl:flex-row gap-8 max-w-6xl">
         {/* Card de Importación */}
-        <div className="flex-1 bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-t-4 border-blue flex flex-col">
+        <div className="flex-1 bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-t-4 border-cyan-500 flex flex-col">
           <div className="flex-1">
-            <h2 className="font-bold text-white mb-1">{t("riftbound.title")}</h2>
-            <p className="text-xs text-gray-4 mb-4">{t("riftbound.subtitle")}</p>
+            <h2 className="font-bold text-white mb-1">Importar Expansiones</h2>
+            <p className="text-xs text-gray-4 mb-4">Descarga expansiones desde la base de datos de Riftbound.</p>
 
             <div className="mb-4">
               <label className="mb-1 block text-xs font-medium text-gray-4">{t("configuredDestination")}</label>
-              <div className="text-sm font-bold text-purple-400 bg-purple-500/10 p-2 rounded border border-purple-500/20">
-                {destination}
+              <div className="text-sm font-bold text-cyan-500 bg-cyan-500/10 p-2 rounded border border-cyan-500/20">
+                {sync.destination}
               </div>
             </div>
 
@@ -55,13 +41,13 @@ export default function RiftboundSyncPage() {
               options={[
                 { label: "⭐ TODAS LAS EDICIONES (Masivo)", value: "ALL" },
                 ...sync.sets.map(s => ({
-                  label: s.name,
+                  label: `${s.name} (${s.id.toUpperCase()})`,
                   value: s.id
                 }))
               ]}
               value={sync.selectedSetId}
               onChange={sync.setSelectedSetId}
-              placeholder={t("riftbound.placeholder")}
+              placeholder="Seleccionar expansión..."
             />
           </div>
 
@@ -71,9 +57,9 @@ export default function RiftboundSyncPage() {
               disabled={isAnyActive}
               isLoading={sync.importProgress.active}
               fullWidth
-              className="bg-purple-600 hover:bg-purple-500 text-white"
+              className="bg-cyan-600 hover:bg-cyan-500 text-white"
             >
-              {sync.importProgress.active ? t("inProgress") : t("riftbound.button")}
+              {sync.importProgress.active ? t("inProgress") : "Importar Expansión"}
             </Button>
           </div>
 
@@ -84,10 +70,10 @@ export default function RiftboundSyncPage() {
         </div>
 
         {/* Card de Precios */}
-        <div className="flex-1 bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-t-4 border-blue flex flex-col">
+        <div className="flex-1 bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-t-4 border-cyan-500 flex flex-col">
           <div className="flex-1">
-            <h2 className="font-bold text-white mb-1">{t("riftboundPrice.title")}</h2>
-            <p className="text-xs text-gray-4 mb-4">{t("riftboundPrice.subtitle")}</p>
+            <h2 className="font-bold text-white mb-1">Actualizar Precios</h2>
+            <p className="text-xs text-gray-4 mb-4">Sincroniza precios de mercado en tiempo real.</p>
 
             <SearchableSelect
               options={sync.expansionsList.map(e => ({
@@ -96,7 +82,7 @@ export default function RiftboundSyncPage() {
               }))}
               value={sync.selectedExpansion}
               onChange={sync.setSelectedExpansion}
-              placeholder={t("riftbound.placeholder")}
+              placeholder="Seleccionar expansión local..."
             />
           </div>
 
@@ -105,9 +91,9 @@ export default function RiftboundSyncPage() {
             onClick={sync.syncPrices}
             isLoading={sync.priceProgress.active}
             fullWidth
-            className="mt-4 bg-purple-600 hover:bg-purple-500 text-white"
+            className="mt-4 bg-cyan-600 hover:bg-cyan-500 text-white"
           >
-            {sync.priceProgress.active ? t("inProgress") : t("riftboundPrice.button")}
+            {sync.priceProgress.active ? t("inProgress") : "Actualizar Precios"}
           </Button>
 
           <ProgressDisplay
@@ -116,8 +102,6 @@ export default function RiftboundSyncPage() {
           />
         </div>
       </div>
-      
-      {/* ESPACIO PARA FUTURAS FUNCIONES */}
     </div>
   );
 }
