@@ -13,7 +13,7 @@ import ProductFilters from "@/components/Admin/Products/ProductFilters";
 import ProductTable from "@/components/Admin/Products/ProductTable";
 import CreateProductModal from "@/components/Admin/Products/CreateProductModal";
 import EditProductModal from "@/components/Admin/Products/EditProductModal";
-import InventoryModal from "@/components/Admin/Products/InventoryModal";
+import SuperAdminInventoryModal from "@/components/Admin/Products/SuperAdminInventoryModal";
 import BulkUploadModal from "@/components/Admin/Products/BulkUploadModal";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -179,12 +179,11 @@ export default function AdminProducts() {
         onSuccess={refresh}
       />
 
-      <InventoryModal
+      <SuperAdminInventoryModal
         isOpen={isInventoryOpen}
         onClose={() => setIsInventoryOpen(false)}
         product={selectedProduct}
         onSuccess={refresh}
-        isGlobalCatalog={true}
       />
 
       <BulkUploadModal

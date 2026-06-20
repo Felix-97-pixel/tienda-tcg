@@ -10,14 +10,14 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
 
-export interface InventoryModalProps {
+export interface SuperAdminInventoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null;
   onSuccess: () => void;
 }
 
-export default function InventoryModal({ isOpen, onClose, product: initialProduct, onSuccess }: InventoryModalProps) {
+export default function SuperAdminInventoryModal({ isOpen, onClose, product: initialProduct, onSuccess }: SuperAdminInventoryModalProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
   const { showToast } = useToast();
@@ -212,55 +212,23 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             <tr className="bg-[#111318] border-b border-stroke">
               <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
               <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
-              <th className="p-3 font-bold text-gray-4">Acabado</th>
-              <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
-              <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
-              <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
-              <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
+              <th className="p-3 font-bold text-gray-4">Acabado</th>              <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
             </tr>
           </thead>
           <tbody>
-            {product.items?.map((item: InventoryItem) => (
-                <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
-                <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
-                  <td className="p-3 text-white">
-                    {item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).name : item.condition) || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
-                      {item.finish?.name || "Normal"}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <input
-                      type="number"
-                      className="w-20 rounded border border-stroke p-1 text-xs font-bold text-blue bg-transparent"
-                      defaultValue={item.price}
-                      onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
-                    />
-                  </td>
-                  <td className="p-3">
-                    <input
-                      type="number"
-                      className="w-16 rounded border border-stroke p-1 text-xs text-white bg-transparent"
-                      defaultValue={item.stock}
-                      onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
-                    />
-                  </td>
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all text-white ${item.isPublished ? "bg-green hover:bg-green-dark border border-green" : "bg-yellow hover:bg-yellow-dark border border-yellow"}`}
-                    >
-                      {item.isPublished ? "Publicado" : "Pausado"}
-                    </button>
-                  </td>
-                  <td className="p-3 text-center">
-                    <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </Button>
-                  </td>
-                </tr>
+            {product.marketPrices?.map((mp: any) => (
+              <tr key={mp.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
+                <td className="p-3 font-medium text-white">English</td>
+                <td className="p-3 text-white">Near Mint</td>
+                <td className="p-3">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mp.finish?.name && mp.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
+                    {mp.finish?.name || "-"}
+                  </span>
+                </td>
+                <td className="p-3 font-bold text-green-400">
+                  ${Number(mp.price).toLocaleString()}
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>

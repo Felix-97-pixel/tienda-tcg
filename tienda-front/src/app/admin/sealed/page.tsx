@@ -85,7 +85,6 @@ export default function StoreAdminProducts() {
         onClose={() => setIsInventoryOpen(false)}
         product={selectedProduct}
         onSuccess={refresh}
-        isGlobalCatalog={true}
       />
 
       <BulkUploadModal
