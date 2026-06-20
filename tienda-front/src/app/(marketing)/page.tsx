@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import PricingSection from "@/components/Marketing/PricingSection";
+import PricingSection from "@/app/(marketing)/_components/Marketing/PricingSection";
 
 export default function MarketingPage() {
   return (

@@ -1,5 +1,5 @@
 import React from "react";
-import CheckoutWebpay from "@/components/Checkout";
+import CheckoutWebpay from "@/app/(site)/(pages)/checkout/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {

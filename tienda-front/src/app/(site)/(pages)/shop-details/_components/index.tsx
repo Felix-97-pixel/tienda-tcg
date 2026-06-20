@@ -2,7 +2,7 @@
 import React, { use, useEffect, useState } from "react";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import Image from "next/image";
-import Newsletter from "../Common/Newsletter";
+import Newsletter from '@/components/Common/Newsletter';
 import RecentlyViewdItems from "./RecentlyViewd";
 import { usePreviewSlider } from "@/app/context/PreviewSliderContext";
 import { useAppSelector } from "@/redux/store";

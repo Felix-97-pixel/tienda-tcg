@@ -1,5 +1,5 @@
 import React from "react";
-import ShopWithoutSidebar from "@/components/ShopWithoutSidebar";
+import ShopWithoutSidebar from "@/app/(site)/(pages)/shop-without-sidebar/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {

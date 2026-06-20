@@ -1,5 +1,5 @@
 import React from "react";
-import ShopWithSidebar from "@/components/ShopWithSidebar";
+import ShopWithSidebar from "@/app/(site)/(pages)/shop-with-sidebar/_components";
 import { API_URL } from "@/utils/api";
 import { notFound } from "next/navigation";
 

@@ -3,12 +3,12 @@ import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import CustomSelect from "./CustomSelect";
-import SearchableSelect from "../ui/SearchableSelect";
+import SearchableSelect from '@/components/ui/SearchableSelect';
 import SizeDropdown from "./SizeDropdown";
 import ColorsDropdwon from "./ColorsDropdwon";
 import PriceDropdown from "./PriceDropdown";
-import SingleGridItem from "../Shop/SingleGridItem";
-import SingleListItem from "../Shop/SingleListItem";
+import SingleGridItem from '@/app/(site)/(pages)/shop/_components/SingleGridItem';
+import SingleListItem from '@/app/(site)/(pages)/shop/_components/SingleListItem';
 import { Product } from "@/types/product";
 import { useTranslations } from "next-intl";
 

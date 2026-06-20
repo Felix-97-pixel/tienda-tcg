@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import ProductItem from "@/components/Shop/widgets/ProductItem";
+import ProductItem from "@/app/(site)/(pages)/shop/_components/widgets/ProductItem";
 //import { Product } from "@/types/product";
 
-import { getProducts } from "@/components/Shop/fetchProducts";
+import { getProducts } from "@/app/(site)/(pages)/shop/_components/fetchProducts";
 
 const NewArrival = async () => {
   const products = await getProducts();

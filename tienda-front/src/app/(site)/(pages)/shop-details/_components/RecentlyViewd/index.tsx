@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import shopData from "@/components/Shop/shopData";
-import ProductItem from "@/components/Shop/widgets/ProductItem";
+import shopData from "@/app/(site)/(pages)/shop/_components/shopData";
+import ProductItem from "@/app/(site)/(pages)/shop/_components/widgets/ProductItem";
 import Image from "next/image";
 import Link from "next/link";
 

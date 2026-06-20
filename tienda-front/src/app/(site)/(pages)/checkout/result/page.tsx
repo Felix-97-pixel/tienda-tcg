@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import PaymentResult from "@/components/Checkout/PaymentResult";
+import PaymentResult from "@/app/(site)/(pages)/checkout/_components/PaymentResult";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

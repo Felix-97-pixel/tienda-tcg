@@ -1,4 +1,4 @@
-import BlogDetails from "@/components/BlogDetails";
+import BlogDetails from "@/app/(site)/blogs/blog-details/_components";
 import React from "react";
 
 import { Metadata } from "next";

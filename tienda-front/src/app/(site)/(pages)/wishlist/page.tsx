@@ -1,5 +1,5 @@
 import React from "react";
-import { Wishlist } from "@/components/Wishlist";
+import { Wishlist } from "@/app/(site)/(pages)/wishlist/_components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

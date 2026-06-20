@@ -1,5 +1,5 @@
 import React from "react";
-import ShopDetails from "@/components/ShopDetails";
+import ShopDetails from "@/app/(site)/(pages)/shop-details/_components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

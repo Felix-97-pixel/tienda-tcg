@@ -3,9 +3,9 @@ import { API_URL } from "@/utils/api";
 import React, { useState } from "react";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 
-import SingleGridItem from "../Shop/SingleGridItem";
-import SingleListItem from "../Shop/SingleListItem";
-import CustomSelect from "../ShopWithSidebar/CustomSelect";
+import SingleGridItem from '@/app/(site)/(pages)/shop/_components/SingleGridItem';
+import SingleListItem from '@/app/(site)/(pages)/shop/_components/SingleListItem';
+import CustomSelect from '@/app/(site)/(pages)/shop-with-sidebar/_components/CustomSelect';
 
 //import shopData from "../Shop/shopData";
 import { Product } from "@/types/product";

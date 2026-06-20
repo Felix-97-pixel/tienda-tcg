@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
-import Header from "@/components/Marketing/Header";
-import Footer from "@/components/Marketing/Footer";
+import Header from "@/app/(marketing)/_components/Marketing/Header";
+import Footer from "@/app/(marketing)/_components/Marketing/Footer";
 import "../css/euclid-circular-a-font.css";
 import "../css/store-style.css"; // Reusing Tailwind setup
 

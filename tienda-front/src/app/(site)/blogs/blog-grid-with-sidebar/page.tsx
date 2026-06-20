@@ -1,5 +1,5 @@
 import React from "react";
-import BlogGridWithSidebar from "@/components/BlogGridWithSidebar";
+import BlogGridWithSidebar from "@/app/(site)/blogs/blog-grid-with-sidebar/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {

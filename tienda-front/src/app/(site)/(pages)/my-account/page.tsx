@@ -1,4 +1,4 @@
-import MyAccount from "@/components/MyAccount";
+import MyAccount from "@/app/(site)/(pages)/my-account/_components";
 import React from "react";
 
 import { Metadata } from "next";

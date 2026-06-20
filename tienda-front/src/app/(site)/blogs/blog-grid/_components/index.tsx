@@ -1,7 +1,7 @@
 import React from "react";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import blogData from "./blogData";
-import BlogItem from "../Blog/BlogItem";
+import BlogItem from '@/app/(site)/blogs/_components/BlogItem';
 
 const BlogGrid = () => {
   return (

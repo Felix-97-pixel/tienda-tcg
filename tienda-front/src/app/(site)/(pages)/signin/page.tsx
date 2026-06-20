@@ -1,4 +1,4 @@
-import Signin from "@/components/Auth/Signin";
+import Signin from "@/app/(site)/_components/Auth/Signin";
 import React from "react";
 import { Metadata } from "next";
 

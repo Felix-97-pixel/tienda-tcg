@@ -6,7 +6,7 @@ import PromoBanner from "./PromoBanner";
 import BestSeller from "./BestSeller";
 import CounDown from "./Countdown";
 import Testimonials from "./Testimonials";
-import Newsletter from "../Common/Newsletter";
+import Newsletter from '@/components/Common/Newsletter';
 
 const Home = () => {
   return (

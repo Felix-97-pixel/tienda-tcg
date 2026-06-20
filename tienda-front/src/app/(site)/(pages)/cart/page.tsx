@@ -1,5 +1,5 @@
 import React from "react";
-import Cart from "@/components/Cart";
+import Cart from "@/app/(site)/(pages)/cart/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {

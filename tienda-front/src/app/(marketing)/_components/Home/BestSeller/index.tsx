@@ -2,7 +2,7 @@ import React from "react";
 import SingleItem from "./SingleItem";
 import Image from "next/image";
 import Link from "next/link";
-import { getProducts } from "@/components/Shop/fetchProducts";
+import { getProducts } from "@/app/(site)/(pages)/shop/_components/fetchProducts";
 
 const BestSeller = async () => {
   const products = await getProducts();

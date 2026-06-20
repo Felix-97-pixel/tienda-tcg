@@ -1,5 +1,5 @@
 import React from "react";
-import Error from "@/components/Error";
+import Error from "@/app/(site)/(pages)/error/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {

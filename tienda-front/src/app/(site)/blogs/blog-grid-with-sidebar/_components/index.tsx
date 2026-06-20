@@ -1,12 +1,12 @@
 import React from "react";
 import Breadcrumb from "@/components/layout/Breadcrumb";
-import BlogItem from "../Blog/BlogItem";
-import blogData from "../BlogGrid/blogData"; 
-import SearchForm from "../Blog/SearchForm"; 
-import LatestPosts from "../Blog/LatestPosts";
-import LatestProducts from "../Blog/LatestProducts";
-import Categories from "../Blog/Categories";
-import shopData from "../Shop/shopData"; 
+import BlogItem from '@/app/(site)/blogs/_components/BlogItem';
+import blogData from '@/app/(site)/blogs/blog-grid/_components/blogData'; 
+import SearchForm from '@/app/(site)/blogs/_components/SearchForm'; 
+import LatestPosts from '@/app/(site)/blogs/_components/LatestPosts';
+import LatestProducts from '@/app/(site)/blogs/_components/LatestProducts';
+import Categories from '@/app/(site)/blogs/_components/Categories';
+import shopData from '@/app/(site)/(pages)/shop/_components/shopData'; 
  
 const BlogGridWithSidebar = () => {
   const categories = [

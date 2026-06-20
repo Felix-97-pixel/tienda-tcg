@@ -1,5 +1,5 @@
 import React from "react";
-import MailSuccess from "@/components/MailSuccess";
+import MailSuccess from "@/app/(site)/(pages)/mail-success/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
