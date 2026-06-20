@@ -1,8 +1,6 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
+import React from "react";
 import { useTranslations } from "next-intl";
-import { API_URL } from "@/utils/api";
 import { useAppSelector } from "@/redux/store";
 
 // Componentes Extraídos
@@ -13,38 +11,16 @@ import MonthlyRevenueList from "@/components/Admin/Sales/MonthlyRevenueList";
 import LowStockList from "@/components/Admin/Sales/LowStockList";
 import { Button } from "@/components/ui/Button";
 
+// Custom Hook y Tipos
+import { useAdminStatistics } from "@/components/Admin/Sales/hooks/useAdminStatistics";
+
 export default function AdminSalesPage() {
   const t = useTranslations("sales");
-  const to = useTranslations("orders");
   const tc = useTranslations("common");
 
   const { features } = useAppSelector((state) => state.authReducer);
 
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const fetchStats = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await fetch(`${API_URL}/payments/stats`, { credentials: "include" });
-      if (!res.ok) throw new Error();
-      setStats(await res.json());
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (features && features.includes("addon:reports")) {
-      fetchStats();
-    } else {
-      setLoading(false);
-    }
-  }, [fetchStats, features]);
+  const { stats, loading, error, refresh } = useAdminStatistics(features);
 
   if (loading) {
     return (
@@ -73,7 +49,7 @@ export default function AdminSalesPage() {
         <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
         <h2 className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h2>
         <p className="text-gray-4 text-sm mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
-        <Button onClick={fetchStats} size="lg">{tc("refresh")}</Button>
+        <Button onClick={refresh} size="lg">{tc("refresh")}</Button>
       </div>
     );
   }
@@ -91,7 +67,7 @@ export default function AdminSalesPage() {
         <div className="flex gap-3">
           <Button
             variant="secondary"
-            onClick={fetchStats}
+            onClick={refresh}
             leftIcon={
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
@@ -114,7 +90,7 @@ export default function AdminSalesPage() {
         />
         <StatCard
           label={t("stats.monthlyRevenue")}
-          value={`$${revenue.thisMonth.toLocaleString("es-CL")}`}
+          value={`$${revenue.thisMonth?.toLocaleString("es-CL") || "0"}`}
           sub="Acumulado del mes"
           color="bg-blue/10 text-blue"
           icon={<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
@@ -128,8 +104,8 @@ export default function AdminSalesPage() {
         />
         <StatCard
           label="Órdenes Totales"
-          value={`${orders.paid}`}
-          sub={`${orders.pending} abandonadas`}
+          value={`${orders.paid || 0}`}
+          sub={`${orders.pending || 0} abandonadas`}
           color="bg-purple-100 text-purple-600"
           icon={<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
@@ -141,7 +117,7 @@ export default function AdminSalesPage() {
           <LowStockList items={operational.lowStockItems || []} />
         </div>
         <div className="xl:col-span-1">
-          <TopProductsList products={topProducts} />
+          <TopProductsList products={topProducts || []} />
         </div>
         <div className="xl:col-span-1">
           <MonthlyRevenueList revenues={monthlyRevenues || []} />
