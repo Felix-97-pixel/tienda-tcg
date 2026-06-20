@@ -1,0 +1,12 @@
+# Next.js App Router Rules
+
+1. **App Router Only**: Usa EXCLUSIVAMENTE el Next.js App Router (`src/app`). NO uses el Pages Router (`src/pages`).
+2. **Server Components por Defecto**: Por defecto, asume que todos los componentes son Server Components. Usa la directiva `"use client"` SOLAMENTE cuando sea estrictamente necesario (manejo de estado, hooks de React como `useState` o `useEffect`, o listeners de eventos).
+3. **Colocation (Estructura de Componentes)**:
+   - Si un componente es exclusivo de una página o ruta (ej. el sidebar del panel de administrador), DEBE vivir dentro de esa misma ruta (ej. `src/app/admin/_components/`).
+   - Usa la carpeta `src/components/` ÚNICAMENTE para componentes globales y reutilizables en múltiples partes de la app (botones genéricos, modales globales, layout base).
+4. **Estilos**: Usa TailwindCSS para todo el estilado. No crees archivos CSS/SCSS independientes a menos que sea inevitable.
+5. **YAGNI (You Aren't Gonna Need It)**:
+   - No sobre-ingenierices la solución.
+   - Usa soluciones nativas del navegador o del framework antes de instalar una dependencia nueva (npm).
+   - Escribe código mínimo, directo y funcional. Si tomas un atajo lógico válido para ahorrar tiempo o complejidad, deja el comentario `// ponytail: atajo usado`.

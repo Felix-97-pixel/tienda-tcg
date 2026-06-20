@@ -8,12 +8,12 @@ import { Product } from "@/types/product";
 import { Category } from "@/types/productCategory";
 
 // Componentes Extraídos
-import ProductFilters from "@/components/Admin/Products/ProductFilters";
-import BuylistTable from "@/components/Admin/Buylist/BuylistTable";
-import BuylistModal from "@/components/Admin/Buylist/BuylistModal";
+import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
+import BuylistTable from "@/app/admin/_components/Buylist/BuylistTable";
+import BuylistModal from "@/app/admin/_components/Buylist/BuylistModal";
 import { Button } from "@/components/ui/Button";
 
-import UpsellBanner from "@/components/Admin/UpsellBanner";
+import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useAppSelector } from "@/redux/store";
 
 export default function AdminBuylistPage() {

@@ -1,7 +1,7 @@
 import React from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
-import AdminLayoutClient from "@/components/Admin/AdminLayoutClient";
+import AdminLayoutClient from "@/app/admin/_components/AdminLayoutClient";
 
 import "../css/euclid-circular-a-font.css";
 import "../css/admin-style.css";

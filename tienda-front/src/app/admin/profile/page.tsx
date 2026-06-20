@@ -1,4 +1,4 @@
-import StoreProfileForm from "@/components/Admin/StoreProfileForm";
+import StoreProfileForm from "@/app/admin/_components/StoreProfileForm";
 
 export default function AdminStoreProfile() {
   return (

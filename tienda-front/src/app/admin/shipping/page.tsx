@@ -6,8 +6,8 @@ import { ShippingProvider } from "@/types/shippingProvider";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 
 // Custom Hook y Subcomponentes
-import { useShippingProviders } from "@/components/Admin/Shipping/hooks/useShippingProviders";
-import ShippingProviderModal from "@/components/Admin/Shipping/ShippingProviderModal";
+import { useShippingProviders } from "@/app/admin/_components/Shipping/hooks/useShippingProviders";
+import ShippingProviderModal from "@/app/admin/_components/Shipping/ShippingProviderModal";
 
 export default function AdminShipping() {
   const { providers, loading, refresh } = useShippingProviders();

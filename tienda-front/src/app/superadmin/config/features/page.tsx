@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useSuperAdminFeatures } from "@/components/Admin/Config/hooks/useSuperAdminFeatures";
+import { useSuperAdminFeatures } from "@/app/admin/_components/Config/hooks/useSuperAdminFeatures";
 
 export default function FeaturesPage() {
   const {

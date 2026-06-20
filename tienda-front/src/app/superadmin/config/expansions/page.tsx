@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import ExpansionTable from "@/components/Admin/Expansions/ExpansionTable";
-import LinkExpansionModal from "@/components/Admin/Expansions/LinkExpansionModal";
-import AutoMapModal from "@/components/Admin/Expansions/AutoMapModal";
+import ExpansionTable from "@/app/admin/_components/Expansions/ExpansionTable";
+import LinkExpansionModal from "@/app/admin/_components/Expansions/LinkExpansionModal";
+import AutoMapModal from "@/app/admin/_components/Expansions/AutoMapModal";
 import { Button } from "@/components/ui/Button";
-import { useSuperAdminExpansions } from "@/components/Admin/Config/hooks/useSuperAdminExpansions";
+import { useSuperAdminExpansions } from "@/app/admin/_components/Config/hooks/useSuperAdminExpansions";
 
 export default function ExpansionsPage() {
   const {

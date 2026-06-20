@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
-import { useGlobalCatalogSearch } from "@/components/Admin/Products/hooks/useGlobalCatalogSearch";
+import { useGlobalCatalogSearch } from "@/app/admin/_components/Products/hooks/useGlobalCatalogSearch";
 
 interface GlobalCatalogSearchModalProps {
   isOpen: boolean;

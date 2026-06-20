@@ -4,15 +4,15 @@ import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import StoreCreditModal from "@/components/Admin/StoreCredit/StoreCreditModal";
-import StoreCreditHistoryModal from "@/components/Admin/StoreCredit/StoreCreditHistoryModal";
-import UpsellBanner from "@/components/Admin/UpsellBanner";
+import StoreCreditModal from "@/app/admin/_components/StoreCredit/StoreCreditModal";
+import StoreCreditHistoryModal from "@/app/admin/_components/StoreCredit/StoreCreditHistoryModal";
+import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useAppSelector } from "@/redux/store";
 import type {
   StoreCredit,
   StoreCreditUser,
   AdjustmentType,
-} from "@/components/Admin/StoreCredit/types/store-credit.types";
+} from "@/app/admin/_components/StoreCredit/types/store-credit.types";
 
 export default function AdminStoreCreditPage() {
   const { showToast } = useToast();

@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import dynamic from "next/dynamic";
 import { useStoreProfile } from "./hooks/useStoreProfile";
 
-const LocationPicker = dynamic(() => import("@/components/Admin/LocationPicker"), { ssr: false });
+const LocationPicker = dynamic(() => import("@/app/admin/_components/LocationPicker"), { ssr: false });
 
 interface StoreProfileFormProps {
   storeId: string; // "me" for normal admin, or the specific store ID for superadmin

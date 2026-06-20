@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 
 // Componentes Extraídos
-import OrderTable from "@/components/Admin/Orders/OrderTable";
-import OrderDetailsModal from "@/components/Admin/Orders/OrderDetailsModal";
+import OrderTable from "@/app/admin/_components/Orders/OrderTable";
+import OrderDetailsModal from "@/app/admin/_components/Orders/OrderDetailsModal";
 import { Button } from "@/components/ui/Button";
 
 // Custom Hook y Tipos
-import { useAdminOrders, STATUS_CLS } from "@/components/Admin/Orders/hooks/useAdminOrders";
+import { useAdminOrders, STATUS_CLS } from "@/app/admin/_components/Orders/hooks/useAdminOrders";
 import { Order } from "@/types/order";
 
 export default function AdminOrdersPage() {

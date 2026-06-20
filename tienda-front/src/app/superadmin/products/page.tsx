@@ -1,15 +1,15 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
-import { useSuperAdminProductsPage } from "@/components/Admin/Products/hooks/useSuperAdminProductsPage";
+import { useSuperAdminProductsPage } from "@/app/admin/_components/Products/hooks/useSuperAdminProductsPage";
 
 // Componentes Extraídos
-import ProductFilters from "@/components/Admin/Products/ProductFilters";
-import ProductTable from "@/components/Admin/Products/ProductTable";
-import CreateProductModal from "@/components/Admin/Products/CreateProductModal";
-import EditProductModal from "@/components/Admin/Products/EditProductModal";
-import SuperAdminInventoryModal from "@/components/Admin/Products/SuperAdminInventoryModal";
-import BulkUploadModal from "@/components/Admin/Products/BulkUploadModal";
+import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
+import ProductTable from "@/app/admin/_components/Products/ProductTable";
+import CreateProductModal from "@/app/admin/_components/Products/CreateProductModal";
+import EditProductModal from "@/app/admin/_components/Products/EditProductModal";
+import SuperAdminInventoryModal from "@/app/admin/_components/Products/SuperAdminInventoryModal";
+import BulkUploadModal from "@/app/admin/_components/Products/BulkUploadModal";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 

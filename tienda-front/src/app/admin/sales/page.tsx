@@ -2,11 +2,11 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
-import UpsellBanner from "@/components/Admin/UpsellBanner";
-import ChartWidget from "@/components/Admin/Sales/ChartWidget";
+import UpsellBanner from "@/app/admin/_components/UpsellBanner";
+import ChartWidget from "@/app/admin/_components/Sales/ChartWidget";
 import { Button } from "@/components/ui/Button";
 import { exportToPDF } from "@/utils/exportUtils";
-import { useSalesAnalytics } from "@/components/Admin/Sales/hooks/useSalesAnalytics";
+import { useSalesAnalytics } from "@/app/admin/_components/Sales/hooks/useSalesAnalytics";
 
 export default function AdminSalesPage() {
   const t = useTranslations("sales");

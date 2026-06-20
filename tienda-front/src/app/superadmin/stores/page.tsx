@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/Button";
-import { useSuperAdminStores } from "@/components/Admin/Stores/hooks/useSuperAdminStores";
+import { useSuperAdminStores } from "@/app/admin/_components/Stores/hooks/useSuperAdminStores";
 
 // Componentes Extraídos
-import StoreTable from "@/components/Admin/Stores/StoreTable";
-import CreateStoreModal from "@/components/Admin/Stores/CreateStoreModal";
+import StoreTable from "@/app/admin/_components/Stores/StoreTable";
+import CreateStoreModal from "@/app/admin/_components/Stores/CreateStoreModal";
 
 export default function StoresPage() {
   const {

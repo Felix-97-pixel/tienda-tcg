@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
-import AdminGuard from "@/components/Admin/AdminGuard";
-import Sidebar from "@/components/Admin/Sidebar";
-import Header from "@/components/Admin/Header";
+import AdminGuard from "@/app/admin/_components/AdminGuard";
+import Sidebar from "@/app/admin/_components/Sidebar";
+import Header from "@/app/admin/_components/Header";
 import { ReduxProvider } from "@/redux/provider";
 import ToastContainer from "@/components/layout/ToastContainer";
 

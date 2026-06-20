@@ -1,4 +1,4 @@
-import StoreProfileForm from "@/components/Admin/StoreProfileForm";
+import StoreProfileForm from "@/app/admin/_components/StoreProfileForm";
 import Link from "next/link";
 
 export default async function SuperAdminEditStore({ params }: { params: Promise<{ storeId: string }> }) {

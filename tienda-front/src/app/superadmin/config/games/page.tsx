@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import GameFormModal from "@/components/Admin/Games/GameFormModal";
-import { useSuperAdminGames } from "@/components/Admin/Config/hooks/useSuperAdminGames";
+import GameFormModal from "@/app/admin/_components/Games/GameFormModal";
+import { useSuperAdminGames } from "@/app/admin/_components/Config/hooks/useSuperAdminGames";
 
 export default function GamesConfigPage() {
   const {

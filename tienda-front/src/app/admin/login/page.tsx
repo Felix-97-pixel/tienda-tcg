@@ -1,4 +1,4 @@
-import AdminSignin from "@/components/Admin/AdminSignin";
+import AdminSignin from "@/app/admin/_components/AdminSignin";
 import React from "react";
 import { Metadata } from "next";
 

@@ -2,8 +2,8 @@
 import React from "react";
 import { API_URL } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
-import { useSuperAdminBackups } from "@/components/Admin/Sync/hooks/useSuperAdminBackups";
-import RollbackConfirmModal from "@/components/Admin/Sync/RollbackConfirmModal";
+import { useSuperAdminBackups } from "@/app/admin/_components/Sync/hooks/useSuperAdminBackups";
+import RollbackConfirmModal from "@/app/admin/_components/Sync/RollbackConfirmModal";
 
 export default function BackupsPage() {
   const {

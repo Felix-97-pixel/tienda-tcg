@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import { useAppSelector } from "@/redux/store";
-import UpsellBanner from "@/components/Admin/UpsellBanner";
-import { useWishlist } from "@/components/Admin/Wishlist/hooks/useWishlist";
+import UpsellBanner from "@/app/admin/_components/UpsellBanner";
+import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
 
 export default function AdminWishlist() {
   const { features } = useAppSelector((state) => state.authReducer);

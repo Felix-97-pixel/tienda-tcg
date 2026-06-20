@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import PreLoader from "@/components/layout/PreLoader";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import ProgressDisplay from "@/components/Sync/ProgressDisplay";
-import { useRiftboundSync } from "@/components/Admin/Sync/hooks/useRiftboundSync";
+import { useRiftboundSync } from "@/app/admin/_components/Sync/hooks/useRiftboundSync";
 import { Button } from "@/components/ui/Button";
 
 export default function RiftboundSyncPage() {

@@ -4,15 +4,15 @@ import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 
 // Componentes Extraídos
-import UpsellBanner from "@/components/Admin/UpsellBanner";
-import StatCard from "@/components/Admin/Sales/StatCard";
-import TopProductsList from "@/components/Admin/Sales/TopProductsList";
-import MonthlyRevenueList from "@/components/Admin/Sales/MonthlyRevenueList";
-import LowStockList from "@/components/Admin/Sales/LowStockList";
+import UpsellBanner from "@/app/admin/_components/UpsellBanner";
+import StatCard from "@/app/admin/_components/Sales/StatCard";
+import TopProductsList from "@/app/admin/_components/Sales/TopProductsList";
+import MonthlyRevenueList from "@/app/admin/_components/Sales/MonthlyRevenueList";
+import LowStockList from "@/app/admin/_components/Sales/LowStockList";
 import { Button } from "@/components/ui/Button";
 
 // Custom Hook y Tipos
-import { useAdminStatistics } from "@/components/Admin/Sales/hooks/useAdminStatistics";
+import { useAdminStatistics } from "@/app/admin/_components/Sales/hooks/useAdminStatistics";
 
 export default function AdminSalesPage() {
   const t = useTranslations("sales");

@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
-import { useSuperAdminCategories } from "@/components/Admin/Categories/hooks/useSuperAdminCategories";
+import { useSuperAdminCategories } from "@/app/admin/_components/Categories/hooks/useSuperAdminCategories";
 
 // Componentes Extraídos
-import CategoryTable from "@/components/Admin/Categories/CategoryTable";
-import CategoryModal from "@/components/Admin/Categories/CategoryModal";
+import CategoryTable from "@/app/admin/_components/Categories/CategoryTable";
+import CategoryModal from "@/app/admin/_components/Categories/CategoryModal";
 import { Button } from "@/components/ui/Button";
 
 export default function AdminCategories() {

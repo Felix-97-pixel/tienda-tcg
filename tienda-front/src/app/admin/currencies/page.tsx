@@ -5,8 +5,8 @@ import { List, Column } from "@/components/ui/List";
 import { Currency } from "@/types/currency";
 
 // Custom Hook y Subcomponentes
-import { useCurrencies } from "@/components/Admin/Currencies/hooks/useCurrencies";
-import CurrencyModal from "@/components/Admin/Currencies/CurrencyModal";
+import { useCurrencies } from "@/app/admin/_components/Currencies/hooks/useCurrencies";
+import CurrencyModal from "@/app/admin/_components/Currencies/CurrencyModal";
 
 export default function AdminCurrencies() {
   const { currencies, loading, refresh, deleteCurrency } = useCurrencies();

@@ -6,12 +6,12 @@ import { useProductMetadata } from "@/hooks/useProductMetadata";
 import { Product } from "@/types/product";
 
 // Componentes Extraídos
-import ProductFilters from "@/components/Admin/Products/ProductFilters";
-import ProductTable from "@/components/Admin/Products/ProductTable";
-import InventoryModal from "@/components/Admin/Products/InventoryModal";
-import BulkUploadModal from "@/components/Admin/Products/BulkUploadModal";
-import BulkPublishConfirmModal from "@/components/Admin/Products/BulkPublishConfirmModal";
-import GlobalCatalogSearchModal from "@/components/Admin/Products/GlobalCatalogSearchModal";
+import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
+import ProductTable from "@/app/admin/_components/Products/ProductTable";
+import InventoryModal from "@/app/admin/_components/Products/InventoryModal";
+import BulkUploadModal from "@/app/admin/_components/Products/BulkUploadModal";
+import BulkPublishConfirmModal from "@/app/admin/_components/Products/BulkPublishConfirmModal";
+import GlobalCatalogSearchModal from "@/app/admin/_components/Products/GlobalCatalogSearchModal";
 import SyncDealerPricesBtn from "../SyncDealerPricesBtn";
 import { Button } from "@/components/ui/Button";
 

@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useSuperAdminPlans } from "@/components/Admin/Config/hooks/useSuperAdminPlans";
+import { useSuperAdminPlans } from "@/app/admin/_components/Config/hooks/useSuperAdminPlans";
 
 export default function PlansPage() {
   const {

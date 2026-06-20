@@ -1,0 +1,13 @@
+# NestJS Architecture Rules
+
+1. **Cero Lógica en Controladores**: Los Controladores (`*.controller.ts`) NUNCA deben contener lógica de negocio. Su única responsabilidad es recibir la petición HTTP, llamar al método del Servicio correspondiente, y retornar la respuesta.
+2. **Lógica en Servicios**: Toda la lógica de negocio, cálculos y reglas deben ir en los Servicios (`*.service.ts`).
+3. **Validación Obligatoria con DTOs**: NUNCA recibas un body o query sin validarlo. Siempre crea un DTO (Data Transfer Object) y usa decoradores de `class-validator` y `class-transformer`.
+4. **Uso de Prisma**:
+   - Evita el problema de consultas N+1 en la base de datos.
+   - Usa `include` o `select` de Prisma de forma eficiente cuando necesites relaciones.
+   - Mantén el esquema limpio y define correctamente las relaciones uno-a-muchos y muchos-a-muchos.
+5. **YAGNI (You Aren't Gonna Need It)**:
+   - Resuelve los problemas con las librerías estándar de NestJS o Node.js antes de sugerir instalar un paquete nuevo con npm.
+   - El código más fácil de mantener es el que no existe. Evita abstracciones innecesarias o interfaces genéricas si no se necesitan AHORA.
+   - Si tomas un atajo válido, deja un comentario con `// ponytail: atajo usado`.

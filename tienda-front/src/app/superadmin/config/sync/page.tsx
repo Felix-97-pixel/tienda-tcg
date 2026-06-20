@@ -2,7 +2,7 @@
 import React from "react";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
-import { useSuperAdminSyncDestinations } from "@/components/Admin/Config/hooks/useSuperAdminSyncDestinations";
+import { useSuperAdminSyncDestinations } from "@/app/admin/_components/Config/hooks/useSuperAdminSyncDestinations";
 
 export default function AdminSettings() {
   const {
