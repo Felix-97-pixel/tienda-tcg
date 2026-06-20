@@ -53,13 +53,34 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     if (isOpen) {
       fetch(`${API_URL}/products/meta/languages`).then(r => r.json()).then(setLanguages);
       fetch(`${API_URL}/products/meta/conditions`).then(r => r.json()).then(setConditions);
-      if (product?.cardDetail?.game) {
-        fetch(`${API_URL}/products/meta/finishes?game=${encodeURIComponent(product.cardDetail.game)}`)
-          .then(r => r.json())
-          .then(setFinishes);
+      // 1. Intentar extraer los acabados recomendados desde el catálogo global (marketPrices)
+      let foundGlobalFinishes = false;
+      if (product?.marketPrices && product.marketPrices.length > 0) {
+        const uniqueFinishes = Array.from(new Map(
+          product.marketPrices
+            .filter(mp => mp.finish)
+            .map(mp => [mp.finish!.id, mp.finish!])
+        ).values());
+
+        if (uniqueFinishes.length > 0) {
+          setFinishes(uniqueFinishes);
+          foundGlobalFinishes = true;
+        }
+      }
+
+      // 2. Si no hay acabados definidos en el catálogo global, usar fallback de la API
+      if (!foundGlobalFinishes) {
+        const gameString = product?.cardDetail?.game || product?.category?.name;
+        if (gameString) {
+          fetch(`${API_URL}/products/meta/finishes?game=${encodeURIComponent(gameString)}`)
+            .then(r => r.json())
+            .then(setFinishes);
+        } else {
+          fetch(`${API_URL}/products/meta/finishes`).then(r => r.json()).then(setFinishes);
+        }
       }
     }
-  }, [isOpen, product?.cardDetail?.game]);
+  }, [isOpen, product?.cardDetail?.game, product?.category?.name, product?.marketPrices]);
 
   const handleAddVariation = async () => {
     if (!newVariation.languageId || !newVariation.conditionId) {
@@ -71,7 +92,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       const res = await fetch(`${API_URL}/products/${product.id}/inventory`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newVariation, productId: product.id }),
+        body: JSON.stringify({ ...newVariation, productId: product.id, isPublished: false }),
         credentials: "include",
       });
 

@@ -11,6 +11,7 @@ import ProductTable from "@/components/Admin/Products/ProductTable";
 import InventoryModal from "@/components/Admin/Products/InventoryModal";
 import BulkUploadModal from "@/components/Admin/Products/BulkUploadModal";
 import BulkPublishConfirmModal from "@/components/Admin/Products/BulkPublishConfirmModal";
+import GlobalCatalogSearchModal from "@/components/Admin/Products/GlobalCatalogSearchModal";
 import SyncDealerPricesBtn from "../SyncDealerPricesBtn";
 import { Button } from "@/components/ui/Button";
 
@@ -33,6 +34,7 @@ export default function StoreAdminProducts() {
   const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [isConfirmPublishOpen, setIsConfirmPublishOpen] = useState(false);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
 
   // Ítem Seleccionado para Modal
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -54,7 +56,10 @@ export default function StoreAdminProducts() {
             Publicar Todo lo Pausado
           </Button>
           <SyncDealerPricesBtn />
-          <Button variant="success" onClick={() => setIsBulkOpen(true)}>
+          <Button variant="success" onClick={() => setIsGlobalSearchOpen(true)}>
+            Añadir Producto
+          </Button>
+          <Button variant="secondary" onClick={() => setIsBulkOpen(true)}>
             {t("bulkUpload")}
           </Button>
         </div>
@@ -98,6 +103,16 @@ export default function StoreAdminProducts() {
         isOpen={isConfirmPublishOpen}
         onClose={() => setIsConfirmPublishOpen(false)}
         onSuccess={refresh}
+      />
+
+      <GlobalCatalogSearchModal
+        isOpen={isGlobalSearchOpen}
+        onClose={() => setIsGlobalSearchOpen(false)}
+        onSelectProduct={(product) => {
+          setIsGlobalSearchOpen(false);
+          setSelectedProduct(product);
+          setIsInventoryOpen(true);
+        }}
       />
     </div>
   );
