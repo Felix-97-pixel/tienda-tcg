@@ -1,58 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React from "react";
 import { useAppSelector } from "@/redux/store";
 import UpsellBanner from "@/components/Admin/UpsellBanner";
-
-interface WishlistProduct {
-  id: string;
-  name: string;
-  imageUrl: string | null;
-  wishlistCount: number;
-  category: { name: string };
-  cardDetail?: {
-    expansion: string;
-    rarity: string;
-  };
-  inStock?: boolean;
-  stockCount?: number;
-  isOnBuylist?: boolean;
-  marketPrice?: number;
-  storePrice?: number;
-}
+import { useWishlist } from "@/components/Admin/Wishlist/hooks/useWishlist";
 
 export default function AdminWishlist() {
-  const { showToast } = useToast();
-  const [products, setProducts] = useState<WishlistProduct[]>([]);
-  const [loading, setLoading] = useState(true);
   const { features } = useAppSelector((state) => state.authReducer);
-  
-  const [filter, setFilter] = useState<'ALL' | 'INSTOCK' | 'OUTOFSTOCK'>('ALL');
-
-  useEffect(() => {
-    fetchWishlistData();
-  }, []);
-
-  const fetchWishlistData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/wishlist/count`, {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setProducts(data);
-      } else {
-        showToast("No se pudo cargar la lista de deseos", "error");
-      }
-    } catch (error) {
-      console.error("Error fetching wishlist counts:", error);
-      showToast("Error de conexión al cargar la lista", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { loading, filter, setFilter, kpis, filteredProducts } = useWishlist();
 
   if (!features.includes("addon:radar")) {
     return (
@@ -62,17 +16,7 @@ export default function AdminWishlist() {
     );
   }
 
-  // KPIs Calculations
-  const totalSalesPotential = products.reduce((acc, p) => acc + (p.inStock ? (p.storePrice || 0) : (p.marketPrice || 0)) * p.wishlistCount, 0);
-  const missedOpportunities = products.filter(p => !p.inStock).reduce((acc, p) => acc + (p.marketPrice || 0) * p.wishlistCount, 0);
-  const trendingProduct = products.length > 0 ? products[0] : null;
-
-  // Filtering
-  const filteredProducts = products.filter(p => {
-    if (filter === 'INSTOCK') return p.inStock;
-    if (filter === 'OUTOFSTOCK') return !p.inStock;
-    return true;
-  });
+  const { totalSalesPotential, missedOpportunities, trendingProduct } = kpis;
 
   return (
     <div className="p-6 space-y-6 pb-24">
