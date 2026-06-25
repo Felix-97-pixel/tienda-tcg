@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import PricingSection from "@/app/(marketing)/_components/Marketing/PricingSection";
+import PricingSection from "@/app/landing/_components/Marketing/PricingSection";
 
 export default function MarketingPage() {
   return (
@@ -30,7 +30,7 @@ export default function MarketingPage() {
           <Link href="/shop" className="w-full sm:w-auto px-8 py-4 bg-white text-[#0f1115] font-semibold rounded-full hover:bg-gray-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]">
             Explorar Singles
           </Link>
-          <Link href="/explore" className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white font-semibold rounded-full hover:bg-white/10 border border-white/10 transition-colors backdrop-blur-sm">
+          <Link href="/" className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white font-semibold rounded-full hover:bg-white/10 border border-white/10 transition-colors backdrop-blur-sm">
             Explorar
           </Link>
         </div>

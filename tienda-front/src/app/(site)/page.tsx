@@ -1,5 +1,5 @@
 import React from "react";
-import Home from "@/app/(marketing)/_components/Home";
+import Home from "@/app/landing/_components/Home";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

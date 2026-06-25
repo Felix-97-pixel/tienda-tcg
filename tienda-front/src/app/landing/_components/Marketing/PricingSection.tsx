@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { useMarketingPricing } from "@/app/(marketing)/_components/Marketing/hooks/useMarketingPricing";
+import { useMarketingPricing } from "@/app/landing/_components/Marketing/hooks/useMarketingPricing";
 
 export default function PricingSection() {
   const { plans, features, loading } = useMarketingPricing();
