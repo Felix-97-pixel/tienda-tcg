@@ -85,11 +85,11 @@ const AdminSignin = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#1a1d24] text-[#111111] font-semibold rounded-lg py-3 hover:bg-[#222630]00 transition-all ease-out duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.2)] flex justify-center items-center gap-2"
+              className="w-full bg-red-light text-white font-semibold rounded-lg py-3 hover:bg-red transition-all ease-out duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(245,96,96,0.2)] flex justify-center items-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-[#111111]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
