@@ -60,26 +60,23 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
 
   // Fetch expansions and attributes when a category is selected
   useEffect(() => {
-    if (!selectedCategory) {
+    if (!selectedCategory && !storeId) {
       setExpansionsData([]);
       setAttributesData([]);
-      setProducts([]);
-      setTotalPages(0);
+      // No reseteamos products aquí porque eso se maneja en el useEffect de products
       return;
     }
 
-    let attributesUrl = `${API_URL}/products/meta/attributes?category=${encodeURIComponent(selectedCategory)}`;
-    if (selectedExpansion) {
-      attributesUrl += `&expansion=${encodeURIComponent(selectedExpansion)}`;
-    }
-    if (storeId) {
-      attributesUrl += `&storeId=${storeId}`;
-    }
+    const attrParams = new URLSearchParams();
+    if (selectedCategory) attrParams.append("category", selectedCategory);
+    if (selectedExpansion) attrParams.append("expansion", selectedExpansion);
+    if (storeId) attrParams.append("storeId", storeId);
+    const attributesUrl = `${API_URL}/products/meta/attributes?${attrParams.toString()}`;
 
-    let expansionsUrl = `${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`;
-    if (storeId) {
-      expansionsUrl += `&storeId=${storeId}`;
-    }
+    const expParams = new URLSearchParams();
+    if (selectedCategory) expParams.append("category", selectedCategory);
+    if (storeId) expParams.append("storeId", storeId);
+    const expansionsUrl = `${API_URL}/products/meta/expansions?${expParams.toString()}`;
 
     const fetchExpansions = fetch(expansionsUrl)
       .then((res) => res.json());
@@ -100,8 +97,8 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
 
     // Debounce the search term to avoid spamming the API on every keystroke
     const timeoutId = setTimeout(() => {
-      // Por rendimiento, no cargar productos si no hay ningún filtro aplicado
-      if (!selectedCategory && !searchTerm && !selectedExpansion && !selectedAttribute) {
+      // Por rendimiento, no cargar productos si no hay ningún filtro aplicado NI estamos en una tienda específica
+      if (!selectedCategory && !searchTerm && !selectedExpansion && !selectedAttribute && !storeId) {
         setProducts([]);
         setTotalPages(0);
         setIsFetching(false);
