@@ -198,6 +198,7 @@ const QuickViewModal = () => {
                         width={61}
                         height={61}
                         className="w-auto h-auto aspect-square"
+                        unoptimized={Boolean(typeof img === 'string' && img.includes("scryfall"))}
                       />
                     </button>
                   ))}
@@ -233,6 +234,7 @@ const QuickViewModal = () => {
                         alt="products-details"
                         width={400}
                         height={400}
+                        unoptimized={Boolean(typeof product.imgs.previews[activePreview] === 'string' && product.imgs.previews[activePreview].includes("scryfall"))}
                       />
                     )}
                   </div>

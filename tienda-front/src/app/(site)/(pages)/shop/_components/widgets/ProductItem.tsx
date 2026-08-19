@@ -59,6 +59,7 @@ const ProductItem = ({ item }: { item: Product }) => {
           alt={item.title || item.name} 
           width={250} 
           height={250} 
+          unoptimized={Boolean((item.imgs?.previews?.[0] || item.imageUrl)?.includes("scryfall"))}
         />
 
         {/* Out of Stock Overlay */}

@@ -176,6 +176,7 @@ const ShopDetails = () => {
                           alt={product.title || product.name || "products-details"}
                           width={400}
                           height={400}
+                          unoptimized={Boolean((product.imgs?.previews?.[previewImg] || product.imageUrl)?.includes("scryfall"))}
                         />
                       )}
                     </div>
@@ -197,6 +198,7 @@ const ShopDetails = () => {
                           height={50}
                           src={item}
                           alt="thumbnail"
+                          unoptimized={Boolean(typeof item === 'string' && item.includes("scryfall"))}
                         />
                       </button>
                     )) : (
@@ -208,6 +210,7 @@ const ShopDetails = () => {
                           height={50}
                           src={product.imageUrl || "/images/products/product-1-bg-1.png"}
                           alt="thumbnail"
+                          unoptimized={Boolean((product.imageUrl)?.includes("scryfall"))}
                         />
                       </button>
                     )}

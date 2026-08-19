@@ -61,6 +61,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
             height={350} 
             className="object-contain h-full w-full max-w-[200px]" 
             priority={false}
+            unoptimized={Boolean((item.imgs?.previews?.[0] || item.imageUrl)?.includes("scryfall"))}
           />
 
           {/* Out of Stock Overlay */}
