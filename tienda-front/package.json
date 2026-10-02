@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.5.0",
+    "@mercadopago/sdk-react": "^1.0.7",
     "@reduxjs/toolkit": "^2.6.1",
     "@types/papaparse": "^5.5.2",
     "autoprefixer": "10.4.15",

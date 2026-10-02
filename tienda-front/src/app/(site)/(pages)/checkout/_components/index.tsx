@@ -9,6 +9,9 @@ import { RootState } from "@/redux/store";
 
 import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
+import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+
+initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || 'TEST-dummy', { locale: 'es-CL' });
 
 type BillingData = {
   name: string;
@@ -86,16 +89,19 @@ const CheckoutWebpay = () => {
     setBilling((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePaymentSubmit = async (paymentFormData: any) => {
     setError(null);
 
     if (!billing.name || !billing.email) {
-      setError("Por favor completa tu nombre y correo electrónico.");
+      setError("Por favor completa tu nombre y correo electrónico en los datos de contacto.");
       return;
     }
     if (cartItems.length === 0) {
       setError("Tu carrito está vacío.");
+      return;
+    }
+    if (!selectedProvider) {
+      setError("Debes seleccionar un método de envío.");
       return;
     }
 
@@ -118,9 +124,14 @@ const CheckoutWebpay = () => {
           quantity: item.quantity,
           unitPrice: item.discountedPrice,
         })),
+        // Datos de Mercado Pago
+        token: paymentFormData.token,
+        issuer_id: paymentFormData.issuer_id,
+        payment_method_id: paymentFormData.payment_method_id,
+        installments: paymentFormData.installments,
       };
 
-      const res = await fetch(`${API_URL}/payments/init`, {
+      const res = await fetch(`${API_URL}/payments/process`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -129,26 +140,33 @@ const CheckoutWebpay = () => {
 
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.message ?? "Error al iniciar el pago");
+        throw new Error(errBody.message ?? "Error al procesar el pago");
       }
 
-      const data: { token: string; url: string } = await res.json();
-
-      // Redirigir a Webpay mediante un formulario POST (requerido por Transbank)
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = data.url;
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = "token_ws";
-      input.value = data.token;
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
+      const data = await res.json();
+      
+      // Redirigir según el estado del pago
+      const status = data.approved ? 'success' : 'failed';
+      router.push(`/checkout/result?status=${status}&orderId=${data.orderId}`);
+      
     } catch (err: any) {
-      setError(err.message ?? "Error desconocido");
+      setError(err.message ?? "Error desconocido al procesar el pago");
       setLoading(false);
     }
+  };
+
+  const initialization = {
+    amount: total + (shippingCost / currency.exchangeRate),
+    payer: {
+      email: billing.email || "test@test.com" // Provide fallback or actual email
+    }
+  };
+
+  const customization = {
+    paymentMethods: {
+      creditCard: "all",
+      debitCard: "all",
+    },
   };
 
   return (
@@ -156,7 +174,7 @@ const CheckoutWebpay = () => {
       <Breadcrumb title="Checkout" pages={["checkout"]} />
       <section className="overflow-hidden py-20 bg-[#222630]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          <form onSubmit={handleSubmit}>
+          <div>
             <div className="flex flex-col lg:flex-row gap-7.5 xl:gap-11">
               {/* ─── Formulario ─── */}
               <div className="lg:max-w-[670px] w-full">
@@ -264,32 +282,43 @@ const CheckoutWebpay = () => {
                       className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
-                </div>
-
-                {/* Banner Webpay */}
+                {/* Banner MP */}
                 <div className="bg-[#1a1d24] shadow-1 rounded-[10px] p-4 sm:p-8.5 mt-7.5">
                   <h3 className="font-medium text-xl text-white mb-4">
                     Método de pago
                   </h3>
-                  <div className="flex items-center gap-4 p-4 border-2 border-blue rounded-xl bg-blue/5">
+                  <div className="flex items-center gap-4 p-4 border-2 border-[#009EE3] rounded-xl bg-[#009EE3]/5">
                     <div className="flex-shrink-0">
-                      {/* Webpay logo placeholder */}
-                      <div className="w-16 h-10 bg-gradient-to-r from-[#E2001A] to-[#1A1446] rounded-md flex items-center justify-center">
-                        <span className="text-white text-xs font-bold tracking-tight">WEBPAY</span>
+                      <div className="w-16 h-10 bg-[#009EE3] rounded-md flex items-center justify-center">
+                        <span className="text-white text-xs font-bold tracking-tight">MP</span>
                       </div>
                     </div>
                     <div>
-                      <p className="font-semibold text-white">Webpay Plus</p>
+                      <p className="font-semibold text-white">Mercado Pago</p>
                       <p className="text-sm text-gray-4">
-                        Paga con tarjeta de débito o crédito de forma segura. Serás redirigido al portal de Transbank.
+                        Pago seguro con tarjeta de crédito o débito.
                       </p>
                     </div>
                   </div>
+                  
+                  <div className="mt-6">
+                    {/* Render Mercado Pago Brick */}
+                    {total > 0 && selectedProvider && (
+                      <Payment
+                        initialization={initialization}
+                        customization={customization as any}
+                        onSubmit={async (param) => {
+                          await handlePaymentSubmit(param.formData);
+                        }}
+                      />
+                    )}
+                  </div>
+
                   <p className="mt-3 text-xs text-gray-4 flex items-center gap-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
                     </svg>
-                    Transacción segura con encriptación SSL 256 bits
+                    Transacción segura con Mercado Pago
                   </p>
                 </div>
               </div>
@@ -389,33 +418,10 @@ const CheckoutWebpay = () => {
                   </div>
                 )}
 
-                {/* Botón pagar */}
-                <button
-                  type="submit"
-                  disabled={loading || cartItems.length === 0 || !selectedProvider}
-                  className="w-full flex items-center justify-center gap-3 font-semibold text-white bg-gradient-to-r from-[#E2001A] to-[#1A1446] py-4 px-6 rounded-xl mt-7.5 transition-all duration-300 hover:opacity-90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Redirigiendo a Webpay...
-                    </>
-                  ) : (
-                    <>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                        <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
-                      </svg>
-                      Pagar con Webpay · {formatPrice(total + (shippingCost / currency.exchangeRate), currency)}
-                    </>
-                  )}
-                </button>
+                {/* Botón pagar removido porque Brick lo provee */}
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </section>
     </>

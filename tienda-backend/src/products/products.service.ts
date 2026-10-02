@@ -63,8 +63,16 @@ export class ProductsService {
   }
 
   async bulkPublishStoreInventory(userId: string) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true } });
+    const store = await this.prisma.store.findUnique({ 
+      where: { ownerId: userId }, 
+      include: { subscriptionPlans: true, settings: true } 
+    });
     if (!store) throw new BadRequestException('Tienda no encontrada.');
+
+    const mpSettingsCount = store.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length;
+    if (mpSettingsCount < 2) {
+      throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder vender.');
+    }
 
     const skuLimit = store.subscriptionPlans?.[0]?.skuLimit ?? -1;
     if (skuLimit !== -1) {
@@ -82,9 +90,16 @@ export class ProductsService {
   }
 
   async bulkUpload(categoryId: string, items: any[], userId: string) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true } });
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true, settings: true } });
     const storeId = store?.id;
     const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
+
+    if (store) {
+      const mpSettingsCount = store.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length;
+      if (mpSettingsCount < 2) {
+        throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder vender.');
+      }
+    }
 
     let skuLimit = -1;
     let currentCount = 0;
@@ -802,8 +817,14 @@ export class ProductsService {
     if (!exists && storeId) {
       const store = await this.prisma.store.findUnique({
         where: { id: storeId },
-        include: { subscriptionPlans: true }
+        include: { subscriptionPlans: true, settings: true }
       });
+      
+      const mpSettingsCount = store?.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length || 0;
+      if (mpSettingsCount < 2) {
+        throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder empezar a vender.');
+      }
+
       const skuLimit = store?.subscriptionPlans?.[0]?.skuLimit ?? -1;
       if (skuLimit !== -1) {
         const currentCount = await this.prisma.inventoryItem.count({ where: { storeId } });

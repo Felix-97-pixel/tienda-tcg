@@ -72,4 +72,21 @@ export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   shippingProviderId: string;
+
+  // Mercado Pago Fields for Custom Checkout
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+
+  @IsString()
+  @IsOptional()
+  issuer_id?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  payment_method_id: string;
+
+  @IsNumber()
+  @Min(1)
+  installments: number;
 }

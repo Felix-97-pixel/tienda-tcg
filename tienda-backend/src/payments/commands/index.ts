@@ -1,7 +1,5 @@
-import { InitTransactionHandler } from './handlers/init-transaction.handler';
-import { CommitTransactionHandler } from './handlers/commit-transaction.handler';
+import { ProcessPaymentHandler } from './handlers/process-payment.handler';
 
 export const CommandHandlers = [
-  InitTransactionHandler,
-  CommitTransactionHandler,
+  ProcessPaymentHandler,
 ];

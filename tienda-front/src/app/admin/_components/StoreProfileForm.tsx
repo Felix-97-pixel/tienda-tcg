@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +27,21 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
     availablePlans,
     saveProfile,
   } = useStoreProfile(storeId);
+
+  const [mpStatus, setMpStatus] = useState<{ linked: boolean; mpUserId: string | null } | null>(null);
+
+  useEffect(() => {
+    if (storeId === "me") {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/payments/mp/status`, { credentials: "include" })
+        .then(res => res.json())
+        .then(data => {
+          if (data && typeof data.isConfigured !== 'undefined') {
+            setMpStatus({ linked: data.isConfigured, mpUserId: null });
+          }
+        })
+        .catch(err => console.error("Error fetching MP status:", err));
+    }
+  }, [storeId]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,6 +248,47 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     onChange={(values) => setFormData(prev => ({ ...prev, customFeatureIds: values }))}
                     badgeColor="emerald"
                   />
+                </div>
+              </>
+            )}
+
+            {/* Mercado Pago Integration (Solo visible para Admin propio) */}
+            {storeId === "me" && (
+              <>
+                <div className="flex items-center gap-4 mb-6 mt-10">
+                  <div className="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center shadow-inner">
+                    <svg className="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Pagos y Cobros</h2>
+                    <p className="text-xs text-gray-4 font-medium mt-1">Vincula tu cuenta de Mercado Pago para recibir el dinero de tus ventas directamente.</p>
+                  </div>
+                </div>
+
+                <div className="bg-[#111318] border border-stroke p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Cuenta de Mercado Pago</h4>
+                    {mpStatus?.linked ? (
+                      <p className="text-sm text-green-400 font-medium flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                        Vinculada y activa para recibir pagos
+                      </p>
+                    ) : (
+                      <p className="text-sm text-red font-medium flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        No vinculada. Debes vincularla para poder vender.
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant={mpStatus?.linked ? "secondary" : "primary"}
+                    onClick={() => {
+                      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/payments/mp/connect`;
+                    }}
+                  >
+                    {mpStatus?.linked ? "Actualizar Vinculación" : "Vincular con Mercado Pago"}
+                  </Button>
                 </div>
               </>
             )}
