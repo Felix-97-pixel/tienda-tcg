@@ -282,6 +282,8 @@ const CheckoutWebpay = () => {
                       className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
                     />
                   </div>
+                </div>
+
                 {/* Banner MP */}
                 <div className="bg-[#1a1d24] shadow-1 rounded-[10px] p-4 sm:p-8.5 mt-7.5">
                   <h3 className="font-medium text-xl text-white mb-4">

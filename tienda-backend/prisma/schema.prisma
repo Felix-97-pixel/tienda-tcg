@@ -75,6 +75,7 @@ model Language {
 model Condition {
   id           String                      @id @default(uuid())
   name         String                      @unique // e.g., "near_mint", "poor"
+  displayName  String?
   items        InventoryItem[]
   devaluations StoreConditionDevaluation[]
   buyListItems BuyListItem[]

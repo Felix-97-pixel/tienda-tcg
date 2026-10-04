@@ -7,6 +7,7 @@ import { useModalContext } from "@/app/context/QuickViewModalContext";
 import { updateQuickView } from "@/redux/features/quickView-slice";
 import { addItemToCart } from "@/redux/features/cart-slice";
 import { addItemToWishlist } from "@/redux/features/wishlist-slice";
+import { updateproductDetails } from "@/redux/features/product-details";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import Link from "next/link";
@@ -23,6 +24,10 @@ const SingleListItem = ({ item }: { item: Product }) => {
   // update the QuickView state
   const handleQuickViewUpdate = () => {
     dispatch(updateQuickView({ ...item }));
+  };
+
+  const handleProductDetails = () => {
+    dispatch(updateproductDetails({ ...item }));
   };
 
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
@@ -105,17 +110,13 @@ const SingleListItem = ({ item }: { item: Product }) => {
               </svg>
             </button>
 
-            <button
-              onClick={() => handleAddToCart()}
-              disabled={item.stock === 0 || isMaxStockReached}
-              className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
-                item.stock === 0 || isMaxStockReached
-                  ? "bg-gray-4 cursor-not-allowed text-gray-4"
-                  : "text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
-              }`}
+            <Link
+              href={`/shop-details?id=${item.id}`}
+              onClick={() => handleProductDetails()}
+              className="inline-flex py-2.5 px-6 rounded-md ease-out duration-200 text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
             >
-              {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo alcanzado" : "Add to Cart")}
-            </button>
+              Ver vendedores
+            </Link>
 
             <button
               onClick={() => handleItemToWishList()}
@@ -144,7 +145,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
         <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center justify-center sm:justify-between py-5 px-4 sm:px-7.5 lg:pl-11 lg:pr-12">
           <div>
             <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
-              <Link href="/shop-details"> {item.title || item.name} </Link>
+              <Link href={`/shop-details?id=${item.id}`}> {item.title || item.name} </Link>
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">

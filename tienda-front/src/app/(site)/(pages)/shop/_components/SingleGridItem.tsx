@@ -108,16 +108,12 @@ const SingleGridItem = ({ item }: { item: Product }) => {
             </svg>
           </button>
 
-          <button
-            onClick={() => handleAddToCart()}
-            disabled={item.stock === 0 || isMaxStockReached}
-            className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${item.stock === 0 || isMaxStockReached
-                ? "bg-gray-4 cursor-not-allowed text-gray-4"
-                : "text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
-              }`}
+          <Link
+            href={`/shop-details?id=${item.id}`}
+            className="inline-flex py-2.5 px-6 rounded-md ease-out duration-200 text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
           >
-            {(item.stock === 0 || (item.items && item.items.length > 0 && item.items.every(i => i.stock === 0))) ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
-          </button>
+            Ver vendedores
+          </Link>
 
           <button
             onClick={() => handleItemToWishList()}
@@ -182,7 +178,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
       </div>
 
       <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
-        <Link href="/shop-details"> {item.title || item.name} </Link>
+        <Link href={`/shop-details?id=${item.id}`}> {item.title || item.name} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">

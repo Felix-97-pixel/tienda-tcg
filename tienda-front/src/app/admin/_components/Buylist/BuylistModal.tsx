@@ -224,7 +224,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
                 <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
                   <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
                   <td className="p-3 text-white">
-                    {item.condition?.name || "N/A"}
+                    {item.condition?.displayName || item.condition?.name || "N/A"}
                   </td>
                   <td className="p-3">
                     <input

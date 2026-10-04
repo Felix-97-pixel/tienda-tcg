@@ -104,16 +104,13 @@ const ProductItem = ({ item }: { item: Product }) => {
             </svg>
           </button>
 
-          <button
-            onClick={() => handleAddToCart()}
-            disabled={item.stock === 0 || isMaxStockReached}
-            className={`inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 ${item.stock === 0 || isMaxStockReached
-                ? "bg-gray-4 cursor-not-allowed text-gray-4"
-                : "bg-blue hover:bg-blue-dark"
-              }`}
+          <Link
+            href={`/shop-details?id=${item.id}`}
+            onClick={() => handleProductDetails()}
+            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 bg-blue hover:bg-blue-dark"
           >
-            {item.stock === 0 ? "Sin stock" : (isMaxStockReached ? "Máximo" : "Add to cart")}
-          </button>
+            Ver vendedores
+          </Link>
 
           <button
             onClick={() => handleItemToWishList()}
@@ -181,7 +178,7 @@ const ProductItem = ({ item }: { item: Product }) => {
         className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5"
         onClick={() => handleProductDetails()}
       >
-        <Link href="/shop-details"> {item.title || item.name} </Link>
+        <Link href={`/shop-details?id=${item.id}`}> {item.title || item.name} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">

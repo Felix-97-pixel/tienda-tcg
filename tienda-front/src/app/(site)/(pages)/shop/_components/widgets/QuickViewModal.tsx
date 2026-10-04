@@ -31,7 +31,7 @@ const QuickViewModal = () => {
 
   const getLangName = (i: any) => i.language?.name || (typeof i.language === 'string' ? i.language : null);
   const getFinishName = (i: any) => i.finish?.name || (typeof i.finish === 'string' ? i.finish : null);
-  const getCondName = (i: any) => i.condition_rel?.name || i.condition?.name || (typeof i.condition === 'string' ? i.condition : null);
+  const getCondName = (i: any) => i.condition_rel?.displayName || i.condition_rel?.name || i.condition?.displayName || i.condition?.name || (typeof i.condition === 'string' ? i.condition : null);
 
   const availableLanguages = useMemo(() => Array.from(new Set(originalProduct.items?.filter((i: any) => i.stock > 0).map(getLangName).filter(Boolean))) as string[], [originalProduct]);
   const availableFinishes = useMemo(() => Array.from(new Set(originalProduct.items?.filter((i: any) => i.stock > 0).map(getFinishName).filter(Boolean))) as string[], [originalProduct]);

@@ -64,7 +64,7 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white line-clamp-1">{item.product.name}</p>
-                    <p className="text-xs text-gray-4 line-clamp-1">{item.language?.name} • {item.condition?.name}</p>
+                    <p className="text-xs text-gray-4 line-clamp-1">{item.language?.name} • {item.condition?.displayName || item.condition?.name}</p>
                   </div>
                 </div>
                 <div className="col-span-4 text-right">

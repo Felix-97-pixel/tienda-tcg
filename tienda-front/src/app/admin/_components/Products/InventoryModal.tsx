@@ -26,7 +26,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
   const refreshProduct = async () => {
     try {
-      const res = await fetch(`${API_URL}/products/${product?.id}`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/products/${product?.id}?adminCatalog=true`, { credentials: "include" });
       const data = await res.json();
       if (res.ok) setProduct(data);
     } catch (err) {
@@ -50,27 +50,27 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   });
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && product) {
       fetch(`${API_URL}/products/meta/languages`).then(r => r.json()).then(setLanguages);
       fetch(`${API_URL}/products/meta/conditions`).then(r => r.json()).then(setConditions);
       // 1. Intentar extraer los acabados recomendados desde el catálogo global (marketPrices)
       let foundGlobalFinishes = false;
-      if (product?.marketPrices && product.marketPrices.length > 0) {
+      if (product.marketPrices && product.marketPrices.length > 0) {
         const uniqueFinishes = Array.from(new Map(
           product.marketPrices
-            .filter(mp => mp.finish)
-            .map(mp => [mp.finish!.id, mp.finish!])
+            .filter((mp: any) => mp.finish)
+            .map((mp: any) => [mp.finish!.id, mp.finish!])
         ).values());
 
         if (uniqueFinishes.length > 0) {
-          setFinishes(uniqueFinishes);
+          setFinishes(uniqueFinishes as { id: string, name: string }[]);
           foundGlobalFinishes = true;
         }
       }
 
-      // 2. Si no hay acabados definidos en el catálogo global, usar fallback de la API
+      // 2. Si no hay acabados definidos, usar fallback de la API con el juego correcto
       if (!foundGlobalFinishes) {
-        const gameString = product?.cardDetail?.game || product?.category?.name;
+        const gameString = (product?.cardDetail as any)?.gameRel?.name || (product?.cardDetail as any)?.game || product?.category?.name;
         if (gameString) {
           fetch(`${API_URL}/products/meta/finishes?game=${encodeURIComponent(gameString)}`)
             .then(r => r.json())
@@ -102,7 +102,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         await refreshProduct();
         onSuccess();
       } else {
-        showToast(t("inventory.errorAdd"), "error");
+        try {
+          const errorData = await res.json();
+          showToast(errorData.message || t("inventory.errorAdd"), "error");
+        } catch {
+          showToast(t("inventory.errorAdd"), "error");
+        }
       }
     } catch (err) {
       showToast(tc("networkError"), "error");
@@ -183,7 +188,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
             <SearchableSelect
-              options={conditions.map(c => ({ label: c.name, value: c.id }))}
+              options={conditions.map(c => ({ label: c.displayName || c.name, value: c.id }))}
               value={newVariation.conditionId}
               onChange={(val) => setNewVariation({ ...newVariation, conditionId: val })}
               placeholder={`${t("inventory.condition")}...`}
@@ -245,7 +250,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
                 <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
                   <td className="p-3 text-white">
-                    {item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).name : item.condition) || "N/A"}
+                    {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
                   </td>
                   <td className="p-3">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>

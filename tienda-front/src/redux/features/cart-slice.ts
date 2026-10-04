@@ -13,6 +13,8 @@ type CartItem = {
   quantity: number;
   inventoryItemId?: string;
   stock?: number;
+  storeId?: string;
+  storeName?: string;
   imgs?: {
     thumbnails: string[];
     previews: string[];
@@ -49,6 +51,8 @@ export const cart = createSlice({
           discountedPrice,
           inventoryItemId: action.payload.inventoryItemId,
           stock: actualStock,
+          storeId: action.payload.storeId,
+          storeName: action.payload.storeName,
           imgs,
         });
       }

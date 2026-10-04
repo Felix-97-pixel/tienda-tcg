@@ -528,7 +528,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all') {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all', adminCatalogStoreId?: string) {
     const skip = (page - 1) * limit;
 
     const whereClause: any = { isDeleted: false };
@@ -605,19 +605,22 @@ export class ProductsService {
         include: {
           category: true,
           brand: true,
-          cardDetail: true,
+          cardDetail: {
+            include: { gameRel: true }
+          },
           marketPrices: {
             include: { finish: true }
           },
           items: {
             where: {
-              ...(storeId ? { storeId } : {}),
+              ...((storeId || adminCatalogStoreId) ? { storeId: storeId || adminCatalogStoreId } : {}),
               ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {})
             },
             include: {
               language: true,
               condition: true,
-              finish: true
+              finish: true,
+              store: true
             }
           },
           buyListItems: buylistStoreId ? {
@@ -647,21 +650,25 @@ export class ProductsService {
   }
 
   // CAMBIO CLAVE: 'id' ahora es 'string' para aceptar UUIDs
-  async findOne(id: string) {
+  async findOne(id: string, adminCatalogStoreId?: string) {
     return this.prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
         brand: true,
-        cardDetail: true,
+        cardDetail: {
+          include: { gameRel: true }
+        },
         marketPrices: {
           include: { finish: true }
         },
         items: {
+          where: adminCatalogStoreId ? { storeId: adminCatalogStoreId } : undefined,
           include: {
             condition: true,
             language: true,
-            finish: true
+            finish: true,
+            store: true
           }
         },
       },
@@ -799,8 +806,8 @@ export class ProductsService {
         where: { id: userId },
         include: { store: true }
       });
-      if (user?.email !== 'f.pinto.97@gmail.com' && user?.store) {
-        storeId = user.store.id;
+      if (user?.store) {
+        storeId = storeId || user.store.id;
       }
     }
 
@@ -820,10 +827,10 @@ export class ProductsService {
         include: { subscriptionPlans: true, settings: true }
       });
       
-      const mpSettingsCount = store?.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length || 0;
-      if (mpSettingsCount < 2) {
-        throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder empezar a vender.');
-      }
+      // const mpSettingsCount = store?.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length || 0;
+      // if (mpSettingsCount < 2) {
+      //   throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder empezar a vender.');
+      // }
 
       const skuLimit = store?.subscriptionPlans?.[0]?.skuLimit ?? -1;
       if (skuLimit !== -1) {
@@ -867,5 +874,51 @@ export class ProductsService {
     });
   }
 
+  async migrateConditions() {
+    try {
+      const conditions = await this.prisma.condition.findMany();
+      const nm = conditions.find(c => c.name === 'NM');
+      const nearMint = conditions.find(c => c.name === 'near_mint');
 
+      if (nm && nearMint) {
+        await this.prisma.inventoryItem.updateMany({
+          where: { conditionId: nm.id },
+          data: { conditionId: nearMint.id }
+        });
+        await this.prisma.buyListItem.updateMany({
+          where: { conditionId: nm.id },
+          data: { conditionId: nearMint.id }
+        });
+        await this.prisma.storeConditionDevaluation.deleteMany({
+          where: { conditionId: nm.id }
+        });
+        await this.prisma.condition.delete({ where: { id: nm.id } });
+      }
+
+      const map: Record<string, string> = {
+        'near_mint': 'Near Mint',
+        'mint': 'Mint',
+        'light_played': 'Lightly Played',
+        'moderately_played': 'Moderately Played',
+        'heavily_played': 'Heavily Played',
+        'damaged': 'Damaged',
+        'poor': 'Poor',
+        'excellent': 'Excellent',
+        'good': 'Good',
+      };
+
+      for (const [name, displayName] of Object.entries(map)) {
+        await this.prisma.condition.upsert({
+          where: { name },
+          update: { displayName },
+          create: { name, displayName }
+        });
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      console.error(e);
+      return { success: false, error: e.message };
+    }
+  }
 }

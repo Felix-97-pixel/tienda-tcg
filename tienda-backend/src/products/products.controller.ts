@@ -195,7 +195,15 @@ export class ProductsController {
     if (isTcg === 'true') isTcgBool = true;
     if (isTcg === 'false') isTcgBool = false;
 
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState);
+    let adminCatalogStoreId: string | undefined;
+    if (isAdminCatalog) {
+      const tokenStoreId = await this.getStoreIdFromToken(req);
+      if (tokenStoreId) {
+        adminCatalogStoreId = tokenStoreId;
+      }
+    }
+
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState, adminCatalogStoreId);
   }
 
   @Get('meta/languages')
@@ -213,10 +221,21 @@ export class ProductsController {
     return this.productsService.getFinishes(game);
   }
 
+  @Get('migrate-conditions')
+  async migrateConditions() {
+    return this.productsService.migrateConditions();
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    // Sin el '+', pasamos el ID como el texto que es
-    return this.productsService.findOne(id);
+  async findOne(@Req() req: Request, @Param('id') id: string, @Query('adminCatalog') adminCatalog?: string) {
+    let adminCatalogStoreId: string | undefined;
+    if (adminCatalog === 'true') {
+      const tokenStoreId = await this.getStoreIdFromToken(req);
+      if (tokenStoreId) {
+        adminCatalogStoreId = tokenStoreId;
+      }
+    }
+    return this.productsService.findOne(id, adminCatalogStoreId);
   }
 
   @Patch(':id')
