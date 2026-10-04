@@ -111,7 +111,6 @@ const ShopDetails = () => {
         
         {/* Title Section */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white mb-2">{product.title || product.name}</h1>
           <p className="text-gray-4 text-sm">{typeof product.category === 'object' ? product.category?.name : (product.category || "General")}</p>
         </div>
 

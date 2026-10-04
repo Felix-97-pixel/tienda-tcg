@@ -39,7 +39,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   }, [initialProduct, isOpen]);
 
   const [languages, setLanguages] = useState<{ id: string, name: string }[]>([]);
-  const [conditions, setConditions] = useState<{ id: string, name: string }[]>([]);
+  const [conditions, setConditions] = useState<{ id: string, name: string, displayName?: string | null }[]>([]);
   const [finishes, setFinishes] = useState<{ id: string, name: string }[]>([]);
   const [newVariation, setNewVariation] = useState({
     languageId: "",
@@ -165,90 +165,90 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
   return (
     <>
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={<>{t("inventory.title")} - <span className="text-blue">{product?.name}</span></>}
-      maxWidth="4xl"
-    >
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={<>{t("inventory.title")} - <span className="text-blue">{product?.name}</span></>}
+        maxWidth="4xl"
+      >
 
-      {/* Formulario Nueva Variación */}
-      <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
-        <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
-            <SearchableSelect
-              options={languages.map(l => ({ label: l.name, value: l.id }))}
-              value={newVariation.languageId}
-              onChange={(val) => setNewVariation({ ...newVariation, languageId: val })}
-              placeholder={`${t("inventory.language")}...`}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
-            <SearchableSelect
-              options={conditions.map(c => ({ label: c.displayName || c.name, value: c.id }))}
-              value={newVariation.conditionId}
-              onChange={(val) => setNewVariation({ ...newVariation, conditionId: val })}
-              placeholder={`${t("inventory.condition")}...`}
-            />
-          </div>
-          <div>
-            <Input
-              label={t("inventory.price")}
-              type="number"
-              value={newVariation.price}
-              onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
-            />
-          </div>
-          <div>
-            <Input
-              label={t("inventory.stock")}
-              type="number"
-              value={newVariation.stock}
-              onChange={(e) => setNewVariation({ ...newVariation, stock: Number(e.target.value) })}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
-            <SearchableSelect
-              options={finishes.map(f => ({ label: f.name, value: f.id }))}
-              value={newVariation.finishId}
-              onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
-              placeholder="Acabado..."
-            />
-          </div>
-          <div className="flex flex-col justify-end">
-            <Button
-              variant="success"
-              onClick={handleAddVariation}
-              fullWidth
-            >
-              {t("inventory.add")}
-            </Button>
+        {/* Formulario Nueva Variación */}
+        <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
+          <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
+              <SearchableSelect
+                options={languages.map(l => ({ label: l.name, value: l.id }))}
+                value={newVariation.languageId}
+                onChange={(val) => setNewVariation({ ...newVariation, languageId: val })}
+                placeholder={`${t("inventory.language")}...`}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
+              <SearchableSelect
+                options={conditions.map(c => ({ label: c.displayName || c.name, value: c.id }))}
+                value={newVariation.conditionId}
+                onChange={(val) => setNewVariation({ ...newVariation, conditionId: val })}
+                placeholder={`${t("inventory.condition")}...`}
+              />
+            </div>
+            <div>
+              <Input
+                label={t("inventory.price")}
+                type="number"
+                value={newVariation.price}
+                onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
+              />
+            </div>
+            <div>
+              <Input
+                label={t("inventory.stock")}
+                type="number"
+                value={newVariation.stock}
+                onChange={(e) => setNewVariation({ ...newVariation, stock: Number(e.target.value) })}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
+              <SearchableSelect
+                options={finishes.map(f => ({ label: f.name, value: f.id }))}
+                value={newVariation.finishId}
+                onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
+                placeholder="Acabado..."
+              />
+            </div>
+            <div className="flex flex-col justify-end">
+              <Button
+                variant="success"
+                onClick={handleAddVariation}
+                fullWidth
+              >
+                {t("inventory.add")}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Tabla de Variaciones Actuales */}
-      <div className="overflow-x-auto rounded-xl border border-stroke">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="bg-[#111318] border-b border-stroke">
-              <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
-              <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
-              <th className="p-3 font-bold text-gray-4">Acabado</th>
-              <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
-              <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
-              <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
-              <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {product.items?.map((item: InventoryItem) => (
+        {/* Tabla de Variaciones Actuales */}
+        <div className="overflow-x-auto rounded-xl border border-stroke">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="bg-[#111318] border-b border-stroke">
+                <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
+                <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
+                <th className="p-3 font-bold text-gray-4">Acabado</th>
+                <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
+                <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
+                <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
+                <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {product.items?.map((item: InventoryItem) => (
                 <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
-                <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
+                  <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
                   <td className="p-3 text-white">
                     {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
                   </td>
@@ -287,20 +287,20 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     </Button>
                   </td>
                 </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="mt-8 flex justify-end">
-        <Button
-          variant="secondary"
-          onClick={onClose}
-        >
-          {tc("close")}
-        </Button>
-      </div>
-    </Modal>
+        <div className="mt-8 flex justify-end">
+          <Button
+            variant="secondary"
+            onClick={onClose}
+          >
+            {tc("close")}
+          </Button>
+        </div>
+      </Modal>
 
       {/* Modal de confirmación de eliminación */}
       <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirmar Eliminación">

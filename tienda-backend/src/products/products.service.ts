@@ -63,9 +63,9 @@ export class ProductsService {
   }
 
   async bulkPublishStoreInventory(userId: string) {
-    const store = await this.prisma.store.findUnique({ 
-      where: { ownerId: userId }, 
-      include: { subscriptionPlans: true, settings: true } 
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: userId },
+      include: { subscriptionPlans: true, settings: true }
     });
     if (!store) throw new BadRequestException('Tienda no encontrada.');
 
@@ -578,7 +578,7 @@ export class ProductsService {
       if (isBuylistActiveFilter !== undefined) {
         buylistCondition.isActive = isBuylistActiveFilter;
       }
-      
+
       // Si ya hay un filtro en whereClause (ej: items), lo metemos usando AND o agregamos buyListItems
       whereClause.buyListItems = { some: buylistCondition };
     }
@@ -826,7 +826,7 @@ export class ProductsService {
         where: { id: storeId },
         include: { subscriptionPlans: true, settings: true }
       });
-      
+
       // const mpSettingsCount = store?.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length || 0;
       // if (mpSettingsCount < 2) {
       //   throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder empezar a vender.');
@@ -874,51 +874,4 @@ export class ProductsService {
     });
   }
 
-  async migrateConditions() {
-    try {
-      const conditions = await this.prisma.condition.findMany();
-      const nm = conditions.find(c => c.name === 'NM');
-      const nearMint = conditions.find(c => c.name === 'near_mint');
-
-      if (nm && nearMint) {
-        await this.prisma.inventoryItem.updateMany({
-          where: { conditionId: nm.id },
-          data: { conditionId: nearMint.id }
-        });
-        await this.prisma.buyListItem.updateMany({
-          where: { conditionId: nm.id },
-          data: { conditionId: nearMint.id }
-        });
-        await this.prisma.storeConditionDevaluation.deleteMany({
-          where: { conditionId: nm.id }
-        });
-        await this.prisma.condition.delete({ where: { id: nm.id } });
-      }
-
-      const map: Record<string, string> = {
-        'near_mint': 'Near Mint',
-        'mint': 'Mint',
-        'light_played': 'Lightly Played',
-        'moderately_played': 'Moderately Played',
-        'heavily_played': 'Heavily Played',
-        'damaged': 'Damaged',
-        'poor': 'Poor',
-        'excellent': 'Excellent',
-        'good': 'Good',
-      };
-
-      for (const [name, displayName] of Object.entries(map)) {
-        await this.prisma.condition.upsert({
-          where: { name },
-          update: { displayName },
-          create: { name, displayName }
-        });
-      }
-
-      return { success: true };
-    } catch (e: any) {
-      console.error(e);
-      return { success: false, error: e.message };
-    }
-  }
 }

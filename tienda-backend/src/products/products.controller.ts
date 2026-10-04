@@ -190,7 +190,7 @@ export class ProductsController {
     const limitNumber = limit ? parseInt(limit, 10) : 50;
     const state = publishState || 'all';
     const bState = buylistState || 'all';
-    
+
     let isTcgBool: boolean | undefined = undefined;
     if (isTcg === 'true') isTcgBool = true;
     if (isTcg === 'false') isTcgBool = false;
@@ -219,11 +219,6 @@ export class ProductsController {
   @Get('meta/finishes')
   getFinishes(@Query('game') game?: string) {
     return this.productsService.getFinishes(game);
-  }
-
-  @Get('migrate-conditions')
-  async migrateConditions() {
-    return this.productsService.migrateConditions();
   }
 
   @Get(':id')
