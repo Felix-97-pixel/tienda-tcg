@@ -1,15 +1,18 @@
 import Link from "next/link";
 import React from "react";
 
-const Breadcrumb = ({ title, pages, hidePadding = false }: { title: string, pages: string[], hidePadding?: boolean }) => {
+const Breadcrumb = ({ title, pages, hidePadding = false, subtitle }: { title: string, pages: string[], hidePadding?: boolean, subtitle?: React.ReactNode }) => {
   return (
     <div className={`overflow-hidden shadow-breadcrumb ${hidePadding ? "pt-0" : "pt-[209px] sm:pt-[155px] lg:pt-[95px] xl:pt-[165px]"}`}>
       <div className="border-t border-white/10">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0 py-5 xl:py-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h1 className="font-semibold text-white text-xl sm:text-2xl xl:text-custom-2">
-              {title}
-            </h1>
+            <div>
+              <h1 className="font-semibold text-white text-xl sm:text-2xl xl:text-custom-2">
+                {title}
+              </h1>
+              {subtitle && <div className="mt-2 text-sm text-gray-4">{subtitle}</div>}
+            </div>
 
             <ul className="flex items-center gap-2">
               <li className="text-custom-sm hover:text-blue">

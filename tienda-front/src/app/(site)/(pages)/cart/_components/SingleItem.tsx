@@ -40,9 +40,13 @@ const SingleItem = ({ item }) => {
             </div>
 
             <div>
-              <h3 className="text-white ease-out duration-200 hover:text-blue">
+              <h3 className="text-white ease-out duration-200 hover:text-blue mb-1">
                 <a href="#"> {item.title} </a>
               </h3>
+              <p className="text-xs text-gray-4 mb-1">
+                {item.condition} {item.finish !== "Non-foil" ? item.finish : ""} • {item.language}
+              </p>
+              <p className="text-xs text-blue">Sold by {item.storeName || "Unknown"}</p>
             </div>
           </div>
         </div>

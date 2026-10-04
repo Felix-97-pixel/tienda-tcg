@@ -119,7 +119,7 @@ export default function GlobalCatalogSearchModal({ isOpen, onClose, onSelectProd
             maxWidth: '280px'
           }}
         >
-          <Image src={hoveredImage} alt="Preview" width={280} height={390} className="w-full h-auto object-contain" priority />
+          <Image src={hoveredImage} alt="Preview" width={280} height={390} className="w-full h-auto object-contain" priority unoptimized={hoveredImage.includes("scryfall")} />
         </div>
       )}
     </Modal>

@@ -34,7 +34,7 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
             onMouseLeave={() => setHoveredImage(null)}
           >
             {product.imageUrl 
-              ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" />
+              ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" unoptimized={product.imageUrl.includes("scryfall")} />
               : <span className="text-[10px] text-gray-5 flex h-full items-center justify-center font-bold uppercase">Sin Imagen</span>
             }
           </div>
@@ -111,7 +111,7 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
             maxWidth: '280px'
           }}
         >
-          <Image src={hoveredImage} alt="Preview" width={280} height={390} className="w-full h-auto object-contain" priority />
+          <Image src={hoveredImage} alt="Preview" width={280} height={390} className="w-full h-auto object-contain" priority unoptimized={hoveredImage.includes("scryfall")} />
         </div>
       )}
 

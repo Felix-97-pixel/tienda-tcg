@@ -37,6 +37,10 @@ const SingleItem = ({ item, removeItemFromCart }) => {
           <h3 className="font-medium text-white mb-1 ease-out duration-200 hover:text-blue">
             <a href="#"> {item.title} </a>
           </h3>
+          <p className="text-xs text-gray-4 mb-1">
+            {item.condition} {item.finish !== "Non-foil" ? item.finish : ""} • {item.language}
+          </p>
+          <p className="text-xs text-blue mb-2">Sold by {item.storeName || "Unknown"}</p>
           <p className="text-custom-sm mb-2">{t("price")}: ${item.discountedPrice}</p>
           
           <div className="w-max flex items-center rounded-md border border-white/10">

@@ -50,7 +50,7 @@ const CartSidebarModal = () => {
             <button
               onClick={() => closeCartModal()}
               aria-label="button for close modal"
-              className="flex items-center justify-center ease-in duration-150 bg-meta text-gray-5 hover:text-white"
+              className="flex items-center justify-center ease-in duration-150 bg-transparent text-gray-5 hover:text-white"
             >
               <svg
                 className="fill-current"
@@ -109,7 +109,7 @@ const CartSidebarModal = () => {
 
               <Link
                 href="/checkout"
-                className="w-full flex justify-center font-medium text-white bg-dark py-[13px] px-6 rounded-md ease-out duration-200 hover:bg-opacity-95"
+                className="w-full flex justify-center font-medium text-white bg-[#111318] border border-white/10 py-[13px] px-6 rounded-md ease-out duration-200 hover:bg-opacity-95 hover:border-white/20"
               >
                 Checkout
               </Link>

@@ -138,10 +138,10 @@ const Header = () => {
               {/* <!-- Search Bar Capsule --> */}
               <div className="md:col-span-6 xl:flex-1 xl:max-w-[600px] w-full min-w-0">
                 <form>
-                  <div className="flex items-center bg-[#1a1d24] rounded-md shadow-sm border border-[#e5e7eb]">
+                  <div className="flex items-center bg-[#111318] rounded-md border border-white/10">
                     <CustomSelect options={categoriesData} />
                     <div className="relative flex-1 w-full">
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-[#2a2d36]"></span>
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 inline-block w-px h-5.5 bg-white/10"></span>
                       <input
                       onChange={(e) => setSearchQuery(e.target.value)}
                       value={searchQuery}

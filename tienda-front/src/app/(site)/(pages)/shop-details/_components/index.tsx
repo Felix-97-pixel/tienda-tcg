@@ -70,7 +70,8 @@ const ShopDetails = () => {
   const handleAddToCart = (item: InventoryItem, qty: number) => {
     if (!product) return;
     const cartItem = {
-      id: product.id,
+      id: item.id,
+      productId: product.id,
       title: product.title || product.name,
       price: Number(item.price),
       discountedPrice: Number(item.price),
@@ -83,6 +84,10 @@ const ShopDetails = () => {
       },
       storeId: item.store?.id,
       storeName: item.store?.name,
+      language: item.language?.name || item.languageId,
+      condition: item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any)?.displayName || (item.condition as any)?.name : item.condition),
+      finish: item.finish?.name || item.finishId,
+      inventoryItemId: item.id,
     };
     dispatch(addItemToCart(cartItem));
     showToast(`${qty}x ${product.title || product.name} agregado al carrito`, "success");
@@ -105,14 +110,15 @@ const ShopDetails = () => {
 
   return (
     <div className="bg-[#111318] min-h-screen pb-20">
-      <Breadcrumb title={product.title || product.name || "Detalles"} pages={["shop", "details"]} />
+      <Breadcrumb 
+        title={product.title || product.name || "Detalles"} 
+        subtitle={typeof product.category === 'object' ? product.category?.name : (product.category || "General")}
+        pages={["shop", "details"]} 
+      />
 
       <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0 pt-10">
         
-        {/* Title Section */}
-        <div className="mb-6">
-          <p className="text-gray-4 text-sm">{typeof product.category === 'object' ? product.category?.name : (product.category || "General")}</p>
-        </div>
+
 
         {/* 3 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -167,7 +173,7 @@ const ShopDetails = () => {
                 <div className="flex gap-3 mb-4">
                   <select 
                     id="featured-qty"
-                    className="bg-[#111318] border border-white/10 rounded-md text-white px-3 py-2 outline-none w-20"
+                    className="bg-[#111318] border border-white/10 rounded-md text-white pl-3 pr-8 py-2 outline-none w-20 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1em_1em] bg-[position:right_0.75rem_center] bg-no-repeat"
                   >
                     {[...Array(Math.min(10, lowestPriceItem.stock))].map((_, i) => (
                       <option key={i+1} value={i+1}>{i+1}</option>
@@ -238,7 +244,7 @@ const ShopDetails = () => {
                       <td className="py-4 px-4 text-right flex items-center justify-end gap-2">
                         <select 
                           id={`qty-${item.id}`}
-                          className="bg-[#111318] border border-white/10 rounded-md text-white px-2 py-2 outline-none w-16 text-sm"
+                          className="bg-[#111318] border border-white/10 rounded-md text-white pl-3 pr-8 py-2 outline-none w-16 text-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1em_1em] bg-[position:right_0.5rem_center] bg-no-repeat"
                         >
                           {[...Array(Math.min(10, item.stock))].map((_, i) => (
                             <option key={i+1} value={i+1}>{i+1}</option>

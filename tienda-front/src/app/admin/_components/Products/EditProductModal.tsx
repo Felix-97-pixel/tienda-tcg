@@ -138,7 +138,7 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border-2 border-dashed border-stroke flex items-center justify-center">
                   {form.imageUrl ? (
                     <div className="relative h-full w-full group">
-                      <Image src={form.imageUrl} alt="Preview" fill className="object-cover" />
+                      <Image src={form.imageUrl} alt="Preview" fill className="object-cover" unoptimized={form.imageUrl.includes("scryfall")} />
                       <button
                         onClick={() => { handleRemove(form.imageUrl); setForm({ ...form, imageUrl: "" }); }}
                         className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"

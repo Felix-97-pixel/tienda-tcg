@@ -15,6 +15,10 @@ type CartItem = {
   stock?: number;
   storeId?: string;
   storeName?: string;
+  productId?: string;
+  language?: string;
+  condition?: string;
+  finish?: string;
   imgs?: {
     thumbnails: string[];
     previews: string[];
@@ -30,7 +34,7 @@ export const cart = createSlice({
   initialState,
   reducers: {
     addItemToCart: (state, action: PayloadAction<CartItem>) => {
-      const { id, title, price, quantity, discountedPrice, imgs, stock } =
+      const { id, title, price, quantity, discountedPrice, imgs, stock, productId, language, condition, finish } =
         action.payload;
       const existingItem = state.items.find((item) => item.id === id);
       
@@ -45,6 +49,7 @@ export const cart = createSlice({
       } else {
         state.items.push({
           id,
+          productId,
           title,
           price,
           quantity: quantity > actualStock ? actualStock : quantity,
@@ -53,6 +58,9 @@ export const cart = createSlice({
           stock: actualStock,
           storeId: action.payload.storeId,
           storeName: action.payload.storeName,
+          language,
+          condition,
+          finish,
           imgs,
         });
       }
