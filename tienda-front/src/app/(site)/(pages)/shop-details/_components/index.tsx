@@ -9,6 +9,7 @@ import { Product } from "@/types/product";
 import { InventoryItem } from "@/types/inventoryItem";
 
 import { API_URL } from "@/utils/api";
+import { calculateCommissions } from "@/utils/commissions";
 import { useToast } from "@/hooks/useToast";
 
 const ShopDetails = () => {
@@ -67,14 +68,21 @@ const ShopDetails = () => {
     }
   }, [product, isMounted]);
 
+  
+  const getFinalPrice = (item: InventoryItem | any) => {
+    const storePlan = item.store?.subscriptionPlans?.[0];
+    const rate = storePlan ? Number(storePlan.commissionRate) : 0.05;
+    return calculateCommissions(Number(item.price), rate).gross;
+  };
+
   const handleAddToCart = (item: InventoryItem, qty: number) => {
     if (!product) return;
     const cartItem = {
       id: item.id,
       productId: product.id,
       title: product.title || product.name,
-      price: Number(item.price),
-      discountedPrice: Number(item.price),
+      price: getFinalPrice(item),
+      discountedPrice: getFinalPrice(item),
       quantity: qty,
       stock: item.stock,
       status: "available",
@@ -105,7 +113,7 @@ const ShopDetails = () => {
 
   // Helper variables
   const items = product.items || [];
-  const lowestPriceItem = items.length > 0 ? [...items].sort((a, b) => Number(a.price) - Number(b.price))[0] : null;
+  const lowestPriceItem = items.length > 0 ? [...items].sort((a, b) => getFinalPrice(a) - getFinalPrice(b))[0] : null;
   const imageSrc = product.imgs?.previews?.[0] || product.imageUrl || "/images/products/product-1-bg-1.png";
 
   return (
@@ -161,7 +169,7 @@ const ShopDetails = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-medium text-white">{(lowestPriceItem.condition_rel as any)?.displayName || lowestPriceItem.condition_rel?.name || (typeof lowestPriceItem.condition === 'object' ? (lowestPriceItem.condition as any)?.displayName || (lowestPriceItem.condition as any)?.name : lowestPriceItem.condition) || "Near Mint"} {lowestPriceItem.finish?.name || ""}</h3>
-                    <div className="text-2xl font-bold text-green-500 mt-1">${(Number(lowestPriceItem.price)).toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-green-500 mt-1">${(getFinalPrice(lowestPriceItem)).toFixed(2)}</div>
                     <p className="text-xs text-gray-4 mt-1">Shipping: Included</p>
                   </div>
                 </div>
@@ -196,7 +204,7 @@ const ShopDetails = () => {
                     className="text-sm font-medium text-white border border-white/20 hover:border-white/50 rounded-md py-2 px-4 w-full transition-colors"
                   >
                     View {items.length} Other Listing{items.length !== 1 ? 's' : ''}
-                    <br/><span className="text-xs text-gray-4 font-normal">As low as ${(Number(lowestPriceItem.price)).toFixed(2)}</span>
+                    <br/><span className="text-xs text-gray-4 font-normal">As low as ${(getFinalPrice(lowestPriceItem)).toFixed(2)}</span>
                   </button>
                 </div>
               </div>
@@ -227,10 +235,10 @@ const ShopDetails = () => {
               </thead>
               <tbody>
                 {items.length > 0 ? (
-                  [...items].sort((a, b) => Number(a.price) - Number(b.price)).map((item, index) => (
+                  [...items].sort((a, b) => getFinalPrice(a) - getFinalPrice(b)).map((item, index) => (
                     <tr key={item.id || index} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="py-4 px-4">
-                        <div className="font-bold text-lg text-green-500">${(Number(item.price)).toFixed(2)}</div>
+                        <div className="font-bold text-lg text-green-500">${(getFinalPrice(item)).toFixed(2)}</div>
                         <div className="text-xs text-gray-5 mt-1">Shipping: Included</div>
                       </td>
                       <td className="py-4 px-4">
