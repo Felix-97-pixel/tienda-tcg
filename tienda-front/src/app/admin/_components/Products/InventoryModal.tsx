@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
+import { MP_COMMISSION } from "@/utils/constants";
+import { calculateCommissions } from "@/utils/commissions";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/ui/Modal";
@@ -22,6 +24,20 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const tc = useTranslations("common");
   const { showToast } = useToast();
   const [product, setProduct] = useState(initialProduct);
+  const [storeCommissionRate, setStoreCommissionRate] = useState(0.05);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetch(`${API_URL}/stores/me`, { credentials: "include" })
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.subscriptionPlans && data.subscriptionPlans.length > 0) {
+            setStoreCommissionRate(Number(data.subscriptionPlans[0].commissionRate));
+          }
+        })
+        .catch(err => console.error("Error fetching store commission rate:", err));
+    }
+  }, [isOpen]);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const refreshProduct = async () => {
@@ -48,6 +64,13 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     price: 0,
     stock: 0
   });
+
+    const formatPriceVal = (val: number) => {
+    if (!val) return "0";
+    return val.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  };
+
+  const currentCalc = calculateCommissions(newVariation.price, storeCommissionRate);
 
   useEffect(() => {
     if (isOpen && product) {
@@ -175,7 +198,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         {/* Formulario Nueva Variación */}
         <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
           <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
             <div>
               <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
               <SearchableSelect
@@ -195,8 +218,17 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               />
             </div>
             <div>
+              <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
+              <SearchableSelect
+                options={finishes.map(f => ({ label: f.name, value: f.id }))}
+                value={newVariation.finishId}
+                onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
+                placeholder="Acabado..."
+              />
+            </div>
+            <div>
               <Input
-                label={t("inventory.price")}
+                label="A Recibir (Limpio)"
                 type="number"
                 value={newVariation.price}
                 onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
@@ -210,21 +242,32 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 onChange={(e) => setNewVariation({ ...newVariation, stock: Number(e.target.value) })}
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
-              <SearchableSelect
-                options={finishes.map(f => ({ label: f.name, value: f.id }))}
-                value={newVariation.finishId}
-                onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
-                placeholder="Acabado..."
-              />
+          </div>
+
+          <div className="bg-[#1a1d24] rounded-xl p-4 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-6 text-sm">
+              <div>
+                <span className="block text-gray-4 text-xs mb-1">A Recibir</span>
+                <span className="text-white font-medium">${formatPriceVal(newVariation.price || 0)}</span>
+              </div>
+              <div className="text-gray-5 text-xl font-light">+</div>
+              <div>
+                <span className="block text-gray-4 text-xs mb-1">Com. Plataforma ({(storeCommissionRate * 100).toFixed(1)}%)</span>
+                <span className="text-red-400 font-medium">${formatPriceVal(currentCalc.taptrade)}</span>
+              </div>
+              <div className="text-gray-5 text-xl font-light">+</div>
+              <div>
+                <span className="block text-gray-4 text-xs mb-1">Com. MercadoPago (3.8%)</span>
+                <span className="text-red-400 font-medium">${formatPriceVal(currentCalc.mp)}</span>
+              </div>
+              <div className="text-gray-5 text-xl font-light">=</div>
+              <div>
+                <span className="block text-blue-400 text-xs mb-1 font-bold">Precio Final (Visible)</span>
+                <span className="text-blue-400 font-bold text-lg">${formatPriceVal(currentCalc.gross)}</span>
+              </div>
             </div>
-            <div className="flex flex-col justify-end">
-              <Button
-                variant="success"
-                onClick={handleAddVariation}
-                fullWidth
-              >
+            <div className="w-full md:w-auto min-w-[120px]">
+              <Button variant="success" onClick={handleAddVariation} fullWidth>
                 {t("inventory.add")}
               </Button>
             </div>
@@ -239,55 +282,66 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
                 <th className="p-3 font-bold text-gray-4">Acabado</th>
-                <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
+                <th className="p-3 font-bold text-gray-4">A Recibir</th>
+                <th className="p-3 font-bold text-gray-4">Comisiones</th>
+                <th className="p-3 font-bold text-blue-400">Precio Final</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
                 <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
                 <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
               </tr>
             </thead>
             <tbody>
-              {product.items?.map((item: InventoryItem) => (
-                <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
-                  <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
-                  <td className="p-3 text-white">
-                    {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
-                      {item.finish?.name || "Normal"}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <input
-                      type="number"
-                      className="w-20 rounded border border-stroke p-1 text-xs font-bold text-blue bg-transparent"
-                      defaultValue={item.price}
-                      onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
-                    />
-                  </td>
-                  <td className="p-3">
-                    <input
-                      type="number"
-                      className="w-16 rounded border border-stroke p-1 text-xs text-white bg-transparent"
-                      defaultValue={item.stock}
-                      onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
-                    />
-                  </td>
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all text-white ${item.isPublished ? "bg-green hover:bg-green-dark border border-green" : "bg-yellow hover:bg-yellow-dark border border-yellow"}`}
-                    >
-                      {item.isPublished ? "Publicado" : "Pausado"}
-                    </button>
-                  </td>
-                  <td className="p-3 text-center">
-                    <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {product.items?.map((item: InventoryItem) => {
+                const itemCalc = calculateCommissions(item.price, storeCommissionRate);
+                return (
+                  <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
+                    <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
+                    <td className="p-3 text-white">
+                      {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
+                    </td>
+                    <td className="p-3">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
+                        {item.finish?.name || "Normal"}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <input
+                        type="number"
+                        className="w-20 rounded border border-stroke p-1 text-xs font-bold text-white bg-[#1a1d24]"
+                        defaultValue={item.price}
+                        onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
+                      />
+                    </td>
+                    <td className="p-3 text-red-400 text-xs font-medium">
+                      ${formatPriceVal(itemCalc.totalCom)}
+                    </td>
+                    <td className="p-3 text-blue-400 font-bold">
+                      ${formatPriceVal(itemCalc.gross)}
+                    </td>
+                    <td className="p-3">
+                      <input
+                        type="number"
+                        className="w-16 rounded border border-stroke p-1 text-xs text-white bg-[#1a1d24]"
+                        defaultValue={item.stock}
+                        onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
+                      />
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all text-white ${item.isPublished ? "bg-green hover:bg-green-dark border border-green" : "bg-yellow hover:bg-yellow-dark border border-yellow"}`}
+                      >
+                        {item.isPublished ? "Publicado" : "Pausado"}
+                      </button>
+                    </td>
+                    <td className="p-3 text-center">
+                      <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
