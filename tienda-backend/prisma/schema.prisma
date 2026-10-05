@@ -19,6 +19,7 @@ model Game {
   expansions  Expansion[]
   finishes    Finish[]
   stores      Store[]      @relation("StoreGames")
+  storeExchangeRates StoreGameExchangeRate[]
 }
 
 model Category {
@@ -200,6 +201,7 @@ model Store {
   transactions   WalletTransaction[]
   withdrawals    WithdrawalRequest[]
   devaluations   StoreConditionDevaluation[]
+  gameExchangeRates StoreGameExchangeRate[]
 
   subscriptionPlans SubscriptionPlan[] @relation("StoreSubscriptionPlans")
 
@@ -490,4 +492,18 @@ model StoreCreditTransaction {
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StoreGameExchangeRate {
+  id        String   @id @default(uuid())
+  storeId   String
+  gameId    String
+  rate      Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  game  Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, gameId])
 }

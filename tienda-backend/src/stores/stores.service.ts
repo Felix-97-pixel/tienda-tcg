@@ -19,7 +19,8 @@ export class StoresService {
         address: true,
         latitude: true,
         longitude: true,
-        settings: true,
+                settings: true,
+        gameExchangeRates: true,
       }
     });
 
@@ -34,11 +35,13 @@ export class StoresService {
     const store = await this.prisma.store.findUnique({
       where: { ownerId: userId },
       include: {
-        settings: true,
+                settings: true,
+        gameExchangeRates: true,
         subscriptionPlans: {
           include: { features: true }
         },
         customFeatures: true,
+        gameExchangeRates: true,
       }
     });
 
@@ -55,6 +58,7 @@ export class StoresService {
       include: {
         subscriptionPlans: { include: { features: true } },
         customFeatures: true,
+        gameExchangeRates: true,
       }
     });
   }
@@ -65,6 +69,7 @@ export class StoresService {
       include: {
         subscriptionPlans: { include: { features: true } },
         customFeatures: true,
+        gameExchangeRates: true,
       }
     });
 
@@ -81,9 +86,11 @@ export class StoresService {
     const store = await this.prisma.store.findUnique({
       where: { id },
       include: {
-        settings: true,
+                settings: true,
+        gameExchangeRates: true,
         subscriptionPlans: { include: { features: true } },
         customFeatures: true,
+        gameExchangeRates: true,
       }
     });
 
