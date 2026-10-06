@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/Input";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { CheckboxList, CheckboxItem } from "@/components/ui/CheckboxList";
 
+import { API_URL } from "@/utils/api";
+import { useToast } from "@/hooks/useToast";
+
 const SCOPE_OPTIONS = [
   { label: "Toda la Tienda", value: "STORE_WIDE" },
   { label: "Categorías Específicas", value: "CATEGORY_SPECIFIC" },
   { label: "Juegos Específicos", value: "GAME_SPECIFIC" },
 ];
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
 
 interface CouponModalProps {
   isOpen: boolean;
