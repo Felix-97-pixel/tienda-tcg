@@ -57,3 +57,23 @@ Una tienda desea recibir **$1.800 CLP libres** por una carta. Su plan de tienda 
 - **La Tienda Recibe:** $1.950 - $74,10 - $58,50 - $17,40 = **$1.800 CLP exactos**.
 
 Esta metodología asegura una contabilidad predecible para todas las partes involucradas.
+
+---
+
+## 5. Cupones de Descuento (Promociones)
+
+Las tiendas tienen la capacidad de crear cupones de descuento (porcentaje) con validez temporal, aplicables a toda la tienda, a categorías específicas o juegos específicos.
+
+### Principios de los Cupones
+1. **El Costo lo Asume la Tienda:** El porcentaje de descuento se asume como una rebaja del Precio Visible, lo que significa que la tienda ganará menos por la venta.
+2. **Re-Cálculo de Comisiones:** Cuando un cliente aplica un cupón, el **Precio Visible** se reduce. Por ende, tanto la comisión de MercadoPago (3.8%) como la comisión de Taptrade (ej. 3.0%) se calcularán sobre el **nuevo Precio Visible con Descuento**. Taptrade no cobra comisiones por el dinero que el cliente "se ahorró".
+
+### Fórmulas con Cupón (Continuando el Ejemplo de $1.950 CLP visible)
+Si el cliente aplica un cupón del **10% de descuento**:
+
+- **Nuevo Precio Visible (con cupón):** $1.950 * 0.90 = **$1.755 CLP**
+- **MercadoPago cobra (3.8%):** $66,69 CLP
+- **Taptrade cobra (3.0%):** $52,65 CLP
+- **La Tienda Recibe:** $1.755 - $66,69 - $52,65 = **$1.635,66 CLP**
+
+De esta manera, el sistema protege tanto los intereses de la tienda como los de la plataforma, cobrando tasas proporcionales a la transacción real final.

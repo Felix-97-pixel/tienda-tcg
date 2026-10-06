@@ -21,6 +21,7 @@ model Game {
   stores              Store[]                  @relation("StoreGames")
   storeExchangeRates  StoreGameExchangeRate[]
   globalExchangeRates GlobalGameExchangeRate[]
+  coupons             Coupon[]                 @relation("CouponGames")
 }
 
 model Category {
@@ -30,6 +31,7 @@ model Category {
   imageUrl String?
   isTcg    Boolean   @default(false)
   products Product[]
+  coupons  Coupon[]  @relation("CouponCategories")
 }
 
 model Brand {
@@ -210,6 +212,7 @@ model Store {
   buyListItems       BuyListItem[]
   storeCredits       StoreCredit[]
   creditTransactions StoreCreditTransaction[]
+  coupons            Coupon[]
 }
 
 model User {
@@ -523,4 +526,32 @@ model GlobalGameExchangeRate {
   currency Currency @relation(fields: [currencyCode], references: [code], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([gameId, currencyCode])
+}
+
+enum CouponScope {
+  STORE_WIDE
+  CATEGORY_SPECIFIC
+  GAME_SPECIFIC
+}
+
+model Coupon {
+  id              String   @id @default(uuid())
+  code            String
+  discountPercent Float
+  validFrom       DateTime
+  validUntil      DateTime
+  isActive        Boolean  @default(true)
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  scope CouponScope @default(STORE_WIDE)
+
+  categories Category[] @relation("CouponCategories")
+  games      Game[]     @relation("CouponGames")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, code])
 }
