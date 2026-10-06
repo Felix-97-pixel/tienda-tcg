@@ -105,8 +105,8 @@ export const cart = createSlice({
       state.items = [];
     },
     applyCoupon: (state, action: PayloadAction<AppliedCoupon>) => {
-      // Remover cupón existente de la misma tienda si hay uno
-      state.appliedCoupons = state.appliedCoupons.filter(c => c.storeId !== action.payload.storeId);
+      // Evitar agregar el mismo cupón dos veces
+      state.appliedCoupons = state.appliedCoupons.filter(c => c.code !== action.payload.code);
       state.appliedCoupons.push(action.payload);
     },
     removeCoupon: (state, action: PayloadAction<string>) => {
@@ -129,8 +129,11 @@ export const selectCartItemsWithDiscounts = createSelector(
       let appliedCoupon = null;
 
       if (item.storeId) {
-        const coupon = coupons.find(c => c.storeId === item.storeId);
-        if (coupon) {
+        const storeCoupons = coupons.filter(c => c.storeId === item.storeId);
+        let bestCoupon = null;
+        let maxDiscount = 0;
+
+        for (const coupon of storeCoupons) {
           let applies = false;
           if (coupon.applicableItemIds) {
             // Lista calculada por el backend (fuente de verdad)
@@ -141,10 +144,15 @@ export const selectCartItemsWithDiscounts = createSelector(
             if (coupon.scope === 'GAME_SPECIFIC' && item.gameId && coupon.games.some(g => g.id === item.gameId)) applies = true;
           }
 
-          if (applies) {
-            finalPrice = item.discountedPrice * (1 - (coupon.discountPercent / 100));
-            appliedCoupon = coupon;
+          if (applies && coupon.discountPercent > maxDiscount) {
+            maxDiscount = coupon.discountPercent;
+            bestCoupon = coupon;
           }
+        }
+
+        if (bestCoupon) {
+          finalPrice = item.discountedPrice * (1 - (bestCoupon.discountPercent / 100));
+          appliedCoupon = bestCoupon;
         }
       }
 
