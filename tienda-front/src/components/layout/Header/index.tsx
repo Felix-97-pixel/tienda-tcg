@@ -206,6 +206,14 @@ const Header = () => {
               {/* Account & Cart */}
               <div className="flex items-center gap-4 xl:gap-5">
                 {isMounted && isAuthenticated ? (
+                  user?.role === "SUPERADMIN" || user?.role === "ADMIN" ? (
+                    <Link
+                      href={user.role === "SUPERADMIN" ? "/superadmin" : "/admin"}
+                      className="hover:bg-[#1a1d24] hover:text-blue bg-[#1a1d24]/10 text-white p-2 px-4 rounded-md border border-blue/40 transition-all duration-200 flex items-center justify-center font-bold text-xs uppercase tracking-wider shadow-[0_0_10px_rgba(55,88,249,0.2)]"
+                    >
+                      Ir al Panel
+                    </Link>
+                  ) : (
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col items-end">
                       <span className="block text-2xs text-[#FDD8D8] uppercase tracking-wider">
@@ -232,6 +240,7 @@ const Header = () => {
                       </svg>
                     </Link>
                   </div>
+                  )
                 ) : (
                   <Link href="/signin" className="flex items-center gap-2.5 group">
                     <svg
