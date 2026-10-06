@@ -25,6 +25,9 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const { showToast } = useToast();
   const [product, setProduct] = useState(initialProduct);
   const [storeCommissionRate, setStoreCommissionRate] = useState(0.05);
+  const [exchangeRate, setExchangeRate] = useState<number>(1000);
+  const [baseCurrency, setBaseCurrency] = useState<string>("USD");
+  const [isLoadingRates, setIsLoadingRates] = useState<boolean>(true);
 
   useEffect(() => {
     if (isOpen) {
@@ -36,8 +39,31 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           }
         })
         .catch(err => console.error("Error fetching store commission rate:", err));
+        
+      const gameId = product?.cardDetail?.gameId;
+      if (gameId) {
+        Promise.all([
+          fetch(`${API_URL}/stores/me/exchange-rates`, { credentials: "include" }).then(r => r.json()),
+          fetch(`${API_URL}/currencies`).then(r => r.json())
+        ]).then(([storeRates, globalRates]) => {
+          const global = Array.isArray(globalRates) ? globalRates.find((g: any) => g.gameId === gameId) : null;
+          const store = Array.isArray(storeRates) ? storeRates.find((s: any) => s.gameId === gameId) : null;
+          
+          if (global) setBaseCurrency(global.currencyCode);
+          if (store) {
+            setExchangeRate(Number(store.rate));
+          } else if (global) {
+            setExchangeRate(Number(global.rate));
+          }
+        }).catch(err => console.error("Error fetching exchange rates:", err))
+          .finally(() => setIsLoadingRates(false));
+      } else {
+        setIsLoadingRates(false);
+      }
+    } else {
+      setIsLoadingRates(true);
     }
-  }, [isOpen]);
+  }, [isOpen, product]);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const refreshProduct = async () => {
@@ -70,7 +96,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     return val.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   };
 
-  const currentCalc = calculateCommissions(newVariation.price, storeCommissionRate);
+  const netPriceCLP = (newVariation.price || 0) * exchangeRate;
+  const currentCalc = calculateCommissions(netPriceCLP, storeCommissionRate);
 
   useEffect(() => {
     if (isOpen && product) {
@@ -192,11 +219,17 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         isOpen={isOpen}
         onClose={onClose}
         title={<>{t("inventory.title")} - <span className="text-blue">{product?.name}</span></>}
-        maxWidth="4xl"
+        maxWidth="6xl"
       >
-
-        {/* Formulario Nueva Variación */}
-        <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
+        {isLoadingRates ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-10 h-10 border-4 border-blue border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-4 text-sm font-bold animate-pulse">Cargando tasas de cambio...</p>
+          </div>
+        ) : (
+          <>
+            {/* Formulario Nueva Variación */}
+            <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
           <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
             <div>
@@ -228,8 +261,10 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             </div>
             <div>
               <Input
-                label="A Recibir (Limpio)"
+                label={`A Recibir (${baseCurrency})`}
                 type="number"
+                step="0.01"
+                min="0.01"
                 value={newVariation.price}
                 onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
               />
@@ -244,26 +279,31 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             </div>
           </div>
 
+          <div className="text-xs text-blue-400 font-bold mb-3 px-2">
+            Tasa de cambio actual: 1 {baseCurrency} = {exchangeRate} CLP
+          </div>
           <div className="bg-[#1a1d24] rounded-xl p-4 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-6 text-sm">
               <div>
-                <span className="block text-gray-4 text-xs mb-1">A Recibir</span>
-                <span className="text-white font-medium">${formatPriceVal(newVariation.price || 0)}</span>
+                <span className="block text-blue-400 text-xs mb-1 font-bold">Precio Visible (CLP)</span>
+                <span className="text-blue-400 font-bold text-lg">${formatPriceVal(currentCalc.gross)}</span>
               </div>
-              <div className="text-gray-5 text-xl font-light">+</div>
+              <div className="text-gray-5 text-xl font-light">-</div>
               <div>
                 <span className="block text-gray-4 text-xs mb-1">Com. Plataforma ({(storeCommissionRate * 100).toFixed(1)}%)</span>
-                <span className="text-red-400 font-medium">${formatPriceVal(currentCalc.taptrade)}</span>
+                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.taptrade)}</span>
               </div>
-              <div className="text-gray-5 text-xl font-light">+</div>
+              <div className="text-gray-5 text-xl font-light">-</div>
               <div>
                 <span className="block text-gray-4 text-xs mb-1">Com. MercadoPago (3.8%)</span>
-                <span className="text-red-400 font-medium">${formatPriceVal(currentCalc.mp)}</span>
+                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.mp)}</span>
               </div>
               <div className="text-gray-5 text-xl font-light">=</div>
               <div>
-                <span className="block text-blue-400 text-xs mb-1 font-bold">Precio Final (Visible)</span>
-                <span className="text-blue-400 font-bold text-lg">${formatPriceVal(currentCalc.gross)}</span>
+                <span className="block text-green-400 text-xs mb-1 font-bold">A Recibir Real (CLP)</span>
+                <span className="text-green-400 font-bold text-lg">
+                  ${formatPriceVal(currentCalc.gross - currentCalc.taptrade - currentCalc.mp)}
+                </span>
               </div>
             </div>
             <div className="w-full md:w-auto min-w-[120px]">
@@ -282,7 +322,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
                 <th className="p-3 font-bold text-gray-4">Acabado</th>
-                <th className="p-3 font-bold text-gray-4">A Recibir</th>
+                <th className="p-3 font-bold text-gray-4">A Recibir ({baseCurrency})</th>
+                <th className="p-3 font-bold text-gray-4">A Recibir (CLP)</th>
                 <th className="p-3 font-bold text-gray-4">Comisiones</th>
                 <th className="p-3 font-bold text-blue-400">Precio Final</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
@@ -292,31 +333,37 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             </thead>
             <tbody>
               {product.items?.map((item: InventoryItem) => {
-                const itemCalc = calculateCommissions(item.price, storeCommissionRate);
+                const itemNetCLP = Number(item.price) * exchangeRate;
+                const itemCalc = calculateCommissions(itemNetCLP, storeCommissionRate);
                 return (
-                  <tr key={item.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
+                  <tr key={item.id} className="border-b border-stroke hover:bg-white/[0.02] transition-colors">
                     <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
                     <td className="p-3 text-white">
                       {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
                     </td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-[#111318] text-gray-4 border border-stroke'}`}>
                         {item.finish?.name || "Normal"}
                       </span>
                     </td>
                     <td className="p-3">
                       <input
                         type="number"
-                        className="w-20 rounded border border-stroke p-1 text-xs font-bold text-white bg-[#1a1d24]"
+                        step="0.01"
+                        min="0.01"
+                        className="w-20 rounded border border-stroke p-1.5 text-xs font-bold text-white bg-[#1a1d24] focus:border-blue outline-none"
                         defaultValue={item.price}
                         onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
                       />
                     </td>
+                    <td className="p-3 text-green-400 font-bold">
+                      ${formatPriceVal(itemNetCLP)} CLP
+                    </td>
                     <td className="p-3 text-red-400 text-xs font-medium">
-                      ${formatPriceVal(itemCalc.totalCom)}
+                      ${formatPriceVal(itemCalc.totalCom)} CLP
                     </td>
                     <td className="p-3 text-blue-400 font-bold">
-                      ${formatPriceVal(itemCalc.gross)}
+                      ${formatPriceVal(itemCalc.gross)} CLP
                     </td>
                     <td className="p-3">
                       <input
@@ -354,6 +401,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             {tc("close")}
           </Button>
         </div>
+        </>
+        )}
       </Modal>
 
       {/* Modal de confirmación de eliminación */}

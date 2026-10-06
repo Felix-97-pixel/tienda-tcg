@@ -16,6 +16,8 @@ export interface Product {
   brand?: Brand;
   cardDetail?: {
     game?: string;
+    gameId?: string;
+    gameRel?: any;
     expansion: string;
     rarity: string;
     collectorNum?: string | number;
