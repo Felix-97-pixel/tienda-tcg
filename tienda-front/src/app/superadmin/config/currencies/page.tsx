@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { List, Column } from "@/components/ui/List";
-import { useCurrencies } from "@/app/admin/_components/Currencies/hooks/useCurrencies";
-import CurrencyModal from "@/app/admin/_components/Currencies/CurrencyModal";
+import { useCurrencies } from "@/app/superadmin/_components/Currencies/hooks/useCurrencies";
+import CurrencyModal from "@/app/superadmin/_components/Currencies/CurrencyModal";
 
 export default function AdminCurrencies() {
   const { exchangeRates, globalCurrencies, games, loading, refresh, deleteExchangeRate } = useCurrencies();
@@ -26,13 +26,10 @@ export default function AdminCurrencies() {
     },
     {
       key: "currency",
-      header: "Divisa Base Global",
-      render: (rate) => {
-        const globalRate = globalCurrencies.find((g: any) => g.gameId === rate.gameId);
-        return (
-          <span className="text-gray-4">{globalRate?.currency?.code || "No Configurada"}</span>
-        );
-      },
+      header: "Divisa Base",
+      render: (rate) => (
+        <span className="text-gray-4">{rate.currency?.code} ({rate.currency?.symbol})</span>
+      ),
     },
     {
       key: "rate",

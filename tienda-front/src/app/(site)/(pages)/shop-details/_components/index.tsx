@@ -27,13 +27,29 @@ const ShopDetails = () => {
   );
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [globalRates, setGlobalRates] = useState<any[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/currencies`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setGlobalRates)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
     const fetchProduct = async (id: string) => {
       try {
-        const res = await fetch(`${API_URL}/products/${id}`);
+        const [res, curRes] = await Promise.all([
+          fetch(`${API_URL}/products/${id}`),
+          fetch(`${API_URL}/currencies`)
+        ]);
+        
+        if (curRes.ok) {
+          setGlobalRates(await curRes.json());
+        }
+
         if (res.ok) {
           const data = await res.json();
           setProduct(data);
@@ -70,9 +86,24 @@ const ShopDetails = () => {
 
   
   const getFinalPrice = (item: InventoryItem | any) => {
+    // 1. Obtener la tasa de cambio
+    const gameId = (product?.cardDetail as any)?.gameId || (product as any)?.gameId;
+    const globalRate = globalRates.find((r: any) => r.gameId === gameId);
+    let exchangeRate = globalRate ? Number(globalRate.rate) : 1000;
+
+    if (gameId && item.store?.gameExchangeRates) {
+      const customRate = item.store.gameExchangeRates.find((r: any) => r.gameId === gameId);
+      if (customRate) {
+        exchangeRate = Number(customRate.rate);
+      }
+    }
+
+    const priceInCLP = Number(item.price) * exchangeRate;
+
+    // 2. Aplicar comisiones
     const storePlan = item.store?.subscriptionPlans?.[0];
     const rate = storePlan ? Number(storePlan.commissionRate) : 0.05;
-    return calculateCommissions(Number(item.price), rate).gross;
+    return calculateCommissions(priceInCLP, rate).gross;
   };
 
   const handleAddToCart = (item: InventoryItem, qty: number) => {
@@ -169,7 +200,7 @@ const ShopDetails = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-medium text-white">{(lowestPriceItem.condition_rel as any)?.displayName || lowestPriceItem.condition_rel?.name || (typeof lowestPriceItem.condition === 'object' ? (lowestPriceItem.condition as any)?.displayName || (lowestPriceItem.condition as any)?.name : lowestPriceItem.condition) || "Near Mint"} {lowestPriceItem.finish?.name || ""}</h3>
-                    <div className="text-2xl font-bold text-green-500 mt-1">${(getFinalPrice(lowestPriceItem)).toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-green-500 mt-1">${Math.round(getFinalPrice(lowestPriceItem)).toLocaleString('es-CL')}</div>
                     <p className="text-xs text-gray-4 mt-1">Shipping: Included</p>
                   </div>
                 </div>
@@ -204,7 +235,7 @@ const ShopDetails = () => {
                     className="text-sm font-medium text-white border border-white/20 hover:border-white/50 rounded-md py-2 px-4 w-full transition-colors"
                   >
                     View {items.length} Other Listing{items.length !== 1 ? 's' : ''}
-                    <br/><span className="text-xs text-gray-4 font-normal">As low as ${(getFinalPrice(lowestPriceItem)).toFixed(2)}</span>
+                    <br/><span className="text-xs text-gray-4 font-normal">As low as ${Math.round(getFinalPrice(lowestPriceItem)).toLocaleString('es-CL')}</span>
                   </button>
                 </div>
               </div>
@@ -238,7 +269,7 @@ const ShopDetails = () => {
                   [...items].sort((a, b) => getFinalPrice(a) - getFinalPrice(b)).map((item, index) => (
                     <tr key={item.id || index} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td className="py-4 px-4">
-                        <div className="font-bold text-lg text-green-500">${(getFinalPrice(item)).toFixed(2)}</div>
+                        <div className="font-bold text-lg text-green-500">${Math.round(getFinalPrice(item)).toLocaleString('es-CL')}</div>
                         <div className="text-xs text-gray-5 mt-1">Shipping: Included</div>
                       </td>
                       <td className="py-4 px-4">

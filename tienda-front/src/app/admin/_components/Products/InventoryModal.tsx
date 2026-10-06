@@ -65,7 +65,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     stock: 0
   });
 
-    const formatPriceVal = (val: number) => {
+  const formatPriceVal = (val: number) => {
     if (!val) return "0";
     return val.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   };

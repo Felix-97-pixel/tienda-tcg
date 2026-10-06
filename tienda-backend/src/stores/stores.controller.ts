@@ -24,6 +24,24 @@ export class StoresController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('me/exchange-rates')
+  async getExchangeRates(@Request() req: any) {
+    return this.storesService.getExchangeRates(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/exchange-rates')
+  async upsertExchangeRate(@Request() req: any, @Body() data: { gameId: string, rate: number }) {
+    return this.storesService.upsertExchangeRate(req.user.userId, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/exchange-rates/:id')
+  async deleteExchangeRate(@Request() req: any, @Param('id') id: string) {
+    return this.storesService.deleteExchangeRate(req.user.userId, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('me')
   updateStoreByOwner(@Request() req: any, @Body() data: any) {
     return this.storesService.updateStoreByOwner(req.user.userId, data);

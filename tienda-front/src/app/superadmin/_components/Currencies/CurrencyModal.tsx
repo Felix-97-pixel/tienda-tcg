@@ -26,9 +26,11 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
   useEffect(() => {
     if (exchangeRate) {
       setGameId(exchangeRate.gameId);
+      setCurrencyId(exchangeRate.currencyCode);
       setRate(exchangeRate.rate);
     } else {
       setGameId(games.length > 0 ? games[0].id : "");
+      setCurrencyId(globalCurrencies.length > 0 ? globalCurrencies[0].code : "");
       setRate("");
     }
   }, [exchangeRate, isOpen, games, globalCurrencies]);
@@ -39,15 +41,16 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
 
     const payload = {
       gameId,
+      currencyCode,
       rate: Number(rate)
     };
 
     try {
-      const res = await fetch(`${API_URL}/stores/me/exchange-rates`, {
-        method: "POST",
+      const res = await fetch(`${API_URL}/currencies${exchangeRate ? `/${exchangeRate.id}` : ""}`, {
+        method: exchangeRate ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(exchangeRate ? { currencyCode, rate: Number(rate) } : payload),
       });
 
       if (res.ok) {
@@ -65,8 +68,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
     }
   };
 
-  const selectedGlobalRate = globalCurrencies.find(c => c.gameId === gameId);
-  const baseCurrency = selectedGlobalRate?.currencyCode || "USD";
+  const selectedCurrency = globalCurrencies.find(c => c.code === currencyCode);
 
   return (
     <Modal
@@ -91,7 +93,20 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
           </select>
         </div>
 
-
+        <div>
+          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Divisa Base *</label>
+          <select 
+            value={currencyCode}
+            onChange={(e) => setCurrencyId(e.target.value)}
+            className="w-full bg-[#111318] border border-stroke rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none transition-colors"
+            required
+          >
+            {globalCurrencies.length === 0 && <option value="">Primero crea divisas en "Divisas Soportadas"</option>}
+            {globalCurrencies.map(curr => (
+              <option key={curr.id} value={curr.code}>{curr.name} ({curr.code})</option>
+            ))}
+          </select>
+        </div>
 
         <div>
           <Input
@@ -105,7 +120,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             placeholder="950"
           />
           <p className="text-xs text-gray-4 mt-1.5 ml-1">
-            Valor de 1 {baseCurrency} en CLP. Ej: 1 {baseCurrency} = {rate || 'X'} CLP
+            Valor de 1 unidad de esta divisa en CLP. {selectedCurrency ? `Ej: 1 ${selectedCurrency.code} = ${rate || 'X'} CLP` : ''}
           </p>
         </div>
 

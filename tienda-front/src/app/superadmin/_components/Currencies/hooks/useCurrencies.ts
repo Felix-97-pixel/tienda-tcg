@@ -15,8 +15,8 @@ export function useCurrencies() {
     setLoading(true);
     try {
       const [ratesRes, currRes, gamesRes] = await Promise.all([
-        fetch(`${API_URL}/stores/me/exchange-rates`, { credentials: "include" }),
-        fetch(`${API_URL}/currencies`),
+        fetch(`${API_URL}/currencies`, { credentials: "include" }),
+        fetch(`${API_URL}/currencies/supported`),
         fetch(`${API_URL}/games`)
       ]);
       
@@ -37,7 +37,7 @@ export function useCurrencies() {
   const deleteExchangeRate = async (rate: any) => {
     if (!confirm(`¿Seguro que deseas eliminar la tasa de cambio para ${rate.game?.name}?`)) return false;
     try {
-      const res = await fetch(`${API_URL}/stores/me/exchange-rates/${rate.id}`, {
+      const res = await fetch(`${API_URL}/currencies/${rate.id}`, {
         method: "DELETE",
         credentials: "include",
       });

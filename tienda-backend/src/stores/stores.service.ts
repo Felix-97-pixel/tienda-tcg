@@ -41,7 +41,6 @@ export class StoresService {
           include: { features: true }
         },
         customFeatures: true,
-        gameExchangeRates: true,
       }
     });
 
@@ -90,7 +89,6 @@ export class StoresService {
         gameExchangeRates: true,
         subscriptionPlans: { include: { features: true } },
         customFeatures: true,
-        gameExchangeRates: true,
       }
     });
 
@@ -322,4 +320,26 @@ export class StoresService {
       where: { id }
     });
   }
+
+
+  async getExchangeRates(userId: string) {
+    const store = await this.getStoreByOwner(userId);
+    return this.prisma.storeGameExchangeRate.findMany({ where: { storeId: store.id }, include: { game: true } });
+  }
+
+  async upsertExchangeRate(userId: string, data: { gameId: string, rate: number }) {
+    const store = await this.getStoreByOwner(userId);
+    return this.prisma.storeGameExchangeRate.upsert({
+      where: { storeId_gameId: { storeId: store.id, gameId: data.gameId } },
+      update: { rate: data.rate },
+      create: { storeId: store.id, gameId: data.gameId, rate: data.rate },
+      include: { game: true }
+    });
+  }
+
+  async deleteExchangeRate(userId: string, id: string) {
+    const store = await this.getStoreByOwner(userId);
+    return this.prisma.storeGameExchangeRate.delete({ where: { id, storeId: store.id } });
+  }
+
 }

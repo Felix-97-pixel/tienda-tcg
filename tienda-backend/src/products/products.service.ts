@@ -668,7 +668,12 @@ export class ProductsService {
             condition: true,
             language: true,
             finish: true,
-            store: true
+            store: {
+              include: {
+                subscriptionPlans: { include: { features: true } },
+                gameExchangeRates: true
+              }
+            }
           }
         },
       },
