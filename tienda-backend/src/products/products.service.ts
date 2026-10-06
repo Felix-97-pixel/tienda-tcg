@@ -663,7 +663,9 @@ export class ProductsService {
           include: { finish: true }
         },
         items: {
-          where: adminCatalogStoreId ? { storeId: adminCatalogStoreId } : undefined,
+          where: adminCatalogStoreId 
+            ? { storeId: adminCatalogStoreId } 
+            : { isPublished: true, stock: { gt: 0 } },
           include: {
             condition: true,
             language: true,

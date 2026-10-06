@@ -261,7 +261,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             </div>
             <div>
               <Input
-                label={`A Recibir (${baseCurrency})`}
+                label="A Recibir (USD)"
                 type="number"
                 step="0.01"
                 min="0.01"
@@ -291,7 +291,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               <div className="text-gray-5 text-xl font-light">-</div>
               <div>
                 <span className="block text-gray-4 text-xs mb-1">Com. Plataforma ({(storeCommissionRate * 100).toFixed(1)}%)</span>
-                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.taptrade)}</span>
+                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.taptradePure)}</span>
+              </div>
+              <div className="text-gray-5 text-xl font-light">-</div>
+              <div>
+                <span className="block text-gray-4 text-xs mb-1">Ajuste Redondeo a $50</span>
+                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.roundingAdjustment)}</span>
               </div>
               <div className="text-gray-5 text-xl font-light">-</div>
               <div>
@@ -302,7 +307,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               <div>
                 <span className="block text-green-400 text-xs mb-1 font-bold">A Recibir Real (CLP)</span>
                 <span className="text-green-400 font-bold text-lg">
-                  ${formatPriceVal(currentCalc.gross - currentCalc.taptrade - currentCalc.mp)}
+                  ${formatPriceVal(currentCalc.storeNet)}
                 </span>
               </div>
             </div>
@@ -322,7 +327,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
                 <th className="p-3 font-bold text-gray-4">Acabado</th>
-                <th className="p-3 font-bold text-gray-4">A Recibir ({baseCurrency})</th>
+                <th className="p-3 font-bold text-gray-4">A Recibir (USD)</th>
                 <th className="p-3 font-bold text-gray-4">A Recibir (CLP)</th>
                 <th className="p-3 font-bold text-gray-4">Comisiones</th>
                 <th className="p-3 font-bold text-blue-400">Precio Final</th>
