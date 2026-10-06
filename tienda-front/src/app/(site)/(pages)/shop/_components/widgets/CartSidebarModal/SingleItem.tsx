@@ -30,7 +30,14 @@ const SingleItem = ({ item, removeItemFromCart }) => {
     <div className="flex items-center justify-between gap-5">
       <div className="w-full flex items-center gap-6">
         <div className="flex items-center justify-center rounded-[10px] bg-[#2a2d36] max-w-[90px] w-full h-22.5 overflow-hidden p-1">
-          <Image className="max-h-full max-w-full object-contain" src={item.imgs?.thumbnails[0]} alt="product" width={100} height={100} />
+          <Image 
+            className="max-h-full max-w-full object-contain" 
+            src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
+            alt="product" 
+            width={100} 
+            height={100} 
+            unoptimized={Boolean((item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0])?.includes("scryfall"))}
+          />
         </div>
 
         <div>

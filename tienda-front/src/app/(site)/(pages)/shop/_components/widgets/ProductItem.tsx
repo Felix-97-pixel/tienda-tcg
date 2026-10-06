@@ -72,14 +72,12 @@ const ProductItem = ({ item }: { item: Product }) => {
         )}
 
         <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0 z-20">
-          <button
-            onClick={() => {
-              openModal();
-              handleQuickViewUpdate();
-            }}
-            id="newOne"
-            aria-label="button for quick view"
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
+
+          <Link
+            href={`/shop-details?id=${item.id}`}
+            onClick={() => handleProductDetails()}
+            aria-label="Ver vendedores"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
           >
             <svg
               className="fill-current"
@@ -102,14 +100,6 @@ const ProductItem = ({ item }: { item: Product }) => {
                 fill=""
               />
             </svg>
-          </button>
-
-          <Link
-            href={`/shop-details?id=${item.id}`}
-            onClick={() => handleProductDetails()}
-            className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] text-white ease-out duration-200 bg-blue hover:bg-blue-dark"
-          >
-            Ver vendedores
           </Link>
 
           <button

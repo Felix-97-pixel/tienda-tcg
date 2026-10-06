@@ -36,7 +36,14 @@ const SingleItem = ({ item }) => {
         <div className="flex items-center justify-between gap-5">
           <div className="w-full flex items-center gap-5.5">
             <div className="flex items-center justify-center rounded-[5px] bg-[#222630] max-w-[80px] w-full h-17.5 overflow-hidden p-1">
-              <Image className="max-h-full max-w-full object-contain" width={200} height={200} src={item.imgs?.thumbnails[0]} alt="product" />
+              <Image 
+                className="max-h-full max-w-full object-contain" 
+                width={200} 
+                height={200} 
+                src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
+                alt="product" 
+                unoptimized={Boolean((item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0])?.includes("scryfall"))}
+              />
             </div>
 
             <div>

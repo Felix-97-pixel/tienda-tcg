@@ -67,7 +67,14 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
         <div className="flex items-center justify-between gap-5">
           <div className="w-full flex items-center gap-5.5">
             <div className="flex items-center justify-center rounded-[5px] bg-[#222630] max-w-[80px] w-full h-17.5">
-              <Image className="object-contain h-full w-full"  src={item.imgs?.thumbnails[0]} alt="product" width={200} height={200} />
+              <Image 
+                className="object-contain h-full w-full"  
+                src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
+                alt="product" 
+                width={200} 
+                height={200} 
+                unoptimized={Boolean((item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0])?.includes("scryfall"))}
+              />
             </div>
 
             <div>
