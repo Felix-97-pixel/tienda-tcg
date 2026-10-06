@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { logout } from "@/redux/features/auth-slice";
 
 const icons = {
   products: (
@@ -39,9 +41,16 @@ const icons = {
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useDispatch();
   const t = useTranslations("dashboard");
   const ts = useTranslations("sidebar");
   const tc = useTranslations("common");
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/signin");
+  };
 
   const catalogItems = [
     { href: "/admin/products", label: "Singles", icon: icons.products },
@@ -151,7 +160,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
       </div>
 
       {/* Footer Info */}
-      <div className="p-6 border-t border-white/5">
+      <div className="p-6 border-t border-white/5 space-y-4">
+        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold text-gray-4 hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+          CERRAR SESIÓN
+        </button>
         <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#1a1d24]/5 border border-white/5 group hover:bg-[#1a1d24]/10 transition-all">
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue to-indigo-600 flex items-center justify-center text-xs font-black text-white shadow-lg">AD</div>
           <div className="flex-1 overflow-hidden">
