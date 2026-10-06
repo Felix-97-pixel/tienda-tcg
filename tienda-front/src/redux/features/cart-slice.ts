@@ -3,6 +3,7 @@ import { RootState } from "../store";
 
 type InitialState = {
   items: CartItem[];
+  appliedCoupons: AppliedCoupon[];
 };
 
 type CartItem = {
@@ -23,10 +24,24 @@ type CartItem = {
     thumbnails: string[];
     previews: string[];
   };
+  categoryId?: string;
+  gameId?: string;
+};
+
+export type AppliedCoupon = {
+  id: string;
+  code: string;
+  storeId: string;
+  discountPercent: number;
+  scope: string;
+  categories: { id: string }[];
+  games: { id: string }[];
+  applicableItemIds?: string[];
 };
 
 const initialState: InitialState = {
   items: [],
+  appliedCoupons: [],
 };
 
 export const cart = createSlice({
@@ -89,16 +104,73 @@ export const cart = createSlice({
     removeAllItemsFromCart: (state) => {
       state.items = [];
     },
+    applyCoupon: (state, action: PayloadAction<AppliedCoupon>) => {
+      // Remover cupón existente de la misma tienda si hay uno
+      state.appliedCoupons = state.appliedCoupons.filter(c => c.storeId !== action.payload.storeId);
+      state.appliedCoupons.push(action.payload);
+    },
+    removeCoupon: (state, action: PayloadAction<string>) => {
+      state.appliedCoupons = state.appliedCoupons.filter(c => c.code !== action.payload);
+    },
+    clearCoupons: (state) => {
+      state.appliedCoupons = [];
+    }
   },
 });
 
 export const selectCartItems = (state: RootState) => state.cartReducer.items;
+export const selectAppliedCoupons = (state: RootState) => state.cartReducer.appliedCoupons;
 
-export const selectTotalPrice = createSelector([selectCartItems], (items) => {
+export const selectCartItemsWithDiscounts = createSelector(
+  [selectCartItems, selectAppliedCoupons],
+  (items, coupons) => {
+    return items.map(item => {
+      let finalPrice = item.discountedPrice;
+      let appliedCoupon = null;
+
+      if (item.storeId) {
+        const coupon = coupons.find(c => c.storeId === item.storeId);
+        if (coupon) {
+          let applies = false;
+          if (coupon.applicableItemIds) {
+            // Lista calculada por el backend (fuente de verdad)
+            applies = coupon.applicableItemIds.includes(String(item.inventoryItemId || item.id));
+          } else {
+            if (coupon.scope === 'STORE_WIDE') applies = true;
+            if (coupon.scope === 'CATEGORY_SPECIFIC' && item.categoryId && coupon.categories.some(c => c.id === item.categoryId)) applies = true;
+            if (coupon.scope === 'GAME_SPECIFIC' && item.gameId && coupon.games.some(g => g.id === item.gameId)) applies = true;
+          }
+
+          if (applies) {
+            finalPrice = item.discountedPrice * (1 - (coupon.discountPercent / 100));
+            appliedCoupon = coupon;
+          }
+        }
+      }
+
+      return {
+        ...item,
+        originalPrice: item.discountedPrice,
+        finalPrice: parseFloat(finalPrice.toFixed(2)),
+        discountAmount: parseFloat((item.discountedPrice - finalPrice).toFixed(2)),
+        appliedCouponCode: appliedCoupon?.code,
+      };
+    });
+  }
+);
+
+export const selectTotalPrice = createSelector([selectCartItemsWithDiscounts], (items) => {
   const total = items.reduce((acc, item) => {
-    return acc + item.discountedPrice * item.quantity;
+    return acc + item.finalPrice * item.quantity;
   }, 0);
   return parseFloat(total.toFixed(2));
+});
+
+export const selectTotalDiscount = createSelector([selectCartItemsWithDiscounts], (items) => {
+  const totalDiscount = items.reduce((acc, item) => {
+    return acc + item.discountAmount * item.quantity;
+  }, 0);
+  return parseFloat(totalDiscount.toFixed(2));
 });
 
 export const {
@@ -106,5 +178,8 @@ export const {
   removeItemFromCart,
   updateCartItemQuantity,
   removeAllItemsFromCart,
+  applyCoupon,
+  removeCoupon,
+  clearCoupons,
 } = cart.actions;
 export default cart.reducer;

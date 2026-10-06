@@ -3,12 +3,13 @@ import React from "react";
 import Discount from "./Discount";
 import OrderSummary from "./OrderSummary";
 import { useAppSelector } from "@/redux/store";
+import { selectCartItemsWithDiscounts } from "@/redux/features/cart-slice";
 import SingleItem from "./SingleItem";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import Link from "next/link";
 
 const Cart = () => {
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
+  const cartItems = useAppSelector(selectCartItemsWithDiscounts);
 
   return (
     <>

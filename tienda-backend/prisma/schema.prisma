@@ -536,7 +536,7 @@ enum CouponScope {
 
 model Coupon {
   id              String   @id @default(uuid())
-  code            String
+  code            String   @unique
   discountPercent Float
   validFrom       DateTime
   validUntil      DateTime
@@ -553,5 +553,5 @@ model Coupon {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([storeId, code])
+  @@index([storeId])
 }

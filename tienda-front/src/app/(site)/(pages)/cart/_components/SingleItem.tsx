@@ -60,7 +60,17 @@ const SingleItem = ({ item }) => {
       </div>
 
       <div className="min-w-[180px]">
-        <p className="text-white">{formatPrice(item.discountedPrice, currency)}</p>
+        {item.discountAmount > 0 ? (
+          <div className="flex flex-col">
+            <span className="text-gray-5 line-through text-xs">{formatPrice(item.originalPrice, currency)}</span>
+            <span className="text-white font-bold">{formatPrice(item.finalPrice, currency)}</span>
+            <span className="text-green-400 text-[10px] uppercase font-bold mt-1 bg-green-400/10 w-max px-2 py-0.5 rounded">
+              Cupón: {item.appliedCouponCode}
+            </span>
+          </div>
+        ) : (
+          <p className="text-white">{formatPrice(item.discountedPrice || item.price, currency)}</p>
+        )}
       </div>
 
       <div className="min-w-[275px]">
@@ -117,7 +127,7 @@ const SingleItem = ({ item }) => {
       </div>
 
       <div className="min-w-[200px]">
-        <p className="text-white">{formatPrice(item.discountedPrice * item.quantity, currency)}</p>
+        <p className="text-white">{formatPrice((item.finalPrice || item.discountedPrice || item.price) * item.quantity, currency)}</p>
       </div>
 
       <div className="min-w-[50px] flex justify-end">

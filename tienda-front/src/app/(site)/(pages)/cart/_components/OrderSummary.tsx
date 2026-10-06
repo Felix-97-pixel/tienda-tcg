@@ -1,4 +1,4 @@
-import { selectTotalPrice } from "@/redux/features/cart-slice";
+import { selectTotalPrice, selectTotalDiscount, selectCartItemsWithDiscounts } from "@/redux/features/cart-slice";
 import { useAppSelector } from "@/redux/store";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -6,8 +6,9 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/currency";
 
 const OrderSummary = () => {
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
+  const cartItems = useSelector(selectCartItemsWithDiscounts);
   const totalPrice = useSelector(selectTotalPrice);
+  const totalDiscount = useSelector(selectTotalDiscount);
   const currency = useSelector((state: any) => state.currencyReducer);
 
   return (
@@ -35,13 +36,30 @@ const OrderSummary = () => {
               <div>
                 <p className="text-white">{item.title}</p>
               </div>
-              <div>
+              <div className="flex flex-col items-end">
+                {item.discountAmount > 0 && (
+                  <p className="text-gray-5 line-through text-xs">{formatPrice(item.originalPrice * item.quantity, currency)}</p>
+                )}
                 <p className="text-white text-right">
-                  {formatPrice(item.discountedPrice * item.quantity, currency)}
+                  {formatPrice((item.finalPrice || item.discountedPrice || item.price) * item.quantity, currency)}
                 </p>
               </div>
             </div>
           ))}
+
+          {/* <!-- Savings --> */}
+          {totalDiscount > 0 && (
+            <div className="flex items-center justify-between pt-5 border-b border-white/10 pb-5">
+              <div>
+                <p className="font-medium text-green-400">Ahorro Cupones</p>
+              </div>
+              <div>
+                <p className="font-medium text-green-400 text-right">
+                  -{formatPrice(totalDiscount, currency)}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* <!-- total --> */}
           <div className="flex items-center justify-between pt-5">
