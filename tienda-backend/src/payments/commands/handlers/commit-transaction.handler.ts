@@ -64,6 +64,20 @@ export class CommitTransactionHandler
         },
       });
 
+      // 1.5 Limpiar reservas de stock de esta orden
+      const reservations = await tx.stockReservation.findMany({
+        where: { orderId: payment.orderId }
+      });
+      for (const res of reservations) {
+         await tx.inventoryItem.update({
+            where: { id: res.inventoryItemId },
+            data: { reservedStock: { decrement: res.quantity } }
+         });
+      }
+      await tx.stockReservation.deleteMany({
+        where: { orderId: payment.orderId }
+      });
+
       // 2. Actualizar Master Order
       await tx.order.update({
         where: { id: payment.orderId },

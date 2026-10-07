@@ -23,9 +23,16 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         if (item.inventoryItemId) {
           const inv = await this.prisma.inventoryItem.findUnique({
             where: { id: item.inventoryItemId },
-            select: { storeId: true }
+            select: { storeId: true, stock: true, reservedStock: true, product: { select: { name: true } } }
           });
-          if (inv && inv.storeId) storeId = inv.storeId;
+          if (!inv) {
+            throw new BadRequestException(`Un producto del carrito no existe.`);
+          }
+          const availableStock = inv.stock - inv.reservedStock;
+          if (availableStock < item.quantity) {
+             throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
+          }
+          if (inv.storeId) storeId = inv.storeId;
         }
         if (!storeId) {
           throw new BadRequestException(`No se encontró la tienda para el producto ${item.productName}`);

@@ -29,9 +29,16 @@ export class InitTransactionHandler
         if (item.inventoryItemId) {
           const inv = await this.prisma.inventoryItem.findUnique({
             where: { id: item.inventoryItemId },
-            select: { storeId: true }
+            select: { storeId: true, stock: true, reservedStock: true, product: { select: { name: true } } }
           });
-          if (inv && inv.storeId) storeId = inv.storeId;
+          if (!inv) {
+            throw new BadRequestException('Un producto del carrito no existe.');
+          }
+          const availableStock = inv.stock - inv.reservedStock;
+          if (availableStock < item.quantity) {
+             throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
+          }
+          if (inv.storeId) storeId = inv.storeId;
         }
         return { ...item, storeId };
       })
@@ -132,8 +139,26 @@ export class InitTransactionHandler
         vendorOrders: {
           create: vendorOrdersData as any,
         },
+        reservations: {
+          create: dto.items
+            .filter(i => i.inventoryItemId)
+            .map(item => ({
+              inventoryItemId: item.inventoryItemId,
+              quantity: item.quantity,
+              expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+            }))
+        }
       },
     });
+
+    for (const item of dto.items) {
+      if (item.inventoryItemId) {
+        await this.prisma.inventoryItem.update({
+          where: { id: item.inventoryItemId },
+          data: { reservedStock: { increment: item.quantity } }
+        });
+      }
+    }
 
     // Llamar a Webpay para crear transacción
     const amountInCLP = Math.round(totalWithShipping); // Webpay usa enteros en CLP

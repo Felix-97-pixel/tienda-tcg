@@ -6,12 +6,14 @@ import { MercadoPagoProvider } from './providers/mercadopago.provider';
 import { CommandHandlers } from './commands';
 import { QueryHandlers } from './queries';
 import { MpOAuthController } from './mp-oauth.controller';
+import { ReservationCronService } from './cron/reservation.cron';
 
 @Module({
   imports: [PrismaModule, CqrsModule],
   controllers: [PaymentsController, MpOAuthController],
   providers: [
     MercadoPagoProvider,
+    ReservationCronService,
     ...CommandHandlers,
     ...QueryHandlers,
   ],
