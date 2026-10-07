@@ -50,16 +50,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     const currencyCode = dto.currency || defaultCurrency?.code || 'CLP';
     const exchangeRate = Number(dto.exchangeRate || defaultCurrency?.exchangeRate || 1);
 
-    if (!dto.shippingProviderId) {
-      throw new BadRequestException('El proveedor de envío es obligatorio.');
+    if (!dto.storeShippingProviders || Object.keys(dto.storeShippingProviders).length === 0) {
+      throw new BadRequestException('El proveedor de envío es obligatorio para cada tienda.');
     }
-    const provider = await this.prisma.shippingProvider.findUnique({
-      where: { id: dto.shippingProviderId },
-    });
-    if (!provider) {
-      throw new BadRequestException('El proveedor de envío seleccionado no es válido.');
-    }
-    const baseShippingCost = Number(provider.price);
 
     let globalTotal = 0;
     const vendorOrdersData = [];
@@ -72,6 +65,18 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       });
 
       if (!store) throw new NotFoundException(`Tienda ${storeId} no encontrada`);
+
+      const shippingProviderId = dto.storeShippingProviders[storeId];
+      if (!shippingProviderId) {
+        throw new BadRequestException(`No se ha seleccionado método de envío para la tienda ${store.name}`);
+      }
+      const provider = await this.prisma.shippingProvider.findUnique({
+        where: { id: shippingProviderId }
+      });
+      if (!provider) {
+        throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
+      }
+      const storeShippingCost = Number(provider.price);
 
       const mpUserIdSetting = store.settings.find(s => s.key === 'MP_USER_ID');
       if (!mpUserIdSetting || !mpUserIdSetting.value) {
@@ -88,13 +93,13 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       const commissionRate = store.subscriptionPlans?.[0]?.commissionRate || 0; // Decimal, ej: 0.05
       const commissionAmount = vendorBaseSubtotal * Number(commissionRate);
 
-      const vendorTotal = vendorBaseSubtotal + baseShippingCost; // Precio productos + envío
+      const vendorTotal = vendorBaseSubtotal + storeShippingCost; // Precio productos + envío
       globalTotal += vendorTotal;
 
       vendorOrdersData.push({
         storeId,
-        shippingProviderId: dto.shippingProviderId,
-        shippingCost: baseShippingCost,
+        shippingProviderId,
+        shippingCost: storeShippingCost,
         subtotal: vendorBaseSubtotal,
         status: 'PENDING',
         items: {

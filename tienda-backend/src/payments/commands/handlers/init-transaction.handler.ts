@@ -55,22 +55,29 @@ export class InitTransactionHandler
     const exchangeRate = Number(dto.exchangeRate || defaultCurrency?.exchangeRate || 1);
 
     // Obtener costo de envío
-    if (!dto.shippingProviderId) {
-      throw new BadRequestException('El proveedor de envío es obligatorio.');
+    if (!dto.storeShippingProviders || Object.keys(dto.storeShippingProviders).length === 0) {
+      throw new BadRequestException('El proveedor de envío es obligatorio para cada tienda.');
     }
-    const provider = await this.prisma.shippingProvider.findUnique({
-      where: { id: dto.shippingProviderId },
-    });
-    if (!provider) {
-      throw new BadRequestException('El proveedor de envío seleccionado no es válido.');
-    }
-    const baseShippingCost = Number(provider.price);
 
     // Calcular totales
     let globalSubtotal = 0;
+    let totalShippingCost = 0;
     const vendorOrdersData = [];
 
     for (const [storeId, items] of Object.entries(vendorGroups)) {
+      const shippingProviderId = dto.storeShippingProviders[storeId];
+      if (!shippingProviderId) {
+        throw new BadRequestException(`No se ha seleccionado método de envío para la tienda.`);
+      }
+      const provider = await this.prisma.shippingProvider.findUnique({
+        where: { id: shippingProviderId }
+      });
+      if (!provider) {
+        throw new BadRequestException(`El proveedor de envío seleccionado no es válido.`);
+      }
+      const storeShippingCost = Number(provider.price);
+      totalShippingCost += storeShippingCost;
+
       const vendorBaseSubtotal = items.reduce(
         (sum, i) => sum + i.unitPrice * i.quantity * exchangeRate,
         0,
@@ -84,8 +91,8 @@ export class InitTransactionHandler
       
       vendorOrdersData.push({
         storeId,
-        shippingProviderId: dto.shippingProviderId,
-        shippingCost: baseShippingCost,
+        shippingProviderId,
+        shippingCost: storeShippingCost,
         subtotal: vendorSubtotalWithCommission,
         status: 'PENDING',
         items: {
@@ -101,7 +108,6 @@ export class InitTransactionHandler
       });
     }
 
-    const totalShippingCost = baseShippingCost * Object.keys(vendorGroups).length; // Cobra un envío por cada vendedor
     const totalWithShipping = globalSubtotal + totalShippingCost;
 
     // Generar buyOrder único

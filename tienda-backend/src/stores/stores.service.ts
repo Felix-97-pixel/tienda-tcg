@@ -31,6 +31,23 @@ export class StoresService {
     return store;
   }
 
+  async getPublicStoreById(id: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        logoUrl: true,
+        subdomain: true,
+      },
+    });
+
+    if (!store) {
+      throw new NotFoundException('Tienda no encontrada');
+    }
+    return store;
+  }
+
   async getStoreByOwner(userId: string) {
     const store = await this.prisma.store.findUnique({
       where: { ownerId: userId },

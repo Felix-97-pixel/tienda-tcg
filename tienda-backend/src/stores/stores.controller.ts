@@ -15,6 +15,11 @@ export class StoresController {
     return this.storesService.getPublicStoreBySubdomain(subdomain);
   }
 
+  @Get('public-by-id/:id')
+  getPublicStoreById(@Param('id') id: string) {
+    return this.storesService.getPublicStoreById(id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getStoreByOwner(@Request() req: any) {

@@ -43,8 +43,45 @@ const CheckoutWebpay = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shippingProviders, setShippingProviders] = useState<any[]>([]);
-  const [selectedProvider, setSelectedProvider] = useState<any>(null);
-  const shippingCost = selectedProvider ? Number(selectedProvider.price) : 0;
+  const [selectedProvidersByStore, setSelectedProvidersByStore] = useState<Record<string, any>>({});
+  const [storeNames, setStoreNames] = useState<Record<string, string>>({});
+
+  // Group cart items by store
+  const itemsByStore = React.useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    cartItems.forEach((item) => {
+      const sId = item.storeId || "unknown";
+      if (!groups[sId]) groups[sId] = [];
+      groups[sId].push(item);
+    });
+    return groups;
+  }, [cartItems]);
+  const storeIds = React.useMemo(() => Object.keys(itemsByStore), [itemsByStore]);
+
+  // Fetch store names
+  useEffect(() => {
+    storeIds.forEach((id) => {
+      if (id !== "unknown" && !storeNames[id]) {
+        fetch(`${API_URL}/stores/public-by-id/${id}`, { credentials: "include" })
+          .then(async (res) => {
+            const text = await res.text();
+            try {
+              const data = JSON.parse(text);
+              if (res.ok) {
+                setStoreNames((prev) => ({ ...prev, [id]: data.name || "Sin Nombre" }));
+              } else {
+                setStoreNames((prev) => ({ ...prev, [id]: `API Error: ${res.status} - ${text.substring(0, 50)}` }));
+              }
+            } catch (e) {
+              setStoreNames((prev) => ({ ...prev, [id]: `Parse Error: ${text.substring(0, 50)}` }));
+            }
+          })
+          .catch((err) => {
+            setStoreNames((prev) => ({ ...prev, [id]: `Network Error: ${err.message}` }));
+          });
+      }
+    });
+  }, [storeIds]);
 
   // Carga dinámica de proveedores de envío
   useEffect(() => {
@@ -53,11 +90,34 @@ const CheckoutWebpay = () => {
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setShippingProviders(data);
-          setSelectedProvider(data[0]); // Seleccionar el primero por defecto (Chilexpress)
         }
       })
       .catch((err) => console.error("Error al cargar proveedores de envío:", err?.message || err));
   }, []);
+
+  // Pre-seleccionar envío por defecto para cada tienda
+  useEffect(() => {
+    if (shippingProviders.length > 0) {
+      let changed = false;
+      const initial: Record<string, any> = {};
+      storeIds.forEach(sId => {
+         if (!selectedProvidersByStore[sId]) {
+            initial[sId] = shippingProviders[0];
+            changed = true;
+         }
+      });
+      if (changed) {
+         setSelectedProvidersByStore(prev => ({...prev, ...initial}));
+      }
+    }
+  }, [shippingProviders, storeIds]);
+
+  const totalShippingCost = React.useMemo(() => {
+    return storeIds.reduce((sum, sId) => {
+       const provider = selectedProvidersByStore[sId];
+       return sum + (provider ? Number(provider.price) : 0);
+    }, 0);
+  }, [storeIds, selectedProvidersByStore]);
 
   // Auto-fill from saved profile
   useEffect(() => {
@@ -100,8 +160,9 @@ const CheckoutWebpay = () => {
       setError("Tu carrito está vacío.");
       return;
     }
-    if (!selectedProvider) {
-      setError("Debes seleccionar un método de envío.");
+    const missingShipping = storeIds.find(sId => !selectedProvidersByStore[sId]);
+    if (missingShipping) {
+      setError("Debes seleccionar un método de envío para cada tienda.");
       return;
     }
 
@@ -116,7 +177,10 @@ const CheckoutWebpay = () => {
         notes: billing.notes,
         currency: currency.code,
         exchangeRate: currency.exchangeRate,
-        shippingProviderId: selectedProvider ? selectedProvider.id : null,
+        storeShippingProviders: storeIds.reduce((acc, sId) => {
+          acc[sId] = selectedProvidersByStore[sId].id;
+          return acc;
+        }, {} as Record<string, string>),
         items: cartItems.map((item) => ({
           productId: String(item.id),
           inventoryItemId: item.inventoryItemId ?? null,
@@ -156,7 +220,7 @@ const CheckoutWebpay = () => {
   };
 
   const initialization = {
-    amount: total + (shippingCost / currency.exchangeRate),
+    amount: total + (totalShippingCost / currency.exchangeRate),
     payer: {
       email: billing.email || "test@test.com" // Provide fallback or actual email
     }
@@ -305,7 +369,7 @@ const CheckoutWebpay = () => {
                   
                   <div className="mt-6">
                     {/* Render Mercado Pago Brick */}
-                    {total > 0 && selectedProvider && (
+                    {total > 0 && shippingProviders.length > 0 && (
                       <Payment
                         initialization={initialization}
                         customization={customization as any}
@@ -339,75 +403,81 @@ const CheckoutWebpay = () => {
                       <span className="font-medium text-white">Subtotal</span>
                     </div>
 
-                    {/* Items */}
-                    {cartItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between py-4 border-b border-white/10 gap-4"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          {item.imgs?.thumbnails?.[0] && (
-                            <Image
-                              src={item.imgs.thumbnails[0]}
-                              alt={item.title}
-                              width={44}
-                              height={44}
-                              className="rounded object-cover flex-shrink-0"
-                            />
-                          )}
-                          <div className="min-w-0">
-                            <p className="text-white text-sm font-medium truncate">{item.title}</p>
-                            <p className="text-gray-4 text-xs">× {item.quantity}</p>
+                    {/* Items por tienda */}
+                    {Object.entries(itemsByStore).map(([sId, items]) => (
+                      <div key={sId} className="mb-6 last:mb-0 border-b border-white/10 pb-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <svg className="w-4 h-4 text-gray-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          <span className="font-semibold text-white/90 text-sm">{storeNames[sId] || `Tienda (ID: ${sId})`}</span>
+                        </div>
+                        
+                        <div className="bg-[#111318] rounded border border-white/5 p-3 mb-4">
+                          {items.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
+                                {item.imgs?.thumbnails?.[0] && (
+                                  <Image src={item.imgs.thumbnails[0]} alt={item.title} width={36} height={36} className="rounded object-cover flex-shrink-0" />
+                                )}
+                                <div className="min-w-0">
+                                  <p className="text-white text-xs font-medium truncate">{item.title}</p>
+                                  <p className="text-gray-4 text-[10px]">× {item.quantity}</p>
+                                </div>
+                              </div>
+                              <p className="text-white text-right text-xs flex-shrink-0 font-medium">
+                                {formatPrice(item.discountedPrice * item.quantity, currency)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Envío para esta tienda */}
+                        <div className="flex justify-between items-start gap-4">
+                          <span className="font-medium text-gray-4 text-xs mt-1">Opciones de envío</span>
+                          <div className="flex flex-col gap-2 items-end">
+                            {shippingProviders.map((provider) => (
+                              <label key={provider.id} className="flex items-center gap-2 cursor-pointer w-full justify-end select-none">
+                                <input
+                                  type="radio"
+                                  name={`shipping_${sId}`}
+                                  value={provider.name}
+                                  checked={selectedProvidersByStore[sId]?.id === provider.id}
+                                  onChange={() => setSelectedProvidersByStore(prev => ({...prev, [sId]: provider}))}
+                                  className="w-3.5 h-3.5 text-blue border-white/10 focus:ring-blue cursor-pointer flex-shrink-0"
+                                />
+                                <ShippingBadge name={provider.name} size="sm" />
+                                <div className="text-right font-semibold text-green-500 text-xs min-w-[70px] flex-shrink-0">
+                                  {formatPrice(Number(provider.price) / currency.exchangeRate, currency)}
+                                </div>
+                              </label>
+                            ))}
                           </div>
                         </div>
-                        <p className="text-white text-right flex-shrink-0 font-medium">
-                          {formatPrice(item.discountedPrice * item.quantity, currency)}
-                        </p>
                       </div>
                     ))}
 
-                    {/* Subtotal */}
+                    {/* Subtotal Productos */}
                     <div className="flex items-center justify-between py-4 border-b border-white/10">
-                      <p className="font-medium text-white">Subtotal</p>
+                      <p className="font-medium text-white">Subtotal (Productos)</p>
                       <p className="font-semibold text-white">
                         {formatPrice(total, currency)}
                       </p>
                     </div>
 
-                    {/* Envío */}
-                    <div className="py-4 border-b border-white/10 flex justify-between items-center gap-4">
-                      <span className="font-medium text-white">Envío</span>
-                      <div className="flex flex-col gap-3 items-end">
-                        {shippingProviders.map((provider) => {
-                          const isChilexpress = provider.name.toUpperCase() === "CHILEXPRESS";
-                          return (
-                            <label key={provider.id} className="flex items-center gap-3 cursor-pointer w-full justify-end select-none">
-                              <input
-                                type="radio"
-                                name="shippingProvider"
-                                value={provider.name}
-                                checked={selectedProvider?.id === provider.id}
-                                onChange={() => setSelectedProvider(provider)}
-                                className="w-4 h-4 text-blue border-white/10 focus:ring-blue cursor-pointer flex-shrink-0"
-                              />
-                              
-                              {/* Badge de Marca Estilizado */}
-                              <ShippingBadge name={provider.name} size="sm" />
-
-                              <div className="text-right font-bold text-green-600 text-sm min-w-[85px] flex-shrink-0">
-                                {formatPrice(Number(provider.price) / currency.exchangeRate, currency)}
-                              </div>
-                            </label>
-                          );
-                        })}
-                      </div>
+                    {/* Total Envíos */}
+                    <div className="flex items-center justify-between py-4 border-b border-white/10">
+                      <p className="font-medium text-white">Total Envíos</p>
+                      <p className="font-semibold text-white">
+                        {formatPrice(totalShippingCost / currency.exchangeRate, currency)}
+                      </p>
                     </div>
 
-                    {/* Total */}
+                    {/* Total Final */}
                     <div className="flex items-center justify-between pt-5">
-                      <p className="font-semibold text-lg text-white">Total</p>
-                      <p className="font-semibold text-lg text-green-600">
-                        {formatPrice(total + (shippingCost / currency.exchangeRate), currency)}
+                      <p className="font-semibold text-lg text-white">Total Final</p>
+                      <p className="font-bold text-xl text-green-500">
+                        {formatPrice(total + (totalShippingCost / currency.exchangeRate), currency)}
                       </p>
                     </div>
                   </div>

@@ -8,6 +8,7 @@ import {
   Min,
   ValidateNested,
   ArrayMinSize,
+  IsObject,
 } from 'class-validator';
 
 export class OrderItemDto {
@@ -69,9 +70,9 @@ export class CreateOrderDto {
   @IsOptional()
   exchangeRate?: number;
 
-  @IsString()
+  @IsObject()
   @IsNotEmpty()
-  shippingProviderId: string;
+  storeShippingProviders: Record<string, string>;
 
   // Mercado Pago Fields for Custom Checkout
   @IsString()
