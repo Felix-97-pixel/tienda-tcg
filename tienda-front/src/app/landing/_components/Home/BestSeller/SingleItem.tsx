@@ -84,7 +84,7 @@ const SingleItem = ({ item }: { item: Product }) => {
           </div>
 
           <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
-            <Link href={`/shop-details?id=${item.id}`}> {item.title || item.name} </Link>
+            <Link href={`/shop-details/${item.slug || item.id}`}> {item.title || item.name} </Link>
           </h3>
 
           <span className="flex items-center justify-center gap-2 font-medium text-lg">
@@ -102,7 +102,7 @@ const SingleItem = ({ item }: { item: Product }) => {
         <div className="absolute right-0 bottom-0 translate-x-full u-w-full flex flex-col gap-2 p-5.5 ease-linear duration-300 group-hover:translate-x-0">
 
           <Link
-            href={`/shop-details?id=${item.id}`}
+            href={`/shop-details/${item.slug || item.id}`}
             onClick={() => handleProductDetails()}
             aria-label="Ver vendedores"
             id="addCartOne"

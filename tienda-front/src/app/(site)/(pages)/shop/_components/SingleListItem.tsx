@@ -82,7 +82,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
 
             <Link
-              href={`/shop-details?id=${item.id}`}
+              href={`/shop-details/${item.slug || item.id}`}
               onClick={() => handleProductDetails()}
               aria-label="Ver vendedores"
               className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
@@ -137,7 +137,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
         <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center justify-center sm:justify-between py-5 px-4 sm:px-7.5 lg:pl-11 lg:pr-12">
           <div>
             <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
-              <Link href={`/shop-details?id=${item.id}`}> {item.title || item.name} </Link>
+              <Link href={`/shop-details/${item.slug || item.id}`}> {item.title || item.name} </Link>
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">

@@ -230,6 +230,8 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
               storeId: vendorOrder.storeId,
               amount: totalAbono,
               type: 'SALE',
+              paymentMethod: 'MERCADOPAGO',
+              isWithdrawable: false,
               reference: `Order: ${vendorOrder.id} (MP Split)`,
             },
           });

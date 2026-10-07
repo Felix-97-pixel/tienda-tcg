@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
 import { addItemToCart } from "@/redux/features/cart-slice";
@@ -11,15 +12,15 @@ import { InventoryItem } from "@/types/inventoryItem";
 import { API_URL } from "@/utils/api";
 import { calculateCommissions } from "@/utils/commissions";
 import { useToast } from "@/hooks/useToast";
+import Loader from "@/components/ui/Loader";
 
 const ShopDetails = () => {
   const dispatch = useDispatch();
   
+  const params = useParams();
+  const slug = params?.slug as string;
   const [productId, setProductId] = useState<string | null>(null);
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    setProductId(urlParams.get("id"));
-  }, []);
+
   const { showToast } = useToast();
 
   const productFromStorage = useAppSelector(
@@ -39,10 +40,12 @@ const ShopDetails = () => {
 
   useEffect(() => {
     setIsMounted(true);
-    const fetchProduct = async (id: string) => {
+    const fetchProduct = async (identifier: string) => {
       try {
         const [res, curRes] = await Promise.all([
-          fetch(`${API_URL}/products/${id}`),
+          // Si tiene un '-' largo (uuid), intentamos buscar por id por compatibilidad
+          // pero lo ideal es buscar siempre por slug.
+          fetch(`${API_URL}/products/by-slug/${identifier}`),
           fetch(`${API_URL}/currencies`)
         ]);
         
@@ -53,15 +56,17 @@ const ShopDetails = () => {
         if (res.ok) {
           const data = await res.json();
           setProduct(data);
+          setProductId(data.id);
         }
       } catch (e) {}
     };
 
-    if (productId) {
-      if (productFromStorage && productFromStorage.id === productId) {
+    if (slug) {
+      if (productFromStorage && productFromStorage.slug === slug) {
         setProduct(productFromStorage as Product);
+        setProductId(productFromStorage.id);
       } else {
-        fetchProduct(productId);
+        fetchProduct(slug);
       }
     } else {
       if (productFromStorage && (productFromStorage.id !== "" || productFromStorage.title !== "")) {
@@ -76,7 +81,7 @@ const ShopDetails = () => {
         }
       }
     }
-  }, [productFromStorage, productId]);
+  }, [productFromStorage, slug]);
 
   useEffect(() => {
     if (isMounted && product) {
@@ -135,11 +140,7 @@ const ShopDetails = () => {
   if (!isMounted) return null;
 
   if (!product || (product.title === "" && !product.name)) {
-    return (
-      <div className="min-h-screen bg-[#111318] flex items-center justify-center text-white">
-        Cargando producto...
-      </div>
-    );
+    return <Loader text="Cargando producto..." />;
   }
 
   // Helper variables

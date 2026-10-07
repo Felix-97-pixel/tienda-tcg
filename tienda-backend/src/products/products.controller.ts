@@ -221,6 +221,13 @@ export class ProductsController {
     return this.productsService.getFinishes(game);
   }
 
+  @Get('by-slug/:slug')
+  async getProductBySlug(@Param('slug') slug: string) {
+    const product = await this.productsService.findBySlug(slug);
+    if (!product) throw new BadRequestException('Product not found');
+    return product;
+  }
+
   @Get(':id')
   async findOne(@Req() req: Request, @Param('id') id: string, @Query('adminCatalog') adminCatalog?: string) {
     let adminCatalogStoreId: string | undefined;

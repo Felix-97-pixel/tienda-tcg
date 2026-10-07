@@ -22,36 +22,44 @@ export class InitTransactionHandler
   async execute(command: InitTransactionCommand) {
     const { dto, userId, returnUrl } = command;
 
-    // 1. Obtener información de inventario para saber el storeId de cada item
-    const itemsWithStoreId = await Promise.all(
+    // 1. Obtener información de inventario para saber el storeId de cada item y SU PRECIO REAL
+    const itemsWithRealData = await Promise.all(
       dto.items.map(async (item) => {
-        let storeId = 'admin-store'; // Default o deberías manejar un store global
+        let storeId = 'admin-store';
+        let realUnitPrice = 0;
+        let productName = item.productName;
+
         if (item.inventoryItemId) {
           const inv = await this.prisma.inventoryItem.findUnique({
             where: { id: item.inventoryItemId },
-            select: { storeId: true, stock: true, reservedStock: true, product: { select: { name: true } } }
+            select: { storeId: true, stock: true, reservedStock: true, price: true, product: { select: { name: true } } }
           });
           if (!inv) {
-            throw new BadRequestException('Un producto del carrito no existe.');
+            throw new BadRequestException('Un producto del carrito no existe en la base de datos.');
           }
           const availableStock = inv.stock - inv.reservedStock;
           if (availableStock < item.quantity) {
              throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
           }
           if (inv.storeId) storeId = inv.storeId;
+          realUnitPrice = Number(inv.price);
+          productName = inv.product.name;
+        } else {
+           // Para productos custom o sin inventario directo
+           realUnitPrice = item.unitPrice; 
         }
-        return { ...item, storeId };
+        return { ...item, storeId, realUnitPrice, productName };
       })
     );
 
     // 2. Agrupar items por storeId
-    const vendorGroups = itemsWithStoreId.reduce((acc, item) => {
+    const vendorGroups = itemsWithRealData.reduce((acc, item) => {
       if (!acc[item.storeId]) {
         acc[item.storeId] = [];
       }
       acc[item.storeId].push(item);
       return acc;
-    }, {} as Record<string, typeof itemsWithStoreId>);
+    }, {} as Record<string, typeof itemsWithRealData>);
 
     // Get default currency
     const defaultCurrency = await this.prisma.currency.findFirst({
@@ -85,8 +93,9 @@ export class InitTransactionHandler
       const storeShippingCost = Number(provider.price);
       totalShippingCost += storeShippingCost;
 
+      // Calcular subtotal BASE con el PRECIO REAL DE LA BD
       const vendorBaseSubtotal = items.reduce(
-        (sum, i) => sum + i.unitPrice * i.quantity * exchangeRate,
+        (sum, i) => sum + i.realUnitPrice * i.quantity * exchangeRate,
         0,
       );
       
@@ -108,8 +117,8 @@ export class InitTransactionHandler
             inventoryItemId: item.inventoryItemId,
             productName: item.productName,
             quantity: item.quantity,
-            // El precio unitario guardado en la orden incluye el 5% de markup
-            unitPrice: (item.unitPrice * exchangeRate) * 1.05,
+            // El precio unitario guardado en la orden incluye el 5% de markup y usa el PRECIO REAL
+            unitPrice: (item.realUnitPrice * exchangeRate) * 1.05,
           })),
         },
       });

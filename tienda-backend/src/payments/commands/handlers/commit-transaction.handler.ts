@@ -132,6 +132,8 @@ export class CommitTransactionHandler
               storeId: vendorOrder.storeId,
               amount: totalAbono,
               type: 'SALE',
+              paymentMethod: 'WEBPAY',
+              isWithdrawable: true,
               reference: `Order: ${vendorOrder.id} (Commission kept: ${commission.toFixed(0)})`,
             },
           });

@@ -24,10 +24,16 @@ export class ProductsService {
       this.prisma.language.findFirst({ where: { code: 'en' } })
     ]);
 
+    const externalId = productData.externalId || `manual-${Date.now()}-${randomUUID()}`;
+    const baseSlug = productData.name.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-');
+    const shortId = externalId.split('-')[0].substring(0, 8);
+    const finalSlug = `${baseSlug}-${shortId}`;
+
     return this.prisma.product.create({
       data: {
         ...productData,
-        externalId: productData.externalId || `manual-${Date.now()}-${randomUUID()}`,
+        externalId: externalId,
+        slug: finalSlug,
         marketPrices: {
           create: {
             price: price || 0
@@ -258,14 +264,19 @@ export class ProductsService {
           finalBrandId = brand.id;
         }
 
+        const baseSlug = item['Nombre'].toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-');
+        const shortId = randomUUID().substring(0, 8);
+        const finalSlug = `${baseSlug}-${shortId}`;
+
         await this.prisma.product.create({
           data: {
             name: item['Nombre'],
+            slug: finalSlug,
             description: item['Descripcion'] || '',
             imageUrl: finalImageUrl,
             categoryId: category.id,
             brandId: finalBrandId,
-            externalId: `global-bulk-${Date.now()}-${randomUUID()}`,
+            externalId: `global-bulk-${Date.now()}-${shortId}`,
           }
         });
         results.created++;
@@ -653,6 +664,38 @@ export class ProductsService {
   async findOne(id: string, adminCatalogStoreId?: string) {
     return this.prisma.product.findUnique({
       where: { id },
+      include: {
+        category: true,
+        brand: true,
+        cardDetail: {
+          include: { gameRel: true }
+        },
+        marketPrices: {
+          include: { finish: true }
+        },
+        items: {
+          where: adminCatalogStoreId 
+            ? { storeId: adminCatalogStoreId } 
+            : { isPublished: true, stock: { gt: 0 } },
+          include: {
+            condition: true,
+            language: true,
+            finish: true,
+            store: {
+              include: {
+                subscriptionPlans: { include: { features: true } },
+                gameExchangeRates: true
+              }
+            }
+          }
+        },
+      },
+    });
+  }
+
+  async findBySlug(slug: string, adminCatalogStoreId?: string) {
+    return this.prisma.product.findUnique({
+      where: { slug },
       include: {
         category: true,
         brand: true,

@@ -25,6 +25,7 @@ import { FeaturesModule } from './features/features.module';
 import { BuylistModule } from './buylist/buylist.module';
 import { StoreCreditModule } from './store-credit/store-credit.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { WithdrawalsModule } from './withdrawals/withdrawals.module';
 
 @Module({
   imports: [
@@ -55,7 +56,8 @@ import { CouponsModule } from './coupons/coupons.module';
     FeaturesModule,
     BuylistModule,
     StoreCreditModule,
-    CouponsModule
+    CouponsModule,
+    WithdrawalsModule
   ],
   controllers: [AppController],
   providers: [AppService],

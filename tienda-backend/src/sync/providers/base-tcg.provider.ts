@@ -98,9 +98,14 @@ export abstract class TcgProvider {
         }
 
 
+        const baseSlug = productData.name.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-');
+        const shortId = productData.externalId.split('-')[0].substring(0, 8);
+        const generatedSlug = `${baseSlug}-${shortId}`;
+
         await this.prisma.product.upsert({
           where: { externalId: productData.externalId },
           update: {
+            slug: generatedSlug,
             name: productData.name,
             imageUrl: productData.image,
             description: productData.description,
@@ -116,6 +121,7 @@ export abstract class TcgProvider {
             }
           },
           create: {
+            slug: generatedSlug,
             externalId: productData.externalId,
             name: productData.name,
             imageUrl: productData.image,

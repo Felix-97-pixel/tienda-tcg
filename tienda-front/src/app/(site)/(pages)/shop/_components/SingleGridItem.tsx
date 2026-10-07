@@ -79,7 +79,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
 
 
           <Link
-            href={`/shop-details?id=${item.id}`}
+            href={`/shop-details/${item.slug || item.id}`}
             aria-label="Ver vendedores"
             id="addCartOne"
             className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
@@ -170,7 +170,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
       </div>
 
       <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
-        <Link href={`/shop-details?id=${item.id}`}> {item.title || item.name} </Link>
+        <Link href={`/shop-details/${item.slug || item.id}`}> {item.title || item.name} </Link>
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
