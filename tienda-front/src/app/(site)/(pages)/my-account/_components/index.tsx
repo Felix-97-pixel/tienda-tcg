@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import { RootState } from "@/redux/store";
 import { logout } from "@/redux/features/auth-slice";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(() => import("@/components/ui/LocationPicker"), { ssr: false });
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -15,6 +18,10 @@ type UserProfile = {
   phone: string | null;
   address: string | null;
   city: string | null;
+  lat: number | null;
+  lng: number | null;
+  regionCode: string | null;
+  cityCode: string | null;
   role: string;
   createdAt: string;
 };
@@ -56,7 +63,9 @@ const MyAccount = () => {
   const [loadingOrders, setLoadingOrders] = useState(true);
 
   // Form state for Account Details
-  const [form, setForm] = useState({ name: "", phone: "", address: "", city: "" });
+  const [form, setForm] = useState<{
+    name: string; phone: string; address: string; city: string; lat: number|null; lng: number|null; regionCode: string; cityCode: string;
+  }>({ name: "", phone: "", address: "", city: "", lat: null, lng: null, regionCode: "", cityCode: "" });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
 
@@ -72,6 +81,10 @@ const MyAccount = () => {
         phone: data.phone ?? "",
         address: data.address ?? "",
         city: data.city ?? "",
+        lat: data.lat ?? null,
+        lng: data.lng ?? null,
+        regionCode: data.regionCode ?? "",
+        cityCode: data.cityCode ?? "",
       });
     } catch {
       setProfile(null);
@@ -364,32 +377,20 @@ const MyAccount = () => {
                     </div>
                   </div>
 
-                  <div className="mb-5">
-                    <label htmlFor="profile-address" className="block mb-2.5 font-medium text-white">
-                      Dirección
+                  <div className="mb-8">
+                    <label className="block mb-2.5 font-medium text-white">
+                      Ubicación exacta para envíos (Importante)
                     </label>
-                    <input
-                      type="text"
-                      id="profile-address"
-                      value={form.address}
-                      onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
-                      placeholder="Calle, número, depto..."
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label htmlFor="profile-city" className="block mb-2.5 font-medium text-white">
-                      Ciudad
-                    </label>
-                    <input
-                      type="text"
-                      id="profile-city"
-                      value={form.city}
-                      onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
-                      placeholder="Santiago"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
+                    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                      <LocationPicker
+                        initialLat={form.lat}
+                        initialLng={form.lng}
+                        initialAddress={form.address}
+                        onLocationChange={(lat, lng, address) => {
+                          setForm((p) => ({ ...p, lat, lng, address }));
+                        }}
+                      />
+                    </div>
                   </div>
 
                   {saveMsg && (

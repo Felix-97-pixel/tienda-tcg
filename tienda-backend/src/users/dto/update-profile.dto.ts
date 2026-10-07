@@ -20,4 +20,18 @@ export class UpdateProfileDto {
   @IsOptional()
   @MaxLength(100)
   city?: string;
+
+  @IsOptional()
+  lat?: number;
+
+  @IsOptional()
+  lng?: number;
+
+  @IsString()
+  @IsOptional()
+  regionCode?: string;
+
+  @IsString()
+  @IsOptional()
+  cityCode?: string;
 }

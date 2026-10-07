@@ -56,6 +56,10 @@ model Product {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   cardDetail   CardDetail?
+  weightGram   Float?
+  widthCm      Float?
+  heightCm     Float?
+  lengthCm     Float?
   items        InventoryItem[]
   marketPrices MarketPrice[]
   category     Category        @relation(fields: [categoryId], references: [id])
@@ -240,6 +244,10 @@ model User {
   phone              String?
   address            String?
   city               String?
+  lat                Float?
+  lng                Float?
+  regionCode         String?
+  cityCode           String?
   role               Role                     @default(USER)
   isVerified         Boolean                  @default(false)
   verificationToken  String?
@@ -252,6 +260,21 @@ model User {
   creditTransactions StoreCreditTransaction[]
 }
 
+model ShippingLabel {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  provider        String   // "STARKEN" | "CHILEXPRESS"
+  trackingNumber  String
+  pdfUrl          String
+  cost            Float
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+
 model Order {
   id           String        @id @default(uuid())
   buyOrder     String        @unique
@@ -261,6 +284,10 @@ model Order {
   phone        String?
   address      String?
   city         String?
+  lat          Float?
+  lng          Float?
+  regionCode   String?
+  cityCode     String?
   notes        String?
   totalAmount  Decimal       @db.Decimal(10, 2)
   currencyCode String?       @default("CLP")
@@ -269,6 +296,7 @@ model Order {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   payment      Payment?
+  shippingLabel ShippingLabel?
   user         User?         @relation(fields: [userId], references: [id])
   vendorOrders VendorOrder[]
   reservations StockReservation[]

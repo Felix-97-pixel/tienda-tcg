@@ -23,6 +23,10 @@ export interface EditProductModalProps {
     itemId: string;
     price: number;
     stock: number;
+    weightGram?: number;
+    widthCm?: number;
+    heightCm?: number;
+    lengthCm?: number;
   } | null;
   categories: { id: string, name: string, isTcg?: boolean }[];
   brands: { id: string, name: string }[];
@@ -43,6 +47,10 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
     description: "",
     price: 0,
     stock: 0,
+    weightGram: "",
+    widthCm: "",
+    heightCm: "",
+    lengthCm: "",
   });
 
   useEffect(() => {
@@ -55,6 +63,10 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
         description: item.description || "",
         price: item.price,
         stock: item.stock,
+        weightGram: item.weightGram?.toString() || "",
+        widthCm: item.widthCm?.toString() || "",
+        heightCm: item.heightCm?.toString() || "",
+        lengthCm: item.lengthCm?.toString() || "",
       });
     }
   }, [item]);
@@ -74,6 +86,10 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           categoryId: form.categoryId,
           brandId: form.brandId || null,
           imageUrl: form.imageUrl || null,
+          weightGram: form.weightGram ? parseFloat(form.weightGram as string) : null,
+          widthCm: form.widthCm ? parseFloat(form.widthCm as string) : null,
+          heightCm: form.heightCm ? parseFloat(form.heightCm as string) : null,
+          lengthCm: form.lengthCm ? parseFloat(form.lengthCm as string) : null,
         }),
         credentials: "include",
       });
@@ -168,6 +184,44 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
               </div>
             </div>
           </>
+        )}
+
+        {!isTcg && (
+          <div className="rounded-xl border border-white/10 p-5 bg-white/[0.02]">
+            <h4 className="mb-4 text-sm font-bold text-white flex items-center gap-2">
+              <span className="text-blue">📦</span> Dimensiones para Envío
+            </h4>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <Input
+                label="Peso (Gramos)"
+                type="number"
+                value={form.weightGram}
+                onChange={(e) => setForm({ ...form, weightGram: e.target.value })}
+                placeholder="Ej: 500"
+              />
+              <Input
+                label="Largo (cm)"
+                type="number"
+                value={form.lengthCm}
+                onChange={(e) => setForm({ ...form, lengthCm: e.target.value })}
+                placeholder="Ej: 20"
+              />
+              <Input
+                label="Ancho (cm)"
+                type="number"
+                value={form.widthCm}
+                onChange={(e) => setForm({ ...form, widthCm: e.target.value })}
+                placeholder="Ej: 15"
+              />
+              <Input
+                label="Alto (cm)"
+                type="number"
+                value={form.heightCm}
+                onChange={(e) => setForm({ ...form, heightCm: e.target.value })}
+                placeholder="Ej: 10"
+              />
+            </div>
+          </div>
         )}
 
         <div>

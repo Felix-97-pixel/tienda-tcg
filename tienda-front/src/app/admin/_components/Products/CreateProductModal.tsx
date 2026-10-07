@@ -33,7 +33,14 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
     stock: 0,
     imageUrl: "",
     description: "",
+    weightGram: "",
+    widthCm: "",
+    heightCm: "",
+    lengthCm: "",
   });
+
+  const selectedCategoryObj = categories.find(c => c.id === creatingProduct.categoryId);
+  const isTcgCategory = selectedCategoryObj?.isTcg;
 
   if (!isOpen) return null;
 
@@ -43,18 +50,26 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
       return;
     }
 
+    const payload = {
+      ...creatingProduct,
+      weightGram: creatingProduct.weightGram ? parseFloat(creatingProduct.weightGram as string) : undefined,
+      widthCm: creatingProduct.widthCm ? parseFloat(creatingProduct.widthCm as string) : undefined,
+      heightCm: creatingProduct.heightCm ? parseFloat(creatingProduct.heightCm as string) : undefined,
+      lengthCm: creatingProduct.lengthCm ? parseFloat(creatingProduct.lengthCm as string) : undefined,
+    };
+
     try {
       const res = await fetch(`${API_URL}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(creatingProduct),
+        body: JSON.stringify(payload),
         credentials: "include",
       });
       const data = await res.json();
       if (res.ok) {
         showToast(t("modal.successCreate"), "success");
         setCreatingProduct({
-          name: "", categoryId: "", brandId: "", price: 0, stock: 0, imageUrl: "", description: ""
+          name: "", categoryId: "", brandId: "", price: 0, stock: 0, imageUrl: "", description: "", weightGram: "", widthCm: "", heightCm: "", lengthCm: ""
         });
         onSuccess();
         onClose();
@@ -153,6 +168,46 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
               />
             </div>
           </div>
+
+          {/* Dimensiones Físicas (Solo para No-TCG) */}
+          {creatingProduct.categoryId && !isTcgCategory && (
+            <div className="md:col-span-2 rounded-xl border border-white/10 p-5 bg-white/[0.02]">
+              <h4 className="mb-4 text-sm font-bold text-white flex items-center gap-2">
+                <span className="text-blue">📦</span> Dimensiones para Envío
+              </h4>
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Input
+                  label="Peso (Gramos)"
+                  type="number"
+                  value={creatingProduct.weightGram}
+                  onChange={(e) => setCreatingProduct({ ...creatingProduct, weightGram: e.target.value })}
+                  placeholder="Ej: 500"
+                />
+                <Input
+                  label="Largo (cm)"
+                  type="number"
+                  value={creatingProduct.lengthCm}
+                  onChange={(e) => setCreatingProduct({ ...creatingProduct, lengthCm: e.target.value })}
+                  placeholder="Ej: 20"
+                />
+                <Input
+                  label="Ancho (cm)"
+                  type="number"
+                  value={creatingProduct.widthCm}
+                  onChange={(e) => setCreatingProduct({ ...creatingProduct, widthCm: e.target.value })}
+                  placeholder="Ej: 15"
+                />
+                <Input
+                  label="Alto (cm)"
+                  type="number"
+                  value={creatingProduct.heightCm}
+                  onChange={(e) => setCreatingProduct({ ...creatingProduct, heightCm: e.target.value })}
+                  placeholder="Ej: 10"
+                />
+              </div>
+              <p className="mt-3 text-xs text-gray-4">Estas dimensiones son obligatorias para calcular el costo de envío con Starken o Chilexpress.</p>
+            </div>
+          )}
 
           {/* Descripción */}
           <div className="md:col-span-2">

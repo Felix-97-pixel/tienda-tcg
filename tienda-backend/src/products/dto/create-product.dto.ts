@@ -29,4 +29,16 @@ export class CreateProductDto {
 
   @IsOptional()
   stock?: number;
+
+  @IsOptional()
+  weightGram?: number;
+
+  @IsOptional()
+  widthCm?: number;
+
+  @IsOptional()
+  heightCm?: number;
+
+  @IsOptional()
+  lengthCm?: number;
 }
