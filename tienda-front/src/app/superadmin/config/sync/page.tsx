@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/ui/Loader";
 import React from "react";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
@@ -30,7 +31,7 @@ export default function AdminSettings() {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-4 text-xs font-black uppercase tracking-widest animate-pulse">Cargando configuración...</p>
+        <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }

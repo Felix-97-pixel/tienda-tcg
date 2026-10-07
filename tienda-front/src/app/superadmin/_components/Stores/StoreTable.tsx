@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/ui/Loader";
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -17,7 +18,7 @@ export default function StoreTable({ stores, loading, onDelete }: StoreTableProp
   };
 
   if (loading) {
-    return <div className="text-center py-10 text-gray-400">Cargando tiendas...</div>;
+    return <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />;
   }
 
   return (

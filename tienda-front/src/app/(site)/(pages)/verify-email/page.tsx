@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/ui/Loader";
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -91,7 +92,7 @@ const VerifyEmailPage = () => {
           <Suspense fallback={
             <div className="max-w-[570px] w-full mx-auto rounded-xl bg-[#1a1d24] shadow-1 p-8 sm:p-12 text-center border-t-4 border-red flex flex-col items-center">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-solid border-red border-t-transparent mb-6"></div>
-              <h2 className="font-bold text-2xl text-white mb-3">Cargando verificación...</h2>
+              <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
             </div>
           }>
             <VerifyEmailContent />

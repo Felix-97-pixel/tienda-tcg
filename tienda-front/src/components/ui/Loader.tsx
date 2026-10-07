@@ -5,9 +5,9 @@ interface LoaderProps {
   className?: string;
 }
 
-const Loader: React.FC<LoaderProps> = ({ text = "Cargando...", className = "" }) => {
+const Loader: React.FC<LoaderProps> = ({ text = "Cargando...", className = "min-h-[60vh] bg-[#111318]" }) => {
   return (
-    <div className={`min-h-[60vh] bg-[#111318] flex flex-col items-center justify-center text-white ${className}`}>
+    <div className={`flex flex-col items-center justify-center text-white ${className}`}>
       <svg
         className="animate-spin h-10 w-10 text-blue mb-4"
         xmlns="http://www.w3.org/2000/svg"

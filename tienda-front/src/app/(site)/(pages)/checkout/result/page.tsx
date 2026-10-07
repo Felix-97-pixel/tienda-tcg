@@ -1,3 +1,4 @@
+import Loader from "@/components/ui/Loader";
 import React, { Suspense } from "react";
 import PaymentResult from "@/app/(site)/(pages)/checkout/_components/PaymentResult";
 import { Metadata } from "next";
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 const CheckoutResultPage = () => {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}>
+    <Suspense fallback={<Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />}>
       <PaymentResult />
     </Suspense>
   );

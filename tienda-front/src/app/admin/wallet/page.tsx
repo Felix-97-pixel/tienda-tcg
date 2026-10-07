@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Loader from "@/components/ui/Loader";
 import { API_URL } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
 
@@ -55,7 +56,7 @@ export default function StoreWalletPage() {
     }
   };
 
-  if (loading) return <div className="p-6 text-white">Cargando billetera...</div>;
+  if (loading) return <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />;
 
   return (
     <div className="p-6 space-y-6 pb-24 text-white">

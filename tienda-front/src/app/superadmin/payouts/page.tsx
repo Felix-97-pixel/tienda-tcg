@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
+import Loader from "@/components/ui/Loader";
 
 export default function SuperAdminPayoutsPage() {
   const [pending, setPending] = useState<any[]>([]);
@@ -48,7 +49,7 @@ export default function SuperAdminPayoutsPage() {
     }
   };
 
-  if (loading) return <div className="p-6 text-white">Cargando pagos pendientes...</div>;
+  if (loading) return <Loader text="Cargando pagos pendientes..." className="min-h-screen bg-transparent" />;
 
   return (
     <div className="p-6 space-y-6 pb-24 text-white">

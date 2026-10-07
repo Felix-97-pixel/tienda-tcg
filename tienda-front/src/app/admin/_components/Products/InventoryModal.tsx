@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/ui/Loader";
 import React, { useState, useEffect } from "react";
 import { API_URL } from "@/utils/api";
 import { MP_COMMISSION } from "@/utils/constants";
@@ -224,7 +225,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         {isLoadingRates ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-10 h-10 border-4 border-blue border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-4 text-sm font-bold animate-pulse">Cargando tasas de cambio...</p>
+            <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
           </div>
         ) : (
           <>
