@@ -16,6 +16,7 @@ export async function getProducts(): Promise<Product[]> {
       const defaultStock = item.items?.[0]?.stock || 0;
       return {
         id: item.id,
+        slug: item.slug,
         title: item.name,
         reviews: 0,
         price: parseFloat(defaultPrice),

@@ -137,6 +137,7 @@ const ShopWithSidebar = ({ storeId }: { storeId?: string }) => {
 
             return {
               id: item.id,
+              slug: item.slug,
               title: item.name,
               name: item.name, // duplicamos para compatibilidad
               reviews: 0,
