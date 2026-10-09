@@ -11,7 +11,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
   constructor(
     private readonly prisma: PrismaService,
     private readonly mp: MercadoPagoProvider,
-  ) {}
+  ) { }
 
   async execute(command: ProcessPaymentCommand) {
     const { dto, userId } = command;
@@ -30,7 +30,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
           }
           const availableStock = inv.stock - inv.reservedStock;
           if (availableStock < item.quantity) {
-             throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
+            throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
           }
           if (inv.storeId) storeId = inv.storeId;
         }
@@ -138,26 +138,32 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     let paymentResponse;
     try {
       const payload: any = {
-        transaction_amount: Math.round(globalTotal),
-        token: dto.token,
-        description: `Compra E-commerce - ${buyOrder}`,
-        installments: dto.installments,
-        payment_method_id: dto.payment_method_id,
-        issuer_id: dto.issuer_id,
+        payments: [
+          {
+            payment_method_id: dto.payment_method_id,
+            payment_type_id: 'credit_card', // Usually MP auto-detects or accepts this for cards
+            token: dto.token,
+            transaction_amount: Math.round(globalTotal),
+            installments: dto.installments,
+            description: `Compra E-commerce - ${buyOrder}`,
+            issuer_id: dto.issuer_id,
+          }
+        ],
         payer: {
           email: dto.email,
         },
-        // Injection of disbursements for Split Payment / Marketplace
         disbursements: disbursements,
+        external_reference: buyOrder,
       };
 
-      paymentResponse = await this.mp.payment.create({
+      paymentResponse = await this.mp.advancedPayment.create({
         body: payload,
       });
-      
-    } catch (error) {
+
+    } catch (error: any) {
       this.logger.error('Error procesando pago con Mercado Pago', error);
-      throw new BadRequestException('Error al procesar el pago con la tarjeta.');
+      const mpMessage = error.response?.message || error.message || 'Error desconocido';
+      throw new BadRequestException(`Error al procesar el pago con la tarjeta: ${mpMessage}`);
     }
 
     // 5. Guardar Orden en BD

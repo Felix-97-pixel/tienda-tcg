@@ -52,6 +52,17 @@ export class StoresController {
     return this.storesService.updateStoreByOwner(req.user.userId, data);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/devaluations')
+  upsertDevaluations(@Request() req: any, @Body() data: { devaluations: { conditionId: string, multiplier: number }[] }) {
+    return this.storesService.upsertDevaluations(req.user.userId, data.devaluations);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/language-devaluations')
+  upsertLanguageDevaluations(@Request() req: any, @Body() data: { languageDevaluations: { languageId: string, multiplier: number }[] }) {
+    return this.storesService.upsertLanguageDevaluations(req.user.userId, data.languageDevaluations);
+  }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Get()

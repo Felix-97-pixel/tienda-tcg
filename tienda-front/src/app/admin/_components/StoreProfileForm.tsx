@@ -208,6 +208,49 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               />
             </div>
 
+            {/* Degradación de Precios */}
+            {formData.devaluations && formData.devaluations.length > 0 && (
+              <>
+                <div className="flex items-center gap-4 mb-6 mt-10">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center shadow-inner">
+                    <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Reglas de Degradación de Precios</h2>
+                    <p className="text-xs text-gray-4 font-medium mt-1">Define el porcentaje del valor de una carta según su estado físico. Near Mint será siempre el 100%.</p>
+                  </div>
+                </div>
+
+                <div className="bg-[#111318] border border-stroke p-6 rounded-2xl space-y-4">
+                  {formData.devaluations.map((dev, index) => {
+                    const isNM = dev.conditionName.toLowerCase() === "near mint" || dev.conditionName.toLowerCase() === "near_mint" || dev.conditionName.toLowerCase() === "nm";
+                    return (
+                      <div key={dev.conditionId} className="flex items-center justify-between gap-4 p-3 bg-[#1a1d24] rounded-xl border border-stroke">
+                        <span className="text-sm font-semibold text-white min-w-[120px]">{dev.conditionName}</span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            disabled={isNM}
+                            value={isNM ? 100 : Math.round(dev.multiplier * 100)}
+                            onChange={(e) => {
+                              const newMult = parseFloat(e.target.value) / 100;
+                              const newDevals = [...(formData.devaluations || [])];
+                              newDevals[index] = { ...dev, multiplier: newMult };
+                              setFormData(prev => ({ ...prev, devaluations: newDevals }));
+                            }}
+                            className="w-20 bg-[#111318] border border-stroke rounded-lg px-3 py-2 text-white text-right disabled:opacity-50"
+                          />
+                          <span className="text-gray-4 font-bold">%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
             {/* Asignación de Planes y Features (Solo visible para SuperAdmin) */}
             {storeId !== "me" && (
               <>

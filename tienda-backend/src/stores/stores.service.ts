@@ -54,6 +54,12 @@ export class StoresService {
       include: {
                 settings: true,
         gameExchangeRates: true,
+        devaluations: {
+          include: { condition: true }
+        },
+        languageDevaluations: {
+          include: { language: true }
+        },
         subscriptionPlans: {
           include: { features: true }
         },
@@ -104,6 +110,12 @@ export class StoresService {
       include: {
                 settings: true,
         gameExchangeRates: true,
+        devaluations: {
+          include: { condition: true }
+        },
+        languageDevaluations: {
+          include: { language: true }
+        },
         subscriptionPlans: { include: { features: true } },
         customFeatures: true,
       }
@@ -169,6 +181,66 @@ export class StoresService {
     }
 
     // Retornar tienda actualizada
+    return this.getStoreByOwner(userId);
+  }
+
+  async upsertDevaluations(userId: string, devaluationsData: { conditionId: string, multiplier: number }[]) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    if (!store) {
+      throw new NotFoundException('No tienes una tienda asignada');
+    }
+
+    // Execute multiple upserts
+    await this.prisma.$transaction(
+      devaluationsData.map(dev =>
+        this.prisma.storeConditionDevaluation.upsert({
+          where: {
+            storeId_conditionId: {
+              storeId: store.id,
+              conditionId: dev.conditionId,
+            },
+          },
+          update: {
+            multiplier: dev.multiplier,
+          },
+          create: {
+            storeId: store.id,
+            conditionId: dev.conditionId,
+            multiplier: dev.multiplier,
+          },
+        })
+      )
+    );
+    return this.getStoreByOwner(userId);
+  }
+
+  async upsertLanguageDevaluations(userId: string, languageDevaluationsData: { languageId: string, multiplier: number }[]) {
+    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    if (!store) {
+      throw new NotFoundException('No tienes una tienda asignada');
+    }
+
+    await this.prisma.$transaction(
+      languageDevaluationsData.map(dev =>
+        this.prisma.storeLanguageDevaluation.upsert({
+          where: {
+            storeId_languageId: {
+              storeId: store.id,
+              languageId: dev.languageId,
+            },
+          },
+          update: {
+            multiplier: dev.multiplier,
+          },
+          create: {
+            storeId: store.id,
+            languageId: dev.languageId,
+            multiplier: dev.multiplier,
+          },
+        })
+      )
+    );
+
     return this.getStoreByOwner(userId);
   }
 

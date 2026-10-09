@@ -77,8 +77,9 @@ model Language {
   id           String          @id @default(uuid())
   name         String          @unique // e.g., "Spanish", "English"
   code         String          @unique // e.g., "es", "en"
-  items        InventoryItem[]
-  buyListItems BuyListItem[]
+  items                InventoryItem[]
+  buyListItems         BuyListItem[]
+  languageDevaluations StoreLanguageDevaluation[]
 }
 
 model Condition {
@@ -224,8 +225,9 @@ model Store {
   settings          StoreSetting[]
   transactions      WalletTransaction[]
   withdrawals       WithdrawalRequest[]
-  devaluations      StoreConditionDevaluation[]
-  gameExchangeRates StoreGameExchangeRate[]
+  devaluations         StoreConditionDevaluation[]
+  languageDevaluations StoreLanguageDevaluation[]
+  gameExchangeRates    StoreGameExchangeRate[]
 
   subscriptionPlans SubscriptionPlan[] @relation("StoreSubscriptionPlans")
 
@@ -405,6 +407,18 @@ model StoreConditionDevaluation {
   condition Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
 
   @@unique([storeId, conditionId])
+}
+
+model StoreLanguageDevaluation {
+  id         String  @id @default(uuid())
+  storeId    String
+  languageId String
+  multiplier Decimal @db.Decimal(5, 4) // e.g. 0.9500
+
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, languageId])
 }
 
 model ShippingProvider {

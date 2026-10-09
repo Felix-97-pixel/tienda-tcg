@@ -27,4 +27,6 @@ export interface StoreProfileFormData {
   address: string;
   latitude: number | null;
   longitude: number | null;
+  devaluations?: { conditionId: string; conditionName: string; multiplier: number }[];
+  languageDevaluations?: { languageId: string; languageName: string; multiplier: number }[];
 }

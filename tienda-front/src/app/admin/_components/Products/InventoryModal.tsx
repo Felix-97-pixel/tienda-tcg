@@ -29,6 +29,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const [exchangeRate, setExchangeRate] = useState<number>(1000);
   const [baseCurrency, setBaseCurrency] = useState<string>("USD");
   const [isLoadingRates, setIsLoadingRates] = useState<boolean>(true);
+  const [devaluations, setDevaluations] = useState<any[]>([]);
+  const [languageDevaluations, setLanguageDevaluations] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,6 +40,13 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           if (data && data.subscriptionPlans && data.subscriptionPlans.length > 0) {
             setStoreCommissionRate(Number(data.subscriptionPlans[0].commissionRate));
           }
+          if (data && data.devaluations) {
+            setDevaluations(data.devaluations);
+          }
+          if (data && data.languageDevaluations) {
+            setLanguageDevaluations(data.languageDevaluations);
+          }
+
         })
         .catch(err => console.error("Error fetching store commission rate:", err));
         
@@ -98,6 +107,45 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   };
 
   const netPriceCLP = (newVariation.price || 0) * exchangeRate;
+
+  useEffect(() => {
+    if (newVariation.conditionId && newVariation.languageId && product?.items) {
+      const selectedCond = conditions.find(c => c.id === newVariation.conditionId);
+      const selectedLang = languages.find(l => l.id === newVariation.languageId);
+
+      if (selectedCond && selectedLang) {
+        const isNM = selectedCond.name.toLowerCase() === "near_mint" || selectedCond.name.toLowerCase() === "near mint" || selectedCond.name.toLowerCase() === "nm";
+        const isEnglish = selectedLang.name.toLowerCase() === "english" || selectedLang.name.toLowerCase() === "inglés" || selectedLang.name.toLowerCase() === "ingles";
+        
+        if (!isNM || !isEnglish) {
+          // Find NM English item
+          const nmEngItem = product.items.find((item: any) => 
+            item.finishId === newVariation.finishId && 
+            (item.condition.name.toLowerCase() === "near_mint" || item.condition.name.toLowerCase() === "near mint" || item.condition.name.toLowerCase() === "nm") &&
+            (item.language.name.toLowerCase() === "english" || item.language.name.toLowerCase() === "inglés" || item.language.name.toLowerCase() === "ingles")
+          );
+
+          if (nmEngItem) {
+            let finalMultiplier = 1;
+
+            if (!isNM) {
+              const condDeval = devaluations.find(d => d.conditionId === newVariation.conditionId);
+              if (condDeval) finalMultiplier *= Number(condDeval.multiplier);
+            }
+
+            if (!isEnglish) {
+              const langDeval = languageDevaluations.find(d => d.languageId === newVariation.languageId);
+              if (langDeval) finalMultiplier *= Number(langDeval.multiplier);
+            }
+
+            setNewVariation(prev => ({ ...prev, price: Number((nmEngItem.price * finalMultiplier).toFixed(2)) }));
+          } else {
+            setNewVariation(prev => ({ ...prev, price: 0 }));
+          }
+        }
+      }
+    }
+  }, [newVariation.conditionId, newVariation.languageId, newVariation.finishId, conditions, languages, product?.items, devaluations, languageDevaluations]);
   const currentCalc = calculateCommissions(netPriceCLP, storeCommissionRate);
 
   useEffect(() => {
@@ -267,6 +315,16 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 step="0.01"
                 min="0.01"
                 value={newVariation.price}
+                disabled={(() => {
+                  const selectedCond = conditions.find(c => c.id === newVariation.conditionId);
+                  const selectedLang = languages.find(l => l.id === newVariation.languageId);
+                  if (!selectedCond || !selectedLang) return false;
+                  
+                  const isNM = selectedCond.name.toLowerCase() === "near_mint" || selectedCond.name.toLowerCase() === "near mint" || selectedCond.name.toLowerCase() === "nm";
+                  const isEnglish = selectedLang.name.toLowerCase() === "english" || selectedLang.name.toLowerCase() === "inglés" || selectedLang.name.toLowerCase() === "ingles";
+                  
+                  return !(isNM && isEnglish);
+                })()}
                 onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
               />
             </div>
