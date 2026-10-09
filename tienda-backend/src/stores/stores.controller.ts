@@ -54,14 +54,14 @@ export class StoresController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('me/devaluations')
-  upsertDevaluations(@Request() req: any, @Body() data: { devaluations: { conditionId: string, multiplier: number }[] }) {
-    return this.storesService.upsertDevaluations(req.user.userId, data.devaluations);
+  upsertDevaluations(@Request() req: any, @Body() data: { gameId: string, devaluations: { conditionId: string, multiplier: number }[] }) {
+    return this.storesService.upsertDevaluations(req.user.userId, data.gameId, data.devaluations);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('me/language-devaluations')
-  upsertLanguageDevaluations(@Request() req: any, @Body() data: { languageDevaluations: { languageId: string, multiplier: number }[] }) {
-    return this.storesService.upsertLanguageDevaluations(req.user.userId, data.languageDevaluations);
+  upsertLanguageDevaluations(@Request() req: any, @Body() data: { gameId: string, languageDevaluations: { languageId: string, multiplier: number }[] }) {
+    return this.storesService.upsertLanguageDevaluations(req.user.userId, data.gameId, data.languageDevaluations);
   }
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')

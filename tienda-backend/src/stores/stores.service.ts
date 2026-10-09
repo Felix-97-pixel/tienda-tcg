@@ -64,6 +64,7 @@ export class StoresService {
           include: { features: true }
         },
         customFeatures: true,
+        supportedGames: true,
       }
     });
 
@@ -145,6 +146,7 @@ export class StoresService {
         address: address !== undefined ? address : undefined,
         latitude: latitude !== undefined ? latitude : undefined,
         longitude: longitude !== undefined ? longitude : undefined,
+        supportedGames: data.supportedGames ? { set: data.supportedGames.map((id: string) => ({ id })) } : undefined,
       }
     });
 
@@ -184,7 +186,7 @@ export class StoresService {
     return this.getStoreByOwner(userId);
   }
 
-  async upsertDevaluations(userId: string, devaluationsData: { conditionId: string, multiplier: number }[]) {
+  async upsertDevaluations(userId: string, gameId: string, devaluationsData: { conditionId: string, multiplier: number }[]) {
     const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
@@ -195,9 +197,10 @@ export class StoresService {
       devaluationsData.map(dev =>
         this.prisma.storeConditionDevaluation.upsert({
           where: {
-            storeId_conditionId: {
+            storeId_conditionId_gameId: {
               storeId: store.id,
               conditionId: dev.conditionId,
+              gameId: gameId,
             },
           },
           update: {
@@ -206,6 +209,7 @@ export class StoresService {
           create: {
             storeId: store.id,
             conditionId: dev.conditionId,
+            gameId: gameId,
             multiplier: dev.multiplier,
           },
         })
@@ -214,7 +218,7 @@ export class StoresService {
     return this.getStoreByOwner(userId);
   }
 
-  async upsertLanguageDevaluations(userId: string, languageDevaluationsData: { languageId: string, multiplier: number }[]) {
+  async upsertLanguageDevaluations(userId: string, gameId: string, languageDevaluationsData: { languageId: string, multiplier: number }[]) {
     const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
@@ -224,9 +228,10 @@ export class StoresService {
       languageDevaluationsData.map(dev =>
         this.prisma.storeLanguageDevaluation.upsert({
           where: {
-            storeId_languageId: {
+            storeId_languageId_gameId: {
               storeId: store.id,
               languageId: dev.languageId,
+              gameId: gameId,
             },
           },
           update: {
@@ -235,6 +240,7 @@ export class StoresService {
           create: {
             storeId: store.id,
             languageId: dev.languageId,
+            gameId: gameId,
             multiplier: dev.multiplier,
           },
         })

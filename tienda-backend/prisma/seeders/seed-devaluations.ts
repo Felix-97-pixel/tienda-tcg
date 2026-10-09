@@ -5,6 +5,7 @@ export async function seedStoreDevaluations(prisma: PrismaClient) {
 
   const stores = await prisma.store.findMany();
   const conditions = await prisma.condition.findMany();
+  const games = await prisma.game.findMany();
 
   const defaultMultipliers: Record<string, number> = {
     'near_mint': 1.0,
@@ -17,25 +18,29 @@ export async function seedStoreDevaluations(prisma: PrismaClient) {
   let count = 0;
 
   for (const store of stores) {
-    for (const condition of conditions) {
+    for (const game of games) {
+      for (const condition of conditions) {
       const multiplier = defaultMultipliers[condition.name] || 1.0;
       
       await prisma.storeConditionDevaluation.upsert({
         where: {
-          storeId_conditionId: {
+          storeId_conditionId_gameId: {
             storeId: store.id,
-            conditionId: condition.id
+            conditionId: condition.id,
+            gameId: game.id
           }
         },
         update: {}, // Si ya existe, no lo tocamos
         create: {
           storeId: store.id,
           conditionId: condition.id,
+          gameId: game.id,
           multiplier: multiplier
         }
       });
       count++;
     }
+  }
   }
 
   console.log(`✅ Default devaluations created for existing stores (${count} records).`);

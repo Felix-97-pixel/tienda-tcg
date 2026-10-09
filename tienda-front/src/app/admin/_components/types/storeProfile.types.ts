@@ -27,6 +27,7 @@ export interface StoreProfileFormData {
   address: string;
   latitude: number | null;
   longitude: number | null;
-  devaluations?: { conditionId: string; conditionName: string; multiplier: number }[];
-  languageDevaluations?: { languageId: string; languageName: string; multiplier: number }[];
+  supportedGames?: { id: string, name: string }[];
+  devaluations?: { conditionId: string; conditionName: string; gameId: string; multiplier: number }[];
+  languageDevaluations?: { languageId: string; languageName: string; gameId: string; multiplier: number }[];
 }

@@ -68,6 +68,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   const configItems = [
     { href: "/admin/profile", label: "Mi Tienda", icon: icons.settings },
+    { href: "/admin/games", label: "Juegos Soportados", icon: icons.products },
     { href: "/admin/devaluations", label: "Reglas de Estado", icon: icons.settings },
     { href: "/admin/wallet", label: "Billetera", icon: icons.sales },
     { href: "/admin/currencies", label: "Divisas", icon: icons.settings },
@@ -77,7 +78,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   const isCatalog = ["/admin/products", "/admin/sealed", "/admin/wishlist", "/admin/buylist", "/admin/store-credit"].some(p => pathname.startsWith(p));
   const isStats = ["/admin/sales", "/admin/orders", "/admin/statistics"].some(p => pathname.startsWith(p));
-  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile", "/admin/devaluations", "/admin/coupons", "/admin/wallet"].some(p => pathname.startsWith(p));
+  const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile", "/admin/games", "/admin/devaluations", "/admin/coupons", "/admin/wallet"].some(p => pathname.startsWith(p));
 
   const { features } = useAppSelector((state) => state.authReducer);
 

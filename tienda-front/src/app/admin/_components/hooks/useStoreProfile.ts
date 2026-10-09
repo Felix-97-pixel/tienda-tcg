@@ -11,6 +11,7 @@ export function useStoreProfile(storeId: string) {
   const [saving, setSaving] = useState(false);
   const [availableFeatures, setAvailableFeatures] = useState<StoreFeature[]>([]);
   const [availablePlans, setAvailablePlans] = useState<StorePlan[]>([]);
+  const [availableGames, setAvailableGames] = useState<any[]>([]);
   
   const [formData, setFormData] = useState<StoreProfileFormData>({
     name: "",
@@ -49,10 +50,11 @@ export function useStoreProfile(storeId: string) {
         if (plansRes.ok) setAvailablePlans(await plansRes.json());
       }
 
-      const [res, conditionsRes, languagesRes] = await Promise.all([
+      const [res, conditionsRes, languagesRes, gamesRes] = await Promise.all([
         fetch(getEndpoint(), { credentials: "include" }),
         fetch(`${API_URL}/products/meta/conditions`),
-        fetch(`${API_URL}/products/meta/languages`)
+        fetch(`${API_URL}/products/meta/languages`),
+        fetch(`${API_URL}/games`)
       ]);
 
       let conditionsData: any[] = [];
@@ -65,6 +67,11 @@ export function useStoreProfile(storeId: string) {
         languagesData = await languagesRes.json();
       }
 
+      if (gamesRes.ok) {
+        const gamesList = await gamesRes.json();
+        setAvailableGames(gamesList);
+      }
+
       if (res.ok) {
         const store = await res.json();
         const s = (store.settings || []).reduce((acc: any, curr: any) => {
@@ -72,28 +79,36 @@ export function useStoreProfile(storeId: string) {
           return acc;
         }, {});
 
-        // Map devaluations
         const storeDevals = store.devaluations || [];
-        const mappedDevaluations = conditionsData.map((cond: any) => {
-          const existing = storeDevals.find((d: any) => d.conditionId === cond.id);
-          // Default to 1 (100%) if not set
-          return {
-            conditionId: cond.id,
-            conditionName: cond.displayName || cond.name,
-            multiplier: existing ? parseFloat(existing.multiplier) : 1,
-          };
-        });
+        const supportedGames = store.supportedGames || [];
+        
+        const mappedDevaluations: any[] = [];
+        for (const game of supportedGames) {
+          for (const cond of conditionsData) {
+            const existing = storeDevals.find((d: any) => d.conditionId === cond.id && d.gameId === game.id);
+            mappedDevaluations.push({
+              conditionId: cond.id,
+              conditionName: cond.displayName || cond.name,
+              gameId: game.id,
+              multiplier: existing ? parseFloat(existing.multiplier) : 1,
+            });
+          }
+        }
 
         // Map language devaluations
         const storeLangDevals = store.languageDevaluations || [];
-        const mappedLanguageDevaluations = languagesData.map((lang: any) => {
-          const existing = storeLangDevals.find((d: any) => d.languageId === lang.id);
-          return {
-            languageId: lang.id,
-            languageName: lang.name,
-            multiplier: existing ? parseFloat(existing.multiplier) : 1,
-          };
-        });
+        const mappedLanguageDevaluations: any[] = [];
+        for (const game of supportedGames) {
+          for (const lang of languagesData) {
+            const existing = storeLangDevals.find((d: any) => d.languageId === lang.id && d.gameId === game.id);
+            mappedLanguageDevaluations.push({
+              languageId: lang.id,
+              languageName: lang.name,
+              gameId: game.id,
+              multiplier: existing ? parseFloat(existing.multiplier) : 1,
+            });
+          }
+        }
 
         setFormData({
           name: store.name || "",
@@ -111,6 +126,7 @@ export function useStoreProfile(storeId: string) {
           address: store.address || s.address || "",
           latitude: store.latitude || null,
           longitude: store.longitude || null,
+          supportedGames: supportedGames,
           devaluations: mappedDevaluations,
           languageDevaluations: mappedLanguageDevaluations,
         });
@@ -127,33 +143,40 @@ export function useStoreProfile(storeId: string) {
     fetchStore();
   }, [fetchStore]);
 
-  const saveProfile = async () => {
+  const saveProfile = async (gameId?: string) => {
     setSaving(true);
     try {
+      const payload = { ...formData };
+      if (payload.supportedGames) {
+        payload.supportedGames = payload.supportedGames.map((g: any) => g.id) as any;
+      }
+      
       const res = await fetch(getEndpoint(), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
         credentials: "include",
       });
 
       let devalResOk = true;
-      if (formData.devaluations && storeId === "me") {
+      if (formData.devaluations && storeId === "me" && gameId) {
+        const payload = formData.devaluations.filter((d: any) => d.gameId === gameId);
         const devalRes = await fetch(`${API_URL}/stores/me/devaluations`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ devaluations: formData.devaluations }),
+          body: JSON.stringify({ gameId, devaluations: payload }),
           credentials: "include",
         });
         devalResOk = devalRes.ok;
       }
 
       let langDevalResOk = true;
-      if (formData.languageDevaluations && storeId === "me") {
+      if (formData.languageDevaluations && storeId === "me" && gameId) {
+        const payload = formData.languageDevaluations.filter((d: any) => d.gameId === gameId);
         const langDevalRes = await fetch(`${API_URL}/stores/me/language-devaluations`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ languageDevaluations: formData.languageDevaluations }),
+          body: JSON.stringify({ gameId, languageDevaluations: payload }),
           credentials: "include",
         });
         langDevalResOk = langDevalRes.ok;
@@ -178,6 +201,7 @@ export function useStoreProfile(storeId: string) {
     setFormData,
     availableFeatures,
     availablePlans,
+    availableGames,
     saveProfile,
   };
 }

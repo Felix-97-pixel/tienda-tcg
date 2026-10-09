@@ -22,6 +22,8 @@ model Game {
   storeExchangeRates  StoreGameExchangeRate[]
   globalExchangeRates GlobalGameExchangeRate[]
   coupons             Coupon[]                 @relation("CouponGames")
+  conditionDevaluations StoreConditionDevaluation[]
+  languageDevaluations  StoreLanguageDevaluation[]
 }
 
 model Category {
@@ -401,24 +403,28 @@ model StoreConditionDevaluation {
   id          String  @id @default(uuid())
   storeId     String
   conditionId String
+  gameId      String
   multiplier  Decimal @db.Decimal(5, 4) // e.g. 0.8000
 
   store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
   condition Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
-  @@unique([storeId, conditionId])
+  @@unique([storeId, conditionId, gameId])
 }
 
 model StoreLanguageDevaluation {
   id         String  @id @default(uuid())
   storeId    String
   languageId String
+  gameId     String
   multiplier Decimal @db.Decimal(5, 4) // e.g. 0.9500
 
   store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  game     Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
-  @@unique([storeId, languageId])
+  @@unique([storeId, languageId, gameId])
 }
 
 model ShippingProvider {
