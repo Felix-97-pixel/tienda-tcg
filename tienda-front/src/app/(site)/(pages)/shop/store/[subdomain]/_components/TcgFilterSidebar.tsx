@@ -2,9 +2,7 @@
 import React from "react";
 import {
   IconSparkles,
-  IconFlagES,
-  IconFlagUS,
-  IconFlagJP,
+  IconLanguageFlag,
   IconSearch,
   IconX,
 } from "@/components/ui/Icons";
@@ -27,6 +25,7 @@ interface TcgFilterSidebarProps {
   selectedFinish: string | null;
   onSelectFinish: (finish: string | null) => void;
 
+  languages?: any[];
   selectedLanguage: string | null;
   onSelectLanguage: (lang: string | null) => void;
 
@@ -44,12 +43,6 @@ const FINISHES = [
   { id: "foil", label: "Foil / Holo" },
 ];
 
-const LANGUAGES = [
-  { id: "ES", label: "Español", FlagComponent: IconFlagES },
-  { id: "EN", label: "Inglés", FlagComponent: IconFlagUS },
-  { id: "JP", label: "Japonés", FlagComponent: IconFlagJP },
-];
-
 export default function TcgFilterSidebar({
   categories,
   selectedCategory,
@@ -62,6 +55,7 @@ export default function TcgFilterSidebar({
   onSelectCondition,
   selectedFinish,
   onSelectFinish,
+  languages,
   selectedLanguage,
   onSelectLanguage,
   onClearAll,
@@ -72,6 +66,7 @@ export default function TcgFilterSidebar({
   const [categoryTab, setCategoryTab] = React.useState<"all" | "games" | "accessories">("all");
   const [expansionSearch, setExpansionSearch] = React.useState("");
   const [dbConditions, setDbConditions] = React.useState<any[]>(conditions || []);
+  const [dbLanguages, setDbLanguages] = React.useState<any[]>(languages || []);
 
   // Fetch conditions dynamically from DB if not provided
   React.useEffect(() => {
@@ -88,6 +83,22 @@ export default function TcgFilterSidebar({
       })
       .catch((err) => console.error("Error fetching conditions:", err));
   }, [conditions]);
+
+  // Fetch languages dynamically from DB if not provided
+  React.useEffect(() => {
+    if (languages && languages.length > 0) {
+      setDbLanguages(languages);
+      return;
+    }
+    fetch(`${API_URL}/products/meta/languages`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbLanguages(data);
+        }
+      })
+      .catch((err) => console.error("Error fetching languages:", err));
+  }, [languages]);
 
   // Format conditions dynamically with standard TCG codes, ranks, and badges
   const formattedConditions = React.useMemo(() => {
@@ -394,26 +405,36 @@ export default function TcgFilterSidebar({
           </div>
         </div>
 
-        {/* 5. Idioma */}
+        {/* 5. Idioma (100% Dinámico desde Base de Datos) */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">
-            Idioma
-          </h3>
-          <div className="flex gap-2">
-            {LANGUAGES.map((l) => {
-              const isSelected = selectedLanguage === l.id;
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              Idioma
+            </h3>
+            <span className="text-[10px] font-mono text-gray-500">
+              {dbLanguages.length} disp.
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-0.5 custom-scrollbar">
+            {dbLanguages.map((l: any) => {
+              const code = (l.code || "").toUpperCase();
+              const name = l.name || code;
+              const isSelected = selectedLanguage === l.code || selectedLanguage === l.name || selectedLanguage === l.id;
               return (
                 <button
-                  key={l.id}
-                  onClick={() => onSelectLanguage(isSelected ? null : l.id)}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center justify-center gap-1.5 ${
+                  key={l.id || l.code}
+                  onClick={() => onSelectLanguage(isSelected ? null : (l.code || l.name))}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs transition-all border flex items-center justify-between gap-1.5 ${
                     isSelected
-                      ? "bg-red/20 border-red text-white font-bold shadow-sm"
+                      ? "bg-red/20 border-red text-white font-bold shadow-sm ring-1 ring-red/50"
                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <l.FlagComponent className="w-4 h-3 rounded-sm shadow-sm shrink-0" />
-                  <span className="font-semibold text-xs">{l.id}</span>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <IconLanguageFlag code={l.code} name={l.name} className="w-4 h-3 shrink-0" />
+                    <span className="truncate text-[11px]">{name}</span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0">{code}</span>
                 </button>
               );
             })}

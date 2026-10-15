@@ -80,28 +80,40 @@ export function matchesFinish(p: any, targetFinish: string | null): boolean {
 
 export function matchesLanguage(p: any, targetLang: string | null): boolean {
   if (!targetLang) return true;
-  const target = targetLang.trim().toUpperCase();
+  const target = targetLang.trim().toLowerCase();
+  const targetNormalized = target.replace(/[-_\s]/g, "");
 
-  const isLangMatch = (langObj: any): boolean => {
-    if (!langObj) return false;
-    const code = (langObj.code || (typeof langObj === "string" ? langObj : "")).toLowerCase();
-    const name = (langObj.name || "").toLowerCase();
+  const isLangMatch = (langObj: any, langId?: string): boolean => {
+    if (!langObj && !langId) return false;
 
-    if (target === "ES") {
-      return code === "es" || code === "spa" || code === "sp" || name.includes("span") || name.includes("españ");
+    // 1. Direct UUID languageId match
+    if (langId && langId === targetLang) return true;
+
+    // 2. If object from database { id, name, code }
+    if (langObj && typeof langObj === "object") {
+      if (langObj.id && langObj.id === targetLang) return true;
+      const code = (langObj.code || "").toLowerCase();
+      const name = (langObj.name || "").toLowerCase();
+
+      if (code === target || name === target) return true;
+      if (code.replace(/[-_\s]/g, "") === targetNormalized) return true;
+      if (name.replace(/[-_\s]/g, "") === targetNormalized) return true;
     }
-    if (target === "EN") {
-      return code === "en" || code === "eng" || code === "us" || name.includes("engl") || name.includes("ingl");
+
+    // 3. If string value
+    if (langObj && typeof langObj === "string") {
+      const str = langObj.toLowerCase();
+      return str === target || str.replace(/[-_\s]/g, "") === targetNormalized;
     }
-    if (target === "JP") {
-      return code === "ja" || code === "jp" || code === "jpn" || name.includes("japan") || name.includes("japon");
-    }
-    return code === target.toLowerCase() || name.includes(target.toLowerCase());
+
+    return false;
   };
 
+  // Check across all inventory items
   if (Array.isArray(p.items) && p.items.length > 0) {
-    return p.items.some((i: any) => isLangMatch(i.language));
+    return p.items.some((i: any) => isLangMatch(i.language, i.languageId));
   }
 
+  // Fallback to product language
   return isLangMatch(p.language);
 }

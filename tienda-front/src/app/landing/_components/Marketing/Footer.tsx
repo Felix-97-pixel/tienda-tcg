@@ -1,45 +1,111 @@
 import React from "react";
 import Link from "next/link";
+import { IconShieldCheck, IconTruck, IconCreditCard } from "@/components/ui/Icons";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#0b0c0f] border-t border-white/5 py-12 mt-20">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
-        <div className="col-span-1 md:col-span-2">
-          <Link href="/" className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-tr from-red to-orange flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+    <footer className="bg-[#07090E] border-t border-white/[0.08] text-white pt-16 pb-12 mt-24 relative overflow-hidden">
+      {/* Glow orb */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[#E10E0E]/5 blur-[120px] pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Trust Badges Ribbon */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12 mb-12 border-b border-white/[0.06]">
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 shrink-0">
+              <IconShieldCheck className="w-5 h-5 text-[#E10E0E]" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-white">TapTrade</span>
-          </Link>
-          <p className="text-gray-4 text-sm max-w-xs">
-            La primera plataforma SaaS en Latinoamérica diseñada específicamente para dueños de tiendas de TCG.
-          </p>
-        </div>
-        
-        <div>
-          <h3 className="text-white font-semibold mb-4">Producto</h3>
-          <ul className="space-y-3">
-            <li><Link href="#features" className="text-gray-4 hover:text-white text-sm transition-colors">Características</Link></li>
-            <li><Link href="#pricing" className="text-gray-4 hover:text-white text-sm transition-colors">Precios</Link></li>
-            <li><Link href="/admin/login" className="text-gray-4 hover:text-white text-sm transition-colors">Iniciar Sesión Admin</Link></li>
-          </ul>
+            <div>
+              <h4 className="text-sm font-bold text-white">100% Tiendas Verificadas</h4>
+              <p className="text-xs text-gray-400">Comercios formales en Chile con inventario verificado.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <IconTruck className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Logística Oficial Integrada</h4>
+              <p className="text-xs text-gray-400">Chilexpress, Starken y Retiro en Tienda $0 en todo Chile.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+              <IconCreditCard className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Pagos Seguros & Escrow</h4>
+              <p className="text-xs text-gray-400">Mercado Pago Split Payments y Transbank Webpay Plus.</p>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <h3 className="text-white font-semibold mb-4">Legal</h3>
-          <ul className="space-y-3">
-            <li><Link href="/politica-de-privacidad" className="text-gray-4 hover:text-white text-sm transition-colors">Privacidad</Link></li>
-            <li><Link href="/terminos-y-condiciones" className="text-gray-4 hover:text-white text-sm transition-colors">Términos</Link></li>
-          </ul>
+        {/* Links Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-white/[0.06]">
+          <div className="md:col-span-2">
+            <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#E10E0E] via-[#F23030] to-amber-500 flex items-center justify-center shadow-lg shadow-[#E10E0E]/20">
+                <span className="text-white font-black text-sm font-mono">T</span>
+              </div>
+              <span className="text-xl font-black tracking-tight text-white">TapTrade</span>
+            </Link>
+            <p className="text-gray-400 text-sm max-w-sm leading-relaxed mb-4">
+              La plataforma SaaS y marketplace líder para Trading Card Games en Chile. Centralizamos inventarios, automatizamos buylists y conectamos a tiendas y coleccionistas.
+            </p>
+            <div className="text-xs text-gray-500 font-mono space-y-1">
+              <p className="text-gray-400 font-semibold">TAPTRADE SpA</p>
+              <p>RUT: 78.531.106-K</p>
+              <p>Padre Mariano 98 Of. 315, Providencia, Santiago</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Marketplace</h3>
+            <ul className="space-y-2.5 text-sm text-gray-400">
+              <li><Link href="/shop" className="hover:text-white transition-colors">Catálogo de Singles</Link></li>
+              <li><Link href="/shop?category=Singles%20Magic%20The%20Gathering" className="hover:text-white transition-colors">Magic: The Gathering</Link></li>
+              <li><Link href="/shop?category=Singles%20Pokemon" className="hover:text-white transition-colors">Pokémon TCG</Link></li>
+              <li><Link href="/shop?category=Singles%20Riftbound" className="hover:text-white transition-colors">Riftbound TCG</Link></li>
+              <li><Link href="/cart" className="hover:text-white transition-colors">Carrito Unificado</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Para Tiendas</h3>
+            <ul className="space-y-2.5 text-sm text-gray-400">
+              <li><Link href="/admin/login" className="hover:text-white transition-colors">Portal de Tiendas</Link></li>
+              <li><Link href="/admin/buylist" className="hover:text-white transition-colors">Motor de Buylist</Link></li>
+              <li><Link href="#pricing" className="hover:text-white transition-colors">Planes y Comisiones</Link></li>
+              <li><Link href="#features" className="hover:text-white transition-colors">Sincronización Scryfall</Link></li>
+              <li><Link href="mailto:contacto@taptrade.cl" className="hover:text-white transition-colors">Contacto Ventas</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Legal & Soporte</h3>
+            <ul className="space-y-2.5 text-sm text-gray-400">
+              <li><Link href="/politica-de-privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
+              <li><Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">Términos y Condiciones</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">Centro de Ayuda</Link></li>
+              <li><Link href="https://wa.me/56950223095" target="_blank" className="hover:text-white transition-colors">WhatsApp Soporte</Link></li>
+            </ul>
+          </div>
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-white/5 text-center flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-gray-5 text-xs">
-          © {new Date().getFullYear()} TapTrade. Todos los derechos reservados.
-        </p>
+
+        {/* Bottom Logistics and Copyright */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <p>© {new Date().getFullYear()} TAPTRADE SpA. Todos los derechos reservados. Desarrollado para coleccionistas.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[11px] text-gray-400 font-medium">Logística y Pagos Oficiales:</span>
+            <span className="px-2 py-0.5 rounded bg-black/60 border border-white/10 font-mono text-white text-[10px]">RETIRO $0</span>
+            <span className="px-2 py-0.5 rounded bg-[#f6b400]/20 border border-[#f6b400]/40 text-[#f6b400] font-bold text-[10px]">chilexpress</span>
+            <span className="px-2 py-0.5 rounded bg-[#009b3a]/20 border border-[#009b3a]/40 text-[#00b040] font-bold text-[10px]">starken</span>
+            <span className="px-2 py-0.5 rounded bg-blue-500/20 border border-blue-400/30 text-blue-300 font-bold text-[10px]">Mercado Pago</span>
+            <span className="px-2 py-0.5 rounded bg-red-500/20 border border-red-400/30 text-red-300 font-bold text-[10px]">Webpay Plus</span>
+          </div>
+        </div>
       </div>
     </footer>
   );

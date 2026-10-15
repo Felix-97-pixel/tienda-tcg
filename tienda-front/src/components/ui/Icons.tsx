@@ -401,3 +401,100 @@ export const IconFlagJP: React.FC<{ className?: string }> = ({ className = "w-4 
     <circle cx="320" cy="240" r="144" fill="#bc002d" />
   </svg>
 );
+
+export const IconFlagDE: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
+  <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
+    <path fill="#000" d="M0 0h640v160H0z" />
+    <path fill="#dd0000" d="M0 160h640v160H0z" />
+    <path fill="#ffce00" d="M0 320h640v160H0z" />
+  </svg>
+);
+
+export const IconFlagFR: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
+  <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
+    <path fill="#002654" d="M0 0h213.3v480H0z" />
+    <path fill="#ffffff" d="M213.3 0h213.4v480H213.3z" />
+    <path fill="#ce1126" d="M426.7 0h213.3v480H426.7z" />
+  </svg>
+);
+
+export const IconFlagIT: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
+  <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
+    <path fill="#009246" d="M0 0h213.3v480H0z" />
+    <path fill="#ffffff" d="M213.3 0h213.4v480H213.3z" />
+    <path fill="#ce2b37" d="M426.7 0h213.3v480H426.7z" />
+  </svg>
+);
+
+export const IconFlagPT: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
+  <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
+    <path fill="#006600" d="M0 0h256v480H0z" />
+    <path fill="#ff0000" d="M256 0h384v480H256z" />
+    <circle cx="256" cy="240" r="80" fill="#ffff00" stroke="#000" strokeWidth="6" />
+  </svg>
+);
+
+export const IconFlagCN: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
+  <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
+    <path fill="#de2910" d="M0 0h640v480H0z" />
+    <polygon points="128,48 152,120 90,75 166,75 104,120" fill="#ffde00" />
+    <polygon points="213,24 220,48 200,33 226,33 206,48" fill="#ffde00" />
+    <polygon points="256,72 263,96 243,81 269,81 249,96" fill="#ffde00" />
+    <polygon points="256,144 263,168 243,153 269,153 249,168" fill="#ffde00" />
+    <polygon points="213,192 220,216 200,201 226,201 206,216" fill="#ffde00" />
+  </svg>
+);
+
+export const IconGlobe: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
+  <svg
+    width={size || 16}
+    height={size || 16}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+);
+
+export const IconLanguageFlag: React.FC<{ code?: string; name?: string; className?: string }> = ({
+  code,
+  name,
+  className = "w-4 h-3",
+}) => {
+  const c = (code || "").toLowerCase();
+  const n = (name || "").toLowerCase();
+
+  if (c === "es" || c === "spa" || n.includes("span") || n.includes("españ")) {
+    return <IconFlagES className={className} />;
+  }
+  if (c === "en" || c === "eng" || c === "us" || n.includes("engl") || n.includes("ingl")) {
+    return <IconFlagUS className={className} />;
+  }
+  if (c === "ja" || c === "jp" || c === "jpn" || n.includes("japan") || n.includes("japon")) {
+    return <IconFlagJP className={className} />;
+  }
+  if (c === "de" || c === "ger" || n.includes("german") || n.includes("alem")) {
+    return <IconFlagDE className={className} />;
+  }
+  if (c === "fr" || c === "fra" || n.includes("french") || n.includes("franc")) {
+    return <IconFlagFR className={className} />;
+  }
+  if (c === "it" || c === "ita" || n.includes("italian") || n.includes("ital")) {
+    return <IconFlagIT className={className} />;
+  }
+  if (c === "pt" || c === "por" || n.includes("portug")) {
+    return <IconFlagPT className={className} />;
+  }
+  if (c === "zh_cn" || c === "zh" || c === "chi" || n.includes("chin")) {
+    return <IconFlagCN className={className} />;
+  }
+  return <IconGlobe className={`${className} text-gray-400`} />;
+};

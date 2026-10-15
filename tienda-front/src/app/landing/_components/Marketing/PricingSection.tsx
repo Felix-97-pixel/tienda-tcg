@@ -19,29 +19,29 @@ export default function PricingSection() {
     switch (index) {
       case 0:
         return {
-          wrapper: "bg-white/5 border border-white/10 hover:-translate-y-2",
-          button: "bg-white/10 hover:bg-white/20 text-white",
-          check: "text-red",
+          wrapper: "bg-[#111522] border border-white/10 hover:border-white/25 hover:-translate-y-1.5 transition-all",
+          button: "bg-white/10 hover:bg-white/15 text-white border border-white/10",
+          check: "text-red-400 font-bold",
         };
       case 1:
         return {
-          wrapper: "bg-gradient-to-b from-blue/10 to-transparent border border-blue/30 hover:-translate-y-2 shadow-[0_0_30px_rgba(59,130,246,0.15)]",
-          button: "bg-blue hover:bg-blue-light text-white shadow-lg shadow-blue/20",
-          check: "text-blue",
+          wrapper: "bg-gradient-to-b from-[#E10E0E]/15 via-[#111522] to-[#111522] border-2 border-[#E10E0E]/50 hover:-translate-y-1.5 shadow-[0_0_40px_rgba(225,14,14,0.2)] transition-all",
+          button: "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-lg shadow-[#E10E0E]/30 font-bold",
+          check: "text-[#E10E0E] font-bold",
           isPopular: true
         };
       case 2:
         return {
-          wrapper: "bg-white/5 border border-white/10 hover:-translate-y-2",
-          button: "bg-white/10 hover:bg-white/20 text-white",
-          check: "text-orange-400",
+          wrapper: "bg-[#111522] border border-white/10 hover:border-white/25 hover:-translate-y-1.5 transition-all",
+          button: "bg-white/10 hover:bg-white/15 text-white border border-white/10",
+          check: "text-amber-400 font-bold",
         };
       case 3:
       default:
         return {
-          wrapper: "bg-white/5 border border-white/10 hover:-translate-y-2",
-          button: "bg-white/10 hover:bg-white/20 text-white",
-          check: "text-purple-400",
+          wrapper: "bg-[#111522] border border-white/10 hover:border-white/25 hover:-translate-y-1.5 transition-all",
+          button: "bg-white/10 hover:bg-white/15 text-white border border-white/10",
+          check: "text-purple-400 font-bold",
         };
     }
   };
@@ -96,13 +96,15 @@ export default function PricingSection() {
             return (
               <div key={plan.id} className={`${styles.wrapper} rounded-3xl p-8 backdrop-blur-sm transition-transform duration-300 relative flex flex-col`}>
                 {styles.isPopular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">Más Popular</div>
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#E10E0E] text-white text-[10px] font-black px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md shadow-[#E10E0E]/40 font-mono">
+                    Más Popular
+                  </div>
                 )}
                 <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
                 <p className="text-gray-400 text-sm mb-6 h-10">{plan.description}</p>
                 <div className="mb-6">
-                  <span className="text-4xl font-extrabold text-white">{plan.price} UF</span><span className="text-gray-400">/mes</span>
-                  <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mt-1">+ IVA</p>
+                  <span className="text-4xl font-extrabold text-white font-mono">{plan.price} UF</span><span className="text-gray-400 text-sm">/mes</span>
+                  <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mt-1 font-mono">+ IVA</p>
                 </div>
                 <ul className="space-y-4 mb-8 flex-1 text-sm text-gray-300">
                   <li className="flex items-center gap-3">
@@ -127,38 +129,43 @@ export default function PricingSection() {
           })}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-12 border-2 border-dashed border-white/5 rounded-3xl">
-          No hay planes configurados en este momento.
+        <div className="text-center text-gray-500 py-12 border-2 border-dashed border-white/5 rounded-3xl font-mono text-sm">
+          Cargando planes del sistema...
         </div>
       )}
 
       {/* Addons Section */}
-      <div className="mt-16 bg-[#1a1d24]/50 border border-white/5 rounded-3xl p-8 md:p-12">
-        <h3 className="text-2xl font-bold text-white mb-2 text-center">Potencia tu negocio con Módulos Premium</h3>
-        <p className="text-gray-400 text-center mb-10 max-w-2xl mx-auto">Agrega funcionalidades avanzadas a tu tienda cuando estés listo para escalar al siguiente nivel.</p>
+      <div className="mt-16 bg-[#0E121B] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
+        <div className="text-center mb-10">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
+            Add-ons Opcionales
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">Potencia tu negocio con Módulos Premium</h3>
+          <p className="text-gray-400 text-sm max-w-2xl mx-auto">Agrega funcionalidades avanzadas a tu tienda cuando estés listo para escalar al siguiente nivel.</p>
+        </div>
         
         {features.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((feature) => {
               const iconData = getFeatureIcon(feature.key);
               return (
-                <div key={feature.id} className="bg-white/5 border border-white/10 rounded-2xl p-6 flex gap-6 items-start hover:bg-white/10 transition-colors">
-                  <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center ${iconData.bg} ${iconData.text}`}>
+                <div key={feature.id} className="bg-[#111522] border border-white/10 rounded-2xl p-5 flex gap-4 items-start hover:border-white/20 transition-all">
+                  <div className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center ${iconData.bg} ${iconData.text}`}>
                      {iconData.icon}
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-lg font-bold text-white">{feature.name}</h4>
-                      <span className={`text-sm font-bold ${iconData.text}`}>+ {feature.price} UF/mes</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between mb-1 gap-2">
+                      <h4 className="text-sm font-bold text-white truncate">{feature.name}</h4>
+                      <span className={`text-xs font-mono font-bold shrink-0 ${iconData.text}`}>+ {feature.price} UF</span>
                     </div>
-                    <p className="text-gray-400 text-sm">{feature.description}</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
               );
             })}
           </div>
         ) : (
-          <div className="text-center text-gray-500 py-6">
+          <div className="text-center text-gray-500 py-6 font-mono text-xs">
             No hay módulos adicionales disponibles por ahora.
           </div>
         )}

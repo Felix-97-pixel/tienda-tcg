@@ -182,6 +182,7 @@ export default function TcgMarketplaceCatalog() {
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [expansionsData, setExpansionsData] = useState<any[]>([]);
   const [conditionsData, setConditionsData] = useState<any[]>([]);
+  const [languagesData, setLanguagesData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -214,6 +215,16 @@ export default function TcgMarketplaceCatalog() {
         if (Array.isArray(data)) setConditionsData(data);
       })
       .catch((err) => console.error("Error fetching conditions:", err));
+  }, []);
+
+  // Fetch all languages dynamically from database
+  useEffect(() => {
+    fetch(`${API_URL}/products/meta/languages`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setLanguagesData(data);
+      })
+      .catch((err) => console.error("Error fetching languages:", err));
   }, []);
 
   // Fetch expansions when category changes
@@ -554,7 +565,7 @@ export default function TcgMarketplaceCatalog() {
                 onClick={() => setSelectedLanguage(null)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all"
               >
-                Idioma: {selectedLanguage}
+                Idioma: {languagesData.find(l => l.code === selectedLanguage || l.id === selectedLanguage || l.name === selectedLanguage)?.name || selectedLanguage}
                 <span>✕</span>
               </button>
             )}
@@ -585,6 +596,7 @@ export default function TcgMarketplaceCatalog() {
               onSelectCondition={setSelectedCondition}
               selectedFinish={selectedFinish}
               onSelectFinish={setSelectedFinish}
+              languages={languagesData}
               selectedLanguage={selectedLanguage}
               onSelectLanguage={setSelectedLanguage}
               minPrice={priceRange.min}
@@ -632,6 +644,7 @@ export default function TcgMarketplaceCatalog() {
                   onSelectCondition={setSelectedCondition}
                   selectedFinish={selectedFinish}
                   onSelectFinish={setSelectedFinish}
+                  languages={languagesData}
                   selectedLanguage={selectedLanguage}
                   onSelectLanguage={setSelectedLanguage}
                   minPrice={priceRange.min}
