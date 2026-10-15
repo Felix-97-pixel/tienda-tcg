@@ -8,6 +8,8 @@ import TcgProductCard from "./TcgProductCard";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import { useProductCart } from "@/hooks/useProductCart";
+import { matchesCondition, matchesFinish, matchesLanguage } from "@/utils/tcgFilters";
+import { IconSparkles, IconCard } from "@/components/ui/Icons";
 
 interface TcgStorefrontViewProps {
   storeId: string;
@@ -194,6 +196,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
   const [products, setProducts] = useState<any[]>([]);
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [expansionsData, setExpansionsData] = useState<any[]>([]);
+  const [conditionsData, setConditionsData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -206,6 +209,16 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
     }, 350);
     return () => clearTimeout(handler);
   }, [searchTerm]);
+
+  // Fetch conditions metadata from DB
+  useEffect(() => {
+    fetch(`${API_URL}/products/meta/conditions`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setConditionsData(data);
+      })
+      .catch((err) => console.error("Error fetching conditions:", err));
+  }, []);
 
   // Fetch categories metadata for this store
   useEffect(() => {
@@ -288,31 +301,13 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       // Condition filter
-      if (selectedCondition) {
-        const cond = (p.condition || "").toUpperCase();
-        if (selectedCondition === "NM" && !cond.includes("NM") && !cond.includes("NEAR")) return false;
-        if (selectedCondition === "LP" && !cond.includes("LP") && !cond.includes("LIGHT")) return false;
-        if (selectedCondition === "MP" && !cond.includes("MP") && !cond.includes("MODERATE")) return false;
-        if (selectedCondition === "HP" && !cond.includes("HP") && !cond.includes("HEAVY")) return false;
-      }
+      if (!matchesCondition(p, selectedCondition)) return false;
 
       // Finish filter
-      if (selectedFinish) {
-        const isFoil = Boolean(
-          p.finish?.name?.toLowerCase().includes("foil") ||
-          p.finish?.name?.toLowerCase().includes("holo") ||
-          p.items?.some((i: any) => i.finish?.name?.toLowerCase().includes("foil")) ||
-          p.cardDetail?.isFoil
-        );
-        if (selectedFinish === "foil" && !isFoil) return false;
-        if (selectedFinish === "normal" && isFoil) return false;
-      }
+      if (!matchesFinish(p, selectedFinish)) return false;
 
       // Language filter
-      if (selectedLanguage) {
-        const langCode = (p.language?.name || p.items?.[0]?.language?.name || "EN").substring(0, 2).toUpperCase();
-        if (langCode !== selectedLanguage) return false;
-      }
+      if (!matchesLanguage(p, selectedLanguage)) return false;
 
       // Price range filter
       if (priceRange.max > 0) {
@@ -512,7 +507,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
               onClick={() => setSelectedCondition(null)}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
             >
-              Condición: {selectedCondition}
+              Condición: {conditionsData.find(c => c.name === selectedCondition || c.id === selectedCondition)?.displayName || selectedCondition}
               <span>✕</span>
             </button>
           )}
@@ -523,7 +518,14 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
               onClick={() => setSelectedFinish(null)}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
             >
-              {selectedFinish === "foil" ? "✨ Foil / Holo" : "Normal"}
+              {selectedFinish === "foil" ? (
+                <span className="inline-flex items-center gap-1">
+                  <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  Foil / Holo
+                </span>
+              ) : (
+                "Normal"
+              )}
               <span>✕</span>
             </button>
           )}
@@ -560,6 +562,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             expansions={expansionsData}
             selectedExpansion={selectedExpansion}
             onSelectExpansion={setSelectedExpansion}
+            conditions={conditionsData}
             selectedCondition={selectedCondition}
             onSelectCondition={setSelectedCondition}
             selectedFinish={selectedFinish}
@@ -606,6 +609,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
                   setSelectedExpansion(exp);
                   setMobileDrawerOpen(false);
                 }}
+                conditions={conditionsData}
                 selectedCondition={selectedCondition}
                 onSelectCondition={setSelectedCondition}
                 selectedFinish={selectedFinish}
@@ -643,8 +647,8 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
           ) : sortedProducts.length === 0 ? (
             /* Nielsen UX Heuristic: Meaningful Empty State & Recovery Path */
             <div className="text-center py-16 px-4 rounded-2xl bg-[#111522]/50 border border-white/5">
-              <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl mx-auto mb-4">
-                🃏
+              <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-red-500 mx-auto mb-4">
+                <IconCard className="w-8 h-8 opacity-80" />
               </div>
               <h3 className="text-lg font-bold text-white mb-2">
                 No encontramos cartas con estos filtros

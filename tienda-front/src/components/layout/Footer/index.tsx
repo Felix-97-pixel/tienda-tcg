@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
+import { IconShieldCheck } from "@/components/ui/Icons";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -19,7 +20,10 @@ const Footer = () => {
             </div>
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-400">
-            <span>🛡️ Transacciones protegidas con Mercado Pago & Webpay</span>
+            <span className="flex items-center gap-1.5">
+              <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              Transacciones protegidas con Mercado Pago & Webpay
+            </span>
             <span className="hidden sm:inline">•</span>
             <span className="hidden sm:inline text-emerald-400 font-mono">100% Tiendas Verificadas</span>
           </div>

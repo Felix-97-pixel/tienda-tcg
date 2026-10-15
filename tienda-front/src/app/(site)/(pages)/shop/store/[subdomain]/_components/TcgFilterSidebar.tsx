@@ -1,5 +1,15 @@
 "use client";
 import React from "react";
+import {
+  IconSparkles,
+  IconFlagES,
+  IconFlagUS,
+  IconFlagJP,
+  IconSearch,
+  IconX,
+} from "@/components/ui/Icons";
+
+import { API_URL } from "@/utils/api";
 
 interface TcgFilterSidebarProps {
   categories: any[];
@@ -10,6 +20,7 @@ interface TcgFilterSidebarProps {
   selectedExpansion: string | null;
   onSelectExpansion: (exp: string | null) => void;
 
+  conditions?: any[];
   selectedCondition: string | null;
   onSelectCondition: (cond: string | null) => void;
 
@@ -28,22 +39,15 @@ interface TcgFilterSidebarProps {
   totalProductsCount: number;
 }
 
-const CONDITIONS = [
-  { code: "NM", label: "Near Mint", badgeClass: "badge-condition-nm" },
-  { code: "LP", label: "Lightly Played", badgeClass: "badge-condition-lp" },
-  { code: "MP", label: "Moderately Played", badgeClass: "badge-condition-mp" },
-  { code: "HP", label: "Heavily Played", badgeClass: "badge-condition-hp" },
-];
-
 const FINISHES = [
   { id: "normal", label: "Normal" },
   { id: "foil", label: "Foil / Holo" },
 ];
 
 const LANGUAGES = [
-  { id: "ES", label: "Español", flag: "🇪🇸" },
-  { id: "EN", label: "Inglés", flag: "🇺🇸" },
-  { id: "JP", label: "Japonés", flag: "🇯🇵" },
+  { id: "ES", label: "Español", FlagComponent: IconFlagES },
+  { id: "EN", label: "Inglés", FlagComponent: IconFlagUS },
+  { id: "JP", label: "Japonés", FlagComponent: IconFlagJP },
 ];
 
 export default function TcgFilterSidebar({
@@ -53,6 +57,7 @@ export default function TcgFilterSidebar({
   expansions,
   selectedExpansion,
   onSelectExpansion,
+  conditions,
   selectedCondition,
   onSelectCondition,
   selectedFinish,
@@ -66,6 +71,58 @@ export default function TcgFilterSidebar({
   const [categorySearch, setCategorySearch] = React.useState("");
   const [categoryTab, setCategoryTab] = React.useState<"all" | "games" | "accessories">("all");
   const [expansionSearch, setExpansionSearch] = React.useState("");
+  const [dbConditions, setDbConditions] = React.useState<any[]>(conditions || []);
+
+  // Fetch conditions dynamically from DB if not provided
+  React.useEffect(() => {
+    if (conditions && conditions.length > 0) {
+      setDbConditions(conditions);
+      return;
+    }
+    fetch(`${API_URL}/products/meta/conditions`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbConditions(data);
+        }
+      })
+      .catch((err) => console.error("Error fetching conditions:", err));
+  }, [conditions]);
+
+  // Format conditions dynamically with standard TCG codes, ranks, and badges
+  const formattedConditions = React.useMemo(() => {
+    if (!dbConditions || dbConditions.length === 0) {
+      return [
+        { code: "NM", name: "near_mint", label: "Near Mint", badgeClass: "badge-condition-nm", rank: 1 },
+        { code: "LP", name: "light_played", label: "Lightly Played", badgeClass: "badge-condition-lp", rank: 2 },
+        { code: "MP", name: "moderately_played", label: "Moderately Played", badgeClass: "badge-condition-mp", rank: 3 },
+        { code: "HP", name: "heavily_played", label: "Heavily Played", badgeClass: "badge-condition-hp", rank: 4 },
+      ];
+    }
+
+    const getRankAndStyle = (rawName: string) => {
+      const n = (rawName || "").toLowerCase();
+      if (n === "mint") return { rank: 1, code: "MT", badgeClass: "badge-condition-nm" };
+      if (n.includes("near") || n === "nm") return { rank: 2, code: "NM", badgeClass: "badge-condition-nm" };
+      if (n === "excellent") return { rank: 3, code: "EX", badgeClass: "badge-condition-lp" };
+      if (n.includes("light") || n === "lp") return { rank: 4, code: "LP", badgeClass: "badge-condition-lp" };
+      if (n === "good") return { rank: 5, code: "GD", badgeClass: "badge-condition-lp" };
+      if (n.includes("moderat") || n === "mp") return { rank: 6, code: "MP", badgeClass: "badge-condition-mp" };
+      if (n.includes("heav") || n === "hp") return { rank: 7, code: "HP", badgeClass: "badge-condition-hp" };
+      if (n.includes("damag") || n === "dmg") return { rank: 8, code: "DMG", badgeClass: "bg-red-500/15 text-red-400 border-red-500/30" };
+      if (n === "poor") return { rank: 9, code: "POOR", badgeClass: "bg-red-500/15 text-red-400 border-red-500/30" };
+      return { rank: 10, code: n.slice(0, 3).toUpperCase(), badgeClass: "bg-white/10 text-gray-300 border-white/20" };
+    };
+
+    return [...dbConditions]
+      .map((c) => {
+        const name = c.name || "";
+        const label = c.displayName || c.name || "Condición";
+        const { rank, code, badgeClass } = getRankAndStyle(name);
+        return { id: c.id, name, label, code, rank, badgeClass };
+      })
+      .sort((a, b) => a.rank - b.rank);
+  }, [dbConditions]);
 
   // Categorize items
   const filteredCategories = React.useMemo(() => {
@@ -168,16 +225,16 @@ export default function TcgFilterSidebar({
                   value={categorySearch}
                   onChange={(e) => setCategorySearch(e.target.value)}
                   placeholder="Buscar juego o categoría..."
-                  className="w-full h-8 pl-7 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
+                  className="w-full h-8 pl-8 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
                 />
-                <span className="absolute left-2 top-2 text-gray-500 text-[11px]">🔍</span>
+                <IconSearch className="absolute left-2.5 top-2 text-gray-500 w-3.5 h-3.5 pointer-events-none" />
                 {categorySearch && (
                   <button
                     type="button"
                     onClick={() => setCategorySearch("")}
-                    className="absolute right-2 top-2 text-gray-400 hover:text-white text-[11px]"
+                    className="absolute right-2 top-2 text-gray-400 hover:text-white"
                   >
-                    ✕
+                    <IconX className="w-3 h-3" />
                   </button>
                 )}
               </div>
@@ -235,16 +292,16 @@ export default function TcgFilterSidebar({
                 value={expansionSearch}
                 onChange={(e) => setExpansionSearch(e.target.value)}
                 placeholder="Buscar expansión... (ej. Bloomburrow, 151)"
-                className="w-full h-8 pl-7 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
+                className="w-full h-8 pl-8 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
               />
-              <span className="absolute left-2 top-2 text-gray-500 text-[11px]">🔍</span>
+              <IconSearch className="absolute left-2.5 top-2 text-gray-500 w-3.5 h-3.5 pointer-events-none" />
               {expansionSearch && (
                 <button
                   type="button"
                   onClick={() => setExpansionSearch("")}
-                  className="absolute right-2 top-2 text-gray-400 hover:text-white text-[11px]"
+                  className="absolute right-2 top-2 text-gray-400 hover:text-white"
                 >
-                  ✕
+                  <IconX className="w-3 h-3" />
                 </button>
               )}
             </div>
@@ -279,26 +336,32 @@ export default function TcgFilterSidebar({
           </div>
         )}
 
-        {/* 3. Condición de la Carta */}
+        {/* 3. Condición de la Carta (100% Dinámica desde Base de Datos) */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">
-            Estado / Condición
-          </h3>
-          <div className="grid grid-cols-2 gap-1.5">
-            {CONDITIONS.map((cond) => {
-              const isSelected = selectedCondition === cond.code;
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              Estado / Condición
+            </h3>
+            <span className="text-[10px] font-mono text-gray-500">
+              {formattedConditions.length} disp.
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-0.5 custom-scrollbar">
+            {formattedConditions.map((cond) => {
+              const isSelected = selectedCondition === cond.name || selectedCondition === cond.code;
               return (
                 <button
-                  key={cond.code}
-                  onClick={() => onSelectCondition(isSelected ? null : cond.code)}
+                  key={cond.id || cond.name}
+                  onClick={() => onSelectCondition(isSelected ? null : cond.name)}
                   className={`px-2.5 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between border ${
                     isSelected
-                      ? "ring-2 ring-white/50 bg-white/20 text-white"
+                      ? "ring-2 ring-white/50 bg-white/20 text-white font-black shadow-sm"
                       : `${cond.badgeClass} hover:opacity-80`
                   }`}
+                  title={cond.label}
                 >
                   <span>{cond.code}</span>
-                  <span className="text-[10px] font-normal opacity-75">{cond.label.split(" ")[0]}</span>
+                  <span className="text-[10px] font-normal opacity-75 truncate ml-1">{cond.label.split(" ")[0]}</span>
                 </button>
               );
             })}
@@ -317,13 +380,14 @@ export default function TcgFilterSidebar({
                 <button
                   key={f.id}
                   onClick={() => onSelectFinish(isSelected ? null : f.id)}
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all border flex items-center justify-center gap-1.5 ${
                     isSelected
                       ? "bg-white/20 border-white/30 text-white shadow-sm"
                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  {f.id === "foil" ? "✨ " : ""}{f.label}
+                  {f.id === "foil" && <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />}
+                  <span>{f.label}</span>
                 </button>
               );
             })}
@@ -344,12 +408,12 @@ export default function TcgFilterSidebar({
                   onClick={() => onSelectLanguage(isSelected ? null : l.id)}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center justify-center gap-1.5 ${
                     isSelected
-                      ? "bg-red/20 border-red text-white font-bold"
+                      ? "bg-red/20 border-red text-white font-bold shadow-sm"
                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <span>{l.flag}</span>
-                  <span>{l.id}</span>
+                  <l.FlagComponent className="w-4 h-3 rounded-sm shadow-sm shrink-0" />
+                  <span className="font-semibold text-xs">{l.id}</span>
                 </button>
               );
             })}

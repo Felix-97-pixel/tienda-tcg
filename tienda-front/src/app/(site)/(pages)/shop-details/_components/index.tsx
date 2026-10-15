@@ -13,6 +13,7 @@ import { calculateCommissions } from "@/utils/commissions";
 import { useToast } from "@/hooks/useToast";
 import Loader from "@/components/ui/Loader";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
+import { IconSparkles, IconBox } from "@/components/ui/Icons";
 
 export default function ShopDetails() {
   const dispatch = useDispatch();
@@ -261,8 +262,9 @@ export default function ShopDetails() {
 
               {/* Interactive Foil Shader Preview Toggle */}
               <div className="mt-4 flex items-center justify-between text-xs text-gray-400 border-t border-white/5 pt-3">
-                <span className="flex items-center gap-1.5 font-medium">
-                  ✨ Efecto Holográfico
+                <span className="flex items-center gap-1.5 font-medium text-amber-200/90">
+                  <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  Efecto Holográfico
                 </span>
                 <button
                   type="button"
@@ -458,7 +460,7 @@ export default function ShopDetails() {
               </div>
             ) : (
               <div className="rounded-2xl bg-[#111522] border border-white/10 p-8 text-center flex flex-col items-center justify-center">
-                <span className="text-3xl mb-3">📦</span>
+                <IconBox className="w-10 h-10 text-gray-500 mb-3" />
                 <h3 className="font-bold text-white text-base mb-1">Sin stock disponible</h3>
                 <p className="text-xs text-gray-400 max-w-xs">
                   Actualmente ninguna tienda tiene ejemplares disponibles de esta carta. Vuelve a consultar pronto.

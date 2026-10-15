@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import SingleItem from "./SingleItem";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { IconCart, IconCard } from "@/components/ui/Icons";
 
 const Cart = () => {
   const cartItems = useAppSelector(selectCartItemsWithDiscounts);
@@ -44,7 +45,7 @@ const Cart = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
-                  <span>🛒</span>
+                  <IconCart className="w-3.5 h-3.5 text-red-400 shrink-0" />
                   <span>{totalCount} {totalCount === 1 ? "carta seleccionada" : "cartas seleccionadas"}</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -95,8 +96,8 @@ const Cart = () => {
           </div>
         ) : (
           <div className="py-24 text-center flex flex-col items-center justify-center rounded-3xl bg-[#0E121B] border border-white/10 p-8 shadow-2xl">
-            <div className="w-24 h-24 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-5xl mb-6 shadow-inner">
-              🃏
+            <div className="w-24 h-24 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-gray-500 mb-6 shadow-inner">
+              <IconCard className="w-12 h-12 opacity-60" />
             </div>
             <h2 className="text-2xl font-black text-white mb-2 tracking-tight">
               Tu Carrito está Vacío

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { API_URL } from "@/utils/api";
 import ShippingBadge from "@/components/ui/ShippingBadge";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
+import { IconStore, IconZap, IconShieldCheck, IconCreditCard, IconSparkles } from "@/components/ui/Icons";
 
 // Official TCG Games Grid Data
 const TCG_GAMES = [
@@ -276,7 +277,7 @@ export default function TcgHomeLanding() {
                 <div className="relative rounded-3xl bg-[#0D111A] border border-white/15 p-6 shadow-2xl backdrop-blur-xl group">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/25 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1.5">
-                      <span>✨</span> Showcase Foil
+                      <IconSparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Showcase Foil
                     </span>
                     <span className="text-xs text-emerald-400 font-mono font-bold bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded">
                       NM • EN
@@ -331,29 +332,37 @@ export default function TcgHomeLanding() {
 
           {/* Logistics Trust Bar */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 pt-8 border-t border-white/10">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-              <span className="text-2xl">🏪</span>
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <IconStore className="w-5 h-5 text-emerald-400" />
+              </div>
               <div>
                 <span className="text-xs font-bold text-white block">Retiro en Tienda $0</span>
                 <span className="text-[11px] text-gray-400">Sin costo de despacho</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-              <span className="text-2xl">⚡</span>
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                <IconZap className="w-5 h-5 text-amber-400" />
+              </div>
               <div>
                 <span className="text-xs font-bold text-white block">Chilexpress & Starken</span>
                 <span className="text-[11px] text-gray-400">Cotización en vivo 24-48h</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-              <span className="text-2xl">🛡️</span>
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                <IconShieldCheck className="w-5 h-5 text-blue-400" />
+              </div>
               <div>
                 <span className="text-xs font-bold text-white block">100% Tiendas TCG</span>
                 <span className="text-[11px] text-gray-400">Verificadas y evaluadas</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-              <span className="text-2xl">💳</span>
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                <IconCreditCard className="w-5 h-5 text-red-400" />
+              </div>
               <div>
                 <span className="text-xs font-bold text-white block">Webpay & Mercado Pago</span>
                 <span className="text-[11px] text-gray-400">Transacción protegida</span>

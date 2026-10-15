@@ -9,6 +9,7 @@ import { RootState } from "@/redux/store";
 import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
+import { IconShieldCheck, IconAlertTriangle, IconStore } from "@/components/ui/Icons";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-dummy", { locale: "es-CL" });
 
@@ -435,7 +436,7 @@ const CheckoutWebpay = () => {
               </div>
 
               <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
-                <span className="text-emerald-400">🔒</span>
+                <IconShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Transacción segura y encriptada por Mercado Pago Chile</span>
               </div>
             </div>
@@ -443,7 +444,7 @@ const CheckoutWebpay = () => {
             {/* Error Message */}
             {error && (
               <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium flex items-center gap-2">
-                <span>⚠️</span>
+                <IconAlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -467,7 +468,7 @@ const CheckoutWebpay = () => {
                   <div key={sId} className="space-y-3 pb-5 border-b border-white/10 last:border-0 last:pb-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-base">🏪</span>
+                        <IconStore className="w-4 h-4 text-gray-400 shrink-0" />
                         <span className="text-xs font-bold text-white tracking-wide">
                           {storeNames[sId] || `Tienda (ID: ${sId.slice(0, 8)})`}
                         </span>

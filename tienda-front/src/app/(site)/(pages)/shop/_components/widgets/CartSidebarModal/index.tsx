@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import SingleItem from "./SingleItem";
 import Link from "next/link";
 import EmptyCart from "./EmptyCart";
+import { IconTruck } from "@/components/ui/Icons";
 
 const CartSidebarModal = () => {
   const { isCartModalOpen, closeCartModal } = useCartModalContext();
@@ -74,7 +75,7 @@ const CartSidebarModal = () => {
 
           {/* Carrier Notice */}
           <div className="bg-[#111522] border-b border-white/5 px-6 py-2.5 flex items-center gap-2 text-[11px] text-gray-400 shrink-0">
-            <span className="text-sm">🚚</span>
+            <IconTruck className="w-3.5 h-3.5 text-blue-400 shrink-0" />
             <span>
               Envíos oficiales <strong className="text-gray-300">Chilexpress</strong> & <strong className="text-gray-300">Starken</strong> • <strong className="text-emerald-400">Retiro $0</strong>
             </span>

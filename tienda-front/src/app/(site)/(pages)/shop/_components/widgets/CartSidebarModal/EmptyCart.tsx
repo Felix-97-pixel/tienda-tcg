@@ -1,14 +1,15 @@
 import React from "react";
 import Link from "next/link";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
+import { IconCard } from "@/components/ui/Icons";
 
 const EmptyCart = () => {
   const { closeCartModal } = useCartModalContext();
 
   return (
     <div className="py-16 px-4 text-center flex flex-col items-center justify-center">
-      <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-4xl mb-5 shadow-inner">
-        🃏
+      <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mb-5 shadow-inner">
+        <IconCard className="w-10 h-10 text-gray-500 opacity-60" />
       </div>
 
       <h3 className="text-lg font-bold text-white mb-2">

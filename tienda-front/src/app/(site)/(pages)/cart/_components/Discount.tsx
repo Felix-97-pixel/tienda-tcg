@@ -10,6 +10,7 @@ import {
 } from "@/redux/features/cart-slice";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
+import { IconTag } from "@/components/ui/Icons";
 
 type Feedback = { type: "success" | "error" | "warning"; message: string } | null;
 
@@ -103,7 +104,7 @@ const Discount = () => {
         <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden">
           <div className="border-b border-white/10 py-4 px-6 bg-white/[0.02]">
             <h3 className="font-bold text-white text-base flex items-center gap-2">
-              <span>🏷️</span>
+              <IconTag className="w-4 h-4 text-[#E10E0E]" />
               <span>¿Tienes un código de descuento?</span>
             </h3>
           </div>

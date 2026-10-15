@@ -2,6 +2,7 @@ import { selectTotalPrice, selectTotalDiscount, selectCartItemsWithDiscounts } f
 import React from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
+import { IconTag } from "@/components/ui/Icons";
 
 const OrderSummary = () => {
   const cartItems = useSelector(selectCartItemsWithDiscounts);
@@ -36,7 +37,7 @@ const OrderSummary = () => {
           {totalDiscount > 0 && (
             <div className="flex items-center justify-between text-sm py-2 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
               <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                <span>🏷️</span> Descuento Cupones
+                <IconTag className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Descuento Cupones
               </span>
               <span className="font-mono font-bold text-emerald-400">
                 -${Math.round(totalDiscount).toLocaleString("es-CL")} CLP

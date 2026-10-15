@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { removeAllItemsFromCart } from "@/redux/features/cart-slice";
+import { IconBox, IconStore } from "@/components/ui/Icons";
 
 type OrderDetail = {
   id: string;
@@ -147,7 +148,7 @@ const PaymentResultPage = () => {
           {order && (
             <div className="p-6 sm:p-8 space-y-6">
               <h2 className="font-bold text-white text-base flex items-center gap-2">
-                <span>📋</span>
+                <IconBox className="w-4 h-4 text-red-500" />
                 <span>Detalle de la Orden</span>
               </h2>
 
@@ -192,7 +193,10 @@ const PaymentResultPage = () => {
                 {order.vendorOrders?.map((vo) => (
                   <div key={vo.id} className="bg-[#07090E] rounded-xl p-4 border border-white/5 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-white">🏪 {vo.store.name}</span>
+                      <span className="font-bold text-white flex items-center gap-1.5">
+                        <IconStore className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        {vo.store.name}
+                      </span>
                       <span className="text-emerald-400 text-[10px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
                         En preparación
                       </span>
