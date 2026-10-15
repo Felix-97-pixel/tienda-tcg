@@ -100,14 +100,17 @@ const Discount = () => {
   return (
     <div className="lg:max-w-[670px] w-full">
       <form onSubmit={handleApplyCoupon}>
-        <div className="bg-[#1a1d24] shadow-1 rounded-[10px]">
-          <div className="border-b border-white/10 py-5 px-4 sm:px-5.5">
-            <h3 className="text-white">¿Tienes un código de descuento?</h3>
+        <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden">
+          <div className="border-b border-white/10 py-4 px-6 bg-white/[0.02]">
+            <h3 className="font-bold text-white text-base flex items-center gap-2">
+              <span>🏷️</span>
+              <span>¿Tienes un código de descuento?</span>
+            </h3>
           </div>
 
-          <div className="py-8 px-4 sm:px-8.5">
-            <div className="flex flex-wrap gap-4 xl:gap-5.5">
-              <div className="max-w-[426px] w-full">
+          <div className="p-6">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
                 <input
                   type="text"
                   name="coupon"
@@ -117,8 +120,8 @@ const Discount = () => {
                     setCode(e.target.value.toUpperCase().replace(/\s+/g, ""));
                     setFeedback(null);
                   }}
-                  placeholder="Ingresa tu código"
-                  className="rounded-md border border-white/10 bg-[#111318] text-white placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                  placeholder="Ej: TAPTRADE10"
+                  className="rounded-xl border border-white/10 bg-[#07090E] text-white placeholder-gray-500 w-full py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 text-sm font-mono tracking-wider uppercase transition-all"
                 />
               </div>
 
@@ -126,33 +129,33 @@ const Discount = () => {
                 type="submit"
                 id="apply-coupon-btn"
                 disabled={loading || !code}
-                className="inline-flex font-medium text-white bg-blue py-3 px-8 rounded-md ease-out duration-200 hover:bg-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-11 px-6 rounded-xl font-bold text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 border border-white/15 text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 active:scale-95"
               >
-                {loading ? "Validando..." : "Aplicar"}
+                {loading ? "Validando..." : "Aplicar Cupón"}
               </button>
             </div>
 
             {feedback && (
-              <p className={`mt-4 rounded-lg border px-4 py-2.5 text-sm animate-in fade-in ${feedbackStyles[feedback.type]}`}>
+              <p className={`mt-4 rounded-xl border px-4 py-2.5 text-xs font-medium animate-in fade-in ${feedbackStyles[feedback.type]}`}>
                 {feedback.message}
               </p>
             )}
 
             {appliedCoupons.length > 0 && (
               <div className="mt-5 space-y-2">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Cupones aplicados</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Cupones activos en tu orden</p>
                 {appliedCoupons.map((c) => (
                   <div
                     key={c.code}
-                    className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2.5"
+                    className="flex items-center justify-between rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-2.5"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 font-mono text-sm font-bold text-emerald-400">
+                      <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 font-mono text-xs font-bold text-emerald-400 border border-emerald-500/30">
                         {c.code}
                       </span>
-                      <span className="text-sm text-gray-300">
+                      <span className="text-xs text-gray-300">
                         -{c.discountPercent}% · Ahorras{" "}
-                        <span className="font-bold text-emerald-400">{formatCLP(savingsFor(c.code))}</span>
+                        <strong className="text-emerald-400 font-mono">{formatCLP(savingsFor(c.code))}</strong>
                       </span>
                     </div>
                     <button
@@ -161,7 +164,7 @@ const Discount = () => {
                         dispatch(removeCoupon(c.code));
                         showToast(`Cupón ${c.code} removido`, "success");
                       }}
-                      className="text-gray-400 transition-colors hover:text-red-400"
+                      className="text-gray-400 hover:text-red-400 transition-colors p-1"
                       aria-label={`Quitar cupón ${c.code}`}
                     >
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

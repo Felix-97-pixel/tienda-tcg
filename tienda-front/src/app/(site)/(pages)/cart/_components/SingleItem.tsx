@@ -6,22 +6,26 @@ import {
   updateCartItemQuantity,
 } from "@/redux/features/cart-slice";
 import { useToast } from "@/hooks/useToast";
-import { formatPrice } from "@/utils/currency";
-
 import Image from "next/image";
+import Link from "next/link";
 
-const SingleItem = ({ item }) => {
+const SingleItem = ({ item }: { item: any }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { showToast } = useToast();
-  const currency = useSelector((state: any) => state.currencyReducer);
 
   const handleRemoveFromCart = () => {
     dispatch(removeItemFromCart(item.id));
-    showToast(`"${item.title}" eliminado del carro`, "warning");
+    showToast(`"${item.title}" eliminada del carrito`, "warning");
   };
 
+  const maxStock = item.stock !== undefined && item.stock !== null ? item.stock : 999;
+
   const handleIncreaseQuantity = () => {
-    dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity + 1 }));
+    if (item.quantity < maxStock) {
+      dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity + 1 }));
+    } else {
+      showToast(`Solo hay ${maxStock} unidades disponibles en stock`, "warning");
+    }
   };
 
   const handleDecreaseQuantity = () => {
@@ -30,138 +34,140 @@ const SingleItem = ({ item }) => {
     }
   };
 
-  return (
-    <div className="flex items-center border-t border-white/10 py-5 px-7.5">
-      <div className="min-w-[400px]">
-        <div className="flex items-center justify-between gap-5">
-          <div className="w-full flex items-center gap-5.5">
-            <div className="flex items-center justify-center rounded-[5px] bg-[#222630] max-w-[80px] w-full h-17.5 overflow-hidden p-1">
-              <Image 
-                className="max-h-full max-w-full object-contain" 
-                width={200} 
-                height={200} 
-                src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"} 
-                alt="product" 
-                unoptimized={Boolean((item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0])?.includes("scryfall"))}
-              />
-            </div>
+  // Condition code and badge styling
+  const rawCondition = (item.condition || "NM").toUpperCase();
+  const isLP = rawCondition.includes("LIGHT") || rawCondition === "LP";
+  const isMP = rawCondition.includes("MODERATE") || rawCondition === "MP";
+  const isHP = rawCondition.includes("HEAVY") || rawCondition === "HP";
+  const conditionCode = isLP ? "LP" : isMP ? "MP" : isHP ? "HP" : "NM";
+  const conditionBadgeClass = isLP
+    ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
+    : isMP
+    ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+    : isHP
+    ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
+    : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
 
-            <div>
-              <h3 className="text-white ease-out duration-200 hover:text-blue mb-1">
-                <a href="#"> {item.title} </a>
-              </h3>
-              <p className="text-xs text-gray-4 mb-1">
-                {item.condition} {item.finish !== "Non-foil" ? item.finish : ""} • {item.language}
-              </p>
-              <p className="text-xs text-blue">Sold by {item.storeName || "Unknown"}</p>
-            </div>
+  const isFoil = Boolean(
+    item.finish &&
+    (item.finish.toLowerCase().includes("foil") || item.finish.toLowerCase().includes("holo"))
+  );
+
+  const unitPrice = Number(item.discountedPrice ?? item.price ?? 0);
+  const lineTotal = (item.finalPrice || unitPrice) * item.quantity;
+
+  return (
+    <div className="grid grid-cols-12 items-center gap-4 py-4 px-6 border-b border-white/5 last:border-0 hover:bg-white/[0.015] transition-colors">
+      {/* Product Artwork & Info (Col 5) */}
+      <div className="col-span-12 sm:col-span-5 flex items-center gap-3.5">
+        <div className="relative w-14 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[#07090E] border border-white/10 shrink-0 p-0.5">
+          <Image
+            className="w-full h-full object-contain"
+            width={70}
+            height={98}
+            src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"}
+            alt={item.title || "Carta TCG"}
+            unoptimized={Boolean((item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0])?.includes("scryfall"))}
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-bold text-white hover:text-red-400 transition-colors line-clamp-1">
+            <Link href={`/shop-details/${item.productId || item.id}`}>
+              {item.title}
+            </Link>
+          </h4>
+
+          {/* Badges */}
+          <div className="flex items-center gap-1.5 flex-wrap mt-1">
+            <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border ${conditionBadgeClass}`}>
+              {conditionCode}
+            </span>
+            {isFoil && (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-400/15 text-amber-300 border border-amber-400/30">
+                FOIL
+              </span>
+            )}
+            <span className="text-[10px] text-gray-400 font-mono">
+              {item.language || "EN"}
+            </span>
+          </div>
+
+          {/* Store */}
+          <div className="text-[11px] text-gray-400 mt-1 truncate">
+            <span className="text-gray-500">Tienda: </span>
+            <span className="text-gray-300 font-medium">{item.storeName || "TapTrade Store"}</span>
           </div>
         </div>
       </div>
 
-      <div className="min-w-[180px]">
+      {/* Unit Price (Col 2) */}
+      <div className="col-span-4 sm:col-span-2 text-left sm:text-center">
+        <span className="text-xs text-gray-400 block sm:hidden">Precio Unitario:</span>
         {item.discountAmount > 0 ? (
-          <div className="flex flex-col">
-            <span className="text-gray-5 line-through text-xs">{formatPrice(item.originalPrice, currency)}</span>
-            <span className="text-white font-bold">{formatPrice(item.finalPrice, currency)}</span>
-            <span className="text-green-400 text-[10px] uppercase font-bold mt-1 bg-green-400/10 w-max px-2 py-0.5 rounded">
+          <div>
+            <span className="text-gray-500 line-through text-[11px] block font-mono">
+              ${Math.round(item.originalPrice).toLocaleString("es-CL")}
+            </span>
+            <span className="text-white font-mono font-bold text-sm">
+              ${Math.round(item.finalPrice).toLocaleString("es-CL")} CLP
+            </span>
+            <span className="inline-block mt-0.5 text-[9px] font-mono font-bold uppercase text-emerald-400 bg-emerald-400/10 px-1.5 py-0.2 rounded border border-emerald-400/20">
               Cupón: {item.appliedCouponCode}
             </span>
           </div>
         ) : (
-          <p className="text-white">{formatPrice(item.discountedPrice || item.price, currency)}</p>
+          <span className="text-sm font-mono font-bold text-white">
+            ${Math.round(unitPrice).toLocaleString("es-CL")} <span className="text-[11px] text-gray-400 font-normal">CLP</span>
+          </span>
         )}
       </div>
 
-      <div className="min-w-[275px]">
-        <div className="w-max flex items-center rounded-md border border-white/10">
+      {/* Quantity Stepper (Col 2) */}
+      <div className="col-span-4 sm:col-span-2 flex items-center justify-start sm:justify-center">
+        <div className="flex items-center rounded-xl bg-black/40 border border-white/10 overflow-hidden h-9">
           <button
-            onClick={() => handleDecreaseQuantity()}
-            aria-label="button for remove product"
-            className="flex items-center justify-center w-11.5 h-11.5 ease-out duration-200 hover:text-blue"
+            type="button"
+            onClick={handleDecreaseQuantity}
+            disabled={item.quantity <= 1}
+            className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            <svg
-              className="fill-current"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3.33301 10.0001C3.33301 9.53984 3.7061 9.16675 4.16634 9.16675H15.833C16.2932 9.16675 16.6663 9.53984 16.6663 10.0001C16.6663 10.4603 16.2932 10.8334 15.833 10.8334H4.16634C3.7061 10.8334 3.33301 10.4603 3.33301 10.0001Z"
-                fill=""
-              />
-            </svg>
+            -
           </button>
-
-          <span className="flex items-center justify-center w-16 h-11.5 border-x border-white/20">
+          <span className="w-8 text-center text-xs font-mono font-bold text-white">
             {item.quantity}
           </span>
-
           <button
-            onClick={() => handleIncreaseQuantity()}
-            disabled={item.quantity >= (item.stock !== undefined ? item.stock : 999)}
-            aria-label="button for add product"
-            className={`flex items-center justify-center w-11.5 h-11.5 ease-out duration-200 ${item.quantity >= (item.stock !== undefined ? item.stock : 999) ? "text-gray-4 cursor-not-allowed" : "hover:text-blue"}`}
+            type="button"
+            onClick={handleIncreaseQuantity}
+            disabled={item.quantity >= maxStock}
+            className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            <svg
-              className="fill-current"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3.33301 10C3.33301 9.5398 3.7061 9.16671 4.16634 9.16671H15.833C16.2932 9.16671 16.6663 9.5398 16.6663 10C16.6663 10.4603 16.2932 10.8334 15.833 10.8334H4.16634C3.7061 10.8334 3.33301 10.4603 3.33301 10Z"
-                fill=""
-              />
-              <path
-                d="M9.99967 16.6667C9.53944 16.6667 9.16634 16.2936 9.16634 15.8334L9.16634 4.16671C9.16634 3.70647 9.53944 3.33337 9.99967 3.33337C10.4599 3.33337 10.833 3.70647 10.833 4.16671L10.833 15.8334C10.833 16.2936 10.4599 16.6667 9.99967 16.6667Z"
-                fill=""
-              />
-            </svg>
+            +
           </button>
         </div>
       </div>
 
-      <div className="min-w-[200px]">
-        <p className="text-white">{formatPrice((item.finalPrice || item.discountedPrice || item.price) * item.quantity, currency)}</p>
+      {/* Subtotal (Col 2) */}
+      <div className="col-span-3 sm:col-span-2 text-right">
+        <span className="text-xs text-gray-400 block sm:hidden">Subtotal:</span>
+        <span className="text-sm font-black font-mono text-white">
+          ${Math.round(lineTotal).toLocaleString("es-CL")}
+        </span>
+        <span className="text-[10px] text-gray-500 ml-1">CLP</span>
       </div>
 
-      <div className="min-w-[50px] flex justify-end">
+      {/* Action (Col 1) */}
+      <div className="col-span-1 sm:col-span-1 flex justify-end">
         <button
-          onClick={() => handleRemoveFromCart()}
-          aria-label="button for remove product from cart"
-          className="flex items-center justify-center rounded-lg max-w-[38px] w-full h-9.5 bg-[#222630] border border-white/10 text-white ease-out duration-200 hover:bg-red-light-6 hover:border-red-light-4 hover:text-red"
+          onClick={handleRemoveFromCart}
+          aria-label="Eliminar del carrito"
+          className="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/30 text-gray-400 hover:text-red-400 flex items-center justify-center transition-all"
+          title="Eliminar de la lista"
         >
-          <svg
-            className="fill-current"
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M9.45017 2.06252H12.5498C12.7482 2.06239 12.921 2.06228 13.0842 2.08834C13.7289 2.19129 14.2868 2.59338 14.5883 3.17244C14.6646 3.319 14.7192 3.48298 14.7818 3.6712L14.8841 3.97819C14.9014 4.03015 14.9064 4.04486 14.9105 4.05645C15.0711 4.50022 15.4873 4.80021 15.959 4.81217C15.9714 4.81248 15.9866 4.81254 16.0417 4.81254H18.7917C19.1714 4.81254 19.4792 5.12034 19.4792 5.50004C19.4792 5.87973 19.1714 6.18754 18.7917 6.18754H3.20825C2.82856 6.18754 2.52075 5.87973 2.52075 5.50004C2.52075 5.12034 2.82856 4.81254 3.20825 4.81254H5.95833C6.01337 4.81254 6.02856 4.81248 6.04097 4.81217C6.51273 4.80021 6.92892 4.50024 7.08944 4.05647C7.09366 4.0448 7.09852 4.03041 7.11592 3.97819L7.21823 3.67122C7.28083 3.48301 7.33538 3.319 7.41171 3.17244C7.71324 2.59339 8.27112 2.19129 8.91581 2.08834C9.079 2.06228 9.25181 2.06239 9.45017 2.06252ZM8.25739 4.81254C8.30461 4.71993 8.34645 4.6237 8.38245 4.52419C8.39338 4.49397 8.4041 4.4618 8.41787 4.42048L8.50936 4.14601C8.59293 3.8953 8.61217 3.84416 8.63126 3.8075C8.73177 3.61448 8.91773 3.48045 9.13263 3.44614C9.17345 3.43962 9.22803 3.43754 9.49232 3.43754H12.5077C12.772 3.43754 12.8265 3.43962 12.8674 3.44614C13.0823 3.48045 13.2682 3.61449 13.3687 3.8075C13.3878 3.84416 13.4071 3.89529 13.4906 4.14601L13.5821 4.42031L13.6176 4.52421C13.6535 4.62372 13.6954 4.71994 13.7426 4.81254H8.25739Z"
-              fill=""
-            />
-            <path
-              d="M5.42208 7.74597C5.39683 7.36711 5.06923 7.08047 4.69038 7.10572C4.31152 7.13098 4.02487 7.45858 4.05013 7.83743L4.47496 14.2099C4.55333 15.3857 4.61663 16.3355 4.76511 17.0808C4.91947 17.8557 5.18203 18.5029 5.72432 19.0103C6.26662 19.5176 6.92987 19.7365 7.7133 19.839C8.46682 19.9376 9.41871 19.9376 10.5971 19.9375H11.4028C12.5812 19.9376 13.5332 19.9376 14.2867 19.839C15.0701 19.7365 15.7334 19.5176 16.2757 19.0103C16.818 18.5029 17.0805 17.8557 17.2349 17.0808C17.3834 16.3355 17.4467 15.3857 17.525 14.2099L17.9499 7.83743C17.9751 7.45858 17.6885 7.13098 17.3096 7.10572C16.9308 7.08047 16.6032 7.36711 16.5779 7.74597L16.1563 14.0702C16.0739 15.3057 16.0152 16.1654 15.8864 16.8122C15.7614 17.4396 15.5869 17.7717 15.3363 18.0062C15.0857 18.2406 14.7427 18.3926 14.1084 18.4756C13.4544 18.5612 12.5927 18.5625 11.3545 18.5625H10.6455C9.40727 18.5625 8.54559 18.5612 7.89164 18.4756C7.25731 18.3926 6.91433 18.2406 6.6637 18.0062C6.41307 17.7717 6.2386 17.4396 6.11361 16.8122C5.98476 16.1654 5.92607 15.3057 5.8437 14.0702L5.42208 7.74597Z"
-              fill=""
-            />
-            <path
-              d="M8.63993 9.39928C9.01774 9.3615 9.35464 9.63715 9.39242 10.015L9.85076 14.5983C9.88854 14.9761 9.61289 15.313 9.23508 15.3508C8.85727 15.3886 8.52036 15.1129 8.48258 14.7351L8.02425 10.1518C7.98647 9.77397 8.26212 9.43706 8.63993 9.39928Z"
-              fill=""
-            />
-            <path
-              d="M13.3601 9.39928C13.7379 9.43706 14.0135 9.77397 13.9758 10.1518L13.5174 14.7351C13.4796 15.1129 13.1427 15.3886 12.7649 15.3508C12.3871 15.313 12.1115 14.9761 12.1492 14.5983L12.6076 10.015C12.6454 9.63715 12.9823 9.3615 13.3601 9.39928Z"
-              fill=""
-            />
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
         </button>
       </div>

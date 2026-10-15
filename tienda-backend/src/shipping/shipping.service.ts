@@ -54,24 +54,22 @@ export class ShippingService implements OnModuleInit {
    */
   async seedProviders() {
     try {
-      const count = await this.prisma.shippingProvider.count();
-      if (count === 0) {
-        console.log('--- Sembrando proveedores de envío ---');
-        await this.prisma.shippingProvider.createMany({
-          data: [
-            {
-              name: 'CHILEXPRESS',
-              price: 9990.00,
-              isActive: true,
-            },
-            {
-              name: 'STARKEN',
-              price: 6990.00,
-              isActive: true,
-            },
-          ],
+      const defaultProviders = [
+        { name: 'RETIRO_TIENDA', price: 0.00, isActive: true },
+        { name: 'CHILEXPRESS', price: 9990.00, isActive: true },
+        { name: 'STARKEN', price: 6990.00, isActive: true },
+      ];
+
+      for (const prov of defaultProviders) {
+        const existing = await this.prisma.shippingProvider.findFirst({
+          where: { name: prov.name, storeId: null },
         });
-        console.log('✅ Proveedores de envío sembrados exitosamente');
+        if (!existing) {
+          await this.prisma.shippingProvider.create({
+            data: prov,
+          });
+          console.log(`✅ Proveedor de envío ${prov.name} sembrado exitosamente`);
+        }
       }
     } catch (error) {
       console.error('❌ Error al sembrar proveedores de envío:', error.message);

@@ -3,15 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Breadcrumb from "@/components/layout/Breadcrumb";
-import { selectCartItems, selectTotalPrice, removeAllItemsFromCart } from "@/redux/features/cart-slice";
+import Link from "next/link";
+import { selectCartItems, selectTotalPrice } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
-
 import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 
-initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || 'TEST-dummy', { locale: 'es-CL' });
+initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-dummy", { locale: "es-CL" });
 
 type BillingData = {
   name: string;
@@ -68,16 +67,16 @@ const CheckoutWebpay = () => {
             try {
               const data = JSON.parse(text);
               if (res.ok) {
-                setStoreNames((prev) => ({ ...prev, [id]: data.name || "Sin Nombre" }));
+                setStoreNames((prev) => ({ ...prev, [id]: data.name || "Tienda TapTrade" }));
               } else {
-                setStoreNames((prev) => ({ ...prev, [id]: `API Error: ${res.status} - ${text.substring(0, 50)}` }));
+                setStoreNames((prev) => ({ ...prev, [id]: "Tienda TapTrade" }));
               }
             } catch (e) {
-              setStoreNames((prev) => ({ ...prev, [id]: `Parse Error: ${text.substring(0, 50)}` }));
+              setStoreNames((prev) => ({ ...prev, [id]: "Tienda TapTrade" }));
             }
           })
-          .catch((err) => {
-            setStoreNames((prev) => ({ ...prev, [id]: `Network Error: ${err.message}` }));
+          .catch(() => {
+            setStoreNames((prev) => ({ ...prev, [id]: "Tienda TapTrade" }));
           });
       }
     });
@@ -86,7 +85,7 @@ const CheckoutWebpay = () => {
   // Carga dinámica de proveedores de envío
   useEffect(() => {
     fetch(`${API_URL}/shipping/providers`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setShippingProviders(data);
@@ -100,22 +99,22 @@ const CheckoutWebpay = () => {
     if (shippingProviders.length > 0) {
       let changed = false;
       const initial: Record<string, any> = {};
-      storeIds.forEach(sId => {
-         if (!selectedProvidersByStore[sId]) {
-            initial[sId] = shippingProviders[0];
-            changed = true;
-         }
+      storeIds.forEach((sId) => {
+        if (!selectedProvidersByStore[sId]) {
+          initial[sId] = shippingProviders[0];
+          changed = true;
+        }
       });
       if (changed) {
-         setSelectedProvidersByStore(prev => ({...prev, ...initial}));
+        setSelectedProvidersByStore((prev) => ({ ...prev, ...initial }));
       }
     }
   }, [shippingProviders, storeIds]);
 
   const totalShippingCost = React.useMemo(() => {
     return storeIds.reduce((sum, sId) => {
-       const provider = selectedProvidersByStore[sId];
-       return sum + (provider ? Number(provider.price) : 0);
+      const provider = selectedProvidersByStore[sId];
+      return sum + (provider ? Number(provider.price) : 0);
     }, 0);
   }, [storeIds, selectedProvidersByStore]);
 
@@ -160,7 +159,7 @@ const CheckoutWebpay = () => {
       setError("Tu carrito está vacío.");
       return;
     }
-    const missingShipping = storeIds.find(sId => !selectedProvidersByStore[sId]);
+    const missingShipping = storeIds.find((sId) => !selectedProvidersByStore[sId]);
     if (missingShipping) {
       setError("Debes seleccionar un método de envío para cada tienda.");
       return;
@@ -208,25 +207,45 @@ const CheckoutWebpay = () => {
       }
 
       const data = await res.json();
-      
-      // Redirigir según el estado del pago
-      const status = data.approved ? 'success' : 'failed';
+      const status = data.approved ? "success" : "failed";
       router.push(`/checkout/result?status=${status}&orderId=${data.orderId}`);
-      
     } catch (err: any) {
       setError(err.message ?? "Error desconocido al procesar el pago");
       setLoading(false);
     }
   };
 
+  const finalAmount = total + totalShippingCost / currency.exchangeRate;
+
   const initialization = {
-    amount: total + (totalShippingCost / currency.exchangeRate),
+    amount: Math.round(finalAmount),
     payer: {
-      email: billing.email || "test@test.com" // Provide fallback or actual email
-    }
+      email: billing.email || "comprador@taptrade.cl",
+    },
   };
 
+  // Dark Vault custom Mercado Pago styling
   const customization = {
+    visual: {
+      style: {
+        theme: "dark" as const,
+        customVariables: {
+          formBackgroundColor: "#0E121B",
+          baseColor: "#E10E0E",
+          baseColorFirstVariant: "#F23030",
+          baseColorSecondVariant: "#C8102E",
+          inputBackgroundColor: "#07090E",
+          textPrimaryColor: "#FFFFFF",
+          textSecondaryColor: "#9CA3AF",
+          outlinePrimaryColor: "rgba(255, 255, 255, 0.12)",
+          outlineSecondaryColor: "rgba(255, 255, 255, 0.2)",
+          buttonTextColor: "#FFFFFF",
+          borderRadiusSmall: "8px",
+          borderRadiusMedium: "12px",
+          borderRadiusLarge: "12px",
+        },
+      },
+    },
     paymentMethods: {
       creditCard: "all",
       debitCard: "all",
@@ -234,269 +253,341 @@ const CheckoutWebpay = () => {
   };
 
   return (
-    <>
-      <Breadcrumb title="Checkout" pages={["checkout"]} />
-      <section className="overflow-hidden py-20 bg-[#222630]">
-        <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          <div>
-            <div className="flex flex-col lg:flex-row gap-7.5 xl:gap-11">
-              {/* ─── Formulario ─── */}
-              <div className="lg:max-w-[670px] w-full">
-                <h2 className="font-medium text-white text-xl sm:text-2xl mb-5.5">
-                  Datos de contacto
+    <div className="bg-[#07090E] min-h-screen text-white pt-28 md:pt-36 pb-24 relative overflow-hidden">
+      {/* Ambient background light */}
+      <div className="absolute top-20 left-1/3 w-[600px] h-[350px] bg-red-600/10 blur-[150px] pointer-events-none rounded-full"></div>
+
+      <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Navigation Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
+          <Link href="/cart" className="hover:text-white transition-colors">
+            ← Volver al Carrito
+          </Link>
+          <span>/</span>
+          <span className="text-white font-semibold">Checkout Seguro</span>
+        </div>
+
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
+            <span>🔒</span>
+            <span>Pasarela Oficial Cifrada</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Finalizar Compra
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Completa tus datos de despacho y selecciona tu medio de pago protegido por Mercado Pago & Webpay.
+          </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* ─── Columna Izquierda: Datos y Pago ─── */}
+          <div className="flex-1 w-full space-y-8">
+            {/* 1. Datos de Contacto y Envío */}
+            <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-white/10">
+                <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-400 font-black text-xs flex items-center justify-center">
+                  1
+                </span>
+                <h2 className="text-lg font-bold text-white tracking-tight">
+                  Datos de Contacto y Despacho
                 </h2>
+              </div>
 
-                <div className="bg-[#1a1d24] shadow-1 rounded-[10px] p-4 sm:p-8.5">
-                  {/* Nombre */}
-                  <div className="mb-5">
-                    <label htmlFor="name" className="block mb-2.5 font-medium text-white">
-                      Nombre completo <span className="text-red">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      value={billing.name}
-                      onChange={handleChange}
-                      placeholder="Ej: Juan Pérez"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
-                  </div>
+              <div className="space-y-4">
+                {/* Nombre */}
+                <div>
+                  <label htmlFor="name" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                    Nombre completo <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    value={billing.name}
+                    onChange={handleChange}
+                    placeholder="Ej: Juan Pérez"
+                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                  />
+                </div>
 
-                  {/* Email */}
-                  <div className="mb-5">
-                    <label htmlFor="email" className="block mb-2.5 font-medium text-white">
-                      Correo electrónico <span className="text-red">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      value={billing.email}
-                      onChange={handleChange}
-                      placeholder="ejemplo@correo.com"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
-                  </div>
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                    Correo electrónico <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={billing.email}
+                    onChange={handleChange}
+                    placeholder="ejemplo@correo.com"
+                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                  />
+                </div>
 
-                  <div className="flex flex-col sm:flex-row gap-5 mb-5">
-                    {/* Teléfono */}
-                    <div className="w-full">
-                      <label htmlFor="phone" className="block mb-2.5 font-medium text-white">
-                        Teléfono
-                      </label>
-                      <input
-                        type="text"
-                        id="phone"
-                        name="phone"
-                        value={billing.phone}
-                        onChange={handleChange}
-                        placeholder="+56 9 1234 5678"
-                        className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                      />
-                    </div>
-
-                    {/* Ciudad */}
-                    <div className="w-full">
-                      <label htmlFor="city" className="block mb-2.5 font-medium text-white">
-                        Ciudad
-                      </label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        value={billing.city}
-                        onChange={handleChange}
-                        placeholder="Santiago"
-                        className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Dirección */}
-                  <div className="mb-5">
-                    <label htmlFor="address" className="block mb-2.5 font-medium text-white">
-                      Dirección de envío
-                    </label>
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      value={billing.address}
-                      onChange={handleChange}
-                      placeholder="Calle, número, depto..."
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
-                  </div>
-
-                  {/* Notas */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Teléfono */}
                   <div>
-                    <label htmlFor="notes" className="block mb-2.5 font-medium text-white">
-                      Notas adicionales (opcional)
+                    <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                      Teléfono
                     </label>
-                    <textarea
-                      id="notes"
-                      name="notes"
-                      rows={3}
-                      value={billing.notes}
+                    <input
+                      type="text"
+                      id="phone"
+                      name="phone"
+                      value={billing.phone}
                       onChange={handleChange}
-                      placeholder="Instrucciones especiales de entrega..."
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
+                      placeholder="+56 9 1234 5678"
+                      className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                    />
+                  </div>
+
+                  {/* Ciudad */}
+                  <div>
+                    <label htmlFor="city" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                      Ciudad
+                    </label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      value={billing.city}
+                      onChange={handleChange}
+                      placeholder="Santiago"
+                      className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
                     />
                   </div>
                 </div>
 
-                {/* Banner MP */}
-                <div className="bg-[#1a1d24] shadow-1 rounded-[10px] p-4 sm:p-8.5 mt-7.5">
-                  <h3 className="font-medium text-xl text-white mb-4">
-                    Método de pago
-                  </h3>
-                  <div className="flex items-center gap-4 p-4 border-2 border-[#009EE3] rounded-xl bg-[#009EE3]/5">
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-10 bg-[#009EE3] rounded-md flex items-center justify-center">
-                        <span className="text-white text-xs font-bold tracking-tight">MP</span>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white">Mercado Pago</p>
-                      <p className="text-sm text-gray-4">
-                        Pago seguro con tarjeta de crédito o débito.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    {/* Render Mercado Pago Brick */}
-                    {total > 0 && shippingProviders.length > 0 && (
-                      <Payment
-                        initialization={initialization}
-                        customization={customization as any}
-                        onSubmit={async (param) => {
-                          await handlePaymentSubmit(param.formData);
-                        }}
-                      />
-                    )}
-                  </div>
+                {/* Dirección */}
+                <div>
+                  <label htmlFor="address" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                    Dirección de envío
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={billing.address}
+                    onChange={handleChange}
+                    placeholder="Calle, número, departamento o sucursal..."
+                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                  />
+                </div>
 
-                  <p className="mt-3 text-xs text-gray-4 flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
-                    </svg>
-                    Transacción segura con Mercado Pago
+                {/* Notas */}
+                <div>
+                  <label htmlFor="notes" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                    Instrucciones especiales de entrega (opcional)
+                  </label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    rows={2}
+                    value={billing.notes}
+                    onChange={handleChange}
+                    placeholder="Dejar en conserjería, timbre 402, etc..."
+                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm p-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Método de Pago (Mercado Pago Brick) */}
+            <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-white/10">
+                <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-400 font-black text-xs flex items-center justify-center">
+                  2
+                </span>
+                <h2 className="text-lg font-bold text-white tracking-tight">
+                  Medio de Pago Seguro
+                </h2>
+              </div>
+
+              {/* Banner MP Oficial */}
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/30 mb-6">
+                <div className="w-12 h-10 bg-[#009EE3] rounded-lg flex items-center justify-center font-black text-white text-xs shrink-0 shadow-md">
+                  MP
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Mercado Pago & Webpay</h4>
+                  <p className="text-xs text-gray-400">
+                    Tarjetas de crédito (con o sin cuotas), débito Redcompra y dinero en cuenta.
                   </p>
                 </div>
               </div>
 
-              {/* ─── Resumen ─── */}
-              <div className="max-w-[455px] w-full">
-                <div className="bg-[#1a1d24] shadow-1 rounded-[10px]">
-                  <div className="border-b border-white/10 py-5 px-4 sm:px-8.5">
-                    <h3 className="font-medium text-xl text-white">Tu pedido</h3>
+              {/* Mercado Pago Payment Brick (Dark Theme) */}
+              <div className="rounded-xl overflow-hidden bg-[#07090E] p-4 border border-white/10">
+                {total > 0 && shippingProviders.length > 0 && (
+                  <Payment
+                    initialization={initialization}
+                    customization={customization as any}
+                    onSubmit={async (param) => {
+                      await handlePaymentSubmit(param.formData);
+                    }}
+                  />
+                )}
+              </div>
+
+              <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
+                <span className="text-emerald-400">🔒</span>
+                <span>Transacción segura y encriptada por Mercado Pago Chile</span>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{error}</span>
+              </div>
+            )}
+          </div>
+
+          {/* ─── Columna Derecha: Resumen de Pedido y Envíos ─── */}
+          <div className="w-full lg:max-w-[440px]">
+            <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden sticky top-32">
+              <div className="border-b border-white/10 py-5 px-6 bg-white/[0.02] flex items-center justify-between">
+                <h3 className="font-extrabold text-lg text-white tracking-tight">
+                  Tu Pedido
+                </h3>
+                <span className="text-xs font-mono font-medium text-gray-400">
+                  {cartItems.length} {cartItems.length === 1 ? "ítem" : "ítems"}
+                </span>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Desglose por tienda */}
+                {Object.entries(itemsByStore).map(([sId, items]) => (
+                  <div key={sId} className="space-y-3 pb-5 border-b border-white/10 last:border-0 last:pb-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🏪</span>
+                        <span className="text-xs font-bold text-white tracking-wide">
+                          {storeNames[sId] || `Tienda (ID: ${sId.slice(0, 8)})`}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                        ✓ Verificada
+                      </span>
+                    </div>
+
+                    {/* Cartas de esta tienda */}
+                    <div className="bg-[#07090E] rounded-xl border border-white/5 p-3 space-y-2.5">
+                      {items.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="relative w-8 aspect-[2.5/3.5] rounded overflow-hidden bg-black/60 border border-white/10 shrink-0">
+                              <Image
+                                src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"}
+                                alt={item.title}
+                                fill
+                                sizes="32px"
+                                className="object-contain"
+                                unoptimized={Boolean((item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0])?.includes("scryfall"))}
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-white font-medium truncate">{item.title}</p>
+                              <p className="text-[11px] text-gray-500 font-mono">Cant: {item.quantity}</p>
+                            </div>
+                          </div>
+                          <span className="font-mono font-bold text-white shrink-0">
+                            ${Math.round(item.discountedPrice * item.quantity).toLocaleString("es-CL")} CLP
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Selector de Envío para esta Tienda */}
+                    <div className="pt-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-2">
+                        Método de Despacho ({storeNames[sId] || "Tienda"}):
+                      </span>
+                      <div className="space-y-2">
+                        {shippingProviders.map((provider) => (
+                          <label
+                            key={provider.id}
+                            className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer select-none transition-all ${
+                              selectedProvidersByStore[sId]?.id === provider.id
+                                ? "bg-white/[0.04] border-red-500/50 shadow-sm"
+                                : "bg-black/20 border-white/5 hover:border-white/10"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <input
+                                type="radio"
+                                name={`shipping_${sId}`}
+                                value={provider.name}
+                                checked={selectedProvidersByStore[sId]?.id === provider.id}
+                                onChange={() => setSelectedProvidersByStore((prev) => ({ ...prev, [sId]: provider }))}
+                                className="w-3.5 h-3.5 text-red-500 border-white/20 focus:ring-red-500/30 cursor-pointer"
+                              />
+                              <ShippingBadge name={provider.name} size="sm" />
+                            </div>
+                            <div className="font-mono font-bold text-xs text-white">
+                              {Number(provider.price) === 0 ? (
+                                <span className="text-emerald-400">$0 (Gratis)</span>
+                              ) : (
+                                <span>${Math.round(Number(provider.price)).toLocaleString("es-CL")} CLP</span>
+                              )}
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Desglose Financiero */}
+                <div className="pt-4 border-t border-white/10 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Subtotal Productos</span>
+                    <span className="font-mono font-bold text-white">
+                      ${Math.round(total).toLocaleString("es-CL")} CLP
+                    </span>
                   </div>
 
-                  <div className="pt-2.5 pb-8.5 px-4 sm:px-8.5">
-                    {/* Header */}
-                    <div className="flex items-center justify-between py-4 border-b border-white/10">
-                      <span className="font-medium text-white">Producto</span>
-                      <span className="font-medium text-white">Subtotal</span>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Total Envíos Consolidados</span>
+                    <span className="font-mono font-bold text-emerald-400">
+                      ${Math.round(totalShippingCost).toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
 
-                    {/* Items por tienda */}
-                    {Object.entries(itemsByStore).map(([sId, items]) => (
-                      <div key={sId} className="mb-6 last:mb-0 border-b border-white/10 pb-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <svg className="w-4 h-4 text-gray-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                          </svg>
-                          <span className="font-semibold text-white/90 text-sm">{storeNames[sId] || `Tienda (ID: ${sId})`}</span>
-                        </div>
-                        
-                        <div className="bg-[#111318] rounded border border-white/5 p-3 mb-4">
-                          {items.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 gap-3">
-                              <div className="flex items-center gap-3 min-w-0">
-                                {item.imgs?.thumbnails?.[0] && (
-                                  <Image src={item.imgs.thumbnails[0]} alt={item.title} width={36} height={36} className="rounded object-cover flex-shrink-0" />
-                                )}
-                                <div className="min-w-0">
-                                  <p className="text-white text-xs font-medium truncate">{item.title}</p>
-                                  <p className="text-gray-4 text-[10px]">× {item.quantity}</p>
-                                </div>
-                              </div>
-                              <p className="text-white text-right text-xs flex-shrink-0 font-medium">
-                                {formatPrice(item.discountedPrice * item.quantity, currency)}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Envío para esta tienda */}
-                        <div className="flex justify-between items-start gap-4">
-                          <span className="font-medium text-gray-4 text-xs mt-1">Opciones de envío</span>
-                          <div className="flex flex-col gap-2 items-end">
-                            {shippingProviders.map((provider) => (
-                              <label key={provider.id} className="flex items-center gap-2 cursor-pointer w-full justify-end select-none">
-                                <input
-                                  type="radio"
-                                  name={`shipping_${sId}`}
-                                  value={provider.name}
-                                  checked={selectedProvidersByStore[sId]?.id === provider.id}
-                                  onChange={() => setSelectedProvidersByStore(prev => ({...prev, [sId]: provider}))}
-                                  className="w-3.5 h-3.5 text-blue border-white/10 focus:ring-blue cursor-pointer flex-shrink-0"
-                                />
-                                <ShippingBadge name={provider.name} size="sm" />
-                                <div className="text-right font-semibold text-green-500 text-xs min-w-[70px] flex-shrink-0">
-                                  {formatPrice(Number(provider.price) / currency.exchangeRate, currency)}
-                                </div>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Subtotal Productos */}
-                    <div className="flex items-center justify-between py-4 border-b border-white/10">
-                      <p className="font-medium text-white">Subtotal (Productos)</p>
-                      <p className="font-semibold text-white">
-                        {formatPrice(total, currency)}
-                      </p>
-                    </div>
-
-                    {/* Total Envíos */}
-                    <div className="flex items-center justify-between py-4 border-b border-white/10">
-                      <p className="font-medium text-white">Total Envíos</p>
-                      <p className="font-semibold text-white">
-                        {formatPrice(totalShippingCost / currency.exchangeRate, currency)}
-                      </p>
-                    </div>
-
-                    {/* Total Final */}
-                    <div className="flex items-center justify-between pt-5">
-                      <p className="font-semibold text-lg text-white">Total Final</p>
-                      <p className="font-bold text-xl text-green-500">
-                        {formatPrice(total + (totalShippingCost / currency.exchangeRate), currency)}
-                      </p>
+                  <div className="pt-3 border-t border-white/10 flex items-baseline justify-between">
+                    <span className="text-sm font-bold text-white">Total Final a Pagar</span>
+                    <div className="text-right">
+                      <span className="text-2xl font-black font-mono text-white">
+                        ${Math.round(finalAmount).toLocaleString("es-CL")}
+                      </span>
+                      <span className="text-xs text-gray-400 font-sans ml-1">CLP</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Error */}
-                {error && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    {error}
+                {/* Trust Badges */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-400 space-y-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-emerald-400">✓</span>
+                    <span>Despacho 24-48h con seguimiento en vivo</span>
                   </div>
-                )}
-
-                {/* Botón pagar removido porque Brick lo provee */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-emerald-400">✓</span>
+                    <span>Protección al comprador TapTrade SpA</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 };
 

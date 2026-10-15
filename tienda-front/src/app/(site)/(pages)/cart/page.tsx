@@ -3,9 +3,8 @@ import Cart from "@/app/(site)/(pages)/cart/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Cart Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Cart Page for NextCommerce Template",
-  // other metadata
+  title: "Carrito de Compras | TapTrade TCG Marketplace",
+  description: "Revisa tus cartas coleccionables, calcula envíos de tiendas de Chile y finaliza tu compra segura en TapTrade.",
 };
 
 const CartPage = () => {

@@ -1,85 +1,92 @@
 import { selectTotalPrice, selectTotalDiscount, selectCartItemsWithDiscounts } from "@/redux/features/cart-slice";
-import { useAppSelector } from "@/redux/store";
 import React from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import { formatPrice } from "@/utils/currency";
 
 const OrderSummary = () => {
   const cartItems = useSelector(selectCartItemsWithDiscounts);
   const totalPrice = useSelector(selectTotalPrice);
   const totalDiscount = useSelector(selectTotalDiscount);
-  const currency = useSelector((state: any) => state.currencyReducer);
+
+  const totalItemCount = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   return (
-    <div className="lg:max-w-[455px] w-full">
-      {/* <!-- order list box --> */}
-      <div className="bg-[#1a1d24] shadow-1 rounded-[10px]">
-        <div className="border-b border-white/10 py-5 px-4 sm:px-8.5">
-          <h3 className="font-medium text-xl text-white">Order Summary</h3>
+    <div className="lg:max-w-[420px] w-full">
+      <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden sticky top-32">
+        {/* Header */}
+        <div className="border-b border-white/10 py-5 px-6 bg-white/[0.02]">
+          <h3 className="font-extrabold text-lg text-white tracking-tight flex items-center justify-between">
+            <span>Resumen del Pedido</span>
+            <span className="text-xs font-mono font-medium text-gray-400">
+              {totalItemCount} {totalItemCount === 1 ? "carta" : "cartas"}
+            </span>
+          </h3>
         </div>
 
-        <div className="pt-2.5 pb-8.5 px-4 sm:px-8.5">
-          {/* <!-- title --> */}
-          <div className="flex items-center justify-between py-5 border-b border-white/10">
-            <div>
-              <h4 className="font-medium text-white">Product</h4>
-            </div>
-            <div>
-              <h4 className="font-medium text-white text-right">Subtotal</h4>
-            </div>
+        <div className="p-6 space-y-4">
+          {/* Subtotal */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">Subtotal Productos</span>
+            <span className="font-mono font-bold text-white">
+              ${Math.round(totalPrice + totalDiscount).toLocaleString("es-CL")} CLP
+            </span>
           </div>
 
-          {/* <!-- product item --> */}
-          {cartItems.map((item, key) => (
-            <div key={key} className="flex items-center justify-between py-5 border-b border-white/10">
-              <div>
-                <p className="text-white">{item.title}</p>
-              </div>
-              <div className="flex flex-col items-end">
-                {item.discountAmount > 0 && (
-                  <p className="text-gray-5 line-through text-xs">{formatPrice(item.originalPrice * item.quantity, currency)}</p>
-                )}
-                <p className="text-white text-right">
-                  {formatPrice((item.finalPrice || item.discountedPrice || item.price) * item.quantity, currency)}
-                </p>
-              </div>
-            </div>
-          ))}
-
-          {/* <!-- Savings --> */}
+          {/* Savings */}
           {totalDiscount > 0 && (
-            <div className="flex items-center justify-between pt-5 border-b border-white/10 pb-5">
-              <div>
-                <p className="font-medium text-green-400">Ahorro Cupones</p>
-              </div>
-              <div>
-                <p className="font-medium text-green-400 text-right">
-                  -{formatPrice(totalDiscount, currency)}
-                </p>
-              </div>
+            <div className="flex items-center justify-between text-sm py-2 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                <span>🏷️</span> Descuento Cupones
+              </span>
+              <span className="font-mono font-bold text-emerald-400">
+                -${Math.round(totalDiscount).toLocaleString("es-CL")} CLP
+              </span>
             </div>
           )}
 
-          {/* <!-- total --> */}
-          <div className="flex items-center justify-between pt-5">
+          {/* Delivery Note */}
+          <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/5">
+            <span>Cálculo de Envío</span>
+            <span className="text-gray-300 font-medium">Cotizado en Checkout</span>
+          </div>
+
+          {/* Total */}
+          <div className="pt-4 border-t border-white/10 flex items-baseline justify-between">
             <div>
-              <p className="font-medium text-lg text-white">Total</p>
+              <span className="text-base font-bold text-white block">Total a Pagar</span>
+              <span className="text-[11px] text-gray-500">Impuestos y comisión incluidos</span>
             </div>
-            <div>
-              <p className="font-medium text-lg text-white text-right">
-                {formatPrice(totalPrice, currency)}
-              </p>
+            <div className="text-right">
+              <span className="text-2xl font-black font-mono text-white">
+                ${Math.round(totalPrice).toLocaleString("es-CL")}
+              </span>
+              <span className="text-xs text-gray-400 font-sans ml-1">CLP</span>
             </div>
           </div>
 
-          {/* <!-- checkout button --> */}
+          {/* Checkout CTA Button */}
           <Link
             href="/checkout"
-            className="w-full flex justify-center font-medium text-white bg-blue py-3 px-6 rounded-md ease-out duration-200 hover:bg-blue-dark mt-7.5"
+            className="w-full h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98 mt-2"
           >
-            Process to Checkout
+            <span>Proceder al Checkout</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </Link>
+
+          {/* Security Features */}
+          <div className="pt-3 border-t border-white/5 space-y-2">
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span className="text-emerald-400 text-sm">✓</span>
+              <span>Transacciones seguras con Mercado Pago & Webpay</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span className="text-emerald-400 text-sm">✓</span>
+              <span>Retiro en Tienda $0 o envíos Chilexpress & Starken</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -4,7 +4,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { removeAllItemsFromCart } from "@/redux/features/cart-slice";
-import Breadcrumb from "@/components/layout/Breadcrumb";
 
 type OrderDetail = {
   id: string;
@@ -69,130 +68,148 @@ const PaymentResultPage = () => {
 
   if (status === "loading") {
     return (
-      <>
-        <Breadcrumb title="Resultado del pago" pages={["checkout", "resultado"]} />
-        <div className="flex items-center justify-center py-20 bg-[#222630]">
-          <div className="flex flex-col items-center gap-4">
-            <svg className="animate-spin h-12 w-12 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <p className="text-gray-4">Verificando tu pago...</p>
-          </div>
+      <div className="bg-[#07090E] min-h-screen text-white flex items-center justify-center pt-28">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="w-12 h-12 rounded-full border-2 border-red-500/20 border-t-red-500 animate-spin"></div>
+          <p className="text-gray-400 text-sm">Verificando estado del pago en Mercado Pago...</p>
         </div>
-      </>
+      </div>
     );
   }
 
   const isSuccess = status === "success";
 
   return (
-    <>
-      <Breadcrumb
-        title={isSuccess ? "¡Pago exitoso!" : "Resultado del pago"}
-        pages={["checkout", "resultado"]}
-      />
-      <section className="bg-[#222630] pb-20 pt-10">
-        <div className="max-w-[680px] w-full mx-auto px-4 sm:px-8 xl:px-0">
+    <div className="bg-[#07090E] min-h-screen text-white pt-28 md:pt-36 pb-24 relative overflow-hidden">
+      {/* Ambient background light */}
+      <div
+        className={`absolute top-20 left-1/3 w-[600px] h-[350px] blur-[150px] pointer-events-none rounded-full ${
+          isSuccess ? "bg-emerald-600/10" : "bg-red-600/10"
+        }`}
+      ></div>
+
+      <div className="max-w-[720px] w-full mx-auto px-4 sm:px-6 relative z-10">
+        {/* Navigation Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
+          <Link href="/shop" className="hover:text-white transition-colors">
+            ← Volver a la Tienda
+          </Link>
+          <span>/</span>
+          <span className="text-white font-semibold">Comprobante de Pago</span>
+        </div>
+
         {/* ─── Card resultado ─── */}
-        <div className="bg-[#1a1d24] shadow-1 rounded-2xl overflow-hidden">
-          {/* Header */}
+        <div className="bg-[#0E121B] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+          {/* Header Banner */}
           <div
-            className={`p-8 text-center ${
+            className={`p-8 text-center relative border-b border-white/10 ${
               isSuccess
-                ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                : "bg-gradient-to-br from-red-500 to-rose-600"
+                ? "bg-gradient-to-b from-emerald-950/60 to-[#0E121B]"
+                : "bg-gradient-to-b from-red-950/60 to-[#0E121B]"
             }`}
           >
             <div className="flex justify-center mb-4">
-              <div className="w-20 h-20 rounded-full bg-[#1a1d24]/20 flex items-center justify-center">
-                {isSuccess ? (
-                  <svg className="w-10 h-10 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  <svg className="w-10 h-10 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                )}
+              <div
+                className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-xl border ${
+                  isSuccess
+                    ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                    : "bg-red-500/15 border-red-500/30 text-red-400"
+                }`}
+              >
+                {isSuccess ? "✓" : "✕"}
               </div>
             </div>
-            <h1 className="text-white text-2xl font-bold mb-2">
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border">
+              <span className={isSuccess ? "text-emerald-400" : "text-red-400"}>●</span>
+              <span className={isSuccess ? "text-emerald-300" : "text-red-300"}>
+                {isSuccess ? "Pago Aprobado con Éxito" : "Transacción No Completada"}
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
               {isSuccess
-                ? "¡Pago exitoso!"
+                ? "¡Gracias por tu compra!"
                 : status === "cancelled"
-                ? "Pago cancelado"
-                : "Pago rechazado"}
+                ? "Pago cancelado por el usuario"
+                : "Tu pago no pudo ser procesado"}
             </h1>
-            <p className="text-white/90 text-sm">
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
               {isSuccess
-                ? "Tu pedido ha sido confirmado y está siendo procesado."
+                ? "Hemos enviado el comprobante oficial a tu correo. Las tiendas comenzarán a preparar tu pedido."
                 : status === "cancelled"
-                ? "Cancelaste el proceso de pago en Webpay."
-                : "Tu pago no pudo ser procesado. Intenta nuevamente."}
+                ? "La transacción fue cancelada en Mercado Pago. Tus cartas siguen guardadas en el carrito."
+                : "Mercado Pago no pudo autorizar el cobro. Puedes intentar con otro medio de pago o tarjeta."}
             </p>
           </div>
 
           {/* Detalles de la orden */}
           {order && (
-            <div className="p-6 sm:p-8">
-              <h2 className="font-semibold text-white text-lg mb-4">
-                Detalle del pedido
+            <div className="p-6 sm:p-8 space-y-6">
+              <h2 className="font-bold text-white text-base flex items-center gap-2">
+                <span>📋</span>
+                <span>Detalle de la Orden</span>
               </h2>
 
-              <div className="bg-[#111318] rounded-xl p-4 mb-5 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-4">N° Orden</span>
-                  <span className="font-medium text-white font-mono">{order.buyOrder}</span>
+              <div className="bg-[#07090E] rounded-2xl p-5 space-y-3 text-xs border border-white/5">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">N° de Orden</span>
+                  <span className="font-mono font-bold text-white">{order.buyOrder}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-4">Cliente</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Comprador</span>
                   <span className="font-medium text-white">{order.name}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-4">Email</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Correo Confirmación</span>
                   <span className="font-medium text-white">{order.email}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-4">Total</span>
-                  <span className="font-semibold text-white">
-                    ${parseFloat(order.totalAmount).toLocaleString("es-CL")}
+                <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                  <span className="text-gray-300 font-semibold">Total Cancelado</span>
+                  <span className="font-mono font-black text-white text-base">
+                    ${parseFloat(order.totalAmount).toLocaleString("es-CL")} CLP
                   </span>
                 </div>
                 {order.payment?.authCode && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-4">Código auth.</span>
-                    <span className="font-medium text-white font-mono">{order.payment.authCode}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Código de Autorización</span>
+                    <span className="font-mono text-gray-300">{order.payment.authCode}</span>
                   </div>
                 )}
                 {order.payment?.cardLast4 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-4">Tarjeta</span>
-                    <span className="font-medium text-white">•••• {order.payment.cardLast4}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Tarjeta Utilizada</span>
+                    <span className="font-mono text-gray-300">•••• {order.payment.cardLast4}</span>
                   </div>
                 )}
               </div>
 
               {/* Items por Tienda */}
-              <h3 className="font-medium text-white mb-3">Productos por Tienda</h3>
-              <div className="space-y-4 mb-5">
+              <div className="space-y-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-gray-400">
+                  Despachos Asociados
+                </h3>
                 {order.vendorOrders?.map((vo) => (
-                  <div key={vo.id} className="bg-[#111318] rounded-xl p-4 border border-white/5">
-                    <p className="text-gray-4 text-xs mb-2 uppercase tracking-widest font-bold">Vendedor: {vo.store.name}</p>
-                    {vo.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 text-sm"
-                      >
-                        <div>
-                          <p className="font-medium text-white">{item.productName}</p>
-                          <p className="text-gray-4 text-xs">× {item.quantity}</p>
+                  <div key={vo.id} className="bg-[#07090E] rounded-xl p-4 border border-white/5 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-white">🏪 {vo.store.name}</span>
+                      <span className="text-emerald-400 text-[10px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                        En preparación
+                      </span>
+                    </div>
+                    <div className="divide-y divide-white/5 pt-1">
+                      {vo.items.map((item) => (
+                        <div key={item.id} className="flex justify-between items-center py-2 text-xs">
+                          <div>
+                            <p className="text-white font-medium">{item.productName}</p>
+                            <p className="text-gray-500 font-mono text-[10px]">Cantidad: {item.quantity}</p>
+                          </div>
+                          <span className="font-mono text-white">
+                            ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")} CLP
+                          </span>
                         </div>
-                        <p className="font-medium text-white">
-                          ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
-                        </p>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -200,40 +217,41 @@ const PaymentResultPage = () => {
           )}
 
           {fetchError && orderId && (
-            <div className="p-6 text-sm text-gray-4 text-center">
-              No pudimos cargar el detalle de la orden en este momento.
+            <div className="p-6 text-xs text-gray-400 text-center">
+              Tu transacción fue procesada. Puedes revisar el detalle en tu bandeja de correo o en tu panel.
             </div>
           )}
 
-          {/* Actions */}
-          <div className="px-6 pb-8 sm:px-8 flex flex-col sm:flex-row gap-3">
+          {/* Action Buttons */}
+          <div className="p-6 sm:p-8 pt-0 flex flex-col sm:flex-row gap-3">
             <Link
               href="/shop"
-              className="flex-1 flex justify-center items-center gap-2 py-3 px-6 rounded-xl border-2 border-blue text-blue font-semibold hover:bg-blue hover:text-white transition-all duration-200"
+              className="flex-1 h-12 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs tracking-wide flex items-center justify-center gap-2 transition-all"
             >
-              Seguir comprando
+              ← Volver al Catálogo TCG
             </Link>
-            {isSuccess && (
+
+            {isSuccess ? (
               <Link
                 href="/my-account"
-                className="flex-1 flex justify-center items-center gap-2 py-3 px-6 rounded-xl bg-blue text-white font-semibold hover:bg-blue-dark transition-all duration-200"
+                className="flex-1 h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-xs tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98"
               >
-                Ver mis pedidos
+                <span>Ver Mis Pedidos</span>
+                <span>→</span>
               </Link>
-            )}
-            {!isSuccess && (
+            ) : (
               <Link
                 href="/checkout"
-                className="flex-1 flex justify-center items-center gap-2 py-3 px-6 rounded-xl bg-gradient-to-r from-[#E2001A] to-[#1A1446] text-white font-semibold hover:opacity-90 transition-all duration-200"
+                className="flex-1 h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-xs tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98"
               >
-                Intentar de nuevo
+                <span>Reintentar Pago</span>
+                <span>→</span>
               </Link>
             )}
           </div>
         </div>
       </div>
-      </section>
-    </>
+    </div>
   );
 };
 

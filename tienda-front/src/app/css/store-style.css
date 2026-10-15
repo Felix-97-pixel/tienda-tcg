@@ -42,7 +42,7 @@ svg path[stroke="#3c50e0"] {
   }
 
   body {
-    @apply font-euclid-circular-a font-normal text-base text-gray-3 relative z-1 bg-[#0f1115];
+    @apply font-euclid-circular-a font-normal text-base text-gray-3 relative z-1 bg-[#07090E];
   }
 }
 
@@ -285,4 +285,116 @@ input[type='search']::-webkit-search-results-decoration {
 }
 .btn-red:hover {
   background-color: #dc2626 !important;
+}
+
+/* =========================================================
+   TCG Dark Vault & Microinteractions Design System
+   ========================================================= */
+
+/* Foil Shimmer Interactive Effect */
+.card-foil-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-foil-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.25) 35%,
+    rgba(255, 215, 0, 0.3) 48%,
+    rgba(0, 240, 255, 0.3) 52%,
+    rgba(255, 0, 128, 0.25) 56%,
+    rgba(255, 255, 255, 0.25) 65%,
+    transparent 85%
+  );
+  background-size: 250% 250%;
+  mix-blend-mode: color-dodge;
+  transition: opacity 0.35s ease, background-position 0.6s ease;
+  z-index: 10;
+}
+
+.group:hover .card-foil-overlay,
+.card-foil-container:hover .card-foil-overlay {
+  opacity: 1;
+  background-position: 100% 100%;
+}
+
+/* Condition Badges */
+.badge-condition-nm {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-condition-lp {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-condition-mp {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-condition-hp {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.badge-condition-dmg {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Glassmorphism Surface */
+.glass-vault {
+  background: rgba(17, 21, 31, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-vault-card {
+  background: #11151F;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-vault-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(239, 68, 68, 0.15);
+}
+
+/* Custom Dark Vault Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }

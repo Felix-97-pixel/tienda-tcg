@@ -1,10 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect } from "react";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import {
   removeItemFromCart,
   selectTotalPrice,
+  selectCartItems,
 } from "@/redux/features/cart-slice";
 import { useAppSelector } from "@/redux/store";
 import { useSelector } from "react-redux";
@@ -14,13 +14,13 @@ import EmptyCart from "./EmptyCart";
 
 const CartSidebarModal = () => {
   const { isCartModalOpen, closeCartModal } = useCartModalContext();
-  const cartItems = useAppSelector((state) => state.cartReducer.items);
-
+  const cartItems = useAppSelector(selectCartItems);
   const totalPrice = useSelector(selectTotalPrice);
 
+  const totalCount = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
+
   useEffect(() => {
-    // closing modal while clicking outside
-    function handleClickOutside(event) {
+    function handleClickOutside(event: any) {
       if (!event.target.closest(".modal-content")) {
         closeCartModal();
       }
@@ -37,84 +37,109 @@ const CartSidebarModal = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 z-99999 overflow-y-auto no-scrollbar w-full h-screen bg-dark/70 ease-linear duration-300 ${
-        isCartModalOpen ? "translate-x-0" : "translate-x-full"
+      className={`fixed inset-0 z-[99999] overflow-hidden bg-black/80 backdrop-blur-md transition-opacity duration-300 ${
+        isCartModalOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
     >
-      <div className="flex items-center justify-end">
-        <div className="w-full max-w-[500px] shadow-1 bg-[#1a1d24] px-4 sm:px-7.5 lg:px-11 relative modal-content">
-          <div className="sticky top-0 bg-[#1a1d24] flex items-center justify-between pb-7 pt-4 sm:pt-7.5 lg:pt-11 border-b border-white/10 mb-7.5">
-            <h2 className="font-medium text-white text-lg sm:text-2xl">
-              Cart View
-            </h2>
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+        <div
+          className={`w-screen max-w-md bg-[#0B0E17] border-l border-white/10 shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out modal-content ${
+            isCartModalOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          {/* Header */}
+          <div className="px-6 py-5 border-b border-white/10 bg-[#0E121B] flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2.5">
+              <h2 className="font-extrabold text-white text-lg tracking-tight">
+                Tu Carrito TCG
+              </h2>
+              {cartItems.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#E10E0E]/15 text-red-400 border border-[#E10E0E]/30">
+                  {totalCount} {totalCount === 1 ? "carta" : "cartas"}
+                </span>
+              )}
+            </div>
+
             <button
               onClick={() => closeCartModal()}
-              aria-label="button for close modal"
-              className="flex items-center justify-center ease-in duration-150 bg-transparent text-gray-5 hover:text-white"
+              aria-label="Cerrar carrito"
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
             >
-              <svg
-                className="fill-current"
-                width="30"
-                height="30"
-                viewBox="0 0 30 30"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12.5379 11.2121C12.1718 10.846 11.5782 10.846 11.212 11.2121C10.8459 11.5782 10.8459 12.1718 11.212 12.5379L13.6741 15L11.2121 17.4621C10.846 17.8282 10.846 18.4218 11.2121 18.7879C11.5782 19.154 12.1718 19.154 12.5379 18.7879L15 16.3258L17.462 18.7879C17.8281 19.154 18.4217 19.154 18.7878 18.7879C19.154 18.4218 19.154 17.8282 18.7878 17.462L16.3258 15L18.7879 12.5379C19.154 12.1718 19.154 11.5782 18.7879 11.2121C18.4218 10.846 17.8282 10.846 17.462 11.2121L15 13.6742L12.5379 11.2121Z"
-                  fill=""
-                />
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M15 1.5625C7.57867 1.5625 1.5625 7.57867 1.5625 15C1.5625 22.4213 7.57867 28.4375 15 28.4375C22.4213 28.4375 28.4375 22.4213 28.4375 15C28.4375 7.57867 22.4213 1.5625 15 1.5625ZM3.4375 15C3.4375 8.61421 8.61421 3.4375 15 3.4375C21.3858 3.4375 26.5625 8.61421 26.5625 15C26.5625 21.3858 21.3858 26.5625 15 26.5625C8.61421 26.5625 3.4375 21.3858 3.4375 15Z"
-                  fill=""
-                />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
 
-          <div className="h-[66vh] overflow-y-auto no-scrollbar">
-            <div className="flex flex-col gap-6">
-              {/* <!-- cart item --> */}
-              {cartItems.length > 0 ? (
-                cartItems.map((item, key) => (
-                  <SingleItem
-                    key={key}
-                    item={item}
-                    removeItemFromCart={removeItemFromCart}
-                  />
-                ))
-              ) : (
-                <EmptyCart />
-              )}
-            </div>
+          {/* Carrier Notice */}
+          <div className="bg-[#111522] border-b border-white/5 px-6 py-2.5 flex items-center gap-2 text-[11px] text-gray-400 shrink-0">
+            <span className="text-sm">🚚</span>
+            <span>
+              Envíos oficiales <strong className="text-gray-300">Chilexpress</strong> & <strong className="text-gray-300">Starken</strong> • <strong className="text-emerald-400">Retiro $0</strong>
+            </span>
           </div>
 
-          <div className="border-t border-white/10 bg-[#1a1d24] pt-5 pb-4 sm:pb-7.5 lg:pb-11 mt-7.5 sticky bottom-0">
-            <div className="flex items-center justify-between gap-5 mb-6">
-              <p className="font-medium text-xl text-white">Subtotal:</p>
-
-              <p className="font-medium text-xl text-white">${totalPrice}</p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link
-                onClick={() => closeCartModal()}
-                href="/cart"
-                className="w-full flex justify-center font-medium text-white bg-blue py-[13px] px-6 rounded-md ease-out duration-200 hover:bg-blue-dark"
-              >
-                View Cart
-              </Link>
-
-              <Link
-                href="/checkout"
-                className="w-full flex justify-center font-medium text-white bg-[#111318] border border-white/10 py-[13px] px-6 rounded-md ease-out duration-200 hover:bg-opacity-95 hover:border-white/20"
-              >
-                Checkout
-              </Link>
-            </div>
+          {/* Cart Item List */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
+            {cartItems.length > 0 ? (
+              cartItems.map((item) => (
+                <SingleItem
+                  key={item.id}
+                  item={item}
+                  removeItemFromCart={removeItemFromCart}
+                />
+              ))
+            ) : (
+              <EmptyCart />
+            )}
           </div>
+
+          {/* Footer */}
+          {cartItems.length > 0 && (
+            <div className="border-t border-white/10 bg-[#0E121B] p-6 space-y-4 shrink-0 shadow-lg">
+              {/* Subtotal */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-gray-400 uppercase tracking-wider block font-medium">
+                    Subtotal Estimado
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Envíos calculados al finalizar compra
+                  </span>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-black text-white font-mono">
+                    ${Math.round(totalPrice).toLocaleString("es-CL")}{" "}
+                    <span className="text-xs font-sans font-normal text-gray-400">CLP</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                <Link
+                  onClick={() => closeCartModal()}
+                  href="/checkout"
+                  className="w-full h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98"
+                >
+                  <span>Continuar al Checkout</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </Link>
+
+                <Link
+                  onClick={() => closeCartModal()}
+                  href="/cart"
+                  className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white font-semibold text-xs flex items-center justify-center transition-all"
+                >
+                  Ver Carrito Detallado
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

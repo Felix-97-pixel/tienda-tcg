@@ -1,6 +1,6 @@
 import React from "react";
 
-type ShippingCarrier = "chilexpress" | "starken" | "default";
+type ShippingCarrier = "chilexpress" | "starken" | "retiro_tienda" | "retiro" | "default";
 type BadgeSize = "sm" | "md" | "lg";
 
 export interface ShippingBadgeProps {
@@ -33,7 +33,7 @@ const sizeStyles: Record<BadgeSize, SizeStyles> = {
   },
 };
 
-const carrierStyles: Record<ShippingCarrier, { wrapper: string; renderContent: (size: SizeStyles) => React.ReactNode }> = {
+const carrierStyles: Record<string, { wrapper: string; renderContent: (size: SizeStyles) => React.ReactNode }> = {
   chilexpress: {
     wrapper: "bg-[#FFF100] border border-[#002C6C]/15",
     renderContent: (size) => (
@@ -50,6 +50,22 @@ const carrierStyles: Record<ShippingCarrier, { wrapper: string; renderContent: (
       </span>
     ),
   },
+  retiro_tienda: {
+    wrapper: "bg-emerald-600/90 border border-emerald-400/30 shadow-sm",
+    renderContent: (size) => (
+      <span className={`font-black uppercase tracking-tight text-white leading-none ${size.text}`}>
+        Retiro $0
+      </span>
+    ),
+  },
+  retiro: {
+    wrapper: "bg-emerald-600/90 border border-emerald-400/30 shadow-sm",
+    renderContent: (size) => (
+      <span className={`font-black uppercase tracking-tight text-white leading-none ${size.text}`}>
+        Retiro $0
+      </span>
+    ),
+  },
   default: {
     wrapper: "bg-[#111318] border border-stroke",
     renderContent: (size) => (
@@ -61,8 +77,8 @@ const carrierStyles: Record<ShippingCarrier, { wrapper: string; renderContent: (
 };
 
 export function ShippingBadge({ name, size = "sm", className = "" }: ShippingBadgeProps) {
-  const normalizedName = name.toLowerCase() as ShippingCarrier;
-  const carrierKey = carrierStyles[normalizedName] ? normalizedName : "default";
+  const normalizedName = (name || "").toLowerCase().replace(/[\s-]/g, "_");
+  const carrierKey = carrierStyles[normalizedName] ? normalizedName : normalizedName.includes("retiro") ? "retiro_tienda" : "default";
 
   const carrier = carrierStyles[carrierKey];
   const sizeStyle = sizeStyles[size] || sizeStyles.sm;
@@ -75,3 +91,5 @@ export function ShippingBadge({ name, size = "sm", className = "" }: ShippingBad
     </div>
   );
 }
+
+export default ShippingBadge;

@@ -128,10 +128,10 @@ const SingleItem = ({ item, onRemove }: { item: any, onRemove?: () => void }) =>
         <button
           onClick={() => handleAddToCart()}
           disabled={item.stock === 0 || isMaxStockReached}
-          className={`inline-flex py-2.5 px-6 rounded-md ease-out duration-200 ${
+          className={`inline-flex py-2.5 px-6 rounded-xl font-bold text-xs ease-out duration-200 transition-all ${
             item.stock === 0 || isMaxStockReached
-              ? "bg-gray-4 cursor-not-allowed text-gray-4"
-              : "text-white hover:text-white bg-[#111318] border border-white/10 hover:bg-blue hover:border-blue"
+              ? "bg-white/5 cursor-not-allowed text-gray-500 border border-white/5"
+              : "text-white bg-[#E10E0E] hover:bg-[#F23030] shadow-md shadow-[#E10E0E]/25 active:scale-95"
           }`}
         >
           {item.stock === 0 ? t("outOfStock") : (isMaxStockReached ? t("maxReached") : t("addToCart"))}
