@@ -1,175 +1,446 @@
 "use client";
-import React from "react";
-import { useTranslations } from "next-intl";
+import React, { useState } from "react";
+import Link from "next/link";
 import LegalPageLayout, { LegalLink } from "@/components/layout/LegalPageLayout";
 import LegalSection from "@/components/layout/LegalSection";
+import {
+  IconShieldCheck,
+  IconStore,
+  IconCard,
+  IconTruck,
+  IconCreditCard,
+  IconZap,
+  IconSparkles,
+} from "@/components/ui/Icons";
 
 const TerminosCondicionesClient = () => {
-  const t = useTranslations("terms");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const sidebarLinks: LegalLink[] = [
-    { id: "introduccion", label: t("nav.introduccion") },
-    { id: "informacion", label: t("nav.informacion") },
-    { id: "precios-pagos", label: t("nav.precios") },
-    { id: "envios-entregas", label: t("nav.envios") },
-    { id: "devoluciones", label: t("nav.devoluciones") },
-    { id: "privacidad", label: t("nav.privacidad") },
-    { id: "responsabilidad", label: t("nav.responsabilidad") },
-    { id: "ley-aplicable", label: t("nav.ley") },
-    { id: "disposiciones-generales", label: t("nav.disposiciones") },
-    { id: "creditos-tienda", label: t("nav.creditos") },
-    { id: "transferencias", label: t("nav.transferencias") }
-  ];
-
-  const sectionsConfig = [
-    { id: "introduccion", key: "introduccion", num: 1, type: "standard", paragraphs: ["p1", "p2"] },
-    { id: "informacion", key: "informacion", num: 2, type: "standard", paragraphs: ["p1", "p2"] },
-    { id: "precios-pagos", key: "precios", num: 3, type: "standard", paragraphs: ["p1", "p2", "p3"] },
-    { id: "envios-entregas", key: "envios", num: 4, type: "envios" },
-    { id: "devoluciones", key: "devoluciones", num: 5, type: "standard", paragraphs: ["p1", "p2", "p3"] },
-    { id: "privacidad", key: "privacidad", num: 6, type: "standard", paragraphs: ["p1"] },
-    { id: "responsabilidad", key: "responsabilidad", num: 7, type: "standard", paragraphs: ["p1", "p2", "p3"] },
-    { id: "ley-aplicable", key: "ley", num: 8, type: "standard", paragraphs: ["p1", "p2"] },
-    { id: "disposiciones-generales", key: "disposiciones", num: 9, type: "standard", paragraphs: ["p1", "p2", "p3"] },
-    { id: "creditos-tienda", key: "creditos", num: 10, type: "creditos" },
-    { id: "transferencias", key: "transferencias", num: 11, type: "transferencias" }
+    { id: "introduccion", label: "1. Introducción y Partes" },
+    { id: "modelo-negocio", label: "2. Modelo SaaS y Marketplace" },
+    { id: "registro-cuentas", label: "3. Registro y Verificación KYC" },
+    { id: "precios-pagos", label: "4. Precios, Comisiones y Split" },
+    { id: "graduacion-autenticidad", label: "5. Graduación y Autenticidad" },
+    { id: "logistica-envios", label: "6. Envíos y Retiro Presencial" },
+    { id: "buylist-creditos", label: "7. Buylist y Store Credit" },
+    { id: "garantias-devoluciones", label: "8. Garantía y No Retracto" },
+    { id: "propiedad-intelectual", label: "9. Marcas y Propiedad Intelectual" },
+    { id: "privacidad-datos", label: "10. Protección de Datos (19.628)" },
+    { id: "responsabilidad-indemnidad", label: "11. Responsabilidad e Indemnidad" },
+    { id: "jurisdiccion-ley", label: "12. Ley Aplicable y Jurisdicción" },
   ];
 
   return (
     <LegalPageLayout
-      title={t("pageTitle")}
-      navTitle={t("navTitle")}
+      title="Términos y Condiciones | TapTrade Chile"
+      navTitle="Índice de Cláusulas"
       links={sidebarLinks}
-      lastUpdated={t("lastUpdated")}
-      backToShopText={t("backToShop")}
+      lastUpdated="Última actualización: 15 de Octubre de 2026"
+      backToShopText="Volver al Marketplace"
     >
-      {/* Header Box */}
+      {/* Header Overview Card */}
       <div className="border-b border-white/10 pb-8 mb-10">
-        <div className="inline-block bg-red/10 text-red font-bold text-xs uppercase px-3 py-1 rounded-full mb-4">
-          {t("badge")}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#E10E0E]/20 text-[#E10E0E] border border-[#E10E0E]/40 shadow-sm flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E10E0E] animate-pulse"></span>
+            Plataforma Oficial SaaS & Marketplace
+          </span>
+          <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-white/5 border border-white/10 text-gray-300">
+            RUT 78.531.106-K • Chile
+          </span>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          {t("mainTitle")}
-        </h2>
-        <p className="text-gray-5 text-custom-sm mt-2">
-          {t("description")}
+
+        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+          Términos, Condiciones y Políticas de Operación
+        </h1>
+
+        <p className="text-gray-400 text-sm sm:text-base mt-3 leading-relaxed">
+          El presente contrato marco regula el acceso, registro y utilización de la infraestructura tecnológica, pasarela de software y servicios de marketplace multi-tienda de <strong className="text-white">TAPTRADE SpA</strong>. Aplica de manera vinculante a compradores, tiendas adheridas (LGS) y usuarios del motor de Buylist.
         </p>
+
+        {/* Legal Identity Pill Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/5">
+          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <span className="text-[10px] font-mono text-gray-400 uppercase block">Razón Social</span>
+            <span className="text-xs font-bold text-white block mt-0.5">TAPTRADE SpA</span>
+            <span className="text-[11px] font-mono text-gray-500">RUT: 78.531.106-K</span>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <span className="text-[10px] font-mono text-gray-400 uppercase block">Domicilio y Jurisdicción</span>
+            <span className="text-xs font-bold text-white block mt-0.5">Padre Mariano 98 Of. 315</span>
+            <span className="text-[11px] font-mono text-gray-500">Providencia, Santiago de Chile</span>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <span className="text-[10px] font-mono text-gray-400 uppercase block">Canales Oficiales</span>
+            <span className="text-xs font-bold text-white block mt-0.5">legal@taptrade.cl</span>
+            <span className="text-[11px] font-mono text-gray-500">soporte@taptrade.cl</span>
+          </div>
+        </div>
       </div>
 
-      {/* Loop over sections */}
-      {sectionsConfig.map((section, idx) => {
-        const isFirst = idx === 0;
-        
-        return (
-          <React.Fragment key={section.id}>
-            {!isFirst && <hr className="border-white/10 my-8" />}
-            
-            {section.type === "standard" && (
-              <LegalSection id={section.id} num={section.num} title={t(`${section.key}.title`)}>
-                <div className="flex flex-col gap-3">
-                  {section.paragraphs?.map((p, pIdx) => (
-                    <p key={pIdx}>
-                      <strong className="text-white">{section.num}.{pIdx + 1}</strong> {t(`${section.key}.${p}`)}
-                    </p>
-                  ))}
-                </div>
-              </LegalSection>
-            )}
+      <div className="flex flex-col gap-12 text-gray-300">
+        {/* =========================================================================
+            SECCIÓN 1: INTRODUCCIÓN
+           ========================================================================= */}
+        <LegalSection id="introduccion" num={1} title="Introducción, Partes y Aceptación Vinculante">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">1.1. Naturaleza del Contrato:</strong> Este documento constituye un acuerdo legal vinculante celebrado entre el Usuario y <strong>TAPTRADE SpA</strong> (en adelante, "TapTrade" o "la Plataforma"). El acceso, navegación, registro o ejecución de cualquier orden de compra o venta en el dominio principal (<Link href="/" className="text-red-400 hover:underline">taptrade.cl</Link>), sus subdominios asociados (ej. <code className="text-xs font-mono bg-black/40 px-1.5 py-0.5 rounded text-gray-300">[tienda].taptrade.cl</code>) y APIs satélites implica la aceptación íntegra de estas disposiciones.
+            </p>
+            <p>
+              <strong className="text-white font-mono">1.2. Categorías de Usuarios:</strong> La Plataforma distingue tres perfiles de usuarios:
+            </p>
+            <ul className="list-disc pl-5 flex flex-col gap-1.5 text-sm">
+              <li><strong className="text-white">Compradores:</strong> Personas naturales o jurídicas que adquieren cartas sueltas ("Singles"), cajas selladas o accesorios mediante el catálogo unificado.</li>
+              <li><strong className="text-white">Tiendas Adheridas / Vendedores (LGS):</strong> Comercios establecidos o dealers autorizados con RUT chileno que gestionan inventario y venden a través de la infraestructura SaaS.</li>
+              <li><strong className="text-white">Usuarios de Buylist:</strong> Coleccionistas que venden cartas directamente a tiendas adheridas a cambio de dinero o Crédito en Tienda.</li>
+            </ul>
+            <p>
+              <strong className="text-white font-mono">1.3. Capacidad Legal:</strong> Los servicios de TapTrade están restringidos a personas mayores de 18 años con plena capacidad jurídica para celebrar actos de comercio bajo las leyes de la República de Chile.
+            </p>
+          </div>
+        </LegalSection>
 
-            {section.type === "envios" && (
-              <LegalSection id={section.id} num={section.num} title={t(`${section.key}.title`)}>
-                <div className="flex flex-col gap-3">
-                  <p>
-                    <strong className="text-white">4.1</strong> {t("envios.p1")}
-                  </p>
-                  <p>
-                    <strong className="text-white">4.2</strong> {t("envios.p2")}
-                  </p>
-                  <p>
-                    <strong className="text-white">4.3</strong> {t("envios.p3")}
-                  </p>
-                  <div className="bg-[#222630] border-l-4 border-blue p-4.5 rounded-r-[5px] mt-2">
-                    <p className="font-semibold text-white mb-1">{t("envios.scheduleTitle")}</p>
-                    <p className="text-custom-sm">
-                      <strong className="text-white">4.4</strong> {t("envios.scheduleDesc")}
-                    </p>
-                  </div>
-                </div>
-              </LegalSection>
-            )}
+        <hr className="border-white/10" />
 
-            {section.type === "creditos" && (
-              <LegalSection
-                id={section.id}
-                num={section.num}
-                title={t("creditos.title")}
-                badgeColor="bg-blue"
-                titleColor="text-white text-xl"
-                className="bg-dark text-white rounded-lg p-6 sm:p-8 border-l-4 border-blue"
+        {/* =========================================================================
+            SECCIÓN 2: MODELO DE NEGOCIO SAAS Y MARKETPLACE
+           ========================================================================= */}
+        <LegalSection id="modelo-negocio" num={2} title="Modelo de Negocio (Marketplace SaaS Multi-Tenant)">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">2.1. Intermediación Tecnológica:</strong> TapTrade opera como un proveedor de Software como Servicio (SaaS) y facilitador de marketplace. Provee la tecnología para catálogo sincronizado (Scryfall, Pokémon TCG API, Riftcodex), carrito multi-tienda, procesamiento de pagos consolidados y generación de etiquetas de transporte.
+            </p>
+            <p>
+              <strong className="text-white font-mono">2.2. Autonomía Contractual de las Tiendas:</strong> Salvo indicación expresa de inventario propio de TapTrade SpA, <strong>la relación de compraventa se perfecciona directa y exclusivamente entre la Tienda Adherida vendedora y el Comprador</strong>. La tienda es la responsable material y tributaria de la custodia física, embalaje, graduación del estado de conservación y emisión de la respectiva boleta o factura de venta.
+            </p>
+
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 flex items-start gap-3">
+              <IconStore className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-xs">
+                <span className="font-bold text-white block mb-0.5">Tiendas con Identidad Propia</span>
+                Cada tienda opera con sus propias políticas comerciales, direcciones de despacho y horarios de atención, las cuales son informadas de forma transparente en su vitrina o subdominio particular.
+              </div>
+            </div>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 3: REGISTRO Y KYC
+           ========================================================================= */}
+        <LegalSection id="registro-cuentas" num={3} title="Registro, Seguridad y Verificación KYC de Tiendas">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">3.1. Cuentas de Usuario:</strong> Los usuarios deben proveer información fidedigna, completa y vigente al registrarse. Queda prohibida la suplantación de identidad o la creación de cuentas múltiples con fines fraudulentos.
+            </p>
+            <p>
+              <strong className="text-white font-mono">3.2. Verificación Legal de Tiendas (KYC):</strong> Para habilitar una tienda, recibir pagos y vender al público, el titular debe acreditar:
+            </p>
+            <ul className="list-disc pl-5 flex flex-col gap-1.5 text-sm">
+              <li>RUT chileno vigente (persona natural o jurídica constituida en Chile).</li>
+              <li>Inicio de Actividades ante el Servicio de Impuestos Internos (SII) en 1ra Categoría con giros compatibles con comercio minorista o electrónico.</li>
+              <li>Titularidad de una cuenta bancaria comercial en una entidad financiera regulada en Chile.</li>
+            </ul>
+            <p>
+              TapTrade se reserva el derecho de auditar, suspender o dar de baja tiendas que no cumplan con los estándares tributarios o de autenticidad exigidos.
+            </p>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 4: PRECIOS, COMISIONES Y SPLIT PAYMENTS
+           ========================================================================= */}
+        <LegalSection id="precios-pagos" num={4} title="Precios, Comisiones y Mecánica de Split Payments">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">4.1. Moneda Oficial e Impuestos:</strong> Todos los precios están expresados en Pesos Chilenos (CLP) e incluyen el Impuesto al Valor Agregado (IVA) correspondiente a la venta de bienes en Chile.
+            </p>
+            <p>
+              <strong className="text-white font-mono">4.2. Fórmula de Gross-Up y Redondeo a $50 CLP:</strong> La tienda define el monto neto líquido que desea percibir. Para proteger ese valor frente a los descuentos de comisiones, la plataforma aplica la fórmula matemática:
+            </p>
+            <div className="p-4 rounded-xl bg-black/50 border border-white/10 font-mono text-xs text-amber-300 overflow-x-auto">
+              Precio Teórico = Monto Neto Solicitado / [1 - (Comisión Pasarela 3.8% + Comisión Plan Tienda)]<br />
+              Precio Visible Final = CEIL(Precio Teórico / 50) * 50
+            </div>
+            <p className="text-xs text-gray-400">
+              Cualquier sobrante generado por el redondeo es absorbido por TapTrade para costear la infraestructura tecnológica y no afecta en caso alguno el monto líquido acordado con el vendedor.
+            </p>
+
+            {/* Plans Table */}
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full text-left text-xs border border-white/10 rounded-xl overflow-hidden">
+                <thead className="bg-white/5 text-gray-300 font-mono uppercase">
+                  <tr>
+                    <th className="p-3 border-b border-white/10">Plan SaaS</th>
+                    <th className="p-3 border-b border-white/10">Comisión Venta</th>
+                    <th className="p-3 border-b border-white/10">Pasarela</th>
+                    <th className="p-3 border-b border-white/10">Liquidación a Tienda</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-gray-300">
+                  <tr className="hover:bg-white/[0.02]">
+                    <td className="p-3 font-bold text-white">Starter</td>
+                    <td className="p-3 text-red-400 font-mono font-bold">7.0%</td>
+                    <td className="p-3 font-mono">3.8%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02]">
+                    <td className="p-3 font-bold text-white">Pro</td>
+                    <td className="p-3 text-red-400 font-mono font-bold">5.0%</td>
+                    <td className="p-3 font-mono">3.8%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02]">
+                    <td className="p-3 font-bold text-white">Business</td>
+                    <td className="p-3 text-red-400 font-mono font-bold">3.0%</td>
+                    <td className="p-3 font-mono">3.8%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02]">
+                    <td className="p-3 font-bold text-white">Enterprise</td>
+                    <td className="p-3 text-red-400 font-mono font-bold">1.5%</td>
+                    <td className="p-3 font-mono">3.8%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              <strong className="text-white font-mono">4.3. Split Payments en Tiempo Real:</strong> Mediante integraciones con Mercado Pago Advanced Payments y Transbank Webpay Plus, al momento de pagar se divide automáticamente el importe: la pasarela descuenta su tasa, TapTrade retiene su comisión y el monto neto restante se transfiere directamente a la tienda vendedora.
+            </p>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 5: GRADUACIÓN Y AUTENTICIDAD
+           ========================================================================= */}
+        <LegalSection id="graduacion-autenticidad" num={5} title="Estándares de Graduación TCG y Tolerancia Cero a Falsificaciones">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">5.1. Estándar Oficial de Graduación (Condition):</strong> Para garantizar la uniformidad en todo el mercado chileno, todas las cartas publicadas deben someterse a la siguiente escala:
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    NM (Near Mint)
+                  </span>
+                  <span className="font-bold text-white">Estado Impecable</span>
+                </div>
+                <p className="text-gray-400">Sin desgaste visible por uso. Admite mínimos microrroces de corte o embalaje de fábrica difícilmente perceptibles.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                    LP (Lightly Played)
+                  </span>
+                  <span className="font-bold text-white">Uso Muy Leve</span>
+                </div>
+                <p className="text-gray-400">Leve desgaste en bordes (edgewear fino) o pequeños roces superficiales, imperceptibles dentro de un folio protector.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    MP (Moderately Played)
+                  </span>
+                  <span className="font-bold text-white">Uso Moderado</span>
+                </div>
+                <p className="text-gray-400">Desgaste visible por juego constante en esquinas y bordes, pérdida de brillo o marcas moderadas sin pliegues estructurales.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-orange-500/20 text-orange-300 border border-orange-500/40">
+                    HP (Heavily Played)
+                  </span>
+                  <span className="font-bold text-white">Uso Intenso</span>
+                </div>
+                <p className="text-gray-400">Desgaste severo, blanqueamiento marcado de bordes (whitening) o arrugas menores. Apta para torneos con doble funda opaca.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 sm:col-span-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-red-500/20 text-red-300 border border-red-500/40">
+                    DMG (Damaged)
+                  </span>
+                  <span className="font-bold text-white">Carta Dañada</span>
+                </div>
+                <p className="text-gray-400">Rasgaduras, pliegues pronunciados, manchas de tinta, daño por humedad o deformaciones estructurales evidentes.</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-red-950/30 border border-red-500/40 flex items-start gap-3 mt-2">
+              <IconShieldCheck className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <div className="text-xs">
+                <span className="font-bold text-white block mb-0.5">Tolerancia Cero a Cartas Falsificadas</span>
+                Queda terminantemente prohibida la comercialización de reproducciones no autorizadas, cartas apócrifas o proxies no declarados. La venta de material no auténtico causará el bloqueo fulminante de la tienda infractora, el reembolso íntegro al comprador y la entrega de antecedentes a tribunales y autoridades competentes.
+              </div>
+            </div>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 6: LOGÍSTICA Y ENVÍOS
+           ========================================================================= */}
+        <LegalSection id="logistica-envios" num={6} title="Logística, Envíos Integrados y Retiro Presencial">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">6.1. Operadores Logísticos Oficiales:</strong> TapTrade opera sincronizado con las APIs oficiales de <strong>Chilexpress</strong> y <strong>Starken</strong>, cotizando dinámicamente el flete según peso, dimensiones y distancia geográfica entre el origen de la tienda y el destino del comprador.
+            </p>
+            <p>
+              <strong className="text-white font-mono">6.2. Retiro Presencial Gratuito ($0 CLP):</strong> Cuando una tienda disponga de local comercial físico, el comprador puede optar por retirar sus cartas sin costo de envío presentando su documento de identidad y el número de orden de compra.
+            </p>
+            <p>
+              <strong className="text-white font-mono">6.3. Plazo de Embalaje Seguro:</strong> Las tiendas adheridas disponen de un plazo perentorio de <strong>24 a 48 horas hábiles</strong> para despachar las cartas protegidas en fundas y protectores semirrígidos o toploaders para evitar dobleces o daños por fricción en tránsito.
+            </p>
+            <p>
+              <strong className="text-white font-mono">6.4. Siniestros en Tránsito:</strong> En caso de extravío o daño atribuible a la empresa de mensajería durante el trayecto, TapTrade gestionará el reclamo formal ante el operador logístico, garantizando la indemnización o devolución de fondos al comprador.
+            </p>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 7: BUYLIST Y CRÉDITO DE TIENDA
+           ========================================================================= */}
+        <LegalSection id="buylist-creditos" num={7} title="Motor de Buylist y Billetera de Créditos de Tienda (Store Credit)">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">7.1. Compra de Singles a Usuarios:</strong> El motor de Buylist permite a los coleccionistas vender sus cartas a tiendas registradas aplicando factores automáticos de devaluación según condición e idioma. La tienda tiene derecho a verificar físicamente el estado de las cartas al recibirlas antes de transferir el pago definitivo.
+            </p>
+            <p>
+              <strong className="text-white font-mono">7.2. Naturaleza del Store Credit:</strong> Cuando la liquidación de Buylist se realiza en "Crédito de Tienda":
+            </p>
+            <ul className="list-disc pl-5 flex flex-col gap-1.5 text-sm">
+              <li>El saldo queda registrado en la billetera virtual del usuario y es <strong>redimible exclusivamente en compras dentro del catálogo de la misma Tienda Adherida que lo emitió</strong>.</li>
+              <li>No es canjeable por dinero en efectivo directamente ante TapTrade SpA ni es transferible a cuentas de otras tiendas.</li>
+              <li>La tienda emisora es patrimonialmente responsable de garantizar la disponibilidad de catálogo para la redención de los créditos emitidos.</li>
+            </ul>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 8: GARANTÍA Y RETRACTO
+           ========================================================================= */}
+        <LegalSection id="garantias-devoluciones" num={8} title="Garantía Legal, No Retracto en Singles y Devoluciones">
+          <div className="flex flex-col gap-3.5">
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
+              <span className="font-bold text-amber-300 block mb-1">⚖️ Exclusión Legal del Derecho a Retracto en Cartas Sueltas</span>
+              En virtud del artículo 3° bis letra b) de la <strong>Ley N° 19.496 sobre Protección de los Derechos de los Consumidores</strong>, el derecho a retracto unilateral no aplica a la compra de cartas coleccionables (Singles), por tratarse de bienes cuyo valor está sujeto a fluctuaciones inmediatas de mercados secundarios independientes, ni a productos sellados que hayan sido abiertos o desprecintados.
+            </div>
+
+            <p>
+              <strong className="text-white font-mono">8.1. Garantía Legal por No Conformidad:</strong> Si una carta recibida presenta defectos de fábrica no informados o una discrepancia evidente e injustificable frente a la condición contratada (ej. se pagó una carta Near Mint y se entregó un ejemplar con daño marcado):
+            </p>
+            <ul className="list-disc pl-5 flex flex-col gap-1 text-sm">
+              <li>El comprador debe reportar el caso a <strong className="text-white">soporte@taptrade.cl</strong> dentro de las <strong>48 horas corridas</strong> posteriores a la entrega.</li>
+              <li>Debe adjuntar fotografías nítidas y detalladas de la carta, sellos y embalaje original.</li>
+              <li>Acreditada la no conformidad, el comprador tiene derecho a la sustitución del ejemplar o al reembolso total de su dinero.</li>
+            </ul>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 9: PROPIEDAD INTELECTUAL
+           ========================================================================= */}
+        <LegalSection id="propiedad-intelectual" num={9} title="Propiedad Intelectual y Doctrina de Agotamiento de Marca">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">9.1. Derechos de TapTrade SpA:</strong> El código informático, diseño visual, marca comercial "TapTrade", logotipos, interfaces, algoritmos y bases de datos son propiedad intelectual exclusiva de TAPTRADE SpA protegida por la Ley N° 17.336.
+            </p>
+            <p>
+              <strong className="text-white font-mono">9.2. Marcas de Terceros y Doctrina de Agotamiento:</strong> Todos los nombres comerciales, franquicias, personajes y logotipos de juegos mencionados en la plataforma, incluidos:
+            </p>
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-400">
+              • <em>Magic: The Gathering</em> (Wizards of the Coast / Hasbro) • <em>Pokémon TCG</em> (Nintendo / Creatures / Game Freak / The Pokémon Company) • <em>Yu-Gi-Oh!</em> (Konami / Kazuki Takahashi) • <em>Riftbound TCG</em> (Riftbound Games) • <em>One Piece Card Game</em> (Bandai / Eiichiro Oda / Shueisha) • <em>Mitos y Leyendas</em> (Klu / Fenix)
+            </div>
+            <p className="text-xs text-gray-400">
+              Pertenecen a sus respectivos titulares. TapTrade SpA es una entidad tecnológica independiente y no posee afiliación corporativa con dichas compañías. Su uso en la plataforma tiene fines exclusivamente identificatorios, referenciales y descriptivos para la comercialización lícita en el mercado secundario bajo la doctrina universal de agotamiento marcario.
+            </p>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 10: PROTECCIÓN DE DATOS
+           ========================================================================= */}
+        <LegalSection id="privacidad-datos" num={10} title="Protección de Datos Personales (Ley N° 19.628)">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">10.1. Seguridad y Finalidad:</strong> TapTrade trata los datos personales de conformidad con la Ley N° 19.628 sobre Protección de la Vida Privada. La información se recolecta exclusivamente para procesar pagos, coordinar transportes y emitir documentos tributarios.
+            </p>
+            <p>
+              <strong className="text-white font-mono">10.2. No Comercialización:</strong> TapTrade no vende, no alquila ni divulga información de usuarios a terceros no vinculados con la operación logística y transaccional indispensable del marketplace.
+            </p>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 11: RESPONSABILIDAD
+           ========================================================================= */}
+        <LegalSection id="responsabilidad-indemnidad" num={11} title="Limitación de Responsabilidad e Indemnidad">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">11.1. Disponibilidad del Sistema:</strong> TapTrade realiza sus mayores esfuerzos técnicos para asegurar la continuidad del servicio, pero no responde por caídas originadas por cortes de conectividad internacional, fallas de terceros proveedores o fuerza mayor.
+            </p>
+            <p>
+              <strong className="text-white font-mono">11.2. Límite Cuantitativo:</strong> En la medida que la ley chilena lo permita, la responsabilidad civil extracontractual o contractual de TapTrade SpA estará limitada como tope máximo al monto correspondiente a la comisión percibida en la transacción específica originaria del reclamo.
+            </p>
+          </div>
+        </LegalSection>
+
+        <hr className="border-white/10" />
+
+        {/* =========================================================================
+            SECCIÓN 12: JURISDICCIÓN
+           ========================================================================= */}
+        <LegalSection id="jurisdiccion-ley" num={12} title="Ley Aplicable, Domicilio Especial y Jurisdicción">
+          <div className="flex flex-col gap-3.5">
+            <p>
+              <strong className="text-white font-mono">12.1. Legislación Aplicable:</strong> El presente acuerdo se rige, interpreta y ejecuta bajo las leyes vigentes de la República de Chile.
+            </p>
+            <p>
+              <strong className="text-white font-mono">12.2. Tribunales de Santiago:</strong> Para todos los efectos legales emergentes del uso de la plataforma o de la validez e interpretación de este contrato, las partes fijan domicilio en la comuna de Santiago de Chile y se someten a la competencia de sus Tribunales Ordinarios de Justicia.
+            </p>
+
+            <div className="mt-4 p-5 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-bold text-white block">¿Consultas Legales o Regulatorias?</span>
+                <span className="text-xs text-gray-400">Nuestro equipo jurídico y tributario responde a la brevedad.</span>
+              </div>
+              <a
+                href="mailto:legal@taptrade.cl"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/20 transition-all shrink-0"
               >
-                <div className="flex flex-col gap-4 text-gray-3">
-                  <p>
-                    <strong className="text-white">10.1</strong> {t("creditos.p1")}
-                  </p>
-                  
-                  <div className="border border-white/10 rounded p-4 bg-[#1a1d24]/5">
-                    <p className="font-bold text-blue mb-1">{t("creditos.t1_title")}</p>
-                    <p>
-                      <strong className="text-white">10.2</strong> {t("creditos.t1_desc")}
-                    </p>
-                  </div>
-
-                  <div className="border border-white/10 rounded p-4 bg-[#1a1d24]/5">
-                    <p className="font-bold text-blue mb-1">{t("creditos.t2_title")}</p>
-                    <p>
-                      <strong className="text-white">10.3</strong> {t("creditos.t2_desc")}
-                    </p>
-                  </div>
-
-                  <div>
-                    <strong className="text-white">10.4</strong> {t("creditos.p4_desc")}
-                    <ul className="list-disc pl-5 mt-2 flex flex-col gap-1 text-gray-4">
-                      <li>{t("creditos.p4_li1")}</li>
-                      <li>{t("creditos.p4_li2")}</li>
-                      <li>{t("creditos.p4_li3")}</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <strong className="text-white">10.5</strong> {t("creditos.p5_desc")}
-                    <ul className="list-disc pl-5 mt-2 flex flex-col gap-1 text-gray-4">
-                      <li>{t("creditos.p5_li1")}</li>
-                      <li>{t("creditos.p5_li2")}</li>
-                    </ul>
-                  </div>
-                </div>
-              </LegalSection>
-            )}
-
-            {section.type === "transferencias" && (
-              <LegalSection
-                id={section.id}
-                className="bg-red/5 border border-red/20 rounded-lg p-6 sm:p-8"
-              >
-                <h3 className="text-lg font-bold text-red mb-4 flex items-center gap-2">
-                  <svg className="w-6 h-6 fill-current shrink-0" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
-                  </svg>
-                  {t("transferencias.title")}
-                </h3>
-                <div className="flex flex-col gap-3">
-                  <p>
-                    {t("transferencias.p1")}
-                  </p>
-                  <p className="font-medium text-white bg-yellow-100/50 p-3.5 border-l-2 border-yellow-500 rounded-r">
-                    {t("transferencias.warning")}
-                  </p>
-                </div>
-              </LegalSection>
-            )}
-          </React.Fragment>
-        );
-      })}
+                Contactar a legal@taptrade.cl
+              </a>
+            </div>
+          </div>
+        </LegalSection>
+      </div>
     </LegalPageLayout>
   );
 };
