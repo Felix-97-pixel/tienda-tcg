@@ -16,11 +16,123 @@ import {
   IconFlagES,
   IconFlagUS,
   IconFlagJP,
+  IconLanguageFlag,
 } from "@/components/ui/Icons";
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<"players" | "stores">("players");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [vaultCategory, setVaultCategory] = useState<"featured" | "magic" | "riftbound">("featured");
+
+  const vaultCards = [
+    {
+      id: "black-lotus",
+      name: "Black Lotus",
+      set: "Alpha Limited",
+      game: "Magic: The Gathering",
+      gameCategory: "magic",
+      gameColor: "text-blue-400",
+      imageUrl: "https://cards.scryfall.io/normal/front/b/0/b0faa7f2-b547-42c4-a810-839da50dadfe.jpg?1559591477",
+      condition: "NM",
+      language: "EN",
+      price: "$45.000.000 CLP",
+      store: "BloodMoonGames",
+      badge: "Holy Grail Alpha",
+      isFoil: false,
+      searchQuery: "Black Lotus",
+      isFeatured: true,
+    },
+    {
+      id: "annie-dark-child",
+      name: "Annie - Dark Child",
+      set: "Organized Play Promo",
+      game: "Riftbound TCG",
+      gameCategory: "riftbound",
+      gameColor: "text-cyan-400",
+      imageUrl: "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/89963e1d1cffd69c620fb5d6b037f50d5c334463-744x1039.png?accountingTag=RB",
+      condition: "NM",
+      language: "EN",
+      price: "$22.310 CLP",
+      store: "BloodMoonGames",
+      badge: "Foil Promocional",
+      isFoil: true,
+      searchQuery: "Annie",
+      isFeatured: true,
+    },
+    {
+      id: "orcish-bowmasters",
+      name: "Orcish Bowmasters",
+      set: "Tales of Middle-earth",
+      game: "Magic: The Gathering",
+      gameCategory: "magic",
+      gameColor: "text-purple-400",
+      imageUrl: "https://cards.scryfall.io/normal/front/d/e/de2de055-5246-408b-80fe-cd01688c145e.jpg?1686972486",
+      condition: "NM",
+      language: "EN",
+      price: "$38.990 CLP",
+      store: "BloodMoonGames",
+      badge: "Modern Staple",
+      isFoil: false,
+      searchQuery: "Orcish Bowmasters",
+      isFeatured: true,
+    },
+    {
+      id: "overlord-balemurk",
+      name: "Overlord of the Balemurk",
+      set: "Duskmourn: Horror",
+      game: "Magic: The Gathering",
+      gameCategory: "magic",
+      gameColor: "text-emerald-400",
+      imageUrl: "https://cards.scryfall.io/normal/front/9/b/9b911653-7b96-4cf3-a907-13c5c53a14f7.jpg?1726286269",
+      condition: "NM",
+      language: "ES",
+      price: "$29.990 CLP",
+      store: "BloodMoonGames",
+      badge: "Mítico Standard",
+      isFoil: false,
+      searchQuery: "Overlord",
+      isFeatured: false,
+    },
+    {
+      id: "sivir-mercenary",
+      name: "Sivir - Mercenary (Alt Art)",
+      set: "Spiritforged",
+      game: "Riftbound TCG",
+      gameCategory: "riftbound",
+      gameColor: "text-cyan-400",
+      imageUrl: "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6c0eeb81da597528625d458cb4c560298b5bea50-744x1039.png",
+      condition: "NM",
+      language: "EN",
+      price: "$14.990 CLP",
+      store: "BloodMoonGames",
+      badge: "Alternate Art Foil",
+      isFoil: true,
+      searchQuery: "Sivir",
+      isFeatured: false,
+    },
+    {
+      id: "emberheart-challenger",
+      name: "Emberheart Challenger",
+      set: "Bloomburrow",
+      game: "Magic: The Gathering",
+      gameCategory: "magic",
+      gameColor: "text-amber-400",
+      imageUrl: "https://cards.scryfall.io/normal/front/0/0/0035082e-bb86-4f95-be48-ffc87fe5286d.jpg?1721426609",
+      condition: "NM",
+      language: "ES",
+      price: "$2.290 CLP",
+      store: "BloodMoonGames",
+      badge: "Standard Red",
+      isFoil: false,
+      searchQuery: "Emberheart",
+      isFeatured: false,
+    },
+  ];
+
+  const displayedVaultCards =
+    vaultCategory === "featured"
+      ? vaultCards.filter((c) => c.isFeatured)
+      : vaultCards.filter((c) => c.gameCategory === vaultCategory);
 
   const tcgGames = [
     { name: "Magic: The Gathering", publisher: "Wizards of the Coast", badge: "Scryfall Sync", color: "from-blue-600/20 to-indigo-600/10 border-blue-500/30 text-blue-400" },
@@ -117,140 +229,154 @@ export default function MarketingPage() {
           </div>
 
           {/* =========================================================================
-              FLOATING HOLOGRAPHIC VAULT SHOWCASE
+              FLOATING HOLOGRAPHIC VAULT SHOWCASE (REAL DATABASE TCG CARDS)
              ========================================================================= */}
-          <div className="w-full max-w-5xl relative mt-4">
+          <div id="marketplace" className="w-full max-w-5xl relative mt-4 scroll-mt-28">
             {/* Ambient Backlight Glow */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#E10E0E]/20 via-blue-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
 
             <div className="rounded-3xl bg-[#0E121B]/80 border border-white/10 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
-              <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/[0.08]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-white/[0.08]">
                 <div className="flex items-center gap-3 text-left">
                   <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <IconZap className="w-4 h-4 text-amber-400" /> Mercado TCG en Vivo
+                      <IconZap className="w-4 h-4 text-amber-400" /> Mercado TCG en Vivo (Singles Reales de Tiendas)
                     </h3>
-                    <p className="text-xs text-gray-400">Cotización consolidada en tiempo real de tiendas en Chile</p>
+                    <p className="text-xs text-gray-400">Cartas autenticadas con stock físico sincronizado en tiempo real</p>
                   </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-white/5 border border-white/10 text-gray-300">
-                    CLP • Precios Locales
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    Split Payments OK
-                  </span>
+
+                {/* Filter Pills between games */}
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setVaultCategory("featured")}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      vaultCategory === "featured"
+                        ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Destacadas
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVaultCategory("magic")}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      vaultCategory === "magic"
+                        ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Magic
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVaultCategory("riftbound")}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      vaultCategory === "riftbound"
+                        ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Riftbound
+                  </button>
                 </div>
               </div>
 
-              {/* Holographic Cards Grid */}
+              {/* Holographic Real Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {/* Card 1: Black Lotus */}
-                <div className="relative group rounded-2xl bg-[#111522] border border-white/10 p-4 hover:border-white/30 transition-all hover:-translate-y-1 shadow-lg">
-                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-black/40 mb-3 border border-white/10">
-                    <Image
-                      src="/images/products/product-1-bg-1.png"
-                      alt="Black Knight / Alpha Lotus"
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        NM
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-black/60 text-gray-300 border border-white/10">
-                        EN
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-left">
-                    <span className="text-[11px] text-blue-400 font-bold block truncate">Magic: The Gathering</span>
-                    <h4 className="text-sm font-extrabold text-white truncate">Black Knight (Classic Alpha)</h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-                      <div>
-                        <span className="text-[10px] text-gray-500 block">Mejor oferta</span>
-                        <span className="text-sm font-black text-white font-mono">$18.990 CLP</span>
-                      </div>
-                      <span className="text-[10px] text-gray-400 font-medium px-2 py-1 rounded bg-white/5 border border-white/10">
-                        BloodMoonGames
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                {displayedVaultCards.map((card) => (
+                  <Link
+                    key={card.id}
+                    href={`/shop?search=${encodeURIComponent(card.searchQuery)}`}
+                    className={`group relative rounded-2xl bg-[#111522] border transition-all duration-300 hover:-translate-y-1.5 p-4 flex flex-col justify-between text-left ${
+                      card.isFoil
+                        ? "border-red-500/40 hover:border-[#E10E0E] shadow-xl shadow-[#E10E0E]/10"
+                        : "border-white/10 hover:border-white/30 shadow-lg shadow-black/40"
+                    }`}
+                  >
+                    {/* Top Header: Characteristics Badges (NM, Language Flag & Code, Foil/Normal) */}
+                    <div className="flex items-center justify-between gap-1.5 mb-2.5 z-10 w-full">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {/* Condition Badge (NM) */}
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-black font-mono tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                          {card.condition}
+                        </span>
 
-                {/* Card 2 (Centerpiece): Ezreal Holographic Foil */}
-                <div className="relative group rounded-2xl bg-gradient-to-b from-red-600/10 via-[#111522] to-[#111522] border border-red-500/30 p-4 hover:border-red-500/60 transition-all hover:-translate-y-1 shadow-xl">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/40 z-20">
-                    Foil Iridiscente
-                  </div>
-                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-black/40 mb-3 border border-red-500/20">
-                    <Image
-                      src="/images/products/product-2-bg-1.png"
-                      alt="Ezreal Alternate Art"
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="card-foil-overlay !opacity-60"></div>
-                    <div className="absolute top-2 left-2 flex gap-1 z-10">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        NM
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                        FOIL
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-left">
-                    <span className="text-[11px] text-cyan-400 font-bold block truncate">Riftbound TCG</span>
-                    <h4 className="text-sm font-extrabold text-white truncate">Ezreal - Dashing (Alt Art)</h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-                      <div>
-                        <span className="text-[10px] text-gray-500 block">Mejor oferta</span>
-                        <span className="text-sm font-black text-amber-400 font-mono">$45.000 CLP</span>
+                        {/* Language Badge (EN, ES, etc) with Flag */}
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-extrabold font-mono bg-white/10 text-white border border-white/20 shadow-sm">
+                          <IconLanguageFlag code={card.language} className="w-4 h-3 rounded-[1px] shrink-0 shadow-sm" />
+                          <span>{card.language}</span>
+                        </span>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-medium px-2 py-1 rounded bg-white/5 border border-white/10">
-                        Rift Vault
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Card 3: Annie Dark Child */}
-                <div className="relative group rounded-2xl bg-[#111522] border border-white/10 p-4 hover:border-white/30 transition-all hover:-translate-y-1 shadow-lg">
-                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-black/40 mb-3 border border-white/10">
-                    <Image
-                      src="/images/products/product-3-bg-1.png"
-                      alt="Annie Dark Child"
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        NM
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                        FOIL
-                      </span>
+                      {/* Foil / Normal Finish Badge */}
+                      {card.isFoil ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-400/25 via-pink-400/25 to-cyan-400/25 border border-amber-400/80 text-amber-300 shadow-md">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                          FOIL
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold text-gray-400 bg-white/5 border border-white/10 uppercase">
+                          Normal
+                        </span>
+                      )}
                     </div>
-                  </div>
-                  <div className="text-left">
-                    <span className="text-[11px] text-red-400 font-bold block truncate">Singles Sellados</span>
-                    <h4 className="text-sm font-extrabold text-white truncate">Annie - Dark Child</h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-                      <div>
-                        <span className="text-[10px] text-gray-500 block">Mejor oferta</span>
-                        <span className="text-sm font-black text-white font-mono">$22.000 CLP</span>
+
+                    <div className="relative aspect-[2.5/3.5] w-full max-w-[220px] mx-auto rounded-xl overflow-hidden bg-black/50 mb-3 border border-white/10 card-foil-container">
+                      <Image
+                        src={card.imageUrl}
+                        alt={card.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                        unoptimized={true}
+                      />
+                      {card.isFoil && <div className="card-foil-overlay !opacity-60" />}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span className={`text-[11px] font-bold truncate ${card.gameColor}`}>{card.game}</span>
+                        <span className="text-[10px] text-gray-500 font-mono truncate">{card.set}</span>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-medium px-2 py-1 rounded bg-white/5 border border-white/10">
-                        TCG Chile
-                      </span>
+                      <h4 className="text-sm font-extrabold text-white group-hover:text-[#F23030] transition-colors truncate">
+                        {card.name}
+                      </h4>
+                      <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-white/[0.08]">
+                        <div>
+                          <span className="text-[10px] text-gray-500 block leading-tight">Mejor precio</span>
+                          <span className="text-sm font-black text-white font-mono">{card.price}</span>
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-medium px-2 py-1 rounded bg-white/5 border border-white/10 group-hover:border-white/20 transition-colors">
+                          {card.store}
+                        </span>
+                      </div>
                     </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Bottom Quick-Link to full catalog */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t border-white/[0.08] bg-white/[0.02] p-4 rounded-2xl">
+                <div className="flex items-center gap-3 text-left">
+                  <div className="w-8 h-8 rounded-xl bg-[#E10E0E]/15 border border-[#E10E0E]/30 flex items-center justify-center text-[#E10E0E] shrink-0">
+                    <IconSparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Cartas 100% reales con inventario físico en Chile</p>
+                    <p className="text-[11px] text-gray-400">Precios locales en CLP, retiro inmediato en tienda o despacho en 24-48h</p>
                   </div>
                 </div>
+                <Link
+                  href="/shop"
+                  className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 hover:shadow-lg hover:shadow-[#E10E0E]/40 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
+                >
+                  Ver catálogo completo (28+ cartas) →
+                </Link>
               </div>
 
               {/* Live Platform Stats */}
