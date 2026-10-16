@@ -117,21 +117,21 @@ export default function LinkExpansionModal({ expansion, onClose, onSuccess }: Li
                 placeholder="Buscar por nombre o ID oficial..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#1a1d24] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue/50 mb-3"
+                className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-red/50 mb-3"
               />
             </div>
 
             {loadingSets ? (
               <div className="flex justify-center py-8">
-                <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : (
-              <div className="bg-[#1a1d24] border border-white/10 rounded-xl max-h-60 overflow-y-auto divide-y divide-white/5">
+              <div className="bg-[#080B12] border border-white/10 rounded-xl max-h-60 overflow-y-auto divide-y divide-white/5">
                 {filteredSets.length > 0 ? (
                   filteredSets.map(set => (
                     <label 
                       key={set.id} 
-                      className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-white/5 transition-colors ${selectedSetId === set.id ? 'bg-blue/5' : ''}`}
+                      className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-white/5 transition-colors ${selectedSetId === set.id ? 'bg-red/10 text-white' : ''}`}
                     >
                       <input 
                         type="radio" 

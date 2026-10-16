@@ -74,16 +74,24 @@ export default function StoreCreditModal({
 
         {/* ── Products Section ── */}
         <div className="space-y-4 border-t border-white/10 pt-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <span className="text-lg">{form.type === "MANUAL_ADD" ? "🃏" : "🛒"}</span>
+          <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+            {form.type === "MANUAL_ADD" ? (
+              <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            )}
             {form.type === "MANUAL_ADD"
               ? "Productos Recibidos (Trade-in)"
               : "Productos Comprados por el Cliente"}
-            <span className="text-gray-4 text-xs font-normal normal-case">(Opcional)</span>
+            <span className="text-white/40 text-xs font-normal normal-case">(Opcional)</span>
           </h3>
 
           {/* Product Search Filters */}
-          <div className="p-4 bg-[#111318] rounded-xl border border-white/10 space-y-3 relative">
+          <div className="p-4 bg-[#080B12] rounded-xl border border-white/10 space-y-3 relative">
             <div className="relative z-[60] grid grid-cols-1 md:grid-cols-3 gap-3">
               <input
                 type="text"
@@ -94,7 +102,7 @@ export default function StoreCreditModal({
                 }
                 value={form.cardSearchTerm}
                 onChange={(e) => form.setCardSearchTerm(e.target.value)}
-                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue outline-none"
+                className="w-full bg-[#07090E] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-red focus:ring-1 focus:ring-red/30 outline-none"
               />
               <SearchableSelect
                 options={[

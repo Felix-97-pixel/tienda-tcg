@@ -105,36 +105,41 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   return (
     <aside
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-70 flex-col overflow-y-hidden bg-[#0f1115] border-r border-white/5 duration-300 ease-linear lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`absolute left-0 top-0 z-9999 flex h-screen w-70 flex-col overflow-y-hidden bg-[#0E121B] border-r border-white/10 duration-300 ease-linear lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Logo Area */}
-      <div className="flex items-center justify-between gap-2 px-6 py-8">
-        <Link href="/admin" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue rounded-xl flex items-center justify-center shadow-lg shadow-blue/30 border border-white/10">
+      <div className="flex items-center justify-between gap-2 px-6 py-6 border-b border-white/5">
+        <Link href="/admin" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 bg-gradient-to-br from-red-dark to-red rounded-xl flex items-center justify-center shadow-lg shadow-red/25 border border-white/10 group-hover:scale-105 transition-transform">
             <span className="text-white font-black text-xl">T</span>
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Tap<span className="text-blue">Trade</span></h1>
+          <div>
+            <h1 className="text-lg font-black text-white tracking-tight leading-none">Tap<span className="text-red">Trade</span></h1>
+            <span className="text-[9px] font-black uppercase tracking-widest text-white/40 block mt-1">Admin Vault</span>
+          </div>
         </Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="block lg:hidden text-gray-4 hover:text-white transition-colors">
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="block lg:hidden text-white/50 hover:text-white transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear flex-1">
-        <nav className="mt-2 py-4 px-4 lg:px-6">
+        <nav className="mt-2 py-4 px-4 lg:px-5">
 
-          <div className="mb-8">
+          <div className="mb-6">
             <Link
               href="/admin"
-              className="group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm text-blue bg-blue/10 hover:bg-blue hover:text-white transition-all duration-200"
+              className="group relative flex items-center gap-3 rounded-xl py-2.5 px-3.5 font-bold text-xs text-white/70 bg-white/[0.03] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
             >
-              {icons.back}
+              <span className="text-white/60 group-hover:text-red transition-colors">
+                {icons.back}
+              </span>
               Volver al Hub
             </Link>
           </div>
 
           <div className="mb-6">
-            <h3 className="mb-4 ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-5">{moduleName}</h3>
+            <h3 className="mb-3 ml-3 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{moduleName}</h3>
             <ul className="space-y-1.5">
               {navItems.map(({ href, label, icon }) => {
                 const isActive = pathname === href || pathname.startsWith(href + "/");
@@ -142,17 +147,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                   <li key={href}>
                     <Link
                       href={href}
-                      className={`group relative flex items-center gap-3.5 rounded-xl py-3 px-4 font-bold text-sm transition-all duration-200 ${isActive
-                          ? "bg-blue text-white shadow-xl shadow-blue/20"
-                          : "text-gray-4 hover:bg-[#1a1d24]/5 hover:text-white"
-                        }`}
+                      className={`group relative flex items-center gap-3 rounded-xl py-2.5 px-3.5 font-bold text-xs transition-all duration-200 border ${
+                        isActive
+                          ? "bg-gradient-to-r from-red-dark to-red text-white shadow-lg shadow-red/20 border-red/30"
+                          : "text-white/60 hover:bg-white/[0.04] hover:text-white border-transparent"
+                      }`}
                     >
-                      <span className={`${isActive ? "text-white" : "text-gray-5 group-hover:text-blue transition-colors"}`}>
+                      <span className={`${isActive ? "text-white" : "text-white/50 group-hover:text-red-light transition-colors"}`}>
                         {icon}
                       </span>
-                      {label}
+                      <span>{label}</span>
                       {isActive && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-[#1a1d24] rounded-l-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
                       )}
                     </Link>
                   </li>
@@ -164,16 +170,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
       </div>
 
       {/* Footer Info */}
-      <div className="p-6 border-t border-white/5 space-y-4">
-        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold text-gray-4 hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
+      <div className="p-5 border-t border-white/10 bg-[#090C14]/60 space-y-3">
+        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-red hover:bg-red/10 hover:border-red/30 transition-all border border-white/10">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
           CERRAR SESIÓN
         </button>
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#1a1d24]/5 border border-white/5 group hover:bg-[#1a1d24]/10 transition-all">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue to-indigo-600 flex items-center justify-center text-xs font-black text-white shadow-lg">AD</div>
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10 group hover:border-white/20 transition-all">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-red-dark to-red flex items-center justify-center text-xs font-black text-white shadow-md shadow-red/30">AD</div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-black text-white truncate uppercase tracking-tighter">{tc("admin")}</p>
-            <p className="text-[9px] text-gray-5 truncate font-bold">{ts("version")}</p>
+            <p className="text-xs font-black text-white truncate uppercase tracking-tight">{tc("admin")}</p>
+            <p className="text-[9px] text-white/40 truncate font-bold">{ts("version")}</p>
           </div>
         </div>
       </div>

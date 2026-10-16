@@ -53,12 +53,12 @@ export default function SearchableSelect({
           // Delay to allow click on option
           setTimeout(() => setIsOpen(false), 200); 
         }}
-        className="w-full rounded-xl border border-white/10 bg-[#1a1d24] py-2.5 px-4 text-sm text-white outline-none transition focus:border-blue focus:ring-2 focus:ring-blue/20 disabled:bg-[#222630]"
+        className="w-full rounded-xl border border-white/10 bg-[#080B12] py-2.5 px-4 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-red focus:ring-1 focus:ring-red/30 disabled:opacity-50"
       />
       {isOpen && !disabled && (
-        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-stroke bg-[#1a1d24] shadow-lg animate-in fade-in zoom-in duration-200">
+        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-white/10 bg-[#0E121B] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200">
           {filteredOptions.length === 0 ? (
-            <li className="px-5 py-3 text-sm text-gray-5 italic">{noResultsText}</li>
+            <li className="px-5 py-3 text-sm text-white/40 italic">{noResultsText}</li>
           ) : (
             filteredOptions.map((opt) => (
               <li
@@ -67,8 +67,8 @@ export default function SearchableSelect({
                   onChange(opt.value); 
                   setIsOpen(false); 
                 }}
-                className={`cursor-pointer px-4 py-2.5 hover:bg-blue/5 text-sm text-white transition-colors ${
-                  value === opt.value ? 'bg-blue/10 font-bold text-blue' : ''
+                className={`cursor-pointer px-4 py-2.5 hover:bg-white/10 text-sm text-white/90 transition-colors ${
+                  value === opt.value ? 'bg-red/15 font-bold text-red-light' : ''
                 }`}
               >
                 {opt.label}

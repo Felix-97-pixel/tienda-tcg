@@ -65,10 +65,10 @@ export default function StoreCreditHistoryModal({
       </div>
 
       {/* Table */}
-      <div className="bg-[#111318] border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-[#080B12] border border-white/10 rounded-xl overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-10">
-            <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin" />
           </div>
         ) : transactions.length === 0 ? (
           <div className="py-10 text-center text-gray-5">

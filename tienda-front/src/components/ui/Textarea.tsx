@@ -10,14 +10,14 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="mb-1.5 block text-xs font-medium text-gray-4">
+          <label className="mb-1.5 block text-xs font-medium text-white/70">
             {label}
           </label>
         )}
         <textarea
           ref={ref}
-          className={`w-full rounded-xl border bg-[#111318] py-3 px-4 text-sm outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-            error ? "border-red focus:border-red focus:ring-1 focus:ring-red" : "border-stroke focus:border-blue"
+          className={`w-full rounded-xl border bg-[#080B12] py-3 px-4 text-sm text-white placeholder:text-white/30 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+            error ? "border-red focus:border-red focus:ring-1 focus:ring-red/50" : "border-white/10 focus:border-red focus:ring-1 focus:ring-red/30"
           } ${className}`}
           {...props}
         />

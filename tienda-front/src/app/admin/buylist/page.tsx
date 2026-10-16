@@ -99,26 +99,26 @@ export default function AdminBuylistPage() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-[#1a1d24] rounded-2xl shadow-1 p-5 mb-6">
+      <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl p-5 mb-6">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-white">Filtros de Catálogo</p>
+          <p className="text-sm font-bold text-white tracking-wide">Filtros de Catálogo</p>
           <div className="flex items-center gap-6">
-            <div className="flex bg-black/20 p-1 rounded-lg border border-white/5">
+            <div className="flex bg-[#080B12] p-1 rounded-xl border border-white/10">
               <button
                 onClick={() => handleTabChange('all')}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${currentTab === 'all' ? 'bg-blue text-white shadow-sm' : 'text-gray-4 hover:text-white hover:bg-white/10'}`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${currentTab === 'all' ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
               >
                 Catálogo Global
               </button>
               <button
                 onClick={() => handleTabChange('active')}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${currentTab === 'active' ? 'bg-green text-white shadow-sm' : 'text-gray-4 hover:text-white hover:bg-white/10'}`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${currentTab === 'active' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
               >
                 Mis Buscados (Publicados)
               </button>
               <button
                 onClick={() => handleTabChange('paused')}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${currentTab === 'paused' ? 'bg-yellow text-white shadow-sm' : 'text-gray-4 hover:text-white hover:bg-white/10'}`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${currentTab === 'paused' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
               >
                 Mis Buscados (Pausados)
               </button>
@@ -138,7 +138,7 @@ export default function AdminBuylistPage() {
       </div>
 
       {/* Tabla de Productos Base */}
-      <div className="bg-[#1a1d24] rounded-2xl shadow-1 border border-white/5 overflow-hidden min-h-[500px]">
+      <div className="bg-[#0E121B] rounded-2xl shadow-xl border border-white/10 overflow-hidden min-h-[500px]">
         <BuylistTable
           products={products}
           loading={loading}
@@ -150,8 +150,8 @@ export default function AdminBuylistPage() {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-white/5 flex items-center justify-between">
-            <p className="text-sm text-gray-4">
+          <div className="p-4 border-t border-white/10 flex items-center justify-between bg-[#090C14]">
+            <p className="text-sm text-white/50">
               Página {page} de {totalPages}
             </p>
             <div className="flex gap-2">

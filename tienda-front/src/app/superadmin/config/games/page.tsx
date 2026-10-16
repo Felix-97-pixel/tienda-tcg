@@ -31,18 +31,17 @@ export default function GamesConfigPage() {
         </div>
         <button
           onClick={openModalForNew}
-          className="bg-blue hover:bg-blue-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue/20"
+          className="bg-gradient-to-r from-red-dark to-red hover:from-red hover:to-red-light text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-md shadow-red/25 ring-1 ring-white/10"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
           Nuevo Juego
         </button>
       </div>
 
-      <div className="bg-[#111318] border border-stroke rounded-2xl overflow-hidden">
+      <div className="bg-[#0E121B] border border-white/10 rounded-2xl overflow-hidden shadow-xl">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 space-y-4">
-            <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-            <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
+          <div className="flex flex-col items-center justify-center py-32">
+            <Loader text="Cargando juegos..." className="min-h-[40vh] bg-transparent py-10" />
           </div>
         ) : (
           <div className="overflow-x-auto">

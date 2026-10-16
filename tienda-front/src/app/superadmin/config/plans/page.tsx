@@ -34,14 +34,14 @@ export default function PlansPage() {
 
       {loading ? (
         <div className="flex justify-center p-12">
-          <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {plans.map(plan => (
-            <div key={plan.id} className="bg-[#1a1d24] border border-white/5 rounded-2xl p-6 shadow-xl relative flex flex-col">
+            <div key={plan.id} className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 shadow-xl relative flex flex-col">
               <div className="absolute top-4 right-4 flex gap-2">
-                <button onClick={() => handleOpenModal(plan)} className="w-8 h-8 rounded-full bg-blue/10 text-blue flex items-center justify-center hover:bg-blue hover:text-white transition-colors">
+                <button onClick={() => handleOpenModal(plan)} className="w-8 h-8 rounded-full bg-red/10 text-red flex items-center justify-center hover:bg-red hover:text-white transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                 </button>
                 <button onClick={() => handleDelete(plan.id)} className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">

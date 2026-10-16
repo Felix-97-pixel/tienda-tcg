@@ -29,13 +29,13 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
       render: (product) => (
         <div className="flex items-center gap-3">
           <div 
-            className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-[#1a1d24]/5 border border-white/10 cursor-zoom-in transition-transform group-hover:scale-105"
+            className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-[#080B12] border border-white/10 cursor-zoom-in transition-transform group-hover:scale-105"
             onMouseEnter={() => product.imageUrl && setHoveredImage(product.imageUrl)}
             onMouseLeave={() => setHoveredImage(null)}
           >
             {product.imageUrl 
               ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" unoptimized={product.imageUrl.includes("scryfall")} />
-              : <span className="text-[10px] text-gray-5 flex h-full items-center justify-center font-bold uppercase">Sin Imagen</span>
+              : <span className="text-[10px] text-white/40 flex h-full items-center justify-center font-bold uppercase">Sin Imagen</span>
             }
           </div>
           <div>
@@ -86,8 +86,10 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
   if (products.length === 0 && !loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 bg-[#0f1115] rounded-full flex items-center justify-center mb-4">
-          <span className="text-3xl">🛒</span>
+        <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-white/50">
+          <svg className="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
         </div>
         <h3 className="text-xl font-bold text-white mb-2">Sin Resultados</h3>
         <p className="text-gray-4 max-w-sm">
@@ -102,7 +104,7 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
       {/* HOVER PREVIEW */}
       {hoveredImage && (
         <div 
-          className="fixed z-[99999] pointer-events-none shadow-2xl rounded-2xl border-4 border-[#1C2434] bg-[#1C2434] overflow-hidden transition-all duration-200 animate-in fade-in zoom-in"
+          className="fixed z-[99999] pointer-events-none shadow-[0_20px_60px_rgba(0,0,0,0.9)] rounded-2xl border-2 border-white/20 bg-[#0E121B] ring-1 ring-white/10 overflow-hidden transition-all duration-200 animate-in fade-in zoom-in"
           style={{ 
             top: mousePos.y > (typeof window !== 'undefined' ? window.innerHeight * 0.6 : 500) 
               ? mousePos.y - 440 

@@ -29,9 +29,8 @@ export default function AdminSettings() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-        <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
+      <div className="flex flex-col items-center justify-center py-32">
+        <Loader text="Cargando configuración..." className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }

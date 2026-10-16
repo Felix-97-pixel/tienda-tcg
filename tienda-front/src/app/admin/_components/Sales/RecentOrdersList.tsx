@@ -52,12 +52,15 @@ export default function RecentOrdersList({ orders }: RecentOrdersListProps) {
   ];
 
   return (
-    <div className="bg-[#1a1d24] rounded-2xl shadow-1 overflow-hidden border border-transparent hover:border-stroke transition-colors h-full flex flex-col">
-      <div className="flex items-center justify-between px-6 py-5 border-b border-stroke bg-gray-50/50 shrink-0">
-        <h2 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-          <span className="text-xl">🕐</span> {t("charts.revenueTitle")}
+    <div className="bg-[#0E121B] rounded-2xl shadow-xl overflow-hidden border border-white/10 h-full flex flex-col">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-[#090C14] shrink-0">
+        <h2 className="font-black text-white text-xs uppercase tracking-widest flex items-center gap-2">
+          <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {t("charts.revenueTitle")}
         </h2>
-        <Link href="/admin/orders" className="text-[10px] font-black text-blue hover:text-blue-700 uppercase tracking-widest transition-colors flex items-center gap-1">
+        <Link href="/admin/orders" className="text-[10px] font-black text-red hover:text-red-light uppercase tracking-widest transition-colors flex items-center gap-1">
           {to("title")} <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
         </Link>
       </div>

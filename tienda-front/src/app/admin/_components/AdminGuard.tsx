@@ -43,8 +43,8 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   // Wait until mounted to prevent hydration errors, and show spinner if not admin
   if (!isMounted || !isAuthenticated || user?.role !== "ADMIN" || loadingFeatures) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#1a1d24]">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue border-t-transparent"></div>
+      <div className="flex h-screen items-center justify-center bg-[#07090E]">
+        <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-red border-t-transparent shadow-lg shadow-red/20"></div>
       </div>
     );
   }

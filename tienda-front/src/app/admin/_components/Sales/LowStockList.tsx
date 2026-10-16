@@ -29,16 +29,19 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
   };
 
   return (
-    <div className="bg-[#1a1d24] border border-white/5 rounded-2xl p-6 shadow-1 flex flex-col h-full group relative">
+    <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col h-full group relative">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-red-500">
-          ⚠️ Alertas de Bajo Stock
+        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+          <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Alertas de Bajo Stock
         </h3>
         <div className="flex items-center gap-3">
-          <button onClick={downloadCSV} className="text-gray-4 hover:text-white p-1 bg-[#0f1115] rounded-md transition-colors" title="Descargar reporte completo en CSV">
+          <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title="Descargar reporte completo en CSV">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
           </button>
-          <Link href="/admin/products" className="text-[10px] font-black text-blue hover:text-blue-700 uppercase tracking-widest transition-colors flex items-center gap-1">
+          <Link href="/admin/products" className="text-[10px] font-black text-red hover:text-red-light uppercase tracking-widest transition-colors flex items-center gap-1">
             IR A PRODUCTOS <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
           </Link>
         </div>

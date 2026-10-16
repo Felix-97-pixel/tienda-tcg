@@ -64,11 +64,11 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form Card */}
         <div className="lg:col-span-2 space-y-6">
-          <form onSubmit={handleSave} className="bg-[#1a1d24] rounded-3xl shadow-1 p-8 border border-transparent hover:border-stroke transition-all duration-300 space-y-6">
+          <form onSubmit={handleSave} className="bg-[#0E121B] rounded-3xl shadow-xl p-8 border border-white/10 space-y-6">
             
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-blue/10 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+              <div className="w-12 h-12 rounded-2xl bg-red/10 border border-red/20 flex items-center justify-center shadow-inner">
+                <svg className="w-6 h-6 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
               </div>
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-tight">Información Principal</h2>
@@ -85,9 +85,9 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               />
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-white">Logo de la Tienda</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50">Logo de la Tienda</label>
                 <div className="flex items-center gap-4">
-                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border border-stroke flex items-center justify-center">
+                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-[#080B12] border border-white/10 flex items-center justify-center">
                     {formData.logoUrl ? (
                       <div className="relative h-full w-full group">
                         <Image src={formData.logoUrl} alt="Logo" fill className="object-contain" />
@@ -103,7 +103,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-[10px] text-gray-4 font-bold text-center">Sin Logo</span>
+                      <span className="text-[10px] text-white/40 font-bold text-center">Sin Logo</span>
                     )}
                   </div>
                   <FileInput
@@ -118,13 +118,13 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     disabled={isUploading}
                   />
                 </div>
-                {isUploading && <p className="mt-2 text-xs text-blue animate-pulse">Subiendo imagen...</p>}
+                {isUploading && <p className="mt-2 text-xs text-red animate-pulse">Subiendo imagen...</p>}
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-white">Descripción de la Tienda</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50">Descripción de la Tienda</label>
                 <textarea
-                  className="w-full rounded-xl border border-stroke bg-[#111318] px-4 py-3 text-white focus:border-blue focus:ring-1 focus:ring-blue focus:outline-none transition-all placeholder:text-gray-5 min-h-[100px]"
+                  className="w-full rounded-xl border border-white/10 bg-[#080B12] px-4 py-3 text-white focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all placeholder:text-white/30 text-sm min-h-[100px]"
                   placeholder="Cuenta a tus clientes sobre tu tienda..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -133,8 +133,8 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             </div>
 
             <div className="flex items-center gap-4 mb-6 mt-10">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+                <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
               </div>
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-tight">Contacto y Redes Sociales</h2>
@@ -214,16 +214,16 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             {storeId !== "me" && (
               <>
                 <div className="flex items-center gap-4 mb-6 mt-10">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center shadow-inner">
-                    <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-inner">
+                    <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
                   </div>
                   <div>
                     <h2 className="text-lg font-black text-white uppercase tracking-tight">Suscripción y Módulos</h2>
-                    <p className="text-xs text-gray-4 font-medium mt-1">Configura a qué módulos y planes tiene acceso esta tienda.</p>
+                    <p className="text-xs text-white/40 font-medium mt-1">Configura a qué módulos y planes tiene acceso esta tienda.</p>
                   </div>
                 </div>
 
-                <div className="bg-[#111318] border border-stroke p-6 rounded-2xl space-y-6">
+                <div className="bg-[#080B12] border border-white/10 p-6 rounded-2xl space-y-6">
                   {/* Selector de Planes */}
                   <Checkbox
                     label="Planes de Suscripción"
@@ -259,20 +259,20 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             {storeId === "me" && (
               <>
                 <div className="flex items-center gap-4 mb-6 mt-10">
-                  <div className="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center shadow-inner">
+                  <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shadow-inner">
                     <svg className="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
                   <div>
                     <h2 className="text-lg font-black text-white uppercase tracking-tight">Pagos y Cobros</h2>
-                    <p className="text-xs text-gray-4 font-medium mt-1">Vincula tu cuenta de Mercado Pago para recibir el dinero de tus ventas directamente.</p>
+                    <p className="text-xs text-white/40 font-medium mt-1">Vincula tu cuenta de Mercado Pago para recibir el dinero de tus ventas directamente.</p>
                   </div>
                 </div>
 
-                <div className="bg-[#111318] border border-stroke p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="bg-[#080B12] border border-white/10 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
                   <div>
                     <h4 className="text-white font-bold mb-1">Cuenta de Mercado Pago</h4>
                     {mpStatus?.linked ? (
-                      <p className="text-sm text-green-400 font-medium flex items-center gap-2">
+                      <p className="text-sm text-emerald-400 font-medium flex items-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                         Vinculada y activa para recibir pagos
                       </p>
@@ -296,7 +296,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               </>
             )}
 
-            <div className="mt-10 pt-6 border-t border-stroke flex justify-end">
+            <div className="mt-10 pt-6 border-t border-white/10 flex justify-end">
               <div className="w-full md:w-1/3">
                 <Button
                   type="submit"
@@ -312,22 +312,22 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
 
         {/* Info Sidebar */}
         <div className="space-y-6">
-          <div className="bg-dark rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#1a1d24]/10 rounded-full blur-2xl group-hover:bg-[#1a1d24]/20 transition-all"></div>
-            <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue rounded-full animate-pulse"></span>
+          <div className="bg-[#0E121B] rounded-3xl p-8 text-white shadow-2xl border border-white/10 relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-28 h-28 bg-red/10 rounded-full blur-2xl group-hover:bg-red/20 transition-all duration-500"></div>
+            <h3 className="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-red rounded-full shadow-[0_0_8px_rgba(225,14,14,0.8)]"></span>
               Perfil Público
             </h3>
-            <p className="text-xs text-gray-4 leading-relaxed font-medium mb-6">
+            <p className="text-xs text-white/50 leading-relaxed font-medium mb-6">
               Toda la información ingresada aquí será visible en el perfil público de tu tienda en TapTrade.
             </p>
-            <div className="p-4 rounded-2xl bg-[#1a1d24]/5 border border-white/10 space-y-3">
-              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-3">
-                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+            <div className="p-4 rounded-2xl bg-[#080B12] border border-white/10 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-white/80">
+                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
                 Actualización instantánea
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-3">
-                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+              <div className="flex items-center gap-2 text-xs font-bold text-white/80">
+                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
                 Íconos automáticos
               </div>
             </div>

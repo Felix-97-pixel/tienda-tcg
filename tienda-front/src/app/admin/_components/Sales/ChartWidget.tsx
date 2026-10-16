@@ -25,7 +25,7 @@ interface ChartWidgetProps {
   colors?: string[];
 }
 
-const COLORS = ["#3C50E0", "#22AD5C", "#FBBF24", "#F23030", "#02AAA4", "#9C27B0", "#FF9800", "#E91E63"];
+const COLORS = ["#E10E0E", "#22AD5C", "#FBBF24", "#02AAA4", "#9C27B0", "#FF9800", "#E91E63", "#3C50E0"];
 
 export default function ChartWidget({
   id,
@@ -40,7 +40,7 @@ export default function ChartWidget({
 
   const renderChart = () => {
     if (!data || data.length === 0) {
-      return <div className="flex items-center justify-center h-full text-gray-4">No hay datos suficientes</div>;
+      return <div className="flex items-center justify-center h-full text-white/40 text-sm">No hay datos suficientes</div>;
     }
 
     switch (chartType) {
@@ -52,7 +52,7 @@ export default function ChartWidget({
               <XAxis dataKey={dataKeyX} stroke="#6C6F93" fontSize={12} />
               <YAxis stroke="#6C6F93" fontSize={12} />
               <Tooltip
-                contentStyle={{ backgroundColor: "#1a1d24", borderColor: "#ffffff20", color: "#fff" }}
+                contentStyle={{ backgroundColor: "#0E121B", borderColor: "rgba(255,255,255,0.15)", borderRadius: "12px", color: "#fff" }}
                 itemStyle={{ color: "#fff" }}
               />
               <Legend />
@@ -79,7 +79,7 @@ export default function ChartWidget({
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: "#1a1d24", borderColor: "#ffffff20", color: "#fff" }}
+                contentStyle={{ backgroundColor: "#0E121B", borderColor: "rgba(255,255,255,0.15)", borderRadius: "12px", color: "#fff" }}
                 itemStyle={{ color: "#fff" }}
               />
               <Legend />
@@ -95,7 +95,7 @@ export default function ChartWidget({
               <XAxis dataKey={dataKeyX} stroke="#6C6F93" fontSize={12} />
               <YAxis stroke="#6C6F93" fontSize={12} />
               <Tooltip
-                contentStyle={{ backgroundColor: "#1a1d24", borderColor: "#ffffff20", color: "#fff" }}
+                contentStyle={{ backgroundColor: "#0E121B", borderColor: "rgba(255,255,255,0.15)", borderRadius: "12px", color: "#fff" }}
                 cursor={{ fill: "#ffffff05" }}
               />
               <Legend />
@@ -113,7 +113,7 @@ export default function ChartWidget({
     const element = document.getElementById(id);
     if (!element) return;
 
-    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#0f1115" });
+    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#0E121B" });
     const imgData = canvas.toDataURL("image/png");
     
     const pdf = new jsPDF({
@@ -130,35 +130,35 @@ export default function ChartWidget({
   };
 
   return (
-    <div id={id} className="bg-[#1a1d24] border border-white/5 rounded-2xl shadow-1 p-6 flex flex-col h-96">
+    <div id={id} className="bg-[#0E121B] border border-white/10 rounded-3xl shadow-2xl p-6 flex flex-col h-96">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-white">{title}</h3>
+        <h3 className="text-base font-bold text-white tracking-tight">{title}</h3>
         <div className="flex items-center gap-2">
           <button
             onClick={exportWidgetToPDF}
-            className="p-1.5 rounded-md transition-colors text-gray-4 hover:text-white bg-[#0f1115] border border-white/5"
+            className="p-1.5 rounded-lg transition-colors text-white/50 hover:text-white bg-white/5 border border-white/10"
             title="Descargar este gráfico a PDF"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
           </button>
-          <div className="flex gap-2 bg-[#0f1115] p-1 rounded-lg border border-white/5">
+          <div className="flex gap-1.5 bg-[#080B12] p-1 rounded-xl border border-white/10">
           <button
             onClick={() => setChartType("bar")}
-            className={`p-1.5 rounded-md transition-colors ${chartType === "bar" ? "bg-blue text-white" : "text-gray-4 hover:text-white"}`}
+            className={`p-1.5 rounded-lg transition-colors ${chartType === "bar" ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm" : "text-white/50 hover:text-white"}`}
             title="Barras"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
           </button>
           <button
             onClick={() => setChartType("line")}
-            className={`p-1.5 rounded-md transition-colors ${chartType === "line" ? "bg-blue text-white" : "text-gray-4 hover:text-white"}`}
+            className={`p-1.5 rounded-lg transition-colors ${chartType === "line" ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm" : "text-white/50 hover:text-white"}`}
             title="Líneas"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
           </button>
           <button
             onClick={() => setChartType("pie")}
-            className={`p-1.5 rounded-md transition-colors ${chartType === "pie" ? "bg-blue text-white" : "text-gray-4 hover:text-white"}`}
+            className={`p-1.5 rounded-lg transition-colors ${chartType === "pie" ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm" : "text-white/50 hover:text-white"}`}
             title="Torta"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>

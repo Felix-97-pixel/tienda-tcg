@@ -11,15 +11,50 @@ import { useProductCart } from "@/hooks/useProductCart";
 import { matchesCondition, matchesFinish, matchesLanguage } from "@/utils/tcgFilters";
 import { IconSparkles, IconCard, IconZap } from "@/components/ui/Icons";
 
-// Compact Deckbuilder Row for Marketplace
 function MarketplaceDeckbuilderRow({ item }: { item: any }) {
   const currency = useAppSelector((state: any) => state.currencyReducer);
-  const { handleAddToCart, isMaxStockReached } = useProductCart(item);
+
+  // Find cheapest variant for row
+  const variants: any[] = Array.isArray(item.items) ? item.items : [];
+  const inStockVariants = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
+  const candidateVariants = inStockVariants.length > 0 ? inStockVariants : variants;
+  const cheapestVariant =
+    candidateVariants.length > 0
+      ? [...candidateVariants].sort(
+          (a: any, b: any) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity)
+        )[0]
+      : null;
+
+  const targetItem = cheapestVariant
+    ? {
+        ...item,
+        id: cheapestVariant.id,
+        productId: item.id,
+        inventoryItemId: cheapestVariant.id,
+        price: Number(cheapestVariant.price ?? item.price ?? 0),
+        discountedPrice: Number(
+          cheapestVariant.discountedPrice ?? cheapestVariant.price ?? item.discountedPrice ?? item.price ?? 0
+        ),
+        stock: Number(cheapestVariant.stock ?? item.stock ?? 0),
+        condition:
+          cheapestVariant.condition_rel?.displayName ||
+          cheapestVariant.condition_rel?.name ||
+          cheapestVariant.condition ||
+          item.condition,
+        language: cheapestVariant.language?.name || cheapestVariant.language || item.language,
+        finish: cheapestVariant.finish?.name || cheapestVariant.finish || item.finish,
+        store: cheapestVariant.store || item.store,
+        storeId: cheapestVariant.storeId || item.storeId,
+        storeName: cheapestVariant.store?.name || item.storeName,
+      }
+    : item;
+
+  const { handleAddToCart, isMaxStockReached } = useProductCart(targetItem);
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  const price = item.price || item.items?.[0]?.price || 0;
-  const stock = item.stock !== undefined ? item.stock : (item.items?.[0]?.stock ?? 0);
+  const price = Number(targetItem.discountedPrice ?? targetItem.price ?? 0);
+  const stock = targetItem.stock !== undefined ? targetItem.stock : 0;
   const isOutOfStock = stock <= 0 || isMaxStockReached;
 
   const rawCondition = (
@@ -80,7 +115,7 @@ function MarketplaceDeckbuilderRow({ item }: { item: any }) {
       {/* Card Info */}
       <div className="flex-1 min-w-0">
         <Link
-          href={`/shop-details/${item.slug || item.id}`}
+          href={`/shop-details/${item.slug}`}
           className="font-bold text-sm text-white hover:text-red-400 truncate block transition-colors"
         >
           {item.title || item.name}
@@ -258,8 +293,20 @@ export default function TcgMarketplaceCatalog() {
         const rawList = response.data || response;
         if (Array.isArray(rawList)) {
           const mapped = rawList.map((item: any) => {
-            const defaultPrice = item.items?.[0]?.price || item.price || 0;
-            const defaultStock = item.items?.[0]?.stock !== undefined ? item.items[0].stock : (item.stock || 0);
+            const variants: any[] = Array.isArray(item.items) ? item.items : [];
+            const inStock = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
+            const candidates = inStock.length > 0 ? inStock : variants;
+            const cheapest =
+              candidates.length > 0
+                ? [...candidates].sort(
+                    (a: any, b: any) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity)
+                  )[0]
+                : null;
+
+            const defaultPrice = cheapest?.price ?? item.items?.[0]?.price ?? item.price ?? 0;
+            const defaultStock =
+              cheapest?.stock ??
+              (item.items?.[0]?.stock !== undefined ? item.items[0].stock : item.stock || 0);
 
             return {
               id: item.id,
@@ -277,10 +324,10 @@ export default function TcgMarketplaceCatalog() {
                 thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
               },
               category: item.category,
-              store: item.store || item.items?.[0]?.store,
-              condition: item.items?.[0]?.condition?.name || item.condition || "NM",
-              language: item.items?.[0]?.language || item.language,
-              finish: item.items?.[0]?.finish || item.finish,
+              store: cheapest?.store || item.store || item.items?.[0]?.store,
+              condition: cheapest?.condition?.name || item.items?.[0]?.condition?.name || item.condition || "NM",
+              language: cheapest?.language || item.items?.[0]?.language || item.language,
+              finish: cheapest?.finish || item.items?.[0]?.finish || item.finish,
             };
           });
 

@@ -27,7 +27,7 @@ export default function OrderTable({ orders, loading, statusClasses, statusLabel
       key: "order",
       header: t("table.order"),
       render: (order) => (
-        <span className="font-mono font-bold text-blue bg-blue/5 px-2 py-1 rounded-lg border border-blue/10">
+        <span className="font-mono font-bold text-red-light bg-red/10 px-2.5 py-1 rounded-lg border border-red/20 text-xs">
           #{order.buyOrder}
         </span>
       ),

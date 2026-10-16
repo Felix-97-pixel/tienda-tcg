@@ -85,7 +85,7 @@ function TcgDeckbuilderRow({ item }: { item: any }) {
       {/* Card Info */}
       <div className="flex-1 min-w-0">
         <Link
-          href={`/shop-details/${item.slug || item.id}`}
+          href={`/shop-details/${item.slug}`}
           className="font-bold text-sm text-white hover:text-red-400 truncate block transition-colors"
         >
           {item.title || item.name}
@@ -273,8 +273,20 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
         const rawList = response.data || response;
         if (Array.isArray(rawList)) {
           const mapped = rawList.map((item: any) => {
-            const defaultPrice = item.items?.[0]?.price || item.price || 0;
-            const defaultStock = item.items?.[0]?.stock !== undefined ? item.items[0].stock : (item.stock || 0);
+            const variants: any[] = Array.isArray(item.items) ? item.items : [];
+            const inStock = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
+            const candidates = inStock.length > 0 ? inStock : variants;
+            const cheapest =
+              candidates.length > 0
+                ? [...candidates].sort(
+                    (a: any, b: any) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity)
+                  )[0]
+                : null;
+
+            const defaultPrice = cheapest?.price ?? item.items?.[0]?.price ?? item.price ?? 0;
+            const defaultStock =
+              cheapest?.stock ??
+              (item.items?.[0]?.stock !== undefined ? item.items[0].stock : item.stock || 0);
 
             return {
               id: item.id,
@@ -292,9 +304,9 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
                 thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
               },
               category: item.category,
-              condition: item.items?.[0]?.condition?.name || item.condition || "NM",
-              language: item.items?.[0]?.language || item.language,
-              finish: item.items?.[0]?.finish || item.finish,
+              condition: cheapest?.condition?.name || item.items?.[0]?.condition?.name || item.condition || "NM",
+              language: cheapest?.language || item.items?.[0]?.language || item.language,
+              finish: cheapest?.finish || item.items?.[0]?.finish || item.finish,
             };
           });
 

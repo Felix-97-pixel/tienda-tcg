@@ -17,35 +17,36 @@ const AdminSignin = () => {
   } = useAdminSignin();
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-[#0f1115] relative overflow-hidden p-4">
-      {/* Background gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-red/20 rounded-full blur-[120px] pointer-events-none z-0" />
-      <div className="absolute bottom-[20%] right-[-10%] w-[40%] h-[40%] bg-blue/20 rounded-full blur-[120px] pointer-events-none z-0" />
+    <section className="min-h-screen flex items-center justify-center bg-[#07090E] relative overflow-hidden p-4">
+      {/* Background gradients and grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[20%] w-[500px] h-[350px] bg-red/15 rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="absolute bottom-[-10%] right-[10%] w-[450px] h-[350px] bg-red-dark/10 rounded-full blur-[140px] pointer-events-none z-0" />
 
       <div className="max-w-[450px] w-full relative z-10">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-red to-orange flex items-center justify-center shadow-lg shadow-red/20">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-dark to-red flex items-center justify-center shadow-lg shadow-red/30 border border-white/10 group-hover:scale-105 transition-transform">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-2xl font-bold tracking-tight text-white">TapTrade Admin</span>
+            <span className="text-2xl font-black tracking-tight text-white">Tap<span className="text-red">Trade</span> Admin</span>
           </Link>
-          <h2 className="text-2xl font-bold text-white mb-2">Bienvenido de vuelta</h2>
-          <p className="text-gray-4 text-sm">Ingresa a tu panel de administración</p>
+          <h2 className="text-2xl font-black text-white tracking-tight mb-1">Bienvenido de vuelta</h2>
+          <p className="text-white/60 text-sm">Ingresa las credenciales para acceder a tu panel</p>
         </div>
 
-        <div className="bg-[#1a1d24]/5 border border-white/10 p-8 rounded-2xl backdrop-blur-md shadow-2xl">
+        <div className="bg-[#0E121B] border border-white/10 p-8 rounded-3xl backdrop-blur-xl shadow-2xl shadow-black ring-1 ring-white/5">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
+            <div className="mb-6 p-4 bg-red/10 border border-red/30 rounded-xl text-red-light text-xs font-bold text-center">
               {error}
             </div>
           )}
           
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-3 mb-1.5">
+              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
                 Correo Electrónico
               </label>
               <input
@@ -55,12 +56,12 @@ const AdminSignin = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="tu@email.com"
-                className="w-full bg-[#0b0c0f] border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
+                className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all text-sm"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-3 mb-1.5">
+              <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
                 Contraseña
               </label>
               <input
@@ -70,7 +71,7 @@ const AdminSignin = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full bg-[#0b0c0f] border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
+                className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all text-sm"
               />
             </div>
 
@@ -85,7 +86,7 @@ const AdminSignin = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-light text-white font-semibold rounded-lg py-3 hover:bg-red transition-all ease-out duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(245,96,96,0.2)] flex justify-center items-center gap-2"
+              className="w-full bg-gradient-to-r from-red-dark to-red text-white font-bold rounded-xl py-3 hover:brightness-110 transition-all ease-out duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-red/25 border border-red/30 flex justify-center items-center gap-2 text-sm uppercase tracking-wider active:scale-95"
             >
               {isLoading ? (
                 <>

@@ -43,10 +43,10 @@ export default function DevaluationsForm() {
             <button
               key={game.id}
               onClick={() => setSelectedGameId(game.id)}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+              className={`px-6 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap border ${
                 selectedGameId === game.id 
-                  ? "bg-blue text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-blue" 
-                  : "bg-[#1a1d24] text-gray-4 border border-stroke hover:border-gray-5 hover:text-white"
+                  ? "bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 border-red/40 ring-1 ring-white/20" 
+                  : "bg-[#0E121B] text-white/60 border-white/10 hover:border-white/25 hover:text-white"
               }`}
             >
               {game.name}
@@ -57,22 +57,22 @@ export default function DevaluationsForm() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-[#1a1d24] rounded-3xl shadow-1 p-8 border border-transparent hover:border-stroke transition-all duration-300 space-y-6">
+          <div className="bg-[#0E121B] rounded-3xl shadow-xl p-8 border border-white/10 space-y-6">
             
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div className="w-12 h-12 rounded-2xl bg-red/10 border border-red/20 flex items-center justify-center shadow-inner">
+                <svg className="w-6 h-6 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-tight">Reglas de Estado</h2>
-                <p className="text-xs text-gray-4 font-medium mt-1">
+                <p className="text-xs text-white/40 font-medium mt-1">
                   Define el porcentaje del valor base de una carta según su estado físico. 
                   <strong className="text-white ml-1">Near Mint será siempre el 100% (Base).</strong>
                 </p>
               </div>
             </div>
 
-            <div className="bg-[#111318] border border-stroke p-6 rounded-2xl space-y-4">
+            <div className="bg-[#080B12] border border-white/10 p-6 rounded-2xl space-y-4">
               {formData.devaluations && formData.devaluations.filter(d => d.gameId === selectedGameId).map((dev) => {
                 const isNM = dev.conditionName.toLowerCase() === "near mint" || dev.conditionName.toLowerCase() === "near_mint" || dev.conditionName.toLowerCase() === "nm";
                 const index = formData.devaluations!.findIndex(d => d.conditionId === dev.conditionId && d.gameId === selectedGameId);
@@ -94,24 +94,24 @@ export default function DevaluationsForm() {
               })}
 
               {(!formData.devaluations?.length || !selectedGameId) && (
-                <div className="text-gray-4 text-sm text-center py-4">No se encontraron condiciones configurables para este juego.</div>
+                <div className="text-white/40 text-sm text-center py-6">No se encontraron condiciones configurables para este juego.</div>
               )}
             </div>
 
             <div className="flex items-center gap-4 mb-6 mt-8">
-              <div className="w-12 h-12 rounded-2xl bg-blue/10 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
+              <div className="w-12 h-12 rounded-2xl bg-red/10 border border-red/20 flex items-center justify-center shadow-inner text-red">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
               </div>
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-tight">Reglas de Idioma</h2>
-                <p className="text-xs text-gray-4 font-medium mt-1">
-                  Define el porcentaje del valor base según el idioma. Si un idioma es más caro, puedes poner más de 100% (ej: 110%).
+                <p className="text-xs text-white/40 font-medium mt-1">
+                  Define el porcentaje del valor base según el idioma. Si un idioma es más cotizado, puedes asignarle más de 100% (ej: 110%).
                   <strong className="text-white ml-1">Inglés será siempre el 100% (Base).</strong>
                 </p>
               </div>
             </div>
 
-            <div className="bg-[#111318] border border-stroke p-6 rounded-2xl space-y-4">
+            <div className="bg-[#080B12] border border-white/10 p-6 rounded-2xl space-y-4">
               {formData.languageDevaluations && formData.languageDevaluations.filter(d => d.gameId === selectedGameId).map((dev) => {
                 const isEnglish = dev.languageName.toLowerCase() === "english" || dev.languageName.toLowerCase() === "inglés" || dev.languageName.toLowerCase() === "ingles";
                 const index = formData.languageDevaluations!.findIndex(d => d.languageId === dev.languageId && d.gameId === selectedGameId);
@@ -133,14 +133,19 @@ export default function DevaluationsForm() {
               })}
 
               {(!formData.languageDevaluations?.length || !selectedGameId) && (
-                <div className="text-gray-4 text-sm text-center py-4">No se encontraron idiomas configurables para este juego.</div>
+                <div className="text-white/40 text-sm text-center py-6">No se encontraron idiomas configurables para este juego.</div>
               )}
             </div>
 
-
             <div className="flex justify-end pt-4">
-              <Button type="button" onClick={handleSave} disabled={saving} className="min-w-[150px]">
-                {saving ? "Guardando..." : "Guardar Reglas"}
+              <Button
+                variant="primary"
+                type="button"
+                onClick={handleSave}
+                isLoading={saving}
+                className="min-w-[170px]"
+              >
+                Guardar Reglas
               </Button>
             </div>
           </div>

@@ -10,9 +10,9 @@ interface ExpansionTableProps {
 export default function ExpansionTable({ expansions, loading, onLink }: ExpansionTableProps) {
   if (loading) {
     return (
-      <div className="bg-[#1a1d24] border border-white/5 rounded-2xl overflow-hidden shadow-lg p-8">
+      <div className="bg-[#0E121B] border border-white/10 rounded-2xl overflow-hidden shadow-xl p-8">
         <div className="flex justify-center items-center py-20">
-          <div className="w-10 h-10 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-red border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -20,9 +20,9 @@ export default function ExpansionTable({ expansions, loading, onLink }: Expansio
 
   if (expansions.length === 0) {
     return (
-      <div className="bg-[#1a1d24] border border-white/5 rounded-2xl p-16 text-center">
+      <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-16 text-center">
         <h3 className="text-xl font-bold text-white mb-2">No se encontraron expansiones</h3>
-        <p className="text-gray-4">Intenta cambiar los filtros o los términos de búsqueda.</p>
+        <p className="text-white/40 text-xs">Intenta cambiar los filtros o los términos de búsqueda.</p>
       </div>
     );
   }

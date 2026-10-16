@@ -73,7 +73,7 @@ const SingleItem = ({ item }: { item: any }) => {
 
         <div className="min-w-0 flex-1">
           <h4 className="text-sm font-bold text-white hover:text-red-400 transition-colors line-clamp-1">
-            <Link href={`/shop-details/${item.productId || item.id}`}>
+            <Link href={`/shop-details/${item.slug}`}>
               {item.title}
             </Link>
           </h4>

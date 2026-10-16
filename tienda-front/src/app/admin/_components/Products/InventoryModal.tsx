@@ -267,18 +267,17 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title={<>{t("inventory.title")} - <span className="text-blue">{product?.name}</span></>}
+        title={<>{t("inventory.title")} - <span className="text-red font-black">{product?.name}</span></>}
         maxWidth="6xl"
       >
         {isLoadingRates ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-10 h-10 border-4 border-blue border-t-transparent rounded-full animate-spin mb-4"></div>
-            <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
+            <Loader text="Cargando tasas..." className="min-h-[20vh] bg-transparent py-6" />
           </div>
         ) : (
           <>
             {/* Formulario Nueva Variación */}
-            <div className="mb-8 p-5 bg-[#111318] rounded-2xl border border-stroke">
+            <div className="mb-8 p-5 bg-[#080B12] rounded-2xl border border-white/10">
           <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
             <div>
@@ -432,7 +431,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     <td className="p-3">
                       <input
                         type="number"
-                        className="w-16 rounded border border-stroke p-1 text-xs text-white bg-[#1a1d24]"
+                        className="w-16 rounded-lg border border-white/10 p-1.5 text-xs text-white bg-[#080B12] focus:border-red focus:outline-none"
                         defaultValue={item.stock}
                         onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
                       />
@@ -440,7 +439,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     <td className="p-3 text-center">
                       <button
                         onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all text-white ${item.isPublished ? "bg-green hover:bg-green-dark border border-green" : "bg-yellow hover:bg-yellow-dark border border-yellow"}`}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-md transition-all text-white ${item.isPublished ? "bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/40 shadow-emerald-600/30 ring-1 ring-emerald-400/30" : "bg-amber-500 hover:bg-amber-400 border border-amber-300/40 shadow-amber-500/30 ring-1 ring-amber-300/30"}`}
                       >
                         {item.isPublished ? "Publicado" : "Pausado"}
                       </button>

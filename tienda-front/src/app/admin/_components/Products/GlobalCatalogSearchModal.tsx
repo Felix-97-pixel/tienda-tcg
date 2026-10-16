@@ -45,12 +45,12 @@ export default function GlobalCatalogSearchModal({ isOpen, onClose, onSelectProd
         </div>
 
         <div 
-          className="min-h-[300px] border border-stroke rounded-xl p-2 bg-[#111318] overflow-y-auto max-h-[400px]"
+          className="min-h-[300px] border border-white/10 rounded-xl p-2 bg-[#080B12] overflow-y-auto max-h-[400px]"
           onMouseMove={handleMouseMove}
         >
           {loading ? (
             <div className="flex justify-center items-center h-full py-12">
-              <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : results.length > 0 ? (
             <div className="space-y-2">

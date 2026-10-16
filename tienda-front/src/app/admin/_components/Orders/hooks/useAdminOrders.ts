@@ -4,11 +4,11 @@ import { API_URL } from "@/utils/api";
 import { Order } from "@/types/order";
 
 export const STATUS_CLS: Record<string, string> = {
-  PENDING:   "bg-yellow-100 text-yellow-700 border border-yellow-200",
-  PAID:      "bg-green-100 text-green-700 border border-green-200",
-  FAILED:    "bg-red-100 text-red-700 border border-red-200",
-  CANCELLED: "bg-[#111318]00 text-gray-600 border border-white/500",
-  REFUNDED:  "bg-purple-100 text-purple-700 border border-purple-200",
+  PENDING:   "bg-amber-500/15 text-amber-400 border border-amber-500/30",
+  PAID:      "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+  FAILED:    "bg-red-500/15 text-red-400 border border-red-500/30",
+  CANCELLED: "bg-white/5 text-white/50 border border-white/10",
+  REFUNDED:  "bg-purple-500/15 text-purple-400 border border-purple-500/30",
 };
 
 export function useAdminOrders(limit: number = 15) {

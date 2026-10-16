@@ -30,6 +30,7 @@ export const useProductCart = (item: any) => {
     const cartItem = {
       id: invId,
       productId: item.id,
+      slug: item.slug,
       title: item.title || item.name,
       price: item.price || 0,
       discountedPrice: item.discountedPrice || 0,

@@ -20,8 +20,8 @@ export default function SuperAdminGuard({ children }: { children: React.ReactNod
 
   if (!isMounted || !isAuthenticated || user?.role !== "SUPERADMIN") {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-purple-600 border-t-transparent"></div>
+      <div className="flex h-screen items-center justify-center bg-[#07090E]">
+        <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-red border-t-transparent shadow-lg shadow-red/20"></div>
       </div>
     );
   }

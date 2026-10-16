@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 
 // Componentes Extraídos
+import Loader from "@/components/ui/Loader";
 import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import StatCard from "@/app/admin/_components/Sales/StatCard";
 import TopProductsList from "@/app/admin/_components/Sales/TopProductsList";
@@ -25,18 +26,21 @@ export default function AdminSalesPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-4 text-xs font-black uppercase tracking-widest animate-pulse">{t("loading")}</p>
+        <Loader text={t("loading")} className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }
 
   if (!features?.includes("addon:reports")) {
     return (
-      <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-black text-white tracking-tight">Panel de Estadísticas</h1>
-          <p className="text-gray-4 text-sm font-medium mt-1">Monitorea el pulso diario de tus operaciones</p>
+      <div className="space-y-6 pb-24 text-white">
+        <div className="pb-2 border-b border-white/5">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-red">Reportes & Métricas</span>
+          </div>
+          <h1 className="text-2xl font-black text-white tracking-tight">Panel de Estadísticas</h1>
+          <p className="text-white/40 text-xs mt-0.5">Monitorea el pulso diario de tus operaciones y rendimiento</p>
         </div>
         <UpsellBanner featureName="Estadísticas y Alertas" />
       </div>
@@ -45,11 +49,15 @@ export default function AdminSalesPage() {
 
   if (error || !stats) {
     return (
-      <div className="p-6 text-center py-32 bg-[#1a1d24] rounded-2xl shadow-1 border border-stroke">
-        <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
+      <div className="p-8 text-center py-32 bg-[#0E121B] rounded-3xl shadow-xl border border-white/10 max-w-lg mx-auto my-12">
+        <div className="w-16 h-16 bg-red/10 text-red border border-red/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
         <h2 className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h2>
-        <p className="text-gray-4 text-sm mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
-        <Button onClick={refresh} size="lg">{tc("refresh")}</Button>
+        <p className="text-white/50 text-xs mb-6 max-w-xs mx-auto">{t("errorDesc")}</p>
+        <Button onClick={refresh} variant="primary">{tc("refresh")}</Button>
       </div>
     );
   }

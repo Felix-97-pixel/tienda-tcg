@@ -13,11 +13,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-gradient-to-br from-blue to-blue-dark text-white shadow-lg shadow-blue/30 hover:shadow-blue/50 hover:from-blue-dark hover:to-blue",
-  secondary: "bg-[#1a1d24] text-gray-4 border border-stroke hover:bg-blue-1 hover:text-white shadow-sm",
-  outline: "bg-[#1a1d24] border-2 border-stroke text-gray-4 hover:border-blue hover:text-blue shadow-sm",
-  danger: "bg-gradient-to-br from-red to-red-dark text-white shadow-lg shadow-red/30 hover:shadow-red/50 hover:from-red-dark hover:to-red",
-  success: "bg-gradient-to-br from-green to-green-dark text-white shadow-lg shadow-green/30 hover:shadow-green/50 hover:from-green-dark hover:to-green",
+  primary: "bg-gradient-to-r from-red-dark to-red text-white shadow-lg shadow-red/25 hover:shadow-red/40 hover:brightness-110 border border-red/30",
+  secondary: "bg-[#0E121B] text-white/80 border border-white/10 hover:border-white/25 hover:text-white hover:bg-white/5 shadow-sm",
+  outline: "bg-transparent border border-white/15 text-white/90 hover:border-red hover:text-red hover:bg-red/5 shadow-sm",
+  danger: "bg-gradient-to-r from-red-dark to-red text-white shadow-lg shadow-red/30 hover:brightness-110 border border-red/40",
+  success: "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg shadow-emerald-900/30 hover:brightness-110 border border-emerald-500/30",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

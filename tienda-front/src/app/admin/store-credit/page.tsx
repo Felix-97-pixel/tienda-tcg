@@ -63,52 +63,56 @@ export default function AdminStoreCreditPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 pb-24">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-24 text-white">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
         <div>
-          <h1 className="text-2xl font-bold text-white">Créditos de Tienda</h1>
-          <p className="text-gray-4 text-sm mt-1">
-            Gestiona los saldos a favor (Store Credit) de tus clientes.
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-red">Fidelización & Trade-in</span>
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-white">Créditos de Tienda</h1>
+          <p className="text-white/40 text-xs mt-0.5">
+            Gestiona los saldos a favor (Store Credit) de tus clientes para canjes o compras.
           </p>
         </div>
         <div className="flex gap-3">
           <Button
             variant="primary"
             onClick={() => handleAdjust("MANUAL_ADD")}
-            leftIcon={<span className="text-lg">+</span>}
+            leftIcon={<span className="text-lg font-bold">+</span>}
           >
             Abonar (Trade-in)
           </Button>
           <Button
             variant="secondary"
             onClick={() => handleAdjust("MANUAL_SUBTRACT")}
-            leftIcon={<span className="text-lg">-</span>}
+            leftIcon={<span className="text-lg font-bold">-</span>}
           >
             Descontar (Compra)
           </Button>
         </div>
       </div>
 
-      <div className="bg-[#1a1d24] rounded-2xl shadow-1 border border-white/5 overflow-hidden min-h-[500px]">
+      <div className="bg-[#0E121B] rounded-2xl shadow-xl border border-white/10 overflow-hidden min-h-[500px]">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin" />
           </div>
         ) : credits.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 bg-[#0f1115] rounded-full flex items-center justify-center mb-4 text-3xl">
+            <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-3xl">
               💰
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Sin Créditos</h3>
-            <p className="text-gray-4 max-w-sm">
-              Aún no hay clientes con saldo a favor en tu tienda.
+            <h3 className="text-lg font-bold text-white mb-2">Sin Créditos</h3>
+            <p className="text-white/40 max-w-sm text-xs">
+              Aún no hay clientes con saldo a favor registrado en tu tienda.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
-                <tr className="bg-[#0f1115] border-b border-white/5 text-xs uppercase tracking-wider text-gray-5 font-bold">
+                <tr className="bg-[#090C14] border-b border-white/10 text-[11px] uppercase tracking-wider text-white/50 font-black">
                   <th className="px-6 py-4">Cliente</th>
                   <th className="px-6 py-4">Email</th>
                   <th className="px-6 py-4 text-right">Saldo Actual</th>
@@ -117,12 +121,12 @@ export default function AdminStoreCreditPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {credits.map((c) => (
-                  <tr key={c.id} className="hover:bg-white/[0.02]">
+                  <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4 font-bold text-white">
                       {c.user?.name || "Usuario"}
                     </td>
-                    <td className="px-6 py-4 text-gray-4 text-sm">{c.user?.email}</td>
-                    <td className="px-6 py-4 text-right font-black text-blue text-lg">
+                    <td className="px-6 py-4 text-white/50 text-sm">{c.user?.email}</td>
+                    <td className="px-6 py-4 text-right font-black text-emerald-400 text-lg">
                       ${Number(c.balance).toLocaleString("es-CL")}
                     </td>
                     <td className="px-6 py-4 text-right flex justify-end gap-2">

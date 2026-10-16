@@ -3,9 +3,8 @@ import { Wishlist } from "@/app/(site)/(pages)/wishlist/_components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Wishlist Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Wishlist Page for NextCommerce Template",
-  // other metadata
+  title: "Mi Lista de Deseos (Wishlist) | TapTrade TCG Marketplace",
+  description: "Guarda, organiza y monitorea cartas de Magic: The Gathering, Pokémon, One Piece y Yu-Gi-Oh! en tu Wishlist de TapTrade.",
 };
 
 const WishlistPage = () => {

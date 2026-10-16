@@ -32,7 +32,7 @@ export default function SyncDealerPricesBtn() {
     <Button
       onClick={handleSync}
       isLoading={loading}
-      className="bg-purple-600 hover:bg-purple-500 text-white font-bold"
+      className="bg-gradient-to-r from-red-dark to-red text-white shadow-lg shadow-red/25 hover:shadow-red/40 border border-red/30 !px-5 !py-2.5 !rounded-xl text-xs font-bold"
     >
       Sincronizar Mis Precios
     </Button>

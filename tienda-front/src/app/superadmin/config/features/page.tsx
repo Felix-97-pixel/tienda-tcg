@@ -32,12 +32,12 @@ export default function FeaturesPage() {
 
       {loading ? (
         <div className="flex justify-center p-12">
-          <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
-        <div className="bg-[#1a1d24] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#0E121B] border border-white/10 rounded-2xl overflow-hidden shadow-xl">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#111318] text-gray-4 border-b border-white/5">
+            <thead className="bg-[#090C14] text-white/50 border-b border-white/10 text-[11px] font-black uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 font-bold">Key (Identificador)</th>
                 <th className="px-6 py-4 font-bold">Nombre</th>

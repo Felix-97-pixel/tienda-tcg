@@ -59,43 +59,50 @@ export default function StoreWalletPage() {
   if (loading) return <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />;
 
   return (
-    <div className="p-6 space-y-6 pb-24 text-white">
-      <div>
-        <h1 className="text-2xl font-bold">Billetera de la Tienda</h1>
-        <p className="text-gray-4 text-sm mt-1">Administra tus ganancias y retiros de dinero de ventas por Webpay.</p>
+    <div className="space-y-6 pb-24 text-white">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-red">Finanzas & Liquidaciones</span>
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-white">Billetera de la Tienda</h1>
+          <p className="text-white/40 text-xs mt-0.5">Administra tus ganancias y retiros de dinero de ventas por Webpay y pasarelas.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#111318] p-6 rounded-lg border border-white/10 shadow-lg">
-          <h2 className="text-lg font-semibold text-gray-3 mb-2">Saldo Retirable (Webpay)</h2>
-          <p className="text-4xl font-bold text-green-400">
+        <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-500" />
+          <h2 className="text-xs font-black tracking-widest uppercase text-white/50 mb-2">Saldo Retirable (Webpay)</h2>
+          <p className="text-4xl font-black tracking-tight text-emerald-400">
             ${Number(history.balance || 0).toLocaleString('es-CL')}
           </p>
-          <p className="text-xs text-gray-5 mt-2">
-            Este saldo proviene de las ventas pagadas con Webpay. Puedes solicitar el retiro a tu cuenta bancaria.
+          <p className="text-xs text-white/40 mt-3 leading-relaxed">
+            Este saldo proviene de las ventas pagadas con Webpay. Puedes solicitar el retiro directo a tu cuenta bancaria registrada.
           </p>
         </div>
 
-        <div className="bg-[#111318] p-6 rounded-lg border border-white/10 shadow-lg">
-          <h2 className="text-lg font-semibold text-gray-3 mb-4">Solicitar Retiro</h2>
+        <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl">
+          <h2 className="text-sm font-bold text-white mb-4">Solicitar Retiro de Fondos</h2>
           <form onSubmit={handleRequestWithdrawal} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-4 mb-1">Monto a Retirar</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">Monto a Retirar</label>
               <input 
                 type="number" 
                 value={requestAmount}
                 onChange={(e) => setRequestAmount(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-md p-2 text-white"
+                className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 text-sm focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all"
                 placeholder="Ej: 50000"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-4 mb-1">Datos Bancarios (Banco, Tipo, N° Cuenta, RUT)</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">Datos Bancarios (Banco, Tipo, N° Cuenta, RUT)</label>
               <input 
                 type="text" 
                 value={bankDetails}
                 onChange={(e) => setBankDetails(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-md p-2 text-white"
+                className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 text-sm focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all"
                 placeholder="Ej: Banco Estado, Cuenta RUT, 19.xxx.xxx-x"
                 required
               />
@@ -107,84 +114,92 @@ export default function StoreWalletPage() {
         </div>
       </div>
 
-      <div className="bg-[#111318] p-6 rounded-lg border border-white/10 shadow-lg overflow-x-auto">
-        <h2 className="text-lg font-semibold text-gray-3 mb-4">Historial de Transacciones</h2>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-white/10 text-gray-4 text-sm">
-              <th className="py-3 px-4">Fecha</th>
-              <th className="py-3 px-4">Referencia</th>
-              <th className="py-3 px-4">Método</th>
-              <th className="py-3 px-4 text-right">Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.transactions.length === 0 ? (
-              <tr><td colSpan={4} className="py-4 text-center text-gray-5">No hay transacciones recientes</td></tr>
-            ) : (
-              history.transactions.map((tx: any) => (
-                <tr key={tx.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4 text-sm text-gray-3">
-                    {new Date(tx.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-3">
-                    {tx.type === 'WITHDRAWAL' ? 'Retiro de Fondos' : tx.reference}
-                  </td>
-                  <td className="py-3 px-4 text-sm">
-                    {tx.paymentMethod === 'MERCADOPAGO' ? (
-                      <span className="bg-blue-900/30 text-blue-400 border border-blue-500/50 px-2 py-1 rounded text-xs">Mercado Pago</span>
-                    ) : tx.paymentMethod === 'WEBPAY' ? (
-                      <span className="bg-orange-900/30 text-orange-400 border border-orange-500/50 px-2 py-1 rounded text-xs">Webpay</span>
-                    ) : (
-                      <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded text-xs">{tx.paymentMethod || 'N/A'}</span>
-                    )}
-                  </td>
-                  <td className={`py-3 px-4 text-right font-medium ${tx.type === 'WITHDRAWAL' ? 'text-red-400' : 'text-green-400'}`}>
-                    {tx.type === 'WITHDRAWAL' ? '-' : '+'}${Number(tx.amount).toLocaleString('es-CL')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-xl overflow-hidden">
+        <div className="p-5 border-b border-white/10">
+          <h2 className="text-sm font-bold text-white">Historial de Transacciones</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#090C14] border-b border-white/10 text-white/50 text-[11px] font-black uppercase tracking-wider">
+                <th className="py-3 px-5">Fecha</th>
+                <th className="py-3 px-5">Referencia</th>
+                <th className="py-3 px-5">Método</th>
+                <th className="py-3 px-5 text-right">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.transactions.length === 0 ? (
+                <tr><td colSpan={4} className="py-8 text-center text-white/40 text-sm">No hay transacciones recientes</td></tr>
+              ) : (
+                history.transactions.map((tx: any) => (
+                  <tr key={tx.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-5 text-sm text-white/70">
+                      {new Date(tx.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-5 text-sm text-white font-medium">
+                      {tx.type === 'WITHDRAWAL' ? 'Retiro de Fondos' : tx.reference}
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      {tx.paymentMethod === 'MERCADOPAGO' ? (
+                        <span className="bg-sky-500/10 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded-md text-xs font-bold">Mercado Pago</span>
+                      ) : tx.paymentMethod === 'WEBPAY' ? (
+                        <span className="bg-orange-500/10 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-md text-xs font-bold">Webpay</span>
+                      ) : (
+                        <span className="bg-white/5 text-white/60 border border-white/10 px-2 py-0.5 rounded-md text-xs font-bold">{tx.paymentMethod || 'N/A'}</span>
+                      )}
+                    </td>
+                    <td className={`py-3 px-5 text-right font-black text-sm ${tx.type === 'WITHDRAWAL' ? 'text-red' : 'text-emerald-400'}`}>
+                      {tx.type === 'WITHDRAWAL' ? '-' : '+'}${Number(tx.amount).toLocaleString('es-CL')}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="bg-[#111318] p-6 rounded-lg border border-white/10 shadow-lg overflow-x-auto mt-6">
-        <h2 className="text-lg font-semibold text-gray-3 mb-4">Estado de Retiros Solicitados</h2>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-white/10 text-gray-4 text-sm">
-              <th className="py-3 px-4">Fecha Solicitud</th>
-              <th className="py-3 px-4">Cuenta Destino</th>
-              <th className="py-3 px-4">Estado</th>
-              <th className="py-3 px-4 text-right">Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.withdrawals.length === 0 ? (
-              <tr><td colSpan={4} className="py-4 text-center text-gray-5">No has solicitado retiros aún</td></tr>
-            ) : (
-              history.withdrawals.map((w: any) => (
-                <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4 text-sm text-gray-3">
-                    {new Date(w.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-3 truncate max-w-[200px]" title={w.bankDetails}>
-                    {w.bankDetails}
-                  </td>
-                  <td className="py-3 px-4 text-sm">
-                    {w.status === 'PENDING' && <span className="bg-yellow-900/30 text-yellow-500 px-2 py-1 rounded text-xs">En Proceso</span>}
-                    {w.status === 'COMPLETED' && <span className="bg-green-900/30 text-green-500 px-2 py-1 rounded text-xs">Completado</span>}
-                    {w.status === 'REJECTED' && <span className="bg-red-900/30 text-red-500 px-2 py-1 rounded text-xs">Rechazado</span>}
-                  </td>
-                  <td className="py-3 px-4 text-right font-medium text-white">
-                    ${Number(w.amount).toLocaleString('es-CL')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-xl overflow-hidden mt-6">
+        <div className="p-5 border-b border-white/10">
+          <h2 className="text-sm font-bold text-white">Estado de Retiros Solicitados</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#090C14] border-b border-white/10 text-white/50 text-[11px] font-black uppercase tracking-wider">
+                <th className="py-3 px-5">Fecha Solicitud</th>
+                <th className="py-3 px-5">Cuenta Destino</th>
+                <th className="py-3 px-5">Estado</th>
+                <th className="py-3 px-5 text-right">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.withdrawals.length === 0 ? (
+                <tr><td colSpan={4} className="py-8 text-center text-white/40 text-sm">No has solicitado retiros aún</td></tr>
+              ) : (
+                history.withdrawals.map((w: any) => (
+                  <tr key={w.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-5 text-sm text-white/70">
+                      {new Date(w.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-5 text-sm text-white font-medium truncate max-w-[200px]" title={w.bankDetails}>
+                      {w.bankDetails}
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      {w.status === 'PENDING' && <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-xs font-bold">En Proceso</span>}
+                      {w.status === 'COMPLETED' && <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full text-xs font-bold">Completado</span>}
+                      {w.status === 'REJECTED' && <span className="bg-red/10 text-red border border-red/30 px-2.5 py-0.5 rounded-full text-xs font-bold">Rechazado</span>}
+                    </td>
+                    <td className="py-3 px-5 text-right font-black text-sm text-white">
+                      ${Number(w.amount).toLocaleString('es-CL')}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

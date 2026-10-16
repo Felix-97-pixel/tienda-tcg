@@ -17,6 +17,7 @@ type CartItem = {
   storeId?: string;
   storeName?: string;
   productId?: string;
+  slug?: string;
   language?: string;
   condition?: string;
   finish?: string;
@@ -65,6 +66,7 @@ export const cart = createSlice({
         state.items.push({
           id,
           productId,
+          slug: action.payload.slug,
           title,
           price,
           quantity: quantity > actualStock ? actualStock : quantity,

@@ -103,13 +103,16 @@ export default function TopProductsList({ products: initialProducts }: TopProduc
   ];
 
   return (
-    <div className="bg-[#1a1d24] rounded-2xl shadow-1 overflow-hidden border border-transparent hover:border-stroke transition-colors h-full flex flex-col">
-      <div className="flex flex-col gap-3 px-6 py-5 border-b border-stroke bg-gray-50/50 shrink-0">
+    <div className="bg-[#0E121B] rounded-2xl shadow-xl overflow-hidden border border-white/10 h-full flex flex-col">
+      <div className="flex flex-col gap-3 px-6 py-5 border-b border-white/10 bg-[#090C14] shrink-0">
         <div className="flex items-center justify-between">
-          <h2 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-            <span className="text-xl">🏆</span> {t("charts.topProductsTitle")}
+          <h2 className="font-black text-white text-xs uppercase tracking-widest flex items-center gap-2">
+            <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
+            {t("charts.topProductsTitle")}
           </h2>
-          <button onClick={downloadCSV} className="text-gray-4 hover:text-white p-1 bg-[#0f1115] rounded-md transition-colors" title="Descargar Top 10 en CSV">
+          <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title="Descargar Top 10 en CSV">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
           </button>
         </div>
@@ -119,26 +122,26 @@ export default function TopProductsList({ products: initialProducts }: TopProduc
               type="date" 
               value={startDate} 
               onChange={e => setStartDate(e.target.value)} 
-              className="bg-[#0f1115] text-xs text-white px-3 py-2 rounded-lg border border-white/10 outline-none w-full focus:border-blue focus:ring-1 focus:ring-blue transition-all [color-scheme:dark]" 
+              className="bg-[#080B12] text-xs text-white px-3 py-2 rounded-xl border border-white/10 outline-none w-full focus:border-red focus:ring-1 focus:ring-red/30 transition-all [color-scheme:dark]" 
             />
           </div>
-          <span className="text-gray-5 text-xs font-bold">-</span>
+          <span className="text-white/40 text-xs font-bold">-</span>
           <div className="relative w-full">
             <input 
               type="date" 
               value={endDate} 
               onChange={e => setEndDate(e.target.value)} 
-              className="bg-[#0f1115] text-xs text-white px-3 py-2 rounded-lg border border-white/10 outline-none w-full focus:border-blue focus:ring-1 focus:ring-blue transition-all [color-scheme:dark]" 
+              className="bg-[#080B12] text-xs text-white px-3 py-2 rounded-xl border border-white/10 outline-none w-full focus:border-red focus:ring-1 focus:ring-red/30 transition-all [color-scheme:dark]" 
             />
           </div>
-          <button onClick={fetchFilteredProducts} className="bg-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors shadow-lg shadow-blue/20">
+          <button onClick={fetchFilteredProducts} className="bg-gradient-to-r from-red-dark to-red hover:from-red hover:to-red-light text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-red/25 ring-1 ring-white/10 shrink-0">
             Filtrar
           </button>
         </div>
       </div>
       
       <div className="flex-1 overflow-auto relative">
-        {loading && <div className="absolute inset-0 bg-[#1a1d24]/50 z-10 flex items-center justify-center"><div className="w-6 h-6 border-2 border-blue border-t-transparent rounded-full animate-spin" /></div>}
+        {loading && <div className="absolute inset-0 bg-[#07090E]/60 backdrop-blur-xs z-10 flex items-center justify-center"><div className="w-6 h-6 border-2 border-red border-t-transparent rounded-full animate-spin" /></div>}
         <List
           columns={columns}
           data={products}

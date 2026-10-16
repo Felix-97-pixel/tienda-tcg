@@ -46,15 +46,15 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50 backdrop-blur-sm transition-all">
+    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-[#07090E]/80 backdrop-blur-md transition-all">
       <div className="flex min-h-full items-center justify-center p-4">
         <div 
-          className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-2xl bg-[#1a1d24] p-8 shadow-2xl animate-in zoom-in-95 duration-200 ${className}`}
+          className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-3xl border border-white/10 bg-[#0E121B] p-6 md:p-8 shadow-2xl shadow-black ring-1 ring-white/5 animate-in zoom-in-95 duration-200 ${className}`}
         >
         {(title || onClose) && (
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
             {title ? (
-              <h2 className="text-xl font-bold text-white">{title}</h2>
+              <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
             ) : (
               <div></div> /* Spacer si no hay titulo pero si boton de cerrar */
             )}
@@ -62,7 +62,7 @@ export const Modal: React.FC<ModalProps> = ({
             {onClose && (
               <button 
                 onClick={onClose} 
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#111318] text-gray-4 hover:bg-[#222630] hover:text-white transition-all active:scale-95"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all active:scale-95"
                 type="button"
                 aria-label="Cerrar modal"
               >

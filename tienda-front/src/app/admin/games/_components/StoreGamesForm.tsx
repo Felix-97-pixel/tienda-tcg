@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useStoreProfile } from "../../_components/hooks/useStoreProfile";
+import { Button } from "@/components/ui/Button";
 
 interface StoreGamesFormProps {
   storeId: string;
@@ -19,14 +20,15 @@ export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
   if (loading) {
     return (
       <div className="w-full h-40 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className="bg-[#111318] p-6 rounded-2xl border border-stroke">
+    <div className="w-full space-y-6">
+      <div className="bg-[#0E121B] p-8 rounded-2xl border border-white/10 shadow-xl">
+        <h3 className="text-sm font-bold text-white mb-4">Selecciona los Juegos Habilitados</h3>
         <div className="flex flex-wrap gap-3">
           {availableGames?.length > 0 ? (
             availableGames.map(game => {
@@ -41,10 +43,10 @@ export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
                       : [...(formData.supportedGames || []), { id: game.id, name: game.name }];
                     setFormData({ ...formData, supportedGames: newGames });
                   }}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                  className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap border ${
                     isSelected 
-                      ? "bg-blue text-white border-blue shadow-[0_0_15px_rgba(37,99,235,0.4)]" 
-                      : "bg-[#1a1d24] text-gray-4 border-stroke hover:border-gray-5 hover:text-white"
+                      ? "bg-gradient-to-r from-red-dark to-red text-white border-red/40 shadow-md shadow-red/25 ring-1 ring-white/20" 
+                      : "bg-[#080B12] text-white/60 border-white/10 hover:border-white/25 hover:text-white"
                   }`}
                 >
                   {game.name}
@@ -52,19 +54,19 @@ export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
               );
             })
           ) : (
-            <p className="text-sm text-gray-5">No hay juegos disponibles en la plataforma.</p>
+            <p className="text-sm text-white/40">No hay juegos disponibles en la plataforma.</p>
           )}
         </div>
       </div>
 
-      <div className="mt-8 flex justify-end">
-        <button
+      <div className="flex justify-end">
+        <Button
+          variant="primary"
           onClick={() => saveProfile(storeId)}
-          disabled={saving}
-          className="px-6 py-2 rounded-xl bg-blue hover:bg-blue-dark text-white font-bold transition-all disabled:opacity-50"
+          isLoading={saving}
         >
-          {saving ? "Guardando..." : "Guardar Cambios"}
-        </button>
+          Guardar Cambios
+        </Button>
       </div>
     </div>
   );
