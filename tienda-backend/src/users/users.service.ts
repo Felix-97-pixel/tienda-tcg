@@ -59,6 +59,22 @@ export class UsersService {
     });
   }
 
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { googleId } });
+  }
+
+  async linkGoogleAccount(id: string, googleId: string, avatar?: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        googleId,
+        avatar: avatar || undefined,
+        isVerified: true,
+      },
+    });
+  }
+
+
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });

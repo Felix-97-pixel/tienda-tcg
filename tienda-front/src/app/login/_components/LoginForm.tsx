@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/features/auth-slice";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -214,7 +215,7 @@ export default function LoginForm() {
           </div>
 
           {/* Encabezado del Formulario */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 className="text-3xl font-black text-white tracking-tight mb-2">
               Iniciar Sesión
             </h2>
@@ -222,6 +223,21 @@ export default function LoginForm() {
               Ingresa tus credenciales para acceder a tu cuenta y gestionar tus cartas.
             </p>
           </div>
+
+          {/* Botón de Google Sign-In */}
+          <div className="mb-6">
+            <GoogleSignInButton text="signin_with" onError={(err) => setError(err)} />
+          </div>
+
+          {/* Separador elegante */}
+          <div className="relative flex items-center justify-center mb-6">
+            <div className="border-t border-white/10 w-full" />
+            <span className="bg-[#07090E] px-3 text-[11px] font-semibold uppercase tracking-wider text-white/40 shrink-0">
+              o con tu correo
+            </span>
+            <div className="border-t border-white/10 w-full" />
+          </div>
+
 
           {/* Mensaje de Error / Verificación */}
           {error && (

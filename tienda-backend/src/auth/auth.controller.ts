@@ -1,7 +1,7 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, GoogleAuthDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -43,6 +43,15 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('google')
+  async googleLogin(@Body() googleAuthDto: GoogleAuthDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.googleLogin(googleAuthDto);
+    this.setCookie(res, result.access_token);
+    return { user: result.user };
+  }
+
 
 
   private setCookie(res: Response, token: string) {

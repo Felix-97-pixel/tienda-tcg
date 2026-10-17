@@ -54,3 +54,10 @@ export class ResetPasswordDto {
   newPassword!: string;
 }
 
+export class GoogleAuthDto {
+  @IsString()
+  @IsNotEmpty()
+  credential!: string;
+}
+
+

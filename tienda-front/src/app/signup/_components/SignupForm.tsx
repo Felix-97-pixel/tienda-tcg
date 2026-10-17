@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function SignupForm() {
   const [name, setName] = useState("");
@@ -246,7 +247,7 @@ export default function SignupForm() {
             /* ESTADO 2: FORMULARIO DE REGISTRO */
             <div>
               {/* Encabezado del Formulario */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <h2 className="text-3xl font-black text-white tracking-tight mb-2">
                   Crear Cuenta
                 </h2>
@@ -254,6 +255,21 @@ export default function SignupForm() {
                   Ingresa tus datos para registrarte en la plataforma TCG de Chile.
                 </p>
               </div>
+
+              {/* Botón de Registro con Google */}
+              <div className="mb-6">
+                <GoogleSignInButton text="signup_with" onError={(err) => setError(err)} />
+              </div>
+
+              {/* Separador elegante */}
+              <div className="relative flex items-center justify-center mb-6">
+                <div className="border-t border-white/10 w-full" />
+                <span className="bg-[#07090E] px-3 text-[11px] font-semibold uppercase tracking-wider text-white/40 shrink-0">
+                  o regístrate con tu correo
+                </span>
+                <div className="border-t border-white/10 w-full" />
+              </div>
+
 
               {/* Mensaje de Error */}
               {error && (

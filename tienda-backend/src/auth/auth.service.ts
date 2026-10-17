@@ -2,13 +2,16 @@ import { Injectable, UnauthorizedException, ConflictException, BadRequestExcepti
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, GoogleAuthDto } from './dto/auth.dto';
 import axios from 'axios';
 import { MailService } from '../mail/mail.service';
 import { randomUUID } from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class AuthService {
+  private googleClient = new OAuth2Client();
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
@@ -186,5 +189,61 @@ export class AuthService {
       message: 'Tu contraseña ha sido restablecida con éxito. Ya puedes iniciar sesión con tus nuevas credenciales.',
     };
   }
+
+  async googleLogin(dto: GoogleAuthDto) {
+    if (!dto.credential) {
+      throw new BadRequestException('Token de credencial de Google requerido');
+    }
+
+    let payload: any;
+    try {
+      const googleClientId = process.env.GOOGLE_CLIENT_ID;
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: dto.credential,
+        audience: googleClientId || undefined,
+      });
+      payload = ticket.getPayload();
+    } catch (err: any) {
+      throw new UnauthorizedException('Token de Google inválido o expirado: ' + (err.message || ''));
+    }
+
+    if (!payload || !payload.email) {
+      throw new BadRequestException('No se pudo obtener la información de la cuenta de Google');
+    }
+
+    // 1. Buscar usuario por googleId
+    let user = await this.usersService.findByGoogleId(payload.sub);
+
+    // 2. Si no existe por googleId, buscar por email para vincular
+    if (!user) {
+      user = await this.usersService.findOne(payload.email);
+      if (user) {
+        user = await this.usersService.linkGoogleAccount(user.id, payload.sub, payload.picture);
+      } else {
+        // 3. Si no existe, crear nuevo usuario (activado de inmediato)
+        user = await this.usersService.create({
+          email: payload.email,
+          name: payload.name || payload.email.split('@')[0],
+          googleId: payload.sub,
+          avatar: payload.picture,
+          isVerified: true,
+          role: 'USER',
+        });
+      }
+    }
+
+    const jwtPayload = { sub: user.id, email: user.email, role: user.role };
+    return {
+      access_token: await this.jwtService.signAsync(jwtPayload),
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        role: user.role,
+      },
+    };
+  }
 }
+
 
