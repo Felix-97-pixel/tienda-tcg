@@ -605,7 +605,7 @@ export default function TcgHomeLanding() {
 
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
               <Link
-                href="/auth/signup"
+                href="/signup"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-xl shadow-[#E10E0E]/30 transition-all text-center block"
               >
                 Crear Mi Tienda TCG

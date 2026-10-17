@@ -59,7 +59,7 @@ const VerifyEmailContent = () => {
           </div>
           <h2 className="font-bold text-2xl text-white mb-4">¡Activación Exitosa!</h2>
           <p className="text-gray-6 text-custom-sm leading-relaxed mb-8">{message}</p>
-          <Link href="/signin" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
+          <Link href="/login" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
             Iniciar Sesión
           </Link>
         </div>
@@ -74,7 +74,7 @@ const VerifyEmailContent = () => {
           </div>
           <h2 className="font-bold text-2xl text-white mb-4">Error de Activación</h2>
           <p className="text-gray-6 text-custom-sm leading-relaxed mb-8">{message}</p>
-          <Link href="/signin" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
+          <Link href="/login" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
             Volver a Iniciar Sesión
           </Link>
         </div>

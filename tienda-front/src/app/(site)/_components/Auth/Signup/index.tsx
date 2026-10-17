@@ -86,7 +86,7 @@ const Signup = () => {
                   Nota: Si no recibes el correo en unos minutos, revisa tu carpeta de Spam/No Deseados. En entornos locales de desarrollo, también puedes ver el enlace impreso en la consola de ejecución de la terminal.
                 </p>
               </div>
-              <Link href="/signin" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
+              <Link href="/login" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
                 Ir a Iniciar Sesión
               </Link>
             </div>
@@ -195,7 +195,7 @@ const Signup = () => {
                 <p className="text-center mt-6">
                   Already have an account?
                   <Link
-                    href="/signin"
+                    href="/login"
                     className="text-white ease-out duration-200 hover:text-blue pl-2"
                   >
                     Sign in Now

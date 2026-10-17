@@ -26,7 +26,7 @@ const TerminosCondicionesClient = () => {
     { id: "buylist-creditos", label: "7. Buylist y Store Credit" },
     { id: "garantias-devoluciones", label: "8. Garantía y No Retracto" },
     { id: "propiedad-intelectual", label: "9. Marcas y Propiedad Intelectual" },
-    { id: "privacidad-datos", label: "10. Protección de Datos (19.628)" },
+    { id: "privacidad-datos", label: "10. Protección de Datos Personales" },
     { id: "responsabilidad-indemnidad", label: "11. Responsabilidad e Indemnidad" },
     { id: "jurisdiccion-ley", label: "12. Ley Aplicable y Jurisdicción" },
   ];
@@ -385,13 +385,13 @@ const TerminosCondicionesClient = () => {
         {/* =========================================================================
             SECCIÓN 10: PROTECCIÓN DE DATOS
            ========================================================================= */}
-        <LegalSection id="privacidad-datos" num={10} title="Protección de Datos Personales (Ley N° 19.628)">
+        <LegalSection id="privacidad-datos" num={10} title="Protección de Datos Personales y Privacidad">
           <div className="flex flex-col gap-3.5">
             <p>
-              <strong className="text-white font-mono">10.1. Seguridad y Finalidad:</strong> TapTrade trata los datos personales de conformidad con la Ley N° 19.628 sobre Protección de la Vida Privada. La información se recolecta exclusivamente para procesar pagos, coordinar transportes y emitir documentos tributarios.
+              <strong className="text-white font-mono">10.1. Marco Legal y Principios:</strong> TapTrade trata los datos personales de conformidad con la Nueva Ley de Protección de Datos Personales de Chile (Boletín N° 11.144-07 / Ley N° 19.628 reformada). La información se recolecta exclusivamente para la ejecución del contrato de compraventa, coordinación logística de envíos y emisión de boletas o facturas ante el Servicio de Impuestos Internos (SII).
             </p>
             <p>
-              <strong className="text-white font-mono">10.2. No Comercialización:</strong> TapTrade no vende, no alquila ni divulga información de usuarios a terceros no vinculados con la operación logística y transaccional indispensable del marketplace.
+              <strong className="text-white font-mono">10.2. Derechos ARCO+ y No Comercialización:</strong> Los titulares de datos gozan de los derechos de Acceso, Rectificación, Cancelación, Oposición, Portabilidad y Bloqueo, los cuales pueden ejercer gratuitamente en <a href="mailto:privacidad@taptrade.cl" className="text-emerald-400 underline font-semibold">privacidad@taptrade.cl</a>. TapTrade no vende, no comercializa ni arrienda información de usuarios a terceros ajenos a la operación transaccional y logística indispensable. Los detalles completos se encuentran descritos en nuestra <Link href="/politica-de-privacidad" className="text-red-light underline font-bold hover:text-white">Política de Privacidad</Link>.
             </p>
           </div>
         </LegalSection>

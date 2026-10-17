@@ -49,7 +49,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push("/signin");
+    router.push("/login");
   };
 
   const catalogItems = [

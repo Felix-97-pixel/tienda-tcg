@@ -108,7 +108,7 @@ const MyAccount = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/signin");
+      router.push("/login");
       return;
     }
     fetchProfile();

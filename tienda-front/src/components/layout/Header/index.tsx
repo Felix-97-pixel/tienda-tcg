@@ -195,7 +195,7 @@ const Header = () => {
               </Link>
             ) : (
               <Link
-                href="/signin"
+                href="/login"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
               >
                 Ingresar

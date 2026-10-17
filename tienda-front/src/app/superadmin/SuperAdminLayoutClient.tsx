@@ -19,7 +19,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push("/signin");
+    router.push("/login");
   };
 
   const { user } = useAppSelector((state) => state.authReducer) || { user: null };
