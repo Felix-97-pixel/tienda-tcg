@@ -2,7 +2,7 @@ import React from "react";
 import { API_URL } from "@/utils/api";
 import { notFound } from "next/navigation";
 import TcgStoreHero from "./_components/TcgStoreHero";
-import TcgStorefrontView from "./_components/TcgStorefrontView";
+import TcgStoreContainer from "./_components/TcgStoreContainer";
 
 export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }) {
   const resolvedParams = await params;
@@ -40,8 +40,8 @@ const StoreProfilePage = async ({ params }: { params: Promise<{ subdomain: strin
       {/* TCG Store Hero with trust indicators, courier badges, and physical pickup data */}
       <TcgStoreHero store={store} />
 
-      {/* TCG Master Storefront View with Dual Grid/Deckbuilder view and Live Filters */}
-      <TcgStorefrontView storeId={store.id} storeName={store.name} />
+      {/* TCG Store Container with Sales Inventory & Buylist tabs */}
+      <TcgStoreContainer store={store} />
     </main>
   );
 };

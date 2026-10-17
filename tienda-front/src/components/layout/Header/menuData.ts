@@ -17,7 +17,7 @@ export const menuData: Menu[] = [
     id: 3,
     title: "Vender Cartas",
     newTab: false,
-    path: "/admin/buylist",
+    path: "/vender-cartas",
   },
   {
     id: 4,

@@ -14,6 +14,7 @@ interface SearchableSelectProps {
   disabled?: boolean;
   noResultsText?: string;
   className?: string;
+  inputClassName?: string;
 }
 
 export default function SearchableSelect({
@@ -23,7 +24,8 @@ export default function SearchableSelect({
   placeholder,
   disabled = false,
   noResultsText = "No results",
-  className = ""
+  className = "",
+  inputClassName = "",
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -53,8 +55,21 @@ export default function SearchableSelect({
           // Delay to allow click on option
           setTimeout(() => setIsOpen(false), 200); 
         }}
-        className="w-full rounded-xl border border-white/10 bg-[#080B12] py-2.5 px-4 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-red focus:ring-1 focus:ring-red/30 disabled:opacity-50"
+        className={`w-full rounded-xl border border-white/10 bg-[#080B12] py-2.5 pl-4 pr-10 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-red focus:ring-1 focus:ring-red/30 disabled:opacity-50 ${inputClassName}`}
       />
+      <svg
+        className={`absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 transition-transform duration-200 ${
+          isOpen ? "rotate-180 text-white" : ""
+        }`}
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
       {isOpen && !disabled && (
         <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-white/10 bg-[#0E121B] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200">
           {filteredOptions.length === 0 ? (

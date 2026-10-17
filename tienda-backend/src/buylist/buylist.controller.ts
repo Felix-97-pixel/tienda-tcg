@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { BuylistService } from './buylist.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StoresService } from '../stores/stores.service';
@@ -9,6 +9,15 @@ export class BuylistController {
     private readonly buylistService: BuylistService,
     private readonly storesService: StoresService,
   ) {}
+
+  @Get('public/all')
+  getAllPublicBuylist(
+    @Query('search') search?: string,
+    @Query('game') game?: string,
+    @Query('storeId') storeId?: string,
+  ) {
+    return this.buylistService.getAllPublicBuylist(search, game, storeId);
+  }
 
   @Get('public/:subdomain')
   getPublicBuylist(@Param('subdomain') subdomain: string) {

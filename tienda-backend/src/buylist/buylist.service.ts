@@ -26,11 +26,66 @@ export class BuylistService {
     return this.prisma.buyListItem.findMany({
       where: { storeId: store.id, isActive: true },
       include: {
-        product: true,
+        product: {
+          include: {
+            cardDetail: true,
+            category: true,
+          },
+        },
         condition: true,
         language: true,
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getAllPublicBuylist(search?: string, game?: string, storeId?: string) {
+    const where: any = {
+      isActive: true,
+    };
+
+    if (storeId) {
+      where.storeId = storeId;
+    }
+
+    if (search && search.trim()) {
+      where.product = {
+        name: { contains: search.trim(), mode: 'insensitive' },
+      };
+    }
+
+    if (game && game.trim()) {
+      where.product = {
+        ...(where.product || {}),
+        category: {
+          name: { contains: game.trim(), mode: 'insensitive' },
+        },
+      };
+    }
+
+    return this.prisma.buyListItem.findMany({
+      where,
+      include: {
+        product: {
+          include: {
+            cardDetail: true,
+            category: true,
+          },
+        },
+        condition: true,
+        language: true,
+        store: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+            logoUrl: true,
+            settings: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
     });
   }
 
