@@ -229,13 +229,13 @@ export default function LoginForm() {
             <GoogleSignInButton text="signin_with" onError={(err) => setError(err)} />
           </div>
 
-          {/* Separador elegante */}
-          <div className="relative flex items-center justify-center mb-6">
-            <div className="border-t border-white/10 w-full" />
-            <span className="bg-[#07090E] px-3 text-[11px] font-semibold uppercase tracking-wider text-white/40 shrink-0">
+          {/* Separador elegante y sutil sin recuadro */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+            <span className="text-[11px] font-medium tracking-wider uppercase text-white/40 select-none shrink-0">
               o con tu correo
             </span>
-            <div className="border-t border-white/10 w-full" />
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
           </div>
 
 

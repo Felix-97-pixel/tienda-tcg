@@ -89,6 +89,15 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    if (!user.password) {
+      if (user.googleId) {
+        throw new UnauthorizedException(
+          'Esta cuenta fue registrada con Google. Inicia sesión con el botón de Google o recupera tu contraseña para crear una clave.',
+        );
+      }
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
     const isMatch = await bcrypt.compare(loginDto.password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -134,12 +143,15 @@ export class AuthService {
 
     const user = await this.usersService.findOne(dto.email);
     if (user) {
+      // Si el usuario se registró con Google y aún no tiene contraseña, usamos 'oauth_init' como versión
+      const passwordVersion = user.password ? user.password.slice(-10) : 'oauth_init';
+
       const resetToken = await this.jwtService.signAsync(
         {
           sub: user.id,
           email: user.email,
           type: 'password_reset',
-          pv: user.password.slice(-10),
+          pv: passwordVersion,
         },
         { expiresIn: '1h' },
       );
@@ -175,7 +187,8 @@ export class AuthService {
       throw new BadRequestException('Usuario no encontrado.');
     }
 
-    if (user.password.slice(-10) !== payload.pv) {
+    const currentPv = user.password ? user.password.slice(-10) : 'oauth_init';
+    if (currentPv !== payload.pv) {
       throw new BadRequestException(
         'Este enlace ya ha sido utilizado o ha quedado sin efecto. Por favor solicita uno nuevo.',
       );
