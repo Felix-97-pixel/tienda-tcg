@@ -215,6 +215,13 @@ model Store {
   address           String?
   latitude          Float?
   longitude         Float?
+  pickupEnabled     Boolean                     @default(false)
+  pickupAddress     String?
+  pickupSchedule    String?
+  originRegionId    String?
+  originRegion      Region?                     @relation(fields: [originRegionId], references: [id], onDelete: SetNull)
+  originCommuneId   String?
+  originCommune     Commune?                    @relation(fields: [originCommuneId], references: [id], onDelete: SetNull)
   supportedGames    Game[]                      @relation("StoreGames")
   balance           Decimal                     @default(0) @db.Decimal(10, 2)
   createdAt         DateTime                    @default(now())
@@ -623,3 +630,54 @@ model Coupon {
 
   @@index([storeId])
 }
+
+model LogisticZone {
+  id          String    @id @default(uuid())
+  code        String    @unique // e.g. "RM", "NORTE_GRANDE", "NORTE_CHICO", "CENTRO", "SUR", "EXTREMO_SUR", "INSULAR"
+  name        String    // e.g. "Región Metropolitana", "Zona Norte Grande", "Zona Extrema Sur"
+  description String?
+  isActive    Boolean   @default(true)
+  regions     Region[]
+  communes    Commune[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([code])
+}
+
+model Region {
+  id        String        @id @default(uuid())
+  code      String        @unique // e.g. "RM", "V", "VIII", "XV"
+  name      String        // e.g. "Región Metropolitana de Santiago"
+  shortName String?       // e.g. "Metropolitana"
+  zoneId    String?
+  zone      LogisticZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  ordinal   Int           @default(0) // orden de norte a sur (1..16)
+  isActive  Boolean       @default(true)
+  communes  Commune[]
+  stores    Store[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([code])
+  @@index([zoneId])
+}
+
+model Commune {
+  id        String        @id @default(uuid())
+  code      String        @unique // e.g. "SANTIAGO", "PROVIDENCIA", "VALPARAISO"
+  name      String        // e.g. "Santiago Centro", "Providencia"
+  regionId  String
+  region    Region        @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  zoneId    String?
+  zone      LogisticZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  isActive  Boolean       @default(true)
+  stores    Store[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([regionId])
+  @@index([zoneId])
+  @@index([code])
+}
+

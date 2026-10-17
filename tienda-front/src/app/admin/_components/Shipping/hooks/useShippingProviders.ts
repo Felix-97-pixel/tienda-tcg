@@ -12,7 +12,7 @@ export function useShippingProviders() {
 
   const fetchProviders = useCallback(() => {
     setLoading(true);
-    fetch(`${API_URL}/shipping/providers/all`, { credentials: "include" })
+    fetch(`${API_URL}/shipping/my-providers`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();

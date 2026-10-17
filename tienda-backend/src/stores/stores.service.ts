@@ -65,6 +65,10 @@ export class StoresService {
         },
         customFeatures: true,
         supportedGames: true,
+        originRegion: true,
+        originCommune: {
+          include: { zone: true },
+        },
       }
     });
 
@@ -135,9 +139,41 @@ export class StoresService {
       throw new NotFoundException('No tienes una tienda asignada');
     }
 
-    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website } = data;
+    const { 
+      name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
+      pickupEnabled, pickupAddress, pickupSchedule, originCommuneCode, originRegionCode, originCommuneId, originRegionId 
+    } = data;
 
-    // Actualizar nombre, logo y ubicación de la tienda
+    // Resolver llaves foráneas de ubicación
+    let finalOriginCommuneId = originCommuneId;
+    let finalOriginRegionId = originRegionId;
+    let finalCommuneCode = originCommuneCode;
+    let finalRegionCode = originRegionCode;
+
+    if (finalOriginCommuneId) {
+      const com = await this.prisma.commune.findUnique({
+        where: { id: finalOriginCommuneId },
+        include: { region: true },
+      });
+      if (com) {
+        finalOriginRegionId = com.regionId;
+        finalCommuneCode = com.code;
+        finalRegionCode = com.region.code;
+      }
+    } else if (originCommuneCode) {
+      const com = await this.prisma.commune.findUnique({
+        where: { code: originCommuneCode.toUpperCase().trim() },
+        include: { region: true },
+      });
+      if (com) {
+        finalOriginCommuneId = com.id;
+        finalOriginRegionId = com.regionId;
+        finalCommuneCode = com.code;
+        finalRegionCode = com.region.code;
+      }
+    }
+
+    // Actualizar nombre, logo, ubicación y despacho de la tienda
     await this.prisma.store.update({
       where: { id: store.id },
       data: {
@@ -146,6 +182,11 @@ export class StoresService {
         address: address !== undefined ? address : undefined,
         latitude: latitude !== undefined ? latitude : undefined,
         longitude: longitude !== undefined ? longitude : undefined,
+        pickupEnabled: pickupEnabled !== undefined ? pickupEnabled : undefined,
+        pickupAddress: pickupAddress !== undefined ? pickupAddress : undefined,
+        pickupSchedule: pickupSchedule !== undefined ? pickupSchedule : undefined,
+        originCommuneId: finalOriginCommuneId !== undefined ? finalOriginCommuneId : undefined,
+        originRegionId: finalOriginRegionId !== undefined ? finalOriginRegionId : undefined,
         supportedGames: data.supportedGames ? { set: data.supportedGames.map((id: string) => ({ id })) } : undefined,
       }
     });

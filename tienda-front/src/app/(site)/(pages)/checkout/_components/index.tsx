@@ -10,6 +10,8 @@ import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import { IconShieldCheck, IconAlertTriangle, IconStore } from "@/components/ui/Icons";
+import { API_URL } from "@/utils/api";
+import ChileLocationsSelect from "./ChileLocationsSelect";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-dummy", { locale: "es-CL" });
 
@@ -21,8 +23,6 @@ type BillingData = {
   city: string;
   notes: string;
 };
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 const CheckoutWebpay = () => {
   const cartItems = useSelector(selectCartItems);
@@ -45,6 +45,13 @@ const CheckoutWebpay = () => {
   const [shippingProviders, setShippingProviders] = useState<any[]>([]);
   const [selectedProvidersByStore, setSelectedProvidersByStore] = useState<Record<string, any>>({});
   const [storeNames, setStoreNames] = useState<Record<string, string>>({});
+  
+  // Estados para cotización dinámica oficial de Chilexpress, Starken y Retiro
+  const [selectedCommuneCode, setSelectedCommuneCode] = useState<string>("SANTIAGO");
+  const [selectedCommuneName, setSelectedCommuneName] = useState<string>("Santiago Centro");
+  const [selectedRegionCode, setSelectedRegionCode] = useState<string>("RM");
+  const [isQuotingShipping, setIsQuotingShipping] = useState<boolean>(false);
+  const [quotedStores, setQuotedStores] = useState<Record<string, any>>({});
 
   // Group cart items by store
   const itemsByStore = React.useMemo(() => {
@@ -57,33 +64,104 @@ const CheckoutWebpay = () => {
     return groups;
   }, [cartItems]);
   const storeIds = React.useMemo(() => Object.keys(itemsByStore), [itemsByStore]);
+  const cartSignature = React.useMemo(() => {
+    return cartItems.map((i) => `${i.id}:${i.quantity}:${i.storeId}`).join("|");
+  }, [cartItems]);
 
-  // Fetch store names
+  // Fetch store names in batch
   useEffect(() => {
-    storeIds.forEach((id) => {
-      if (id !== "unknown" && !storeNames[id]) {
+    const missingIds = storeIds.filter((id) => id !== "unknown" && !storeNames[id]);
+    if (missingIds.length === 0) return;
+
+    Promise.all(
+      missingIds.map((id) =>
         fetch(`${API_URL}/stores/public-by-id/${id}`, { credentials: "include" })
           .then(async (res) => {
-            const text = await res.text();
-            try {
-              const data = JSON.parse(text);
-              if (res.ok) {
-                setStoreNames((prev) => ({ ...prev, [id]: data.name || "Tienda TapTrade" }));
-              } else {
-                setStoreNames((prev) => ({ ...prev, [id]: "Tienda TapTrade" }));
-              }
-            } catch (e) {
-              setStoreNames((prev) => ({ ...prev, [id]: "Tienda TapTrade" }));
-            }
+            if (!res.ok) return { id, name: "Tienda TapTrade" };
+            const data = await res.json().catch(() => null);
+            return { id, name: data?.name || "Tienda TapTrade" };
           })
-          .catch(() => {
-            setStoreNames((prev) => ({ ...prev, [id]: "Tienda TapTrade" }));
-          });
-      }
+          .catch(() => ({ id, name: "Tienda TapTrade" }))
+      )
+    ).then((results) => {
+      setStoreNames((prev) => {
+        const next = { ...prev };
+        results.forEach(({ id, name }) => {
+          next[id] = name;
+        });
+        return next;
+      });
     });
-  }, [storeIds]);
+  }, [storeIds, storeNames]);
 
-  // Carga dinámica de proveedores de envío
+  // Cotizador Dinámico en Vivo (Chilexpress, Starken y Retiro en Tienda)
+  const isQuotingRef = React.useRef(false);
+
+  const quoteShipping = React.useCallback(
+    async (communeCode: string, regionCode?: string) => {
+      if (!communeCode || cartItems.length === 0) return;
+      if (isQuotingRef.current) return;
+      isQuotingRef.current = true;
+      setIsQuotingShipping(true);
+      try {
+        const res = await fetch(`${API_URL}/shipping/quote-cart`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            destinationCommune: communeCode,
+            destinationRegion: regionCode || selectedRegionCode,
+            cartItems: cartItems.map((item) => ({
+              productId: String(item.id),
+              storeId: item.storeId || "unknown",
+              quantity: item.quantity,
+              productName: item.title,
+            })),
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setQuotedStores(data.stores || {});
+
+          setSelectedProvidersByStore((prev) => {
+            const next = { ...prev };
+            for (const [sId, storeQuote] of Object.entries((data.stores || {}) as Record<string, any>)) {
+              const current = next[sId];
+              // Preservar la opción seleccionada si coincide con el nuevo conjunto cotizado
+              const matched = storeQuote.options?.find(
+                (opt: any) => opt.id === current?.id || opt.provider === current?.provider
+              );
+              if (matched) {
+                next[sId] = matched;
+              } else {
+                // Seleccionar por defecto (ej: Starken o la primera opción)
+                const defaultOpt =
+                  storeQuote.options?.find((opt: any) => opt.isDefault) || storeQuote.options?.[0];
+                if (defaultOpt) next[sId] = defaultOpt;
+              }
+            }
+            return next;
+          });
+        }
+      } catch (err) {
+        console.error("Error al cotizar envíos:", err);
+      } finally {
+        setIsQuotingShipping(false);
+        isQuotingRef.current = false;
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cartSignature, selectedRegionCode]
+  );
+
+  // Ejecutar cotización al cargar o al cambiar la comuna de destino
+  useEffect(() => {
+    if (cartItems.length > 0 && selectedCommuneCode) {
+      quoteShipping(selectedCommuneCode, selectedRegionCode);
+    }
+  }, [cartSignature, selectedCommuneCode, selectedRegionCode, quoteShipping]);
+
+  // Carga fallback de proveedores
   useEffect(() => {
     fetch(`${API_URL}/shipping/providers`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
@@ -94,23 +172,6 @@ const CheckoutWebpay = () => {
       })
       .catch((err) => console.error("Error al cargar proveedores de envío:", err?.message || err));
   }, []);
-
-  // Pre-seleccionar envío por defecto para cada tienda
-  useEffect(() => {
-    if (shippingProviders.length > 0) {
-      let changed = false;
-      const initial: Record<string, any> = {};
-      storeIds.forEach((sId) => {
-        if (!selectedProvidersByStore[sId]) {
-          initial[sId] = shippingProviders[0];
-          changed = true;
-        }
-      });
-      if (changed) {
-        setSelectedProvidersByStore((prev) => ({ ...prev, ...initial }));
-      }
-    }
-  }, [shippingProviders, storeIds]);
 
   const totalShippingCost = React.useMemo(() => {
     return storeIds.reduce((sum, sId) => {
@@ -173,7 +234,9 @@ const CheckoutWebpay = () => {
         name: billing.name,
         phone: billing.phone,
         address: billing.address,
-        city: billing.city,
+        city: selectedCommuneName,
+        cityCode: selectedCommuneCode,
+        regionCode: selectedRegionCode,
         notes: billing.notes,
         currency: currency.code,
         exchangeRate: currency.exchangeRate,
@@ -330,38 +393,33 @@ const CheckoutWebpay = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Teléfono */}
-                  <div>
-                    <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                      Teléfono
-                    </label>
-                    <input
-                      type="text"
-                      id="phone"
-                      name="phone"
-                      value={billing.phone}
-                      onChange={handleChange}
-                      placeholder="+56 9 1234 5678"
-                      className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
-                    />
-                  </div>
+                {/* Teléfono */}
+                <div>
+                  <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                    Teléfono de Contacto <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={billing.phone}
+                    onChange={handleChange}
+                    placeholder="+56 9 1234 5678"
+                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                  />
+                </div>
 
-                  {/* Ciudad */}
-                  <div>
-                    <label htmlFor="city" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                      Ciudad
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      value={billing.city}
-                      onChange={handleChange}
-                      placeholder="Santiago"
-                      className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
-                    />
-                  </div>
+                {/* Selector Inteligente de Región y Comuna para Cotización */}
+                <div className="pt-1">
+                  <ChileLocationsSelect
+                    selectedCommune={selectedCommuneCode}
+                    onCommuneChange={(code, name, regCode) => {
+                      setSelectedCommuneCode(code);
+                      setSelectedCommuneName(name);
+                      setSelectedRegionCode(regCode);
+                      setBilling((prev) => ({ ...prev, city: name }));
+                    }}
+                  />
                 </div>
 
                 {/* Dirección */}
@@ -507,39 +565,107 @@ const CheckoutWebpay = () => {
 
                     {/* Selector de Envío para esta Tienda */}
                     <div className="pt-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-2">
-                        Método de Despacho ({storeNames[sId] || "Tienda"}):
-                      </span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                          Método de Despacho:
+                        </span>
+                        {isQuotingShipping && (
+                          <span className="text-[10px] text-amber-400 font-bold animate-pulse flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                            Cotizando...
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Información de cubicaje y origen de la tienda si está cotizada */}
+                      {quotedStores[sId] && (
+                        <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 text-[11px] text-white/50 flex items-center justify-between">
+                          <span>📍 Desde: <strong className="text-white/80">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
+                          <span className="text-[10px] text-white/40">{quotedStores[sId].packageDescription}</span>
+                        </div>
+                      )}
+
                       <div className="space-y-2">
-                        {shippingProviders.map((provider) => (
-                          <label
-                            key={provider.id}
-                            className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer select-none transition-all ${
-                              selectedProvidersByStore[sId]?.id === provider.id
-                                ? "bg-white/[0.04] border-red-500/50 shadow-sm"
-                                : "bg-black/20 border-white/5 hover:border-white/10"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <input
-                                type="radio"
-                                name={`shipping_${sId}`}
-                                value={provider.name}
-                                checked={selectedProvidersByStore[sId]?.id === provider.id}
-                                onChange={() => setSelectedProvidersByStore((prev) => ({ ...prev, [sId]: provider }))}
-                                className="w-3.5 h-3.5 text-red-500 border-white/20 focus:ring-red-500/30 cursor-pointer"
-                              />
-                              <ShippingBadge name={provider.name} size="sm" />
+                        {isQuotingShipping && !quotedStores[sId] ? (
+                          <div className="space-y-2 py-1">
+                            <div className="h-14 rounded-xl bg-white/[0.03] border border-white/5 animate-pulse flex items-center gap-3 px-4">
+                              <div className="w-8 h-8 rounded-lg bg-white/10" />
+                              <div className="flex-1 space-y-1.5">
+                                <div className="h-3 w-32 bg-white/10 rounded" />
+                                <div className="h-2 w-20 bg-white/5 rounded" />
+                              </div>
                             </div>
-                            <div className="font-mono font-bold text-xs text-white">
-                              {Number(provider.price) === 0 ? (
-                                <span className="text-emerald-400">$0 (Gratis)</span>
-                              ) : (
-                                <span>${Math.round(Number(provider.price)).toLocaleString("es-CL")} CLP</span>
+                            <div className="h-14 rounded-xl bg-white/[0.03] border border-white/5 animate-pulse flex items-center gap-3 px-4">
+                              <div className="w-8 h-8 rounded-lg bg-white/10" />
+                              <div className="flex-1 space-y-1.5">
+                                <div className="h-3 w-28 bg-white/10 rounded" />
+                                <div className="h-2 w-16 bg-white/5 rounded" />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          (quotedStores[sId]?.options || shippingProviders).map((opt: any) => {
+                          const isSelected =
+                            selectedProvidersByStore[sId]?.id === opt.id ||
+                            selectedProvidersByStore[sId]?.provider === opt.provider;
+                          const carrierName = opt.provider || opt.name;
+                          const optPrice = Number(opt.price || 0);
+
+                          return (
+                            <label
+                              key={opt.id || opt.provider}
+                              className={`flex flex-col p-3 rounded-xl border cursor-pointer select-none transition-all ${
+                                isSelected
+                                  ? "bg-white/[0.05] border-red-500/60 shadow-md shadow-red/10"
+                                  : "bg-black/20 border-white/5 hover:border-white/15"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                  <input
+                                    type="radio"
+                                    name={`shipping_${sId}`}
+                                    value={carrierName}
+                                    checked={isSelected}
+                                    onChange={() =>
+                                      setSelectedProvidersByStore((prev) => ({ ...prev, [sId]: opt }))
+                                    }
+                                    className="w-3.5 h-3.5 text-red-500 border-white/20 focus:ring-red-500/30 cursor-pointer"
+                                  />
+                                  <ShippingBadge name={carrierName} size="sm" />
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-white leading-tight">
+                                      {opt.name}
+                                    </span>
+                                    {opt.estimatedDays && (
+                                      <span className="text-[10px] text-emerald-400 font-medium">
+                                        ⏱ {opt.estimatedDays}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="font-mono font-bold text-xs text-right">
+                                  {optPrice === 0 ? (
+                                    <span className="text-emerald-400 font-black">$0 (Gratis)</span>
+                                  ) : (
+                                    <span className="text-white">
+                                      ${Math.round(optPrice).toLocaleString("es-CL")} CLP
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Si es Retiro en Tienda, mostrar dirección y horarios */}
+                              {opt.provider === "RETIRO_TIENDA" && opt.address && (
+                                <div className="mt-2 pt-2 border-t border-white/5 text-[11px] text-white/50 pl-6 space-y-0.5">
+                                  <p className="text-white/70">📍 {opt.address}</p>
+                                  {opt.schedule && <p className="text-[10px] text-white/40">⏰ {opt.schedule}</p>}
+                                </div>
                               )}
-                            </div>
-                          </label>
-                        ))}
+                            </label>
+                          );
+                        })
+                      )}
                       </div>
                     </div>
                   </div>

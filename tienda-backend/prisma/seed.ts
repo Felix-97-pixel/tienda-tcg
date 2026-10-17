@@ -5,6 +5,7 @@ import { seedSettings } from './seeders/seed-settings';
 import { seedSuperAdmin } from './seeders/seed-superadmin';
 import { seedStoreDevaluations } from './seeders/seed-devaluations';
 import { seedPlansAndFeatures } from './seeders/seed-plans';
+import { seedLocations } from './seeders/seed-locations';
 
 import 'dotenv/config';
 import { Pool } from 'pg';
@@ -40,6 +41,9 @@ async function main() {
 
     // 6. Planes de Suscripción y Features B2B
     await seedPlansAndFeatures(prisma);
+
+    // 7. Zonas Logísticas, Regiones y Comunas de Chile
+    await seedLocations(prisma);
 
     console.log('✅ Seeding Maestro completado exitosamente.');
   } catch (error) {
