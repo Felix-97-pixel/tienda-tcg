@@ -15,9 +15,9 @@ export const menuData: Menu[] = [
   },
   {
     id: 3,
-    title: "Tiendas TCG",
-    newTab: false,
-    path: "/landing",
+    title: "Buscar Tiendas",
+    newTab: true,
+    path: "/tiendas",
   },
   {
     id: 4,

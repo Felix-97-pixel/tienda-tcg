@@ -91,11 +91,10 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-[9999] transition-all duration-300 ${
-        stickyMenu
-          ? "bg-[#090C13]/95 backdrop-blur-xl border-b border-white/[0.08] shadow-2xl"
-          : "bg-[#090C13]/90 backdrop-blur-lg border-b border-white/[0.06]"
-      }`}
+      className={`fixed left-0 top-0 w-full z-[9999] transition-all duration-300 ${stickyMenu
+        ? "bg-[#090C13]/95 backdrop-blur-xl border-b border-white/[0.08] shadow-2xl"
+        : "bg-[#090C13]/90 backdrop-blur-lg border-b border-white/[0.06]"
+        }`}
     >
       {/* Top micro-gradient indicator */}
       <div className="w-full h-[2px] bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500"></div>
@@ -262,17 +261,33 @@ const Header = () => {
       <div className="hidden md:block bg-[#07090E]/80 border-t border-white/[0.04]">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center justify-between py-2">
-            <ul className="flex items-center gap-6">
+            <ul className="flex items-center gap-5 lg:gap-6">
               {menuData.map((item, i) => (
                 <li key={i}>
                   <Link
                     href={item.path}
-                    className="text-xs font-semibold text-gray-300 hover:text-red-400 transition-colors flex items-center gap-1.5"
+                    target={item.newTab ? "_blank" : undefined}
+                    rel={item.newTab ? "noopener noreferrer" : undefined}
+                    className="text-xs font-semibold text-gray-300 hover:text-red transition-colors flex items-center gap-1"
                   >
-                    {item.title}
+                    <span>{item.title}</span>
+                    {item.newTab && (
+                      <span className="text-[10px] text-gray-400 font-mono">↗</span>
+                    )}
                   </Link>
                 </li>
               ))}
+
+              {/* Botón destacado con cuadrado rojo para ir a Landing */}
+              <li>
+                <Link
+                  href="/landing"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red text-white text-xs font-bold hover:bg-red-dark transition-all shadow-md shadow-red/25 border border-red-light/30 active:scale-95 group"
+                  title="Conoce la plataforma y cómo funciona TapTrade"
+                >
+                  <span>Conoce TapTrade</span>
+                </Link>
+              </li>
             </ul>
 
             <div className="flex items-center gap-4 text-[11px] text-gray-400 font-mono">
@@ -306,17 +321,37 @@ const Header = () => {
             </div>
           </form>
 
-          <nav className="space-y-1 pt-2">
+          <nav className="space-y-1.5 pt-2">
             {menuData.map((item, i) => (
               <Link
                 key={i}
                 href={item.path}
+                target={item.newTab ? "_blank" : undefined}
+                rel={item.newTab ? "noopener noreferrer" : undefined}
                 onClick={() => setNavigationOpen(false)}
-                className="block px-3 py-2 rounded-lg text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all"
               >
-                {item.title}
+                <span>{item.title}</span>
+                {item.newTab && <span className="text-xs text-gray-400 font-mono">↗ nueva pestaña</span>}
               </Link>
             ))}
+
+            {/* Mobile Landing Link in red square box */}
+            <div className="pt-2">
+              <Link
+                href="/landing"
+                onClick={() => setNavigationOpen(false)}
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-red text-white text-sm font-bold shadow-md shadow-red/30 hover:bg-red-dark transition-all border border-red-light/30"
+              >
+                <div className="flex items-center gap-2">
+                  <span>🚀</span>
+                  <span>Conoce TapTrade</span>
+                </div>
+                <span className="bg-black/30 text-white text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase">
+                  Landing
+                </span>
+              </Link>
+            </div>
           </nav>
         </div>
       )}

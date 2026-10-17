@@ -565,7 +565,7 @@ export default function TcgHomeLanding() {
       </section>
 
       {/* 4. TIENDAS TCG VERIFICADAS DE CHILE */}
-      <section className="py-20 border-t border-white/5 bg-[#0A0D14]/50">
+      <section id="tiendas" className="py-20 border-t border-white/5 bg-[#0A0D14]/50 scroll-mt-24">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 mb-1 block">
