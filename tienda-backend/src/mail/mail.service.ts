@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import axios from 'axios';
 
 @Injectable()
 export class MailService {
@@ -14,22 +15,33 @@ export class MailService {
     const smtpUser = this.configService.get<string>('SMTP_USER');
     const smtpPass = this.configService.get<string>('SMTP_PASS');
 
+    const resendApiKey =
+      this.configService.get<string>('RESEND_API_KEY') ||
+      (smtpPass?.startsWith('re_') ? smtpPass : null);
+
+    if (resendApiKey) {
+      this.logger.log('Resend REST API key detected. Email delivery will use HTTPS (port 443) to prevent cloud SMTP port blocking.');
+    }
+
     if (smtpHost && smtpPort && smtpUser && smtpPass) {
       const isSecure = smtpPort === 465;
-      this.logger.log(`Initializing SMTP transporter: host=${smtpHost}, port=${smtpPort}, secure=${isSecure}, user=${smtpUser}`);
+      this.logger.log(`Initializing SMTP fallback transporter: host=${smtpHost}, port=${smtpPort}, secure=${isSecure}`);
       this.transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
         secure: isSecure,
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 5000,
         auth: {
           user: smtpUser,
           pass: smtpPass,
         },
       });
-      this.logger.log('SMTP mail transporter initialized successfully.');
-    } else {
+      this.logger.log('SMTP fallback mail transporter initialized successfully.');
+    } else if (!resendApiKey) {
       this.logger.warn(
-        `SMTP environment variables are not fully configured (host=${smtpHost}, port=${smtpPortRaw}, user=${smtpUser}). MailService will run in DEV_LOG mode.`,
+        `SMTP environment variables are not fully configured. MailService will run in DEV_LOG mode.`,
       );
     }
   }
@@ -186,28 +198,12 @@ export class MailService {
     console.log(`[MAIL_DEV_LOG] ENLACE DE ACTIVACIÓN: ${verifyLink}`);
     console.log('='.repeat(80) + '\n');
 
-    if (this.transporter) {
-      try {
-        const mailFrom = this.configService.get<string>('SMTP_FROM') || '"TapTrade" <no-reply@taptrade.cl>';
-        this.logger.log(`Attempting to send email to ${email} from ${mailFrom}...`);
-        const info = await this.transporter.sendMail({
-          from: mailFrom,
-          to: email,
-          subject: '¡Activa tu Cuenta en TapTrade TCG Marketplace! 🔥',
-          text: `Hola ${name || 'Coleccionista'},\n\n¡Bienvenido a TapTrade! Para verificar tu cuenta y comenzar a explorar el catálogo de cartas coleccionables, por favor visita el siguiente enlace:\n\n${verifyLink}\n\n¡Gracias!`,
-          html: htmlContent,
-        });
-        this.logger.log(`Verification email sent successfully to: ${email} (messageId: ${info.messageId})`);
-      } catch (error: any) {
-        this.logger.error(`Failed to send verification email to ${email}: ${error.message}`);
-        this.logger.error(`SMTP Error Code: ${error.code || 'N/A'}, Response: ${error.response || 'N/A'}`);
-        if (error.stack) {
-          this.logger.error(error.stack);
-        }
-      }
-    } else {
-      this.logger.warn('No SMTP transporter available. Email was only logged to console.');
-    }
+    await this.dispatchEmail({
+      to: email,
+      subject: '¡Activa tu Cuenta en TapTrade TCG Marketplace! 🔥',
+      text: `Hola ${name || 'Coleccionista'},\n\n¡Bienvenido a TapTrade! Para verificar tu cuenta y comenzar a explorar el catálogo de cartas coleccionables, por favor visita el siguiente enlace:\n\n${verifyLink}\n\n¡Gracias!`,
+      html: htmlContent,
+    });
   }
 
   async sendPasswordResetEmail(email: string, name: string, token: string): Promise<void> {
@@ -362,26 +358,80 @@ export class MailService {
     console.log(`[MAIL_DEV_LOG] ENLACE DE RECUPERACIÓN: ${resetLink}`);
     console.log('='.repeat(80) + '\n');
 
+    await this.dispatchEmail({
+      to: email,
+      subject: 'Restablece tu Contraseña | TapTrade TCG Marketplace',
+      text: `Hola ${name || 'Coleccionista'},\n\nPara restablecer tu contraseña en TapTrade, por favor visita el siguiente enlace:\n\n${resetLink}\n\nEste enlace caduca en 60 minutos.\n\nSi no fuiste tú, puedes ignorar este correo.`,
+      html: htmlContent,
+    });
+  }
+
+  private async dispatchEmail(options: {
+    to: string;
+    subject: string;
+    text: string;
+    html: string;
+  }): Promise<void> {
+    const rawFrom = this.configService.get<string>('SMTP_FROM') || 'TapTrade <no-reply@taptrade.cl>';
+    const mailFrom = rawFrom.trim().replace(/^"|"$/g, '');
+
+    const resendApiKey =
+      this.configService.get<string>('RESEND_API_KEY') ||
+      (this.configService.get<string>('SMTP_PASS')?.startsWith('re_')
+        ? this.configService.get<string>('SMTP_PASS')
+        : null);
+
+    // 1. Resend REST API (HTTPS puerto 443).
+    // Fundamental para Render / Cloud donde los puertos SMTP (465/587) están bloqueados por firewall.
+    if (resendApiKey) {
+      try {
+        this.logger.log(`[Resend HTTP] Sending email to ${options.to} via HTTPS port 443...`);
+        const response = await axios.post(
+          'https://api.resend.com/emails',
+          {
+            from: mailFrom,
+            to: [options.to],
+            subject: options.subject,
+            text: options.text,
+            html: options.html,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${resendApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            timeout: 8000,
+          },
+        );
+        this.logger.log(`[Resend HTTP] Email sent successfully to ${options.to} (id: ${response.data?.id})`);
+        return;
+      } catch (err: any) {
+        this.logger.error(
+          `[Resend HTTP] Failed to send email to ${options.to}: ${err.response?.data?.message || err.message}`,
+        );
+      }
+    }
+
+    // 2. Fallback SMTP (Nodemailer)
     if (this.transporter) {
       try {
-        const mailFrom = this.configService.get<string>('SMTP_FROM') || '"TapTrade" <no-reply@taptrade.cl>';
-        this.logger.log(`Attempting to send password reset email to ${email} from ${mailFrom}...`);
+        this.logger.log(`[SMTP Fallback] Attempting to send email to ${options.to}...`);
         const info = await this.transporter.sendMail({
           from: mailFrom,
-          to: email,
-          subject: 'Restablece tu Contraseña | TapTrade TCG Marketplace',
-          text: `Hola ${name || 'Coleccionista'},\n\nPara restablecer tu contraseña en TapTrade, por favor visita el siguiente enlace:\n\n${resetLink}\n\nEste enlace caduca en 60 minutos.\n\nSi no fuiste tú, puedes ignorar este correo.`,
-          html: htmlContent,
+          to: options.to,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
         });
-        this.logger.log(`Password reset email sent successfully to: ${email} (messageId: ${info.messageId})`);
+        this.logger.log(`[SMTP Fallback] Email sent successfully to: ${options.to} (messageId: ${info.messageId})`);
       } catch (error: any) {
-        this.logger.error(`Failed to send password reset email to ${email}: ${error.message}`);
+        this.logger.error(`[SMTP Fallback] Failed to send email to ${options.to}: ${error.message}`);
         if (error.stack) {
           this.logger.error(error.stack);
         }
       }
-    } else {
-      this.logger.warn('No SMTP transporter available. Password reset email was only logged to console.');
+    } else if (!resendApiKey) {
+      this.logger.warn(`No email provider configured. Email to ${options.to} was only logged to console.`);
     }
   }
 }
