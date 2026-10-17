@@ -98,50 +98,83 @@ export abstract class TcgProvider {
         }
 
 
-        const baseSlug = productData.name.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-');
-        const shortId = productData.externalId.split('-')[0].substring(0, 8);
-        const generatedSlug = `${baseSlug}-${shortId}`;
+        const baseSlug = productData.name
+          .toString()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\-]+/g, '')
+          .replace(/\-\-+/g, '-');
 
-        await this.prisma.product.upsert({
-          where: { externalId: productData.externalId },
-          update: {
-            slug: generatedSlug,
-            name: productData.name,
-            imageUrl: productData.image,
-            description: productData.description,
-            cardDetail: {
-              update: {
-                expansion: productData.expansion,
-                expansionId: expansionRecord.id,
-                rarity: productData.rarity,
-                collectorNum: productData.number,
-                gameId: gameId,
-                attributes: productData.attributes
-              }
-            }
-          },
-          create: {
-            slug: generatedSlug,
-            externalId: productData.externalId,
-            name: productData.name,
-            imageUrl: productData.image,
-            description: productData.description,
-            categoryId: categoryId,
-            cardDetail: {
-              create: {
-                expansion: productData.expansion,
-                expansionId: expansionRecord.id,
-                rarity: productData.rarity,
-                collectorNum: productData.number,
-                gameId: gameId,
-                attributes: productData.attributes
-              }
-            }
+        // Extraer identificador único limpio (sin prefijo rb- y alfanumérico)
+        const cleanExtId = productData.externalId.replace(/^rb-/, '').replace(/[^a-zA-Z0-9]/g, '');
+        const shortId = cleanExtId.length > 8 ? cleanExtId.slice(-8) : cleanExtId;
+        const cleanNum = productData.number
+          ? `-${productData.number.toString().toLowerCase().replace(/[^a-z0-9]/g, '')}`
+          : '';
+        const setCode = (setId || expansionRecord.externalId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const candidateSlug = `${baseSlug}${setCode ? `-${setCode}` : ''}${cleanNum}-${shortId}`;
+
+        // Garantizar unicidad absoluta del slug en la base de datos
+        let finalSlug = candidateSlug;
+        let suffix = 1;
+        while (true) {
+          const existingWithSlug = await this.prisma.product.findUnique({
+            where: { slug: finalSlug },
+            select: { id: true, externalId: true },
+          });
+          if (!existingWithSlug || existingWithSlug.externalId === productData.externalId) {
+            break;
           }
-        });
+          finalSlug = `${candidateSlug}-${suffix++}`;
+        }
 
-        totalProcessed++;
-        this.onProgress?.(this.gameName, totalProcessed, externalCards.length, 'import');
+        try {
+          await this.prisma.product.upsert({
+            where: { externalId: productData.externalId },
+            update: {
+              slug: finalSlug,
+              name: productData.name,
+              imageUrl: productData.image,
+              description: productData.description,
+              cardDetail: {
+                update: {
+                  expansion: productData.expansion,
+                  expansionId: expansionRecord.id,
+                  rarity: productData.rarity,
+                  collectorNum: productData.number,
+                  gameId: gameId,
+                  attributes: productData.attributes
+                }
+              }
+            },
+            create: {
+              slug: finalSlug,
+              externalId: productData.externalId,
+              name: productData.name,
+              imageUrl: productData.image,
+              description: productData.description,
+              categoryId: categoryId,
+              cardDetail: {
+                create: {
+                  expansion: productData.expansion,
+                  expansionId: expansionRecord.id,
+                  rarity: productData.rarity,
+                  collectorNum: productData.number,
+                  gameId: gameId,
+                  attributes: productData.attributes
+                }
+              }
+            }
+          });
+
+          totalProcessed++;
+          this.onProgress?.(this.gameName, totalProcessed, externalCards.length, 'import');
+        } catch (cardErr: any) {
+          this.logger.error(`Error importando carta ${productData.name} (${productData.externalId}): ${cardErr.message}`);
+        }
       }
 
       this.logger.log(`Sincronización finalizada: ${totalProcessed} productos procesados.`);
