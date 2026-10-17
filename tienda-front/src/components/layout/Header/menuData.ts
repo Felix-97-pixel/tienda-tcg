@@ -3,30 +3,24 @@ import { Menu } from "@/types/Menu";
 export const menuData: Menu[] = [
   {
     id: 1,
-    title: "Explorar Cartas",
+    title: "Comprar",
     newTab: false,
     path: "/shop",
   },
   {
     id: 2,
-    title: "Cajas & Sellado",
-    newTab: false,
-    path: "/sealed",
-  },
-  {
-    id: 3,
     title: "Buscar Tiendas",
     newTab: false,
     path: "/tiendas",
   },
   {
-    id: 4,
+    id: 3,
     title: "Vender Cartas",
     newTab: false,
     path: "/admin/buylist",
   },
   {
-    id: 5,
+    id: 4,
     title: "Contacto & Soporte",
     newTab: false,
     path: "/contact",

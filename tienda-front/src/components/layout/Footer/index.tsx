@@ -106,16 +106,11 @@ const Footer = () => {
             <ul className="space-y-2.5 text-xs text-gray-400">
               <li>
                 <Link href="/shop" className="hover:text-white transition-colors">
-                  Explorar Catálogo
+                  Comprar en Marketplace
                 </Link>
               </li>
               <li>
-                <Link href="/sealed" className="hover:text-white transition-colors">
-                  Cajas y Boosters Sellados
-                </Link>
-              </li>
-              <li>
-                <Link href="/landing" className="hover:text-white transition-colors">
+                <Link href="/tiendas" className="hover:text-white transition-colors">
                   Directorio de Tiendas
                 </Link>
               </li>
