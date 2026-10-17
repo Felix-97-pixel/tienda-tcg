@@ -34,13 +34,18 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/[0.06]">
           {/* Col 1: Brand & SpA Info */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center shadow-lg shadow-red-600/25">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center shadow-lg shadow-red/30 group-hover:scale-105 transition-all border border-white/10">
                 <span className="text-white font-black text-xl leading-none">T</span>
               </div>
-              <span className="text-2xl font-black tracking-tight text-white">
-                TapTrade
-              </span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black tracking-tight text-white leading-none">
+                  Tap<span className="text-red">Trade</span>
+                </span>
+                <span className="text-[10px] font-mono tracking-widest text-red-light uppercase font-bold mt-0.5">
+                  TCG Marketplace
+                </span>
+              </div>
             </Link>
 
             <p className="text-xs text-gray-400 leading-relaxed max-w-sm">

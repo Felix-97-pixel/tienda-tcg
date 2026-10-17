@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { API_URL } from "@/utils/api";
 import TcgFilterSidebar from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgFilterSidebar";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
@@ -197,16 +198,19 @@ function MarketplaceDeckbuilderRow({ item }: { item: any }) {
 }
 
 export default function TcgMarketplaceCatalog() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   // UI Controls
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [sortOption, setSortOption] = useState<string>("latest");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
 
   // Filters State
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedExpansion, setSelectedExpansion] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("category") || null);
+  const [selectedExpansion, setSelectedExpansion] = useState<string | null>(searchParams.get("expansion") || null);
   const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
@@ -223,7 +227,20 @@ export default function TcgMarketplaceCatalog() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Debounce search
+  // Sync URL search parameters (e.g. when searching from Header or navigating)
+  useEffect(() => {
+    const q = searchParams.get("search") || "";
+    const cat = searchParams.get("category") || null;
+    const exp = searchParams.get("expansion") || null;
+
+    setSearchTerm(q);
+    setDebouncedSearch(q);
+    setSelectedCategory(cat);
+    setSelectedExpansion(exp);
+    setCurrentPage(1);
+  }, [searchParams]);
+
+  // Debounce search when user types in the catalog search input directly
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -389,6 +406,18 @@ export default function TcgMarketplaceCatalog() {
     priceRange.max > 0,
   ].filter(Boolean).length;
 
+  const handleSelectCategory = (cat: string | null) => {
+    setSelectedCategory(cat);
+    const p = new URLSearchParams(searchParams.toString());
+    if (cat) {
+      p.set("category", cat);
+    } else {
+      p.delete("category");
+    }
+    const qs = p.toString();
+    router.replace(`/shop${qs ? `?${qs}` : ""}`);
+  };
+
   const handleClearAll = () => {
     setSelectedCategory(null);
     setSelectedExpansion(null);
@@ -397,6 +426,8 @@ export default function TcgMarketplaceCatalog() {
     setSelectedLanguage(null);
     setPriceRange({ min: 0, max: 0 });
     setSearchTerm("");
+    setDebouncedSearch("");
+    router.replace("/shop");
   };
 
   return (
@@ -455,7 +486,14 @@ export default function TcgMarketplaceCatalog() {
             {searchTerm && (
               <button
                 type="button"
-                onClick={() => setSearchTerm("")}
+                onClick={() => {
+                  setSearchTerm("");
+                  setDebouncedSearch("");
+                  const p = new URLSearchParams(searchParams.toString());
+                  p.delete("search");
+                  const qs = p.toString();
+                  router.replace(`/shop${qs ? `?${qs}` : ""}`);
+                }}
                 className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
                 title="Borrar búsqueda"
               >
@@ -558,8 +596,14 @@ export default function TcgMarketplaceCatalog() {
             {selectedCategory && (
               <button
                 type="button"
-                onClick={() => setSelectedCategory(null)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25 transition-all"
+                onClick={() => {
+                  setSelectedCategory(null);
+                  const p = new URLSearchParams(searchParams.toString());
+                  p.delete("category");
+                  const qs = p.toString();
+                  router.replace(`/shop${qs ? `?${qs}` : ""}`);
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red/15 text-red-light border border-red/30 hover:bg-red/25 transition-all"
               >
                 {selectedCategory}
                 <span>✕</span>
@@ -569,7 +613,13 @@ export default function TcgMarketplaceCatalog() {
             {selectedExpansion && (
               <button
                 type="button"
-                onClick={() => setSelectedExpansion(null)}
+                onClick={() => {
+                  setSelectedExpansion(null);
+                  const p = new URLSearchParams(searchParams.toString());
+                  p.delete("expansion");
+                  const qs = p.toString();
+                  router.replace(`/shop${qs ? `?${qs}` : ""}`);
+                }}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all"
               >
                 {selectedExpansion}
@@ -634,7 +684,7 @@ export default function TcgMarketplaceCatalog() {
             <TcgFilterSidebar
               categories={categoriesData}
               selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
+              onSelectCategory={handleSelectCategory}
               expansions={expansionsData}
               selectedExpansion={selectedExpansion}
               onSelectExpansion={setSelectedExpansion}
@@ -677,7 +727,7 @@ export default function TcgMarketplaceCatalog() {
                   categories={categoriesData}
                   selectedCategory={selectedCategory}
                   onSelectCategory={(cat) => {
-                    setSelectedCategory(cat);
+                    handleSelectCategory(cat);
                     setMobileDrawerOpen(false);
                   }}
                   expansions={expansionsData}

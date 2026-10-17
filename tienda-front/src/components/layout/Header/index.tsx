@@ -31,6 +31,13 @@ const Header = () => {
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const q = sp.get("search");
+      const cat = sp.get("category");
+      if (q) setSearchQuery(q);
+      if (cat) setSelectedCategory(cat);
+    }
   }, []);
 
   const handleOpenCartModal = () => {
@@ -99,14 +106,14 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-4 shrink-0">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center shadow-lg shadow-red-600/25 group-hover:shadow-red-600/40 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center shadow-lg shadow-red/30 group-hover:scale-105 transition-all border border-white/10">
                 <span className="text-white font-black text-xl leading-none">T</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-xl sm:text-2xl font-black tracking-tight text-white leading-none">
-                  TapTrade
+                  Tap<span className="text-red">Trade</span>
                 </span>
-                <span className="text-[9px] font-mono tracking-widest text-red-400 uppercase font-bold mt-0.5">
+                <span className="text-[9px] font-mono tracking-widest text-red-light uppercase font-bold mt-0.5">
                   TCG Marketplace
                 </span>
               </div>
@@ -116,10 +123,11 @@ const Header = () => {
           {/* Search Capsule Bar */}
           <div className="hidden md:flex flex-1 max-w-xl mx-4">
             <form onSubmit={handleSearchSubmit} className="w-full">
-              <div className="flex items-center bg-[#111522] rounded-xl border border-white/10 hover:border-white/20 focus-within:border-red-500/60 focus-within:ring-1 focus-within:ring-red-500/30 transition-all overflow-hidden">
-                <div className="shrink-0 border-r border-white/10 text-xs text-gray-300 px-1">
+              <div className="relative flex items-center bg-[#111522] rounded-xl border border-white/10 hover:border-white/20 focus-within:border-red/60 focus-within:ring-1 focus-within:ring-red/30 transition-all">
+                <div className="shrink-0 border-r border-white/10 text-xs text-gray-300">
                   <CustomSelect
                     options={categoriesData}
+                    value={selectedCategory}
                     onChange={(val: any) => setSelectedCategory(val?.name || "Todas las categorías")}
                   />
                 </div>
@@ -128,12 +136,12 @@ const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar cartas, expansiones, singles..."
-                  className="w-full bg-transparent text-white text-xs px-3 py-2.5 outline-none placeholder:text-gray-500"
+                  className="w-full bg-transparent text-white text-xs px-3 py-2.5 outline-none placeholder:text-gray-500 rounded-none"
                 />
                 <button
                   type="submit"
                   aria-label="Buscar"
-                  className="px-3.5 py-2.5 text-gray-400 hover:text-white transition-colors"
+                  className="px-3.5 py-2.5 text-gray-400 hover:text-white hover:text-red transition-colors shrink-0 rounded-r-xl"
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="11" cy="11" r="8"></circle>

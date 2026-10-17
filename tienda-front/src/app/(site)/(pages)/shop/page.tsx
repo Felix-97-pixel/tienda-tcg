@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import TcgMarketplaceCatalog from "./_components/TcgMarketplaceCatalog";
 import { Metadata } from "next";
 
@@ -10,7 +10,9 @@ export const metadata: Metadata = {
 const ShopPage = () => {
   return (
     <main>
-      <TcgMarketplaceCatalog />
+      <Suspense fallback={<div className="min-h-screen bg-[#07090E] pt-32 text-center text-white/50 font-mono">Cargando catálogo...</div>}>
+        <TcgMarketplaceCatalog />
+      </Suspense>
     </main>
   );
 };

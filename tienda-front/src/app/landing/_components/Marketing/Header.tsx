@@ -31,8 +31,8 @@ const Header = () => {
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-              TapTrade
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#E10E0E]/20 text-[#E10E0E] border border-[#E10E0E]/30 uppercase tracking-widest">
+              Tap<span className="text-red">Trade</span>
+              <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#E10E0E]/20 text-red border border-red/30 uppercase tracking-widest">
                 TCG
               </span>
             </span>

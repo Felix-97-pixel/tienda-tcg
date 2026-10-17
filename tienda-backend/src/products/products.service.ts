@@ -490,7 +490,18 @@ export class ProductsService {
     const where: any = {};
     if (categoryName || storeId) {
       where.product = {};
-      if (categoryName) where.product.category = { name: categoryName };
+      if (categoryName) {
+        const normalized = categoryName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const terms = Array.from(new Set([categoryName, normalized, categoryName.replace(/é/gi, 'e'), categoryName.replace(/e/gi, 'é')])).filter(Boolean);
+        where.product.category = {
+          OR: terms.flatMap((term) => [
+            { name: { equals: term, mode: 'insensitive' } },
+            { slug: { equals: term, mode: 'insensitive' } },
+            { name: { contains: term, mode: 'insensitive' } },
+            { slug: { contains: term, mode: 'insensitive' } },
+          ]),
+        };
+      }
       if (storeId) where.product.items = { some: { storeId } };
     }
 
@@ -512,7 +523,18 @@ export class ProductsService {
     const where: any = {};
     if (categoryName || storeId) {
       where.product = {};
-      if (categoryName) where.product.category = { name: categoryName };
+      if (categoryName) {
+        const normalized = categoryName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const terms = Array.from(new Set([categoryName, normalized, categoryName.replace(/é/gi, 'e'), categoryName.replace(/e/gi, 'é')])).filter(Boolean);
+        where.product.category = {
+          OR: terms.flatMap((term) => [
+            { name: { equals: term, mode: 'insensitive' } },
+            { slug: { equals: term, mode: 'insensitive' } },
+            { name: { contains: term, mode: 'insensitive' } },
+            { slug: { contains: term, mode: 'insensitive' } },
+          ]),
+        };
+      }
       if (storeId) where.product.items = { some: { storeId } };
     }
     if (expansionName) {
@@ -549,13 +571,23 @@ export class ProductsService {
     }
 
     if (categoryName) {
-      whereClause.category = { name: categoryName };
+      const normalized = categoryName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const terms = Array.from(new Set([categoryName, normalized, categoryName.replace(/é/gi, 'e'), categoryName.replace(/e/gi, 'é')])).filter(Boolean);
+      whereClause.category = {
+        ...(whereClause.category || {}),
+        OR: terms.flatMap((term) => [
+          { name: { equals: term, mode: 'insensitive' } },
+          { slug: { equals: term, mode: 'insensitive' } },
+          { name: { contains: term, mode: 'insensitive' } },
+          { slug: { contains: term, mode: 'insensitive' } },
+        ]),
+      };
     }
 
     if (isTcg !== undefined) {
       whereClause.category = {
-        ...whereClause.category,
-        isTcg: isTcg
+        ...(whereClause.category || {}),
+        isTcg: isTcg,
       };
     }
 

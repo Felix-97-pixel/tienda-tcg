@@ -49,7 +49,9 @@ const Footer = () => {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#E10E0E] via-[#F23030] to-amber-500 flex items-center justify-center shadow-lg shadow-[#E10E0E]/20">
                 <span className="text-white font-black text-sm font-mono">T</span>
               </div>
-              <span className="text-xl font-black tracking-tight text-white">TapTrade</span>
+              <span className="text-xl font-black tracking-tight text-white">
+                Tap<span className="text-red">Trade</span>
+              </span>
             </Link>
             <p className="text-gray-400 text-sm max-w-sm leading-relaxed mb-4">
               La plataforma SaaS y marketplace líder para Trading Card Games en Chile. Centralizamos inventarios, automatizamos buylists y conectamos a tiendas y coleccionistas.
