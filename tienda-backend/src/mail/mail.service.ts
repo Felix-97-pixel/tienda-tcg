@@ -43,91 +43,137 @@ export class MailService {
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Verifica tu Cuenta | Blood Moon Games</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Activa tu Cuenta | TapTrade TCG Marketplace</title>
         <style>
           body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f4f4f5;
-            color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #07090E;
+            color: #ffffff;
             margin: 0;
             padding: 0;
           }
           .container {
             max-width: 600px;
             margin: 40px auto;
-            background-color: #ffffff;
-            border-radius: 8px;
+            background-color: #0E121B;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-top: 5px solid #800D0D;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 4px solid #E10E0E;
           }
           .header {
-            background-color: #111111;
+            background-color: #07090E;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          }
+          .brand-title {
+            color: #ffffff;
+            margin: 0;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+          }
+          .brand-title span {
+            color: #E10E0E;
+          }
+          .badge {
+            display: inline-block;
+            font-size: 10px;
+            font-family: monospace;
+            color: #ff6b6b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
           }
           .content {
-            padding: 40px 30px;
+            padding: 36px 32px;
             line-height: 1.6;
           }
           .content h1 {
-            color: #800D0D;
-            font-size: 24px;
+            color: #ffffff;
+            font-size: 22px;
             margin-top: 0;
+            margin-bottom: 16px;
             font-weight: 800;
           }
           .content p {
-            font-size: 16px;
-            color: #4b5563;
-            margin-bottom: 24px;
+            font-size: 15px;
+            color: #94a3b8;
+            margin-bottom: 20px;
           }
           .btn-container {
             text-align: center;
-            margin: 35px 0;
+            margin: 32px 0;
           }
           .btn {
-            background-color: #800D0D;
+            background: linear-gradient(135deg, #800D0D 0%, #E10E0E 50%, #FF5A1F 100%);
             color: #ffffff !important;
             text-decoration: none;
-            padding: 12px 30px;
-            font-size: 16px;
+            padding: 14px 36px;
+            font-size: 15px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 10px;
             display: inline-block;
-            box-shadow: 0 4px 6px rgba(128, 13, 13, 0.2);
+            box-shadow: 0 4px 15px rgba(225, 14, 14, 0.35);
+          }
+          .info-box {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #E10E0E;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin: 24px 0;
+            font-size: 13px;
+            color: #cbd5e1;
+          }
+          .url-box {
+            font-size: 12px;
+            word-break: break-all;
+            color: #93c5fd;
+            background-color: rgba(14, 18, 27, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
           }
           .footer {
-            background-color: #f9fafb;
-            padding: 20px 30px;
+            background-color: #07090E;
+            padding: 22px 30px;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             font-size: 12px;
-            color: #9ca3af;
+            color: #64748b;
           }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h2 style="color: #ffffff; margin: 0; font-family: sans-serif; letter-spacing: 2px; font-size: 20px; text-transform: uppercase;">Blood Moon Games</h2>
+            <h2 class="brand-title">Tap<span>Trade</span></h2>
+            <div class="badge">TCG Marketplace • Activación de Cuenta</div>
           </div>
           <div class="content">
-            <h1>¡Hola, ${name || 'Jugador'}!</h1>
-            <p>Gracias por registrarte en el sitio oficial de <strong>Blood Moon Games</strong>. Para poder ingresar a tu cuenta y comenzar a explorar nuestro catálogo de TCG y preventas, necesitamos validar tu correo electrónico.</p>
-            <p>Por favor, haz clic en el siguiente botón para activar tu cuenta de inmediato:</p>
+            <h1>¡Bienvenido a TapTrade, ${name || 'Coleccionista'}!</h1>
+            <p>Gracias por unirte al marketplace de cartas coleccionables y preventas más grande de Chile. Ya sea que busques singles o sellados de <strong>Pokémon, Magic: The Gathering, Yu-Gi-Oh!, Mitos y Leyendas u One Piece</strong>, tu bóveda está lista.</p>
+            <p>Para activar tu cuenta y comenzar a explorar el catálogo con total seguridad, haz clic en el siguiente botón:</p>
             
             <div class="btn-container">
               <a href="${verifyLink}" class="btn" target="_blank">Activar Mi Cuenta</a>
             </div>
+
+            <div class="info-box">
+              <strong>🔒 Seguridad y Privacidad:</strong> TapTrade cumple con la Ley N° 19.628 de Protección de Datos Personales. Tus datos e inventario están protegidos bajo estándares de seguridad de grado bancario.
+            </div>
             
-            <p style="font-size: 14px; color: #9ca3af;">Si el botón no funciona, puedes copiar y pegar el siguiente enlace en tu navegador:</p>
-            <p style="font-size: 13px; word-break: break-all; color: #3b82f6; background-color: #eff6ff; padding: 10px; border-radius: 4px; border: 1px dashed #bfdbfe;">
+            <p style="font-size: 13px; color: #64748b; margin-top: 24px;">Si el botón no funciona en tu cliente de correo, copia y pega el siguiente enlace en tu navegador:</p>
+            <p class="url-box">
               ${verifyLink}
             </p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} Blood Moon Games. Todos los derechos reservados.</p>
-            <p>Si no te registraste en nuestro sitio, puedes ignorar este correo de forma segura.</p>
+            <p style="margin: 0 0 6px 0;">© ${new Date().getFullYear()} TapTrade SpA. Santiago, Chile. Todos los derechos reservados.</p>
+            <p style="margin: 0; font-size: 11px;">Si no te registraste en TapTrade, puedes ignorar este correo de forma segura.</p>
           </div>
         </div>
       </body>
@@ -135,20 +181,20 @@ export class MailService {
     `;
 
     console.log('\n' + '='.repeat(80));
-    console.log(`[MAIL_DEV_LOG] ENVIANDO CORREO DE VERIFICACIÓN A: ${email}`);
+    console.log(`[MAIL_DEV_LOG] ENVIANDO CORREO DE VERIFICACIÓN TAPTRADE A: ${email}`);
     console.log(`[MAIL_DEV_LOG] NOMBRE: ${name}`);
     console.log(`[MAIL_DEV_LOG] ENLACE DE ACTIVACIÓN: ${verifyLink}`);
     console.log('='.repeat(80) + '\n');
 
     if (this.transporter) {
       try {
-        const mailFrom = this.configService.get<string>('SMTP_FROM') || '"Blood Moon Games" <no-reply@bloodmoongames.cl>';
+        const mailFrom = this.configService.get<string>('SMTP_FROM') || '"TapTrade" <no-reply@taptrade.cl>';
         this.logger.log(`Attempting to send email to ${email} from ${mailFrom}...`);
         const info = await this.transporter.sendMail({
           from: mailFrom,
           to: email,
-          subject: 'Verifica tu Cuenta | Blood Moon Games',
-          text: `Hola ${name || 'Jugador'},\n\nGracias por registrarte en Blood Moon Games. Para verificar tu cuenta, por favor visita el siguiente enlace:\n\n${verifyLink}\n\n¡Gracias!`,
+          subject: '¡Activa tu Cuenta en TapTrade TCG Marketplace! 🔥',
+          text: `Hola ${name || 'Coleccionista'},\n\n¡Bienvenido a TapTrade! Para verificar tu cuenta y comenzar a explorar el catálogo de cartas coleccionables, por favor visita el siguiente enlace:\n\n${verifyLink}\n\n¡Gracias!`,
           html: htmlContent,
         });
         this.logger.log(`Verification email sent successfully to: ${email} (messageId: ${info.messageId})`);
