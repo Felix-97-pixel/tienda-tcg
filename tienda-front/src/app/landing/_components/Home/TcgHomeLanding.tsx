@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/utils/api";
 import ShippingBadge from "@/components/ui/ShippingBadge";
+import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
 import { IconStore, IconZap, IconShieldCheck, IconCreditCard, IconSparkles } from "@/components/ui/Icons";
 
@@ -90,7 +91,7 @@ const TCG_GAMES = [
   },
 ];
 
-// Verified Stores in Chile
+// Verified Stores in Chile (con configuración real sincronizada con la base de datos)
 const FEATURED_STORES = [
   {
     id: "bloodmoongames",
@@ -99,18 +100,30 @@ const FEATURED_STORES = [
     city: "Providencia, Santiago",
     address: "Pérez Valenzuela, Barrio Tajamar",
     hours: "Lun - Sáb: 11:00 - 19:30 hrs",
-    shippingMethods: ["retiro_tienda", "chilexpress", "starken"],
+    pickupEnabled: true,
+    pickupAddress: "Av. Providencia 2237, Local 45, Providencia",
+    pickupSchedule: "Lunes a Viernes 12:00 a 19:30 hrs",
+    shipping: [
+      { id: "1", name: "RETIRO_TIENDA", price: 0, isActive: true },
+      { id: "2", name: "CHILEXPRESS", price: 9990, isActive: true },
+      { id: "3", name: "STARKEN", price: 100, isActive: false },
+    ],
     specialty: "Singles Riftbound, Magic MTG & Sellado",
     verified: true,
   },
   {
     id: "taptradestore",
     name: "TapTrade Store",
-    subdomain: "bloodmoongames", // fallback to active demo store
+    subdomain: "taptrade",
     city: "Santiago Centro, RM",
     address: "Padre Mariano 98 Of. 315",
     hours: "Lun - Vie: 10:00 - 18:30 hrs",
-    shippingMethods: ["retiro_tienda", "chilexpress", "starken"],
+    pickupEnabled: false,
+    shipping: [
+      { id: "4", name: "RETIRO_TIENDA", price: 0, isActive: false },
+      { id: "5", name: "CHILEXPRESS", price: 9990, isActive: true },
+      { id: "6", name: "STARKEN", price: 6990, isActive: true },
+    ],
     specialty: "Catálogo Oficial TapTrade & Verificación NM",
     verified: true,
   },
@@ -120,8 +133,42 @@ export default function TcgHomeLanding() {
   const router = useRouter();
   const [heroSearch, setHeroSearch] = useState("");
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [featuredStores, setFeaturedStores] = useState<any[]>(FEATURED_STORES);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"all" | "foil" | "riftbound" | "magic">("all");
+
+  // Fetch live stores from API to reflect real-time shipping/pickup settings
+  useEffect(() => {
+    fetch(`${API_URL}/stores/public`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((storesData) => {
+        if (Array.isArray(storesData) && storesData.length > 0) {
+          const mapped = storesData.map((dbStore) => {
+            const matchingFeatured = FEATURED_STORES.find(
+              (f) => f.subdomain === dbStore.subdomain || f.id === dbStore.id
+            );
+            return {
+              id: dbStore.id,
+              name: dbStore.name,
+              subdomain: dbStore.subdomain,
+              city: dbStore.originCommune?.name
+                ? `${dbStore.originCommune.name}, ${dbStore.originRegion?.name || "Chile"}`
+                : (matchingFeatured?.city || "Santiago, Chile"),
+              address: dbStore.pickupAddress || dbStore.address || matchingFeatured?.address || "Dirección en tienda",
+              hours: dbStore.pickupSchedule || matchingFeatured?.hours || "Lun - Sáb: 11:00 - 19:30 hrs",
+              pickupEnabled: dbStore.pickupEnabled,
+              pickupAddress: dbStore.pickupAddress,
+              pickupSchedule: dbStore.pickupSchedule,
+              shipping: dbStore.shipping,
+              specialty: matchingFeatured?.specialty || "Catálogo de Singles & Sellado TCG",
+              verified: true,
+            };
+          });
+          setFeaturedStores(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch live products for the featured section
   useEffect(() => {
@@ -533,7 +580,7 @@ export default function TcgHomeLanding() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {FEATURED_STORES.map((store) => (
+            {featuredStores.map((store) => (
               <div
                 key={store.id}
                 className="p-6 rounded-2xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all shadow-lg flex flex-col justify-between"
@@ -563,10 +610,8 @@ export default function TcgHomeLanding() {
                     🕒 {store.hours}
                   </p>
 
-                  <div className="flex items-center gap-2 flex-wrap mb-5">
-                    <ShippingBadge name="retiro_tienda" size="sm" />
-                    <ShippingBadge name="chilexpress" size="sm" />
-                    <ShippingBadge name="starken" size="sm" />
+                  <div className="mb-5">
+                    <StoreShippingBadges store={store} size="sm" className="flex items-center gap-2 flex-wrap" />
                   </div>
                 </div>
 

@@ -13,6 +13,7 @@ import { calculateCommissions } from "@/utils/commissions";
 import { useToast } from "@/hooks/useToast";
 import Loader from "@/components/ui/Loader";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
+import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import { IconSparkles, IconBox } from "@/components/ui/Icons";
 
 export default function ShopDetails() {
@@ -390,11 +391,7 @@ export default function ShopDetails() {
                   <span className="text-[11px] text-gray-400 uppercase tracking-wider block mb-2 font-medium">
                     Métodos de Entrega
                   </span>
-                  <div className="flex flex-wrap gap-2">
-                    <ShippingBadge name="retiro_tienda" size="sm" />
-                    <ShippingBadge name="chilexpress" size="sm" />
-                    <ShippingBadge name="starken" size="sm" />
-                  </div>
+                  <StoreShippingBadges store={lowestPriceItem?.store} size="sm" />
                 </div>
 
                 {/* Quantity Stepper & Add to Cart Button */}
@@ -550,11 +547,7 @@ export default function ShopDetails() {
                       </div>
 
                       {/* Supported Shipping Badges */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <ShippingBadge name="retiro_tienda" size="sm" />
-                        <ShippingBadge name="chilexpress" size="sm" />
-                        <ShippingBadge name="starken" size="sm" />
-                      </div>
+                      <StoreShippingBadges store={item.store} size="sm" />
 
                       {/* Stock & Price */}
                       <div className="text-left lg:text-right min-w-[120px]">

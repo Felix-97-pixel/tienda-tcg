@@ -631,7 +631,11 @@ export class ProductsService {
               language: true,
               condition: true,
               finish: true,
-              store: true
+              store: {
+                include: {
+                  shipping: { where: { isActive: true } }
+                }
+              }
             }
           },
           buyListItems: buylistStoreId ? {
@@ -684,7 +688,8 @@ export class ProductsService {
             store: {
               include: {
                 subscriptionPlans: { include: { features: true } },
-                gameExchangeRates: true
+                gameExchangeRates: true,
+                shipping: { where: { isActive: true } }
               }
             }
           }
@@ -716,7 +721,8 @@ export class ProductsService {
             store: {
               include: {
                 subscriptionPlans: { include: { features: true } },
-                gameExchangeRates: true
+                gameExchangeRates: true,
+                shipping: { where: { isActive: true } }
               }
             }
           }

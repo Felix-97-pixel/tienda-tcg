@@ -10,6 +10,11 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
+  @Get('public')
+  getPublicStores() {
+    return this.storesService.getPublicStores();
+  }
+
   @Get('public/:subdomain')
   getPublicStore(@Param('subdomain') subdomain: string) {
     return this.storesService.getPublicStoreBySubdomain(subdomain);

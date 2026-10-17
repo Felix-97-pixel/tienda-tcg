@@ -50,6 +50,38 @@ const carrierStyles: Record<string, { wrapper: string; renderContent: (size: Siz
       </span>
     ),
   },
+  blue_express: {
+    wrapper: "bg-[#00529B] border border-[#00386C]/15 shadow-sm",
+    renderContent: (size) => (
+      <span className={`font-black italic text-white tracking-tight leading-none ${size.text}`}>
+        blue express
+      </span>
+    ),
+  },
+  blueexpress: {
+    wrapper: "bg-[#00529B] border border-[#00386C]/15 shadow-sm",
+    renderContent: (size) => (
+      <span className={`font-black italic text-white tracking-tight leading-none ${size.text}`}>
+        blue express
+      </span>
+    ),
+  },
+  correos_chile: {
+    wrapper: "bg-[#D9261C] border border-[#B31D14]/15 shadow-sm",
+    renderContent: (size) => (
+      <span className={`font-black italic text-white tracking-tight leading-none ${size.text}`}>
+        correos chile
+      </span>
+    ),
+  },
+  correos: {
+    wrapper: "bg-[#D9261C] border border-[#B31D14]/15 shadow-sm",
+    renderContent: (size) => (
+      <span className={`font-black italic text-white tracking-tight leading-none ${size.text}`}>
+        correos chile
+      </span>
+    ),
+  },
   retiro_tienda: {
     wrapper: "bg-emerald-600/90 border border-emerald-400/30 shadow-sm",
     renderContent: (size) => (
@@ -67,9 +99,9 @@ const carrierStyles: Record<string, { wrapper: string; renderContent: (size: Siz
     ),
   },
   default: {
-    wrapper: "bg-[#111318] border border-stroke",
+    wrapper: "bg-[#111318] border border-white/10 shadow-sm",
     renderContent: (size) => (
-      <span className={`font-black uppercase tracking-widest text-gray-4 leading-none ${size.text}`}>
+      <span className={`font-black uppercase tracking-wider text-gray-300 leading-none truncate max-w-full px-1 ${size.text}`}>
         despacho
       </span>
     ),
@@ -78,7 +110,19 @@ const carrierStyles: Record<string, { wrapper: string; renderContent: (size: Siz
 
 export function ShippingBadge({ name, size = "sm", className = "" }: ShippingBadgeProps) {
   const normalizedName = (name || "").toLowerCase().replace(/[\s-]/g, "_");
-  const carrierKey = carrierStyles[normalizedName] ? normalizedName : normalizedName.includes("retiro") ? "retiro_tienda" : "default";
+  const carrierKey = carrierStyles[normalizedName]
+    ? normalizedName
+    : normalizedName.includes("retiro")
+    ? "retiro_tienda"
+    : normalizedName.includes("chilexpress")
+    ? "chilexpress"
+    : normalizedName.includes("starken")
+    ? "starken"
+    : normalizedName.includes("blue")
+    ? "blue_express"
+    : normalizedName.includes("correo")
+    ? "correos_chile"
+    : "default";
 
   const carrier = carrierStyles[carrierKey];
   const sizeStyle = sizeStyles[size] || sizeStyles.sm;
@@ -87,7 +131,13 @@ export function ShippingBadge({ name, size = "sm", className = "" }: ShippingBad
 
   return (
     <div className={`${baseStyles} ${carrier.wrapper} ${sizeStyle.wrapper} ${className}`}>
-      {carrier.renderContent(sizeStyle)}
+      {carrierKey === "default" && name ? (
+        <span className={`font-black uppercase tracking-wider text-gray-300 leading-none truncate max-w-full px-1 ${sizeStyle.text}`}>
+          {name.replace(/_/g, " ")}
+        </span>
+      ) : (
+        carrier.renderContent(sizeStyle)
+      )}
     </div>
   );
 }

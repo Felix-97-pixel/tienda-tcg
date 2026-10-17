@@ -15,5 +15,15 @@ export interface InventoryItem {
   store?: {
     id: string;
     name: string;
+    subdomain?: string;
+    pickupEnabled?: boolean | null;
+    pickupAddress?: string | null;
+    pickupSchedule?: string | null;
+    shipping?: Array<{
+      id?: string;
+      name: string;
+      price?: number;
+      isActive?: boolean;
+    }>;
   };
 }

@@ -8,6 +8,35 @@ import * as bcrypt from 'bcrypt';
 export class StoresService {
   constructor(private prisma: PrismaService) { }
 
+  async getPublicStores() {
+    return this.prisma.store.findMany({
+      select: {
+        id: true,
+        name: true,
+        subdomain: true,
+        logoUrl: true,
+        address: true,
+        latitude: true,
+        longitude: true,
+        pickupEnabled: true,
+        pickupAddress: true,
+        pickupSchedule: true,
+        originRegion: { select: { id: true, name: true } },
+        originCommune: { select: { id: true, name: true } },
+        shipping: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            isActive: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async getPublicStoreBySubdomain(subdomain: string) {
     const store = await this.prisma.store.findUnique({
       where: { subdomain },
@@ -19,8 +48,20 @@ export class StoresService {
         address: true,
         latitude: true,
         longitude: true,
-                settings: true,
+        pickupEnabled: true,
+        pickupAddress: true,
+        pickupSchedule: true,
+        settings: true,
         gameExchangeRates: true,
+        shipping: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            isActive: true,
+          },
+        },
       }
     });
 
