@@ -32,3 +32,25 @@ export class LoginDto {
   @IsNotEmpty()
   captchaToken!: string;
 }
+
+export class ForgotPasswordDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  captchaToken!: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  token!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  newPassword!: string;
+}
+

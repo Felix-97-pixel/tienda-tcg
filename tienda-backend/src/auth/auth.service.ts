@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException, BadRequestExcepti
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
 import axios from 'axios';
 import { MailService } from '../mail/mail.service';
 import { randomUUID } from 'crypto';
@@ -122,4 +122,69 @@ export class AuthService {
       message: 'Cuenta verificada correctamente. Ya puedes iniciar sesión.'
     };
   }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const isCaptchaValid = await this.verifyCaptcha(dto.captchaToken);
+    if (!isCaptchaValid) {
+      throw new BadRequestException('CAPTCHA inválido');
+    }
+
+    const user = await this.usersService.findOne(dto.email);
+    if (user) {
+      const resetToken = await this.jwtService.signAsync(
+        {
+          sub: user.id,
+          email: user.email,
+          type: 'password_reset',
+          pv: user.password.slice(-10),
+        },
+        { expiresIn: '1h' },
+      );
+
+      await this.mailService.sendPasswordResetEmail(
+        user.email,
+        user.name ?? 'Coleccionista',
+        resetToken,
+      );
+    }
+
+    return {
+      success: true,
+      message:
+        'Si el correo electrónico ingresado está registrado, te hemos enviado las instrucciones y el enlace para restablecer tu contraseña.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    let payload: any;
+    try {
+      payload = await this.jwtService.verifyAsync(dto.token);
+    } catch (err) {
+      throw new BadRequestException('El enlace de recuperación es inválido o ha expirado.');
+    }
+
+    if (payload?.type !== 'password_reset') {
+      throw new BadRequestException('Token de recuperación inválido.');
+    }
+
+    const user = await this.usersService.findOne(payload.email);
+    if (!user || user.id !== payload.sub) {
+      throw new BadRequestException('Usuario no encontrado.');
+    }
+
+    if (user.password.slice(-10) !== payload.pv) {
+      throw new BadRequestException(
+        'Este enlace ya ha sido utilizado o ha quedado sin efecto. Por favor solicita uno nuevo.',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.usersService.updatePassword(user.id, hashedPassword);
+
+    return {
+      success: true,
+      message: 'Tu contraseña ha sido restablecida con éxito. Ya puedes iniciar sesión con tus nuevas credenciales.',
+    };
+  }
 }
+

@@ -283,7 +283,7 @@ export default function LoginForm() {
                   Contraseña
                 </label>
                 <Link
-                  href="/forgot-password"
+                  href="/recuperar-cuenta"
                   className="text-xs text-red-light hover:text-white font-semibold transition-colors"
                 >
                   ¿Olvidaste tu contraseña?

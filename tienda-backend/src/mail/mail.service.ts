@@ -163,4 +163,180 @@ export class MailService {
       this.logger.warn('No SMTP transporter available. Email was only logged to console.');
     }
   }
+
+  async sendPasswordResetEmail(email: string, name: string, token: string): Promise<void> {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const resetLink = `${frontendUrl}/restablecer-contrasena?token=${token}`;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Recuperar Contraseña | TapTrade TCG Marketplace</title>
+        <style>
+          body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #07090E;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #0E121B;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #E10E0E;
+          }
+          .header {
+            background-color: #07090E;
+            padding: 28px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          }
+          .brand-title {
+            color: #ffffff;
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+          }
+          .brand-title span {
+            color: #E10E0E;
+          }
+          .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-family: monospace;
+            color: #ff6b6b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+          }
+          .content {
+            padding: 36px 32px;
+            line-height: 1.6;
+          }
+          .content h1 {
+            color: #ffffff;
+            font-size: 22px;
+            margin-top: 0;
+            font-weight: 700;
+          }
+          .content p {
+            font-size: 15px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+          }
+          .btn-container {
+            text-align: center;
+            margin: 32px 0;
+          }
+          .btn {
+            background: linear-gradient(135deg, #800D0D 0%, #E10E0E 50%, #FF5A1F 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 34px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(225, 14, 14, 0.35);
+          }
+          .warning-box {
+            background-color: rgba(225, 14, 14, 0.08);
+            border-left: 3px solid #E10E0E;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin: 24px 0;
+            font-size: 13px;
+            color: #cbd5e1;
+          }
+          .url-box {
+            font-size: 12px;
+            word-break: break-all;
+            color: #93c5fd;
+            background-color: rgba(14, 18, 27, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+          }
+          .footer {
+            background-color: #07090E;
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 12px;
+            color: #64748b;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2 class="brand-title">Tap<span>Trade</span></h2>
+            <div class="badge">TCG Marketplace • Seguridad</div>
+          </div>
+          <div class="content">
+            <h1>Hola, ${name || 'Coleccionista'}</h1>
+            <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>TapTrade</strong>.</p>
+            <p>Para crear una nueva clave de acceso y reingresar a tu bóveda, haz clic en el siguiente botón:</p>
+            
+            <div class="btn-container">
+              <a href="${resetLink}" class="btn" target="_blank">Restablecer Mi Contraseña</a>
+            </div>
+
+            <div class="warning-box">
+              <strong>Importante:</strong> Este enlace de recuperación es de un solo uso y caduca automáticamente en <strong>60 minutos</strong>. Si tú no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña actual permanecerá intacta.
+            </div>
+            
+            <p style="font-size: 13px; color: #64748b; margin-top: 24px;">Si el botón no funciona, copia y pega este enlace directo en tu navegador web:</p>
+            <p class="url-box">
+              ${resetLink}
+            </p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} TapTrade TCG Marketplace. Todos los derechos reservados.</p>
+            <p>Este correo ha sido enviado automáticamente. Por favor no respondas a esta dirección.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    console.log('\n' + '='.repeat(80));
+    console.log(`[MAIL_DEV_LOG] ENLACE DE RECUPERACIÓN DE CONTRASEÑA`);
+    console.log(`[MAIL_DEV_LOG] DESTINATARIO: ${email}`);
+    console.log(`[MAIL_DEV_LOG] NOMBRE: ${name}`);
+    console.log(`[MAIL_DEV_LOG] ENLACE DE RECUPERACIÓN: ${resetLink}`);
+    console.log('='.repeat(80) + '\n');
+
+    if (this.transporter) {
+      try {
+        const mailFrom = this.configService.get<string>('SMTP_FROM') || '"TapTrade" <no-reply@taptrade.cl>';
+        this.logger.log(`Attempting to send password reset email to ${email} from ${mailFrom}...`);
+        const info = await this.transporter.sendMail({
+          from: mailFrom,
+          to: email,
+          subject: 'Restablece tu Contraseña | TapTrade TCG Marketplace',
+          text: `Hola ${name || 'Coleccionista'},\n\nPara restablecer tu contraseña en TapTrade, por favor visita el siguiente enlace:\n\n${resetLink}\n\nEste enlace caduca en 60 minutos.\n\nSi no fuiste tú, puedes ignorar este correo.`,
+          html: htmlContent,
+        });
+        this.logger.log(`Password reset email sent successfully to: ${email} (messageId: ${info.messageId})`);
+      } catch (error: any) {
+        this.logger.error(`Failed to send password reset email to ${email}: ${error.message}`);
+        if (error.stack) {
+          this.logger.error(error.stack);
+        }
+      }
+    } else {
+      this.logger.warn('No SMTP transporter available. Password reset email was only logged to console.');
+    }
+  }
 }
+

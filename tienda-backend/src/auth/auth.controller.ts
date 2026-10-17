@@ -1,7 +1,7 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,6 +31,19 @@ export class AuthController {
   async verify(@Query('token') token: string) {
     return this.authService.verifyEmail(token);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
+  }
+
 
   private setCookie(res: Response, token: string) {
     const isProduction = process.env.NODE_ENV === 'production';

@@ -50,6 +50,16 @@ export class UsersService {
     });
   }
 
+  async updatePassword(id: string, hashedPassword: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+  }
+
+
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
