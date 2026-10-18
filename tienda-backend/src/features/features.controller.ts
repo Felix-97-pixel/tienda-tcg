@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { FeaturesService } from './features.service';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -42,14 +42,14 @@ export class FeaturesController {
   // ================= SUBSCRIPTION PLANS =================
 
   @Get('plans')
-  getAllPlans() {
-    return this.featuresService.getAllPlans();
+  getAllPlans(@Query('standardOnly') standardOnly?: string) {
+    return this.featuresService.getAllPlans(standardOnly === 'true');
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Post('plans')
-  createPlan(@Body() data: { name: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }) {
+  createPlan(@Body() data: { name: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number; isStandard?: boolean }) {
     return this.featuresService.createPlan(data);
   }
 
@@ -58,7 +58,7 @@ export class FeaturesController {
   @Patch('plans/:id')
   updatePlan(
     @Param('id') id: string,
-    @Body() data: { name?: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }
+    @Body() data: { name?: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number; isStandard?: boolean }
   ) {
     return this.featuresService.updatePlan(id, data);
   }

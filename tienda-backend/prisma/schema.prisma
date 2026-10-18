@@ -526,6 +526,7 @@ model SubscriptionPlan {
   price          Decimal @default(0) @db.Decimal(10, 2)
   skuLimit       Int     @default(-1)
   commissionRate Decimal @default(0) @db.Decimal(5, 4)
+  isStandard     Boolean @default(true)
 
   features Feature[] @relation("PlanFeatures")
   stores   Store[]   @relation("StoreSubscriptionPlans")

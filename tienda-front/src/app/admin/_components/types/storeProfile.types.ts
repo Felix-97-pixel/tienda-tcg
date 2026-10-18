@@ -9,6 +9,7 @@ export interface StorePlan {
   id: string;
   name: string;
   price: number;
+  isStandard?: boolean;
 }
 
 export interface StoreProfileFormData {

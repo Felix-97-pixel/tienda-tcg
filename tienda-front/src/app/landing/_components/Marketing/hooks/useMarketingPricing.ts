@@ -17,6 +17,7 @@ export interface Plan {
   price: string;
   skuLimit: number;
   commissionRate: string | number;
+  isStandard?: boolean;
   features: Feature[];
 }
 
@@ -29,11 +30,15 @@ export function useMarketingPricing() {
     const fetchData = async () => {
       try {
         const [plansRes, featuresRes] = await Promise.all([
-          fetch(`${API_URL}/features/plans`),
-          fetch(`${API_URL}/features`)
+          fetch(`${API_URL}/features/plans?standardOnly=true`, { cache: "no-store" }),
+          fetch(`${API_URL}/features`, { cache: "no-store" })
         ]);
         
-        if (plansRes.ok) setPlans(await plansRes.json());
+        if (plansRes.ok) {
+          const rawPlans: Plan[] = await plansRes.json();
+          // Solo mostrar planes marcados como estándar en la landing pública
+          setPlans(rawPlans.filter(p => p.isStandard !== false));
+        }
         if (featuresRes.ok) setFeatures(await featuresRes.json());
       } catch (error) {
         console.error("Error fetching pricing data:", error);

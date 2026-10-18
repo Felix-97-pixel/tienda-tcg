@@ -705,7 +705,7 @@ export default function MarketingPage() {
       {/* =========================================================================
           PLANES Y PRECIOS DINÁMICOS DESDE LA BASE DE DATOS
          ========================================================================= */}
-      <div id="pricing" className="relative z-10">
+      <div className="relative z-10">
         <PricingSection />
       </div>
 

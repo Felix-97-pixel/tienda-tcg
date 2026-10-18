@@ -40,42 +40,48 @@ export async function seedPlansAndFeatures(prisma: PrismaClient) {
       description: 'Para tiendas pequeñas y emprendedores. Catálogo de hasta 1.500 cartas para optimizar recursos.',
       price: 1.5,
       skuLimit: 1500,
-      commissionRate: 0.0
-    },
-    {
-      name: 'Plan Dealer',
-      description: 'Para vendedores y dealers activos en torneos y comunidades.',
-      price: 1.5,
-      skuLimit: 3000,
-      commissionRate: 0.0
+      commissionRate: 0.0,
+      isStandard: true
     },
     {
       name: 'Plan Store',
-      description: 'Para tiendas en crecimiento que necesitan gestión sólida.',
+      description: 'Para tiendas en crecimiento que necesitan gestión sólida y catálogo medio.',
       price: 3.5,
       skuLimit: 7500,
-      commissionRate: 0.0
+      commissionRate: 0.0,
+      isStandard: true
     },
     {
       name: 'Plan Mega Store',
       description: 'Para tiendas consolidadas con inventarios medianos a grandes.',
       price: 7.0,
       skuLimit: 30000,
-      commissionRate: 0.0
-    },
-    {
-      name: 'Plan Pioneras / Pro',
-      description: 'Tarifa preferencial para tiendas pioneras (Early Adopters). Base 10 UF rebajada a 5 UF con descuento.',
-      price: 10.0,
-      skuLimit: 20000,
-      commissionRate: 0.0
+      commissionRate: 0.0,
+      isStandard: true
     },
     {
       name: 'Plan Enterprise',
-      description: 'Operación a gran escala sin restricciones. Base 15 UF rebajada a 7.5 UF con descuento.',
+      description: 'Operación a gran escala sin restricciones. Tarifa regular 15 UF.',
       price: 15.0,
       skuLimit: -1,
-      commissionRate: 0.0
+      commissionRate: 0.0,
+      isStandard: true
+    },
+    {
+      name: 'Plan Enterprise (Oferta)',
+      description: 'Tarifa preferencial para cuentas enterprise negociadas (7.5 UF/mes).',
+      price: 7.5,
+      skuLimit: -1,
+      commissionRate: 0.0,
+      isStandard: false
+    },
+    {
+      name: 'Plan Pioneras (Oferta)',
+      description: 'Tarifa preferencial para tiendas pioneras (Early Adopters) rebajada a 5 UF/mes.',
+      price: 5.0,
+      skuLimit: 20000,
+      commissionRate: 0.0,
+      isStandard: false
     }
   ];
 
@@ -86,7 +92,8 @@ export async function seedPlansAndFeatures(prisma: PrismaClient) {
         description: p.description, 
         price: p.price,
         skuLimit: p.skuLimit,
-        commissionRate: p.commissionRate
+        commissionRate: p.commissionRate,
+        isStandard: p.isStandard
       },
       create: p
     });

@@ -50,12 +50,16 @@ export class FeaturesService {
 
   // ================= SUBSCRIPTION PLANS =================
 
-  async getAllPlans() {
+  async getAllPlans(standardOnly?: boolean) {
     return this.prisma.subscriptionPlan.findMany({
+      where: standardOnly ? { isStandard: true } : undefined,
       include: {
         features: true
       },
-      orderBy: { price: 'asc' }
+      orderBy: [
+        { isStandard: 'desc' },
+        { price: 'asc' }
+      ]
     });
   }
 
@@ -68,7 +72,7 @@ export class FeaturesService {
     return plan;
   }
 
-  async createPlan(data: { name: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }) {
+  async createPlan(data: { name: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number; isStandard?: boolean }) {
     return this.prisma.subscriptionPlan.create({
       data: {
         name: data.name,
@@ -76,6 +80,7 @@ export class FeaturesService {
         price: data.price || 0,
         skuLimit: data.skuLimit !== undefined ? data.skuLimit : -1,
         commissionRate: data.commissionRate || 0,
+        isStandard: data.isStandard !== undefined ? Boolean(data.isStandard) : true,
         features: {
           connect: (data.featureIds || []).map(id => ({ id }))
         }
@@ -84,7 +89,7 @@ export class FeaturesService {
     });
   }
 
-  async updatePlan(id: string, data: { name?: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number }) {
+  async updatePlan(id: string, data: { name?: string; description?: string; price?: number; featureIds?: string[]; skuLimit?: number; commissionRate?: number; isStandard?: boolean }) {
     await this.getPlanById(id);
     return this.prisma.subscriptionPlan.update({
       where: { id },
@@ -94,6 +99,7 @@ export class FeaturesService {
         price: data.price !== undefined ? data.price : undefined,
         skuLimit: data.skuLimit !== undefined ? data.skuLimit : undefined,
         commissionRate: data.commissionRate !== undefined ? data.commissionRate : undefined,
+        isStandard: data.isStandard !== undefined ? Boolean(data.isStandard) : undefined,
         features: data.featureIds ? {
           set: data.featureIds.map(id => ({ id }))
         } : undefined

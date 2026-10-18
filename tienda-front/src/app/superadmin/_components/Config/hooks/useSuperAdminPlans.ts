@@ -16,6 +16,7 @@ export interface Plan {
   price: string;
   skuLimit: number;
   commissionRate: string | number;
+  isStandard: boolean;
   features: Feature[];
 }
 
@@ -30,7 +31,15 @@ export function useSuperAdminPlans() {
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   
   // Form state
-  const [formData, setFormData] = useState({ name: "", description: "", price: "0", skuLimit: "-1", commissionRate: "0", featureIds: [] as string[] });
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    description: "", 
+    price: "0", 
+    skuLimit: "-1", 
+    commissionRate: "0", 
+    isStandard: true,
+    featureIds: [] as string[] 
+  });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -63,11 +72,20 @@ export function useSuperAdminPlans() {
         price: plan.price ? String(plan.price) : "0",
         skuLimit: plan.skuLimit !== undefined ? String(plan.skuLimit) : "-1",
         commissionRate: plan.commissionRate ? String(Number(plan.commissionRate) * 100) : "0",
+        isStandard: plan.isStandard !== undefined ? plan.isStandard : true,
         featureIds: plan.features.map(f => f.id)
       });
     } else {
       setEditingPlan(null);
-      setFormData({ name: "", description: "", price: "0", skuLimit: "-1", commissionRate: "0", featureIds: [] });
+      setFormData({ 
+        name: "", 
+        description: "", 
+        price: "0", 
+        skuLimit: "-1", 
+        commissionRate: "0", 
+        isStandard: true, 
+        featureIds: [] 
+      });
     }
     setIsModalOpen(true);
   };
@@ -99,6 +117,7 @@ export function useSuperAdminPlans() {
         price: parseFloat(formData.price) || 0,
         skuLimit: parseInt(formData.skuLimit, 10),
         commissionRate: 0, // SaaS Model: Siempre 0% comisión
+        isStandard: Boolean(formData.isStandard),
       };
 
       const res = await fetch(url, {

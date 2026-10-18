@@ -230,7 +230,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     description="Añade los planes base que cubren múltiples funcionalidades."
                     placeholder="Buscar y seleccionar plan a añadir..."
                     options={availablePlans.map(plan => ({
-                      label: `${plan.name} ($${plan.price})`,
+                      label: `${plan.name} (${Number(plan.price).toLocaleString()} UF)${!plan.isStandard ? ' [Oferta / Privado]' : ''}`,
                       value: plan.id
                     }))}
                     selectedValues={formData.subscriptionPlanIds}
