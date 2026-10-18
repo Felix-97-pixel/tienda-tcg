@@ -665,6 +665,7 @@ export class ProductsService {
               finish: true,
               store: {
                 include: {
+                  gameExchangeRates: true,
                   shipping: { where: { isActive: true } }
                 }
               }

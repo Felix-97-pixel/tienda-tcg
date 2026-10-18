@@ -10,6 +10,7 @@ import { useAppSelector } from "@/redux/store";
 import { useProductCart } from "@/hooks/useProductCart";
 import { matchesCondition, matchesFinish, matchesLanguage } from "@/utils/tcgFilters";
 import { IconSparkles, IconCard } from "@/components/ui/Icons";
+import { getBestAvailableVariant } from "@/utils/tcgPrices";
 
 interface TcgStorefrontViewProps {
   storeId: string;
@@ -17,52 +18,54 @@ interface TcgStorefrontViewProps {
 }
 
 // Compact Table Row for Deckbuilder View
-function TcgDeckbuilderRow({ item }: { item: any }) {
+function TcgDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?: any[] }) {
   const currency = useAppSelector((state: any) => state.currencyReducer);
-  const { handleAddToCart, isMaxStockReached, availableStock } = useProductCart(item);
+  const best = getBestAvailableVariant(item, globalRates);
+  const cheapestVariant = best.variant;
+  const price = best.finalPriceCLP;
+  const stock = best.stock;
+  const isOutOfStock = !best.inStock || stock <= 0;
+
+  const targetItem = cheapestVariant
+    ? {
+        ...item,
+        id: cheapestVariant.id,
+        productId: item.id,
+        inventoryItemId: cheapestVariant.id,
+        price: price,
+        discountedPrice: price,
+        stock: stock,
+        condition: best.conditionCode,
+        condition_rel: cheapestVariant.condition_rel || cheapestVariant.condition || item.condition_rel,
+        language: best.languageCode,
+        finish: cheapestVariant.finish?.name || cheapestVariant.finish || (best.isFoil ? "Foil" : "Normal"),
+        store: best.store,
+        storeId: cheapestVariant.storeId || item.storeId,
+        storeName: best.storeName,
+      }
+    : {
+        ...item,
+        price: price,
+        discountedPrice: price,
+        stock: stock,
+        condition: best.conditionCode,
+        language: best.languageCode,
+        finish: best.isFoil ? "Foil" : "Normal",
+        storeName: best.storeName,
+      };
+
+  const { handleAddToCart, isMaxStockReached } = useProductCart(targetItem);
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  const price = item.price || item.items?.[0]?.price || 0;
-  const stock = item.stock !== undefined ? item.stock : (item.items?.[0]?.stock ?? 0);
-  const isOutOfStock = stock <= 0 || isMaxStockReached;
-
-  const rawCondition = (
-    item.condition_rel?.name ||
-    item.items?.[0]?.condition?.name ||
-    item.condition ||
-    "NM"
-  ).toUpperCase();
-
-  let conditionCode = "NM";
-  let conditionClass = "badge-condition-nm";
-  if (rawCondition.includes("LIGHT") || rawCondition === "LP") {
-    conditionCode = "LP";
-    conditionClass = "badge-condition-lp";
-  } else if (rawCondition.includes("MODERATE") || rawCondition === "MP") {
-    conditionCode = "MP";
-    conditionClass = "badge-condition-mp";
-  } else if (rawCondition.includes("HEAVY") || rawCondition === "HP") {
-    conditionCode = "HP";
-    conditionClass = "badge-condition-hp";
-  } else if (rawCondition.includes("DAMAGE") || rawCondition === "DMG") {
-    conditionCode = "DMG";
-    conditionClass = "badge-condition-dmg";
-  }
-
-  const isFoil = Boolean(
-    item.finish?.name?.toLowerCase().includes("foil") ||
-    item.finish?.name?.toLowerCase().includes("holo") ||
-    item.items?.some((i: any) => i.finish?.name?.toLowerCase().includes("foil")) ||
-    item.cardDetail?.isFoil
-  );
-
-  const rawLang = item.language?.name || item.items?.[0]?.language?.name || "EN";
-  const languageCode = rawLang.substring(0, 2).toUpperCase();
+  const conditionCode = best.conditionCode;
+  const conditionClass = best.conditionClass;
+  const isFoil = best.isFoil;
+  const languageCode = best.languageCode;
   const imageUrl = item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png";
 
   const onAdd = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isMaxStockReached) return;
     setIsAdding(true);
     handleAddToCart(qty);
     setTimeout(() => setIsAdding(false), 900);
@@ -193,7 +196,8 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 0 });
 
   // Data State
-  const [products, setProducts] = useState<any[]>([]);
+  const [rawProducts, setRawProducts] = useState<any[]>([]);
+  const [globalRates, setGlobalRates] = useState<any[]>([]);
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [expansionsData, setExpansionsData] = useState<any[]>([]);
   const [conditionsData, setConditionsData] = useState<any[]>([]);
@@ -229,6 +233,16 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
         if (Array.isArray(data)) setLanguagesData(data);
       })
       .catch((err) => console.error("Error fetching languages:", err));
+  }, []);
+
+  // Fetch all global currencies and exchange rates dynamically
+  useEffect(() => {
+    fetch(`${API_URL}/currencies`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setGlobalRates(data);
+      })
+      .catch((err) => console.error("Error fetching currencies:", err));
   }, []);
 
   // Fetch categories metadata for this store
@@ -272,45 +286,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
       .then((response) => {
         const rawList = response.data || response;
         if (Array.isArray(rawList)) {
-          const mapped = rawList.map((item: any) => {
-            const variants: any[] = Array.isArray(item.items) ? item.items : [];
-            const inStock = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
-            const candidates = inStock.length > 0 ? inStock : variants;
-            const cheapest =
-              candidates.length > 0
-                ? [...candidates].sort(
-                    (a: any, b: any) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity)
-                  )[0]
-                : null;
-
-            const defaultPrice = cheapest?.price ?? item.items?.[0]?.price ?? item.price ?? 0;
-            const defaultStock =
-              cheapest?.stock ??
-              (item.items?.[0]?.stock !== undefined ? item.items[0].stock : item.stock || 0);
-
-            return {
-              id: item.id,
-              slug: item.slug,
-              title: item.name || item.title,
-              name: item.name || item.title,
-              price: parseFloat(defaultPrice),
-              stock: parseInt(defaultStock, 10),
-              imageUrl: item.imageUrl,
-              description: item.description,
-              cardDetail: item.cardDetail,
-              items: item.items || [],
-              imgs: {
-                previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-                thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-              },
-              category: item.category,
-              condition: cheapest?.condition?.name || item.items?.[0]?.condition?.name || item.condition || "NM",
-              language: cheapest?.language || item.items?.[0]?.language || item.language,
-              finish: cheapest?.finish || item.items?.[0]?.finish || item.finish,
-            };
-          });
-
-          setProducts(mapped);
+          setRawProducts(rawList);
           if (response.meta?.totalPages) {
             setTotalPages(response.meta.totalPages);
           }
@@ -319,6 +295,41 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
       .catch((err) => console.error("Error fetching products:", err))
       .finally(() => setIsLoading(false));
   }, [storeId, selectedCategory, selectedExpansion, debouncedSearch, currentPage]);
+
+  // Resolve best available variant (cheapest price in CLP) for each product preview
+  const products = useMemo(() => {
+    return rawProducts.map((item: any) => {
+      const best = getBestAvailableVariant(item, globalRates);
+      return {
+        ...item,
+        id: item.id,
+        slug: item.slug,
+        title: item.name || item.title,
+        name: item.name || item.title,
+        price: best.finalPriceCLP,
+        stock: best.stock,
+        imageUrl: item.imageUrl,
+        description: item.description,
+        cardDetail: item.cardDetail,
+        items: item.items || [],
+        imgs: {
+          previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+          thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        },
+        category: item.category,
+        store: best.store,
+        storeName: best.storeName,
+        condition: best.conditionName,
+        condition_rel: best.variant?.condition_rel || best.variant?.condition || item.condition_rel,
+        conditionCode: best.conditionCode,
+        conditionClass: best.conditionClass,
+        language: best.languageCode,
+        finish: best.isFoil ? "Foil" : "Normal",
+        isFoil: best.isFoil,
+        cheapestVariant: best.variant,
+      };
+    });
+  }, [rawProducts, globalRates]);
 
   // Client-side filtering for condition, finish, language, and price
   const filteredProducts = useMemo(() => {
@@ -693,14 +704,14 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             /* Vault Grid View */
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {sortedProducts.map((product) => (
-                <TcgProductCard key={product.id} item={product} />
+                <TcgProductCard key={product.id} item={product} globalRates={globalRates} />
               ))}
             </div>
           ) : (
             /* Deckbuilder / Table List View */
             <div className="flex flex-col gap-2.5">
               {sortedProducts.map((product) => (
-                <TcgDeckbuilderRow key={product.id} item={product} />
+                <TcgDeckbuilderRow key={product.id} item={product} globalRates={globalRates} />
               ))}
             </div>
           )}

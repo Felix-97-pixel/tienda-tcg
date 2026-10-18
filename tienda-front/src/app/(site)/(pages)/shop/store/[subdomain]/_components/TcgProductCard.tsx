@@ -13,12 +13,15 @@ import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import { IconHeart } from "@/components/ui/Icons";
 
+import { getBestAvailableVariant } from "@/utils/tcgPrices";
+
 interface TcgProductCardProps {
   item: any;
   onQuickView?: (item: any) => void;
+  globalRates?: any[];
 }
 
-export default function TcgProductCard({ item, onQuickView }: TcgProductCardProps) {
+export default function TcgProductCard({ item, onQuickView, globalRates = [] }: TcgProductCardProps) {
   const dispatch = useDispatch<AppDispatch>();
   const currency = useAppSelector((state: any) => state.currencyReducer);
   const reduxWishlistItems = useAppSelector((state: any) => state.wishlistReducer?.items || []);
@@ -28,95 +31,49 @@ export default function TcgProductCard({ item, onQuickView }: TcgProductCardProp
 
   const [isAdding, setIsAdding] = useState(false);
 
-  // 1. Find the cheapest variant (prioritize in-stock ones if available)
-  const variants: any[] = Array.isArray(item.items) ? item.items : [];
-  const inStockVariants = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
-  const candidateVariants = inStockVariants.length > 0 ? inStockVariants : variants;
+  // 1. Find the best available variant (cheapest in-stock option with exchange rates applied)
+  const best = getBestAvailableVariant(item, globalRates);
+  const cheapestVariant = best.variant;
+  const price = best.finalPriceCLP;
+  const stock = best.stock;
+  const conditionCode = best.conditionCode;
+  const conditionClass = best.conditionClass;
+  const languageCode = best.languageCode;
+  const isFoil = best.isFoil;
+  const storeName = best.storeName;
 
-  const cheapestVariant =
-    candidateVariants.length > 0
-      ? [...candidateVariants].sort((a: any, b: any) => {
-          const priceA = Number(a.discountedPrice ?? a.price ?? Infinity);
-          const priceB = Number(b.discountedPrice ?? b.price ?? Infinity);
-          return priceA - priceB;
-        })[0]
-      : null;
-
-  // Construct target item representing the cheapest variant so adding to cart/wishlist selects the lowest price
+  // Construct target item representing the cheapest variant so adding to cart/wishlist selects the lowest price in CLP
   const targetItem = cheapestVariant
     ? {
         ...item,
         id: cheapestVariant.id,
         productId: item.id,
         inventoryItemId: cheapestVariant.id,
-        price: Number(cheapestVariant.price ?? item.price ?? 0),
-        discountedPrice: Number(
-          cheapestVariant.discountedPrice ?? cheapestVariant.price ?? item.discountedPrice ?? item.price ?? 0
-        ),
-        stock: Number(cheapestVariant.stock ?? item.stock ?? 0),
-        condition:
-          cheapestVariant.condition_rel?.displayName ||
-          cheapestVariant.condition_rel?.name ||
-          (typeof cheapestVariant.condition === "object"
-            ? (cheapestVariant.condition as any)?.displayName || (cheapestVariant.condition as any)?.name
-            : cheapestVariant.condition) ||
-          item.condition,
-        condition_rel: cheapestVariant.condition_rel || item.condition_rel,
-        language: cheapestVariant.language?.name || cheapestVariant.language || item.language,
-        finish: cheapestVariant.finish?.name || cheapestVariant.finish || item.finish,
+        price: price,
+        discountedPrice: price,
+        stock: stock,
+        condition: conditionCode,
+        condition_rel: cheapestVariant.condition_rel || cheapestVariant.condition || item.condition_rel,
+        language: languageCode,
+        finish: cheapestVariant.finish?.name || cheapestVariant.finish || (isFoil ? "Foil" : "Normal"),
         store: cheapestVariant.store || item.store,
         storeId: cheapestVariant.storeId || item.storeId,
-        storeName: cheapestVariant.store?.name || item.storeName,
+        storeName: storeName,
       }
-    : item;
+    : {
+        ...item,
+        price: price,
+        discountedPrice: price,
+        stock: stock,
+        condition: conditionCode,
+        language: languageCode,
+        finish: isFoil ? "Foil" : "Normal",
+        storeName: storeName,
+      };
 
   const { handleAddToCart, isMaxStockReached } = useProductCart(targetItem);
 
-  // Extract TCG attributes from the cheapest variant
-  const cardDetail = item.cardDetail || {};
-  const isFoil = Boolean(
-    targetItem.finish?.name?.toLowerCase().includes("foil") ||
-    targetItem.finish?.name?.toLowerCase().includes("holo") ||
-    (typeof targetItem.finish === "string" &&
-      (targetItem.finish.toLowerCase().includes("foil") || targetItem.finish.toLowerCase().includes("holo"))) ||
-    targetItem.isFoil ||
-    cardDetail.isFoil
-  );
-
-  const rawCondition = (
-    targetItem.condition_rel?.name ||
-    (typeof targetItem.condition === "object" ? targetItem.condition?.name : targetItem.condition) ||
-    item.condition_rel?.name ||
-    item.condition ||
-    "NM"
-  ).toUpperCase();
-
-  // Normalize condition code
-  let conditionCode = "NM";
-  let conditionClass = "badge-condition-nm";
-  if (rawCondition.includes("LIGHT") || rawCondition === "LP") {
-    conditionCode = "LP";
-    conditionClass = "badge-condition-lp";
-  } else if (rawCondition.includes("MODERATE") || rawCondition === "MP") {
-    conditionCode = "MP";
-    conditionClass = "badge-condition-mp";
-  } else if (rawCondition.includes("HEAVY") || rawCondition === "HP") {
-    conditionCode = "HP";
-    conditionClass = "badge-condition-hp";
-  } else if (rawCondition.includes("DAMAGE") || rawCondition === "DMG") {
-    conditionCode = "DMG";
-    conditionClass = "badge-condition-dmg";
-  }
-
-  const rawLang =
-    typeof targetItem.language === "object"
-      ? targetItem.language?.name || "EN"
-      : targetItem.language || "EN";
-  const languageCode = (typeof rawLang === "string" ? rawLang : "EN").substring(0, 2).toUpperCase();
-
-  const price = Number(targetItem.discountedPrice ?? targetItem.price ?? 0);
-  const stock = targetItem.stock !== undefined ? targetItem.stock : 0;
-  const isOutOfStock = stock <= 0 || isMaxStockReached;
+  const isOutOfStock = !best.inStock || stock <= 0 || isMaxStockReached;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();

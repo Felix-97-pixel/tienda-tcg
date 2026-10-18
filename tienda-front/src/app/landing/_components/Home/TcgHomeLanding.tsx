@@ -8,6 +8,7 @@ import ShippingBadge from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
 import { IconStore, IconZap, IconShieldCheck, IconCreditCard, IconSparkles } from "@/components/ui/Icons";
+import { getBestAvailableVariant } from "@/utils/tcgPrices";
 
 // Official TCG Games Grid Data
 const TCG_GAMES = [
@@ -167,6 +168,17 @@ export default function TcgHomeLanding() {
           setFeaturedStores(mapped);
         }
       })
+      .catch(() => { });
+  }, []);
+
+  // Fetch currencies for exchange rates
+  const [globalRates, setGlobalRates] = useState<any[]>([]);
+  useEffect(() => {
+    fetch(`${API_URL}/currencies`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setGlobalRates(data);
+      })
       .catch(() => {});
   }, []);
 
@@ -178,33 +190,43 @@ export default function TcgHomeLanding() {
       .then((response) => {
         const rawList = response.data || response;
         if (Array.isArray(rawList)) {
-          const mapped = rawList.map((item: any) => ({
-            id: item.id,
-            slug: item.slug,
-            title: item.name || item.title,
-            name: item.name || item.title,
-            price: parseFloat(item.items?.[0]?.price || item.price || 0),
-            stock: parseInt(item.items?.[0]?.stock !== undefined ? item.items[0].stock : (item.stock || 0), 10),
-            imageUrl: item.imageUrl,
-            description: item.description,
-            cardDetail: item.cardDetail,
-            items: item.items || [],
-            imgs: {
-              previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-              thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-            },
-            category: item.category,
-            store: item.store || item.items?.[0]?.store,
-            condition: item.items?.[0]?.condition?.name || item.condition || "NM",
-            language: item.items?.[0]?.language || item.language,
-            finish: item.items?.[0]?.finish || item.finish,
-          }));
+          const mapped = rawList.map((item: any) => {
+            const best = getBestAvailableVariant(item, globalRates);
+            return {
+              ...item,
+              id: item.id,
+              slug: item.slug,
+              title: item.name || item.title,
+              name: item.name || item.title,
+              price: best.finalPriceCLP,
+              stock: best.stock,
+              imageUrl: item.imageUrl,
+              description: item.description,
+              cardDetail: item.cardDetail,
+              items: item.items || [],
+              imgs: {
+                previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+                thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+              },
+              category: item.category,
+              store: best.store,
+              storeName: best.storeName,
+              condition: best.conditionName,
+              condition_rel: best.variant?.condition_rel || best.variant?.condition || item.condition_rel,
+              conditionCode: best.conditionCode,
+              conditionClass: best.conditionClass,
+              language: best.languageCode,
+              finish: best.isFoil ? "Foil" : "Normal",
+              isFoil: best.isFoil,
+              cheapestVariant: best.variant,
+            };
+          });
           setFeaturedProducts(mapped);
         }
       })
       .catch((err) => console.error("Error loading products for home:", err))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [globalRates]);
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,7 +377,7 @@ export default function TcgHomeLanding() {
                     </div>
                     <div className="text-right">
                       <span className="text-xs text-gray-400 block">Mejor precio</span>
-                      <span className="text-2xl font-black text-white font-mono">$550 CLP</span>
+                      <span className="text-2xl font-black text-white font-mono">$500 CLP</span>
                     </div>
                   </div>
 
@@ -497,36 +519,32 @@ export default function TcgHomeLanding() {
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "all" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "all" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 Todas
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("foil")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "foil" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "foil" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 ✨ Foils
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("riftbound")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "riftbound" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "riftbound" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 Riftbound
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("magic")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "magic" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "magic" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 Magic MTG
               </button>
@@ -547,7 +565,7 @@ export default function TcgHomeLanding() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {filteredCards.slice(0, 8).map((product) => (
-                <TcgProductCard key={product.id} item={product} />
+                <TcgProductCard key={product.id} item={product} globalRates={globalRates} />
               ))}
             </div>
           )}

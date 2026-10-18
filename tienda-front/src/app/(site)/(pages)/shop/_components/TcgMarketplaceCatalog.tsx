@@ -12,19 +12,17 @@ import { useProductCart } from "@/hooks/useProductCart";
 import { matchesCondition, matchesFinish, matchesLanguage } from "@/utils/tcgFilters";
 import { IconSparkles, IconCard, IconZap } from "@/components/ui/Icons";
 
-function MarketplaceDeckbuilderRow({ item }: { item: any }) {
+import { getBestAvailableVariant } from "@/utils/tcgPrices";
+
+function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?: any[] }) {
   const currency = useAppSelector((state: any) => state.currencyReducer);
 
-  // Find cheapest variant for row
-  const variants: any[] = Array.isArray(item.items) ? item.items : [];
-  const inStockVariants = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
-  const candidateVariants = inStockVariants.length > 0 ? inStockVariants : variants;
-  const cheapestVariant =
-    candidateVariants.length > 0
-      ? [...candidateVariants].sort(
-          (a: any, b: any) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity)
-        )[0]
-      : null;
+  // Find best available variant (cheapest in-stock card with exchange rates applied)
+  const best = getBestAvailableVariant(item, globalRates);
+  const cheapestVariant = best.variant;
+  const price = best.finalPriceCLP;
+  const stock = best.stock;
+  const isOutOfStock = !best.inStock || stock <= 0;
 
   const targetItem = cheapestVariant
     ? {
@@ -32,68 +30,40 @@ function MarketplaceDeckbuilderRow({ item }: { item: any }) {
         id: cheapestVariant.id,
         productId: item.id,
         inventoryItemId: cheapestVariant.id,
-        price: Number(cheapestVariant.price ?? item.price ?? 0),
-        discountedPrice: Number(
-          cheapestVariant.discountedPrice ?? cheapestVariant.price ?? item.discountedPrice ?? item.price ?? 0
-        ),
-        stock: Number(cheapestVariant.stock ?? item.stock ?? 0),
-        condition:
-          cheapestVariant.condition_rel?.displayName ||
-          cheapestVariant.condition_rel?.name ||
-          cheapestVariant.condition ||
-          item.condition,
-        language: cheapestVariant.language?.name || cheapestVariant.language || item.language,
-        finish: cheapestVariant.finish?.name || cheapestVariant.finish || item.finish,
-        store: cheapestVariant.store || item.store,
+        price: price,
+        discountedPrice: price,
+        stock: stock,
+        condition: best.conditionCode,
+        condition_rel: cheapestVariant.condition_rel || cheapestVariant.condition || item.condition_rel,
+        language: best.languageCode,
+        finish: cheapestVariant.finish?.name || cheapestVariant.finish || (best.isFoil ? "Foil" : "Normal"),
+        store: best.store,
         storeId: cheapestVariant.storeId || item.storeId,
-        storeName: cheapestVariant.store?.name || item.storeName,
+        storeName: best.storeName,
       }
-    : item;
+    : {
+        ...item,
+        price: price,
+        discountedPrice: price,
+        stock: stock,
+        condition: best.conditionCode,
+        language: best.languageCode,
+        finish: best.isFoil ? "Foil" : "Normal",
+        storeName: best.storeName,
+      };
 
   const { handleAddToCart, isMaxStockReached } = useProductCart(targetItem);
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  const price = Number(targetItem.discountedPrice ?? targetItem.price ?? 0);
-  const stock = targetItem.stock !== undefined ? targetItem.stock : 0;
-  const isOutOfStock = stock <= 0 || isMaxStockReached;
-
-  const rawCondition = (
-    item.condition_rel?.name ||
-    item.items?.[0]?.condition?.name ||
-    item.condition ||
-    "NM"
-  ).toUpperCase();
-
-  let conditionCode = "NM";
-  let conditionClass = "badge-condition-nm";
-  if (rawCondition.includes("LIGHT") || rawCondition === "LP") {
-    conditionCode = "LP";
-    conditionClass = "badge-condition-lp";
-  } else if (rawCondition.includes("MODERATE") || rawCondition === "MP") {
-    conditionCode = "MP";
-    conditionClass = "badge-condition-mp";
-  } else if (rawCondition.includes("HEAVY") || rawCondition === "HP") {
-    conditionCode = "HP";
-    conditionClass = "badge-condition-hp";
-  } else if (rawCondition.includes("DAMAGE") || rawCondition === "DMG") {
-    conditionCode = "DMG";
-    conditionClass = "badge-condition-dmg";
-  }
-
-  const isFoil = Boolean(
-    item.finish?.name?.toLowerCase().includes("foil") ||
-    item.finish?.name?.toLowerCase().includes("holo") ||
-    item.items?.some((i: any) => i.finish?.name?.toLowerCase().includes("foil")) ||
-    item.cardDetail?.isFoil
-  );
-
-  const rawLang = item.language?.name || item.items?.[0]?.language?.name || "EN";
-  const languageCode = rawLang.substring(0, 2).toUpperCase();
+  const conditionCode = best.conditionCode;
+  const conditionClass = best.conditionClass;
+  const isFoil = best.isFoil;
+  const languageCode = best.languageCode;
   const imageUrl = item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png";
 
   const onAdd = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isMaxStockReached) return;
     setIsAdding(true);
     handleAddToCart(qty);
     setTimeout(() => setIsAdding(false), 900);
@@ -138,9 +108,9 @@ function MarketplaceDeckbuilderRow({ item }: { item: any }) {
               • {item.cardDetail.expansion.name}
             </span>
           )}
-          {item.store?.name && (
+          {best.storeName && (
             <span className="text-[11px] text-blue-400 font-medium truncate max-w-[140px]">
-              • {item.store.name}
+              • {best.storeName}
             </span>
           )}
         </div>
@@ -217,7 +187,8 @@ export default function TcgMarketplaceCatalog() {
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 0 });
 
   // Data State
-  const [products, setProducts] = useState<any[]>([]);
+  const [rawProducts, setRawProducts] = useState<any[]>([]);
+  const [globalRates, setGlobalRates] = useState<any[]>([]);
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [expansionsData, setExpansionsData] = useState<any[]>([]);
   const [conditionsData, setConditionsData] = useState<any[]>([]);
@@ -279,6 +250,16 @@ export default function TcgMarketplaceCatalog() {
       .catch((err) => console.error("Error fetching languages:", err));
   }, []);
 
+  // Fetch all global currencies and exchange rates dynamically
+  useEffect(() => {
+    fetch(`${API_URL}/currencies`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setGlobalRates(data);
+      })
+      .catch((err) => console.error("Error fetching currencies:", err));
+  }, []);
+
   // Fetch expansions when category changes
   useEffect(() => {
     let url = `${API_URL}/products/meta/expansions`;
@@ -309,59 +290,55 @@ export default function TcgMarketplaceCatalog() {
       .then((response) => {
         const rawList = response.data || response;
         if (Array.isArray(rawList)) {
-          const mapped = rawList.map((item: any) => {
-            const variants: any[] = Array.isArray(item.items) ? item.items : [];
-            const inStock = variants.filter((inv: any) => (inv.stock ?? 0) > 0);
-            const candidates = inStock.length > 0 ? inStock : variants;
-            const cheapest =
-              candidates.length > 0
-                ? [...candidates].sort(
-                    (a: any, b: any) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity)
-                  )[0]
-                : null;
-
-            const defaultPrice = cheapest?.price ?? item.items?.[0]?.price ?? item.price ?? 0;
-            const defaultStock =
-              cheapest?.stock ??
-              (item.items?.[0]?.stock !== undefined ? item.items[0].stock : item.stock || 0);
-
-            return {
-              id: item.id,
-              slug: item.slug,
-              title: item.name || item.title,
-              name: item.name || item.title,
-              price: parseFloat(defaultPrice),
-              stock: parseInt(defaultStock, 10),
-              imageUrl: item.imageUrl,
-              description: item.description,
-              cardDetail: item.cardDetail,
-              items: item.items || [],
-              imgs: {
-                previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-                thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
-              },
-              category: item.category,
-              store: cheapest?.store || item.store || item.items?.[0]?.store,
-              condition: cheapest?.condition?.name || item.items?.[0]?.condition?.name || item.condition || "NM",
-              language: cheapest?.language || item.items?.[0]?.language || item.language,
-              finish: cheapest?.finish || item.items?.[0]?.finish || item.finish,
-            };
-          });
-
-          setProducts(mapped);
+          setRawProducts(rawList);
           if (response.meta?.totalPages) {
             setTotalPages(response.meta.totalPages);
           }
           if (response.meta?.total !== undefined) {
             setTotalCount(response.meta.total);
           } else {
-            setTotalCount(mapped.length);
+            setTotalCount(rawList.length);
           }
         }
       })
       .catch((err) => console.error("Error fetching marketplace products:", err))
       .finally(() => setIsLoading(false));
   }, [selectedCategory, selectedExpansion, debouncedSearch, currentPage]);
+
+  // Resolve best available variant (cheapest price in CLP) for each product preview
+  const products = useMemo(() => {
+    return rawProducts.map((item: any) => {
+      const best = getBestAvailableVariant(item, globalRates);
+      return {
+        ...item,
+        id: item.id,
+        slug: item.slug,
+        title: item.name || item.title,
+        name: item.name || item.title,
+        price: best.finalPriceCLP,
+        stock: best.stock,
+        imageUrl: item.imageUrl,
+        description: item.description,
+        cardDetail: item.cardDetail,
+        items: item.items || [],
+        imgs: {
+          previews: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+          thumbnails: [item.imageUrl || "/images/products/product-1-bg-1.png"],
+        },
+        category: item.category,
+        store: best.store,
+        storeName: best.storeName,
+        condition: best.conditionName,
+        condition_rel: best.variant?.condition_rel || best.variant?.condition || item.condition_rel,
+        conditionCode: best.conditionCode,
+        conditionClass: best.conditionClass,
+        language: best.languageCode,
+        finish: best.isFoil ? "Foil" : "Normal",
+        isFoil: best.isFoil,
+        cheapestVariant: best.variant,
+      };
+    });
+  }, [rawProducts, globalRates]);
 
   // Client-side filtering
   const filteredProducts = useMemo(() => {
@@ -793,13 +770,13 @@ export default function TcgMarketplaceCatalog() {
             ) : viewMode === "grid" ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {sortedProducts.map((product) => (
-                  <TcgProductCard key={product.id} item={product} />
+                  <TcgProductCard key={product.id} item={product} globalRates={globalRates} />
                 ))}
               </div>
             ) : (
               <div className="flex flex-col gap-2.5">
                 {sortedProducts.map((product) => (
-                  <MarketplaceDeckbuilderRow key={product.id} item={product} />
+                  <MarketplaceDeckbuilderRow key={product.id} item={product} globalRates={globalRates} />
                 ))}
               </div>
             )}
