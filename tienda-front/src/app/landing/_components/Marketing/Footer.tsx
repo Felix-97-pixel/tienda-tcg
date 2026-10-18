@@ -79,7 +79,7 @@ const Footer = () => {
             <ul className="space-y-2.5 text-sm text-gray-400">
               <li><Link href="/admin/login" className="hover:text-white transition-colors">Portal de Tiendas</Link></li>
               <li><Link href="/admin/buylist" className="hover:text-white transition-colors">Motor de Buylist</Link></li>
-              <li><Link href="#pricing" className="hover:text-white transition-colors">Planes y Comisiones</Link></li>
+              <li><Link href="#pricing" className="hover:text-white transition-colors">Planes y Suscripción SaaS</Link></li>
               <li><Link href="#features" className="hover:text-white transition-colors">Sincronización Scryfall</Link></li>
               <li><Link href="mailto:contacto@taptrade.cl" className="hover:text-white transition-colors">Contacto Ventas</Link></li>
             </ul>

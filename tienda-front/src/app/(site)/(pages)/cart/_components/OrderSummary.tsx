@@ -55,7 +55,10 @@ const OrderSummary = () => {
           <div className="pt-4 border-t border-white/10 flex items-baseline justify-between">
             <div>
               <span className="text-base font-bold text-white block">Total a Pagar</span>
-              <span className="text-[11px] text-gray-500">Impuestos y comisión incluidos</span>
+              <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                <svg className="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                Precios directos de tienda • 0% comisión
+              </span>
             </div>
             <div className="text-right">
               <span className="text-2xl font-black font-mono text-white">

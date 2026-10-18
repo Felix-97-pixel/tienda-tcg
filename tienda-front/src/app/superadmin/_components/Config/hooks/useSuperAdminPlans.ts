@@ -98,7 +98,7 @@ export function useSuperAdminPlans() {
         ...formData,
         price: parseFloat(formData.price) || 0,
         skuLimit: parseInt(formData.skuLimit, 10),
-        commissionRate: (parseFloat(formData.commissionRate) || 0) / 100
+        commissionRate: 0, // SaaS Model: Siempre 0% comisión
       };
 
       const res = await fetch(url, {

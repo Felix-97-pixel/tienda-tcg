@@ -86,7 +86,7 @@ export default function PricingSection() {
     <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
       <div className="text-center mb-16">
         <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4">Escala tu negocio sin límites</h2>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">Planes diseñados para adaptarse al volumen de tu inventario. Menores comisiones mientras más creces.</p>
+        <p className="text-gray-400 text-lg max-w-2xl mx-auto">Planes de suscripción mensual fija sin comisiones por venta. El 100% del valor de tus ventas es tuyo.</p>
       </div>
 
       {plans.length > 0 ? (
@@ -112,8 +112,8 @@ export default function PricingSection() {
                     {plan.skuLimit === -1 ? "SKUs Ilimitados" : `Hasta ${plan.skuLimit.toLocaleString()} SKUs`}
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className={styles.check}>✓</span> 
-                    {(Number(plan.commissionRate) * 100).toFixed(1)}% comisión por venta
+                    <span className="text-emerald-400 font-bold">✓</span> 
+                    <span className="font-semibold text-emerald-400">0% Comisión por Venta</span>
                   </li>
                   {plan.features.map(f => (
                     <li key={f.id} className="flex items-center gap-3">

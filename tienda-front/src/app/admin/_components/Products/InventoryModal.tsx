@@ -340,32 +340,20 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           <div className="text-xs text-blue-400 font-bold mb-3 px-2">
             Tasa de cambio actual: 1 {baseCurrency} = {exchangeRate} CLP
           </div>
-          <div className="bg-[#1a1d24] rounded-xl p-4 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="bg-[#1a1d24] rounded-xl p-4 border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-6 text-sm">
               <div>
-                <span className="block text-blue-400 text-xs mb-1 font-bold">Precio Visible (CLP)</span>
-                <span className="text-blue-400 font-bold text-lg">${formatPriceVal(currentCalc.gross)}</span>
+                <span className="block text-white/50 text-xs mb-1 font-bold">Precio de Venta (CLP)</span>
+                <span className="text-white font-bold text-lg">${formatPriceVal(netPriceCLP)}</span>
               </div>
-              <div className="text-gray-5 text-xl font-light">-</div>
-              <div>
-                <span className="block text-gray-4 text-xs mb-1">Com. Plataforma ({(storeCommissionRate * 100).toFixed(1)}%)</span>
-                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.taptradePure)}</span>
+              <div className="text-emerald-400 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                0% Comisión por Venta (Modelo SaaS)
               </div>
-              <div className="text-gray-5 text-xl font-light">-</div>
               <div>
-                <span className="block text-gray-4 text-xs mb-1">Ajuste Redondeo a $50</span>
-                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.roundingAdjustment)}</span>
-              </div>
-              <div className="text-gray-5 text-xl font-light">-</div>
-              <div>
-                <span className="block text-gray-4 text-xs mb-1">Com. MercadoPago (3.8%)</span>
-                <span className="text-red-400 font-medium">-${formatPriceVal(currentCalc.mp)}</span>
-              </div>
-              <div className="text-gray-5 text-xl font-light">=</div>
-              <div>
-                <span className="block text-green-400 text-xs mb-1 font-bold">A Recibir Real (CLP)</span>
-                <span className="text-green-400 font-bold text-lg">
-                  ${formatPriceVal(currentCalc.storeNet)}
+                <span className="block text-emerald-400 text-xs mb-1 font-bold">Recibes Íntegro (CLP)</span>
+                <span className="text-emerald-400 font-bold text-lg">
+                  ${formatPriceVal(netPriceCLP)}
                 </span>
               </div>
             </div>
@@ -385,10 +373,10 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
                 <th className="p-3 font-bold text-gray-4">Acabado</th>
-                <th className="p-3 font-bold text-gray-4">A Recibir (USD)</th>
-                <th className="p-3 font-bold text-gray-4">A Recibir (CLP)</th>
-                <th className="p-3 font-bold text-gray-4">Comisiones</th>
-                <th className="p-3 font-bold text-blue-400">Precio Final</th>
+                <th className="p-3 font-bold text-gray-4">Precio (USD)</th>
+                <th className="p-3 font-bold text-gray-4">Precio Venta (CLP)</th>
+                <th className="p-3 font-bold text-emerald-400">Comisión</th>
+                <th className="p-3 font-bold text-emerald-400">Recibes (CLP)</th>
                 <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
                 <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
                 <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
@@ -419,14 +407,14 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                         onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
                       />
                     </td>
-                    <td className="p-3 text-green-400 font-bold">
+                    <td className="p-3 text-white font-medium">
                       ${formatPriceVal(itemNetCLP)} CLP
                     </td>
-                    <td className="p-3 text-red-400 text-xs font-medium">
-                      ${formatPriceVal(itemCalc.totalCom)} CLP
+                    <td className="p-3 text-emerald-400 text-xs font-bold">
+                      $0 CLP (0%)
                     </td>
-                    <td className="p-3 text-blue-400 font-bold">
-                      ${formatPriceVal(itemCalc.gross)} CLP
+                    <td className="p-3 text-emerald-400 font-bold">
+                      ${formatPriceVal(itemNetCLP)} CLP
                     </td>
                     <td className="p-3">
                       <input

@@ -111,9 +111,8 @@ export default function ShopDetails() {
     }
 
     const priceInCLP = Number(item.price) * exchangeRate;
-    const storePlan = item.store?.subscriptionPlans?.[0];
-    const rate = storePlan ? Number(storePlan.commissionRate) : 0.05;
-    return calculateCommissions(priceInCLP, rate).gross;
+    // SaaS Model: 0% Comisión por venta. El comprador paga exactamente el precio neto fijado por la tienda.
+    return Math.round(priceInCLP);
   };
 
   const handleAddToCart = (item: InventoryItem | any, qty: number) => {

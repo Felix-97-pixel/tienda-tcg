@@ -60,9 +60,12 @@ export default function PlansPage() {
                   <p className="text-[10px] text-gray-5 font-bold uppercase tracking-wider mb-1">SKUs Máximos</p>
                   <p className="text-sm font-bold text-white">{plan.skuLimit === -1 ? "Ilimitado" : plan.skuLimit.toLocaleString()}</p>
                 </div>
-                <div className="bg-[#111318] rounded-xl p-3 flex-1 border border-white/5">
-                  <p className="text-[10px] text-gray-5 font-bold uppercase tracking-wider mb-1">Comisión</p>
-                  <p className="text-sm font-bold text-white">{(Number(plan.commissionRate) * 100).toFixed(1)}%</p>
+                <div className="bg-emerald-500/10 rounded-xl p-3 flex-1 border border-emerald-500/20">
+                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">Comisión Venta</p>
+                  <p className="text-sm font-bold text-emerald-400 flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                    0% (Modelo SaaS)
+                  </p>
                 </div>
               </div>
 
@@ -130,16 +133,16 @@ export default function PlansPage() {
                     value={formData.skuLimit}
                     onChange={e => setFormData({...formData, skuLimit: e.target.value})}
                   />
-                  <Input 
-                    label="Comisión por Venta (%)" 
-                    type="number" 
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    required 
-                    value={formData.commissionRate}
-                    onChange={e => setFormData({...formData, commissionRate: e.target.value})}
-                  />
+                  <div>
+                    <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Comisión de Venta</label>
+                    <div className="w-full bg-[#111318] border border-emerald-500/30 rounded-xl px-4 py-3 flex items-center justify-between text-sm">
+                      <span className="font-bold text-emerald-400 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                        0% Comisión
+                      </span>
+                      <span className="text-[11px] text-gray-4 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-semibold">SaaS Puro</span>
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Descripción</label>

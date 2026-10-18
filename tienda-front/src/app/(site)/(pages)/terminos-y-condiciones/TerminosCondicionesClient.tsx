@@ -20,7 +20,7 @@ const TerminosCondicionesClient = () => {
     { id: "introduccion", label: "1. Introducción y Partes" },
     { id: "modelo-negocio", label: "2. Modelo SaaS y Marketplace" },
     { id: "registro-cuentas", label: "3. Registro y Verificación KYC" },
-    { id: "precios-pagos", label: "4. Precios, Comisiones y Split" },
+    { id: "precios-pagos", label: "4. Precios, Modelo SaaS y Pagos" },
     { id: "graduacion-autenticidad", label: "5. Graduación y Autenticidad" },
     { id: "logistica-envios", label: "6. Envíos y Retiro Presencial" },
     { id: "buylist-creditos", label: "7. Buylist y Store Credit" },
@@ -155,22 +155,18 @@ const TerminosCondicionesClient = () => {
         <hr className="border-white/10" />
 
         {/* =========================================================================
-            SECCIÓN 4: PRECIOS, COMISIONES Y SPLIT PAYMENTS
+            SECCIÓN 4: PRECIOS, MODELO SAAS Y LIQUIDACIÓN DIRECTA
            ========================================================================= */}
-        <LegalSection id="precios-pagos" num={4} title="Precios, Comisiones y Mecánica de Split Payments">
+        <LegalSection id="precios-pagos" num={4} title="Precios, Modelo SaaS de Suscripción y Cero Comisión (0% Take Rate)">
           <div className="flex flex-col gap-3.5">
             <p>
-              <strong className="text-white font-mono">4.1. Moneda Oficial e Impuestos:</strong> Todos los precios están expresados en Pesos Chilenos (CLP) e incluyen el Impuesto al Valor Agregado (IVA) correspondiente a la venta de bienes en Chile.
+              <strong className="text-white font-mono">4.1. Moneda Oficial e Impuestos:</strong> Todos los precios fijados por las tiendas en la plataforma están expresados en Pesos Chilenos (CLP) o calculados según la tasa de cambio vigente de la tienda, e incluyen el IVA que corresponde legalmente a la venta de bienes en Chile.
             </p>
             <p>
-              <strong className="text-white font-mono">4.2. Fórmula de Gross-Up y Redondeo a $50 CLP:</strong> La tienda define el monto neto líquido que desea percibir. Para proteger ese valor frente a los descuentos de comisiones, la plataforma aplica la fórmula matemática:
+              <strong className="text-white font-mono">4.2. Cero Comisión por Venta (Take Rate 0%):</strong> TapTrade descarta por completo el cobro de comisiones sobre las transacciones de cartas o productos. El 100% del subtotal de venta y los costos de envío van directamente a la tienda vendedora, sin recargos ocultos ni intermediación monetaria en las ventas.
             </p>
-            <div className="p-4 rounded-xl bg-black/50 border border-white/10 font-mono text-xs text-amber-300 overflow-x-auto">
-              Precio Teórico = Monto Neto Solicitado / [1 - (Comisión Pasarela 3.8% + Comisión Plan Tienda)]<br />
-              Precio Visible Final = CEIL(Precio Teórico / 50) * 50
-            </div>
-            <p className="text-xs text-gray-400">
-              Cualquier sobrante generado por el redondeo es absorbido por TapTrade para costear la infraestructura tecnológica y no afecta en caso alguno el monto líquido acordado con el vendedor.
+            <p>
+              <strong className="text-white font-mono">4.3. Modelo de Monetización por Suscripción Fija (SaaS):</strong> El modelo de ingresos de TapTrade se basa exclusivamente en el cobro de una cuota mensual fija por el uso del software, catálogos e infraestructura tecnológica, con planes escalonados según el límite de cartas sincronizadas:
             </p>
 
             {/* Plans Table */}
@@ -179,42 +175,47 @@ const TerminosCondicionesClient = () => {
                 <thead className="bg-white/5 text-gray-300 font-mono uppercase">
                   <tr>
                     <th className="p-3 border-b border-white/10">Plan SaaS</th>
-                    <th className="p-3 border-b border-white/10">Comisión Venta</th>
-                    <th className="p-3 border-b border-white/10">Pasarela</th>
-                    <th className="p-3 border-b border-white/10">Liquidación a Tienda</th>
+                    <th className="p-3 border-b border-white/10">Cuota Base</th>
+                    <th className="p-3 border-b border-white/10">Límite Catálogo</th>
+                    <th className="p-3 border-b border-white/10">Comisión por Venta</th>
+                    <th className="p-3 border-b border-white/10">Abono a Tienda</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-gray-300">
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Starter</td>
-                    <td className="p-3 text-red-400 font-mono font-bold">7.0%</td>
-                    <td className="p-3 font-mono">3.8%</td>
-                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                    <td className="p-3 font-bold text-white">Starter (Pequeña Tienda)</td>
+                    <td className="p-3 font-mono font-bold text-white">1.5 UF/mes</td>
+                    <td className="p-3 font-mono">1.500 cartas</td>
+                    <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Pro</td>
-                    <td className="p-3 text-red-400 font-mono font-bold">5.0%</td>
-                    <td className="p-3 font-mono">3.8%</td>
-                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                    <td className="p-3 font-bold text-white">Store (Crecimiento)</td>
+                    <td className="p-3 font-mono font-bold text-white">3.5 UF/mes</td>
+                    <td className="p-3 font-mono">7.500 cartas</td>
+                    <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Business</td>
-                    <td className="p-3 text-red-400 font-mono font-bold">3.0%</td>
-                    <td className="p-3 font-mono">3.8%</td>
-                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                    <td className="p-3 font-bold text-white">Pioneras / Pro (Early Adopter)</td>
+                    <td className="p-3 font-mono font-bold text-white">10 UF (5 UF con desc.)</td>
+                    <td className="p-3 font-mono">20.000 cartas</td>
+                    <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                   <tr className="hover:bg-white/[0.02]">
                     <td className="p-3 font-bold text-white">Enterprise</td>
-                    <td className="p-3 text-red-400 font-mono font-bold">1.5%</td>
-                    <td className="p-3 font-mono">3.8%</td>
-                    <td className="p-3 text-emerald-400 font-bold">100% Monto Neto</td>
+                    <td className="p-3 font-mono font-bold text-white">15 UF (7.5 UF con desc.)</td>
+                    <td className="p-3 font-mono">Ilimitado</td>
+                    <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
+                    <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <p>
-              <strong className="text-white font-mono">4.3. Split Payments en Tiempo Real:</strong> Mediante integraciones con Mercado Pago Advanced Payments y Transbank Webpay Plus, al momento de pagar se divide automáticamente el importe: la pasarela descuenta su tasa, TapTrade retiene su comisión y el monto neto restante se transfiere directamente a la tienda vendedora.
+              <strong className="text-white font-mono">4.4. Descuentos y Condiciones Especiales:</strong> La administración de TapTrade podrá acordar y configurar en el sistema porcentajes o montos de descuento preferencial sobre la cuota mensual de software para tiendas pioneras o acuerdos comerciales específicos.
             </p>
           </div>
         </LegalSection>
@@ -407,7 +408,7 @@ const TerminosCondicionesClient = () => {
               <strong className="text-white font-mono">11.1. Disponibilidad del Sistema:</strong> TapTrade realiza sus mayores esfuerzos técnicos para asegurar la continuidad del servicio, pero no responde por caídas originadas por cortes de conectividad internacional, fallas de terceros proveedores o fuerza mayor.
             </p>
             <p>
-              <strong className="text-white font-mono">11.2. Límite Cuantitativo:</strong> En la medida que la ley chilena lo permita, la responsabilidad civil extracontractual o contractual de TapTrade SpA estará limitada como tope máximo al monto correspondiente a la comisión percibida en la transacción específica originaria del reclamo.
+              <strong className="text-white font-mono">11.2. Límite Cuantitativo:</strong> En la medida que la ley chilena lo permita, la responsabilidad civil extracontractual o contractual de TapTrade SpA frente a las tiendas estará limitada como tope máximo al monto correspondiente a la última cuota mensual de suscripción SaaS pagada por la tienda afectada.
             </p>
           </div>
         </LegalSection>

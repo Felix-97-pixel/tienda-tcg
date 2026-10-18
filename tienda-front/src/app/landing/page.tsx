@@ -153,8 +153,8 @@ export default function MarketingPage() {
       a: "El Buylist permite que tus clientes te vendan sus cartas directamente desde tu vitrina online. El sistema calcula en tiempo real los valores de compra aplicando devaluaciones automáticas según el estado (Near Mint, Lightly Played, etc.) y el idioma de cada carta. Puedes liquidar la compra en efectivo o acreditar saldo digital (Crédito en Tienda) para compras futuras.",
     },
     {
-      q: "¿Qué comisiones cobra la plataforma a las tiendas?",
-      a: "Nuestros planes están pensados para escalar contigo. Partes con el plan Starter sin costo mensual fijo y una comisión del 7% por venta. A medida que tu negocio crece, puedes acceder a comisiones reducidas de 5%, 3% e incluso 1.5% mensual, maximizando el margen de ganancia de tu inventario.",
+      q: "¿Cómo funciona la monetización y qué comisiones cobra TapTrade?",
+      a: "En TapTrade cobramos 0% de comisión por venta (cero take-rate). No tocamos ni intervenimos en el dinero de tus transacciones: el 100% de lo que vendes es tuyo. Operamos bajo un modelo SaaS de suscripción fija mensual adaptada a las necesidades y tamaño de inventario de cada tienda.",
     },
     {
       q: "¿Cómo se garantiza el estado y autenticidad de las cartas?",
