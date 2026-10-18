@@ -99,17 +99,14 @@ export class InitTransactionHandler
         0,
       );
       
-      // Agregar 5% de comisión al subtotal para que lo pague el comprador
-      const commission = vendorBaseSubtotal * 0.05;
-      const vendorSubtotalWithCommission = vendorBaseSubtotal + commission;
-
-      globalSubtotal += vendorSubtotalWithCommission;
+      // SaaS Model: 0% Comisión por venta. El subtotal es exactamente el precio neto de la tienda
+      globalSubtotal += vendorBaseSubtotal;
       
       vendorOrdersData.push({
         storeId,
         shippingProviderId,
         shippingCost: storeShippingCost,
-        subtotal: vendorSubtotalWithCommission,
+        subtotal: vendorBaseSubtotal,
         status: 'PENDING',
         items: {
           create: items.map((item) => ({
@@ -117,8 +114,8 @@ export class InitTransactionHandler
             inventoryItemId: item.inventoryItemId,
             productName: item.productName,
             quantity: item.quantity,
-            // El precio unitario guardado en la orden incluye el 5% de markup y usa el PRECIO REAL
-            unitPrice: (item.realUnitPrice * exchangeRate) * 1.05,
+            // SaaS Model: El precio unitario guardado en la orden es exactamente el fijado por la tienda (0% markup)
+            unitPrice: item.realUnitPrice * exchangeRate,
           })),
         },
       });

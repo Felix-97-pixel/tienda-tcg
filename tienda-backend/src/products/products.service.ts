@@ -193,7 +193,7 @@ export class ProductsService {
               if (skuLimit !== -1 && currentCount >= skuLimit) {
                 results.errors.push({
                   index: item.originalIndex !== undefined ? item.originalIndex : i,
-                  error: `No se pudo añadir. Has alcanzado el límite de ${skuLimit} SKUs de tu plan.`
+                  error: `No se pudo añadir. Has alcanzado el límite de ${skuLimit} cartas sincronizadas de tu plan. Actualiza tu suscripción para ampliar tu catálogo.`
                 });
                 continue;
               }
@@ -924,7 +924,7 @@ export class ProductsService {
       if (skuLimit !== -1) {
         const currentCount = await this.prisma.inventoryItem.count({ where: { storeId } });
         if (currentCount >= skuLimit) {
-          throw new BadRequestException(`Has alcanzado el límite de ${skuLimit} SKUs de tu plan.`);
+          throw new BadRequestException(`Has alcanzado el límite de ${skuLimit} cartas sincronizadas de tu plan. Actualiza tu suscripción para ampliar tu catálogo.`);
         }
       }
     }

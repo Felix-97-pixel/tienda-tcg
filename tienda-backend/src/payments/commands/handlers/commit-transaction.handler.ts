@@ -112,15 +112,12 @@ export class CommitTransactionHandler
             }
           }
 
-          // Abonar a la Billetera del Vendedor (El vendedor recibe lo que pidió originalmente + envío)
-          // El subtotal ya trae el 5% extra, así que el precio original es subtotal / 1.05
-          const baseSubtotal = Number(vendorOrder.subtotal) / 1.05;
+          // SaaS Model: Abonar a la Billetera del Vendedor el 100% de la venta + envío (0% comisión)
+          const baseSubtotal = Number(vendorOrder.subtotal);
           const totalAbono = baseSubtotal + Number(vendorOrder.shippingCost);
-          
-          // La comisión que se queda la plataforma
-          const commission = Number(vendorOrder.subtotal) - baseSubtotal;
+          const commission = 0;
 
-          // Actualizar balance del vendedor (recibe íntegro lo que pidió + envío)
+          // Actualizar balance del vendedor (recibe íntegro lo vendido + envío)
           await tx.store.update({
             where: { id: vendorOrder.storeId },
             data: { balance: { increment: totalAbono } },
@@ -134,7 +131,7 @@ export class CommitTransactionHandler
               type: 'SALE',
               paymentMethod: 'WEBPAY',
               isWithdrawable: true,
-              reference: `Order: ${vendorOrder.id} (Commission kept: ${commission.toFixed(0)})`,
+              reference: `Order: ${vendorOrder.id} (SaaS Model - 0% Commission)`,
             },
           });
         }

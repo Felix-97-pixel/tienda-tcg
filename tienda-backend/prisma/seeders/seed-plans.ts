@@ -33,35 +33,49 @@ export async function seedPlansAndFeatures(prisma: PrismaClient) {
     });
   }
 
-  // 2. Crear Planes
+  // 2. Crear Planes (Modelo SaaS: 0% Comisión)
   const plansData = [
     {
+      name: 'Plan Starter',
+      description: 'Para tiendas pequeñas y emprendedores. Catálogo de hasta 1.500 cartas para optimizar recursos.',
+      price: 1.5,
+      skuLimit: 1500,
+      commissionRate: 0.0
+    },
+    {
       name: 'Plan Dealer',
-      description: 'Para vendedores serios que se mueven en torneos.',
+      description: 'Para vendedores y dealers activos en torneos y comunidades.',
       price: 1.5,
       skuLimit: 3000,
-      commissionRate: 0.065
+      commissionRate: 0.0
     },
     {
       name: 'Plan Store',
       description: 'Para tiendas en crecimiento que necesitan gestión sólida.',
       price: 3.5,
-      skuLimit: 15000,
-      commissionRate: 0.055
+      skuLimit: 7500,
+      commissionRate: 0.0
     },
     {
       name: 'Plan Mega Store',
-      description: 'Para tiendas consolidadas con inventarios inmensos.',
+      description: 'Para tiendas consolidadas con inventarios medianos a grandes.',
       price: 7.0,
-      skuLimit: 60000,
-      commissionRate: 0.040
+      skuLimit: 30000,
+      commissionRate: 0.0
+    },
+    {
+      name: 'Plan Pioneras / Pro',
+      description: 'Tarifa preferencial para tiendas pioneras (Early Adopters). Base 10 UF rebajada a 5 UF con descuento.',
+      price: 10.0,
+      skuLimit: 20000,
+      commissionRate: 0.0
     },
     {
       name: 'Plan Enterprise',
-      description: 'Operación a gran escala sin restricciones.',
+      description: 'Operación a gran escala sin restricciones. Base 15 UF rebajada a 7.5 UF con descuento.',
       price: 15.0,
       skuLimit: -1,
-      commissionRate: 0.030
+      commissionRate: 0.0
     }
   ];
 

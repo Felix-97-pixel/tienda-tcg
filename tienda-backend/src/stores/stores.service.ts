@@ -93,7 +93,7 @@ export class StoresService {
     const store = await this.prisma.store.findUnique({
       where: { ownerId: userId },
       include: {
-                settings: true,
+        settings: true,
         gameExchangeRates: true,
         devaluations: {
           include: { condition: true }
@@ -154,7 +154,7 @@ export class StoresService {
     const store = await this.prisma.store.findUnique({
       where: { id },
       include: {
-                settings: true,
+        settings: true,
         gameExchangeRates: true,
         devaluations: {
           include: { condition: true }
@@ -180,9 +180,9 @@ export class StoresService {
       throw new NotFoundException('No tienes una tienda asignada');
     }
 
-    const { 
+    const {
       name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
-      pickupEnabled, pickupAddress, pickupSchedule, originCommuneCode, originRegionCode, originCommuneId, originRegionId 
+      pickupEnabled, pickupAddress, pickupSchedule, originCommuneCode, originRegionCode, originCommuneId, originRegionId
     } = data;
 
     // Resolver llaves foráneas de ubicación
@@ -338,7 +338,11 @@ export class StoresService {
       throw new NotFoundException('Tienda no encontrada');
     }
 
-    const { name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website, subscriptionPlanIds, customFeatureIds } = data;
+    const {
+      name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
+      subscriptionPlanIds, customFeatureIds,
+      subscriptionDiscountType, subscriptionDiscountValue, subscriptionNotes
+    } = data;
 
     const updateData: any = {
       name: name !== undefined ? name : undefined,
@@ -346,6 +350,9 @@ export class StoresService {
       address: address !== undefined ? address : undefined,
       latitude: latitude !== undefined ? latitude : undefined,
       longitude: longitude !== undefined ? longitude : undefined,
+      subscriptionDiscountType: subscriptionDiscountType !== undefined ? subscriptionDiscountType : undefined,
+      subscriptionDiscountValue: subscriptionDiscountValue !== undefined ? Number(subscriptionDiscountValue) : undefined,
+      subscriptionNotes: subscriptionNotes !== undefined ? subscriptionNotes : undefined,
     };
 
     if (subscriptionPlanIds !== undefined && Array.isArray(subscriptionPlanIds)) {

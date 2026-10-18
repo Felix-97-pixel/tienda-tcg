@@ -96,9 +96,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         0,
       );
 
-      // 3. Calcular comisión basada en el plan base
-      const commissionRate = store.subscriptionPlans?.[0]?.commissionRate || 0; // Decimal, ej: 0.05
-      const commissionAmount = vendorBaseSubtotal * Number(commissionRate);
+      // 3. SaaS Model: 0% Comisión por venta (Take Rate = 0)
+      const commissionRate = 0;
+      const commissionAmount = 0;
 
       const vendorTotal = vendorBaseSubtotal + storeShippingCost; // Precio productos + envío
       globalTotal += vendorTotal;
@@ -120,8 +120,8 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         },
       });
 
-      // Lo que recibe el vendedor directo a su MP
-      const sellerReceives = vendorTotal - commissionAmount;
+      // Lo que recibe el vendedor directo a su MP (100% del total)
+      const sellerReceives = vendorTotal;
 
       disbursements.push({
         collector_id: sellerMpUserId,
@@ -222,14 +222,8 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             }
           }
 
-          // Registrar en la Billetera para historial e informes.
-          const store = await tx.store.findUnique({
-            where: { id: vendorOrder.storeId },
-            include: { subscriptionPlans: true }
-          });
-          const commRate = Number(store?.subscriptionPlans?.[0]?.commissionRate || 0);
-          const commissionAmount = Number(vendorOrder.subtotal) * commRate;
-          const totalAbono = Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost) - commissionAmount;
+          // SaaS Model: Registrar en la Billetera con 0% de comisión
+          const totalAbono = Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
 
           await tx.walletTransaction.create({
             data: {
@@ -238,7 +232,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
               type: 'SALE',
               paymentMethod: 'MERCADOPAGO',
               isWithdrawable: false,
-              reference: `Order: ${vendorOrder.id} (MP Split)`,
+              reference: `Order: ${vendorOrder.id} (MP Split - 0% Commission)`,
             },
           });
         }

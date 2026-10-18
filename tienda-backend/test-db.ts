@@ -1,10 +1,19 @@
 import 'dotenv/config';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+
 async function main() {
   const settings = await prisma.storeSetting.findMany({
     where: { key: { startsWith: 'MP_' } }
   });
-  console.log("MP Settings in DB:", settings);
+  console.log("MP Settings in DB:", settings.length);
 }
 main().catch(console.error).finally(() => prisma.$disconnect());
