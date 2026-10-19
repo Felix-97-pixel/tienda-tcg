@@ -195,7 +195,11 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         exchangeRate,
         status: statusDb,
         vendorOrders: {
-          create: vendorOrdersData.map(v => ({ ...v, status: statusDb })) as any,
+          create: vendorOrdersData.map(v => ({
+            ...v,
+            status: statusDb,
+            deliveryStatus: isApproved ? 'PENDING_DISPATCH' : 'PENDING_PAYMENT',
+          })) as any,
         },
       },
       include: { vendorOrders: { include: { items: true } } }
