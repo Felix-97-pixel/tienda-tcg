@@ -70,18 +70,27 @@ export function calculateItemPriceCLP(
  */
 export function getBestAvailableVariant(
   product: any,
-  globalRates: any[] = []
+  globalRates: any[] = [],
+  storeIdFilter?: string
 ): NormalizedVariantDetails {
   const gameId =
     product?.cardDetail?.gameId ||
     product?.cardDetail?.gameRel?.id ||
     product?.gameId;
 
-  const variants: any[] = Array.isArray(product?.items) ? product.items : [];
+  let variants: any[] = Array.isArray(product?.items) ? product.items : [];
+
+  // Filter strictly by store if storeIdFilter is supplied (ensures store-specific lowest price)
+  if (storeIdFilter) {
+    variants = variants.filter(
+      (v: any) => v.storeId === storeIdFilter || v.store?.id === storeIdFilter
+    );
+  }
 
   if (variants.length === 0) {
+    const isStoreMatch = !storeIdFilter || product?.storeId === storeIdFilter || product?.store?.id === storeIdFilter;
     const fallbackPrice = calculateItemPriceCLP(product, gameId, globalRates);
-    const fallbackStock = Number(product?.stock ?? 0);
+    const fallbackStock = isStoreMatch ? Number(product?.stock ?? 0) : 0;
     const rawCond = (product?.condition_rel?.name || product?.condition || "NM").toUpperCase();
     const isFoil = Boolean(
       product?.finish?.name?.toLowerCase().includes("foil") ||

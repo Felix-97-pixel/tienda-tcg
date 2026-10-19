@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useProductCart } from "@/hooks/useProductCart";
@@ -18,10 +18,18 @@ import { getBestAvailableVariant } from "@/utils/tcgPrices";
 interface TcgProductCardProps {
   item: any;
   onQuickView?: (item: any) => void;
+  onCardClick?: (item: any) => void;
   globalRates?: any[];
+  storeId?: string;
 }
 
-export default function TcgProductCard({ item, onQuickView, globalRates = [] }: TcgProductCardProps) {
+export default function TcgProductCard({
+  item,
+  onQuickView,
+  onCardClick,
+  globalRates = [],
+  storeId,
+}: TcgProductCardProps) {
   const dispatch = useDispatch<AppDispatch>();
   const currency = useAppSelector((state: any) => state.currencyReducer);
   const reduxWishlistItems = useAppSelector((state: any) => state.wishlistReducer?.items || []);
@@ -31,8 +39,9 @@ export default function TcgProductCard({ item, onQuickView, globalRates = [] }: 
 
   const [isAdding, setIsAdding] = useState(false);
 
-  // 1. Find the best available variant (cheapest in-stock option with exchange rates applied)
-  const best = getBestAvailableVariant(item, globalRates);
+  // 1. Find the best available variant (cheapest in-stock option specifically for this store)
+  const effectiveStoreId = storeId || item.storeId || item.store?.id;
+  const best = getBestAvailableVariant(item, globalRates, effectiveStoreId);
   const cheapestVariant = best.variant;
   const price = best.finalPriceCLP;
   const stock = best.stock;
@@ -133,7 +142,19 @@ export default function TcgProductCard({ item, onQuickView, globalRates = [] }: 
     }
   };
 
-  const imageUrl = item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png";
+  // Count how many different stores have active in-stock inventory for this card
+  const storeCount = useMemo(() => {
+    const rawItems = Array.isArray(item?.items) ? item.items : [];
+    const inStock = rawItems.filter((i: any) => Number(i.stock ?? 0) > 0);
+    const storeIds = new Set(inStock.map((i: any) => i.storeId || i.store?.id).filter(Boolean));
+    return storeIds.size;
+  }, [item]);
+
+  const imageUrl =
+    item.imgs?.previews?.[0] ||
+    item.imgs?.thumbnails?.[0] ||
+    item.imageUrl ||
+    "/images/products/product-1-bg-1.png";
 
   return (
     <article className="glass-vault-card group rounded-2xl p-3 sm:p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-300">
@@ -157,32 +178,73 @@ export default function TcgProductCard({ item, onQuickView, globalRates = [] }: 
       </div>
 
       {/* Card Artwork Image Container with Foil Shimmer */}
-      <Link
-        href={`/shop-details/${item.slug}`}
-        className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[#08090d] border border-white/5 my-1"
-      >
-        <Image
-          src={imageUrl}
-          alt={item.title || item.name || "TCG Card"}
-          fill
-          sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 220px"
-          className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-[1.04]"
-          unoptimized={Boolean(imageUrl.includes("scryfall"))}
-          priority={false}
-        />
+      {onCardClick ? (
+        <div
+          onClick={() => onCardClick(item)}
+          className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[#08090d] border border-white/5 my-1 cursor-pointer group/art"
+        >
+          <Image
+            src={imageUrl}
+            alt={item.title || item.name || "TCG Card"}
+            fill
+            sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 220px"
+            className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-[1.04]"
+            unoptimized={Boolean(imageUrl.includes("scryfall"))}
+            priority={false}
+          />
 
-        {/* Foil Holo Effect Shader */}
-        {isFoil && <div className="card-foil-overlay" />}
+          {isFoil && <div className="card-foil-overlay" />}
 
-        {/* Out of Stock Overlay */}
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex items-center justify-center z-20 p-2">
-            <span className="px-2.5 py-1 rounded-lg bg-red/90 text-white font-bold text-xs tracking-wider uppercase shadow-lg">
-              Agotado
+          {/* Hover Hint para Vitrina de Tienda */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/art:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-10">
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E10E0E] text-white shadow-lg tracking-wide flex items-center gap-1">
+              <span>👁️</span>
+              <span>Ver Variantes</span>
             </span>
           </div>
-        )}
-      </Link>
+
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex items-center justify-center z-20 p-2">
+              <span className="px-2.5 py-1 rounded-lg bg-red/90 text-white font-bold text-xs tracking-wider uppercase shadow-lg">
+                Agotado
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <Link
+          href={`/shop-details/${item.slug}`}
+          className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[#08090d] border border-white/5 my-1 cursor-pointer group/art"
+        >
+          <Image
+            src={imageUrl}
+            alt={item.title || item.name || "TCG Card"}
+            fill
+            sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 220px"
+            className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-[1.04]"
+            unoptimized={Boolean(imageUrl.includes("scryfall"))}
+            priority={false}
+          />
+
+          {isFoil && <div className="card-foil-overlay" />}
+
+          {/* Hover Hint para Vista General Marketplace */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/art:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-10">
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E10E0E] text-white shadow-lg tracking-wide flex items-center gap-1">
+              <span>🏪</span>
+              <span>Ver Tiendas</span>
+            </span>
+          </div>
+
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex items-center justify-center z-20 p-2">
+              <span className="px-2.5 py-1 rounded-lg bg-red/90 text-white font-bold text-xs tracking-wider uppercase shadow-lg">
+                Agotado
+              </span>
+            </div>
+          )}
+        </Link>
+      )}
 
       {/* Info Section */}
       <div className="mt-3 flex flex-col flex-1 justify-between z-20">
@@ -193,26 +255,46 @@ export default function TcgProductCard({ item, onQuickView, globalRates = [] }: 
           </p>
 
           {/* Card Name */}
-          <Link
-            href={`/shop-details/${item.slug}`}
-            className="block text-sm font-semibold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug"
-            title={item.title || item.name}
-          >
-            {item.title || item.name}
-          </Link>
+          {onCardClick ? (
+            <button
+              type="button"
+              onClick={() => onCardClick(item)}
+              className="block text-left w-full text-sm font-semibold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug cursor-pointer"
+              title={item.title || item.name}
+            >
+              {item.title || item.name}
+            </button>
+          ) : (
+            <Link
+              href={`/shop-details/${item.slug}`}
+              className="block text-sm font-semibold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug"
+              title={item.title || item.name}
+            >
+              {item.title || item.name}
+            </Link>
+          )}
         </div>
 
-        {/* Bottom Bar: Price + Stock + Action Buttons */}
+        {/* Bottom Bar: Price + Stock / Store badges + Action Buttons */}
         <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="text-base font-bold font-mono text-white tracking-tight">
               {formatPrice(price, currency)}
             </div>
-            {stock > 0 && stock <= 3 && (
-              <span className="text-[10px] font-medium text-amber-400/90 flex items-center gap-1">
+            {!storeId && storeCount > 1 ? (
+              <span className="text-[10px] font-medium text-emerald-400 flex items-center gap-1 mt-0.5 truncate" title={`Disponible en ${storeCount} tiendas`}>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                {storeCount} tiendas disp.
+              </span>
+            ) : !storeId && storeName ? (
+              <span className="text-[10px] text-gray-400 truncate block mt-0.5" title={`Vendido por ${storeName}`}>
+                {storeName}
+              </span>
+            ) : stock > 0 && stock <= 3 ? (
+              <span className="text-[10px] font-medium text-amber-400/90 flex items-center gap-1 mt-0.5">
                 ¡Solo {stock} disp.!
               </span>
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">

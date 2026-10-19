@@ -5,6 +5,7 @@ import Link from "next/link";
 import { API_URL } from "@/utils/api";
 import TcgFilterSidebar from "./TcgFilterSidebar";
 import TcgProductCard from "./TcgProductCard";
+import TcgStoreVariantModal from "./TcgStoreVariantModal";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import { useProductCart } from "@/hooks/useProductCart";
@@ -18,9 +19,20 @@ interface TcgStorefrontViewProps {
 }
 
 // Compact Table Row for Deckbuilder View
-function TcgDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?: any[] }) {
+function TcgDeckbuilderRow({
+  item,
+  globalRates = [],
+  storeId,
+  onCardClick,
+}: {
+  item: any;
+  globalRates?: any[];
+  storeId?: string;
+  onCardClick?: (item: any) => void;
+}) {
   const currency = useAppSelector((state: any) => state.currencyReducer);
-  const best = getBestAvailableVariant(item, globalRates);
+  const effectiveStoreId = storeId || item.storeId || item.store?.id;
+  const best = getBestAvailableVariant(item, globalRates, effectiveStoreId);
   const cheapestVariant = best.variant;
   const price = best.finalPriceCLP;
   const stock = best.stock;
@@ -71,10 +83,20 @@ function TcgDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?
     setTimeout(() => setIsAdding(false), 900);
   };
 
+  const handleRowClick = (e: React.MouseEvent) => {
+    if (onCardClick) {
+      e.preventDefault();
+      onCardClick(item);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[#111522] border border-white/[0.06] hover:border-white/20 transition-all">
       {/* Artwork thumbnail with hover expansion */}
-      <div className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[#0A0D14] border border-white/10 group">
+      <div
+        onClick={handleRowClick}
+        className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[#0A0D14] border border-white/10 group cursor-pointer"
+      >
         <Image
           src={imageUrl}
           alt={item.title || item.name}
@@ -87,12 +109,13 @@ function TcgDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?
 
       {/* Card Info */}
       <div className="flex-1 min-w-0">
-        <Link
-          href={`/shop-details/${item.slug}`}
-          className="font-bold text-sm text-white hover:text-red-400 truncate block transition-colors"
+        <button
+          type="button"
+          onClick={handleRowClick}
+          className="font-bold text-sm text-white hover:text-red-400 truncate block transition-colors text-left w-full cursor-pointer"
         >
           {item.title || item.name}
-        </Link>
+        </button>
         <div className="flex flex-wrap items-center gap-1.5 mt-1">
           <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold font-mono ${conditionClass}`}>
             {conditionCode}
@@ -186,6 +209,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
   const [sortOption, setSortOption] = useState<string>("latest");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedProductForModal, setSelectedProductForModal] = useState<any | null>(null);
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -296,10 +320,10 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
       .finally(() => setIsLoading(false));
   }, [storeId, selectedCategory, selectedExpansion, debouncedSearch, currentPage]);
 
-  // Resolve best available variant (cheapest price in CLP) for each product preview
+  // Resolve best available variant (cheapest price in CLP strictly for THIS store)
   const products = useMemo(() => {
     return rawProducts.map((item: any) => {
-      const best = getBestAvailableVariant(item, globalRates);
+      const best = getBestAvailableVariant(item, globalRates, storeId);
       return {
         ...item,
         id: item.id,
@@ -329,7 +353,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
         cheapestVariant: best.variant,
       };
     });
-  }, [rawProducts, globalRates]);
+  }, [rawProducts, globalRates, storeId]);
 
   // Client-side filtering for condition, finish, language, and price
   const filteredProducts = useMemo(() => {
@@ -704,14 +728,26 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             /* Vault Grid View */
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {sortedProducts.map((product) => (
-                <TcgProductCard key={product.id} item={product} globalRates={globalRates} />
+                <TcgProductCard
+                  key={product.id}
+                  item={product}
+                  globalRates={globalRates}
+                  storeId={storeId}
+                  onCardClick={(p) => setSelectedProductForModal(p)}
+                />
               ))}
             </div>
           ) : (
             /* Deckbuilder / Table List View */
             <div className="flex flex-col gap-2.5">
               {sortedProducts.map((product) => (
-                <TcgDeckbuilderRow key={product.id} item={product} globalRates={globalRates} />
+                <TcgDeckbuilderRow
+                  key={product.id}
+                  item={product}
+                  globalRates={globalRates}
+                  storeId={storeId}
+                  onCardClick={(p) => setSelectedProductForModal(p)}
+                />
               ))}
             </div>
           )}
@@ -742,6 +778,17 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
           )}
         </div>
       </div>
+
+      {/* Vitrina Variants Popup Modal (Vitrina por Tienda) */}
+      {selectedProductForModal && (
+        <TcgStoreVariantModal
+          product={selectedProductForModal}
+          storeId={storeId}
+          storeName={storeName}
+          globalRates={globalRates}
+          onClose={() => setSelectedProductForModal(null)}
+        />
+      )}
     </div>
   );
 }
