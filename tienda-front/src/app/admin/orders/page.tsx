@@ -68,6 +68,7 @@ export default function AdminOrdersPage() {
         order={selectedOrder}
         statusClasses={STATUS_CLS}
         statusLabel={statusLabel}
+        onRefresh={refresh}
       />
     </div>
   );

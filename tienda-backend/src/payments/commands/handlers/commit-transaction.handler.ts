@@ -89,7 +89,10 @@ export class CommitTransactionHandler
         // Actualizar estado de la sub-orden
         await tx.vendorOrder.update({
           where: { id: vendorOrder.id },
-          data: { status: isApproved ? 'PAID' : 'FAILED' },
+          data: {
+            status: isApproved ? 'PAID' : 'FAILED',
+            deliveryStatus: isApproved ? 'PENDING_DISPATCH' : undefined,
+          },
         });
 
         if (isApproved) {
@@ -112,26 +115,19 @@ export class CommitTransactionHandler
             }
           }
 
-          // SaaS Model: Abonar a la Billetera del Vendedor el 100% de la venta + envío (0% comisión)
+          // SaaS Model & Escrow: Registrar en la Billetera en CUSTODIA (isWithdrawable: false)
+          // El saldo disponible se liberará cuando la tienda ingrese el despacho oficial
           const baseSubtotal = Number(vendorOrder.subtotal);
           const totalAbono = baseSubtotal + Number(vendorOrder.shippingCost);
-          const commission = 0;
 
-          // Actualizar balance del vendedor (recibe íntegro lo vendido + envío)
-          await tx.store.update({
-            where: { id: vendorOrder.storeId },
-            data: { balance: { increment: totalAbono } },
-          });
-
-          // Registrar en historial de billetera
           await tx.walletTransaction.create({
             data: {
               storeId: vendorOrder.storeId,
               amount: totalAbono,
               type: 'SALE',
               paymentMethod: 'WEBPAY',
-              isWithdrawable: true,
-              reference: `Order: ${vendorOrder.id} (SaaS Model - 0% Commission)`,
+              isWithdrawable: false,
+              reference: `Order: ${vendorOrder.id} (Custodia - Pendiente de Despacho)`,
             },
           });
         }

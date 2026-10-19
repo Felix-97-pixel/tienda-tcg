@@ -33,13 +33,25 @@ type OrderItem = {
   unitPrice: string;
 };
 
+type VendorOrder = {
+  id: string;
+  deliveryStatus?: string | null;
+  shippingCourier?: string | null;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
+  dispatchedAt?: string | null;
+  store: { id: string; name: string };
+  items: OrderItem[];
+};
+
 type Order = {
   id: string;
   buyOrder: string;
   totalAmount: string;
   status: string;
   createdAt: string;
-  items: OrderItem[];
+  vendorOrders?: VendorOrder[];
+  items?: OrderItem[];
   payment: { status: string; authCode?: string; cardLast4?: string } | null;
 };
 
@@ -252,19 +264,113 @@ const MyAccount = () => {
                               </span>
                             </div>
                           </div>
-                          {/* Products */}
-                          <div className="bg-[#111318] rounded-lg p-3 space-y-1.5">
-                            {order.items.map((item) => (
-                              <div key={item.id} className="flex justify-between text-sm">
-                                <span className="text-white">
-                                  {item.productName} <span className="text-gray-4">× {item.quantity}</span>
-                                </span>
-                                <span className="text-white font-medium">
-                                  ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
+                          {/* Despachos / Paquetes por Tienda */}
+                          {order.vendorOrders && order.vendorOrders.length > 0 ? (
+                            <div className="space-y-3 mt-3">
+                              {order.vendorOrders.map((vo) => (
+                                <div key={vo.id} className="bg-[#111318] rounded-xl p-4 border border-white/5 space-y-3">
+                                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2">
+                                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                                      <span>🏬</span> Tienda: {vo.store.name}
+                                    </span>
+                                    {vo.deliveryStatus === "DISPATCHED" ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                        🟢 En camino (Despachado)
+                                      </span>
+                                    ) : order.status === "PAID" ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                        🟡 En preparación en tienda
+                                      </span>
+                                    ) : (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-gray-400">
+                                        {order.status}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Si está despachado, tarjeta destacada con número de guía y link oficial */}
+                                  {vo.deliveryStatus === "DISPATCHED" && (
+                                    <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
+                                      <div className="space-y-0.5">
+                                        <p className="font-bold text-white flex items-center gap-1.5">
+                                          <span>📦</span> Transporte: {vo.shippingCourier || "Courier"}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                          <p className="text-gray-300 font-mono text-[11px]">
+                                            N° Guía: <strong className="text-emerald-400">{vo.trackingNumber}</strong>
+                                          </p>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              if (vo.trackingNumber) {
+                                                navigator.clipboard.writeText(vo.trackingNumber);
+                                                alert("¡Número de seguimiento copiado al portapapeles!");
+                                              }
+                                            }}
+                                            className="text-[10px] text-gray-400 hover:text-white underline cursor-pointer"
+                                            title="Copiar número"
+                                          >
+                                            [Copiar]
+                                          </button>
+                                        </div>
+                                        {vo.dispatchedAt && (
+                                          <p className="text-[10px] text-gray-400">
+                                            Despachado el {new Date(vo.dispatchedAt).toLocaleDateString("es-CL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                          </p>
+                                        )}
+                                      </div>
+                                      {vo.trackingUrl && (
+                                        <a
+                                          href={vo.trackingUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-900/30"
+                                        >
+                                          <span>Rastrear Envío Oficial</span>
+                                          <span>↗</span>
+                                        </a>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* Si está pendiente de despacho */}
+                                  {order.status === "PAID" && vo.deliveryStatus !== "DISPATCHED" && (
+                                    <div className="p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/15 text-[11px] text-amber-300/80">
+                                      ⏳ La tienda está preparando tus cartas en toploaders para entrega segura a la empresa de transporte. Te notificaremos tu número de seguimiento tan pronto sea despachado.
+                                    </div>
+                                  )}
+
+                                  {/* Lista de cartas de este paquete */}
+                                  <div className="space-y-1.5 pt-1">
+                                    {vo.items.map((item) => (
+                                      <div key={item.id} className="flex justify-between text-xs text-gray-300">
+                                        <span>
+                                          {item.productName} <span className="text-gray-500">× {item.quantity}</span>
+                                        </span>
+                                        <span className="font-mono text-white font-medium">
+                                          ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            /* Fallback productos directos si no hay sub-órdenes */
+                            <div className="bg-[#111318] rounded-lg p-3 space-y-1.5 mt-3">
+                              {order.items?.map((item) => (
+                                <div key={item.id} className="flex justify-between text-sm">
+                                  <span className="text-white">
+                                    {item.productName} <span className="text-gray-4">× {item.quantity}</span>
+                                  </span>
+                                  <span className="text-white font-medium">
+                                    ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                           {order.payment?.cardLast4 && (
                             <p className="text-xs text-gray-4 mt-2">
                               Tarjeta •••• {order.payment.cardLast4}

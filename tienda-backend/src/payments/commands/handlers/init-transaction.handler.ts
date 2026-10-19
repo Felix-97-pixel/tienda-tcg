@@ -123,9 +123,19 @@ export class InitTransactionHandler
 
     const totalWithShipping = globalSubtotal + totalShippingCost;
 
+    // SaaS Model: Traspaso de la tarifa de procesamiento de pasarela al cliente (Webpay Plus: ~2.90%)
+    const gatewayFeeRate = 0.029;
+    const computedFee = Math.round(totalWithShipping * gatewayFeeRate);
+    const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
+    const finalChargedAmount = totalWithShipping + gatewayFee;
+
     // Generar buyOrder único
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
     const sessionId = `SES-${Date.now()}`.slice(0, 61);
+
+    const orderNotes = dto.notes
+      ? `${dto.notes} | Tarifa de pasarela (2.90%): $${gatewayFee.toLocaleString('es-CL')}`
+      : `Tarifa de pasarela (2.90%): $${gatewayFee.toLocaleString('es-CL')}`;
 
     // Guardar orden en BD
     const order = await this.prisma.order.create({
@@ -137,8 +147,8 @@ export class InitTransactionHandler
         phone: dto.phone,
         address: dto.address,
         city: dto.city,
-        notes: dto.notes,
-        totalAmount: totalWithShipping,
+        notes: orderNotes,
+        totalAmount: finalChargedAmount,
         currencyCode,
         exchangeRate,
         status: 'PENDING',
@@ -167,7 +177,7 @@ export class InitTransactionHandler
     }
 
     // Llamar a Webpay para crear transacción
-    const amountInCLP = Math.round(totalWithShipping); // Webpay usa enteros en CLP
+    const amountInCLP = Math.round(finalChargedAmount); // Webpay usa enteros en CLP
     const response = await this.webpay.transaction.create(
       buyOrder,
       sessionId,

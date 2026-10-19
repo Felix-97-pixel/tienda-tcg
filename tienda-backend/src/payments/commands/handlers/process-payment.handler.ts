@@ -132,6 +132,12 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       });
     }
 
+    // 3.1 SaaS Model: Traspaso de la tarifa de procesamiento de pasarela al cliente (Mercado Pago: 3.19% + IVA ≈ 3.79%)
+    const gatewayFeeRate = 0.0379;
+    const computedFee = Math.round(globalTotal * gatewayFeeRate);
+    const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
+    const finalChargedAmount = globalTotal + gatewayFee;
+
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
 
     // 4. Ejecutar la llamada a Mercado Pago
@@ -143,7 +149,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             payment_method_id: dto.payment_method_id,
             payment_type_id: 'credit_card', // Usually MP auto-detects or accepts this for cards
             token: dto.token,
-            transaction_amount: Math.round(globalTotal),
+            transaction_amount: Math.round(finalChargedAmount),
             installments: dto.installments,
             description: `Compra E-commerce - ${buyOrder}`,
             issuer_id: dto.issuer_id,
@@ -170,6 +176,10 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     const isApproved = paymentResponse.status === 'approved';
     const statusDb = isApproved ? 'PAID' : 'FAILED';
 
+    const orderNotes = dto.notes
+      ? `${dto.notes} | Tarifa de pasarela (3.79%): $${gatewayFee.toLocaleString('es-CL')}`
+      : `Tarifa de pasarela (3.79%): $${gatewayFee.toLocaleString('es-CL')}`;
+
     const order = await this.prisma.order.create({
       data: {
         buyOrder,
@@ -179,8 +189,8 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         phone: dto.phone,
         address: dto.address,
         city: dto.city,
-        notes: dto.notes,
-        totalAmount: globalTotal,
+        notes: orderNotes,
+        totalAmount: finalChargedAmount,
         currencyCode,
         exchangeRate,
         status: statusDb,
@@ -195,7 +205,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       data: {
         orderId: order.id,
         token: String(paymentResponse.id), // MP Payment ID
-        amount: globalTotal,
+        amount: finalChargedAmount,
         status: isApproved ? 'AUTHORIZED' : 'FAILED',
         paymentType: dto.payment_method_id,
         installments: dto.installments,

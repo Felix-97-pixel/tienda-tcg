@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -12,6 +14,7 @@ import {
 import { Response, Request } from 'express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { DispatchVendorOrderDto } from './dto/dispatch-vendor-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/optional-jwt.guard';
 
@@ -29,6 +32,25 @@ export class PaymentsController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  /**
+   * PATCH /payments/vendor-orders/:id/dispatch
+   * Registra despacho e ingresa número de seguimiento oficial, liberando fondos en custodia.
+   */
+  @Patch('vendor-orders/:id/dispatch')
+  @UseGuards(JwtAuthGuard)
+  async dispatchVendorOrder(
+    @Param('id') vendorOrderId: string,
+    @Body() dto: DispatchVendorOrderDto,
+    @Req() req: Request & { user: { userId: string } },
+  ) {
+    const { DispatchVendorOrderCommand } = await import(
+      './commands/impl/dispatch-vendor-order.command'
+    );
+    return this.commandBus.execute(
+      new DispatchVendorOrderCommand(vendorOrderId, dto, req.user.userId),
+    );
+  }
+
 
 
   /**
@@ -42,9 +64,47 @@ export class PaymentsController {
     @Req() req: Request & { user?: { userId: string } },
   ) {
     const userId = req.user?.userId ?? null;
-    const { ProcessPaymentCommand } = await import('./commands/impl/process-payment.command');
+    const { ProcessPaymentCommand } = await import(
+      './commands/impl/process-payment.command'
+    );
+    return this.commandBus.execute(new ProcessPaymentCommand(dto, userId));
+  }
+
+  /**
+   * POST /payments/init-transaction
+   * Inicia una transacción de pago con Webpay Plus (Transbank)
+   */
+  @Post('init-transaction')
+  @UseGuards(OptionalJwtAuthGuard)
+  async initTransaction(
+    @Body() dto: CreateOrderDto,
+    @Req() req: Request & { user?: { userId: string } },
+  ) {
+    const userId = req.user?.userId ?? null;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const returnUrl = `${frontendUrl}/checkout/result`;
+    const { InitTransactionCommand } = await import(
+      './commands/impl/init-transaction.command'
+    );
     return this.commandBus.execute(
-      new ProcessPaymentCommand(dto, userId),
+      new InitTransactionCommand(dto, userId, returnUrl),
+    );
+  }
+
+  /**
+   * POST /payments/commit-transaction
+   * Confirma la transacción con Webpay Plus al retornar de Transbank
+   */
+  @Post('commit-transaction')
+  async commitTransaction(@Body() body: { token_ws: string }) {
+    if (!body?.token_ws) {
+      throw new BadRequestException('token_ws es requerido para confirmar la transacción');
+    }
+    const { CommitTransactionCommand } = await import(
+      './commands/impl/commit-transaction.command'
+    );
+    return this.commandBus.execute(
+      new CommitTransactionCommand(body.token_ws),
     );
   }
 

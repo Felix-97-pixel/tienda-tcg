@@ -52,7 +52,17 @@ export class WithdrawalsService {
       orderBy: { createdAt: 'desc' }
     });
 
-    return { transactions, withdrawals, balance: store.balance };
+    // Calcular saldo en custodia (ventas pendientes de despacho)
+    const heldBalance = transactions
+      .filter((t) => t.type === 'SALE' && !t.isWithdrawable)
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    return {
+      transactions,
+      withdrawals,
+      balance: store.balance,
+      heldBalance,
+    };
   }
 
   async completeWithdrawal(id: string) {

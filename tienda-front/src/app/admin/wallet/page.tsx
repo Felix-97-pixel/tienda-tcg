@@ -71,19 +71,41 @@ export default function StoreWalletPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Card 1: Saldo Disponible */}
         <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-500" />
-          <h2 className="text-xs font-black tracking-widest uppercase text-white/50 mb-2">Saldo Retirable (Webpay)</h2>
-          <p className="text-4xl font-black tracking-tight text-emerald-400">
-            ${Number(history.balance || 0).toLocaleString('es-CL')}
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-black tracking-widest uppercase text-white/50">Saldo Disponible (Retirable)</h2>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+          </div>
+          <p className="text-3xl font-black tracking-tight text-emerald-400">
+            ${Number(history.balance || 0).toLocaleString('es-CL')} <span className="text-xs text-emerald-400/60 font-normal">CLP</span>
           </p>
           <p className="text-xs text-white/40 mt-3 leading-relaxed">
-            Este saldo proviene de las ventas pagadas con Webpay. Puedes solicitar el retiro directo a tu cuenta bancaria registrada.
+            Fondos de ventas despachadas con número de seguimiento ingresado. Listos para transferencia electrónica (TEF).
           </p>
         </div>
 
-        <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl">
+        {/* Card 2: Saldo en Custodia (Escrow) */}
+        <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-500" />
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-black tracking-widest uppercase text-amber-400/80">Saldo en Custodia (Escrow)</h2>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              Retenido
+            </span>
+          </div>
+          <p className="text-3xl font-black tracking-tight text-amber-400">
+            ${Number(history.heldBalance || 0).toLocaleString('es-CL')} <span className="text-xs text-amber-400/60 font-normal">CLP</span>
+          </p>
+          <p className="text-xs text-white/40 mt-3 leading-relaxed">
+            Ventas pagadas retenidas temporalmente. Se liberan automáticamente al registrar el número de envío en <strong>Pedidos</strong>.
+          </p>
+        </div>
+
+        {/* Card 3: Formulario Retiro */}
+        <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl md:col-span-2 lg:col-span-1">
           <h2 className="text-sm font-bold text-white mb-4">Solicitar Retiro de Fondos</h2>
           <form onSubmit={handleRequestWithdrawal} className="space-y-4">
             <div>

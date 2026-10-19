@@ -12,6 +12,7 @@ import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import { IconShieldCheck, IconAlertTriangle, IconStore } from "@/components/ui/Icons";
 import { API_URL } from "@/utils/api";
 import ChileLocationsSelect from "./ChileLocationsSelect";
+import { calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/utils/paymentFees";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-dummy", { locale: "es-CL" });
 
@@ -32,6 +33,7 @@ const CheckoutWebpay = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayType>("WEBPAY");
   const [billing, setBilling] = useState<BillingData>({
     name: "",
     email: "",
@@ -240,6 +242,7 @@ const CheckoutWebpay = () => {
         notes: billing.notes,
         currency: currency.code,
         exchangeRate: currency.exchangeRate,
+        gatewayFee: paymentFee,
         storeShippingProviders: storeIds.reduce((acc, sId) => {
           acc[sId] = selectedProvidersByStore[sId].id;
           return acc;
@@ -279,42 +282,127 @@ const CheckoutWebpay = () => {
     }
   };
 
-  const finalAmount = total + totalShippingCost / currency.exchangeRate;
+  const baseAmount = total + totalShippingCost / currency.exchangeRate;
+  const gatewayConfig = getGatewayConfig(selectedGateway);
+  const paymentFee = calculatePaymentFee(baseAmount, selectedGateway);
+  const finalAmount = baseAmount + paymentFee;
 
-  const initialization = {
-    amount: Math.round(finalAmount),
-    payer: {
-      email: billing.email || "comprador@taptrade.cl",
-    },
+  const handleWebpaySubmit = async () => {
+    setError(null);
+
+    if (!billing.name || !billing.email) {
+      setError("Por favor completa tu nombre y correo electrónico en los datos de contacto.");
+      return;
+    }
+    if (cartItems.length === 0) {
+      setError("Tu carrito está vacío.");
+      return;
+    }
+    const missingShipping = storeIds.find((sId) => !selectedProvidersByStore[sId]);
+    if (missingShipping) {
+      setError("Debes seleccionar un método de envío para cada tienda.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        email: billing.email,
+        name: billing.name,
+        phone: billing.phone,
+        address: billing.address,
+        city: selectedCommuneName,
+        cityCode: selectedCommuneCode,
+        regionCode: selectedRegionCode,
+        notes: billing.notes,
+        currency: currency.code,
+        exchangeRate: currency.exchangeRate,
+        gatewayFee: paymentFee,
+        storeShippingProviders: storeIds.reduce((acc, sId) => {
+          acc[sId] = selectedProvidersByStore[sId].id;
+          return acc;
+        }, {} as Record<string, string>),
+        items: cartItems.map((item) => ({
+          productId: String(item.id),
+          inventoryItemId: item.inventoryItemId ?? null,
+          productName: item.title,
+          quantity: item.quantity,
+          unitPrice: item.discountedPrice,
+        })),
+      };
+
+      const res = await fetch(`${API_URL}/payments/init-transaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message ?? "Error al iniciar la transacción con Webpay Plus");
+      }
+
+      const data = await res.json();
+      if (!data.token || !data.url) {
+        throw new Error("Respuesta inválida de Transbank Webpay Plus");
+      }
+
+      // Redirigir a Webpay Plus mediante envío de formulario POST con token_ws
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = data.url;
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "token_ws";
+      input.value = data.token;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    } catch (err: any) {
+      setError(err.message ?? "Error al conectar con Webpay Plus");
+      setLoading(false);
+    }
   };
 
-  // Dark Vault custom Mercado Pago styling
-  const customization = {
-    visual: {
-      style: {
-        theme: "dark" as const,
-        customVariables: {
-          formBackgroundColor: "#0E121B",
-          baseColor: "#E10E0E",
-          baseColorFirstVariant: "#F23030",
-          baseColorSecondVariant: "#C8102E",
-          inputBackgroundColor: "#07090E",
-          textPrimaryColor: "#FFFFFF",
-          textSecondaryColor: "#9CA3AF",
-          outlinePrimaryColor: "rgba(255, 255, 255, 0.12)",
-          outlineSecondaryColor: "rgba(255, 255, 255, 0.2)",
-          buttonTextColor: "#FFFFFF",
-          borderRadiusSmall: "8px",
-          borderRadiusMedium: "12px",
-          borderRadiusLarge: "12px",
+  const mpInitialization = React.useMemo(() => {
+    return {
+      amount: Math.max(1, Math.round(finalAmount)),
+      payer: {
+        email: billing.email || "comprador@taptrade.cl",
+      },
+    };
+  }, [Math.round(finalAmount), billing.email]);
+
+  // Dark Vault custom Mercado Pago styling (memoized para evitar re-montaje duplicado de iframes)
+  const mpCustomization = React.useMemo(() => {
+    return {
+      visual: {
+        style: {
+          theme: "dark" as const,
+          customVariables: {
+            formBackgroundColor: "#0E121B",
+            baseColor: "#E10E0E",
+            baseColorFirstVariant: "#F23030",
+            baseColorSecondVariant: "#C8102E",
+            inputBackgroundColor: "#07090E",
+            textPrimaryColor: "#FFFFFF",
+            textSecondaryColor: "#9CA3AF",
+            outlinePrimaryColor: "rgba(255, 255, 255, 0.12)",
+            outlineSecondaryColor: "rgba(255, 255, 255, 0.2)",
+            buttonTextColor: "#FFFFFF",
+            borderRadiusSmall: "8px",
+            borderRadiusMedium: "12px",
+            borderRadiusLarge: "12px",
+          },
         },
       },
-    },
-    paymentMethods: {
-      creditCard: "all",
-      debitCard: "all",
-    },
-  };
+      paymentMethods: {
+        creditCard: "all" as const,
+        debitCard: "all" as const,
+      },
+    };
+  }, []);
 
   return (
     <div className="bg-[#07090E] min-h-screen text-white pt-28 md:pt-36 pb-24 relative overflow-hidden">
@@ -456,46 +544,205 @@ const CheckoutWebpay = () => {
               </div>
             </div>
 
-            {/* 2. Método de Pago (Mercado Pago Brick) */}
+            {/* 2. Selector de Medio de Pago y Formulario Dinámico */}
             <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
               <div className="flex items-center gap-3 pb-4 mb-6 border-b border-white/10">
                 <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-400 font-black text-xs flex items-center justify-center">
                   2
                 </span>
-                <h2 className="text-lg font-bold text-white tracking-tight">
-                  Medio de Pago Seguro
-                </h2>
-              </div>
-
-              {/* Banner MP Oficial */}
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/30 mb-6">
-                <div className="w-12 h-10 bg-[#009EE3] rounded-lg flex items-center justify-center font-black text-white text-xs shrink-0 shadow-md">
-                  MP
-                </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Mercado Pago & Webpay</h4>
-                  <p className="text-xs text-gray-400">
-                    Tarjetas de crédito (con o sin cuotas), débito Redcompra y dinero en cuenta.
+                  <h2 className="text-lg font-bold text-white tracking-tight">
+                    Selecciona tu Medio de Pago
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Elige tu pasarela preferida para desplegar el formulario correspondiente.
                   </p>
                 </div>
               </div>
 
-              {/* Mercado Pago Payment Brick (Dark Theme) */}
-              <div className="rounded-xl overflow-hidden bg-[#07090E] p-4 border border-white/10">
-                {total > 0 && shippingProviders.length > 0 && (
-                  <Payment
-                    initialization={initialization}
-                    customization={customization as any}
-                    onSubmit={async (param) => {
-                      await handlePaymentSubmit(param.formData);
-                    }}
-                  />
-                )}
+              {/* Selector de Pasarelas: Webpay Plus vs Mercado Pago */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                {/* Opción 1: Transbank Webpay Plus */}
+                <div
+                  onClick={() => setSelectedGateway("WEBPAY")}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${
+                    selectedGateway === "WEBPAY"
+                      ? "bg-gradient-to-b from-[#E10E0E]/10 to-transparent border-red-500/80 shadow-lg shadow-red-950/30 ring-1 ring-red-500/30"
+                      : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#E10E0E] to-[#FF4B4B] flex items-center justify-center text-white font-black text-xs shadow-md">
+                          TBK
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white leading-tight">
+                            Webpay Plus
+                          </h4>
+                          <span className="text-[11px] text-gray-400 block font-medium">
+                            Transbank SpA
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                          selectedGateway === "WEBPAY"
+                            ? "border-red-500 bg-red-500"
+                            : "border-white/30"
+                        }`}
+                      >
+                        {selectedGateway === "WEBPAY" && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-3">
+                      Débito Redcompra, Prepago y Crédito bancario chileno (Visa, Mastercard, Magna, Diners).
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                      Recomendado en Chile
+                    </span>
+                    <span className="text-xs font-mono font-bold text-gray-300">
+                      Tarifa: 2.90%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Opción 2: Mercado Pago */}
+                <div
+                  onClick={() => setSelectedGateway("MERCADOPAGO")}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${
+                    selectedGateway === "MERCADOPAGO"
+                      ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-lg shadow-sky-950/30 ring-1 ring-[#009EE3]/30"
+                      : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#009EE3] flex items-center justify-center text-white font-black text-xs shadow-md">
+                          MP
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white leading-tight">
+                            Mercado Pago
+                          </h4>
+                          <span className="text-[11px] text-gray-400 block font-medium">
+                            Portal Cifrado
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                          selectedGateway === "MERCADOPAGO"
+                            ? "border-[#009EE3] bg-[#009EE3]"
+                            : "border-white/30"
+                        }`}
+                      >
+                        {selectedGateway === "MERCADOPAGO" && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-3">
+                      Tarjetas de crédito (con o sin cuotas), débito y saldo en cuenta Mercado Pago.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-400/10 px-2 py-0.5 rounded border border-sky-400/20">
+                      Hasta 12 cuotas
+                    </span>
+                    <span className="text-xs font-mono font-bold text-gray-300">
+                      Tarifa: 3.79%
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
+              {/* Formulario Dinámico Desplegable según Opción Seleccionada */}
+              {selectedGateway === "WEBPAY" && (
+                <div className="p-6 rounded-2xl bg-[#07090E] border border-red-500/30 space-y-5 animate-in fade-in duration-300">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🇨🇱</span>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">
+                        Pagar con Webpay Plus de Transbank
+                      </h4>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Al pulsar el botón serás redirigido a la plataforma oficial y encriptada de Transbank para ingresar los datos de tu tarjeta con total privacidad.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-300 flex items-center justify-between">
+                    <div>
+                      <span className="text-gray-400 block">Total a autorizar en Transbank:</span>
+                      <span className="text-[10px] text-emerald-400 font-medium">
+                        0% sobreprecio de tienda • Tarifa pasarela 2.90%
+                      </span>
+                    </div>
+                    <span className="font-mono font-black text-white text-base">
+                      ${Math.round(finalAmount).toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleWebpaySubmit}
+                    disabled={loading || total <= 0}
+                    className="w-full py-4 px-6 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-lg bg-gradient-to-r from-[#E10E0E] to-[#FF4B4B] hover:from-[#c20c0c] hover:to-[#e10e0e] text-white shadow-red-900/30 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        <span>Conectando con Transbank...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🔒 Pagar con Webpay Plus</span>
+                        <span className="font-mono font-bold ml-1">
+                          (${Math.round(finalAmount).toLocaleString("es-CL")} CLP)
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {selectedGateway === "MERCADOPAGO" && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="p-3.5 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/30 text-xs text-sky-200 flex items-center gap-2">
+                    <span className="font-bold shrink-0">Portal Mercado Pago:</span>
+                    <span>Ingresa los datos de tu tarjeta directamente a continuación:</span>
+                  </div>
+
+                  {/* Formulario Brick único montado */}
+                  <div className="rounded-xl overflow-hidden bg-[#07090E] p-4 border border-white/10">
+                    {total > 0 && (
+                      <Payment
+                        key={`mp-brick-${Math.round(finalAmount)}`}
+                        initialization={mpInitialization}
+                        customization={mpCustomization as any}
+                        onSubmit={async (param) => {
+                          await handlePaymentSubmit(param.formData);
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-center gap-2 mt-5 text-xs text-gray-400">
                 <IconShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Transacción segura y encriptada por Mercado Pago Chile</span>
+                <span>
+                  {selectedGateway === "WEBPAY"
+                    ? "Transacción oficial cifrada con Transbank SpA"
+                    : "Transacción segura y encriptada por Mercado Pago Chile"}
+                </span>
               </div>
             </div>
 
@@ -672,7 +919,7 @@ const CheckoutWebpay = () => {
                 ))}
 
                 {/* Desglose Financiero */}
-                <div className="pt-4 border-t border-white/10 space-y-2 text-xs">
+                <div className="pt-4 border-t border-white/10 space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400">Subtotal Productos</span>
                     <span className="font-mono font-bold text-white">
@@ -687,8 +934,37 @@ const CheckoutWebpay = () => {
                     </span>
                   </div>
 
+                  {/* Tarifa de procesamiento de pasarela (traspaso transparente al comprador) */}
+                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white/[0.03] border border-white/5 transition-all">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-300 font-semibold">
+                          {selectedGateway === "WEBPAY" ? "Tarifa Webpay Plus" : "Tarifa Mercado Pago"}
+                        </span>
+                        <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
+                          selectedGateway === "WEBPAY"
+                            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                            : "bg-sky-500/10 border border-sky-500/20 text-sky-400"
+                        }`}>
+                          {gatewayConfig.percentageText}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-gray-400 block mt-0.5">
+                        {gatewayConfig.description}
+                      </span>
+                    </div>
+                    <span className="font-mono font-bold text-white">
+                      +${Math.round(paymentFee).toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
+
                   <div className="pt-3 border-t border-white/10 flex items-baseline justify-between">
-                    <span className="text-sm font-bold text-white">Total Final a Pagar</span>
+                    <div>
+                      <span className="text-sm font-bold text-white block">Total Final a Pagar</span>
+                      <span className="text-[10px] text-emerald-400 font-medium">
+                        Precios directos de tienda • 0% comisión
+                      </span>
+                    </div>
                     <div className="text-right">
                       <span className="text-2xl font-black font-mono text-white">
                         ${Math.round(finalAmount).toLocaleString("es-CL")}

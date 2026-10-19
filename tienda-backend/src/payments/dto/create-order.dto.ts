@@ -70,24 +70,28 @@ export class CreateOrderDto {
   @IsOptional()
   exchangeRate?: number;
 
+  @IsNumber()
+  @IsOptional()
+  gatewayFee?: number;
+
   @IsObject()
   @IsNotEmpty()
   storeShippingProviders: Record<string, string>;
 
-  // Mercado Pago Fields for Custom Checkout
+  // Mercado Pago Fields for Custom Checkout (opcionales para Webpay Plus)
   @IsString()
-  @IsNotEmpty()
-  token: string;
+  @IsOptional()
+  token?: string;
 
   @IsString()
   @IsOptional()
   issuer_id?: string;
 
   @IsString()
-  @IsNotEmpty()
-  payment_method_id: string;
+  @IsOptional()
+  payment_method_id?: string;
 
   @IsNumber()
-  @Min(1)
-  installments: number;
+  @IsOptional()
+  installments?: number;
 }

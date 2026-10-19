@@ -326,6 +326,11 @@ model VendorOrder {
   shippingCost       Decimal          @default(0) @db.Decimal(10, 2)
   subtotal           Decimal          @default(0) @db.Decimal(10, 2)
   status             OrderStatus      @default(PENDING)
+  deliveryStatus     String?          @default("PENDING_DISPATCH")
+  shippingCourier    String?
+  trackingNumber     String?
+  trackingUrl        String?
+  dispatchedAt       DateTime?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   order              Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)

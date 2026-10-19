@@ -41,38 +41,91 @@ const PaymentResultPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const tokenWs = searchParams.get("token_ws");
+  const tbkToken = searchParams.get("TBK_TOKEN");
   const statusParam = searchParams.get("status") as Status | null;
   const orderId = searchParams.get("orderId");
 
   const [status, setStatus] = useState<Status>("loading");
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [fetchError, setFetchError] = useState(false);
+  const committedRef = React.useRef(false);
 
   useEffect(() => {
-    if (!statusParam) {
-      router.replace("/");
+    // 1. Caso Retorno de Webpay Plus con token_ws
+    if (tokenWs) {
+      if (committedRef.current) return;
+      committedRef.current = true;
+      setStatus("loading");
+
+      fetch(`${API_URL}/payments/commit-transaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ token_ws: tokenWs }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || "Error al confirmar transacción con Webpay");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.approved) {
+            setStatus("success");
+            dispatch(removeAllItemsFromCart());
+          } else {
+            setStatus("failed");
+          }
+          if (data.orderId) {
+            fetch(`${API_URL}/payments/order/${data.orderId}`, { credentials: "include" })
+              .then((r) => (r.ok ? r.json() : Promise.reject()))
+              .then(setOrder)
+              .catch(() => setFetchError(true));
+          }
+        })
+        .catch((err) => {
+          console.error("Error confirmando con Webpay:", err);
+          setStatus("failed");
+          setFetchError(true);
+        });
       return;
     }
-    setStatus(statusParam);
 
-    if (statusParam === "success") {
-      dispatch(removeAllItemsFromCart());
+    // 2. Caso Anulación voluntaria por usuario en Webpay Plus
+    if (tbkToken) {
+      setStatus("cancelled");
+      return;
     }
 
-    if (orderId) {
-      fetch(`${API_URL}/payments/order/${orderId}`, { credentials: "include" })
-        .then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then(setOrder)
-        .catch(() => setFetchError(true));
+    // 3. Caso Mercado Pago tradicional con status en URL
+    if (statusParam) {
+      setStatus(statusParam);
+
+      if (statusParam === "success") {
+        dispatch(removeAllItemsFromCart());
+      }
+
+      if (orderId) {
+        fetch(`${API_URL}/payments/order/${orderId}`, { credentials: "include" })
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then(setOrder)
+          .catch(() => setFetchError(true));
+      }
+      return;
     }
-  }, [statusParam, orderId, dispatch, router]);
+
+    // Si no hay parámetros válidos, redirigir
+    router.replace("/");
+  }, [tokenWs, tbkToken, statusParam, orderId, dispatch, router]);
 
   if (status === "loading") {
     return (
       <div className="bg-[#07090E] min-h-screen text-white flex items-center justify-center pt-28">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="w-12 h-12 rounded-full border-2 border-red-500/20 border-t-red-500 animate-spin"></div>
-          <p className="text-gray-400 text-sm">Verificando estado del pago en Mercado Pago...</p>
+          <p className="text-gray-400 text-sm">Verificando y confirmando tu pago seguro...</p>
         </div>
       </div>
     );
@@ -139,8 +192,8 @@ const PaymentResultPage = () => {
               {isSuccess
                 ? "Hemos enviado el comprobante oficial a tu correo. Las tiendas comenzarán a preparar tu pedido."
                 : status === "cancelled"
-                ? "La transacción fue cancelada en Mercado Pago. Tus cartas siguen guardadas en el carrito."
-                : "Mercado Pago no pudo autorizar el cobro. Puedes intentar con otro medio de pago o tarjeta."}
+                ? "La transacción fue cancelada en la pasarela. Tus cartas siguen guardadas en el carrito."
+                : "La pasarela de pago no pudo autorizar el cobro. Puedes intentar con otro medio de pago o tarjeta."}
             </p>
           </div>
 
