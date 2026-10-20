@@ -6,11 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { RootState } from "@/redux/store";
 import { logout } from "@/redux/features/auth-slice";
-import dynamic from "next/dynamic";
-
-const LocationPicker = dynamic(() => import("@/components/ui/LocationPicker"), { ssr: false });
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+import ChileLocationsSelect from "@/app/(site)/(pages)/checkout/_components/ChileLocationsSelect";
+import { Button } from "@/components/ui/Button";
+import { API_URL } from "@/utils/api";
 
 type UserProfile = {
   id: string;
@@ -59,7 +57,7 @@ type Order = {
 const STATUS_MAP: Record<string, { label: string; cls: string; dot: string }> = {
   PENDING:   { label: "Pendiente",   cls: "bg-amber-500/15 text-amber-400 border border-amber-500/30", dot: "bg-amber-400" },
   PAID:      { label: "Pagado",      cls: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30", dot: "bg-emerald-400" },
-  FAILED:    { label: "Fallido",     cls: "bg-red-500/15 text-red-400 border border-red-500/30", dot: "bg-red-400" },
+  FAILED:    { label: "Fallido",     cls: "bg-red/15 text-red border border-red/30", dot: "bg-red" },
   CANCELLED: { label: "Cancelado",   cls: "bg-white/10 text-gray-400 border border-white/15", dot: "bg-gray-400" },
   REFUNDED:  { label: "Reembolsado", cls: "bg-purple-500/15 text-purple-400 border border-purple-500/30", dot: "bg-purple-400" },
 };
@@ -86,28 +84,36 @@ const MyAccount = () => {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [copiedTracking, setCopiedTracking] = useState<string | null>(null);
 
-  // Formulario para datos de cuenta y dirección
-  const [form, setForm] = useState<{
+  // Estado para edición de dirección
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [addressForm, setAddressForm] = useState<{
     name: string;
     phone: string;
     address: string;
     city: string;
-    lat: number | null;
-    lng: number | null;
-    regionCode: string;
     cityCode: string;
+    regionCode: string;
   }>({
     name: "",
     phone: "",
     address: "",
-    city: "",
-    lat: null,
-    lng: null,
-    regionCode: "",
-    cityCode: "",
+    city: "Santiago Centro",
+    cityCode: "SANTIAGO",
+    regionCode: "RM",
   });
-  const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressMsg, setAddressMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Estado para datos de cuenta
+  const [accountForm, setAccountForm] = useState<{
+    name: string;
+    phone: string;
+  }>({
+    name: "",
+    phone: "",
+  });
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [accountMsg, setAccountMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Sincronizar tab con URL query param
   useEffect(() => {
@@ -130,16 +136,32 @@ const MyAccount = () => {
       if (!res.ok) throw new Error();
       const data: UserProfile = await res.json();
       setProfile(data);
-      setForm({
-        name: data.name ?? "",
-        phone: data.phone ?? "",
-        address: data.address ?? "",
-        city: data.city ?? "",
-        lat: data.lat ?? null,
-        lng: data.lng ?? null,
-        regionCode: data.regionCode ?? "",
-        cityCode: data.cityCode ?? "",
+      
+      const currentName = data.name ?? "";
+      const currentPhone = data.phone ?? "";
+      const currentAddress = data.address ?? "";
+      const currentCity = data.city ?? "Santiago Centro";
+      const currentCityCode = data.cityCode ?? "SANTIAGO";
+      const currentRegionCode = data.regionCode ?? "RM";
+
+      setAddressForm({
+        name: currentName,
+        phone: currentPhone,
+        address: currentAddress,
+        city: currentCity,
+        cityCode: currentCityCode,
+        regionCode: currentRegionCode,
       });
+
+      setAccountForm({
+        name: currentName,
+        phone: currentPhone,
+      });
+
+      // Si no tiene dirección registrada, abrir automáticamente el modo edición
+      if (!currentAddress && !data.cityCode) {
+        setIsEditingAddress(true);
+      }
     } catch {
       setProfile(null);
     } finally {
@@ -179,25 +201,77 @@ const MyAccount = () => {
     router.push("/");
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  // Guardar Dirección de Envío (Campos sincronizados con Checkout)
+  const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
-    setSaveMsg(null);
+    if (!addressForm.address.trim()) {
+      setAddressMsg({ type: "error", text: "Por favor ingresa tu calle, número y departamento." });
+      return;
+    }
+    setSavingAddress(true);
+    setAddressMsg(null);
     try {
       const res = await fetch(`${API_URL}/users/me`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: addressForm.name,
+          phone: addressForm.phone,
+          address: addressForm.address,
+          city: addressForm.city,
+          cityCode: addressForm.cityCode,
+          regionCode: addressForm.regionCode,
+        }),
       });
-      if (!res.ok) throw new Error("Error al guardar los datos");
+      if (!res.ok) throw new Error("Error al guardar la dirección de envío");
       const updated = await res.json();
       setProfile(updated);
-      setSaveMsg({ type: "success", text: "Tus datos y dirección de envío se guardaron correctamente." });
+      setAccountForm((prev) => ({
+        ...prev,
+        name: updated.name ?? prev.name,
+        phone: updated.phone ?? prev.phone,
+      }));
+      setAddressMsg({
+        type: "success",
+        text: "¡Dirección de envío guardada! Se cargará automáticamente en el Checkout al comprar.",
+      });
+      setIsEditingAddress(false);
     } catch (err: any) {
-      setSaveMsg({ type: "error", text: err.message || "Ocurrió un error al guardar los cambios." });
+      setAddressMsg({ type: "error", text: err.message || "Ocurrió un error al guardar la dirección." });
     } finally {
-      setSaving(false);
+      setSavingAddress(false);
+    }
+  };
+
+  // Guardar Datos de Cuenta
+  const handleSaveAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingAccount(true);
+    setAccountMsg(null);
+    try {
+      const res = await fetch(`${API_URL}/users/me`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: accountForm.name,
+          phone: accountForm.phone,
+        }),
+      });
+      if (!res.ok) throw new Error("Error al guardar los datos de cuenta");
+      const updated = await res.json();
+      setProfile(updated);
+      setAddressForm((prev) => ({
+        ...prev,
+        name: updated.name ?? prev.name,
+        phone: updated.phone ?? prev.phone,
+      }));
+      setAccountMsg({ type: "success", text: "Tus datos personales se actualizaron correctamente." });
+    } catch (err: any) {
+      setAccountMsg({ type: "error", text: err.message || "Ocurrió un error al actualizar los datos." });
+    } finally {
+      setSavingAccount(false);
     }
   };
 
@@ -237,7 +311,7 @@ const MyAccount = () => {
     {
       id: "account-details" as const,
       label: "Datos de cuenta",
-      description: "Perfil, teléfono y ubicación",
+      description: "Perfil, teléfono y seguridad",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -249,8 +323,8 @@ const MyAccount = () => {
   return (
     <div className="min-h-screen bg-[#07090E] text-white pt-6 pb-24 relative overflow-hidden">
       {/* Resplandor ambiental de fondo */}
-      <div className="absolute top-10 left-1/4 w-[650px] h-[350px] bg-red-600/10 blur-[150px] pointer-events-none rounded-full" />
-      <div className="absolute top-80 right-1/4 w-[500px] h-[300px] bg-blue-600/5 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute top-10 left-1/4 w-[650px] h-[350px] bg-red/10 blur-[150px] pointer-events-none rounded-full" />
+      <div className="absolute top-80 right-1/4 w-[500px] h-[300px] bg-blue/5 blur-[140px] pointer-events-none rounded-full" />
 
       <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Breadcrumb de navegación */}
@@ -261,14 +335,14 @@ const MyAccount = () => {
           <span>/</span>
           <span className="text-white font-semibold">Mi Cuenta</span>
           <span>/</span>
-          <span className="text-red-400 font-semibold capitalize">
+          <span className="text-red font-semibold capitalize">
             {tabsConfig.find((t) => t.id === activeTab)?.label}
           </span>
         </div>
 
         {/* Encabezado del Panel */}
         <div className="mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red/15 text-red border border-red/30 mb-2">
             <span>👤</span>
             <span>Panel de Comprador</span>
           </div>
@@ -289,7 +363,7 @@ const MyAccount = () => {
               
               {/* Resumen del Usuario */}
               <div className="flex items-center gap-4 pb-6 border-b border-white/10">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 text-white font-black text-xl flex items-center justify-center border border-red-500/40 shadow-lg shadow-red-600/30 shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-dark to-red text-white font-black text-xl flex items-center justify-center border border-red/40 shadow-lg shadow-red/30 shrink-0">
                   {initial}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -299,7 +373,7 @@ const MyAccount = () => {
                   <p className="text-xs text-gray-400 truncate mt-0.5" title={displayEmail}>
                     {displayEmail}
                   </p>
-                  <span className="inline-block mt-2 px-2.5 py-0.5 text-[9px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 rounded-full uppercase tracking-wider">
+                  <span className="inline-block mt-2 px-2.5 py-0.5 text-[9px] font-bold text-red bg-red/10 border border-red/20 rounded-full uppercase tracking-wider">
                     Comprador Verificado
                   </span>
                 </div>
@@ -316,7 +390,7 @@ const MyAccount = () => {
                       onClick={() => handleTabChange(tab.id)}
                       className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all duration-200 group ${
                         isActive
-                          ? "bg-gradient-to-r from-red-600 to-red-700 text-white font-bold shadow-lg shadow-red-600/20 border border-red-500/40"
+                          ? "bg-gradient-to-r from-red-dark to-red text-white font-bold shadow-lg shadow-red/25 border border-red/40"
                           : "bg-white/[0.02] text-gray-400 hover:text-white hover:bg-white/[0.06] border border-white/5 font-medium"
                       }`}
                     >
@@ -325,7 +399,7 @@ const MyAccount = () => {
                           className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
                             isActive
                               ? "bg-white/20 text-white"
-                              : "bg-white/5 text-gray-400 group-hover:text-red-400 group-hover:bg-red-500/10"
+                              : "bg-white/5 text-gray-400 group-hover:text-red group-hover:bg-red/10"
                           }`}
                         >
                           {tab.icon}
@@ -343,7 +417,7 @@ const MyAccount = () => {
                       {tab.count !== undefined && (
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
-                            isActive ? "bg-white text-red-700" : "bg-white/10 text-gray-300"
+                            isActive ? "bg-white text-red-dark" : "bg-white/10 text-gray-300"
                           }`}
                         >
                           {tab.count}
@@ -359,9 +433,9 @@ const MyAccount = () => {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red-400 hover:text-white hover:bg-red-600/20 border border-red-500/20 hover:border-red-500/40 transition-all text-left group"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red hover:text-white hover:bg-red/20 border border-red/20 hover:border-red/40 transition-all text-left group"
                 >
-                  <div className="w-7 h-7 rounded-lg bg-red-500/10 group-hover:bg-red-600/30 text-red-400 flex items-center justify-center transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-red/10 group-hover:bg-red/30 text-red flex items-center justify-center transition-colors">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
@@ -395,7 +469,7 @@ const MyAccount = () => {
 
                 {loadingOrders ? (
                   <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                    <div className="w-8 h-8 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
+                    <div className="w-8 h-8 rounded-full border-2 border-red border-t-transparent animate-spin" />
                     <p className="text-xs text-gray-400">Cargando tus pedidos...</p>
                   </div>
                 ) : orders.length === 0 ? (
@@ -411,13 +485,13 @@ const MyAccount = () => {
                         Explora los catálogos de cartas TCG de todas las tiendas de Chile con cotización de envíos oficiales.
                       </p>
                     </div>
-                    <Link
-                      href="/shop"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-lg shadow-red-600/25 transition-all"
-                    >
-                      <span>Ir a la Tienda</span>
-                      <span>→</span>
-                    </Link>
+                    <div className="pt-2">
+                      <Link href="/shop">
+                        <Button variant="primary" size="md">
+                          Ir a la Tienda →
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-5">
@@ -596,110 +670,230 @@ const MyAccount = () => {
               </div>
             )}
 
-            {/* ══════════ PESTAÑA 2: DIRECCIONES ══════════ */}
+            {/* ══════════ PESTAÑA 2: DIRECCIONES (SIN MAPA - IDÉNTICO AL CHECKOUT) ══════════ */}
             {activeTab === "addresses" && (
               <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
-                <div className="pb-5 border-b border-white/10">
-                  <h3 className="text-xl font-black text-white tracking-tight">Dirección de Envío</h3>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Esta es tu dirección predeterminada para calcular envíos en vivo con Chilexpress y Starken.
-                  </p>
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/10">
+                  <div>
+                    <h3 className="text-xl font-black text-white tracking-tight">Dirección de Despacho</h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Configura tu dirección oficial para cotizar envíos con Chilexpress y Starken directamente en el Checkout.
+                    </p>
+                  </div>
+                  {!isEditingAddress && (profile?.address || profile?.cityCode) && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsEditingAddress(true)}
+                    >
+                      ✏️ Modificar Dirección
+                    </Button>
+                  )}
                 </div>
 
                 {loadingProfile ? (
                   <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                    <div className="w-8 h-8 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
+                    <div className="w-8 h-8 rounded-full border-2 border-red border-t-transparent animate-spin" />
                     <p className="text-xs text-gray-400">Cargando datos de entrega...</p>
                   </div>
-                ) : profile?.address || profile?.city || profile?.phone ? (
+                ) : !isEditingAddress && (profile?.address || profile?.cityCode) ? (
+                  /* ── Vista de Dirección Guardada ── */
                   <div className="space-y-5">
                     <div className="bg-[#0B0E14] border border-white/10 rounded-2xl p-6 space-y-5 shadow-md">
                       <div className="flex items-center justify-between pb-4 border-b border-white/10">
                         <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                           <span className="text-xs font-bold uppercase tracking-wider text-white">
-                            Destino de Entrega Principal
+                            Dirección Predeterminada de Checkout
                           </span>
                         </div>
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                          Predeterminada
+                          Sincronizada
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
                         <div className="space-y-1">
-                          <span className="text-gray-400 text-[11px] block">Destinatario</span>
+                          <span className="text-gray-400 text-[11px] block uppercase tracking-wider font-bold">Destinatario</span>
                           <span className="font-semibold text-white text-sm block">
                             {profile.name || "Sin nombre registrado"}
                           </span>
                         </div>
 
                         <div className="space-y-1">
-                          <span className="text-gray-400 text-[11px] block">Teléfono de Contacto</span>
+                          <span className="text-gray-400 text-[11px] block uppercase tracking-wider font-bold">Teléfono de Contacto</span>
                           <span className="font-semibold text-white text-sm font-mono block">
                             {profile.phone || "Sin teléfono registrado"}
                           </span>
                         </div>
 
-                        <div className="sm:col-span-2 space-y-1 pt-2 border-t border-white/5">
-                          <span className="text-gray-400 text-[11px] block">Dirección Completa</span>
+                        <div className="space-y-1">
+                          <span className="text-gray-400 text-[11px] block uppercase tracking-wider font-bold">Región</span>
+                          <span className="font-semibold text-white text-sm block">
+                            {profile.regionCode || "Región Metropolitana (RM)"}
+                          </span>
+                        </div>
+
+                        <div className="space-y-1">
+                          <span className="text-gray-400 text-[11px] block uppercase tracking-wider font-bold">Comuna</span>
+                          <span className="font-semibold text-white text-sm block">
+                            {profile.city || profile.cityCode || "Santiago Centro"}
+                          </span>
+                        </div>
+
+                        <div className="sm:col-span-2 space-y-1 pt-3 border-t border-white/5">
+                          <span className="text-gray-400 text-[11px] block uppercase tracking-wider font-bold">Calle, Número y Depto.</span>
                           <div className="flex items-start gap-2">
-                            <span className="text-red-400 text-sm mt-0.5">📍</span>
+                            <span className="text-red text-sm mt-0.5">📍</span>
                             <span className="font-medium text-white text-sm leading-relaxed">
                               {profile.address || "Dirección no especificada"}
-                              {profile.city ? `, ${profile.city}` : ""}
-                              {profile.regionCode ? ` (${profile.regionCode})` : ""}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="pt-3 border-t border-white/10 flex justify-end">
+                      <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-gray-400">
+                        <span className="flex items-center gap-1.5">
+                          <span>⚡</span> Esta dirección se auto-completará en tu próximo checkout.
+                        </span>
                         <button
                           type="button"
-                          onClick={() => handleTabChange("account-details")}
-                          className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center gap-2"
+                          onClick={() => setIsEditingAddress(true)}
+                          className="text-red hover:text-white underline font-semibold transition-colors"
                         >
-                          <span>✏️ Editar Dirección y Coordenadas</span>
-                          <span>→</span>
+                          Cambiar destino
                         </button>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="py-16 px-4 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 mx-auto shadow-inner">
-                      <span className="text-2xl">📍</span>
+                  /* ── Formulario de Configuración de Dirección (Idéntico a Checkout) ── */
+                  <form onSubmit={handleSaveAddress} className="space-y-5">
+                    <div className="p-4 rounded-xl bg-red/10 border border-red/20 text-xs text-red-200/90 leading-relaxed">
+                      💡 <strong>Datos idénticos a los del Checkout:</strong> Configura aquí tu nombre, teléfono, región, comuna y dirección para que no tengas que escribirlos cada vez que compres cartas.
                     </div>
-                    <div>
-                      <h4 className="text-base font-bold text-white">No tienes una dirección de despacho registrada</h4>
-                      <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
-                        Agrega tu dirección y ubícala en el mapa para que el sistema calcule los envíos oficiales automáticamente al comprar.
-                      </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Nombre Completo */}
+                      <div className="space-y-1.5">
+                        <label htmlFor="addr-name" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
+                          Nombre completo del destinatario <span className="text-red">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="addr-name"
+                          required
+                          value={addressForm.name}
+                          onChange={(e) => setAddressForm((p) => ({ ...p, name: e.target.value }))}
+                          placeholder="Ej: Juan Pérez"
+                          className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
+                        />
+                      </div>
+
+                      {/* Teléfono de Contacto */}
+                      <div className="space-y-1.5">
+                        <label htmlFor="addr-phone" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
+                          Teléfono de contacto <span className="text-red">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="addr-phone"
+                          required
+                          value={addressForm.phone}
+                          onChange={(e) => setAddressForm((p) => ({ ...p, phone: e.target.value }))}
+                          placeholder="+56 9 1234 5678"
+                          className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600 font-mono"
+                        />
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleTabChange("account-details")}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-lg shadow-red-600/25 transition-all"
-                    >
-                      <span>+ Agregar Dirección de Envío</span>
-                    </button>
-                  </div>
+
+                    {/* Selector de Región y Comuna (Idéntico a Checkout) */}
+                    <div className="pt-2">
+                      <ChileLocationsSelect
+                        selectedCommune={addressForm.cityCode || addressForm.city}
+                        onCommuneChange={(communeCode, communeName, regCode) => {
+                          setAddressForm((prev) => ({
+                            ...prev,
+                            cityCode: communeCode,
+                            city: communeName,
+                            regionCode: regCode,
+                          }));
+                        }}
+                      />
+                    </div>
+
+                    {/* Dirección de Envío */}
+                    <div className="space-y-1.5">
+                      <label htmlFor="addr-address" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
+                        Dirección de envío <span className="text-red">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="addr-address"
+                        required
+                        value={addressForm.address}
+                        onChange={(e) => setAddressForm((p) => ({ ...p, address: e.target.value }))}
+                        placeholder="Calle, número, departamento, villa o sucursal..."
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
+                      />
+                    </div>
+
+                    {/* Mensaje de Feedback */}
+                    {addressMsg && (
+                      <div
+                        className={`p-4 rounded-xl text-xs font-medium flex items-center gap-3 animate-in fade-in duration-200 ${
+                          addressMsg.type === "success"
+                            ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                            : "bg-red/15 border border-red/30 text-red"
+                        }`}
+                      >
+                        <span>{addressMsg.type === "success" ? "✅" : "⚠️"}</span>
+                        <span>{addressMsg.text}</span>
+                      </div>
+                    )}
+
+                    {/* Botones de Acción */}
+                    <div className="pt-2 flex items-center justify-end gap-3">
+                      {profile?.address && (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="md"
+                          onClick={() => {
+                            setIsEditingAddress(false);
+                            setAddressMsg(null);
+                          }}
+                        >
+                          Cancelar
+                        </Button>
+                      )}
+
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="md"
+                        isLoading={savingAddress}
+                      >
+                        💾 Guardar Dirección de Envío
+                      </Button>
+                    </div>
+                  </form>
                 )}
               </div>
             )}
 
-            {/* ══════════ PESTAÑA 3: DATOS DE CUENTA ══════════ */}
+            {/* ══════════ PESTAÑA 3: DATOS DE CUENTA (PERFIL PERSONAL) ══════════ */}
             {activeTab === "account-details" && (
               <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                 <div className="pb-5 border-b border-white/10">
-                  <h3 className="text-xl font-black text-white tracking-tight">Datos de Cuenta y Ubicación</h3>
+                  <h3 className="text-xl font-black text-white tracking-tight">Datos de Cuenta</h3>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Modifica tu nombre, teléfono y marca tu ubicación en el mapa para cotizaciones exactas.
+                    Información personal de tu perfil y contacto.
                   </p>
                 </div>
 
-                <form onSubmit={handleSaveProfile} className="space-y-6">
+                <form onSubmit={handleSaveAccount} className="space-y-6">
                   {/* Correo Electrónico (Solo Lectura) */}
                   <div className="space-y-1.5">
                     <label htmlFor="profile-email" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
@@ -727,10 +921,10 @@ const MyAccount = () => {
                       <input
                         type="text"
                         id="profile-name"
-                        value={form.name}
-                        onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                        value={accountForm.name}
+                        onChange={(e) => setAccountForm((p) => ({ ...p, name: e.target.value }))}
                         placeholder="Ej: Juan Pérez"
-                        className="w-full rounded-xl border border-white/10 bg-[#0B0E14] text-white px-4 py-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all placeholder:text-gray-600"
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
                       />
                     </div>
 
@@ -741,73 +935,68 @@ const MyAccount = () => {
                       <input
                         type="text"
                         id="profile-phone"
-                        value={form.phone}
-                        onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                        value={accountForm.phone}
+                        onChange={(e) => setAccountForm((p) => ({ ...p, phone: e.target.value }))}
                         placeholder="+56 9 1234 5678"
-                        className="w-full rounded-xl border border-white/10 bg-[#0B0E14] text-white px-4 py-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all placeholder:text-gray-600 font-mono"
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600 font-mono"
                       />
-                      <p className="text-[11px] text-gray-500">Para que el repartidor del courier pueda llamarte.</p>
+                      <p className="text-[11px] text-gray-500">Número de teléfono para soporte y notificaciones.</p>
                     </div>
                   </div>
 
-                  {/* Selector de Ubicación en Mapa */}
-                  <div className="space-y-2 pt-2 border-t border-white/10">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Ubicación y Dirección de Envío (Chile)
-                      </label>
-                      <span className="text-[10px] text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full font-bold">
-                        Obligatorio para Envíos
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400">
-                      Busca tu dirección o mueve el pin en el mapa para guardar tus coordenadas exactas.
-                    </p>
+                  {/* Tarjeta de Resumen de Dirección Vinculada */}
+                  <div className="pt-2 border-t border-white/10">
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-wrap items-center justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <span>📦</span> Dirección de Despacho Vinculada
+                        </span>
+                        <p className="text-xs text-gray-400">
+                          {profile?.address ? (
+                            <>
+                              {profile.address}, {profile.city || profile.cityCode} ({profile.regionCode})
+                            </>
+                          ) : (
+                            "No has configurado tu dirección para el Checkout aún."
+                          )}
+                        </p>
+                      </div>
 
-                    <div className="rounded-2xl border border-white/10 bg-[#0B0E14] p-4 shadow-inner">
-                      <LocationPicker
-                        initialLat={form.lat}
-                        initialLng={form.lng}
-                        initialAddress={form.address}
-                        onLocationChange={(lat, lng, address) => {
-                          setForm((p) => ({ ...p, lat, lng, address }));
-                        }}
-                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTabChange("addresses")}
+                      >
+                        Gestionar en Direcciones →
+                      </Button>
                     </div>
                   </div>
 
                   {/* Mensaje de Feedback */}
-                  {saveMsg && (
+                  {accountMsg && (
                     <div
                       className={`p-4 rounded-xl text-xs font-medium flex items-center gap-3 animate-in fade-in duration-200 ${
-                        saveMsg.type === "success"
+                        accountMsg.type === "success"
                           ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
-                          : "bg-red-500/15 border border-red-500/30 text-red-300"
+                          : "bg-red/15 border border-red/30 text-red"
                       }`}
                     >
-                      <span>{saveMsg.type === "success" ? "✅" : "⚠️"}</span>
-                      <span>{saveMsg.text}</span>
+                      <span>{accountMsg.type === "success" ? "✅" : "⚠️"}</span>
+                      <span>{accountMsg.text}</span>
                     </div>
                   )}
 
                   {/* Botón Guardar Cambios */}
                   <div className="pt-2 flex justify-end">
-                    <button
+                    <Button
                       type="submit"
-                      disabled={saving}
-                      className="px-6 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-lg shadow-red-600/30 disabled:opacity-50 transition-all flex items-center gap-2"
+                      variant="primary"
+                      size="md"
+                      isLoading={savingAccount}
                     >
-                      {saving ? (
-                        <>
-                          <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                          <span>Guardando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>💾 Guardar Cambios</span>
-                        </>
-                      )}
-                    </button>
+                      💾 Guardar Cambios
+                    </Button>
                   </div>
                 </form>
               </div>

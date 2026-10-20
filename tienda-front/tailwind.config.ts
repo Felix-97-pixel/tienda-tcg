@@ -62,6 +62,7 @@ const config: Config = {
         "light-5": "var(--color-blue-light-5, #E1E8FF)",
       },
       red: {
+        ...colors.red,
         DEFAULT: "#F23030",
         dark: "#E10E0E",
         light: "#F56060",

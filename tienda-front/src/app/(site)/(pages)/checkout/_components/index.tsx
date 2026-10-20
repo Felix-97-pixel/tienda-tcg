@@ -196,9 +196,22 @@ const CheckoutWebpay = () => {
           address: prev.address || profile.address || "",
           city: prev.city || profile.city || "",
         }));
+
+        if (profile.cityCode) {
+          setSelectedCommuneCode(profile.cityCode);
+        }
+        if (profile.city) {
+          setSelectedCommuneName(profile.city);
+        }
+        if (profile.regionCode) {
+          setSelectedRegionCode(profile.regionCode);
+        }
+        if (profile.cityCode) {
+          quoteShipping(profile.cityCode, profile.regionCode);
+        }
       })
       .catch(() => {});
-  }, [isAuthenticated]);
+  }, [isAuthenticated, quoteShipping]);
 
   useEffect(() => {
     if (cartItems.length === 0) {
