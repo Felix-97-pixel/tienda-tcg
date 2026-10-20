@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import CustomSelect from "./CustomSelect";
 import { menuData } from "./menuData";
 import Dropdown from "./Dropdown";
+import UserDropdown from "./UserDropdown";
 import { useAppSelector } from "@/redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { selectTotalPrice } from "@/redux/features/cart-slice";
@@ -176,20 +177,9 @@ const Header = () => {
               </svg>
             </Link>
 
-            {/* Account Link */}
+            {/* Account Dropdown or Login Link */}
             {isMounted && isAuthenticated ? (
-              <Link
-                href="/my-account"
-                className="flex items-center gap-2 p-1.5 sm:px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
-                title="Mi Cuenta"
-              >
-                <div className="w-6 h-6 rounded-lg bg-red-600/30 text-red-300 font-bold text-xs flex items-center justify-center">
-                  {(user?.name || user?.email || "U").slice(0, 1).toUpperCase()}
-                </div>
-                <span className="hidden xl:inline text-xs font-semibold text-white max-w-[90px] truncate">
-                  {user?.name || user?.email}
-                </span>
-              </Link>
+              <UserDropdown user={user} />
             ) : (
               <Link
                 href="/login"

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import { RootState } from "@/redux/store";
 import { logout } from "@/redux/features/auth-slice";
@@ -67,8 +67,16 @@ const MyAccount = () => {
   const { user, isAuthenticated } = useSelector((s: RootState) => s.authReducer);
   const dispatch = useDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
 
-  const [activeTab, setActiveTab] = useState("orders");
+  const [activeTab, setActiveTab] = useState(tabParam || "orders");
+
+  useEffect(() => {
+    if (tabParam && ["orders", "address", "account"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -199,6 +207,9 @@ const MyAccount = () => {
                             handleLogout();
                           } else {
                             setActiveTab(tab.id);
+                            if (typeof window !== "undefined") {
+                              window.history.replaceState(null, "", `/my-account?tab=${tab.id}`);
+                            }
                           }
                         }}
                         className={`flex items-center rounded-md gap-2.5 py-3 px-4.5 ease-out duration-200 hover:bg-blue hover:text-white ${

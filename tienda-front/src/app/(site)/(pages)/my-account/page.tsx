@@ -1,17 +1,18 @@
 import MyAccount from "@/app/(site)/(pages)/my-account/_components";
-import React from "react";
-
+import React, { Suspense } from "react";
 import { Metadata } from "next";
+
 export const metadata: Metadata = {
-  title: "My Account | NextCommerce Nextjs E-commerce template",
-  description: "This is My Account page for NextCommerce Template",
-  // other metadata
+  title: "Mi Cuenta | TapTrade",
+  description: "Gestiona tus pedidos, direcciones y datos de cuenta",
 };
 
 const MyAccountPage = () => {
   return (
     <main>
-      <MyAccount />
+      <Suspense fallback={<div className="min-h-screen bg-[#222630]" />}>
+        <MyAccount />
+      </Suspense>
     </main>
   );
 };
