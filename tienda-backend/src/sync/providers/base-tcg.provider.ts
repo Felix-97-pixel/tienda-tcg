@@ -132,43 +132,70 @@ export abstract class TcgProvider {
         }
 
         try {
-          await this.prisma.product.upsert({
+          // 1. Buscar si ya existe por externalId O por (expansión + collectorNum + nombre)
+          let existingProduct = await this.prisma.product.findUnique({
             where: { externalId: productData.externalId },
-            update: {
-              slug: finalSlug,
-              name: productData.name,
-              imageUrl: productData.image,
-              description: productData.description,
-              cardDetail: {
-                update: {
-                  expansion: productData.expansion,
-                  expansionId: expansionRecord.id,
-                  rarity: productData.rarity,
-                  collectorNum: productData.number,
-                  gameId: gameId,
-                  attributes: productData.attributes
-                }
-              }
-            },
-            create: {
-              slug: finalSlug,
-              externalId: productData.externalId,
-              name: productData.name,
-              imageUrl: productData.image,
-              description: productData.description,
-              categoryId: categoryId,
-              cardDetail: {
-                create: {
-                  expansion: productData.expansion,
-                  expansionId: expansionRecord.id,
-                  rarity: productData.rarity,
-                  collectorNum: productData.number,
-                  gameId: gameId,
-                  attributes: productData.attributes
-                }
-              }
-            }
+            select: { id: true, externalId: true, slug: true }
           });
+
+          if (!existingProduct && productData.number) {
+            existingProduct = await this.prisma.product.findFirst({
+              where: {
+                categoryId,
+                cardDetail: {
+                  expansionId: expansionRecord.id,
+                  collectorNum: String(productData.number),
+                },
+                name: { equals: productData.name, mode: 'insensitive' }
+              },
+              select: { id: true, externalId: true, slug: true }
+            });
+          }
+
+          if (existingProduct) {
+            // Actualizar producto existente sin duplicar
+            await this.prisma.product.update({
+              where: { id: existingProduct.id },
+              data: {
+                externalId: productData.externalId,
+                name: productData.name,
+                imageUrl: productData.image,
+                description: productData.description,
+                cardDetail: {
+                  update: {
+                    expansion: productData.expansion,
+                    expansionId: expansionRecord.id,
+                    rarity: productData.rarity,
+                    collectorNum: productData.number,
+                    gameId: gameId,
+                    attributes: productData.attributes
+                  }
+                }
+              }
+            });
+          } else {
+            // Crear producto nuevo
+            await this.prisma.product.create({
+              data: {
+                slug: finalSlug,
+                externalId: productData.externalId,
+                name: productData.name,
+                imageUrl: productData.image,
+                description: productData.description,
+                categoryId: categoryId,
+                cardDetail: {
+                  create: {
+                    expansion: productData.expansion,
+                    expansionId: expansionRecord.id,
+                    rarity: productData.rarity,
+                    collectorNum: productData.number,
+                    gameId: gameId,
+                    attributes: productData.attributes
+                  }
+                }
+              }
+            });
+          }
 
           totalProcessed++;
           this.onProgress?.(this.gameName, totalProcessed, externalCards.length, 'import');

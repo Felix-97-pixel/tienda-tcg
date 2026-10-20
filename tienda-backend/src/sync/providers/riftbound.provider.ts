@@ -173,7 +173,12 @@ export class RiftboundProvider extends TcgProvider {
       // 2. Cargar productos locales para match rápido
       const localProducts = await this.prisma.product.findMany({
         where: { cardDetail: { expansion: { equals: resolvedName, mode: 'insensitive' } } },
-        select: { id: true, externalId: true }
+        select: {
+          id: true,
+          externalId: true,
+          name: true,
+          cardDetail: { select: { collectorNum: true } }
+        }
       });
 
       const totalRift = localProducts.length;
@@ -201,7 +206,41 @@ export class RiftboundProvider extends TcgProvider {
           const tcgId = card.tcgplayerId ? String(card.tcgplayerId) : null;
           if (!tcgId) continue;
 
-          const matchLocal = localProducts.find(lp => lp.externalId === tcgId);
+          // 1. Match directo por externalId
+          let matchLocal = localProducts.find(lp => lp.externalId === tcgId);
+
+          // 2. Fallback inteligente: emparejar por número de coleccionista y nombre
+          if (!matchLocal) {
+            const rawCardNum = card.number ? String(card.number).split('/')[0].replace(/\D/g, '') : null;
+            const parsedCardNum = rawCardNum ? parseInt(rawCardNum, 10).toString() : null;
+
+            matchLocal = localProducts.find(lp => {
+              if (!lp.cardDetail?.collectorNum || !parsedCardNum) return false;
+              const cleanLpNum = lp.cardDetail.collectorNum.replace(/\D/g, '');
+              const parsedLpNum = cleanLpNum ? parseInt(cleanLpNum, 10).toString() : null;
+
+              if (parsedLpNum !== parsedCardNum) return false;
+
+              const lpName = lp.name.toLowerCase().trim();
+              const jcName = card.name.toLowerCase().trim();
+              return lpName === jcName || jcName.includes(lpName) || lpName.includes(jcName);
+            });
+
+            // 3. Fallback adicional: por coincidencia de nombre exacto
+            if (!matchLocal) {
+              matchLocal = localProducts.find(lp => lp.name.toLowerCase().trim() === card.name.toLowerCase().trim());
+            }
+
+            // Si se emparejó por fallback y el producto tenía un ID provisorio (rb-...), vincular su externalId oficial
+            if (matchLocal && matchLocal.externalId !== tcgId) {
+              await this.prisma.product.update({
+                where: { id: matchLocal.id },
+                data: { externalId: tcgId }
+              });
+              matchLocal.externalId = tcgId;
+            }
+          }
+
           if (!matchLocal) continue;
 
           // Procesar variantes
