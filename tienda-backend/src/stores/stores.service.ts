@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
+import { UpdateStoreFullDto } from './dto/update-store-full.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -174,7 +176,7 @@ export class StoresService {
     return store;
   }
 
-  async updateStoreByOwner(userId: string, data: any) {
+  async updateStoreByOwner(userId: string, data: UpdateStoreByOwnerDto) {
     const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
@@ -332,7 +334,7 @@ export class StoresService {
     return this.getStoreByOwner(userId);
   }
 
-  async updateStoreById(storeId: string, data: any) {
+  async updateStoreById(storeId: string, data: UpdateStoreFullDto) {
     const store = await this.prisma.store.findUnique({ where: { id: storeId } });
     if (!store) {
       throw new NotFoundException('Tienda no encontrada');

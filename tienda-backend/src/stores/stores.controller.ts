@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request }
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
+import { UpdateStoreFullDto } from './dto/update-store-full.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -53,8 +55,8 @@ export class StoresController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  updateStoreByOwner(@Request() req: any, @Body() data: any) {
-    return this.storesService.updateStoreByOwner(req.user.userId, data);
+  updateStoreByOwner(@Request() req: any, @Body() updateDto: UpdateStoreByOwnerDto) {
+    return this.storesService.updateStoreByOwner(req.user.userId, updateDto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -87,8 +89,8 @@ export class StoresController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Patch(':id/full')
-  updateStoreFull(@Param('id') id: string, @Body() data: any) {
-    return this.storesService.updateStoreById(id, data);
+  updateStoreFull(@Param('id') id: string, @Body() updateDto: UpdateStoreFullDto) {
+    return this.storesService.updateStoreById(id, updateDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

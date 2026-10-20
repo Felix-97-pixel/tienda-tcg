@@ -27,6 +27,8 @@ import { StoreCreditModule } from './store-credit/store-credit.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { WithdrawalsModule } from './withdrawals/withdrawals.module';
 import { LocationsModule } from './locations/locations.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -36,6 +38,12 @@ import { LocationsModule } from './locations/locations.module';
       envFilePath: '.env' 
     }),
     
+    // Rate Limiting global (100 reqs por minuto por IP)
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
+
     // 2. AHORA ya pueden cargar los módulos que dependen de variables de entorno
     PrismaModule, 
     ProductsModule, 
@@ -62,6 +70,12 @@ import { LocationsModule } from './locations/locations.module';
     LocationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

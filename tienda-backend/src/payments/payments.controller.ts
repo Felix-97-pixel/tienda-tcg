@@ -17,6 +17,9 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { DispatchVendorOrderDto } from './dto/dispatch-vendor-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/optional-jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 import { GetOrderStatusQuery } from './queries/impl/get-order-status.query';
 import { ListOrdersQuery } from './queries/impl/list-orders.query';
@@ -115,15 +118,22 @@ export class PaymentsController {
    * Estado de una orden (para la página de resultado)
    */
   @Get('order/:orderId')
-  getOrderStatus(@Param('orderId') orderId: string) {
-    return this.queryBus.execute(new GetOrderStatusQuery(orderId));
+  @UseGuards(OptionalJwtAuthGuard)
+  getOrderStatus(
+    @Param('orderId') orderId: string,
+    @Req() req: Request & { user?: { userId: string; role?: string } },
+  ) {
+    return this.queryBus.execute(
+      new GetOrderStatusQuery(orderId, req.user?.userId, req.user?.role),
+    );
   }
 
   /**
    * GET /payments/orders  (Admin)
    */
   @Get('orders')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   listOrders(
     @Query('page') page = '1',
     @Query('limit') limit = '20',
@@ -136,7 +146,8 @@ export class PaymentsController {
    * Estadísticas de ventas: revenue, top productos, órdenes recientes
    */
   @Get('stats')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   getSalesStats() {
     return this.queryBus.execute(new GetSalesStatsQuery());
   }
@@ -146,7 +157,8 @@ export class PaymentsController {
    * Productos más vendidos con filtros de fecha opcionales
    */
   @Get('stats/top-products')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   getTopProducts(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
     return this.queryBus.execute(new GetTopProductsQuery(startDate, endDate));
   }
@@ -156,7 +168,8 @@ export class PaymentsController {
    * Estadísticas avanzadas de ventas, inventario y catálogo
    */
   @Get('reports/advanced')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   getAdvancedReports() {
     return this.queryBus.execute(new GetAdvancedReportsQuery());
   }
@@ -166,7 +179,8 @@ export class PaymentsController {
    * Exporta datos en crudo para CSV (inventory, deadstock, transactions)
    */
   @Get('reports/export/:type')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   exportReports(@Param('type') type: 'inventory' | 'deadstock' | 'transactions' | 'lowstock') {
     return this.queryBus.execute(new ExportReportsQuery(type));
   }

@@ -3,6 +3,7 @@ import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('coupons')
 export class CouponsController {
@@ -43,13 +44,15 @@ export class CouponsController {
     return this.couponsService.remove(id, storeId);
   }
 
-  // Endpoint público para el carrito
+  // Endpoint público para el carrito (protegido contra fuerza bruta)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get('validate/:code')
   validateCode(@Param('code') code: string) {
     return this.couponsService.validatePublicCode(code);
   }
 
   // Valida el cupón contra los ítems del carrito y devuelve a cuáles aplica
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('validate')
   validateForCart(@Body() body: { code: string; productIds?: string[]; inventoryItemIds?: string[] }) {
     return this.couponsService.validatePublicCode(body.code, body.productIds || [], body.inventoryItemIds || []);
