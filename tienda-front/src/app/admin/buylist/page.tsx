@@ -40,7 +40,7 @@ export default function AdminBuylistPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { features } = useAppSelector((state) => state.authReducer);
+  const { features } = useAppSelector((state) => state.adminAuthReducer);
 
   // Cargar Metadatos al Montar
   useEffect(() => {

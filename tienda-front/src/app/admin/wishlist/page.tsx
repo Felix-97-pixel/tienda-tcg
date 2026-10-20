@@ -5,7 +5,7 @@ import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
 
 export default function AdminWishlist() {
-  const { features } = useAppSelector((state) => state.authReducer);
+  const { features } = useAppSelector((state) => state.adminAuthReducer);
   const { loading, filter, setFilter, kpis, filteredProducts } = useWishlist();
 
   if (!features.includes("addon:radar")) {

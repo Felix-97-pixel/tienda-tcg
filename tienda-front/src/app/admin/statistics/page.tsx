@@ -19,7 +19,7 @@ export default function AdminSalesPage() {
   const t = useTranslations("sales");
   const tc = useTranslations("common");
 
-  const { features } = useAppSelector((state) => state.authReducer);
+  const { features } = useAppSelector((state) => state.adminAuthReducer);
 
   const { stats, loading, error, refresh } = useAdminStatistics(features);
 

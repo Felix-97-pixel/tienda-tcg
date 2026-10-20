@@ -5,6 +5,7 @@ import cartReducer from "./features/cart-slice";
 import wishlistReducer from "./features/wishlist-slice";
 import productDetailsReducer from "./features/product-details";
 import authReducer from "./features/auth-slice";
+import adminAuthReducer from "./features/admin-auth-slice";
 import toastReducer from "./features/toast-slice";
 import currencyReducer from "./features/currency-slice";
 
@@ -17,6 +18,7 @@ export const store = configureStore({
     wishlistReducer,
     productDetailsReducer,
     authReducer,
+    adminAuthReducer,
     toastReducer,
     currencyReducer,
   },

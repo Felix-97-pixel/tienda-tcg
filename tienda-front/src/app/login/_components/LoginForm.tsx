@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/features/auth-slice";
+import { adminLoginSuccess } from "@/redux/features/admin-auth-slice";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
@@ -67,18 +68,21 @@ export default function LoginForm() {
         }
       }
 
-      dispatch(loginSuccess({ user: data.user, features: data.features }));
-
-      // Redirigir a la URL deseada o al dashboard correspondiente
-      const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
-      if (redirectUrl && redirectUrl.startsWith("/")) {
-        router.push(redirectUrl);
-      } else if (data.user?.role === "SUPERADMIN") {
-        router.push("/superadmin");
-      } else if (data.user?.role === "ADMIN") {
-        router.push("/admin");
+      if (data.user?.role === "SUPERADMIN" || data.user?.role === "ADMIN") {
+        dispatch(adminLoginSuccess({ user: data.user, features: data.features }));
+        if (data.user.role === "SUPERADMIN") {
+          router.push("/superadmin");
+        } else {
+          router.push("/admin");
+        }
       } else {
-        router.push("/");
+        dispatch(loginSuccess({ user: data.user, features: data.features }));
+        const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
+        if (redirectUrl && redirectUrl.startsWith("/")) {
+          router.push(redirectUrl);
+        } else {
+          router.push("/");
+        }
       }
     } catch (err: any) {
       setError(err.message);

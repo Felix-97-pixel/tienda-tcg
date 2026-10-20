@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
-import { updateFeatures } from "@/redux/features/auth-slice";
+import { updateAdminFeatures } from "@/redux/features/admin-auth-slice";
 import { API_URL } from "@/utils/api";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isAuthenticated, features } = useAppSelector((state) => state.authReducer);
+  const { user, isAuthenticated, features } = useAppSelector((state) => state.adminAuthReducer);
   const dispatch = useDispatch();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -21,17 +21,20 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     } else if (user?.role === "SUPERADMIN") {
       router.push("/superadmin");
     } else if (user?.role !== "ADMIN") {
-      router.push("/");
+      router.push("/admin/login");
     } else {
       // Fetch features for ADMIN always to avoid stale features
       if (features.length === 0) {
         setLoadingFeatures(true);
       }
-      fetch(`${API_URL}/stores/me`, { credentials: "include" })
+      fetch(`${API_URL}/stores/me`, { 
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" }
+      })
         .then((res) => res.json())
         .then((data) => {
           if (data.activeFeatures) {
-            dispatch(updateFeatures(data.activeFeatures));
+            dispatch(updateAdminFeatures(data.activeFeatures));
           }
         })
         .catch(console.error)

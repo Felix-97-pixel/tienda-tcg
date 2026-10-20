@@ -4,7 +4,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
-import { logout } from "@/redux/features/auth-slice";
+import { adminLogout } from "@/redux/features/admin-auth-slice";
+import { API_URL } from "@/utils/api";
 
 const icons = {
   products: (
@@ -47,9 +48,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const ts = useTranslations("sidebar");
   const tc = useTranslations("common");
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/auth/admin/logout`, { method: "POST", credentials: "include" });
+    } catch (e) {
+      // ignore
+    }
+    dispatch(adminLogout());
+    router.push("/admin/login");
   };
 
   const catalogItems = [
@@ -80,7 +86,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
   const isStats = ["/admin/sales", "/admin/orders", "/admin/statistics"].some(p => pathname.startsWith(p));
   const isConfig = ["/admin/currencies", "/admin/shipping", "/admin/profile", "/admin/games", "/admin/devaluations", "/admin/coupons", "/admin/wallet"].some(p => pathname.startsWith(p));
 
-  const { features } = useAppSelector((state) => state.authReducer);
+  const { features } = useAppSelector((state) => state.adminAuthReducer);
 
   let navItems = [];
   let moduleName = "";

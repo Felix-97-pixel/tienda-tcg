@@ -5,7 +5,7 @@ import { useAppSelector } from "@/redux/store";
 
 export default function SuperAdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
+  const { user, isAuthenticated } = useAppSelector((state) => state.adminAuthReducer);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -14,7 +14,7 @@ export default function SuperAdminGuard({ children }: { children: React.ReactNod
     if (!isAuthenticated) {
       router.push("/admin/login");
     } else if (user?.role !== "SUPERADMIN") {
-      router.push("/");
+      router.push("/admin/login");
     }
   }, [isAuthenticated, user, router]);
 

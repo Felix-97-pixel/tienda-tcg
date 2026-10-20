@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { logout } from "@/redux/features/auth-slice";
+import { adminLogout } from "@/redux/features/admin-auth-slice";
+import { API_URL } from "@/utils/api";
 
 import SuperAdminGuard from "@/app/superadmin/_components/SuperAdminGuard";
 import { ReduxProvider } from "@/redux/provider";
@@ -17,12 +18,17 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isHub = pathname === "/superadmin";
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/auth/admin/logout`, { method: "POST", credentials: "include" });
+    } catch (e) {
+      // ignore
+    }
+    dispatch(adminLogout());
+    router.push("/admin/login");
   };
 
-  const { user } = useAppSelector((state) => state.authReducer) || { user: null };
+  const { user } = useAppSelector((state) => state.adminAuthReducer) || { user: null };
 
   const dashboardItems = [
     {

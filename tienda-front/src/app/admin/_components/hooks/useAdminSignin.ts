@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "@/redux/features/auth-slice";
+import { adminLoginSuccess } from "@/redux/features/admin-auth-slice";
 import { API_URL } from "@/utils/api";
 
 export function useAdminSignin() {
@@ -26,9 +26,12 @@ export function useAdminSignin() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const res = await fetch(`${API_URL}/auth/admin/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-auth-scope": "admin"
+        },
         credentials: "include",
         body: JSON.stringify({ email, password, captchaToken }),
       });
@@ -44,7 +47,7 @@ export function useAdminSignin() {
         throw new Error("Acceso denegado. No tienes permisos de administrador.");
       }
       
-      dispatch(loginSuccess({ user: data.user }));
+      dispatch(adminLoginSuccess({ user: data.user }));
 
       if (data.user.role === "SUPERADMIN") {
         router.push("/superadmin");

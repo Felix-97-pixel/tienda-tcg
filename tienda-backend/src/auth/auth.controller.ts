@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, Query, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, GoogleAuthDto } from './dto/auth.dto';
@@ -21,10 +21,38 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('admin/login')
+  async adminLogin(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.login(loginDto);
+    if (result.user.role !== 'ADMIN' && result.user.role !== 'SUPERADMIN') {
+      throw new UnauthorizedException('Acceso denegado. No tienes permisos de administrador.');
+    }
+    this.setAdminCookie(res, result.access_token);
+    return { user: result.user };
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token');
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    });
     return { message: 'Logged out successfully' };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('admin/logout')
+  adminLogout(@Res({ passthrough: true }) res: Response) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie('admin_access_token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    });
+    return { message: 'Admin logged out successfully' };
   }
 
   @Get('verify')
@@ -60,6 +88,16 @@ export class AuthController {
       httpOnly: true, // Inaccesible para JavaScript en el frontend
       secure: isProduction, // Solo HTTPS en producción (obligatorio para sameSite 'none')
       sameSite: isProduction ? 'none' : 'lax', // 'none' permite cross-domain en prod, 'lax' para local
+      maxAge: 1000 * 60 * 60 * 24, // 1 día
+    });
+  }
+
+  private setAdminCookie(res: Response, token: string) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('admin_access_token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24, // 1 día
     });
   }

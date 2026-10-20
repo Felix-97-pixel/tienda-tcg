@@ -21,6 +21,10 @@ const getInitialState = (): AuthState => {
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
+        // La sesión de cliente regular solo admite usuarios estándar (no ADMIN ni SUPERADMIN)
+        if (user.role === "ADMIN" || user.role === "SUPERADMIN") {
+          return { user: null, isAuthenticated: false, features: [] };
+        }
         const features = featuresStr ? JSON.parse(featuresStr) : [];
         return { user, isAuthenticated: true, features };
       } catch (e) {
@@ -38,6 +42,10 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action: PayloadAction<{ user: User, features?: string[] }>) => {
+      // Bloquear contaminación de sesión de administración en la tienda pública
+      if (action.payload.user.role === "ADMIN" || action.payload.user.role === "SUPERADMIN") {
+        return;
+      }
       state.user = action.payload.user;
       state.isAuthenticated = true;
       if (action.payload.features) {

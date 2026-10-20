@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const t = useTranslations("header");
   const tc = useTranslations("common");
-  const { user } = useAppSelector((state) => state.authReducer);
+  const { user } = useAppSelector((state) => state.adminAuthReducer);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

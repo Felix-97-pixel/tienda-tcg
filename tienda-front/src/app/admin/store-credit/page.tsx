@@ -25,7 +25,7 @@ export default function AdminStoreCreditPage() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [historyUser, setHistoryUser] = useState<StoreCreditUser | null>(null);
 
-  const { features } = useAppSelector((state) => state.authReducer);
+  const { features } = useAppSelector((state) => state.adminAuthReducer);
 
   const fetchCredits = useCallback(async () => {
     setLoading(true);

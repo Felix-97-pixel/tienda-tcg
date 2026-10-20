@@ -153,16 +153,6 @@ const Header = () => {
 
           {/* Right Action Widgets */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Panel Button for Sellers / Admins */}
-            {isMounted && isAuthenticated && (user?.role === "SUPERADMIN" || user?.role === "ADMIN") && (
-              <Link
-                href={user.role === "SUPERADMIN" ? "/superadmin" : "/admin"}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-600/15 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-              >
-                <span>⚙</span> Panel Tienda
-              </Link>
-            )}
-
             {/* Support Tooltip / Contact Link */}
             <Link
               href="/contact"
