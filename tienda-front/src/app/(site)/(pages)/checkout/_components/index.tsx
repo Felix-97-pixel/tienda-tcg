@@ -16,6 +16,25 @@ import { calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/uti
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-dummy", { locale: "es-CL" });
 
+const IconMapPin = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
+type SavedAddress = {
+  id: string;
+  alias: string | null;
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  cityCode: string;
+  regionCode: string;
+  isDefault: boolean;
+};
+
 type BillingData = {
   name: string;
   email: string;
@@ -24,6 +43,7 @@ type BillingData = {
   city: string;
   notes: string;
 };
+
 
 const CheckoutWebpay = () => {
   const cartItems = useSelector(selectCartItems);
@@ -54,6 +74,8 @@ const CheckoutWebpay = () => {
   const [selectedRegionCode, setSelectedRegionCode] = useState<string>("RM");
   const [isQuotingShipping, setIsQuotingShipping] = useState<boolean>(false);
   const [quotedStores, setQuotedStores] = useState<Record<string, any>>({});
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("custom");
 
   // Group cart items by store
   const itemsByStore = React.useMemo(() => {
@@ -182,36 +204,78 @@ const CheckoutWebpay = () => {
     }, 0);
   }, [storeIds, selectedProvidersByStore]);
 
-  // Auto-fill from saved profile
+  const applySavedAddress = React.useCallback(
+    (addr: SavedAddress) => {
+      setBilling((prev) => ({
+        ...prev,
+        name: addr.name,
+        phone: addr.phone,
+        address: addr.address,
+        city: addr.city,
+      }));
+      setSelectedCommuneCode(addr.cityCode);
+      setSelectedCommuneName(addr.city);
+      setSelectedRegionCode(addr.regionCode);
+      quoteShipping(addr.cityCode, addr.regionCode);
+    },
+    [quoteShipping]
+  );
+
+  const handleAddressSelectChange = (val: string) => {
+    setSelectedAddressId(val);
+    if (val === "custom") {
+      // Permitir edición manual
+    } else {
+      const found = savedAddresses.find((a) => a.id === val);
+      if (found) {
+        applySavedAddress(found);
+      }
+    }
+  };
+
+  // Carga automática de perfil y libreta de direcciones para usuarios autenticados
   useEffect(() => {
     if (!isAuthenticated) return;
-    fetch(`${API_URL}/users/me`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((profile) => {
-        setBilling((prev) => ({
-          ...prev,
-          name: prev.name || profile.name || "",
-          email: prev.email || profile.email || "",
-          phone: prev.phone || profile.phone || "",
-          address: prev.address || profile.address || "",
-          city: prev.city || profile.city || "",
-        }));
 
-        if (profile.cityCode) {
-          setSelectedCommuneCode(profile.cityCode);
-        }
-        if (profile.city) {
-          setSelectedCommuneName(profile.city);
-        }
-        if (profile.regionCode) {
-          setSelectedRegionCode(profile.regionCode);
-        }
-        if (profile.cityCode) {
-          quoteShipping(profile.cityCode, profile.regionCode);
+    // 1. Cargar perfil (para email y datos base)
+    fetch(`${API_URL}/users/me`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((profile) => {
+        if (profile) {
+          setBilling((prev) => ({
+            ...prev,
+            email: prev.email || profile.email || "",
+            name: prev.name || profile.name || "",
+            phone: prev.phone || profile.phone || "",
+            address: prev.address || profile.address || "",
+            city: prev.city || profile.city || "",
+          }));
+
+          // Si el perfil ya tiene comuna y no hay direcciones, cotizar con la del perfil
+          if (profile.cityCode) {
+            setSelectedCommuneCode(profile.cityCode);
+            setSelectedCommuneName(profile.city || "Santiago Centro");
+            setSelectedRegionCode(profile.regionCode || "RM");
+            quoteShipping(profile.cityCode, profile.regionCode || "RM");
+          }
         }
       })
       .catch(() => {});
-  }, [isAuthenticated, quoteShipping]);
+
+    // 2. Cargar libreta de direcciones múltiples
+    fetch(`${API_URL}/users/me/addresses`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((addrs: SavedAddress[]) => {
+        if (Array.isArray(addrs) && addrs.length > 0) {
+          setSavedAddresses(addrs);
+          const defaultAddr = addrs.find((a) => a.isDefault) || addrs[0];
+          setSelectedAddressId(defaultAddr.id);
+          applySavedAddress(defaultAddr);
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated, applySavedAddress, quoteShipping]);
+
 
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -418,33 +482,44 @@ const CheckoutWebpay = () => {
   }, []);
 
   return (
-    <div className="bg-[#07090E] min-h-screen text-white pt-28 md:pt-36 pb-24 relative overflow-hidden">
+    <div className="bg-[#07090E] min-h-screen text-white pt-24 md:pt-32 pb-24 relative overflow-hidden">
       {/* Ambient background light */}
       <div className="absolute top-20 left-1/3 w-[600px] h-[350px] bg-red-600/10 blur-[150px] pointer-events-none rounded-full"></div>
 
-      <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
-          <Link href="/cart" className="hover:text-white transition-colors">
-            ← Volver al Carrito
-          </Link>
-          <span>/</span>
-          <span className="text-white font-semibold">Checkout Seguro</span>
-        </div>
+      {/* ─── Encabezado Superior Oficial (Banner Idéntico a Directorio de Tiendas) ─── */}
+      <div className="relative border-b border-white/[0.08] bg-[#0E121B] pb-10 mb-10 overflow-hidden">
+        {/* Línea superior con gradiente oficial */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-dark via-red to-orange" />
+        
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          {/* Breadcrumb de navegación */}
+          <div className="flex items-center gap-2 text-xs text-gray-400 mb-4 font-medium">
+            <Link href="/cart" className="hover:text-white transition-colors flex items-center gap-1">
+              <span>← Volver al Carrito</span>
+            </Link>
+            <span>/</span>
+            <span className="text-white font-semibold">Checkout Seguro</span>
+          </div>
 
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
-            <span>🔒</span>
+          {/* Badge superior */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red/15 text-red-light border border-red/30 mb-3">
+            <IconShieldCheck className="w-3.5 h-3.5 text-red" />
             <span>Pasarela Oficial Cifrada</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+
+          {/* Título Principal */}
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
             Finalizar Compra
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+
+          {/* Bajada explicativa */}
+          <p className="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed">
             Completa tus datos de despacho y selecciona tu medio de pago protegido por Mercado Pago & Webpay.
           </p>
         </div>
+      </div>
 
+      <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           {/* ─── Columna Izquierda: Datos y Pago ─── */}
           <div className="flex-1 w-full space-y-8">
@@ -459,85 +534,168 @@ const CheckoutWebpay = () => {
                 </h2>
               </div>
 
+              {/* Selector de Direcciones Guardadas si el usuario está autenticado */}
+              {isAuthenticated && savedAddresses.length > 0 && (
+                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-red-600/10 via-white/[0.02] to-transparent border border-red-500/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="address-selector" className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                      <IconMapPin className="w-4 h-4 text-red-400" />
+                      <span>Dirección de Despacho Guardada</span>
+                    </label>
+                    <Link href="/my-account?tab=addresses" className="text-[11px] text-gray-400 hover:text-white underline">
+                      Gestionar libreta →
+                    </Link>
+                  </div>
+
+                  <select
+                    id="address-selector"
+                    value={selectedAddressId}
+                    onChange={(e) => handleAddressSelectChange(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white text-sm py-2.5 px-3 outline-none focus:border-red-500/80 transition-all cursor-pointer font-medium"
+                  >
+                    {savedAddresses.map((addr) => (
+                      <option key={addr.id} value={addr.id} className="bg-[#0B0E14] text-white">
+                        📍 {addr.alias || "Dirección"} — {addr.address}, {addr.city} ({addr.regionCode}) {addr.isDefault ? "★ Predeterminada" : ""}
+                      </option>
+                    ))}
+                    <option value="custom" className="bg-[#0B0E14] text-amber-400 font-bold">
+                      ✏️ + Ingresar otra dirección para este pedido
+                    </option>
+                  </select>
+
+                  {selectedAddressId !== "custom" && (
+                    <div className="p-3.5 rounded-lg bg-black/40 border border-white/10 text-xs text-gray-300 flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-white">
+                            {billing.name || "Sin nombre"}
+                          </span>
+                          <span className="text-gray-400 font-mono text-[11px]">
+                            ({billing.phone || "Sin teléfono"})
+                          </span>
+                        </div>
+                        <p className="text-gray-300 leading-relaxed">
+                          {billing.address}, {selectedCommuneName} ({selectedRegionCode})
+                        </p>
+                        <p className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
+                          <span>✓ Dirección seleccionada y cotización de envío activada</span>
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAddressId("custom")}
+                        className="text-[11px] text-gray-400 hover:text-white underline shrink-0 whitespace-nowrap"
+                      >
+                        Modificar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="space-y-4">
-                {/* Nombre */}
-                <div>
-                  <label htmlFor="name" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                    Nombre completo <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    value={billing.name}
-                    onChange={handleChange}
-                    placeholder="Ej: Juan Pérez"
-                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
-                  />
-                </div>
+                {/* Formulario de Datos: manual si es 'custom' o no autenticado */}
+                {selectedAddressId === "custom" ? (
+                  <>
+                    {/* Nombre */}
+                    <div>
+                      <label htmlFor="name" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                        Nombre completo <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        value={billing.name}
+                        onChange={handleChange}
+                        placeholder="Ej: Juan Pérez"
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      />
+                    </div>
 
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                    Correo electrónico <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    value={billing.email}
-                    onChange={handleChange}
-                    placeholder="ejemplo@correo.com"
-                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
-                  />
-                </div>
+                    {/* Email */}
+                    <div>
+                      <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                        Correo electrónico <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={billing.email}
+                        onChange={handleChange}
+                        placeholder="ejemplo@correo.com"
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      />
+                    </div>
 
-                {/* Teléfono */}
-                <div>
-                  <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                    Teléfono de Contacto <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="phone"
-                    name="phone"
-                    value={billing.phone}
-                    onChange={handleChange}
-                    placeholder="+56 9 1234 5678"
-                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
-                  />
-                </div>
+                    {/* Teléfono */}
+                    <div>
+                      <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                        Teléfono de Contacto <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                        value={billing.phone}
+                        onChange={handleChange}
+                        placeholder="+56 9 1234 5678"
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all font-mono"
+                      />
+                    </div>
 
-                {/* Selector Inteligente de Región y Comuna para Cotización */}
-                <div className="pt-1">
-                  <ChileLocationsSelect
-                    selectedCommune={selectedCommuneCode}
-                    onCommuneChange={(code, name, regCode) => {
-                      setSelectedCommuneCode(code);
-                      setSelectedCommuneName(name);
-                      setSelectedRegionCode(regCode);
-                      setBilling((prev) => ({ ...prev, city: name }));
-                    }}
-                  />
-                </div>
+                    {/* Selector Inteligente de Región y Comuna para Cotización */}
+                    <div className="pt-1">
+                      <ChileLocationsSelect
+                        selectedCommune={selectedCommuneCode}
+                        onCommuneChange={(code, name, regCode) => {
+                          setSelectedCommuneCode(code);
+                          setSelectedCommuneName(name);
+                          setSelectedRegionCode(regCode);
+                          setBilling((prev) => ({ ...prev, city: name }));
+                        }}
+                      />
+                    </div>
 
-                {/* Dirección */}
-                <div>
-                  <label htmlFor="address" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                    Dirección de envío
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={billing.address}
-                    onChange={handleChange}
-                    placeholder="Calle, número, departamento o sucursal..."
-                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
-                  />
-                </div>
+                    {/* Dirección */}
+                    <div>
+                      <label htmlFor="address" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                        Dirección de envío
+                      </label>
+                      <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value={billing.address}
+                        onChange={handleChange}
+                        placeholder="Calle, número, departamento o sucursal..."
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Cuando está seleccionada una dirección guardada */}
+                    <div>
+                      <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                        Correo para confirmación de compra <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={billing.email}
+                        onChange={handleChange}
+                        placeholder="ejemplo@correo.com"
+                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      />
+                    </div>
+                  </>
+                )}
 
                 {/* Notas */}
                 <div>
@@ -556,6 +714,9 @@ const CheckoutWebpay = () => {
                 </div>
               </div>
             </div>
+
+
+
 
             {/* 2. Selector de Medio de Pago y Formulario Dinámico */}
             <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">

@@ -169,8 +169,31 @@ export default function UserDropdown({ user }: UserDropdownProps) {
             </Link>
 
             <Link
-              href="/my-account?tab=account"
+              href="/my-account?tab=credits"
               onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all group"
+              role="menuitem"
+            >
+              <div className="w-7 h-7 rounded-lg bg-white/5 group-hover:bg-amber-500/10 text-gray-400 group-hover:text-amber-400 flex items-center justify-center transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-white">Créditos de Tienda</p>
+                <p className="text-[10px] text-gray-500 group-hover:text-gray-400 transition-colors">
+                  Saldos a favor para compras en tiendas
+                </p>
+              </div>
+              <svg className="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+
+            <Link
+              href="/my-account?tab=account-details"
+              onClick={() => setIsOpen(false)}
+
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all group"
               role="menuitem"
             >

@@ -275,7 +275,27 @@ model User {
   orders             Order[]
   storeCredits       StoreCredit[]
   creditTransactions StoreCreditTransaction[]
+  addresses          Address[]
 }
+
+model Address {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alias      String?  // Ej: "Casa", "Oficina", "Sucursal Starken"
+  name       String   // Nombre destinatario
+  phone      String   // Teléfono de contacto
+  address    String   // Calle, número, depto
+  city       String   // Comuna (ej: "Rancagua")
+  cityCode   String   // Código comuna Chilexpress/Starken (ej: "RANCAGUA")
+  regionCode String   // Código región (ej: "VI")
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+}
+
 
 model ShippingLabel {
   id             String   @id @default(uuid())
