@@ -429,7 +429,75 @@ Leer ambas cookies en orden de precedencia: `req.cookies?.admin_access_token || 
 
 ---
 
-## 🚀 3. Plan de Acción en 5 Fases (ESTADO: 100% IMPLEMENTADO Y VERIFICADO)
+### 20. Protección de `/my-account` en el Borde (Next.js Edge Guard)
+
+> [!NOTE]
+> **NIVEL DE RIESGO: MEDIO**  
+> Sin guardia perimetral, la página de cuenta se descargaba antes de verificar la sesión en el navegador.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivos** | [`tienda-front/middleware.ts:L31`](file:///c:/Users/felix/Desktop/e-commerce/tienda-front/middleware.ts#L31) y [`tienda-front/src/redux/features/auth-slice.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-front/src/redux/features/auth-slice.ts) |
+| **En qué consiste** | La ruta `/my-account` no estaba evaluada en el Edge de Next.js; la redirección dependía del montaje de React. |
+| **Impacto** | Parpadeo de interfaz y descarga de bundles privados por usuarios anónimos. |
+
+#### Solución:
+Interceptar `/my-account` en `middleware.ts` comprobando `access_token` o `taptrade_user_session` y redirigir inmediatamente a `/login`.
+
+---
+
+### 21. Proyección Selectiva en Búsqueda de Usuarios (`searchUsers`)
+
+> [!NOTE]
+> **NIVEL DE RIESGO: MEDIO**  
+> Carga innecesaria de modelos de usuario completos en memoria del servidor.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivo** | [`tienda-backend/src/users/users.service.ts:L114`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/users/users.service.ts#L114) |
+| **En qué consiste** | La búsqueda de usuarios hacía `findMany` sin cláusula `select`, trayendo campos sensibles internamente. |
+| **Impacto** | Exposición de hashes o datos privados en caso de modificaciones futuras en el mapper del controlador. |
+
+#### Solución:
+Definir `select: { id: true, email: true, name: true }` a nivel de consulta Prisma.
+
+---
+
+### 22. Blindaje de Rol en Administración de Cupones
+
+> [!NOTE]
+> **NIVEL DE RIESGO: MEDIO**  
+> Control de acceso débil en las rutas de creación y edición de cupones.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivo** | [`tienda-backend/src/coupons/coupons.controller.ts:L12-L45`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/coupons/coupons.controller.ts#L12-L45) |
+| **En qué consiste** | Las rutas CRUD de cupones solo exigían `JwtAuthGuard` sin verificar que el rol fuera `ADMIN` o `SUPERADMIN`. |
+| **Impacto** | Falta de defensa en profundidad contra invocaciones maliciosas desde cuentas de clientes normales. |
+
+#### Solución:
+Aplicar `@UseGuards(JwtAuthGuard, RolesGuard)` y `@Roles(Role.ADMIN, Role.SUPERADMIN)` a las rutas de gestión de cupones.
+
+---
+
+### 23. Blindaje de Rol en Administración de Crédito de Tienda
+
+> [!NOTE]
+> **NIVEL DE RIESGO: MEDIO**  
+> Invocación de rutas de balance de crédito permitida a cualquier usuario autenticado.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivo** | [`tienda-backend/src/store-credit/store-credit.controller.ts:L10`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/store-credit/store-credit.controller.ts#L10) |
+| **En qué consiste** | El controlador de crédito solo usaba `JwtAuthGuard` sin comprobación formal de rol a nivel de controlador. |
+| **Impacto** | Ausencia de barrera de rol antes de la ejecución de lógica de negocio. |
+
+#### Solución:
+Añadir `@UseGuards(JwtAuthGuard, RolesGuard)` y `@Roles(Role.ADMIN, Role.SUPERADMIN)` a nivel de clase en el controlador.
+
+---
+
+## 🚀 3. Plan de Acción en 6 Fases (ESTADO: 100% IMPLEMENTADO Y VERIFICADO)
 
 ```text
 [FASE 1: DINERO Y PERMISOS CRÍTICOS] ✅ COMPLETADO
@@ -458,6 +526,12 @@ Leer ambas cookies en orden de precedencia: `req.cookies?.admin_access_token || 
  ├── 15. Descuento atómico de créditos de tienda contra concurrencia (store-credit.service.ts)
  ├── 16. Validación estricta con DTOs en compras buylist (buylist.controller.ts & service.ts)
  └── 17. Soporte multi-cookie (admin_access_token / access_token) en resolución de catálogo
+
+[FASE 6: BLINDAJE Y AISLAMIENTO DE USUARIOS Y CLIENTES] ✅ COMPLETADO
+ ├── 18. Protección perimetral en el Edge de /my-account para usuarios clientes (middleware.ts & auth-slice.ts)
+ ├── 19. Proyección selectiva estricta en búsqueda de usuarios para no cargar hashes en memoria (users.service.ts)
+ ├── 20. Blindaje con RolesGuard en administración de cupones de descuento (coupons.controller.ts)
+ └── 21. Blindaje con RolesGuard en administración y ajuste de créditos de tienda (store-credit.controller.ts)
 ```
 
 ---
@@ -468,4 +542,5 @@ Leer ambas cookies en orden de precedencia: `req.cookies?.admin_access_token || 
 |:---|:---|:---:|:---:|
 | **Backend (NestJS + Prisma)** | `npm run build` | Exited with code `0` | ✅ Sin errores de TypeScript |
 | **Frontend (Next.js 16)** | `npm run build` | Exited with code `0` | ✅ 67 páginas generadas sin errores |
+
 

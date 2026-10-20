@@ -119,6 +119,11 @@ export class UsersService {
           { name: { contains: query, mode: 'insensitive' } }
         ]
       },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
       take: 10,
     });
   }

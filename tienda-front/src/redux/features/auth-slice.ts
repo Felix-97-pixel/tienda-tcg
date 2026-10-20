@@ -56,6 +56,7 @@ export const authSlice = createSlice({
         if (action.payload.features) {
           localStorage.setItem("features", JSON.stringify(action.payload.features));
         }
+        document.cookie = "taptrade_user_session=1; path=/; max-age=86400; SameSite=Lax";
       }
     },
     updateFeatures: (state, action: PayloadAction<string[]>) => {
@@ -71,6 +72,7 @@ export const authSlice = createSlice({
       if (typeof window !== "undefined") {
         localStorage.removeItem("user");
         localStorage.removeItem("features");
+        document.cookie = "taptrade_user_session=; path=/; max-age=0; SameSite=Lax";
       }
     },
   },

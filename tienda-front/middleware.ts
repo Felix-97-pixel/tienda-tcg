@@ -27,6 +27,19 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Protección en el borde para Mi Cuenta de clientes
+  const isUserAccountRoute = pathname.startsWith('/my-account');
+  if (isUserAccountRoute) {
+    const hasUserSession =
+      request.cookies.has('access_token') ||
+      request.cookies.has('taptrade_user_session');
+
+    if (!hasUserSession) {
+      const loginUrl = new URL('/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   return NextResponse.next();
 }
 
