@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "path": ".agents/plugins/frontend-design"
+    },
+    {
+      "path": ".agents/plugins/backend-security"
+    }
+  ]
+}

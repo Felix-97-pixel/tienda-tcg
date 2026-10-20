@@ -1,0 +1,4 @@
+{
+  "name": "backend-security",
+  "description": "Cybersecurity auditing, OWASP API Top 10, JWT security, authorization (BOLA/BFLA), rate limiting, and web hardening"
+}
