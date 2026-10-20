@@ -7,7 +7,7 @@ import { Role } from '@prisma/client';
 
 @Controller('price-updater')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
+@Roles(Role.SUPERADMIN)
 export class PriceUpdaterController {
   constructor(private readonly syncService: SyncService) { }
 

@@ -305,10 +305,134 @@ Hacer que `middleware.ts` compruebe la cookie `admin_access_token` antes de entr
 
 ---
 
-## 🚀 3. Plan de Acción en 4 Fases (ESTADO: 100% IMPLEMENTADO Y VERIFICADO)
+### 13. Sabotaje y Borrado de Inventario de Otras Tiendas (BOLA / IDOR)
+
+> [!CAUTION]
+> **NIVEL DE RIESGO: CRÍTICO**  
+> Una tienda puede alterar precios, stock o borrar completamente cartas de competidores.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivos** | [`tienda-backend/src/products/products.controller.ts:L269`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/products/products.controller.ts#L269) y [`tienda-backend/src/products/products.service.ts:L820`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/products/products.service.ts#L820) |
+| **En qué consiste** | `PATCH /products/inventory/:id` y `DELETE /products/inventory/:id` recibían el ID del ítem y aplicaban cambios sin comprobar la tienda propietaria. |
+| **Impacto** | Sabotaje de precios (ej. cambiar precio a $1 CLP) o eliminación masiva de stock ajeno en el marketplace. |
+
+#### Solución:
+Validar que `item.store?.ownerId === userId` o que el usuario sea `SUPERADMIN`:
+```typescript
+if (userRole !== 'SUPERADMIN' && userId && item.store?.ownerId !== userId) {
+  throw new ForbiddenException('No tienes permiso para modificar el inventario de otra tienda');
+}
+```
+
+---
+
+### 14. Modificación del Catálogo Maestro y Rollback por Vendedores (BFLA)
+
+> [!WARNING]
+> **NIVEL DE RIESGO: ALTO**  
+> Un vendedor común podía alterar precios oficiales y disparar rollbacks de toda la plataforma.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivos** | [`tienda-backend/src/sync/sync.controller.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/sync/sync.controller.ts) y [`tienda-backend/src/price-updater/price-updater.controller.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/price-updater/price-updater.controller.ts) |
+| **En qué consiste** | Rutas de sincronización masiva y rollback (`/sync/rollback`, `/sync/set`, `/price-updater/*`) tenían `@Roles(Role.ADMIN)`. |
+| **Impacto** | Sobreescritura no autorizada del catálogo maestro oficial de cartas y backups del marketplace. |
+
+#### Solución:
+Restringir las rutas maestras exclusivamente a `@Roles(Role.SUPERADMIN)`, dejando únicamente `syncDealerPrices` para tiendas `ADMIN`.
+
+---
+
+### 15. Ajustes Globales de Plataforma Modificables por Tiendas (BFLA)
+
+> [!WARNING]
+> **NIVEL DE RIESGO: ALTO**  
+> Vendedores podían cambiar configuraciones generales del marketplace.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivo** | [`tienda-backend/src/settings/settings.controller.ts:L19`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/settings/settings.controller.ts#L19) |
+| **En qué consiste** | `POST /settings` persistía variables en `GlobalSetting` con solo permiso `Role.ADMIN`. |
+| **Impacto** | Alteración de políticas y variables operativas del sitio por cualquier cuenta de vendedor. |
+
+#### Solución:
+Cambiar el rol requerido a `@Roles(Role.SUPERADMIN)`.
+
+---
+
+### 16. Suplantación de Despacho y Dirección entre Tiendas (IDOR)
+
+> [!WARNING]
+> **NIVEL DE RIESGO: ALTO**  
+> Una tienda podía cambiar la dirección y horarios de retiro de otra.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivos** | [`tienda-backend/src/shipping/shipping.controller.ts:L45`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/shipping/shipping.controller.ts#L45) y [`tienda-backend/src/shipping/shipping.service.ts:L251`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/shipping/shipping.service.ts#L251) |
+| **En qué consiste** | `PATCH /shipping/store-settings/:storeId` recibía cualquier `storeId` en la URL y modificaba sus ajustes físicos sin verificar la propiedad. |
+| **Impacto** | Suplantación o corrupción de ubicaciones físicas y retiro de competidores. |
+
+#### Solución:
+Validar pertenencia de la tienda: `if (userRole !== 'SUPERADMIN' && store.ownerId !== userId) throw new ForbiddenException(...)`.
+
+---
+
+### 17. Condición de Carrera en Crédito de Tienda (Store Credit)
+
+> [!NOTE]
+> **NIVEL DE RIESGO: MEDIO**  
+> Riesgo de saldos negativos en caso de solicitudes de débito simultáneas.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivo** | [`tienda-backend/src/store-credit/store-credit.service.ts:L63`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/store-credit/store-credit.service.ts#L63) |
+| **En qué consiste** | El descuento de saldo usaba lectura y luego `upsert`, vulnerable a peticiones concurrentes. |
+| **Impacto** | Generación de saldos negativos en crédito de clientes. |
+
+#### Solución:
+Aplicar `updateMany` con condición atómica `balance: { gte: requiredBalance }`.
+
+---
+
+### 18. Inyección de Precios Negativos en Buylist
+
+> [!NOTE]
+> **NIVEL DE RIESGO: MEDIO**  
+> Falta de validación formal en creación y edición de cartas solicitadas en compra.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivos** | [`tienda-backend/src/buylist/buylist.controller.ts:L36`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/buylist/buylist.controller.ts#L36) y [`tienda-backend/src/buylist/buylist.service.ts:L92`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/buylist/buylist.service.ts#L92) |
+| **En qué consiste** | Los endpoints recibían `data: any` sin DTO ni validadores de montos positivos. |
+| **Impacto** | Guardado de precios negativos o cantidades inválidas. |
+
+#### Solución:
+Crear `CreateBuylistItemDto` y `UpdateBuylistItemDto` con `@Min(0)` y `@IsInt()` con `ValidationPipe`.
+
+---
+
+### 19. Soporte de Cookie `admin_access_token` en Catálogo
+
+> [!NOTE]
+> **NIVEL DE RIESGO: BAJO**  
+> Tiendas administradoras no veían su catálogo propio si su sesión era solo administrativa.
+
+| Aspecto | Detalle |
+|:---|:---|
+| **Archivo** | [`tienda-backend/src/products/products.controller.ts:L22`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/products/products.controller.ts#L22) |
+| **En qué consiste** | `getStoreIdFromToken` únicamente leía la cookie `access_token` e ignoraba `admin_access_token`. |
+| **Impacto** | Fallo al resolver la tienda del usuario administrador en vistas de catálogo interno. |
+
+#### Solución:
+Leer ambas cookies en orden de precedencia: `req.cookies?.admin_access_token || req.cookies?.access_token`.
+
+---
+
+## 🚀 3. Plan de Acción en 5 Fases (ESTADO: 100% IMPLEMENTADO Y VERIFICADO)
 
 ```text
-[FASE 1: PRIORIDAD MÁXIMA - DINERO Y PERMISOS] ✅ COMPLETADO
+[FASE 1: DINERO Y PERMISOS CRÍTICOS] ✅ COMPLETADO
  ├── 1. Fijar precio real de BD en Mercado Pago (process-payment.handler.ts)
  ├── 2. Descuento atómico de retiros contra condición de carrera (withdrawals.service.ts)
  └── 3. Aplicar RolesGuard en ventas, órdenes y reportes (payments.controller.ts)
@@ -326,6 +450,14 @@ Hacer que `middleware.ts` compruebe la cookie `admin_access_token` antes de entr
 [FASE 4: ESTABILIDAD Y FRONTEND] ✅ COMPLETADO
  ├── 10. Implementar DTOs estrictos de actualización (UpdateStoreByOwnerDto / UpdateStoreFullDto)
  └── 11. Ajustar middleware.ts de Next.js para protección de rutas administrativas en el borde (/admin, /superadmin)
+
+[FASE 5: AISLAMIENTO MULTI-TIENDA Y PRIVILEGIOS SUPERADMIN] ✅ COMPLETADO
+ ├── 12. Aislamiento estricto de inventario contra sabotaje entre tiendas (products.controller.ts & service.ts)
+ ├── 13. Aislamiento de configuraciones de despacho físico de tiendas (shipping.controller.ts & service.ts)
+ ├── 14. Restricción exclusiva a SuperAdmin de configuraciones globales y catálogo maestro (settings & sync)
+ ├── 15. Descuento atómico de créditos de tienda contra concurrencia (store-credit.service.ts)
+ ├── 16. Validación estricta con DTOs en compras buylist (buylist.controller.ts & service.ts)
+ └── 17. Soporte multi-cookie (admin_access_token / access_token) en resolución de catálogo
 ```
 
 ---

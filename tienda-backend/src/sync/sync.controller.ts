@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('sync')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN)
+@Roles(Role.SUPERADMIN)
 export class SyncController {
   constructor(
     private readonly syncService: SyncService,
@@ -50,6 +50,7 @@ export class SyncController {
   }
 
   @Post('dealer-prices')
+  @Roles(Role.ADMIN)
   async syncDealerPrices(@Req() req: any) {
     if (req.user.email === 'f.pinto.97@gmail.com') {
       throw new BadRequestException("El Superadmin no usa esta función. Solo las tiendas.");

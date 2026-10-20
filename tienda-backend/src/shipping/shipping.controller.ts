@@ -48,8 +48,9 @@ export class ShippingController {
   async updateStoreShippingSettings(
     @Param('storeId') storeId: string,
     @Body() dto: UpdateStoreShippingDto,
+    @Req() req: any,
   ) {
-    return this.shippingService.updateStoreShippingSettings(storeId, dto);
+    return this.shippingService.updateStoreShippingSettings(storeId, dto, req.user?.userId, req.user?.role);
   }
 
   /**

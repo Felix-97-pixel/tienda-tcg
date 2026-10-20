@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, NotFoundException } from '@nestjs/common';
+import { Injectable, OnModuleInit, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LocationsService } from '../locations/locations.service';
 import { estimateTcgPackage } from './tcg-packaging';
@@ -248,13 +248,22 @@ export class ShippingService implements OnModuleInit {
   /**
    * Actualizar Configuración de Despacho de la Tienda
    */
-  async updateStoreShippingSettings(storeId: string, dto: UpdateStoreShippingDto) {
+  async updateStoreShippingSettings(
+    storeId: string,
+    dto: UpdateStoreShippingDto,
+    userId?: string,
+    userRole?: string,
+  ) {
     const store = await this.prisma.store.findUnique({
       where: { id: storeId },
     });
 
     if (!store) {
       throw new NotFoundException('Tienda no encontrada');
+    }
+
+    if (userRole !== 'SUPERADMIN' && userId && store.ownerId !== userId) {
+      throw new ForbiddenException('No tienes permiso para modificar la configuración de despacho de otra tienda');
     }
 
     let finalOriginCommuneId = dto.originCommuneId;
