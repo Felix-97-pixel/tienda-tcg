@@ -9,6 +9,15 @@ import "../css/store-style.css";
 export const metadata: Metadata = {
   title: "Crear Cuenta | TapTrade TCG Marketplace",
   description: "Crea tu cuenta gratis en TapTrade. Compra y vende cartas coleccionables, sincroniza tu inventario y únete a la comunidad de TCG más grande de Chile.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default async function SignupLayout({

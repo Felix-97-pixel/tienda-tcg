@@ -1,0 +1,70 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1E2333"/>
+      <stop offset="60%" stop-color="#0F131E"/>
+      <stop offset="100%" stop-color="#080A10"/>
+    </radialGradient>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444"/>
+      <stop offset="50%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+    <linearGradient id="brandRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B91C1C"/>
+      <stop offset="50%" stop-color="#EF4444"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+    <linearGradient id="cardBack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#450A0A"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="24" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="shadowT" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Base Squircle Frame -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGlow)"/>
+  <rect x="16" y="16" width="480" height="480" rx="108" stroke="url(#borderGrad)" stroke-width="7" stroke-opacity="0.6"/>
+
+  <!-- Subtle ambient inner glow -->
+  <circle cx="256" cy="240" r="160" fill="#EF4444" fill-opacity="0.12" filter="url(#softGlow)"/>
+
+  <!-- Back angled TCG Card -->
+  <g transform="rotate(-10 256 256)">
+    <rect x="156" y="106" width="200" height="300" rx="22" fill="url(#cardBack)" fill-opacity="0.75" stroke="url(#goldAccent)" stroke-width="4" stroke-opacity="0.5"/>
+    <!-- Card Frame pattern -->
+    <rect x="170" y="120" width="172" height="272" rx="16" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  </g>
+
+  <!-- Front TCG Card with Brand Gradient -->
+  <g transform="rotate(4 256 256)" filter="url(#shadowT)">
+    <rect x="146" y="96" width="220" height="320" rx="26" fill="url(#brandRed)"/>
+    <!-- Card Inner Foil Border -->
+    <rect x="160" y="110" width="192" height="292" rx="18" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+    
+    <!-- Bold Iconic T Logo -->
+    <g filter="url(#shadowT)">
+      <!-- T Crossbar with modern beveled radius -->
+      <path d="M182 152C182 145.373 187.373 140 194 140H318C324.627 140 330 145.373 330 152V184C330 190.627 324.627 196 318 196H284V344C284 350.627 278.627 356 272 356H240C233.373 356 228 350.627 228 344V196H194C187.373 196 182 190.627 182 184V152Z" fill="#FFFFFF"/>
+    </g>
+
+    <!-- Holographic 4-point Star Accent -->
+    <g transform="translate(324, 122)">
+      <path d="M14 0C14 7.732 20.268 14 28 14C20.268 14 14 20.268 14 28C14 20.268 7.732 14 0 14C7.732 14 14 7.732 14 0Z" fill="#FEF08A"/>
+      <circle cx="14" cy="14" r="3.5" fill="#FFFFFF"/>
+    </g>
+
+    <!-- Bottom TCG Micro Indicator -->
+    <rect x="226" y="378" width="60" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
+  </g>
+</svg>

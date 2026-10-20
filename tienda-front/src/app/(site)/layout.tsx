@@ -11,6 +11,15 @@ import { getMessages, getLocale } from "next-intl/server";
 export const metadata: Metadata = {
   title: "TapTrade | Compra y Venta de Cartas TCG",
   description: "Tu tienda especializada en cartas Magic, Pokémon, Yu-Gi-Oh y más.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default async function RootLayout({

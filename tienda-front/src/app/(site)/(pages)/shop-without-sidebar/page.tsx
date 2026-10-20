@@ -3,9 +3,8 @@ import ShopWithoutSidebar from "@/app/(site)/(pages)/shop-without-sidebar/_compo
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Shop Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Shop Page for NextCommerce Template",
-  // other metadata
+  title: "Catálogo Completo TCG | TapTrade Marketplace",
+  description: "Explora todas las cartas, sellados y accesorios de las mejores tiendas TCG de Chile.",
 };
 
 const ShopWithoutSidebarPage = () => {

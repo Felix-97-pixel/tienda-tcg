@@ -3,9 +3,8 @@ import Error from "@/app/(site)/(pages)/error/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Error Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Error Page for NextCommerce Template",
-  // other metadata
+  title: "Página no encontrada (404) | TapTrade TCG Marketplace",
+  description: "La página que buscas no existe o ha sido movida en TapTrade.",
 };
 
 const ErrorPage = () => {

@@ -9,6 +9,15 @@ import "../css/store-style.css";
 export const metadata: Metadata = {
   title: "Iniciar Sesión | TapTrade TCG Marketplace",
   description: "Ingresa a tu cuenta de TapTrade. Accede a tu colección, pedidos y al marketplace de cartas coleccionables más grande de Chile.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default async function LoginLayout({

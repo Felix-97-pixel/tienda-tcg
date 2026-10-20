@@ -1,180 +1,554 @@
-import React from "react";
-import Breadcrumb from "@/components/layout/Breadcrumb";
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import toast from "react-hot-toast";
 
-const Contact = () => {
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  orderNumber: string;
+  category: string;
+  message: string;
+}
+
+function BoxIcon({ className }: { className?: string }) {
   return (
-    <>
-      <Breadcrumb title={"Contact"} pages={["contact"]} />
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+  );
+}
 
-      <section className="overflow-hidden py-20 bg-[#222630]">
-        <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          <div className="flex flex-col xl:flex-row gap-7.5">
-            <div className="xl:max-w-[370px] w-full bg-[#1a1d24] rounded-xl shadow-1">
-              <div className="py-5 px-4 sm:px-7.5 border-b border-white/10">
-                <p className="font-medium text-xl text-white">
-                  Contact Information
-                </p>
+function StorefrontIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  );
+}
+
+function WrenchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function TrophyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v5m-4 0h8m-9-9H5a2 2 0 01-2-2V7a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2a2 2 0 01-2 2h-2m-8-4h8a4 4 0 014 4v2a4 4 0 01-4 4H9a4 4 0 01-4-4V7a4 4 0 014-4z" />
+    </svg>
+  );
+}
+
+function ChatIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  );
+}
+
+const CATEGORIES = [
+  { id: "pedido", label: "Consulta de Pedido / Envío", icon: BoxIcon },
+  { id: "tienda", label: "Afiliación de Tienda / Ventas", icon: StorefrontIcon },
+  { id: "soporte", label: "Problema Técnico o de Cuenta", icon: WrenchIcon },
+  { id: "torneo", label: "Alianzas y Eventos TCG", icon: TrophyIcon },
+  { id: "otro", label: "Otra Consulta", icon: ChatIcon },
+];
+
+const FAQS = [
+  {
+    q: "¿Cuánto tarda en llegar mi pedido?",
+    a: "Los envíos se procesan mediante Chilexpress y Starken en un plazo estimado de 24 a 48 horas hábiles tras el despacho de la tienda. Si seleccionaste retiro en tienda física ($0), recibirás una notificación cuando tu compra esté lista.",
+  },
+  {
+    q: "¿Cómo funciona la Garantía y Custodia de Fondos (Escrow)?",
+    a: "Tu dinero se retiene de forma 100% segura en la plataforma y solo se libera a la tienda vendedora cuando ingresa el número de seguimiento y confirmas la recepción conforme de tus cartas.",
+  },
+  {
+    q: "¿Qué hago si una carta no corresponde a la condición publicada?",
+    a: "Todas las tiendas de TapTrade están obligadas a clasificar según el estándar oficial (NM, LP, MP, HP, DMG). Si recibes algo distinto, abre un ticket de mediación desde tu panel o escríbenos a soporte@taptrade.cl para reemplazo o reembolso.",
+  },
+  {
+    q: "¿Cómo puedo abrir una tienda y vender en TapTrade?",
+    a: "Ofrecemos un modelo SaaS con 0% comisión sobre el valor de tus cartas. Solo necesitas registrarte como tienda, configurar tus datos de transferencia y sincronizar tu inventario.",
+  },
+];
+
+export default function Contact() {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    phone: "",
+    orderNumber: "",
+    category: "pedido",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedEmail(text);
+    toast.success(`${label} copiado al portapapeles`);
+    setTimeout(() => setCopiedEmail(null), 2500);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      toast.error("Por favor ingresa tu nombre completo");
+      return;
+    }
+    if (!formData.email.trim() || !formData.email.includes("@")) {
+      toast.error("Por favor ingresa un correo electrónico válido");
+      return;
+    }
+    if (formData.message.trim().length < 10) {
+      toast.error("El mensaje debe contener al menos 10 caracteres");
+      return;
+    }
+
+    setLoading(true);
+
+    // Simulación de envío con confirmación visual
+    setTimeout(() => {
+      setLoading(false);
+      setSubmitted(true);
+      toast.success("¡Mensaje enviado con éxito a TapTrade!");
+    }, 900);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      orderNumber: "",
+      category: "pedido",
+      message: "",
+    });
+    setSubmitted(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#07090E] text-white pt-24 sm:pt-28 pb-24 selection:bg-red selection:text-white">
+      {/* Background Ambient Glows */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-red/10 rounded-full blur-[140px]" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px]" />
+        <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-red-600/5 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Navigation Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs font-mono text-white/50 mb-8">
+          <Link href="/" className="hover:text-red transition-colors">
+            Inicio
+          </Link>
+          <span>/</span>
+          <span className="text-white font-semibold">Contacto & Soporte</span>
+        </div>
+
+        {/* Hero Section */}
+        <div className="mb-12 md:mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red/10 border border-red/20 text-red text-xs font-bold tracking-wider uppercase mb-4 shadow-sm shadow-red/20">
+            <span className="w-2 h-2 rounded-full bg-red animate-pulse" />
+            Canales Oficiales TapTrade SpA
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+            ¿En qué podemos <span className="bg-gradient-to-r from-red-500 via-rose-500 to-amber-500 bg-clip-text text-transparent">ayudarte hoy?</span>
+          </h1>
+          <p className="mt-3 text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
+            Atención especializada para compradores, coleccionistas y tiendas de cartas coleccionables. Respondemos en menos de 24 horas hábiles.
+          </p>
+        </div>
+
+        {/* Main Grid: Info Cards (Left) + Form (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* LEFT COLUMN: Información Corporativa y Canales Directos (5 cols) */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* Identity Card */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#0D111A]/90 border border-white/[0.08] backdrop-blur-xl shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-red/15 to-transparent rounded-bl-full pointer-events-none" />
+
+              <div className="flex items-center gap-3.5 mb-5">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center shadow-lg shadow-red/30 border border-white/10 shrink-0">
+                  <span className="text-white font-black text-2xl leading-none">T</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-white tracking-tight leading-snug">
+                    TAPTRADE SpA
+                  </h2>
+                  <p className="text-xs text-red font-mono tracking-wider font-semibold">
+                    RUT Empresa • Santiago de Chile
+                  </p>
+                </div>
               </div>
 
-              <div className="p-4 sm:p-7.5">
-                <div className="flex flex-col gap-4">
-                  <p className="flex items-center gap-4">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M9.11365 2.97913H12.8837C14.5684 2.97911 15.9027 2.9791 16.947 3.1195C18.0217 3.26399 18.8916 3.56843 19.5776 4.25443C20.2636 4.94043 20.568 5.8103 20.7125 6.88502C20.8529 7.9293 20.8529 9.26363 20.8529 10.9482V11.0517C20.8529 12.7363 20.8529 14.0706 20.7125 15.1149C20.568 16.1896 20.2636 17.0595 19.5776 17.7455C18.8916 18.4315 18.0217 18.7359 16.947 18.8804C15.9027 19.0208 14.5684 19.0208 12.8837 19.0208H9.11366C7.42904 19.0208 6.09471 19.0208 5.05043 18.8804C3.97571 18.7359 3.10584 18.4315 2.41984 17.7455C1.73384 17.0595 1.4294 16.1896 1.28491 15.1149C1.14451 14.0706 1.14452 12.7363 1.14453 11.0517V10.9482C1.14452 9.26363 1.14451 7.9293 1.28491 6.88502C1.4294 5.8103 1.73384 4.94043 2.41984 4.25443C3.10584 3.56843 3.97571 3.26399 5.05043 3.1195C6.09471 2.9791 7.42904 2.97911 9.11365 2.97913ZM5.23364 4.48224C4.31139 4.60623 3.78005 4.83876 3.39211 5.2267C3.00417 5.61465 2.77164 6.14599 2.64764 7.06824C2.52099 8.01026 2.51953 9.25204 2.51953 11C2.51953 12.7479 2.52099 13.9897 2.64764 14.9317C2.77164 15.8539 3.00417 16.3853 3.39211 16.7732C3.78005 17.1612 4.31139 17.3937 5.23364 17.5177C6.17567 17.6443 7.41745 17.6458 9.16536 17.6458H12.832C14.58 17.6458 15.8217 17.6443 16.7638 17.5177C17.686 17.3937 18.2173 17.1612 18.6053 16.7732C18.9932 16.3853 19.2258 15.8539 19.3498 14.9317C19.4764 13.9897 19.4779 12.7479 19.4779 11C19.4779 9.25204 19.4764 8.01026 19.3498 7.06824C19.2258 6.14599 18.9932 5.61465 18.6053 5.2267C18.2173 4.83876 17.686 4.60623 16.7638 4.48224C15.8217 4.35559 14.58 4.35413 12.832 4.35413H9.16537C7.41745 4.35413 6.17567 4.35559 5.23364 4.48224ZM4.97055 6.89317C5.21362 6.60148 5.64713 6.56207 5.93883 6.80514L7.91781 8.4543C8.77303 9.16697 9.36678 9.66017 9.86807 9.98258C10.3533 10.2947 10.6824 10.3994 10.9987 10.3994C11.315 10.3994 11.6441 10.2947 12.1293 9.98258C12.6306 9.66017 13.2244 9.16697 14.0796 8.4543L16.0586 6.80514C16.3503 6.56207 16.7838 6.60148 17.0269 6.89317C17.2699 7.18486 17.2305 7.61837 16.9388 7.86145L14.9254 9.53932C14.1129 10.2164 13.4543 10.7652 12.8731 11.139C12.2677 11.5284 11.678 11.7744 10.9987 11.7744C10.3194 11.7744 9.72973 11.5284 9.12428 11.139C8.54306 10.7652 7.88452 10.2164 7.07203 9.53933L5.05857 7.86145C4.76688 7.61837 4.72747 7.18486 4.97055 6.89317Z"
-                        fill="#3C50E0"
-                      />
-                    </svg>
-                    Name: James Septimus
-                  </p>
+              <p className="text-sm text-slate-300 leading-relaxed mb-6">
+                El marketplace líder en Chile para comprar, vender y coleccionar cartas Magic: The Gathering, Pokémon TCG, Yu-Gi-Oh!, Riftbound y accesorios con garantía escrow.
+              </p>
 
-                  <p className="flex items-center gap-4">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M12.1559 1.72346C12.2166 1.34865 12.571 1.09439 12.9458 1.15507C12.969 1.15951 13.0436 1.17346 13.0827 1.18217C13.161 1.19959 13.2701 1.22641 13.4061 1.26604C13.6781 1.34528 14.0582 1.47581 14.5143 1.68494C15.4276 2.10363 16.6429 2.83605 17.9041 4.0972C19.1652 5.35835 19.8977 6.57368 20.3163 7.48693C20.5255 7.94308 20.656 8.32314 20.7352 8.59518C20.7749 8.73122 20.8017 8.84033 20.8191 8.91855C20.8278 8.95766 20.8342 8.98907 20.8386 9.01227L20.8439 9.04086C20.9046 9.41568 20.6526 9.78465 20.2778 9.84533C19.9041 9.90584 19.552 9.65281 19.4898 9.27975C19.4879 9.26974 19.4826 9.24283 19.477 9.21745C19.4657 9.16668 19.4461 9.08617 19.4151 8.9797C19.3531 8.76672 19.2453 8.45017 19.0664 8.05997C18.7091 7.28052 18.0665 6.20418 16.9318 5.06947C15.7971 3.93477 14.7208 3.29219 13.9413 2.93484C13.5511 2.75595 13.2346 2.64821 13.0216 2.58618C12.9151 2.55516 12.7813 2.52445 12.7305 2.51314C12.3575 2.45097 12.0954 2.09721 12.1559 1.72346Z"
-                        fill="#3C50E0"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M12.3633 4.88547C12.4677 4.52039 12.8482 4.30899 13.2133 4.4133L13.0244 5.07434C13.2133 4.4133 13.2133 4.4133 13.2133 4.4133L13.2146 4.41368L13.216 4.41408L13.219 4.41497L13.2261 4.41709L13.2443 4.42275C13.2581 4.42716 13.2754 4.43292 13.2959 4.44022C13.3371 4.45483 13.3915 4.47561 13.4583 4.50421C13.5918 4.56144 13.7743 4.64983 13.9984 4.78248C14.4471 5.04802 15.0596 5.4891 15.7792 6.20866C16.4987 6.92822 16.9398 7.54072 17.2053 7.9894C17.338 8.21353 17.4264 8.39601 17.4836 8.52955C17.5122 8.59629 17.533 8.65071 17.5476 8.69187C17.5549 8.71245 17.5607 8.72971 17.5651 8.74354L17.5707 8.76167L17.5728 8.76878L17.5737 8.77184L17.5741 8.77324C17.5741 8.77324 17.5745 8.77456 16.9135 8.96343L17.5745 8.77456C17.6788 9.13965 17.4674 9.52017 17.1023 9.62448C16.7404 9.7279 16.3632 9.52096 16.2551 9.16157L16.2518 9.15169C16.2469 9.13791 16.2368 9.1108 16.2198 9.07119C16.1859 8.99205 16.1244 8.86259 16.022 8.68971C15.8177 8.34437 15.4485 7.82256 14.8069 7.18093C14.1653 6.53931 13.6435 6.17016 13.2981 5.96577C13.1252 5.86346 12.9958 5.80195 12.9166 5.76804C12.877 5.75106 12.8499 5.74095 12.8361 5.73606L12.8263 5.73267C12.4669 5.62462 12.2599 5.24746 12.3633 4.88547Z"
-                        fill="#3C50E0"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M4.59146 4.03966C6.13153 2.4996 8.73041 2.61667 9.80274 4.53812L10.3977 5.60414C11.0979 6.85889 10.7995 8.44205 9.77441 9.47969C9.76075 9.49839 9.6884 9.60375 9.67938 9.78783C9.66788 10.0228 9.75133 10.5662 10.5932 11.4081C11.4348 12.2497 11.9781 12.3333 12.2132 12.3219C12.3974 12.3129 12.5029 12.2405 12.5216 12.2269C13.5592 11.2018 15.1424 10.9034 16.3971 11.6036L17.4632 12.1985C19.3846 13.2709 19.5017 15.8698 17.9616 17.4098C17.1378 18.2336 16.0425 18.9655 14.7553 19.0143C12.8478 19.0867 9.6805 18.594 6.54387 15.4574C3.40724 12.3208 2.91463 9.15348 2.98694 7.24596C3.03574 5.95877 3.76769 4.86343 4.59146 4.03966ZM8.60206 5.2082C8.05297 4.2243 6.57741 3.99826 5.56374 5.01193C4.853 5.72267 4.39094 6.50717 4.36096 7.29804C4.30065 8.88877 4.69339 11.6624 7.51614 14.4851C10.3389 17.3079 13.1125 17.7006 14.7032 17.6403C15.4941 17.6103 16.2786 17.1483 16.9893 16.4375C18.003 15.4239 17.777 13.9483 16.7931 13.3992L15.7271 12.8043C15.0639 12.4342 14.1325 12.5604 13.4786 13.2143C13.4144 13.2785 13.0055 13.66 12.28 13.6953C11.5373 13.7314 10.6383 13.3977 9.62095 12.3803C8.60326 11.3626 8.26966 10.4634 8.30603 9.72058C8.34155 8.99503 8.72309 8.58656 8.78693 8.52271C9.4408 7.86884 9.56708 6.93735 9.19699 6.27422L8.60206 5.2082Z"
-                        fill="#3C50E0"
-                      />
-                    </svg>
-                    Phone: 1234 567890
-                  </p>
+              {/* Status Badge */}
+              <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <span>Equipo de soporte activo • Lunes a Sábado</span>
+              </div>
+            </div>
 
-                  <p className="flex gap-4">
-                    <svg
-                      className="mt-0.5 shrink-0"
-                      width="22"
-                      height="22"
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M3.89453 7.80506C3.89453 4.08157 7.12254 1.14581 10.9987 1.14581C14.8749 1.14581 18.1029 4.08157 18.1029 7.80506C18.1029 11.2986 15.9369 15.4 12.4423 16.8934C11.5248 17.2855 10.4726 17.2855 9.55514 16.8934C6.06051 15.4 3.89453 11.2986 3.89453 7.80506ZM10.9987 2.52081C7.7872 2.52081 5.26953 4.93234 5.26953 7.80506C5.26953 10.856 7.19951 14.3915 10.0955 15.629C10.6678 15.8736 11.3296 15.8736 11.9019 15.629C14.7979 14.3915 16.7279 10.856 16.7279 7.80506C16.7279 4.93234 14.2102 2.52081 10.9987 2.52081ZM10.9987 7.10415C10.3659 7.10415 9.85286 7.61715 9.85286 8.24998C9.85286 8.88281 10.3659 9.39581 10.9987 9.39581C11.6315 9.39581 12.1445 8.88281 12.1445 8.24998C12.1445 7.61715 11.6315 7.10415 10.9987 7.10415ZM8.47786 8.24998C8.47786 6.85776 9.60648 5.72915 10.9987 5.72915C12.3909 5.72915 13.5195 6.85776 13.5195 8.24998C13.5195 9.6422 12.3909 10.7708 10.9987 10.7708C9.60648 10.7708 8.47786 9.6422 8.47786 8.24998ZM3.29449 13.7469C3.54935 14.0283 3.52779 14.4631 3.24634 14.7179C2.72595 15.1891 2.51953 15.6402 2.51953 16.0416C2.51953 16.7417 3.18321 17.6044 4.79901 18.3315C6.35028 19.0296 8.54159 19.4791 10.9987 19.4791C13.4558 19.4791 15.6471 19.0296 17.1984 18.3315C18.8142 17.6044 19.4779 16.7417 19.4779 16.0416C19.4779 15.6402 19.2714 15.1891 18.7511 14.7179C18.4696 14.4631 18.448 14.0283 18.7029 13.7468C18.9578 13.4654 19.3925 13.4438 19.674 13.6987C20.3734 14.332 20.8529 15.126 20.8529 16.0416C20.8529 17.6198 19.4645 18.8196 17.7626 19.5854C15.9962 20.3803 13.6042 20.8541 10.9987 20.8541C8.3932 20.8541 6.00117 20.3803 4.23476 19.5854C2.53288 18.8196 1.14453 17.6198 1.14453 16.0416C1.14453 15.126 1.62399 14.332 2.32341 13.6987C2.60487 13.4438 3.03963 13.4654 3.29449 13.7469Z"
-                        fill="#3C50E0"
-                      />
+            {/* Direct Channels */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#0D111A]/90 border border-white/[0.08] backdrop-blur-xl shadow-2xl space-y-5">
+              <h3 className="text-xs font-mono font-bold tracking-widest uppercase text-white/50">
+                Canales de Atención Directa
+              </h3>
+
+              {/* Channel 1: Correo Soporte */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-red/30 transition-all group flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-9 h-9 rounded-lg bg-red/10 border border-red/20 flex items-center justify-center text-red shrink-0 mt-0.5">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Address: 7398 Smoke Ranch RoadLas Vegas, Nevada 89128
-                  </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-400 font-medium block">Soporte a Pedidos & Compras</span>
+                    <a href="mailto:soporte@taptrade.cl" className="text-sm font-bold text-white hover:text-red transition-colors">
+                      soporte@taptrade.cl
+                    </a>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleCopy("soporte@taptrade.cl", "Correo de soporte")}
+                  className="px-2.5 py-1 text-xs rounded-md bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5"
+                  title="Copiar correo"
+                >
+                  {copiedEmail === "soporte@taptrade.cl" ? "Copiado!" : "Copiar"}
+                </button>
+              </div>
+
+              {/* Channel 2: Correo General / Empresas */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-amber-500/30 transition-all group flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-400 font-medium block">Tiendas, Alianzas & Facturación</span>
+                    <a href="mailto:contacto@taptrade.cl" className="text-sm font-bold text-white hover:text-amber-400 transition-colors">
+                      contacto@taptrade.cl
+                    </a>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleCopy("contacto@taptrade.cl", "Correo general")}
+                  className="px-2.5 py-1 text-xs rounded-md bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5"
+                  title="Copiar correo"
+                >
+                  {copiedEmail === "contacto@taptrade.cl" ? "Copiado!" : "Copiar"}
+                </button>
+              </div>
+
+              {/* Channel 3: Horarios & Cobertura */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-start gap-3.5">
+                <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-400 font-medium block">Horario de Atención</span>
+                  <p className="text-sm font-bold text-white">Lun - Vie: 09:00 a 19:00 hrs</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Sábados: 10:00 a 14:00 hrs (Hora Chile)</p>
+                </div>
+              </div>
+
+              {/* Channel 4: Cobertura Logística */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-start gap-3.5">
+                <div className="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0 mt-0.5">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-400 font-medium block">Cobertura & Logística</span>
+                  <p className="text-sm font-bold text-white">Santiago & Regiones de Chile</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Envíos vía Chilexpress, Starken y Retiro Presencial</p>
                 </div>
               </div>
             </div>
 
-            <div className="xl:max-w-[770px] w-full bg-[#1a1d24] rounded-xl shadow-1 p-4 sm:p-7.5 xl:p-10">
-              <form>
-                <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 mb-5">
-                  <div className="w-full">
-                    <label htmlFor="firstName" className="block mb-2.5">
-                      First Name <span className="text-red">*</span>
-                    </label>
+            {/* Quick Action for Sellers */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-red/10 via-amber-500/10 to-transparent border border-red/20 flex items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-bold text-red uppercase tracking-wider block">¿Tienes una tienda TCG?</span>
+                <p className="text-xs text-slate-300 mt-0.5">Vende sin comisiones por transacción.</p>
+              </div>
+              <Link
+                href="/landing"
+                className="px-3.5 py-2 rounded-xl bg-red hover:bg-red-dark text-white text-xs font-bold transition-all shadow-md shadow-red/30 shrink-0"
+              >
+                Vender Cartas
+              </Link>
+            </div>
 
-                    <input
-                      type="text"
-                      name="firstName"
-                      id="firstName"
-                      placeholder="Jhon"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
+          </div>
+
+          {/* RIGHT COLUMN: Interactive Form (7 cols) */}
+          <div className="lg:col-span-7">
+            <div className="p-6 sm:p-8 lg:p-10 rounded-2xl bg-[#0D111A]/90 border border-white/[0.08] backdrop-blur-xl shadow-2xl relative">
+              
+              {submitted ? (
+                /* Success View */
+                <div className="py-12 text-center space-y-5 animate-fade-in">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/10">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white">¡Mensaje Enviado con Éxito!</h3>
+                    <p className="mt-2 text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+                      Muchas gracias <span className="font-bold text-white">{formData.name}</span>. Hemos recibido tu consulta y nuestro equipo te responderá a <span className="font-bold text-red">{formData.email}</span> en menos de 24 horas hábiles.
+                    </p>
                   </div>
 
-                  <div className="w-full">
-                    <label htmlFor="lastName" className="block mb-2.5">
-                      Last Name <span className="text-red">*</span>
-                    </label>
-
-                    <input
-                      type="text"
-                      name="lastName"
-                      id="lastName"
-                      placeholder="Deo"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 mb-5">
-                  <div className="w-full">
-                    <label htmlFor="subject" className="block mb-2.5">
-                      Subject
-                    </label>
-
-                    <input
-                      type="text"
-                      name="subject"
-                      id="subject"
-                      placeholder="Type your subject"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
-                  </div>
-
-                  <div className="w-full">
-                    <label htmlFor="phone" className="block mb-2.5">
-                      Phone
-                    </label>
-
-                    <input
-                      type="text"
-                      name="phone"
-                      id="phone"
-                      placeholder="Enter your phone"
-                      className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full py-2.5 px-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                    />
+                  <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                      onClick={resetForm}
+                      className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-colors border border-white/10"
+                    >
+                      Enviar otro mensaje
+                    </button>
+                    <Link
+                      href="/shop"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red via-rose-600 to-amber-600 hover:opacity-90 text-white text-xs font-bold transition-opacity shadow-lg shadow-red/25"
+                    >
+                      Explorar el Catálogo TCG
+                    </Link>
                   </div>
                 </div>
+              ) : (
+                /* Form View */
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                      Envíanos un mensaje
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Completa el formulario y te responderemos a tu correo a la brevedad.
+                    </p>
+                  </div>
 
-                <div className="mb-7.5">
-                  <label htmlFor="message" className="block mb-2.5">
-                    Message
-                  </label>
+                  {/* Category Selector */}
+                  <div>
+                    <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 mb-2.5">
+                      Motivo de contacto <span className="text-red">*</span>
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {CATEGORIES.map((cat) => {
+                        const IconComponent = cat.icon;
+                        const isSelected = formData.category === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, category: cat.id })}
+                            className={`p-2.5 rounded-xl text-left border transition-all text-xs flex items-center gap-2.5 group ${
+                              isSelected
+                                ? "bg-red/15 border-red text-white font-bold shadow-md shadow-red/20"
+                                : "bg-[#121622] border-white/10 text-slate-400 hover:text-white hover:border-white/20"
+                            }`}
+                          >
+                            <span
+                              className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? "bg-red text-white shadow-sm shadow-red/30"
+                                  : "bg-white/5 text-slate-400 group-hover:text-white group-hover:bg-white/10"
+                              }`}
+                            >
+                              <IconComponent className="w-3.5 h-3.5" />
+                            </span>
+                            <span className="truncate">{cat.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                  <textarea
-                    name="message"
-                    id="message"
-                    rows={5}
-                    placeholder="Type your message"
-                    className="rounded-md border border-white/10 bg-[#111318] placeholder:text-gray-5 w-full p-5 outline-none duration-200 focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20"
-                  ></textarea>
-                </div>
+                  {/* Name and Email */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Nombre Completo <span className="text-red">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="ej. Matías Valenzuela"
+                        className="w-full px-4 py-3 rounded-xl bg-[#121622] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-red focus:ring-1 focus:ring-red transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Correo Electrónico <span className="text-red">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="tu@email.com"
+                        className="w-full px-4 py-3 rounded-xl bg-[#121622] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-red focus:ring-1 focus:ring-red transition-all"
+                      />
+                    </div>
+                  </div>
 
-                <button
-                  type="submit"
-                  className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark"
-                >
-                  Send Message
-                </button>
-              </form>
+                  {/* Phone & Order Number */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Teléfono / WhatsApp <span className="text-slate-500 font-normal lowercase">(opcional)</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="+56 9 1234 5678"
+                        className="w-full px-4 py-3 rounded-xl bg-[#121622] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-red focus:ring-1 focus:ring-red transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        N° de Orden / Pedido <span className="text-slate-500 font-normal lowercase">(opcional)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.orderNumber}
+                        onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
+                        placeholder="ej. TT-1082"
+                        className="w-full px-4 py-3 rounded-xl bg-[#121622] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-red focus:ring-1 focus:ring-red transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Message */}
+                  <div>
+                    <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                      Mensaje / Detalle de la consulta <span className="text-red">*</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      required
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Escribe aquí tu consulta con el mayor detalle posible para darte una solución rápida..."
+                      className="w-full px-4 py-3 rounded-xl bg-[#121622] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-red focus:ring-1 focus:ring-red transition-all resize-none"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span>Tus datos están protegidos por TapTrade SpA</span>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-red via-rose-600 to-amber-600 hover:opacity-95 text-white font-bold text-sm tracking-wide transition-all shadow-xl shadow-red/30 flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {loading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <span>Enviar Mensaje</span>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
-        </div>
-      </section>
-    </>
-  );
-};
 
-export default Contact;
+        </div>
+
+        {/* BOTTOM SECTION: Frequently Asked Questions */}
+        <div className="mt-20 pt-16 border-t border-white/[0.08]">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-red">
+              Centro de Ayuda Rápida
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">
+              Preguntas Frecuentes
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-2">
+              Revisa las dudas más habituales sobre compras, despachos y garantías en TapTrade.
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-3">
+            {FAQS.map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl bg-[#0D111A]/90 border border-white/[0.08] overflow-hidden transition-all"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-white hover:text-red transition-colors"
+                >
+                  <span>{faq.q}</span>
+                  <span
+                    className={`w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 shrink-0 transition-all duration-200 ${
+                      openFaq === idx ? "rotate-180 text-red bg-red/10" : ""
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
+                {openFaq === idx && (
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-white/[0.04] pt-3">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

@@ -3,9 +3,8 @@ import MailSuccess from "@/app/(site)/(pages)/mail-success/_components";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Mail Success Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Mail Success Page for NextCommerce Template",
-  // other metadata
+  title: "Mensaje Enviado con Éxito | TapTrade TCG Marketplace",
+  description: "Tu solicitud ha sido recibida correctamente por el equipo de TapTrade.",
 };
 
 const MailSuccessPage = () => {

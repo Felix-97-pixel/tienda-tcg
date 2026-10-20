@@ -523,21 +523,98 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         </div>
       )}
 
-      {/* 5. Direct Store Buylist Directory Banner */}
-      <div className="mt-16 rounded-2xl bg-gradient-to-r from-[#141A2D] via-[#111522] to-[#141A2D] border border-white/[0.08] p-8 text-center">
-        <h3 className="text-xl sm:text-2xl font-black text-white mb-2">
-          ¿Tienes una tienda TCG y quieres comprar cartas a jugadores?
-        </h3>
-        <p className="text-sm text-gray-300 max-w-xl mx-auto mb-6">
-          Configura tu propio Motor de Buylist con devaluación automática por estado e idioma, paga con transferencia o fideliza entregando crédito en tienda.
-        </p>
-        <Link
-          href="/admin/buylist"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm shadow-lg shadow-red-600/30 transition-all"
-        >
-          <span>Acceder al Panel de Tienda (Admin Buylist)</span>
-          <span>→</span>
-        </Link>
+      {/* 5. Direct Store Buylist Directory Banner - High-Converting B2B Section */}
+      <div className="mt-16 relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#141A2D] via-[#0E121B] to-[#0A0D14] border border-white/10 p-8 sm:p-12 shadow-2xl text-center">
+        {/* Glow accents */}
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-red-600/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 right-10 w-80 h-48 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-3xl mx-auto">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/30 mb-5">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-red-400">
+              Para Tiendas y Negocios TCG en Chile
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h3 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4 leading-tight">
+            ¿Tienes una tienda TCG?{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-400">
+              Contrata TapTrade y escala tus ventas
+            </span>
+          </h3>
+
+          {/* Persuasive Hook Description */}
+          <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-8 max-w-2xl mx-auto font-normal">
+            Activa tu propio <strong className="text-white">Motor de Buylist automatizado</strong> para comprar singles a jugadores en efectivo o saldo digital, sincroniza catálogos completos en 1 clic y vende en tu propia vitrina online con <strong className="text-emerald-400">0% de comisión por transacción</strong>.
+          </p>
+
+          {/* Value Highlights */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0 mt-0.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">0% Comisión</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5">Tus ventas son 100% tuyas bajo suscripción fija mensual.</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">Buylist Inteligente</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5">Devaluaciones automáticas por estado e idioma en tiempo real.</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">Vitrina Exclusiva</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5">Subdominio propio para tu tienda + presencia en el catálogo global.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/landing#for-stores"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-extrabold text-sm shadow-xl shadow-red-600/30 hover:shadow-red-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <span>Conoce los Planes y Únete a TapTrade</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </Link>
+
+            <Link
+              href="/admin/buylist"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 hover:text-white font-semibold text-xs border border-white/10 hover:border-white/20 transition-all"
+            >
+              <span>¿Ya tienes tienda? Ir al panel de Buylist</span>
+            </Link>
+          </div>
+
+          {/* Reassurance Micro-copy */}
+          <p className="text-xs text-gray-400 mt-5 font-mono">
+            Suscripción mensual transparente • Sin comisiones por venta • Pagos y envíos integrados
+          </p>
+        </div>
       </div>
 
       {/* 6. Trade Modal */}
@@ -552,8 +629,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               ✕
             </button>
 
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl">🤝</span>
+            <div className="flex items-center gap-2.5 mb-4">
+              <span className="w-8 h-8 rounded-xl bg-red-600/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </span>
               <h3 className="text-lg font-black text-white">
                 Vender a {activeTradeItem.store.name}
               </h3>

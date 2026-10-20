@@ -3,9 +3,8 @@ import ShopDetails from "@/app/(site)/(pages)/shop-details/_components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shop Details Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Shop Details Page for NextCommerce Template",
-  // other metadata
+  title: "Detalles del Producto | TapTrade TCG Marketplace",
+  description: "Compara precios y condiciones entre todas las tiendas verificadas en TapTrade.",
 };
 
 const ShopDetailsPage = () => {
