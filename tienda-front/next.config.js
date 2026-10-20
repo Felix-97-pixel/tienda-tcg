@@ -33,6 +33,25 @@ const nextConfig = {
     ],
   },
   allowedDevOrigins: ['192.168.1.84', 'localhost'],
+  async redirects() {
+    return [
+      {
+        source: '/forgot-password',
+        destination: '/recuperar-cuenta',
+        permanent: true,
+      },
+      {
+        source: '/reset-password',
+        destination: '/restablecer-contrasena',
+        permanent: true,
+      },
+      {
+        source: '/signin',
+        destination: '/login',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = withNextIntl(nextConfig);
