@@ -3,6 +3,7 @@ import { Response, Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
 
 @Controller('payments/mp')
 export class MpOAuthController {
@@ -36,9 +37,14 @@ export class MpOAuthController {
       return res.status(500).send('MERCADOPAGO_APP_ID not configured');
     }
 
-    // Redirect to MercadoPago OAuth page
-    // State is the storeId, so we know which store to update in the callback
-    const url = `https://auth.mercadopago.com/authorization?client_id=${appId}&response_type=code&platform_id=mp&state=${store.id}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    // Generar un state token firmado criptográficamente para prevenir OAuth State Fixation
+    const secret = this.config.get<string>('JWT_SECRET', 'fallback_secret');
+    const timestamp = Date.now().toString();
+    const payload = `${store.id}:${userId}:${timestamp}`;
+    const hmac = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    const secureState = Buffer.from(`${payload}:${hmac}`).toString('base64url');
+
+    const url = `https://auth.mercadopago.com/authorization?client_id=${appId}&response_type=code&platform_id=mp&state=${secureState}&redirect_uri=${encodeURIComponent(redirectUri)}`;
     
     res.redirect(url);
   }
@@ -46,13 +52,41 @@ export class MpOAuthController {
   @Get('callback')
   async callback(
     @Query('code') code: string,
-    @Query('state') storeId: string,
+    @Query('state') state: string,
     @Res() res: Response,
   ) {
     const frontendUrl = this.config.get<string>('FRONTEND_URL', 'http://localhost:3000');
 
-    if (!code || !storeId) {
+    if (!code || !state) {
       return res.redirect(`${frontendUrl}/admin/profile?error=invalid_callback`);
+    }
+
+    // Validar firma criptográfica y expiración de 15 minutos en el parámetro state
+    const secret = this.config.get<string>('JWT_SECRET', 'fallback_secret');
+    let storeId: string;
+    try {
+      const decoded = Buffer.from(state, 'base64url').toString('utf8');
+      const [decodedStoreId, userId, timestampStr, signature] = decoded.split(':');
+      if (!decodedStoreId || !userId || !timestampStr || !signature) {
+        throw new Error('Malformed state');
+      }
+
+      const timestamp = parseInt(timestampStr, 10);
+      if (Date.now() - timestamp > 15 * 60 * 1000) {
+        throw new Error('State token expired');
+      }
+
+      const expectedPayload = `${decodedStoreId}:${userId}:${timestampStr}`;
+      const expectedSignature = crypto.createHmac('sha256', secret).update(expectedPayload).digest('hex');
+
+      if (signature.length !== expectedSignature.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+        throw new Error('Invalid state signature');
+      }
+
+      storeId = decodedStoreId;
+    } catch (err: any) {
+      this.logger.error(`OAuth state validation failed: ${err.message}`);
+      return res.redirect(`${frontendUrl}/admin/profile?error=invalid_oauth_state`);
     }
 
     const appId = this.config.get<string>('MERCADOPAGO_APP_ID');

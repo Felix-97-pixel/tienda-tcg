@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateBuylistItemDto } from './dto/create-buylist-item.dto';
+import { UpdateBuylistItemDto } from './dto/update-buylist-item.dto';
 
 @Injectable()
 export class BuylistService {
@@ -89,7 +91,7 @@ export class BuylistService {
     });
   }
 
-  async addBuylistItem(storeId: string, data: any) {
+  async addBuylistItem(storeId: string, data: CreateBuylistItemDto) {
     // Check if it already exists
     const existing = await this.prisma.buyListItem.findFirst({
       where: {
@@ -123,7 +125,7 @@ export class BuylistService {
     });
   }
 
-  async updateBuylistItem(storeId: string, id: string, data: any) {
+  async updateBuylistItem(storeId: string, id: string, data: UpdateBuylistItemDto) {
     const item = await this.prisma.buyListItem.findUnique({ where: { id } });
     if (!item || item.storeId !== storeId) {
       throw new NotFoundException('Item not found');

@@ -16,14 +16,17 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
   async execute(command: ProcessPaymentCommand) {
     const { dto, userId } = command;
 
-    // 1. Obtener información de inventario para saber el storeId de cada item
+    // 1. Obtener información de inventario para saber el storeId de cada item y SU PRECIO REAL
     const itemsWithStoreId = await Promise.all(
       dto.items.map(async (item) => {
         let storeId = null;
+        let realUnitPrice = 0;
+        let productName = item.productName;
+
         if (item.inventoryItemId) {
           const inv = await this.prisma.inventoryItem.findUnique({
             where: { id: item.inventoryItemId },
-            select: { storeId: true, stock: true, reservedStock: true, product: { select: { name: true } } }
+            select: { storeId: true, stock: true, reservedStock: true, price: true, product: { select: { name: true } } }
           });
           if (!inv) {
             throw new BadRequestException(`Un producto del carrito no existe.`);
@@ -33,11 +36,16 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
           }
           if (inv.storeId) storeId = inv.storeId;
+          realUnitPrice = Number(inv.price);
+          productName = inv.product.name;
+        } else {
+          realUnitPrice = Number(item.unitPrice);
         }
+
         if (!storeId) {
           throw new BadRequestException(`No se encontró la tienda para el producto ${item.productName}`);
         }
-        return { ...item, storeId };
+        return { ...item, storeId, realUnitPrice, productName };
       })
     );
 
@@ -91,8 +99,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       }
       const sellerMpUserId = Number(mpUserIdSetting.value);
 
+      // Calcular subtotal BASE con el PRECIO REAL DE LA BD
       const vendorBaseSubtotal = items.reduce(
-        (sum, i) => sum + i.unitPrice * i.quantity * exchangeRate,
+        (sum, i) => sum + i.realUnitPrice * i.quantity * exchangeRate,
         0,
       );
 
@@ -115,7 +124,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             inventoryItemId: item.inventoryItemId,
             productName: item.productName,
             quantity: item.quantity,
-            unitPrice: item.unitPrice * exchangeRate,
+            unitPrice: item.realUnitPrice * exchangeRate,
           })),
         },
       });

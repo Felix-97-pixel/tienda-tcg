@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from '../upload/upload.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -817,21 +817,50 @@ export class ProductsService {
     return { message: "Producto eliminado (Soft Delete)" };
   }
 
-  async updateInventoryItem(itemId: string, data: { price?: number; stock?: number; isPublished?: boolean }) {
+  async updateInventoryItem(
+    itemId: string,
+    data: { price?: number; stock?: number; isPublished?: boolean },
+    userId?: string,
+    userRole?: string,
+  ) {
+    const item = await this.prisma.inventoryItem.findUnique({
+      where: { id: itemId },
+      include: { store: true },
+    });
+
+    if (!item) {
+      throw new NotFoundException('Ítem de inventario no encontrado');
+    }
+
+    if (userRole !== 'SUPERADMIN' && userId && item.store?.ownerId !== userId) {
+      throw new ForbiddenException('No tienes permiso para modificar el inventario de otra tienda');
+    }
+
     return this.prisma.inventoryItem.update({
       where: { id: itemId },
-      data
+      data,
     });
   }
 
-  async removeInventoryItem(id: string) {
-    // Verificar si es el último item de un producto no TCG para evitar dejarlo sin stock
+  async removeInventoryItem(id: string, userId?: string, userRole?: string) {
     const item = await this.prisma.inventoryItem.findUnique({
       where: { id },
-      include: { product: { include: { category: true, _count: { select: { items: true } } } } }
+      include: {
+        store: true,
+        product: { include: { category: true, _count: { select: { items: true } } } },
+      },
     });
 
-    if (item?.product.category.isTcg === false && item.product._count.items <= 1) {
+    if (!item) {
+      throw new NotFoundException('Ítem de inventario no encontrado');
+    }
+
+    if (userRole !== 'SUPERADMIN' && userId && item.store?.ownerId !== userId) {
+      throw new ForbiddenException('No tienes permiso para eliminar inventario de otra tienda');
+    }
+
+    // Verificar si es el último item de un producto no TCG para evitar dejarlo sin stock
+    if (item?.product?.category?.isTcg === false && item.product._count.items <= 1) {
       throw new BadRequestException("No se puede eliminar el único ítem de un producto estándar.");
     }
 

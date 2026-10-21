@@ -16,7 +16,7 @@ export class SettingsController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.SUPERADMIN)
   updateSettings(@Body() settings: Record<string, string>) {
     return this.settingsService.updateSettings(settings);
   }

@@ -61,33 +61,47 @@ export class StoreCreditService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // If subtracting, verify the user has sufficient balance
-      if (amount < 0) {
-        const current = await tx.storeCredit.findUnique({
+      let credit;
+      if (amount > 0) {
+        credit = await tx.storeCredit.upsert({
           where: { storeId_userId: { storeId, userId } },
+          update: {
+            balance: { increment: amount },
+          },
+          create: {
+            storeId,
+            userId,
+            balance: amount,
+          },
+        });
+      } else {
+        // amount < 0: Descuento atómico con bloqueo contra saldos negativos
+        const requiredBalance = Math.abs(amount);
+        const updated = await tx.storeCredit.updateMany({
+          where: {
+            storeId,
+            userId,
+            balance: { gte: requiredBalance },
+          },
+          data: {
+            balance: { increment: amount },
+          },
         });
 
-        const currentBalance = current ? Number(current.balance) : 0;
-
-        if (currentBalance + amount < 0) {
+        if (updated.count === 0) {
+          const current = await tx.storeCredit.findUnique({
+            where: { storeId_userId: { storeId, userId } },
+          });
+          const currentBalance = current ? Number(current.balance) : 0;
           throw new BadRequestException(
-            `Saldo insuficiente. Saldo actual: $${currentBalance.toLocaleString('es-CL')}, descuento solicitado: $${Math.abs(amount).toLocaleString('es-CL')}`,
+            `Saldo insuficiente. Saldo actual: $${currentBalance.toLocaleString('es-CL')}, descuento solicitado: $${requiredBalance.toLocaleString('es-CL')}`,
           );
         }
-      }
 
-      // Upsert the balance
-      const credit = await tx.storeCredit.upsert({
-        where: { storeId_userId: { storeId, userId } },
-        update: {
-          balance: { increment: amount },
-        },
-        create: {
-          storeId,
-          userId,
-          balance: amount,
-        },
-      });
+        credit = await tx.storeCredit.findUniqueOrThrow({
+          where: { storeId_userId: { storeId, userId } },
+        });
+      }
 
       // Record the transaction with optional items snapshot
       await tx.storeCreditTransaction.create({

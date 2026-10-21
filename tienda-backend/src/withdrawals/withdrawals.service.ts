@@ -6,6 +6,10 @@ export class WithdrawalsService {
   constructor(private prisma: PrismaService) {}
 
   async requestWithdrawal(userId: string, amount: number, bankDetails: string) {
+    if (!amount || amount <= 0) {
+      throw new BadRequestException('El monto a retirar debe ser mayor a cero.');
+    }
+
     const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
     if (!store) throw new NotFoundException('Store not found');
 
@@ -13,12 +17,20 @@ export class WithdrawalsService {
       throw new BadRequestException('Saldo insuficiente para retirar');
     }
 
-    // Descontar saldo y crear peticion en PENDING
+    // Descontar saldo de forma ATÓMICA y crear petición en PENDING
     return await this.prisma.$transaction(async (tx) => {
-      await tx.store.update({
-        where: { id: store.id },
-        data: { balance: { decrement: amount } }
+      // updateMany con condición balance: { gte: amount } previene condiciones de carrera y saldos negativos
+      const updated = await tx.store.updateMany({
+        where: { 
+          id: store.id,
+          balance: { gte: amount },
+        },
+        data: { balance: { decrement: amount } },
       });
+
+      if (updated.count === 0) {
+        throw new BadRequestException('Saldo insuficiente o conflicto por petición simultánea.');
+      }
 
       return await tx.withdrawalRequest.create({
         data: {
@@ -26,7 +38,7 @@ export class WithdrawalsService {
           amount,
           bankDetails,
           status: 'PENDING',
-        }
+        },
       });
     });
   }

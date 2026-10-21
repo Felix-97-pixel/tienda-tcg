@@ -73,6 +73,7 @@ export const adminAuthSlice = createSlice({
         if (action.payload.features) {
           localStorage.setItem("admin_features", JSON.stringify(action.payload.features));
         }
+        document.cookie = "taptrade_admin_session=1; path=/; max-age=86400; SameSite=Lax";
       }
     },
     updateAdminFeatures: (state, action: PayloadAction<string[]>) => {
@@ -88,6 +89,7 @@ export const adminAuthSlice = createSlice({
       if (typeof window !== "undefined") {
         localStorage.removeItem("admin_user");
         localStorage.removeItem("admin_features");
+        document.cookie = "taptrade_admin_session=; path=/; max-age=0; SameSite=Lax";
       }
     },
   },

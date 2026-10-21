@@ -1,6 +1,9 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { StoreCreditService } from './store-credit.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 import { StoresService } from '../stores/stores.service';
 import { AdjustCreditDto } from './dto/adjust-credit.dto';
 
@@ -9,6 +12,8 @@ interface AuthenticatedRequest extends Request {
 }
 
 @Controller('store-credit')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.SUPERADMIN)
 export class StoreCreditController {
   constructor(
     private readonly storeCreditService: StoreCreditService,

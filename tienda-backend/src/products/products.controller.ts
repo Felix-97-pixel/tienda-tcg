@@ -19,7 +19,7 @@ export class ProductsController {
 
 
   private async getStoreIdFromToken(req: Request): Promise<string | undefined> {
-    const token = req.cookies?.access_token;
+    const token = req.cookies?.admin_access_token || req.cookies?.access_token;
     if (!token) return undefined;
     try {
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET || '');
@@ -268,17 +268,21 @@ export class ProductsController {
 
   @Patch('inventory/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  updateInventoryItem(@Param('id') id: string, @Body() body: { price?: number; stock?: number; isPublished?: boolean }) {
-    return this.productsService.updateInventoryItem(id, body);
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  updateInventoryItem(
+    @Param('id') id: string,
+    @Body() body: { price?: number; stock?: number; isPublished?: boolean },
+    @Req() req: any,
+  ) {
+    return this.productsService.updateInventoryItem(id, body, req.user?.userId, req.user?.role);
   }
 
   @Delete('inventory/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  async removeInventoryItem(@Param('id') id: string) {
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  async removeInventoryItem(@Param('id') id: string, @Req() req: any) {
     try {
-      await this.productsService.removeInventoryItem(id);
+      await this.productsService.removeInventoryItem(id, req.user?.userId, req.user?.role);
       return { success: true };
     } catch (e: any) {
       throw new BadRequestException(e.message);
