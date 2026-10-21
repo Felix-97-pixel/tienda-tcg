@@ -9,7 +9,10 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
   
   const downloadCSV = async () => {
     try {
-      const res = await fetch(`${API_URL}/payments/reports/export/lowstock`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/payments/reports/export/lowstock`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
       if (!res.ok) throw new Error();
       const rawData = await res.json();
       

@@ -50,7 +50,10 @@ export default function DispatchModal({
     try {
       const res = await fetch(`${API_URL}/payments/vendor-orders/${vendorOrder.id}/dispatch`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-scope": "admin",
+        },
         credentials: "include",
         body: JSON.stringify({
           courier,

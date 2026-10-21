@@ -25,7 +25,10 @@ export const exportToPDF = async (elementId: string, filename: string = "reporte
 
 export const downloadCSV = async (url: string, filename: string) => {
   try {
-    const res = await fetch(url, { credentials: "include" });
+    const res = await fetch(url, {
+      credentials: "include",
+      headers: { "x-auth-scope": "admin" },
+    });
     if (!res.ok) throw new Error();
     const rawData = await res.json();
     

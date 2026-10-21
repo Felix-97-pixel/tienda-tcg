@@ -35,7 +35,10 @@ export default function TopProductsList({ products: initialProducts }: TopProduc
       if (startDate) query.append("startDate", startDate);
       if (endDate) query.append("endDate", endDate);
       
-      const res = await fetch(`${API_URL}/payments/stats/top-products?${query.toString()}`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/payments/stats/top-products?${query.toString()}`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
       if (res.ok) {
         setProducts(await res.json());
       }

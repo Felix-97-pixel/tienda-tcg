@@ -13,7 +13,10 @@ export function useSalesAnalytics(features: string[]) {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`${API_URL}/payments/reports/advanced`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/payments/reports/advanced`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
       if (!res.ok) throw new Error();
       setData(await res.json());
     } catch {

@@ -20,7 +20,10 @@ export function useAdminOrders(limit: number = 15) {
   const fetchOrders = useCallback(async (p: number) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/payments/orders?page=${p}&limit=${limit}`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/payments/orders?page=${p}&limit=${limit}`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
       if (!res.ok) throw new Error("No autorizado");
       const data = await res.json();
       setOrders(data.orders);

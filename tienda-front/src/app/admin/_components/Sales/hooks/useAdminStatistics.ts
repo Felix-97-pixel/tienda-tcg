@@ -12,7 +12,10 @@ export function useAdminStatistics(features: string[] | undefined) {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`${API_URL}/payments/stats`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/payments/stats`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
       if (!res.ok) throw new Error();
       setStats(await res.json());
     } catch (err) {
