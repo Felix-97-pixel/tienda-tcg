@@ -135,12 +135,21 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   listOrders(
+    @Req() req: Request & { user?: { userId: string; role?: string } },
     @Query('page') page = '1',
     @Query('limit') limit = '20',
-    @Req() req: Request & { user?: { userId: string; role?: string } },
+    @Query('status') status?: string,
+    @Query('deliveryStatus') deliveryStatus?: string,
   ) {
     return this.queryBus.execute(
-      new ListOrdersQuery(+page, +limit, req.user?.userId, req.user?.role),
+      new ListOrdersQuery(
+        +page,
+        +limit,
+        req.user?.userId,
+        req.user?.role,
+        status,
+        deliveryStatus,
+      ),
     );
   }
 

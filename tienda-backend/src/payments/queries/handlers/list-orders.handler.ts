@@ -10,7 +10,7 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: ListOrdersQuery) {
-    const { page, limit, userId, role } = query;
+    const { page, limit, userId, role, status, deliveryStatus } = query;
     const skip = (page - 1) * limit;
 
     let storeId: string | null = null;
@@ -24,16 +24,33 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
       }
     }
 
-    // Si es ADMIN de tienda, solo mostrar órdenes que contengan sub-órdenes de su tienda
-    const where: any = storeId
-      ? {
-          vendorOrders: {
-            some: { storeId },
-          },
-        }
-      : {};
+    // Regla operativa: en el panel de despacho y trabajo de la tienda,
+    // solo se procesan órdenes PAGADAS (status: PAID).
+    // Las órdenes FAILED o PENDING son intentos fallidos o no completados.
+    const targetStatus = (status || 'PAID') as any;
 
-    const [orders, total] = await Promise.all([
+    const voSomeCondition: any = {};
+    if (storeId) {
+      voSomeCondition.storeId = storeId;
+    }
+    if (deliveryStatus === 'PENDING_DISPATCH') {
+      voSomeCondition.deliveryStatus = { not: 'DISPATCHED' };
+    } else if (deliveryStatus === 'DISPATCHED') {
+      voSomeCondition.deliveryStatus = 'DISPATCHED';
+    }
+
+    const where: any = {
+      status: targetStatus,
+      ...(Object.keys(voSomeCondition).length > 0
+        ? {
+            vendorOrders: {
+              some: voSomeCondition,
+            },
+          }
+        : {}),
+    };
+
+    const [orders, total, counts] = await Promise.all([
       this.prisma.order.findMany({
         where,
         skip,
@@ -48,6 +65,38 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
         },
       }),
       this.prisma.order.count({ where }),
+      storeId
+        ? Promise.all([
+            this.prisma.order.count({
+              where: {
+                status: 'PAID',
+                vendorOrders: {
+                  some: { storeId, deliveryStatus: { not: 'DISPATCHED' } },
+                },
+              },
+            }),
+            this.prisma.order.count({
+              where: {
+                status: 'PAID',
+                vendorOrders: {
+                  some: { storeId, deliveryStatus: 'DISPATCHED' },
+                },
+              },
+            }),
+            this.prisma.order.count({
+              where: {
+                status: 'PAID',
+                vendorOrders: {
+                  some: { storeId },
+                },
+              },
+            }),
+          ]).then(([pendingDispatch, dispatched, totalPaid]) => ({
+            pendingDispatch,
+            dispatched,
+            totalPaid,
+          }))
+        : Promise.resolve(undefined),
     ]);
 
     // Recopilar IDs para enriquecer con imágenes y datos de TCG
@@ -114,6 +163,6 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
       })),
     }));
 
-    return { orders: enrichedOrders, total, page, limit };
+    return { orders: enrichedOrders, total, page, limit, counts };
   }
 }

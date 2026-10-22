@@ -7,5 +7,7 @@ export class ListOrdersQuery {
     public readonly limit: number = 20,
     public readonly userId?: string,
     public readonly role?: string,
+    public readonly status?: string,
+    public readonly deliveryStatus?: string,
   ) {}
 }
