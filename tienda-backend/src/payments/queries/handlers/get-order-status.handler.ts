@@ -17,7 +17,7 @@ export class GetOrderStatusHandler
       where: { id: query.orderId },
       include: {
         vendorOrders: {
-          include: { items: true, store: true },
+          include: { items: true, store: true, shippingProvider: true },
         },
         payment: true,
       },

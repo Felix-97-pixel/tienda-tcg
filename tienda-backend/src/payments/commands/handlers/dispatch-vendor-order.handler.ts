@@ -31,7 +31,7 @@ export class DispatchVendorOrderHandler
     // 2. Obtener la sub-orden (VendorOrder)
     const vendorOrder = await this.prisma.vendorOrder.findUnique({
       where: { id: vendorOrderId },
-      include: { store: true, order: true },
+      include: { store: true, order: true, shippingProvider: true },
     });
 
     if (!vendorOrder) {
@@ -59,25 +59,45 @@ export class DispatchVendorOrderHandler
       throw new BadRequestException('Esta orden ya ha sido despachada previamente');
     }
 
-    // 5. Normalizar courier y generar URL de seguimiento oficial
-    const cleanTracking = dto.trackingNumber.trim();
-    const courierUpper = dto.courier.trim().toUpperCase();
+    // 5. El método de envío oficial lo determina lo que el cliente seleccionó y pagó en la compra
+    const officialCourier = (
+      vendorOrder.shippingProvider?.name ||
+      vendorOrder.shippingCourier ||
+      dto.courier ||
+      'STARKEN'
+    )
+      .trim()
+      .toUpperCase();
+
+    const isLocalPickup = officialCourier.includes('RETIRO');
+    const cleanTracking = dto.trackingNumber?.trim() || (isLocalPickup ? 'RETIRO-LOCAL' : '');
+
+    if (!cleanTracking && !isLocalPickup) {
+      throw new BadRequestException(
+        `Debes ingresar el número de seguimiento oficial para despachos mediante ${officialCourier}.`,
+      );
+    }
+
     let generatedTrackingUrl = dto.trackingUrl?.trim();
 
-    if (!generatedTrackingUrl) {
-      if (courierUpper.includes('STARKEN')) {
+    if (!generatedTrackingUrl && !isLocalPickup) {
+      if (officialCourier.includes('STARKEN')) {
         generatedTrackingUrl = `https://www.starken.cl/seguimiento?codigo=${cleanTracking}`;
-      } else if (courierUpper.includes('CHILE')) {
+      } else if (officialCourier.includes('CHILE')) {
         generatedTrackingUrl = `https://www.chilexpress.cl/seguimiento-envios?numeroEnvio=${cleanTracking}`;
-      } else if (courierUpper.includes('CORREO')) {
+      } else if (officialCourier.includes('CORREO')) {
         generatedTrackingUrl = `https://www.correos.cl/seguimiento-en-linea?envio=${cleanTracking}`;
-      } else if (courierUpper.includes('BLUE')) {
+      } else if (officialCourier.includes('BLUE')) {
         generatedTrackingUrl = `https://www.bluex.cl/seguimiento/?tracking=${cleanTracking}`;
       }
     }
 
     const totalAbono =
       Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
+
+    const dispatchRef = isLocalPickup
+      ? `Order: ${vendorOrderId} (Entregado en local / Retiro en Tienda)`
+      : `Order: ${vendorOrderId} (Despachado con ${officialCourier} #${cleanTracking})`;
 
     // 6. Transacción atómica: actualizar orden, liberar custodia en billetera e incrementar balance
     return await this.prisma.$transaction(async (tx) => {
@@ -86,9 +106,9 @@ export class DispatchVendorOrderHandler
         where: { id: vendorOrderId },
         data: {
           deliveryStatus: 'DISPATCHED',
-          shippingCourier: courierUpper,
+          shippingCourier: officialCourier,
           trackingNumber: cleanTracking,
-          trackingUrl: generatedTrackingUrl,
+          trackingUrl: generatedTrackingUrl || null,
           dispatchedAt: new Date(),
         },
       });
@@ -109,7 +129,7 @@ export class DispatchVendorOrderHandler
           where: { id: heldTx.id },
           data: {
             isWithdrawable: true,
-            reference: `Order: ${vendorOrderId} (Despachado con ${courierUpper} #${cleanTracking})`,
+            reference: dispatchRef,
           },
         });
       } else {
@@ -121,7 +141,7 @@ export class DispatchVendorOrderHandler
             type: 'SALE',
             paymentMethod: 'WEBPAY',
             isWithdrawable: true,
-            reference: `Order: ${vendorOrderId} (Despachado con ${courierUpper} #${cleanTracking})`,
+            reference: dispatchRef,
           },
         });
       }

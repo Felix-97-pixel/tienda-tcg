@@ -23,6 +23,11 @@ export interface VendorOrderData {
   status: string;
   deliveryStatus?: string | null; // "PENDING_DISPATCH" | "DISPATCHED" | "DELIVERED"
   shippingCourier?: string | null; // "STARKEN" | "CHILEXPRESS" | "CORREOS_CHILE" | "BLUE_EXPRESS" | "RETIRO_TIENDA"
+  shippingProvider?: {
+    id: string;
+    name: string;
+    price?: number | string;
+  } | null;
   trackingNumber?: string | null;
   trackingUrl?: string | null;
   dispatchedAt?: string | null;

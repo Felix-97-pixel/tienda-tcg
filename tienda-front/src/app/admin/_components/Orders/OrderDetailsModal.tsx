@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Order, VendorOrderData, OrderItem } from "@/types/order";
+import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import DispatchModal from "./DispatchModal";
 
 import {
@@ -177,21 +178,40 @@ export default function OrderDetailsModal({
                   </div>
 
                   {/* Estado de Despacho & Botón */}
-                  {order.status === "PAID" && (
-                    vo.deliveryStatus === "DISPATCHED" ? (
+                  {order.status === "PAID" && (() => {
+                    const carrierRaw = (
+                      vo.shippingProvider?.name ||
+                      vo.shippingCourier ||
+                      "STARKEN"
+                    ).toUpperCase();
+                    const isPickup = carrierRaw.includes("RETIRO");
+                    const badgeName = isPickup
+                      ? "retiro"
+                      : carrierRaw.includes("CHILE")
+                      ? "chilexpress"
+                      : carrierRaw.includes("BLUE")
+                      ? "blue_express"
+                      : carrierRaw.includes("CORREO")
+                      ? "correos_chile"
+                      : "starken";
+
+                    return vo.deliveryStatus === "DISPATCHED" ? (
                       <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
-                        <div className="space-y-0.5">
-                          <p className="font-bold text-white flex items-center gap-1.5">
-                            <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Courier: {vo.shippingCourier || "Transporte"}</span>
-                          </p>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <ShippingBadge name={badgeName} size="sm" />
+                            <span className="font-bold text-white flex items-center gap-1.5">
+                              <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <span>{isPickup ? "Entrega en Local Realizada" : `Despachado vía ${vo.shippingCourier || "Courier"}`}</span>
+                            </span>
+                          </div>
                           <p className="text-gray-300 font-mono text-[11px]">
-                            N° Guía / Seguimiento:{" "}
+                            {isPickup ? "Comprobante / Código: " : "N° Guía / Seguimiento: "}
                             <strong className="text-emerald-400">{vo.trackingNumber}</strong>
                           </p>
                           {vo.dispatchedAt && (
                             <p className="text-[10px] text-gray-500">
-                              Despachado el{" "}
+                              Completado el{" "}
                               {new Date(vo.dispatchedAt).toLocaleDateString("es-CL", {
                                 day: "2-digit",
                                 month: "short",
@@ -201,7 +221,7 @@ export default function OrderDetailsModal({
                             </p>
                           )}
                         </div>
-                        {vo.trackingUrl && (
+                        {vo.trackingUrl && !isPickup && (
                           <a
                             href={vo.trackingUrl}
                             target="_blank"
@@ -215,10 +235,17 @@ export default function OrderDetailsModal({
                       </div>
                     ) : (
                       <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
-                        <div>
-                          <p className="font-bold text-amber-400">Fondos en Custodia (Escrow)</p>
-                          <p className="text-[10px] text-gray-400 mt-0.5">
-                            Ingresa el número de seguimiento para que el cliente rastree su paquete y se libere el dinero a tu billetera.
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <ShippingBadge name={badgeName} size="sm" />
+                            <span className="font-bold text-amber-400">
+                              {isPickup ? "Retiro en Tienda Acordado" : `Envío Pagado vía ${carrierRaw.includes("CHILE") ? "Chilexpress" : carrierRaw.includes("BLUE") ? "Blue Express" : carrierRaw.includes("CORREO") ? "Correos de Chile" : "Starken"}`}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-gray-400">
+                            {isPickup
+                              ? "El comprador retirará presencialmente en el local. Confirma la entrega para liberar los fondos retenidos a tu billetera."
+                              : "Ingresa el número de seguimiento oficial para que el cliente rastree su paquete y se libere el dinero a tu billetera."}
                           </p>
                         </div>
                         <Button
@@ -227,12 +254,21 @@ export default function OrderDetailsModal({
                           className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 shadow-md flex items-center gap-1.5"
                           onClick={() => setSelectedVoForDispatch(vo)}
                         >
-                          <IconBox className="w-3.5 h-3.5" />
-                          <span>Despachar Pedido</span>
+                          {isPickup ? (
+                            <>
+                              <IconCheckCircle className="w-3.5 h-3.5" />
+                              <span>Confirmar Entrega</span>
+                            </>
+                          ) : (
+                            <>
+                              <IconBox className="w-3.5 h-3.5" />
+                              <span>Despachar Pedido</span>
+                            </>
+                          )}
                         </Button>
                       </div>
-                    )
-                  )}
+                    );
+                  })()}
 
                   {/* Cartas con Hover Preview & Click Toggle */}
                   <div className="space-y-2">

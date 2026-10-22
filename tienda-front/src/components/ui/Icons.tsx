@@ -628,4 +628,3 @@ export const IconExternalLink: React.FC<IconProps> = ({ className = "w-4 h-4", s
     <line x1="10" x2="21" y1="14" y2="3" />
   </svg>
 );
-
