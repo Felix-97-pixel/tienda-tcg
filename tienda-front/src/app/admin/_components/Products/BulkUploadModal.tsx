@@ -107,6 +107,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "x-auth-scope": "admin",
             },
             body: JSON.stringify({
               categoryId: bulkCategory,

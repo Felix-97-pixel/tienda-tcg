@@ -13,53 +13,44 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const adminToken = req.cookies['admin_access_token'];
       const customerToken = req.cookies['access_token'];
 
-      // 1. Si la petición especifica scope de administración explícito o el referer proviene del panel admin
-      const referer = (req.headers && (req.headers['referer'] as string) || '').toLowerCase();
-      const isFromAdminUi = referer.includes('/admin') || referer.includes('/superadmin');
-      const hasAdminScope = req.headers && req.headers['x-auth-scope'] === 'admin';
-
-      if ((hasAdminScope || isFromAdminUi) && adminToken) {
-        return adminToken;
-      }
-
-      // 2. Si la ruta es de administración/superadmin
       const url = (req.originalUrl || req.url || '').toLowerCase();
-      const isAdminRoute = url.includes('/sync') || 
-                           url.includes('/withdrawals') || 
-                           url.includes('/price-updater') || 
-                           url.includes('/superadmin') ||
-                           url.includes('/stores/me') ||
-                           url.includes('/payments/stats') ||
-                           url.includes('/payments/orders') ||
-                           url.includes('/payments/reports') ||
-                           url.includes('/payments/vendor-orders') ||
-                           url.includes('/store-credit') ||
-                           url.includes('/shipping') ||
-                           (url.includes('/coupons') && !url.includes('/validate')) ||
-                           url.includes('/buylist/me') ||
-                           url.includes('/admin');
+      const referer = (req.headers && (req.headers['referer'] as string) || '').toLowerCase();
+      const hasAdminScope = req.headers && req.headers['x-auth-scope'] === 'admin';
+      const isFromAdminUi = referer.includes('/admin') || referer.includes('/superadmin');
 
-      if (isAdminRoute && adminToken) {
-        return adminToken;
-      }
-
-      // 3. Para el resto de rutas (tienda pública, carrito, checkout, perfil de comprador)
-      if (customerToken) {
-        return customerToken;
-      }
-
-      // 4. Si solo hay adminToken pero la ruta es estrictamente de cliente, NO usar adminToken
+      // Rutas que son estrictamente de cliente (compras, carrito, checkout público, wishlist de usuario)
       const isCustomerRoute = url.includes('/cart') || 
                               url.includes('/wishlist/user') ||
                               url.includes('/users/me') ||
                               url.includes('/payments/process') ||
+                              url.includes('/payments/init-transaction') ||
                               url.includes('/payments/order/') ||
                               url.includes('/my-account');
+
+      // 1. Si la petición especifica scope de administración explícito o el referer proviene del panel admin
+      if ((hasAdminScope || isFromAdminUi) && adminToken) {
+        return adminToken;
+      }
+
+      // 2. Si es una ruta estrictamente de cliente, preferir token de cliente
       if (isCustomerRoute) {
+        if (customerToken) return customerToken;
+        // Si solo hay token admin en una ruta de cliente, denegar
         return null;
       }
 
-      return adminToken || null;
+      // 3. Para cualquier otra ruta (inventario, catálogo, productos, configuración, reportes, etc.):
+      // Si el usuario tiene sesión de administrador activa, usarla prioritariamente
+      if (adminToken) {
+        return adminToken;
+      }
+
+      // 4. Si no hay token de administrador, usar token de cliente si existe
+      if (customerToken) {
+        return customerToken;
+      }
+
+      return null;
     };
 
     const secret = configService.get<string>('JWT_SECRET');

@@ -9,8 +9,10 @@ import { QueryHandlers } from './queries';
 import { MpOAuthController } from './mp-oauth.controller';
 import { ReservationCronService } from './cron/reservation.cron';
 
+import { ShippingModule } from '../shipping/shipping.module';
+
 @Module({
-  imports: [PrismaModule, CqrsModule],
+  imports: [PrismaModule, CqrsModule, ShippingModule],
   controllers: [PaymentsController, MpOAuthController],
   providers: [
     MercadoPagoProvider,

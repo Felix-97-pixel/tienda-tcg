@@ -24,6 +24,7 @@ export default function BulkPublishConfirmModal({
     try {
       const res = await fetch(`${API_URL}/products/inventory/bulk-publish`, {
         method: "PATCH",
+        headers: { "x-auth-scope": "admin" },
         credentials: "include",
       });
       if (res.ok) {

@@ -61,7 +61,10 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
     try {
       const res = await fetch(`${API_URL}/products`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-scope": "admin",
+        },
         body: JSON.stringify(payload),
         credentials: "include",
       });

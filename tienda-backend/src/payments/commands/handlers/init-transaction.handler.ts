@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { WebpayProvider } from '../../providers/webpay.provider';
+import { ShippingService } from '../../../shipping/shipping.service';
 import { InitTransactionCommand } from '../impl/init-transaction.command';
 
 /**
@@ -17,6 +18,7 @@ export class InitTransactionHandler
   constructor(
     private readonly prisma: PrismaService,
     private readonly webpay: WebpayProvider,
+    private readonly shippingService: ShippingService,
   ) {}
 
   async execute(command: InitTransactionCommand) {
@@ -32,7 +34,20 @@ export class InitTransactionHandler
         if (item.inventoryItemId) {
           const inv = await this.prisma.inventoryItem.findUnique({
             where: { id: item.inventoryItemId },
-            select: { storeId: true, stock: true, reservedStock: true, price: true, product: { select: { name: true } } }
+            select: {
+              storeId: true,
+              stock: true,
+              reservedStock: true,
+              price: true,
+              product: {
+                select: {
+                  name: true,
+                  cardDetail: {
+                    select: { gameId: true },
+                  },
+                },
+              },
+            },
           });
           if (!inv) {
             throw new BadRequestException('Un producto del carrito no existe en la base de datos.');
@@ -42,11 +57,42 @@ export class InitTransactionHandler
              throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
           }
           if (inv.storeId) storeId = inv.storeId;
-          realUnitPrice = Number(inv.price);
           productName = inv.product.name;
+
+          const rawPrice = Number(inv.price);
+          const gameId = inv.product.cardDetail?.gameId;
+
+          if (gameId) {
+            let itemRate = 1000;
+            if (storeId && storeId !== 'admin-store') {
+              const storeRate = await this.prisma.storeGameExchangeRate.findUnique({
+                where: { storeId_gameId: { storeId, gameId } },
+              });
+              if (storeRate) {
+                itemRate = Number(storeRate.rate);
+              } else {
+                const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
+                  where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
+                });
+                if (globalRate) {
+                  itemRate = Number(globalRate.rate);
+                }
+              }
+            } else {
+              const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
+                where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
+              });
+              if (globalRate) {
+                itemRate = Number(globalRate.rate);
+              }
+            }
+            realUnitPrice = Math.round(rawPrice * itemRate);
+          } else {
+            realUnitPrice = Math.round(rawPrice);
+          }
         } else {
-           // Para productos custom o sin inventario directo
-           realUnitPrice = item.unitPrice; 
+          // Para productos custom o sin inventario directo
+          realUnitPrice = Math.round(Number(item.unitPrice));
         }
         return { ...item, storeId, realUnitPrice, productName };
       })
@@ -74,6 +120,26 @@ export class InitTransactionHandler
       throw new BadRequestException('El proveedor de envío es obligatorio para cada tienda.');
     }
 
+    // Obtener cotización dinámica en vivo para calcular el costo de envío exacto
+    let dynamicQuotes: Record<string, any> = {};
+    if (dto.cityCode || dto.city) {
+      try {
+        const quotesResult = await this.shippingService.quoteCartShipping({
+          destinationCommune: dto.cityCode || dto.city,
+          destinationRegion: dto.regionCode,
+          cartItems: itemsWithRealData.map((item) => ({
+            productId: item.productId,
+            storeId: item.storeId,
+            quantity: item.quantity,
+            productName: item.productName,
+          })),
+        });
+        dynamicQuotes = quotesResult.stores || {};
+      } catch (err: any) {
+        this.logger.warn(`No se pudo obtener cotización dinámica en backend: ${err.message}`);
+      }
+    }
+
     // Calcular totales
     let globalSubtotal = 0;
     let totalShippingCost = 0;
@@ -90,12 +156,29 @@ export class InitTransactionHandler
       if (!provider) {
         throw new BadRequestException(`El proveedor de envío seleccionado no es válido.`);
       }
-      const storeShippingCost = Number(provider.price);
+
+      // Si es retiro en tienda, el costo es estrictamente 0
+      let storeShippingCost = 0;
+      if (provider.name === 'RETIRO_TIENDA') {
+        storeShippingCost = 0;
+      } else {
+        // Buscar la opción cotizada dinámicamente para esta tienda
+        const storeQuote = dynamicQuotes[storeId];
+        const matchedOption = storeQuote?.options?.find(
+          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name
+        );
+        if (matchedOption && typeof matchedOption.price === 'number') {
+          storeShippingCost = Math.round(matchedOption.price);
+        } else {
+          storeShippingCost = Number(provider.price);
+        }
+      }
+
       totalShippingCost += storeShippingCost;
 
-      // Calcular subtotal BASE con el PRECIO REAL DE LA BD
+      // Calcular subtotal BASE con el PRECIO REAL DE LA BD en CLP
       const vendorBaseSubtotal = items.reduce(
-        (sum, i) => sum + i.realUnitPrice * i.quantity * exchangeRate,
+        (sum, i) => sum + i.realUnitPrice * i.quantity,
         0,
       );
       
@@ -115,7 +198,7 @@ export class InitTransactionHandler
             productName: item.productName,
             quantity: item.quantity,
             // SaaS Model: El precio unitario guardado en la orden es exactamente el fijado por la tienda (0% markup)
-            unitPrice: item.realUnitPrice * exchangeRate,
+            unitPrice: item.realUnitPrice,
           })),
         },
       });
@@ -147,6 +230,8 @@ export class InitTransactionHandler
         phone: dto.phone,
         address: dto.address,
         city: dto.city,
+        cityCode: dto.cityCode,
+        regionCode: dto.regionCode,
         notes: orderNotes,
         totalAmount: finalChargedAmount,
         currencyCode,

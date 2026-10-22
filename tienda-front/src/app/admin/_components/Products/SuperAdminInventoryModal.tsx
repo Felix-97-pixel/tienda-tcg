@@ -26,7 +26,10 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
 
   const refreshProduct = async () => {
     try {
-      const res = await fetch(`${API_URL}/products/${product?.id}`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/products/${product?.id}`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
       const data = await res.json();
       if (res.ok) setProduct(data);
     } catch (err) {
@@ -91,7 +94,10 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
     try {
       const res = await fetch(`${API_URL}/products/${product.id}/inventory`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-scope": "admin",
+        },
         body: JSON.stringify({ ...newVariation, productId: product.id }),
         credentials: "include",
       });
@@ -117,7 +123,10 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
       }
       const res = await fetch(`${API_URL}/products/inventory/${itemId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-scope": "admin",
+        },
         body: JSON.stringify(payload),
         credentials: "include",
       });
@@ -142,7 +151,11 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
     if (!itemToDelete) return;
 
     try {
-      const res = await fetch(`${API_URL}/products/inventory/${itemToDelete}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`${API_URL}/products/inventory/${itemToDelete}`, {
+        method: "DELETE",
+        headers: { "x-auth-scope": "admin" },
+        credentials: "include",
+      });
       if (res.ok) {
         showToast(t("inventory.successDelete"), "success");
         setItemToDelete(null);

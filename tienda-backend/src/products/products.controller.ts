@@ -291,7 +291,7 @@ export class ProductsController {
 
   @Post(':productId/inventory')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   addInventoryItem(@Req() req: any, @Param('productId') productId: string, @Body() body: any) {
     return this.productsService.addInventoryItem(productId, body, req.user?.userId);
   }

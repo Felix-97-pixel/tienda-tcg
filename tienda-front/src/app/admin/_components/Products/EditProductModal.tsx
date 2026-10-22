@@ -77,7 +77,10 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
     try {
       const res = await fetch(`${API_URL}/products/${item.productId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-scope": "admin",
+        },
         body: JSON.stringify({
           name: form.name,
           description: form.description,

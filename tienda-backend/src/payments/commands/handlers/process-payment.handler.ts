@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { MercadoPagoProvider } from '../../providers/mercadopago.provider';
+import { ShippingService } from '../../../shipping/shipping.service';
 import { ProcessPaymentCommand } from '../impl/process-payment.command';
 
 @CommandHandler(ProcessPaymentCommand)
@@ -11,6 +12,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
   constructor(
     private readonly prisma: PrismaService,
     private readonly mp: MercadoPagoProvider,
+    private readonly shippingService: ShippingService,
   ) { }
 
   async execute(command: ProcessPaymentCommand) {
@@ -26,7 +28,20 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         if (item.inventoryItemId) {
           const inv = await this.prisma.inventoryItem.findUnique({
             where: { id: item.inventoryItemId },
-            select: { storeId: true, stock: true, reservedStock: true, price: true, product: { select: { name: true } } }
+            select: {
+              storeId: true,
+              stock: true,
+              reservedStock: true,
+              price: true,
+              product: {
+                select: {
+                  name: true,
+                  cardDetail: {
+                    select: { gameId: true },
+                  },
+                },
+              },
+            },
           });
           if (!inv) {
             throw new BadRequestException(`Un producto del carrito no existe.`);
@@ -36,10 +51,41 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
           }
           if (inv.storeId) storeId = inv.storeId;
-          realUnitPrice = Number(inv.price);
           productName = inv.product.name;
+
+          const rawPrice = Number(inv.price);
+          const gameId = inv.product.cardDetail?.gameId;
+
+          if (gameId) {
+            let itemRate = 1000;
+            if (storeId && storeId !== 'admin-store') {
+              const storeRate = await this.prisma.storeGameExchangeRate.findUnique({
+                where: { storeId_gameId: { storeId, gameId } },
+              });
+              if (storeRate) {
+                itemRate = Number(storeRate.rate);
+              } else {
+                const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
+                  where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
+                });
+                if (globalRate) {
+                  itemRate = Number(globalRate.rate);
+                }
+              }
+            } else {
+              const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
+                where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
+              });
+              if (globalRate) {
+                itemRate = Number(globalRate.rate);
+              }
+            }
+            realUnitPrice = Math.round(rawPrice * itemRate);
+          } else {
+            realUnitPrice = Math.round(rawPrice);
+          }
         } else {
-          realUnitPrice = Number(item.unitPrice);
+          realUnitPrice = Math.round(Number(item.unitPrice));
         }
 
         if (!storeId) {
@@ -69,6 +115,26 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       throw new BadRequestException('El proveedor de envío es obligatorio para cada tienda.');
     }
 
+    // Obtener cotización dinámica en vivo para calcular el costo de envío exacto
+    let dynamicQuotes: Record<string, any> = {};
+    if (dto.cityCode || dto.city) {
+      try {
+        const quotesResult = await this.shippingService.quoteCartShipping({
+          destinationCommune: dto.cityCode || dto.city,
+          destinationRegion: dto.regionCode,
+          cartItems: itemsWithStoreId.map((item) => ({
+            productId: item.productId,
+            storeId: item.storeId,
+            quantity: item.quantity,
+            productName: item.productName,
+          })),
+        });
+        dynamicQuotes = quotesResult.stores || {};
+      } catch (err: any) {
+        this.logger.warn(`No se pudo obtener cotización dinámica en backend: ${err.message}`);
+      }
+    }
+
     let globalTotal = 0;
     const vendorOrdersData = [];
     const disbursements = [];
@@ -91,7 +157,23 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       if (!provider) {
         throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
       }
-      const storeShippingCost = Number(provider.price);
+
+      // Si es retiro en tienda, el costo es estrictamente 0
+      let storeShippingCost = 0;
+      if (provider.name === 'RETIRO_TIENDA') {
+        storeShippingCost = 0;
+      } else {
+        // Buscar la opción cotizada dinámicamente para esta tienda
+        const storeQuote = dynamicQuotes[storeId];
+        const matchedOption = storeQuote?.options?.find(
+          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name
+        );
+        if (matchedOption && typeof matchedOption.price === 'number') {
+          storeShippingCost = Math.round(matchedOption.price);
+        } else {
+          storeShippingCost = Number(provider.price);
+        }
+      }
 
       const mpUserIdSetting = store.settings.find(s => s.key === 'MP_USER_ID');
       if (!mpUserIdSetting || !mpUserIdSetting.value) {
@@ -99,9 +181,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       }
       const sellerMpUserId = Number(mpUserIdSetting.value);
 
-      // Calcular subtotal BASE con el PRECIO REAL DE LA BD
+      // Calcular subtotal BASE con el PRECIO REAL DE LA BD en CLP
       const vendorBaseSubtotal = items.reduce(
-        (sum, i) => sum + i.realUnitPrice * i.quantity * exchangeRate,
+        (sum, i) => sum + i.realUnitPrice * i.quantity,
         0,
       );
 
@@ -124,7 +206,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             inventoryItemId: item.inventoryItemId,
             productName: item.productName,
             quantity: item.quantity,
-            unitPrice: item.realUnitPrice * exchangeRate,
+            unitPrice: item.realUnitPrice,
           })),
         },
       });
@@ -198,6 +280,8 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         phone: dto.phone,
         address: dto.address,
         city: dto.city,
+        cityCode: dto.cityCode,
+        regionCode: dto.regionCode,
         notes: orderNotes,
         totalAmount: finalChargedAmount,
         currencyCode,

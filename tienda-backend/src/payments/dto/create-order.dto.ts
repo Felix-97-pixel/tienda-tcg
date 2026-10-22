@@ -55,6 +55,14 @@ export class CreateOrderDto {
 
   @IsString()
   @IsOptional()
+  cityCode?: string;
+
+  @IsString()
+  @IsOptional()
+  regionCode?: string;
+
+  @IsString()
+  @IsOptional()
   notes?: string;
 
   @ValidateNested({ each: true })
