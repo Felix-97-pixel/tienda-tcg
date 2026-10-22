@@ -28,19 +28,110 @@ export class GetOrderStatusHandler
     }
 
     const isOwner = Boolean(query.requesterUserId && order.userId === query.requesterUserId);
-    const isAdmin = query.requesterRole === 'ADMIN' || query.requesterRole === 'SUPERADMIN';
+    const isSuperAdmin = query.requesterRole === 'SUPERADMIN';
+    const isAdmin = query.requesterRole === 'ADMIN';
+
+    // Si es ADMIN de tienda, solo mostrar el VendorOrder de su propia tienda
+    let filteredVendorOrders = order.vendorOrders;
+    if (isAdmin && !isSuperAdmin && query.requesterUserId) {
+      const store = await this.prisma.store.findUnique({
+        where: { ownerId: query.requesterUserId },
+        select: { id: true },
+      });
+      if (store) {
+        filteredVendorOrders = order.vendorOrders.filter(
+          (vo) => vo.storeId === store.id,
+        );
+      }
+    }
+
+    // Enriquecer items con imágenes y detalles TCG
+    const allItems = filteredVendorOrders.flatMap((vo) => vo.items);
+    const invIds = [
+      ...new Set(
+        allItems.map((i) => i.inventoryItemId || i.productId).filter(Boolean),
+      ),
+    ] as string[];
+    const prodIds = [
+      ...new Set(allItems.map((i) => i.productId).filter(Boolean)),
+    ] as string[];
+
+    const [inventoryItems, directProducts] = await Promise.all([
+      invIds.length > 0
+        ? this.prisma.inventoryItem.findMany({
+            where: { id: { in: invIds } },
+            include: {
+              product: {
+                include: {
+                  cardDetail: {
+                    include: { gameRel: true },
+                  },
+                },
+              },
+              condition: true,
+              language: true,
+              finish: true,
+            },
+          })
+        : [],
+      prodIds.length > 0
+        ? this.prisma.product.findMany({
+            where: { id: { in: prodIds } },
+            include: {
+              cardDetail: {
+                include: { gameRel: true },
+              },
+            },
+          })
+        : [],
+    ]);
+
+    const invMap = new Map<string, any>();
+    inventoryItems.forEach((ii: any) => invMap.set(ii.id, ii));
+
+    const prodMap = new Map<string, any>();
+    directProducts.forEach((p: any) => prodMap.set(p.id, p));
+
+    const enrichedVendorOrders = filteredVendorOrders.map((vo) => ({
+      ...vo,
+      items: vo.items.map((item) => {
+        const inv =
+          (item.inventoryItemId && invMap.get(item.inventoryItemId)) ||
+          invMap.get(item.productId);
+        const prod = inv?.product || prodMap.get(item.productId);
+
+        return {
+          ...item,
+          imageUrl: prod?.imageUrl || null,
+          expansion: prod?.cardDetail?.expansion || null,
+          rarity: prod?.cardDetail?.rarity || null,
+          collectorNum: prod?.cardDetail?.collectorNum || null,
+          game: prod?.cardDetail?.gameRel?.name || null,
+          condition: inv?.condition?.displayName || inv?.condition?.name || null,
+          language: inv?.language?.name || null,
+          finish: inv?.finish?.name || null,
+        };
+      }),
+    }));
+
+    const resultOrder = {
+      ...order,
+      vendorOrders: enrichedVendorOrders,
+    };
 
     // Si la orden pertenece a un usuario registrado y quien consulta no es el dueño ni admin,
     // ofuscar datos personales sensibles para prevenir fuga de información privada (IDOR)
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && !isAdmin && !isSuperAdmin) {
       return {
-        ...order,
-        email: order.email ? order.email.replace(/(.{2})(.*)(@.*)/, '$1***$3') : order.email,
-        phone: order.phone ? '******' + order.phone.slice(-4) : null,
+        ...resultOrder,
+        email: resultOrder.email
+          ? resultOrder.email.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+          : resultOrder.email,
+        phone: resultOrder.phone ? '******' + resultOrder.phone.slice(-4) : null,
         address: 'Dirección protegida',
       };
     }
 
-    return order;
+    return resultOrder;
   }
 }

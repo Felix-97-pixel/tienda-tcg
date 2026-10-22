@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { API_URL } from "@/utils/api";
 import { VendorOrderData } from "@/types/order";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
+import { IconShieldCheck } from "@/components/ui/Icons";
 
 export interface DispatchModalProps {
   isOpen: boolean;
@@ -86,7 +87,8 @@ export default function DispatchModal({
         {/* Banner Informativo Escrow */}
         <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 space-y-1">
           <p className="font-bold flex items-center gap-1.5">
-            <span>🛡️</span> Protección al Comprador & Liberación de Fondos
+            <IconShieldCheck className="w-4 h-4 text-blue shrink-0" />
+            Protección al Comprador & Liberación de Fondos
           </p>
           <p className="text-[11px] text-blue-300/80 leading-relaxed">
             Al registrar el número de seguimiento oficial, el cliente podrá rastrear su paquete en vivo y el saldo retenido de esta venta se liberará automáticamente a tu saldo disponible para retiro TEF.

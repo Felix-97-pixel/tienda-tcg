@@ -52,9 +52,15 @@ export default function OrderTable({ orders, loading, statusClasses, statusLabel
       key: "total",
       header: t("table.total"),
       cellClassName: "font-black text-white",
-      render: (order) => (
-        `$${parseFloat(order.totalAmount).toLocaleString("es-CL")}`
-      ),
+      render: (order) => {
+        const storeTotal = order.vendorOrders && order.vendorOrders.length > 0
+          ? order.vendorOrders.reduce(
+              (sum, vo) => sum + (parseFloat(vo.subtotal as any) || 0) + (parseFloat(vo.shippingCost as any) || 0),
+              0
+            )
+          : parseFloat(order.totalAmount);
+        return `$${storeTotal.toLocaleString("es-CL")}`;
+      },
     },
     {
       key: "status",

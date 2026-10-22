@@ -8,11 +8,25 @@ import { selectCartItems, selectTotalPrice } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
-import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
+import dynamic from "next/dynamic";
+import { initMercadoPago } from "@mercadopago/sdk-react";
 import { IconShieldCheck, IconAlertTriangle, IconStore } from "@/components/ui/Icons";
 import { API_URL } from "@/utils/api";
 import ChileLocationsSelect from "./ChileLocationsSelect";
 import { calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/utils/paymentFees";
+
+const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-8a4e5363-49ae-4c4e-a06b-9b716642d41a";
+
+const Payment = dynamic(
+  () => import("@mercadopago/sdk-react").then((mod) => mod.Payment),
+  { ssr: false }
+);
+
+if (typeof window !== "undefined" && MP_PUBLIC_KEY) {
+  try {
+    initMercadoPago(MP_PUBLIC_KEY, { locale: "es-CL" });
+  } catch (err) { }
+}
 
 const IconMapPin = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +79,7 @@ const CheckoutWebpay = () => {
   const [shippingProviders, setShippingProviders] = useState<any[]>([]);
   const [selectedProvidersByStore, setSelectedProvidersByStore] = useState<Record<string, any>>({});
   const [storeNames, setStoreNames] = useState<Record<string, string>>({});
-  
+
   // Estados para cotización dinámica oficial de Chilexpress, Starken y Retiro
   const [selectedCommuneCode, setSelectedCommuneCode] = useState<string>("SANTIAGO");
   const [selectedCommuneName, setSelectedCommuneName] = useState<string>("Santiago Centro");
@@ -90,11 +104,14 @@ const CheckoutWebpay = () => {
     return cartItems.map((i) => `${i.id}:${i.quantity}:${i.storeId}`).join("|");
   }, [cartItems]);
 
-  // Inicializar SDK de Mercado Pago únicamente si el usuario selecciona esa pasarela
+  const [isMpReady, setIsMpReady] = useState(false);
+
+  // Inicializar SDK de Mercado Pago
   useEffect(() => {
-    if (selectedGateway === "MERCADOPAGO" && process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY) {
+    if (MP_PUBLIC_KEY) {
       try {
-        initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY, { locale: "es-CL" });
+        initMercadoPago(MP_PUBLIC_KEY, { locale: "es-CL" });
+        setIsMpReady(true);
       } catch (err) {
         console.warn("Mercado Pago init warning:", err);
       }
@@ -269,7 +286,7 @@ const CheckoutWebpay = () => {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // 2. Cargar libreta de direcciones múltiples
     fetch(`${API_URL}/users/me/addresses`, { credentials: "include" })
@@ -282,7 +299,7 @@ const CheckoutWebpay = () => {
           applySavedAddress(defaultAddr);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [isAuthenticated, applySavedAddress, quoteShipping]);
 
 
@@ -345,6 +362,7 @@ const CheckoutWebpay = () => {
         issuer_id: paymentFormData.issuer_id,
         payment_method_id: paymentFormData.payment_method_id,
         installments: paymentFormData.installments,
+        payer: paymentFormData.payer,
       };
 
       const res = await fetch(`${API_URL}/payments/process`, {
@@ -492,6 +510,34 @@ const CheckoutWebpay = () => {
 
   return (
     <div className="bg-[#07090E] min-h-screen text-white pt-24 md:pt-32 pb-24 relative overflow-hidden">
+      {/* ─── Modal Bloqueante de Procesamiento de Pago ─── */}
+      {loading && (
+        <div className="fixed inset-0 z-[9999] bg-[#07090E]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center space-y-5 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-dark via-red to-orange" />
+
+            <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-red/10 animate-ping opacity-30" />
+              <div className="w-14 h-14 rounded-full border-2 border-white/10 border-t-red animate-spin" />
+              <IconShieldCheck className="w-6 h-6 text-red absolute" />
+            </div>
+
+            <div className="space-y-1">
+              <h4 className="text-lg font-black text-white tracking-tight">Procesando Pago Seguro</h4>
+              <p className="text-xs text-gray-400">
+                {selectedGateway === "WEBPAY"
+                  ? "Conectando de forma segura con Transbank..."
+                  : "Autorizando transacción con Mercado Pago..."}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium leading-relaxed">
+              🔒 Por favor, no recargues ni cierres la página mientras validamos tu compra.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Ambient background light */}
       <div className="absolute top-20 left-1/3 w-[600px] h-[350px] bg-red-600/10 blur-[150px] pointer-events-none rounded-full"></div>
 
@@ -499,7 +545,7 @@ const CheckoutWebpay = () => {
       <div className="relative border-b border-white/[0.08] bg-[#0E121B] pb-10 mb-10 overflow-hidden">
         {/* Línea superior con gradiente oficial */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-dark via-red to-orange" />
-        
+
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           {/* Breadcrumb de navegación */}
           <div className="flex items-center gap-2 text-xs text-gray-400 mb-4 font-medium">
@@ -748,11 +794,10 @@ const CheckoutWebpay = () => {
                 {/* Opción 1: Transbank Webpay Plus */}
                 <div
                   onClick={() => setSelectedGateway("WEBPAY")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${
-                    selectedGateway === "WEBPAY"
-                      ? "bg-gradient-to-b from-[#E10E0E]/10 to-transparent border-red-500/80 shadow-lg shadow-red-950/30 ring-1 ring-red-500/30"
-                      : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
-                  }`}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${selectedGateway === "WEBPAY"
+                    ? "bg-gradient-to-b from-[#E10E0E]/10 to-transparent border-red-500/80 shadow-lg shadow-red-950/30 ring-1 ring-red-500/30"
+                    : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
+                    }`}
                 >
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -770,11 +815,10 @@ const CheckoutWebpay = () => {
                         </div>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                          selectedGateway === "WEBPAY"
-                            ? "border-red-500 bg-red-500"
-                            : "border-white/30"
-                        }`}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedGateway === "WEBPAY"
+                          ? "border-red-500 bg-red-500"
+                          : "border-white/30"
+                          }`}
                       >
                         {selectedGateway === "WEBPAY" && (
                           <div className="w-2 h-2 rounded-full bg-white" />
@@ -798,11 +842,10 @@ const CheckoutWebpay = () => {
                 {/* Opción 2: Mercado Pago */}
                 <div
                   onClick={() => setSelectedGateway("MERCADOPAGO")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${
-                    selectedGateway === "MERCADOPAGO"
-                      ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-lg shadow-sky-950/30 ring-1 ring-[#009EE3]/30"
-                      : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
-                  }`}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${selectedGateway === "MERCADOPAGO"
+                    ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-lg shadow-sky-950/30 ring-1 ring-[#009EE3]/30"
+                    : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
+                    }`}
                 >
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -820,11 +863,10 @@ const CheckoutWebpay = () => {
                         </div>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                          selectedGateway === "MERCADOPAGO"
-                            ? "border-[#009EE3] bg-[#009EE3]"
-                            : "border-white/30"
-                        }`}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedGateway === "MERCADOPAGO"
+                          ? "border-[#009EE3] bg-[#009EE3]"
+                          : "border-white/30"
+                          }`}
                       >
                         {selectedGateway === "MERCADOPAGO" && (
                           <div className="w-2 h-2 rounded-full bg-white" />
@@ -904,16 +946,23 @@ const CheckoutWebpay = () => {
                   </div>
 
                   {/* Formulario Brick único montado */}
-                  <div className="rounded-xl overflow-hidden bg-[#07090E] p-4 border border-white/10">
-                    {total > 0 && (
+                  <div className={`rounded-xl overflow-hidden bg-[#07090E] p-4 border border-white/10 relative ${loading ? "pointer-events-none opacity-40" : ""}`}>
+                    {total > 0 && isMpReady ? (
                       <Payment
-                        key={`mp-brick-${Math.round(finalAmount)}`}
+                        key="mp-payment-brick"
                         initialization={mpInitialization}
                         customization={mpCustomization as any}
                         onSubmit={async (param) => {
                           await handlePaymentSubmit(param.formData);
                         }}
+                        onReady={() => console.log("Mercado Pago Brick montado exitosamente")}
+                        onError={(err) => console.error("Error en Mercado Pago Brick:", err)}
                       />
+                    ) : (
+                      <div className="flex items-center justify-center py-8 text-xs text-gray-400 gap-2">
+                        <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                        <span>Cargando pasarela de Mercado Pago...</span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1035,67 +1084,66 @@ const CheckoutWebpay = () => {
                           </div>
                         ) : (
                           (quotedStores[sId]?.options || shippingProviders).map((opt: any) => {
-                          const isSelected =
-                            selectedProvidersByStore[sId]?.id === opt.id ||
-                            selectedProvidersByStore[sId]?.provider === opt.provider;
-                          const carrierName = opt.provider || opt.name;
-                          const optPrice = Number(opt.price || 0);
+                            const isSelected =
+                              selectedProvidersByStore[sId]?.id === opt.id ||
+                              selectedProvidersByStore[sId]?.provider === opt.provider;
+                            const carrierName = opt.provider || opt.name;
+                            const optPrice = Number(opt.price || 0);
 
-                          return (
-                            <label
-                              key={opt.id || opt.provider}
-                              className={`flex flex-col p-3 rounded-xl border cursor-pointer select-none transition-all ${
-                                isSelected
+                            return (
+                              <label
+                                key={opt.id || opt.provider}
+                                className={`flex flex-col p-3 rounded-xl border cursor-pointer select-none transition-all ${isSelected
                                   ? "bg-white/[0.05] border-red-500/60 shadow-md shadow-red/10"
                                   : "bg-black/20 border-white/5 hover:border-white/15"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2.5">
-                                  <input
-                                    type="radio"
-                                    name={`shipping_${sId}`}
-                                    value={carrierName}
-                                    checked={isSelected}
-                                    onChange={() =>
-                                      setSelectedProvidersByStore((prev) => ({ ...prev, [sId]: opt }))
-                                    }
-                                    className="w-3.5 h-3.5 text-red-500 border-white/20 focus:ring-red-500/30 cursor-pointer"
-                                  />
-                                  <ShippingBadge name={carrierName} size="sm" />
-                                  <div className="flex flex-col">
-                                    <span className="text-xs font-bold text-white leading-tight">
-                                      {opt.name}
-                                    </span>
-                                    {opt.estimatedDays && (
-                                      <span className="text-[10px] text-emerald-400 font-medium">
-                                        ⏱ {opt.estimatedDays}
+                                  }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2.5">
+                                    <input
+                                      type="radio"
+                                      name={`shipping_${sId}`}
+                                      value={carrierName}
+                                      checked={isSelected}
+                                      onChange={() =>
+                                        setSelectedProvidersByStore((prev) => ({ ...prev, [sId]: opt }))
+                                      }
+                                      className="w-3.5 h-3.5 text-red-500 border-white/20 focus:ring-red-500/30 cursor-pointer"
+                                    />
+                                    <ShippingBadge name={carrierName} size="sm" />
+                                    <div className="flex flex-col">
+                                      <span className="text-xs font-bold text-white leading-tight">
+                                        {opt.name}
+                                      </span>
+                                      {opt.estimatedDays && (
+                                        <span className="text-[10px] text-emerald-400 font-medium">
+                                          ⏱ {opt.estimatedDays}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="font-mono font-bold text-xs text-right">
+                                    {optPrice === 0 ? (
+                                      <span className="text-emerald-400 font-black">$0 (Gratis)</span>
+                                    ) : (
+                                      <span className="text-white">
+                                        ${Math.round(optPrice).toLocaleString("es-CL")} CLP
                                       </span>
                                     )}
                                   </div>
                                 </div>
-                                <div className="font-mono font-bold text-xs text-right">
-                                  {optPrice === 0 ? (
-                                    <span className="text-emerald-400 font-black">$0 (Gratis)</span>
-                                  ) : (
-                                    <span className="text-white">
-                                      ${Math.round(optPrice).toLocaleString("es-CL")} CLP
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
 
-                              {/* Si es Retiro en Tienda, mostrar dirección y horarios */}
-                              {opt.provider === "RETIRO_TIENDA" && opt.address && (
-                                <div className="mt-2 pt-2 border-t border-white/5 text-[11px] text-white/50 pl-6 space-y-0.5">
-                                  <p className="text-white/70">📍 {opt.address}</p>
-                                  {opt.schedule && <p className="text-[10px] text-white/40">⏰ {opt.schedule}</p>}
-                                </div>
-                              )}
-                            </label>
-                          );
-                        })
-                      )}
+                                {/* Si es Retiro en Tienda, mostrar dirección y horarios */}
+                                {opt.provider === "RETIRO_TIENDA" && opt.address && (
+                                  <div className="mt-2 pt-2 border-t border-white/5 text-[11px] text-white/50 pl-6 space-y-0.5">
+                                    <p className="text-white/70">📍 {opt.address}</p>
+                                    {opt.schedule && <p className="text-[10px] text-white/40">⏰ {opt.schedule}</p>}
+                                  </div>
+                                )}
+                              </label>
+                            );
+                          })
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1124,11 +1172,10 @@ const CheckoutWebpay = () => {
                         <span className="text-gray-300 font-semibold">
                           {selectedGateway === "WEBPAY" ? "Tarifa Webpay Plus" : "Tarifa Mercado Pago"}
                         </span>
-                        <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
-                          selectedGateway === "WEBPAY"
-                            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                            : "bg-sky-500/10 border border-sky-500/20 text-sky-400"
-                        }`}>
+                        <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${selectedGateway === "WEBPAY"
+                          ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                          : "bg-sky-500/10 border border-sky-500/20 text-sky-400"
+                          }`}>
                           {gatewayConfig.percentageText}
                         </span>
                       </div>

@@ -102,4 +102,7 @@ export class CreateOrderDto {
   @IsNumber()
   @IsOptional()
   installments?: number;
+
+  @IsOptional()
+  payer?: any;
 }

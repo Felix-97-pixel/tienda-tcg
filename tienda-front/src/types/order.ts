@@ -3,6 +3,16 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   unitPrice: string;
+  productId?: string;
+  inventoryItemId?: string | null;
+  imageUrl?: string | null;
+  expansion?: string | null;
+  rarity?: string | null;
+  collectorNum?: string | null;
+  game?: string | null;
+  condition?: string | null;
+  language?: string | null;
+  finish?: string | null;
 }
 
 export interface VendorOrderData {

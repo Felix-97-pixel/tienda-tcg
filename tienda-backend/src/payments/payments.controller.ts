@@ -137,8 +137,11 @@ export class PaymentsController {
   listOrders(
     @Query('page') page = '1',
     @Query('limit') limit = '20',
+    @Req() req: Request & { user?: { userId: string; role?: string } },
   ) {
-    return this.queryBus.execute(new ListOrdersQuery(+page, +limit));
+    return this.queryBus.execute(
+      new ListOrdersQuery(+page, +limit, req.user?.userId, req.user?.role),
+    );
   }
 
   /**

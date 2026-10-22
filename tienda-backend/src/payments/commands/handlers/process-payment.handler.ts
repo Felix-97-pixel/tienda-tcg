@@ -137,7 +137,6 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
 
     let globalTotal = 0;
     const vendorOrdersData = [];
-    const disbursements = [];
 
     for (const [storeId, items] of Object.entries(vendorGroups)) {
       const store = await this.prisma.store.findUnique({
@@ -175,12 +174,6 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         }
       }
 
-      const mpUserIdSetting = store.settings.find(s => s.key === 'MP_USER_ID');
-      if (!mpUserIdSetting || !mpUserIdSetting.value) {
-        throw new BadRequestException(`La tienda ${store.name} no ha configurado Mercado Pago.`);
-      }
-      const sellerMpUserId = Number(mpUserIdSetting.value);
-
       // Calcular subtotal BASE con el PRECIO REAL DE LA BD en CLP
       const vendorBaseSubtotal = items.reduce(
         (sum, i) => sum + i.realUnitPrice * i.quantity,
@@ -210,17 +203,6 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
           })),
         },
       });
-
-      // Lo que recibe el vendedor directo a su MP (100% del total)
-      const sellerReceives = vendorTotal;
-
-      disbursements.push({
-        collector_id: sellerMpUserId,
-        amount: Math.round(sellerReceives),
-        external_reference: `Store: ${storeId}`,
-        money_release_days: 0,
-        money_release_rule: 'immediate',
-      });
     }
 
     // 3.1 SaaS Model: Traspaso de la tarifa de procesamiento de pasarela al cliente (Mercado Pago: 3.19% + IVA ≈ 3.79%)
@@ -231,32 +213,42 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
 
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
 
-    // 4. Ejecutar la llamada a Mercado Pago
+    // 4. Ejecutar la llamada a Mercado Pago (Cuenta central en Custodia / Escrow)
     let paymentResponse;
     try {
+      const mpPayer: any = {
+        email: dto.payer?.email || dto.email,
+      };
+
+      if (dto.payer?.identification?.number) {
+        mpPayer.identification = {
+          type: dto.payer.identification.type || 'RUT',
+          number: dto.payer.identification.number,
+        };
+      }
+
+      if (dto.payer?.first_name || dto.name) {
+        mpPayer.first_name = dto.payer?.first_name || dto.name.split(' ')[0] || 'Comprador';
+        mpPayer.last_name = dto.payer?.last_name || dto.name.split(' ').slice(1).join(' ') || 'Prueba';
+      }
+
       const payload: any = {
-        payments: [
-          {
-            payment_method_id: dto.payment_method_id,
-            payment_type_id: 'credit_card', // Usually MP auto-detects or accepts this for cards
-            token: dto.token,
-            transaction_amount: Math.round(finalChargedAmount),
-            installments: dto.installments,
-            description: `Compra E-commerce - ${buyOrder}`,
-            issuer_id: dto.issuer_id,
-          }
-        ],
-        payer: {
-          email: dto.email,
-        },
-        disbursements: disbursements,
+        payment_method_id: dto.payment_method_id,
+        token: dto.token,
+        transaction_amount: Math.round(finalChargedAmount),
+        installments: dto.installments ? Number(dto.installments) : 1,
+        description: `Compra TapTrade - ${buyOrder}`,
+        issuer_id: dto.issuer_id,
+        payer: mpPayer,
         external_reference: buyOrder,
       };
 
-      paymentResponse = await this.mp.advancedPayment.create({
+      this.logger.log(`Iniciando cobro central Mercado Pago: monto=${payload.transaction_amount}, email=${mpPayer.email}`);
+      paymentResponse = await this.mp.payment.create({
         body: payload,
       });
 
+      this.logger.log(`Respuesta Mercado Pago: status=${paymentResponse.status}, detail=${paymentResponse.status_detail}, id=${paymentResponse.id}`);
     } catch (error: any) {
       this.logger.error('Error procesando pago con Mercado Pago', error);
       const mpMessage = error.response?.message || error.message || 'Error desconocido';
@@ -339,7 +331,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
               type: 'SALE',
               paymentMethod: 'MERCADOPAGO',
               isWithdrawable: false,
-              reference: `Order: ${vendorOrder.id} (MP Split - 0% Commission)`,
+              reference: `Order: ${vendorOrder.id} (Custodia - Pendiente de Despacho)`,
             },
           });
         }
