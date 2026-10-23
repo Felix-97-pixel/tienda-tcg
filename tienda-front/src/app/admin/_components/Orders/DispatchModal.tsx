@@ -1,15 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { API_URL } from "@/utils/api";
 import { VendorOrderData } from "@/types/order";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
+import CarrierTimeline from "./CarrierTimeline";
 import {
   IconShieldCheck,
   IconLock,
   IconBox,
   IconCheckCircle,
+  IconAlertTriangle,
+  IconLoader,
+  IconExternalLink,
+  IconSearch,
 } from "@/components/ui/Icons";
 
 export interface DispatchModalProps {
@@ -18,6 +23,24 @@ export interface DispatchModalProps {
   vendorOrder: VendorOrderData | null;
   orderBuyOrder: string;
   onSuccess: () => void;
+}
+
+interface TrackingValidation {
+  valid: boolean;
+  courier: string;
+  trackingNumber: string;
+  liveConfirmed?: boolean;
+  status?: string;
+  destination?: string;
+  service?: string;
+  carrierDate?: string;
+  trackingUrl?: string;
+  message?: string;
+  events?: Array<{
+    date: string;
+    description: string;
+    location?: string;
+  }>;
 }
 
 export default function DispatchModal({
@@ -30,6 +53,11 @@ export default function DispatchModal({
   const [trackingNumber, setTrackingNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Estados de validación en tiempo real con la API del courier
+  const [validating, setValidating] = useState(false);
+  const [validation, setValidation] = useState<TrackingValidation | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   if (!isOpen || !vendorOrder) return null;
 
@@ -59,9 +87,9 @@ export default function DispatchModal({
         key: "CHILEXPRESS",
         name: "Chilexpress",
         badgeName: "chilexpress",
-        placeholder: "Ej: 99281726481",
+        placeholder: "Ej: 713152905010",
         helperText:
-          "Ingresa el número de orden de transporte o guía de Chilexpress para que el cliente rastree su paquete.",
+          "Ingresa el número de orden de transporte (OT de 10 a 12 dígitos) emitida por Chilexpress.",
       };
     }
     if (rawCourier.includes("BLUE")) {
@@ -91,7 +119,7 @@ export default function DispatchModal({
       badgeName: "starken",
       placeholder: "Ej: 2981726481",
       helperText:
-        "Ingresa la orden de flete o seguimiento oficial de Starken para que el cliente rastree su paquete.",
+        "Ingresa la orden de flete de Starken (8 a 11 dígitos numéricos) para verificar el envío.",
     };
   };
 
@@ -103,6 +131,97 @@ export default function DispatchModal({
       ? "Gratis ($0)"
       : `$${shippingCostNum.toLocaleString("es-CL")}`;
 
+  // Función para consultar a la API de validación
+  const runValidation = async (code: string) => {
+    const clean = code.replace(/[\s-]/g, "").trim();
+    if (!clean || isLocalPickup) {
+      setValidation(null);
+      setValidating(false);
+      return;
+    }
+
+    if (clean.length < 6) {
+      setValidation(null);
+      setValidating(false);
+      return;
+    }
+
+    setValidating(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `${API_URL}/shipping/validate-tracking?courier=${encodeURIComponent(
+          courierMeta.key
+        )}&trackingNumber=${encodeURIComponent(clean)}&vendorOrderId=${encodeURIComponent(
+          vendorOrder.id
+        )}`,
+        {
+          headers: {
+            "x-auth-scope": "admin",
+          },
+          credentials: "include",
+        }
+      );
+
+      if (res.ok) {
+        const data: TrackingValidation = await res.json();
+        setValidation(data);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setValidation({
+          valid: false,
+          courier: courierMeta.key,
+          trackingNumber: clean,
+          message: errData.message || "No fue posible validar la orden de transporte.",
+        });
+      }
+    } catch {
+      // Fallback suave
+      setValidation({
+        valid: true,
+        courier: courierMeta.key,
+        trackingNumber: clean,
+        liveConfirmed: false,
+        status: "Formato verificado",
+        message: "No se pudo contactar al servicio de courier en este momento, pero el formato es aceptado.",
+      });
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  // Debounce automático al tipear
+  useEffect(() => {
+    if (isLocalPickup) return;
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    const clean = trackingNumber.replace(/[\s-]/g, "").trim();
+    if (!clean) {
+      setValidation(null);
+      setValidating(false);
+      return;
+    }
+
+    // Si tiene al menos 8 dígitos, consultar automáticamente tras 500ms
+    if (clean.length >= 8) {
+      debounceRef.current = setTimeout(() => {
+        runValidation(clean);
+      }, 500);
+    } else {
+      setValidation(null);
+    }
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [trackingNumber]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -110,6 +229,12 @@ export default function DispatchModal({
     const cleanTracking = trackingNumber.trim();
     if (!cleanTracking && !isLocalPickup) {
       setError(`Por favor ingresa el número de seguimiento oficial de ${courierMeta.name}.`);
+      return;
+    }
+
+    // Si la validación retornó inválido, impedir el despacho
+    if (!isLocalPickup && validation && !validation.valid) {
+      setError(validation.message || "El número de transporte no es válido según los registros del courier.");
       return;
     }
 
@@ -125,6 +250,7 @@ export default function DispatchModal({
         body: JSON.stringify({
           courier: courierMeta.key,
           trackingNumber: isLocalPickup && !cleanTracking ? "RETIRO-LOCAL" : cleanTracking,
+          trackingUrl: validation?.trackingUrl,
         }),
       });
 
@@ -142,6 +268,11 @@ export default function DispatchModal({
     }
   };
 
+  const isSubmitDisabled =
+    loading ||
+    validating ||
+    (!isLocalPickup && (!trackingNumber.trim() || (validation !== null && !validation.valid)));
+
   return (
     <Modal
       isOpen={isOpen}
@@ -151,7 +282,7 @@ export default function DispatchModal({
           ? `Confirmar Entrega en Local #${orderBuyOrder}`
           : `Despachar Pedido #${orderBuyOrder}`
       }
-      maxWidth="md"
+      maxWidth={validation?.events && validation.events.length > 0 ? "lg" : "md"}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Banner Informativo Escrow */}
@@ -163,7 +294,7 @@ export default function DispatchModal({
           <p className="text-[11px] text-blue-300/80 leading-relaxed">
             {isLocalPickup
               ? "Al confirmar la entrega del pedido en tu local, la venta se completará de forma segura y el saldo retenido se liberará automáticamente a tu saldo disponible para retiro TEF."
-              : "Al registrar el número de seguimiento oficial, el cliente podrá rastrear su paquete en tiempo real y el saldo retenido de esta venta se liberará automáticamente a tu saldo disponible para retiro TEF."}
+              : "Validamos automáticamente la orden de transporte con los servidores oficiales del courier para proteger a ambas partes y liberar tus fondos con total seguridad."}
           </p>
         </div>
 
@@ -219,35 +350,155 @@ export default function DispatchModal({
         </div>
 
         {/* Input Número de Seguimiento o Comprobante */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="trackingNumber"
-            className="block text-xs font-bold uppercase tracking-wider text-gray-300"
-          >
-            {isLocalPickup
-              ? "Comprobante o Código de Retiro en Local (Opcional)"
-              : `N° de Orden de Transporte / Seguimiento ${courierMeta.name}`}
-          </label>
-          <input
-            id="trackingNumber"
-            type="text"
-            value={trackingNumber}
-            onChange={(e) => setTrackingNumber(e.target.value)}
-            placeholder={courierMeta.placeholder}
-            className="w-full rounded-xl border border-white/10 bg-[#07090E] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 font-mono"
-            required={!isLocalPickup}
-          />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label
+              htmlFor="trackingNumber"
+              className="block text-xs font-bold uppercase tracking-wider text-gray-300"
+            >
+              {isLocalPickup
+                ? "Comprobante o Código de Retiro en Local (Opcional)"
+                : `N° de Orden de Transporte / Seguimiento ${courierMeta.name}`}
+            </label>
+            {!isLocalPickup && (
+              <span className="text-[10px] text-gray-400 font-medium">
+                Validación en vivo con API oficial
+              </span>
+            )}
+          </div>
+
+          <div className="relative flex items-center">
+            <input
+              id="trackingNumber"
+              type="text"
+              value={trackingNumber}
+              onChange={(e) => setTrackingNumber(e.target.value)}
+              placeholder={courierMeta.placeholder}
+              className={`w-full rounded-xl border bg-[#07090E] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all font-mono pr-28 ${
+                validation?.valid
+                  ? "border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  : validation && !validation.valid
+                  ? "border-red-500/60 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                  : "border-white/10 focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20"
+              }`}
+              required={!isLocalPickup}
+            />
+
+            {!isLocalPickup && (
+              <div className="absolute right-2 flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => runValidation(trackingNumber)}
+                  disabled={validating || !trackingNumber.trim()}
+                  className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 disabled:opacity-40 text-xs font-semibold text-gray-200 transition-colors flex items-center gap-1 border border-white/10"
+                >
+                  {validating ? (
+                    <>
+                      <IconLoader className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Validando</span>
+                    </>
+                  ) : (
+                    <>
+                      <IconSearch className="w-3.5 h-3.5 text-gray-400" />
+                      <span>Verificar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Feedback de validación en tiempo real */}
+          {validating && (
+            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center gap-2.5 text-xs text-blue-300 animate-pulse">
+              <IconLoader className="w-4 h-4 shrink-0 text-blue-400" />
+              <span>Consultando registros oficiales en los servidores de {courierMeta.name}...</span>
+            </div>
+          )}
+
+          {!validating && validation && validation.valid && (
+            validation.events && validation.events.length > 0 ? (
+              <CarrierTimeline
+                courierName={courierMeta.name}
+                trackingNumber={validation.trackingNumber || trackingNumber}
+                trackingUrl={validation.trackingUrl}
+                status={validation.status}
+                destination={validation.destination}
+                service={validation.service}
+                events={validation.events}
+              />
+            ) : (
+              <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-2 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                    <IconCheckCircle className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <span>Orden de Transporte Confirmada en {courierMeta.name}</span>
+                  </span>
+                  {validation.liveConfirmed && (
+                    <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      En Línea
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1 border-t border-emerald-500/15">
+                  <div>
+                    <span className="text-gray-400 block">Estado actual:</span>
+                    <span className="font-semibold text-white">{validation.status}</span>
+                  </div>
+                  {validation.destination && (
+                    <div>
+                      <span className="text-gray-400 block">Destino / Cobertura:</span>
+                      <span className="font-semibold text-white">{validation.destination}</span>
+                    </div>
+                  )}
+                </div>
+
+                {validation.trackingUrl && (
+                  <div className="pt-1 flex items-center justify-between text-[11px]">
+                    <span className="text-gray-400">Verificación de trayecto:</span>
+                    <a
+                      href={validation.trackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold underline transition-colors"
+                    >
+                      <span>Rastrear en {courierMeta.name}</span>
+                      <IconExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            )
+          )}
+
+          {!validating && validation && !validation.valid && (
+            <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 space-y-1.5 text-xs text-red-300">
+              <div className="font-bold flex items-center gap-1.5 text-red-400">
+                <IconAlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
+                <span>Orden de Transporte No Válida</span>
+              </div>
+              <p className="text-[11px] text-red-300/90 leading-relaxed">
+                {validation.message}
+              </p>
+              <p className="text-[10px] text-gray-400 pt-1 border-t border-red-500/20">
+                Para prevenir fraudes o errores de digitación, debes ingresar un número de seguimiento real emitido por el courier acordado.
+              </p>
+            </div>
+          )}
+
           <p className="text-[10px] text-gray-500">
             {isLocalPickup
               ? "Si el cliente retiró presencialmente, puedes dejarlo vacío (se registrará RETIRO-LOCAL) o ingresar el número de boleta/comprobante."
-              : `Este número se vinculará directamente a la página oficial de rastreo de ${courierMeta.name} para que el comprador verifique el trayecto.`}
+              : `Este número se validará automáticamente y se vinculará directamente a la página oficial de rastreo de ${courierMeta.name}.`}
           </p>
         </div>
 
-        {/* Error message */}
+        {/* Error general del submit */}
         {error && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium">
-            {error}
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium flex items-center gap-2">
+            <IconAlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -264,8 +515,12 @@ export default function DispatchModal({
           <Button
             type="submit"
             variant="primary"
-            disabled={loading}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5"
+            disabled={isSubmitDisabled}
+            className={`font-bold flex items-center gap-1.5 ${
+              isSubmitDisabled
+                ? "bg-gray-700 text-gray-400 cursor-not-allowed opacity-60"
+                : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/40"
+            }`}
           >
             {isLocalPickup ? (
               <>
@@ -274,8 +529,18 @@ export default function DispatchModal({
               </>
             ) : (
               <>
-                <IconBox className="w-4 h-4 shrink-0" />
-                <span>{loading ? "Procesando..." : "Confirmar Despacho & Liberar Fondos"}</span>
+                {loading ? (
+                  <IconLoader className="w-4 h-4 shrink-0" />
+                ) : (
+                  <IconBox className="w-4 h-4 shrink-0" />
+                )}
+                <span>
+                  {loading
+                    ? "Procesando..."
+                    : validating
+                    ? "Validando OT..."
+                    : "Confirmar Despacho & Liberar Fondos"}
+                </span>
               </>
             )}
           </Button>
@@ -284,3 +549,4 @@ export default function DispatchModal({
     </Modal>
   );
 }
+

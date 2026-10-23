@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { ShippingService } from '../../../shipping/shipping.service';
 import { DispatchVendorOrderCommand } from '../impl/dispatch-vendor-order.command';
 
 @Injectable()
@@ -13,7 +14,10 @@ import { DispatchVendorOrderCommand } from '../impl/dispatch-vendor-order.comman
 export class DispatchVendorOrderHandler
   implements ICommandHandler<DispatchVendorOrderCommand>
 {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly shippingService: ShippingService,
+  ) {}
 
   async execute(command: DispatchVendorOrderCommand) {
     const { vendorOrderId, dto, userId } = command;
@@ -72,13 +76,20 @@ export class DispatchVendorOrderHandler
     const isLocalPickup = officialCourier.includes('RETIRO');
     const cleanTracking = dto.trackingNumber?.trim() || (isLocalPickup ? 'RETIRO-LOCAL' : '');
 
-    if (!cleanTracking && !isLocalPickup) {
+    // 6. Validación de Seguimiento Oficial y Prevención de Fraude
+    const validation = await this.shippingService.validateTracking(
+      officialCourier,
+      cleanTracking,
+      vendorOrderId,
+    );
+
+    if (!validation.valid) {
       throw new BadRequestException(
-        `Debes ingresar el número de seguimiento oficial para despachos mediante ${officialCourier}.`,
+        validation.message || `El número de seguimiento no es válido para ${officialCourier}.`,
       );
     }
 
-    let generatedTrackingUrl = dto.trackingUrl?.trim();
+    let generatedTrackingUrl = dto.trackingUrl?.trim() || validation.trackingUrl;
 
     if (!generatedTrackingUrl && !isLocalPickup) {
       if (officialCourier.includes('STARKEN')) {

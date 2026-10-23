@@ -3,9 +3,11 @@ import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { API_URL } from "@/utils/api";
 import { Order, VendorOrderData, OrderItem } from "@/types/order";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import DispatchModal from "./DispatchModal";
+import CarrierTimeline from "./CarrierTimeline";
 
 import {
   IconCheckCircle,
@@ -17,6 +19,10 @@ import {
   IconCard,
   IconExternalLink,
   IconX,
+  IconLoader,
+  IconChevronDown,
+  IconChevronUp,
+  IconTruck,
 } from "@/components/ui/Icons";
 
 export interface OrderDetailsModalProps {
@@ -43,6 +49,44 @@ export default function OrderDetailsModal({
   // Estado de carta activa para visualización: por hover o por click/pin
   const [hoveredCard, setHoveredCard] = useState<OrderItem | null>(null);
   const [pinnedCard, setPinnedCard] = useState<OrderItem | null>(null);
+
+  // Estado de seguimiento de encomienda en vivo
+  const [trackingDataMap, setTrackingDataMap] = useState<Record<string, any>>({});
+  const [loadingTrackingId, setLoadingTrackingId] = useState<string | null>(null);
+
+  const handleToggleTracking = async (voId: string, courier: string, trackingNum: string) => {
+    if (trackingDataMap[voId]) {
+      setTrackingDataMap((prev) => {
+        const next = { ...prev };
+        delete next[voId];
+        return next;
+      });
+      return;
+    }
+
+    setLoadingTrackingId(voId);
+    try {
+      const res = await fetch(
+        `${API_URL}/shipping/validate-tracking?courier=${encodeURIComponent(
+          courier
+        )}&trackingNumber=${encodeURIComponent(trackingNum)}&vendorOrderId=${encodeURIComponent(
+          voId
+        )}`,
+        {
+          headers: { "x-auth-scope": "admin" },
+          credentials: "include",
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setTrackingDataMap((prev) => ({ ...prev, [voId]: data }));
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoadingTrackingId(null);
+    }
+  };
 
   if (!isOpen || !order) return null;
 
@@ -221,16 +265,64 @@ export default function OrderDetailsModal({
                             </p>
                           )}
                         </div>
-                        {vo.trackingUrl && !isPickup && (
-                          <a
-                            href={vo.trackingUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm"
-                          >
-                            <span>Rastrear Envío Oficial</span>
-                            <IconExternalLink className="w-3 h-3 shrink-0" />
-                          </a>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {!isPickup && vo.trackingNumber && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleToggleTracking(
+                                  vo.id,
+                                  vo.shippingCourier || "STARKEN",
+                                  vo.trackingNumber || ""
+                                )
+                              }
+                              disabled={loadingTrackingId === vo.id}
+                              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all flex items-center gap-1.5 border border-white/15 cursor-pointer"
+                            >
+                              {loadingTrackingId === vo.id ? (
+                                <>
+                                  <IconLoader className="w-3.5 h-3.5 text-blue-400" />
+                                  <span>Cargando...</span>
+                                </>
+                              ) : trackingDataMap[vo.id] ? (
+                                <>
+                                  <IconChevronUp className="w-3.5 h-3.5" />
+                                  <span>Ocultar Línea de Tiempo</span>
+                                </>
+                              ) : (
+                                <>
+                                  <IconTruck className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>Ver Línea de Tiempo en Vivo</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+
+                          {vo.trackingUrl && !isPickup && (
+                            <a
+                              href={vo.trackingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm"
+                            >
+                              <span>Rastrear en Web</span>
+                              <IconExternalLink className="w-3 h-3 shrink-0" />
+                            </a>
+                          )}
+                        </div>
+
+                        {trackingDataMap[vo.id] && (
+                          <div className="w-full mt-3 pt-3 border-t border-emerald-500/20">
+                            <CarrierTimeline
+                              courierName={vo.shippingCourier || "Chilexpress"}
+                              trackingNumber={vo.trackingNumber || ""}
+                              trackingUrl={vo.trackingUrl || trackingDataMap[vo.id]?.trackingUrl}
+                              status={trackingDataMap[vo.id]?.status}
+                              destination={trackingDataMap[vo.id]?.destination}
+                              service={trackingDataMap[vo.id]?.service}
+                              events={trackingDataMap[vo.id]?.events}
+                            />
+                          </div>
                         )}
                       </div>
                     ) : (

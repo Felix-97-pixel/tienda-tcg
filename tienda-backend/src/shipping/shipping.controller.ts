@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards, Req } from '@nestjs/common';
 import { ShippingService } from './shipping.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -9,6 +9,20 @@ import { QuoteCartDto, UpdateStoreShippingDto } from './dto/quote-shipping.dto';
 @Controller('shipping')
 export class ShippingController {
   constructor(private readonly shippingService: ShippingService) {}
+
+  /**
+   * GET /api/v1/shipping/validate-tracking
+   * Valida en tiempo real si una orden de transporte (OT) o número de seguimiento es real (Anti-Fraude)
+   * Accesible tanto para vendedores al despachar como para compradores consultando su paquete
+   */
+  @Get('validate-tracking')
+  async validateTracking(
+    @Query('courier') courier: string,
+    @Query('trackingNumber') trackingNumber: string,
+    @Query('vendorOrderId') vendorOrderId?: string,
+  ) {
+    return this.shippingService.validateTracking(courier, trackingNumber, vendorOrderId);
+  }
 
   /**
    * GET /api/v1/shipping/locations
