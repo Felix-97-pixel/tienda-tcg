@@ -101,13 +101,134 @@ export default function CarrierTimeline({
   };
 
   if (!events || events.length === 0) {
+    const isStarken = courierName.toUpperCase().includes("STARKEN");
     return (
-      <div className={`p-4 rounded-xl bg-white text-gray-900 border border-gray-200 shadow-md ${className}`}>
-        <div className="flex items-center gap-2 text-xs">
-          <IconTruck className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>
-            {courierName} N° {trackingNumber}: {status || "Orden verificada"}
-          </span>
+      <div
+        className={`rounded-2xl transition-colors shadow-2xl relative overflow-hidden ${
+          isDarkMode
+            ? "bg-[#0A0C10] text-white border border-white/10 p-5 sm:p-6"
+            : "bg-white text-black border border-gray-200 p-6 sm:p-8"
+        } ${className}`}
+      >
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b ${
+            isDarkMode ? "border-white/10" : "border-gray-200"
+          }`}
+        >
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-xs uppercase tracking-wider font-extrabold ${
+                  isDarkMode ? "text-white" : "text-black"
+                }`}
+              >
+                {courierName}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                  isDarkMode
+                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                    : "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                }`}
+              >
+                <IconShieldCheck className="w-3 h-3 shrink-0" />
+                <span>Orden Registrada</span>
+              </span>
+            </div>
+            <p
+              className={`text-xs font-mono ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
+              N° OT:{" "}
+              <span
+                className={`font-bold ${isDarkMode ? "text-white" : "text-black"}`}
+              >
+                {trackingNumber}
+              </span>
+              {service && (
+                <span
+                  className={`ml-2 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  · {service}
+                </span>
+              )}
+            </p>
+          </div>
+
+          {destination && (
+            <div className="text-right">
+              <span
+                className={`text-[10px] uppercase tracking-wider block ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                Destino
+              </span>
+              <span
+                className={`text-xs font-bold flex items-center justify-end gap-1 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                <IconMapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <span>{destination}</span>
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Barra de progreso visual informativa */}
+        <div className="py-2 space-y-3">
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="space-y-1">
+              <div className="h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-[10px] font-bold text-emerald-400 block">1. Despachado</span>
+            </div>
+            <div className="space-y-1">
+              <div className="h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-400 block">2. En Tránsito</span>
+            </div>
+            <div className="space-y-1">
+              <div className={`h-1.5 rounded-full ${isDarkMode ? "bg-white/15" : "bg-gray-200"}`} />
+              <span
+                className={`text-[10px] font-medium block ${
+                  isDarkMode ? "text-gray-500" : "text-gray-400"
+                }`}
+              >
+                3. Entrega
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div
+              className={`flex items-center gap-2 text-xs ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              <IconTruck className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span>
+                Estado:{" "}
+                <strong className={isDarkMode ? "text-white" : "text-black"}>
+                  {status || "En tránsito hacia destino"}
+                </strong>
+              </span>
+            </div>
+
+            {trackingUrl && (
+              <a
+                href={trackingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition-all shadow-md cursor-pointer"
+              >
+                <span>Consultar en Portal {isStarken ? "Starken" : courierName}</span>
+                <IconExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     );

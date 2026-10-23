@@ -41,6 +41,7 @@ export interface TrackingValidationResult {
     date: string;
     description: string;
     location?: string;
+    detail?: string;
   }>;
 }
 
@@ -691,6 +692,113 @@ export class ShippingService implements OnModuleInit {
     }
   }
 
+  private async getStarkenTrackingData(cleanTracking: string): Promise<{
+    status?: string;
+    destination?: string;
+    service?: string;
+    events?: Array<{ date: string; description: string; location?: string; detail?: string }>;
+  } | null> {
+    const isProd = process.env.STARKEN_ENV === 'production';
+    const apiUrl = process.env.STARKEN_TRACKING_URL || (isProd
+      ? 'https://restservices.starken.cl/apiprd/starkenservices/rest/getDetalleSeguimientoNuevo'
+      : 'https://apiqa.starken.cl/etrackingRest/resumenTrackingCargaRedestinacion');
+
+    const apiKey = process.env.STARKEN_API_KEY || '1234';
+    const cliRut = process.env.STARKEN_RUT || '76211240';
+    const password = process.env.STARKEN_PASSWORD || 'key';
+    const rutEmpresa = process.env.STARKEN_RUT_EMPRESA || '96930480';
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      // 1. Endpoint principal: Etracking con historial cronológico completo
+      if (apiUrl.includes('etrackingRest') || apiUrl.includes('resumenTrackingCargaRedestinacion')) {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': apiKey,
+            'cli-rut': cliRut,
+            'password': password,
+          },
+          body: JSON.stringify({
+            tracking: [
+              {
+                numeroDocumento: '',
+                numeroOrdenFlete: cleanTracking,
+                tipoDocumento: '',
+              },
+            ],
+            rutEmpresa,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          const of = data.listaResumenRedestinacion?.ordenFlete?.[0];
+          if (of && of.codigoSalida === 1) {
+            const events = (of.listaTrackingOF || []).map((e: any) => ({
+              date: e.fechaHoraSeguimiento,
+              description: e.descripcionEstado || 'Movimiento de carga',
+              location: of.comunaDestinoOrdenFlete
+                ? `${of.ciudadDestinoOrdenFlete || ''} - ${of.comunaDestinoOrdenFlete}`.trim()
+                : of.ciudadDestinoOrdenFlete || '',
+              detail: e.tipoDevolucion || '',
+            }));
+
+            return {
+              status: of.estadoOrdenFlete || (events[events.length - 1]?.description) || 'En tránsito',
+              destination: of.comunaDestinoOrdenFlete
+                ? `${of.comunaDestinoOrdenFlete}, ${of.ciudadDestinoOrdenFlete || ''}`
+                : of.ciudadDestinoOrdenFlete || '',
+              service: of.pesoOrdenFlete ? `Carga ${of.pesoOrdenFlete} Kg` : 'Servicio Starken',
+              events,
+            };
+          }
+        }
+      } else {
+        // 2. Endpoint unitario alternativo: getDetalleSeguimientoNuevo
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Rut': cliRut,
+            'Clave': password,
+          },
+          body: JSON.stringify({
+            ordenFlete: Number(cleanTracking) || cleanTracking,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.estadoFlete) {
+            return {
+              status: data.estadoFlete,
+              destination: data.ciudadDestino || '',
+              service: data.tipoServicio || 'NORMAL',
+              events: [
+                {
+                  date: data.fechaEmision || new Date().toISOString(),
+                  description: data.estadoFlete,
+                  location: data.descripcionAgenciaDestino || data.ciudadDestino || '',
+                },
+              ],
+            };
+          }
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   async validateTracking(
     courierRaw: string,
     trackingNumberRaw: string,
@@ -859,14 +967,33 @@ export class ShippingService implements OnModuleInit {
         };
       }
 
+      // Consulta en vivo a la API oficial de Starken
+      const starkenData = await this.getStarkenTrackingData(cleanTracking);
+
+      if (starkenData && starkenData.events && starkenData.events.length > 0) {
+        return {
+          valid: true,
+          courier: 'STARKEN',
+          trackingNumber: cleanTracking,
+          liveConfirmed: true,
+          status: starkenData.status || 'En tránsito',
+          destination: starkenData.destination,
+          service: starkenData.service,
+          carrierDate: starkenData.events[starkenData.events.length - 1]?.date,
+          trackingUrl: `https://www.starken.cl/seguimiento?codigo=${cleanTracking}`,
+          events: starkenData.events,
+          message: 'Orden de Flete confirmada en los registros oficiales de Starken.',
+        };
+      }
+
       return {
         valid: true,
         courier: 'STARKEN',
         trackingNumber: cleanTracking,
-        liveConfirmed: true,
+        liveConfirmed: false,
         status: 'Orden de Flete Starken Verificada',
         trackingUrl: `https://www.starken.cl/seguimiento?codigo=${cleanTracking}`,
-        message: 'Formato oficial de orden de flete Starken verificado para seguimiento.',
+        message: 'Formato oficial de orden de flete verificado para seguimiento.',
       };
     }
 
