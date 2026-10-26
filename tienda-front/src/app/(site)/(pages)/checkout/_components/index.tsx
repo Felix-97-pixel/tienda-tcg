@@ -537,6 +537,7 @@ const CheckoutWebpay = () => {
       paymentMethods: {
         creditCard: "all" as const,
         debitCard: "all" as const,
+        prepaidCard: "all" as const,
       },
     };
   }, []);
