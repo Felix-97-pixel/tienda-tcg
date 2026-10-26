@@ -474,6 +474,7 @@ const CheckoutWebpay = () => {
       amount: Math.max(1, Math.round(finalAmount)),
       payer: {
         email: billing.email || "comprador@taptrade.cl",
+        entityType: "individual" as const,
       },
     };
   }, [Math.round(finalAmount), billing.email]);
@@ -504,6 +505,7 @@ const CheckoutWebpay = () => {
       paymentMethods: {
         creditCard: "all" as const,
         debitCard: "all" as const,
+        mercadoPago: "all" as const,
       },
     };
   }, []);
@@ -956,7 +958,13 @@ const CheckoutWebpay = () => {
                           await handlePaymentSubmit(param.formData);
                         }}
                         onReady={() => console.log("Mercado Pago Brick montado exitosamente")}
-                        onError={(err) => console.error("Error en Mercado Pago Brick:", err)}
+                        onError={(err: any) => {
+                          if (err?.type === "non_critical") {
+                            // Advertencia no crítica de validación intermedia de campos
+                            return;
+                          }
+                          console.error("Error en Mercado Pago Brick:", err);
+                        }}
                       />
                     ) : (
                       <div className="flex items-center justify-center py-8 text-xs text-gray-400 gap-2">
