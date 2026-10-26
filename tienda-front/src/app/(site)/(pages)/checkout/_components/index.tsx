@@ -362,7 +362,10 @@ const CheckoutWebpay = () => {
         issuer_id: paymentFormData.issuer_id,
         payment_method_id: paymentFormData.payment_method_id,
         installments: paymentFormData.installments,
-        payer: paymentFormData.payer,
+        payer: {
+          ...paymentFormData.payer,
+          email: billing.email || paymentFormData.payer?.email,
+        },
       };
 
       const res = await fetch(`${API_URL}/payments/process`, {
@@ -469,15 +472,44 @@ const CheckoutWebpay = () => {
     }
   };
 
+  // El Brick se destruye y se vuelve a crear cada vez que cambia la identidad de
+  // initialization/customization/callbacks. Solo debe re-montarse si cambia el monto;
+  // el email real del comprador se envía en el payload (handlePaymentSubmit).
+  const billingEmailRef = React.useRef(billing.email);
+  billingEmailRef.current = billing.email;
+  const mpAmount = Math.max(1, Math.round(finalAmount));
+
   const mpInitialization = React.useMemo(() => {
     return {
-      amount: Math.max(1, Math.round(finalAmount)),
+      amount: mpAmount,
       payer: {
-        email: billing.email || "comprador@taptrade.cl",
+        email: billingEmailRef.current || "comprador@taptrade.cl",
         entityType: "individual" as const,
       },
     };
-  }, [Math.round(finalAmount), billing.email]);
+  }, [mpAmount]);
+
+  const handlePaymentSubmitRef = React.useRef(handlePaymentSubmit);
+  handlePaymentSubmitRef.current = handlePaymentSubmit;
+
+  const onMpSubmit = React.useCallback(async (param: any) => {
+    await handlePaymentSubmitRef.current(param.formData);
+  }, []);
+
+  const onMpReady = React.useCallback(() => {
+    console.log("Mercado Pago Brick montado exitosamente");
+  }, []);
+
+  const onMpError = React.useCallback((err: any) => {
+    if (err?.type === "non_critical") {
+      // Advertencia no crítica de validación intermedia de campos
+      return;
+    }
+    console.error("Error en Mercado Pago Brick:", JSON.stringify(err));
+    setError(
+      `Mercado Pago: ${err?.message || "error desconocido"}${err?.cause ? ` (${err.cause})` : ""}`
+    );
+  }, []);
 
   // Dark Vault custom Mercado Pago styling (memoized para evitar re-montaje duplicado de iframes)
   const mpCustomization = React.useMemo(() => {
@@ -505,7 +537,6 @@ const CheckoutWebpay = () => {
       paymentMethods: {
         creditCard: "all" as const,
         debitCard: "all" as const,
-        mercadoPago: "all" as const,
       },
     };
   }, []);
@@ -954,17 +985,9 @@ const CheckoutWebpay = () => {
                         key="mp-payment-brick"
                         initialization={mpInitialization}
                         customization={mpCustomization as any}
-                        onSubmit={async (param) => {
-                          await handlePaymentSubmit(param.formData);
-                        }}
-                        onReady={() => console.log("Mercado Pago Brick montado exitosamente")}
-                        onError={(err: any) => {
-                          if (err?.type === "non_critical") {
-                            // Advertencia no crítica de validación intermedia de campos
-                            return;
-                          }
-                          console.error("Error en Mercado Pago Brick:", err);
-                        }}
+                        onSubmit={onMpSubmit}
+                        onReady={onMpReady}
+                        onError={onMpError}
                       />
                     ) : (
                       <div className="flex items-center justify-center py-8 text-xs text-gray-400 gap-2">
