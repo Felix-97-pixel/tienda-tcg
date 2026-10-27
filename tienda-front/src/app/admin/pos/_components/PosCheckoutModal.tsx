@@ -91,7 +91,7 @@ export default function PosCheckoutModal({
           <div>
             <h2 className="text-xl font-black text-white">Completar Cobro</h2>
             <p className="text-xs text-white/50 mt-0.5">
-              {items.length} productos • Total: ${totalAmount.toLocaleString('es-CL')}
+              {items.length} productos • Total: ${totalAmount.toLocaleString('es-CL')} CLP
             </p>
           </div>
 
@@ -291,7 +291,7 @@ export default function PosCheckoutModal({
               ) : (
                 <>
                   <span>Confirmar Venta & Emitir Ticket</span>
-                  <span className="font-mono text-base">• ${totalAmount.toLocaleString('es-CL')}</span>
+                  <span className="font-mono text-base">• ${totalAmount.toLocaleString('es-CL')} CLP</span>
                 </>
               )}
             </button>

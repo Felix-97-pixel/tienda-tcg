@@ -18,10 +18,15 @@ export interface LocalProduct {
     expansion?: string | null;
     rarity?: string | null;
     collectorNum?: string | null;
+    gameId?: string | null;
   } | null;
+  isTcg?: boolean;
+  exchangeRateApplied?: number;
   items: Array<{
     id: string;
     price: number | string;
+    rawPriceUsd?: number;
+    exchangeRate?: number;
     stock: number;
     condition?: { id: string; name: string; displayName?: string | null } | null;
     language?: { id: string; name: string; code: string } | null;
@@ -137,25 +142,32 @@ export async function searchLocalCatalog(query: string): Promise<LocalProduct[]>
         }
 
         const matchBarcode = prod.barcode && prod.barcode.toLowerCase() === trimmed;
-        const matchName = prod.name && prod.name.toLowerCase().includes(trimmed);
-        const matchSku = prod.sku && prod.sku.toLowerCase().includes(trimmed);
-        const matchExpansion =
-          prod.cardDetail?.expansion && prod.cardDetail.expansion.toLowerCase().includes(trimmed);
-        const matchNum =
-          prod.cardDetail?.collectorNum && prod.cardDetail.collectorNum.toLowerCase().includes(trimmed);
+        const searchString = `${prod.name || ''} ${prod.barcode || ''} ${prod.sku || ''} ${prod.cardDetail?.expansion || ''} #${prod.cardDetail?.collectorNum || ''}`.toLowerCase();
+        const tokens = trimmed.split(/\s+/).filter(Boolean);
+        const matchTokens = tokens.length > 0 && tokens.every((token) => searchString.includes(token));
 
-        const hasStock = prod.items && prod.items.some((i) => i.stock > 0);
-
-        if (hasStock && (matchBarcode || matchName || matchSku || matchExpansion || matchNum)) {
-          // Si coincide el código de barras exacto, lo ponemos primero
+        if (matchBarcode || matchTokens) {
+          const hasStock = prod.items && prod.items.some((i) => i.stock > 0);
+          // Si coincide el código de barras exacto, lo ponemos al frente absoluto
           if (matchBarcode) {
             results.unshift(prod);
+          } else if (hasStock) {
+            // Productos con stock tienen prioridad
+            const firstOutOfStockIndex = results.findIndex(
+              (p) => !p.items || !p.items.some((i) => i.stock > 0),
+            );
+            if (firstOutOfStockIndex >= 0) {
+              results.splice(firstOutOfStockIndex, 0, prod);
+            } else {
+              results.push(prod);
+            }
           } else {
+            // Productos sin stock van al final
             results.push(prod);
           }
         }
 
-        if (results.length >= 25) {
+        if (results.length >= 30) {
           return resolve(results);
         }
         cursor.continue();

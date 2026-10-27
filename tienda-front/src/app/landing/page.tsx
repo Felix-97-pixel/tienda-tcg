@@ -17,6 +17,9 @@ import {
   IconFlagUS,
   IconFlagJP,
   IconLanguageFlag,
+  IconPosTerminal,
+  IconWifiOff,
+  IconBarcode,
 } from "@/components/ui/Icons";
 
 export default function MarketingPage() {
@@ -146,7 +149,7 @@ export default function MarketingPage() {
   const faqs = [
     {
       q: "¿Cómo funciona comprar cartas de distintas tiendas en un solo carrito?",
-      a: "TapTrade cuenta con un sistema de checkout multi-tienda inteligente. Puedes agregar singles de cualquier tienda verificada de Chile a un único carrito. Al momento de pagar realizas una sola transacción y nuestro sistema divide automáticamente el pago hacia cada vendedor y genera sus etiquetas de envío individuales con Chilexpress o Starken.",
+      a: "TapTrade cuenta con un sistema de checkout multi-tienda inteligente. Puedes agregar singles de cualquier tienda verificada de Chile a un único carrito. Al momento de pagar realizas una sola transacción protegida; los fondos ingresan a la cuenta central de TapTrade y luego se transfieren y depositan a la cuenta bancaria de tu empresa que hayas configurado, generando las etiquetas de envío individuales con Chilexpress o Starken.",
     },
     {
       q: "¿Qué es el Motor de Buylist y cómo ayuda a mi tienda?",
@@ -163,6 +166,10 @@ export default function MarketingPage() {
     {
       q: "¿Cómo se sincroniza el catálogo de cartas en mi tienda?",
       a: "Olvídate de ingresar fotos, nombres en inglés y español o textos de reglas a mano. TapTrade está integrado directamente con Scryfall, PokemonTCG y Riftcodex. Solo buscas el nombre de la carta o expansión y en 1 clic importas toda la metadata oficial con fotos en alta resolución.",
+    },
+    {
+      q: "¿El Punto de Venta (POS) tiene costo adicional o funciona si se corta internet?",
+      a: "El Punto de Venta (POS) está 100% incluido para todas las tiendas y suscripciones sin costo adicional ni comisiones. Cuenta con arquitectura Offline-First en el navegador con IndexedDB. Si tu tienda se queda sin internet o sufres cortes durante un torneo presencial, tus cajeros pueden seguir buscando cartas, escaneando códigos de barra, cobrando y emitiendo tickets. En cuanto regresa la conexión, las ventas se sincronizan solas con tu inventario sin pérdidas de datos.",
     },
     {
       q: "¿Cómo despacho las ventas que entran a mi tienda?",
@@ -207,7 +214,7 @@ export default function MarketingPage() {
 
           {/* Subtitle */}
           <p className="text-base sm:text-xl text-gray-400 max-w-3xl mb-10 leading-relaxed font-normal">
-            Centralizamos el inventario de las mejores tiendas y dealers de Chile. Sincronización oficial de catálogos (Scryfall y Pokémon), motor de Buylist inteligente, un solo carrito multi-tienda y envíos integrados con Chilexpress y Starken.
+            Centralizamos el inventario de las mejores tiendas y dealers de Chile. Punto de Venta (POS) mostrador con modo desconectado, sincronización oficial de catálogos (Scryfall y Pokémon), motor de Buylist inteligente, un solo carrito multi-tienda y envíos integrados con Chilexpress y Starken.
           </p>
 
           {/* Action CTAs */}
@@ -525,7 +532,27 @@ export default function MarketingPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in duration-300">
+            {/* 1. Punto de Venta POS */}
+            <div className="p-8 rounded-3xl bg-[#111522] border border-red-500/30 hover:border-red-500/50 shadow-[0_0_30px_rgba(225,14,14,0.12)] transition-all flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-red-500/20 text-[#FF5555] border border-red-500/30 text-[9px] font-mono font-bold uppercase tracking-wider">
+                100% Incluido
+              </div>
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-500 mb-6">
+                  <IconPosTerminal className="w-6 h-6 text-[#E10E0E]" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">Punto de Venta (POS) Mostrador</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Atiende a tus clientes en el mostrador físico a máxima velocidad. Búsqueda instantánea de cartas, escaneo con pistola USB, arqueo diario de caja e impresión térmica.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/5 text-xs text-red-400 font-mono">
+                ✓ Modo Desconectado • Sincronización Automática
+              </div>
+            </div>
+
+            {/* 2. Sincronización Scryfall */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-6">
@@ -541,6 +568,7 @@ export default function MarketingPage() {
               </div>
             </div>
 
+            {/* 3. Motor de Buylist */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-6">
@@ -556,6 +584,7 @@ export default function MarketingPage() {
               </div>
             </div>
 
+            {/* 4. Logística */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
@@ -591,6 +620,171 @@ export default function MarketingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Flagship Bento Card: Punto de Venta (POS) Mostrador */}
+          <div
+            id="pos"
+            className="md:col-span-3 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-[#141824] via-[#0E121B] to-[#1A0E13] border-2 border-red-500/40 hover:border-red-500/60 shadow-[0_0_50px_rgba(225,14,14,0.18)] transition-all relative overflow-hidden group scroll-mt-28"
+          >
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20 group-hover:bg-red-600/15 transition-all"></div>
+            <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-stretch justify-between gap-8">
+              {/* Left Column: Description & Key Capabilities */}
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  {/* Badges */}
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-600/20 text-[#FF5555] border border-red-500/30 flex items-center gap-1.5">
+                      <IconPosTerminal className="w-3.5 h-3.5 text-[#FF5555]" />
+                      Terminal Mostrador • Offline-First
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
+                      Incluido en Todos los Planes (0% Extra)
+                    </span>
+                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-[10px] font-mono text-gray-400">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      IndexedDB &lt;5ms
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl sm:text-3xl font-black text-white mb-3 tracking-tight">
+                    Punto de Venta (POS) Mostrador: Vende en tu local con o sin Internet
+                  </h3>
+
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl font-normal">
+                    El primer terminal de caja diseñado exclusivamente para tiendas de cartas coleccionables. Permite buscar entre miles de singles al instante, escanear con lector de código de barras USB y procesar pagos en efectivo, tarjeta física o crédito en tienda. Si se corta el internet en tu local o durante un torneo concurrido, el sistema sigue vendiendo de forma autónoma y sincroniza todo con tu vitrina online en cuanto regresa la conexión.
+                  </p>
+
+                  {/* 4 Feature Points Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+                      <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0 text-[#FF5555]">
+                        <IconBarcode className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white mb-0.5">Búsqueda & Pistola USB</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">
+                          Encuentra cartas por nombre, edición o código de barras al instante con atajos [F2] y [F10].
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+                      <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0 text-blue-400">
+                        <IconWifiOff className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white mb-0.5">Cero Caídas Offline</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">
+                          IndexedDB local guarda tu catálogo y cola de ventas. Vende sin importar cortes de luz o red.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400">
+                        <IconCreditCard className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white mb-0.5">Control de Caja & Turnos</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">
+                          Apertura con fondo inicial, movimientos de caja chica, conteo ciego y reportes X/Z diarios.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400">
+                        <IconBox className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white mb-0.5">Stock Físico y Web Unificado</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">
+                          Al cobrar en el mostrador, el stock se descuenta automáticamente de tu vitrina web.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-400 font-mono">
+                  <span>✓ Compatible con impresoras térmicas de 80mm / 58mm y gavetas</span>
+                  <span className="text-emerald-400 font-semibold">100% Sin Costo Adicional en Todos los Planes</span>
+                </div>
+              </div>
+
+              {/* Right Column: High-Tech POS Live Terminal Mockup */}
+              <div className="w-full lg:w-[380px] shrink-0 rounded-2xl bg-[#090C13] border border-white/15 p-4 shadow-2xl flex flex-col justify-between font-mono relative overflow-hidden">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10 text-[11px]">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <span className="text-white font-bold ml-1 text-xs">POS Mostrador</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+                    ONLINE • IDB LISTO
+                  </span>
+                </div>
+
+                {/* Items in Mock Cart */}
+                <div className="space-y-2 mb-4">
+                  <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-[11px]">
+                    <div className="min-w-0 pr-2">
+                      <div className="text-white font-semibold truncate">Sheoldred, the Apocalypse</div>
+                      <div className="text-[10px] text-gray-400">DMU • Near Mint • FOIL</div>
+                    </div>
+                    <span className="text-emerald-400 font-bold whitespace-nowrap">$74.990</span>
+                  </div>
+
+                  <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-[11px]">
+                    <div className="min-w-0 pr-2">
+                      <div className="text-white font-semibold truncate">Charizard ex Special Art</div>
+                      <div className="text-[10px] text-gray-400">151 • Near Mint • JP</div>
+                    </div>
+                    <span className="text-emerald-400 font-bold whitespace-nowrap">$119.990</span>
+                  </div>
+
+                  <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-[11px]">
+                    <div className="min-w-0 pr-2">
+                      <div className="text-white font-semibold truncate">Dragon Shield Matte Black</div>
+                      <div className="text-[10px] text-gray-400">Accesorio • 100 Sleeves</div>
+                    </div>
+                    <span className="text-emerald-400 font-bold whitespace-nowrap">$11.990</span>
+                  </div>
+                </div>
+
+                {/* Summary calculation */}
+                <div className="p-3 rounded-xl bg-black/60 border border-white/10 mb-3 space-y-1 text-xs">
+                  <div className="flex justify-between text-gray-400 text-[11px]">
+                    <span>Items (3)</span>
+                    <span>$206.970</span>
+                  </div>
+                  <div className="flex justify-between text-white font-black text-sm pt-1 border-t border-white/10">
+                    <span>TOTAL CLP</span>
+                    <span className="text-[#FF5555]">$206.970</span>
+                  </div>
+                </div>
+
+                {/* Hotkeys */}
+                <div className="grid grid-cols-2 gap-2 text-[10px] text-center">
+                  <div className="py-1.5 px-2 rounded-lg bg-white/5 border border-white/10 text-gray-300">
+                    <strong className="text-white font-bold">[F2]</strong> Buscar
+                  </div>
+                  <div className="py-1.5 px-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">
+                    [F10] Cobrar
+                  </div>
+                </div>
+
+                {/* Footer Hardware note */}
+                <div className="mt-3 pt-2 text-[9px] text-gray-400 text-center leading-tight">
+                  Sin hardware propietario. Funciona en Windows, Mac, Linux, iPad o Android.
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Bento 1: Vitrina con Subdominio */}
           <div className="md:col-span-2 p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all relative overflow-hidden group">
             <div className="relative z-10">
@@ -608,19 +802,19 @@ export default function MarketingPage() {
             </div>
           </div>
 
-          {/* Bento 2: Split Payments */}
+          {/* Bento 2: Recaudación y Liquidación a tu Empresa */}
           <div className="p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
             <div>
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-4 inline-block">
                 Finanzas Claras
               </span>
-              <h3 className="text-xl font-bold text-white mb-2">Split Payments Automáticos</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Liquidación a la Cuenta de tu Empresa</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                El dinero de tus ventas se deposita directamente en tu cuenta bancaria. Liquidaciones transparentes con Mercado Pago y Transbank Webpay Plus.
+                Todas las ventas se recaudan de forma centralizada y protegida en la cuenta de TapTrade (vía Webpay Plus y Mercado Pago), para luego ser depositadas directamente en la cuenta bancaria de tu empresa que tú elijas.
               </p>
             </div>
             <div className="pt-4 border-t border-white/5 text-xs text-gray-400 font-mono">
-              ✓ Cero demoras en pagos
+              ✓ Depósitos directos a la cuenta de tu empresa
             </div>
           </div>
 
@@ -684,9 +878,9 @@ export default function MarketingPage() {
             <div className="w-12 h-12 rounded-full bg-blue-600/20 text-blue-400 font-mono font-black text-lg flex items-center justify-center mx-auto mb-6 border border-blue-500/30">
               02
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Pago Único con Respaldo Escrow</h3>
+            <h3 className="text-lg font-bold text-white mb-2">Pago Protegido & Liquidación Central</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              El comprador paga con Webpay Plus o Mercado Pago. El dinero queda protegido y se distribuye automáticamente a cada tienda vendedora.
+              El comprador paga con Webpay Plus o Mercado Pago. Los fondos ingresan a la cuenta central de TapTrade y luego se transfieren directamente a la cuenta bancaria de tu empresa.
             </p>
           </div>
 

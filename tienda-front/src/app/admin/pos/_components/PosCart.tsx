@@ -98,15 +98,20 @@ export default function PosCart({
                 className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all gap-3"
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  {item.imageUrl && (
-                    <div className="relative w-10 h-12 rounded-lg overflow-hidden bg-black/40 border border-white/10 flex-shrink-0">
+                  {item.imageUrl ? (
+                    <div className="relative w-11 h-15 rounded-lg overflow-hidden bg-black/40 border border-white/10 flex-shrink-0">
                       <Image
                         src={item.imageUrl}
                         alt={item.name}
                         fill
                         className="object-contain p-0.5"
-                        sizes="40px"
+                        sizes="44px"
+                        unoptimized={true}
                       />
+                    </div>
+                  ) : (
+                    <div className="w-11 h-15 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center text-white/30 text-[10px] font-mono flex-shrink-0">
+                      TCG
                     </div>
                   )}
 
@@ -122,7 +127,7 @@ export default function PosCart({
                       {item.finishLabel && <span>• {item.finishLabel}</span>}
                     </div>
                     <p className="text-xs font-mono font-medium text-white/70 mt-1">
-                      ${item.unitPrice.toLocaleString('es-CL')} c/u
+                      ${item.unitPrice.toLocaleString('es-CL')} CLP c/u
                     </p>
                   </div>
                 </div>
@@ -151,7 +156,7 @@ export default function PosCart({
                   </div>
 
                   <span className="text-xs font-mono font-bold text-white">
-                    ${lineTotal.toLocaleString('es-CL')}
+                    ${lineTotal.toLocaleString('es-CL')} CLP
                   </span>
                 </div>
               </div>
@@ -165,20 +170,20 @@ export default function PosCart({
         <div className="space-y-1.5 text-xs">
           <div className="flex justify-between text-white/60">
             <span>Subtotal</span>
-            <span className="font-mono font-semibold">${subtotal.toLocaleString('es-CL')}</span>
+            <span className="font-mono font-semibold">${subtotal.toLocaleString('es-CL')} CLP</span>
           </div>
 
           {discountAmount > 0 && (
             <div className="flex justify-between text-emerald-400">
               <span>Descuento aplicado</span>
-              <span className="font-mono font-semibold">-${discountAmount.toLocaleString('es-CL')}</span>
+              <span className="font-mono font-semibold">-${discountAmount.toLocaleString('es-CL')} CLP</span>
             </div>
           )}
 
           <div className="flex justify-between text-base font-black text-white pt-2 border-t border-white/10">
             <span>TOTAL A COBRAR</span>
             <span className="font-mono text-xl text-red-light">
-              ${total.toLocaleString('es-CL')}
+              ${total.toLocaleString('es-CL')} CLP
             </span>
           </div>
         </div>
@@ -190,7 +195,7 @@ export default function PosCart({
           className="w-full py-4 rounded-xl bg-red hover:bg-red-light disabled:opacity-40 disabled:hover:bg-red text-white text-sm font-black tracking-wider uppercase transition-all shadow-lg shadow-red/20 active:scale-[0.99] flex items-center justify-center gap-2"
         >
           <span>Cobrar (F10)</span>
-          <span className="font-mono text-base">• ${total.toLocaleString('es-CL')}</span>
+          <span className="font-mono text-base">• ${total.toLocaleString('es-CL')} CLP</span>
         </button>
       </div>
     </div>

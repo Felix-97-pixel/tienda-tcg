@@ -47,6 +47,10 @@ const Header = () => {
           <Link href="#marketplace" className="text-xs font-semibold text-gray-300 hover:text-white transition-colors">
             Marketplace
           </Link>
+          <Link href="#pos" className="text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E10E0E] animate-pulse"></span>
+            POS Mostrador
+          </Link>
           <Link href="#for-stores" className="text-xs font-semibold text-gray-300 hover:text-white transition-colors">
             Para Tiendas (SaaS)
           </Link>
@@ -111,6 +115,14 @@ const Header = () => {
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
               Marketplace
+            </Link>
+            <Link
+              href="#pos"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-semibold text-gray-300 hover:text-white py-1 flex items-center gap-2"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#E10E0E]"></span>
+              POS Mostrador (Offline)
             </Link>
             <Link
               href="#for-stores"

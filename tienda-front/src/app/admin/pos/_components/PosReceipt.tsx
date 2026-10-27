@@ -130,7 +130,7 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
         )}
         <div className="flex justify-between text-sm font-black pt-1 border-t border-gray-400">
           <span>TOTAL:</span>
-          <span>${receipt.total.toLocaleString('es-CL')}</span>
+          <span>${receipt.total.toLocaleString('es-CL')} CLP</span>
         </div>
       </div>
 

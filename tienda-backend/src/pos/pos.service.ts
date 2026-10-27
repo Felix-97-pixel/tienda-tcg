@@ -9,12 +9,70 @@ export class PosService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * Obtiene la tasa de cambio aplicable a un juego TCG para la tienda dada:
+   * 1. Revisa si la tienda tiene una tasa propia configurada para ese juego (StoreGameExchangeRate)
+   * 2. Si no, busca la tasa global del juego en pesos chilenos (GlobalGameExchangeRate)
+   * 3. Fallback a 1000 CLP/USD si no hay configuración
+   */
+  private resolveExchangeRate(
+    gameId: string | undefined | null,
+    storeRates: { gameId: string; rate: any }[],
+    globalRates: { gameId: string; rate: any }[],
+  ): number {
+    if (!gameId) return 1000;
+    const storeRate = storeRates.find((r) => r.gameId === gameId);
+    if (storeRate) return Number(storeRate.rate);
+    const globalRate = globalRates.find((r) => r.gameId === gameId);
+    if (globalRate) return Number(globalRate.rate);
+    return 1000;
+  }
+
+  /**
+   * Transforma y normaliza un producto para el POS:
+   * Convierte los precios de USD a CLP usando la tasa de cambio vigente de la tienda / juego.
+   * Si no es producto TCG (ej: sellado o accesorios), mantiene su precio en CLP directo.
+   */
+  private formatProductForPos(
+    product: any,
+    storeRates: { gameId: string; rate: any }[],
+    globalRates: { gameId: string; rate: any }[],
+  ) {
+    const isTcg = Boolean(product.category?.isTcg || product.cardDetail);
+    const gameId = product.cardDetail?.gameId;
+    const rate = isTcg ? this.resolveExchangeRate(gameId, storeRates, globalRates) : 1;
+
+    const items = (product.items || []).map((item: any) => {
+      const rawPrice = Number(item.price || 0);
+      const convertedPrice = isTcg ? Math.round(rawPrice * rate) : Math.round(rawPrice);
+      return {
+        ...item,
+        rawPriceUsd: isTcg ? rawPrice : undefined,
+        exchangeRateApplied: isTcg ? rate : undefined,
+        price: convertedPrice, // Precio normalizado en CLP
+      };
+    });
+
+    return {
+      ...product,
+      isTcg,
+      exchangeRateApplied: isTcg ? rate : undefined,
+      items,
+    };
+  }
+
+  /**
    * Búsqueda híbrida para el POS:
    * 1. Si coincide exactamente con un código de barras (barcode), retorna el producto sellado de inmediato.
-   * 2. Si es texto, busca en nombre, sku o edición/número de cartas singles que tengan stock en la tienda.
+   * 2. Si es texto, busca en nombre, sku o edición/número de cartas singles que pertenezcan a la tienda.
+   * Aplica la tasa de cambio vigente a los singles para retornar precios en CLP.
    */
   async searchProducts(storeId: string, query: string) {
     const trimmed = (query || '').trim();
+
+    const [storeRates, globalRates] = await Promise.all([
+      this.prisma.storeGameExchangeRate.findMany({ where: { storeId } }),
+      this.prisma.globalGameExchangeRate.findMany({ where: { currencyCode: 'CLP' } }),
+    ]);
 
     // 1. Verificación por código de barras exacto (EAN-13, UPC)
     if (trimmed.length >= 6) {
@@ -26,7 +84,6 @@ export class PosService {
           items: {
             some: {
               storeId,
-              stock: { gt: 0 },
             },
           },
         },
@@ -35,9 +92,9 @@ export class PosService {
           brand: true,
           cardDetail: true,
           items: {
-            where: { storeId, stock: { gt: 0 } },
+            where: { storeId },
             include: { condition: true, language: true, finish: true },
-            orderBy: { price: 'asc' },
+            orderBy: [{ stock: 'desc' }, { price: 'asc' }],
           },
         },
       });
@@ -45,48 +102,46 @@ export class PosService {
       if (barcodeMatch) {
         return {
           type: 'BARCODE_MATCH',
-          products: [barcodeMatch],
+          products: [this.formatProductForPos(barcodeMatch, storeRates, globalRates)],
         };
       }
     }
 
     // 2. Búsqueda por texto (nombre, SKU, set, número de coleccionista)
+    const tokens = trimmed.split(/\s+/).filter(Boolean);
     const whereClause: any = {
       isDeleted: false,
       items: {
         some: {
           storeId,
-          stock: { gt: 0 },
         },
       },
       OR: [{ storeId: null }, { storeId }],
     };
 
-    if (trimmed) {
-      whereClause.AND = [
-        {
-          OR: [
-            { name: { contains: trimmed, mode: 'insensitive' } },
-            { sku: { contains: trimmed, mode: 'insensitive' } },
-            { barcode: { contains: trimmed, mode: 'insensitive' } },
-            { cardDetail: { expansion: { contains: trimmed, mode: 'insensitive' } } },
-            { cardDetail: { collectorNum: { contains: trimmed, mode: 'insensitive' } } },
-          ],
-        },
-      ];
+    if (tokens.length > 0) {
+      whereClause.AND = tokens.map((token) => ({
+        OR: [
+          { name: { contains: token, mode: 'insensitive' } },
+          { sku: { contains: token, mode: 'insensitive' } },
+          { barcode: { contains: token, mode: 'insensitive' } },
+          { cardDetail: { expansion: { contains: token, mode: 'insensitive' } } },
+          { cardDetail: { collectorNum: { contains: token, mode: 'insensitive' } } },
+        ],
+      }));
     }
 
     const products = await this.prisma.product.findMany({
       where: whereClause,
-      take: 25,
+      take: 30,
       include: {
         category: true,
         brand: true,
         cardDetail: true,
         items: {
-          where: { storeId, stock: { gt: 0 } },
+          where: { storeId },
           include: { condition: true, language: true, finish: true },
-          orderBy: { price: 'asc' },
+          orderBy: [{ stock: 'desc' }, { price: 'asc' }],
         },
       },
       orderBy: { updatedAt: 'desc' },
@@ -94,7 +149,7 @@ export class PosService {
 
     return {
       type: 'SEARCH_RESULTS',
-      products,
+      products: products.map((p) => this.formatProductForPos(p, storeRates, globalRates)),
     };
   }
 
@@ -347,8 +402,14 @@ export class PosService {
 
   /**
    * Genera el snapshot liviano del catálogo para almacenar en IndexedDB en el navegador.
+   * Aplica la tasa de cambio vigente de la tienda / juego para guardar precios en CLP.
    */
   async getCatalogCache(storeId: string) {
+    const [storeRates, globalRates] = await Promise.all([
+      this.prisma.storeGameExchangeRate.findMany({ where: { storeId } }),
+      this.prisma.globalGameExchangeRate.findMany({ where: { currencyCode: 'CLP' } }),
+    ]);
+
     const products = await this.prisma.product.findMany({
       where: {
         isDeleted: false,
@@ -356,7 +417,6 @@ export class PosService {
         items: {
           some: {
             storeId,
-            stock: { gt: 0 },
           },
         },
       },
@@ -374,10 +434,11 @@ export class PosService {
             expansion: true,
             rarity: true,
             collectorNum: true,
+            gameId: true,
           },
         },
         items: {
-          where: { storeId, stock: { gt: 0 } },
+          where: { storeId },
           select: {
             id: true,
             price: true,
@@ -386,16 +447,21 @@ export class PosService {
             language: { select: { id: true, name: true, code: true } },
             finish: { select: { id: true, name: true } },
           },
+          orderBy: [{ stock: 'desc' }, { price: 'asc' }],
         },
       },
       orderBy: { updatedAt: 'desc' },
     });
 
+    const formattedProducts = products.map((p) =>
+      this.formatProductForPos(p, storeRates, globalRates),
+    );
+
     return {
       timestamp: Date.now(),
       storeId,
-      totalProducts: products.length,
-      products,
+      totalProducts: formattedProducts.length,
+      products: formattedProducts,
     };
   }
 

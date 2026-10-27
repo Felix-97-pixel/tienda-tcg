@@ -80,9 +80,22 @@ export default function AdminPosPage() {
     }
 
     try {
+      // 0. Obtener datos de la tienda activa
+      const storeRes = await fetch(`${API_URL}/stores/me`, {
+        credentials: 'include',
+        headers: { 'x-auth-scope': 'admin' },
+      });
+      if (storeRes.ok) {
+        const storeData = await storeRes.json();
+        if (storeData.name) {
+          setStoreName(storeData.name);
+        }
+      }
+
       // 1. Obtener turno actual
       const shiftRes = await fetch(`${API_URL}/pos/shift/current`, {
         credentials: 'include',
+        headers: { 'x-auth-scope': 'admin' },
       });
       if (shiftRes.ok) {
         const shiftData = await shiftRes.json();
@@ -92,6 +105,7 @@ export default function AdminPosPage() {
       // 2. Descargar catálogo para caché local
       const catRes = await fetch(`${API_URL}/pos/catalog-cache`, {
         credentials: 'include',
+        headers: { 'x-auth-scope': 'admin' },
       });
       if (catRes.ok) {
         const catData = await catRes.json();
@@ -282,7 +296,10 @@ export default function AdminPosPage() {
         // Enviar al servidor en línea
         const res = await fetch(`${API_URL}/pos/sales`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-scope': 'admin',
+          },
           credentials: 'include',
           body: JSON.stringify({
             items: saleItemsPayload,
@@ -401,7 +418,10 @@ export default function AdminPosPage() {
     try {
       const res = await fetch(`${API_URL}/pos/shift/open`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-scope': 'admin',
+        },
         credentials: 'include',
         body: JSON.stringify({ cashierName, initialCash }),
       });
@@ -423,7 +443,10 @@ export default function AdminPosPage() {
     try {
       const res = await fetch(`${API_URL}/pos/shift/close`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-scope': 'admin',
+        },
         credentials: 'include',
         body: JSON.stringify({ actualCash, notes }),
       });

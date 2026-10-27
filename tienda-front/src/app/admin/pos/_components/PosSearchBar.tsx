@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { LocalProduct } from '../_lib/posDb';
 
@@ -20,6 +20,8 @@ export default function PosSearchBar({
   onAddItem,
   inputRef,
 }: PosSearchBarProps) {
+  const [hoveredImage, setHoveredImage] = useState<string | null>(null);
+
   // Atajo de teclado F2 para enfocar el buscador
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -85,7 +87,7 @@ export default function PosSearchBar({
               </svg>
             </div>
             <p className="text-sm font-bold text-white/70">
-              {searchQuery ? 'No se encontraron productos con stock' : 'Escanea un código o escribe para buscar'}
+              {searchQuery ? 'No se encontraron productos con ese término' : 'Escanea un código o escribe para buscar'}
             </p>
             <p className="text-xs text-white/40 mt-1 max-w-xs">
               Puedes buscar cartas sueltas por nombre, set, número o disparar la pistola de código de barras.
@@ -100,18 +102,23 @@ export default function PosSearchBar({
                 className="p-3.5 bg-[#0E121B] rounded-2xl border border-white/10 hover:border-white/20 transition-all shadow-md space-y-3"
               >
                 <div className="flex items-start gap-3">
-                  {/* Foto miniatura */}
-                  <div className="relative w-14 h-16 rounded-xl overflow-hidden bg-black/40 border border-white/10 flex-shrink-0">
+                  {/* Foto miniatura con formato vertical TCG (proporción carta 63x88) */}
+                  <div
+                    className="relative w-14 h-20 rounded-xl overflow-hidden bg-black/40 border border-white/10 flex-shrink-0 cursor-zoom-in group/card hover:border-red/50 transition-all shadow-sm"
+                    onMouseEnter={() => product.imageUrl && setHoveredImage(product.imageUrl)}
+                    onMouseLeave={() => setHoveredImage(null)}
+                  >
                     {product.imageUrl ? (
                       <Image
                         src={product.imageUrl}
                         alt={product.name}
                         fill
-                        className="object-contain p-1"
+                        className="object-contain p-0.5 group-hover/card:scale-105 transition-transform"
                         sizes="56px"
+                        unoptimized={true}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white/30 text-xs">
+                      <div className="w-full h-full flex items-center justify-center text-white/30 text-xs font-mono">
                         TCG
                       </div>
                     )}
@@ -146,20 +153,36 @@ export default function PosSearchBar({
                           {product.cardDetail.rarity}
                         </span>
                       )}
+                      {product.exchangeRateApplied && (
+                        <span className="text-[10px] text-blue-400 font-mono px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">
+                          Tasa: 1 USD = ${product.exchangeRateApplied.toLocaleString('es-CL')} CLP
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Variantes en stock (Condición, Idioma, Acabado y Precio) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                  {product.items
-                    .filter((item) => item.stock > 0)
-                    .map((item) => {
-                      const conditionLabel =
-                        item.condition?.displayName || item.condition?.name || 'NM';
-                      const languageCode = item.language?.code?.toUpperCase() || 'EN';
-                      const finishLabel = item.finish?.name;
-                      const priceNum = Number(item.price);
+                {/* Variantes en stock o aviso de sin stock */}
+                {!product.items || product.items.every((item) => item.stock <= 0) ? (
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-red/5 border border-red/20 text-xs">
+                    <span className="text-red font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-red" />
+                      Sin unidades disponibles en tienda (Agotado)
+                    </span>
+                    <span className="text-white/40 text-[11px] font-mono">
+                      0 en stock
+                    </span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                    {product.items
+                      .filter((item) => item.stock > 0)
+                      .map((item) => {
+                        const conditionLabel =
+                          item.condition?.displayName || item.condition?.name || 'NM';
+                        const languageCode = item.language?.code?.toUpperCase() || 'EN';
+                        const finishLabel = item.finish?.name;
+                        const priceNum = Number(item.price);
 
                       return (
                         <div
@@ -180,10 +203,15 @@ export default function PosSearchBar({
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-1.5 mt-1">
                               <span className="text-xs font-bold text-white font-mono">
-                                ${priceNum.toLocaleString('es-CL')}
+                                ${priceNum.toLocaleString('es-CL')} CLP
                               </span>
+                              {item.rawPriceUsd !== undefined && (
+                                <span className="text-[10px] text-white/40 font-mono">
+                                  (${item.rawPriceUsd} USD)
+                                </span>
+                              )}
                               <span className="text-[10px] text-white/40">
                                 ({item.stock} disp.)
                               </span>
@@ -201,12 +229,28 @@ export default function PosSearchBar({
                         </div>
                       );
                     })}
-                </div>
+                  </div>
+                )}
               </div>
             );
           })
         )}
       </div>
+
+      {/* Zoom flotante en hover para inspeccionar arte y texto de la carta */}
+      {hoveredImage && (
+        <div className="fixed bottom-12 left-1/3 z-50 pointer-events-none rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 bg-black/95 p-2 animate-in fade-in zoom-in-95 duration-150">
+          <Image
+            src={hoveredImage}
+            alt="Preview"
+            width={260}
+            height={364}
+            className="w-full h-auto object-contain rounded-xl"
+            priority
+            unoptimized={true}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -43,7 +43,10 @@ export function useNetworkStatus() {
 
       const res = await fetch(`${API_URL}/pos/sales/sync-offline`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-scope': 'admin',
+        },
         credentials: 'include',
         body: JSON.stringify({ sales: pendingSales }),
       });

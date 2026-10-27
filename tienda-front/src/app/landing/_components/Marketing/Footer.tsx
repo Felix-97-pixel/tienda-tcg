@@ -36,8 +36,8 @@ const Footer = () => {
               <IconCreditCard className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Pagos Seguros & Escrow</h4>
-              <p className="text-xs text-gray-400">Mercado Pago Split Payments y Transbank Webpay Plus.</p>
+              <h4 className="text-sm font-bold text-white">Pagos Seguros & Custodia</h4>
+              <p className="text-xs text-gray-400">Recaudación protegida y depósitos a la cuenta de tu empresa.</p>
             </div>
           </div>
         </div>

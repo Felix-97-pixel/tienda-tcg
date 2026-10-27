@@ -2,6 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { useMarketingPricing } from "@/app/landing/_components/Marketing/hooks/useMarketingPricing";
+import { IconPosTerminal } from "@/components/ui/Icons";
 
 export default function PricingSection() {
   const { plans, features, loading } = useMarketingPricing();
@@ -78,6 +79,10 @@ export default function PricingSection() {
     <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t border-white/5">
       {/* Header Section */}
       <div className="text-center mb-16">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-4 shadow-sm">
+          <IconPosTerminal className="w-4 h-4 text-emerald-400" />
+          <span>Punto de Venta (POS) Mostrador incluido en todos los planes sin costo adicional</span>
+        </div>
         <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#E10E0E] block mb-3">
           Suscripción Mensual Fija • 100% Sin Comisiones
         </span>
@@ -195,6 +200,16 @@ export default function PricingSection() {
                         </svg>
                       </div>
                       <span>Envíos Starken & Chilexpress</span>
+                    </div>
+
+                    {/* Punto de Venta POS Mostrador (Offline-First) */}
+                    <div className="flex items-center gap-2.5 text-xs text-white">
+                      <div className="w-5 h-5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-emerald-300">Punto de Venta POS (Offline-First)</span>
                     </div>
 
                     {/* Add-on features incluidas en el plan */}
