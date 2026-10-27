@@ -160,8 +160,8 @@ export class PaymentsController {
   @Get('stats')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
-  getSalesStats() {
-    return this.queryBus.execute(new GetSalesStatsQuery());
+  getSalesStats(@Req() req: Request & { user?: { userId: string; role?: string } }) {
+    return this.queryBus.execute(new GetSalesStatsQuery(req.user?.userId, req.user?.role));
   }
 
   /**
@@ -171,8 +171,12 @@ export class PaymentsController {
   @Get('stats/top-products')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
-  getTopProducts(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
-    return this.queryBus.execute(new GetTopProductsQuery(startDate, endDate));
+  getTopProducts(
+    @Req() req: Request & { user?: { userId: string; role?: string } },
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.queryBus.execute(new GetTopProductsQuery(startDate, endDate, req.user?.userId, req.user?.role));
   }
 
   /**
@@ -182,8 +186,8 @@ export class PaymentsController {
   @Get('reports/advanced')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
-  getAdvancedReports() {
-    return this.queryBus.execute(new GetAdvancedReportsQuery());
+  getAdvancedReports(@Req() req: Request & { user?: { userId: string; role?: string } }) {
+    return this.queryBus.execute(new GetAdvancedReportsQuery(req.user?.userId, req.user?.role));
   }
 
   /**
@@ -193,7 +197,10 @@ export class PaymentsController {
   @Get('reports/export/:type')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
-  exportReports(@Param('type') type: 'inventory' | 'deadstock' | 'transactions' | 'lowstock') {
-    return this.queryBus.execute(new ExportReportsQuery(type));
+  exportReports(
+    @Param('type') type: 'inventory' | 'deadstock' | 'transactions' | 'lowstock',
+    @Req() req: Request & { user?: { userId: string; role?: string } },
+  ) {
+    return this.queryBus.execute(new ExportReportsQuery(type, req.user?.userId, req.user?.role));
   }
 }

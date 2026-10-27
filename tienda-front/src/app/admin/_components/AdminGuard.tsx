@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
-import { updateAdminFeatures } from "@/redux/features/admin-auth-slice";
+import { updateAdminFeatures, adminLogout } from "@/redux/features/admin-auth-slice";
 import { API_URL } from "@/utils/api";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -31,9 +31,16 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         credentials: "include",
         headers: { "x-auth-scope": "admin" }
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            dispatch(adminLogout());
+            router.push("/admin/login");
+            return null;
+          }
+          return res.json();
+        })
         .then((data) => {
-          if (data.activeFeatures) {
+          if (data && data.activeFeatures) {
             dispatch(updateAdminFeatures(data.activeFeatures));
           }
         })

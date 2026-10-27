@@ -27,6 +27,7 @@ import { StoreCreditModule } from './store-credit/store-credit.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { WithdrawalsModule } from './withdrawals/withdrawals.module';
 import { LocationsModule } from './locations/locations.module';
+import { PosModule } from './pos/pos.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -68,6 +69,7 @@ import { APP_GUARD } from '@nestjs/core';
     CouponsModule,
     WithdrawalsModule,
     LocationsModule,
+    PosModule,
   ],
   controllers: [AppController],
   providers: [

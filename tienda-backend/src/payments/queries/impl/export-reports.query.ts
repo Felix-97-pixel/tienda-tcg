@@ -1,1 +1,9 @@
-import { IQuery } from '@nestjs/cqrs'; export class ExportReportsQuery implements IQuery { constructor(public readonly type: 'inventory' | 'deadstock' | 'transactions' | 'lowstock') {} }
+import { IQuery } from '@nestjs/cqrs';
+
+export class ExportReportsQuery implements IQuery {
+  constructor(
+    public readonly type: 'inventory' | 'deadstock' | 'transactions' | 'lowstock',
+    public readonly userId?: string,
+    public readonly role?: string,
+  ) {}
+}

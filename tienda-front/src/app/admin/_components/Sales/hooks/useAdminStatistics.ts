@@ -16,7 +16,19 @@ export function useAdminStatistics(features: string[] | undefined) {
         credentials: "include",
         headers: { "x-auth-scope": "admin" },
       });
-      if (!res.ok) throw new Error();
+      if (res.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("admin_user");
+          localStorage.removeItem("admin_features");
+          window.location.href = "/admin/login";
+        }
+        return;
+      }
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("[useAdminStatistics] error body:", res.status, errText);
+        throw new Error(`HTTP ${res.status}: ${errText}`);
+      }
       setStats(await res.json());
     } catch (err) {
       console.error("Error fetching admin statistics:", err);

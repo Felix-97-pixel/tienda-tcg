@@ -40,6 +40,8 @@ Antes de proponer o agregar un nuevo campo o modelo a la base de datos:
     * `Currency`, `GlobalGameExchangeRate`, `StoreGameExchangeRate`, `StoreConditionDevaluation`, `StoreLanguageDevaluation`
 11. [Promociones y Marketing](#11-promociones-y-marketing)
     * `Coupon`, `GlobalSetting`
+12. [Punto de Venta (POS) y Turnos de Caja](#12-punto-de-venta-pos-y-turnos-de-caja)
+    * `CashShift`
 
 ---
 
@@ -133,8 +135,11 @@ Entidad canónica de producto o carta en el catálogo unificado del marketplace.
 * `brandId` (`String?`, FK -> `Brand`): Marca asociada.
 * `storeId` (`String?`, FK -> `Store`): **NULL para cartas maestras compartidas del marketplace**. Si tiene `storeId`, es un producto custom exclusivo de dicha tienda.
 * `weightGram`, `widthCm`, `heightCm`, `lengthCm` (`Float?`): Dimensiones físicas para cubicaje de paquetería no TCG.
+* `barcode` (`String?`): Código de barras internacional (EAN-13, UPC) para escaneo rápido con pistola láser de productos sellados y accesorios.
+* `sku` (`String?`): Código interno de referencia asignado por la tienda.
 * `isDeleted` (`Boolean`, default: `false`) / `deletedAt` (`DateTime?`): Soft delete.
 * `createdAt` / `updatedAt` (`DateTime`).
+* **Índices:** `@@index([barcode])`, `@@index([name])`, `@@index([categoryId])`, `@@index([storeId])`.
 * **Relaciones:** `category`, `brand`, `store`, `cardDetail`, `items`, `marketPrices`, `wishlistedBy`, `buyListItems`.
 
 ### `InventoryItem`
@@ -192,7 +197,7 @@ Entidad central que representa a una tienda física o virtual vendedora dentro d
 * `subscriptionDiscountValue` (`Decimal(10,2)`)
 * `subscriptionNotes` (`String?`)
 * `createdAt` / `updatedAt` (`DateTime`).
-* **Relaciones:** `owner`, `inventory`, `customProducts`, `vendorOrders`, `shipping`, `settings`, `transactions`, `withdrawals`, `devaluations`, `languageDevaluations`, `gameExchangeRates`, `subscriptionPlans`, `customFeatures`, `buyListItems`, `storeCredits`, `creditTransactions`, `coupons`, `originRegion`, `originCommune`, `supportedGames`.
+* **Relaciones:** `owner`, `inventory`, `customProducts`, `vendorOrders`, `shipping`, `settings`, `transactions`, `withdrawals`, `devaluations`, `languageDevaluations`, `gameExchangeRates`, `subscriptionPlans`, `customFeatures`, `buyListItems`, `storeCredits`, `creditTransactions`, `coupons`, `originRegion`, `originCommune`, `supportedGames`, `cashShifts`.
 
 ### `StoreSetting`
 Pares clave-valor para configuraciones adicionales de la tienda (redes sociales, descripción, contacto).
@@ -220,7 +225,7 @@ Planes SaaS contratables por los dueños de tiendas (Básico, Pro, Enterprise).
 ### `Feature`
 Funcionalidades o módulos desbloqueables por plan o addons independientes (ej: buylist, api_sync, pos).
 * `id` (`String`, UUID, PK)
-* `key` (`String`, Unique): Identificador clave (ej: "module:buylist", "game:magic").
+* `key` (`String`, Unique): Identificador clave (ej: "module:buylist", "game:magic", "module:pos").
 * `name` (`String`), `description` (`String?`), `price` (`Decimal(10,2)`).
 * **Relaciones:** `plans`, `stores`.
 
@@ -332,23 +337,30 @@ Lista de deseos de cartas de los compradores.
 * `currencyCode` (`String?`, default: "CLP").
 * `exchangeRate` (`Decimal(10,2)?`).
 * `status` (`OrderStatus`, enum: `PENDING`, `PAID`, `FAILED`, `CANCELLED`, `REFUNDED`).
+* `origin` (`OrderOrigin`, enum: `ONLINE_MARKETPLACE`, `POS_IN_STORE`, default: `ONLINE_MARKETPLACE`): Identifica el canal de venta.
+* `posPaymentMethod` (`PosPaymentMethod?`, enum: `CASH`, `CARD_POS`, `TRANSFER`, `STORE_CREDIT`, `MIXED`): Método de pago presencial para ventas en mostrador.
+* `posVoucherRef` (`String?`): Nº de autorización bancaria o número de voucher físico de la maquinita (Compraquí, Transbank, SumUp).
+* `posCashierName` (`String?`): Nombre o identificador del cajero/vendedor que procesó la venta.
+* `cashShiftId` (`String?`, FK -> `CashShift`): Turno de caja en el que se registró la transacción.
+* `isOfflineSync` (`Boolean`, default: `false`): Flag que indica si la venta se originó en modo desconectado (sin internet) y fue sincronizada posteriormente al recuperar la red.
+* `offlineCreatedAt` (`DateTime?`): Fecha y hora real exacta en la que se generó la venta en el local físico antes de la sincronización.
 * `createdAt` / `updatedAt` (`DateTime`).
-* **Relaciones:** `payment`, `shippingLabel`, `user`, `vendorOrders`, `reservations`.
+* **Relaciones:** `payment`, `shippingLabel`, `user`, `vendorOrders`, `reservations`, `cashShift`.
 
 ### `VendorOrder`
 **Sub-Orden por Tienda (Split Order)**. Divide la Orden Maestra en paquetes independientes para cada tienda vendedora.
 * `id` (`String`, UUID, PK)
 * `orderId` (`String`, FK -> `Order`): Orden Maestra a la que pertenece.
 * `storeId` (`String`, FK -> `Store`): Tienda responsable del despacho.
-* `shippingProviderId` (`String`, FK -> `ShippingProvider`): Courier contratado para este paquete.
-* `shippingCourier` (`String?`): Nombre legible del método (`"STARKEN"`, `"CHILEXPRESS"`, `"RETIRO_TIENDA"`).
-* `shippingCost` (`Decimal(10,2)`, default: 0): Costo de envío específico asignado a este paquete ($0 si es retiro).
+* `shippingProviderId` (`String?`, FK -> `ShippingProvider`): Courier contratado para este paquete. **Es `null` para ventas presenciales POS** donde la entrega es inmediata en mostrador ($0).
+* `shippingCourier` (`String?`): Nombre legible del método (`"STARKEN"`, `"CHILEXPRESS"`, `"POS_PRESENCIAL"`, `"RETIRO_TIENDA"`).
+* `shippingCost` (`Decimal(10,2)`, default: 0): Costo de envío específico asignado a este paquete ($0 si es retiro o POS).
 * `subtotal` (`Decimal(10,2)`, default: 0): Monto neto de productos de esta tienda.
 * `status` (`OrderStatus`, default: `PENDING`): Estado de pago.
-* `deliveryStatus` (`String?`, default: `"PENDING_DISPATCH"`): Estado logístico (`PENDING_DISPATCH`, `DISPATCHED`, `DELIVERED`).
-* `trackingNumber` (`String?`): Número de orden de transporte o `"RETIRO-LOCAL"`.
+* `deliveryStatus` (`String?`, default: `"PENDING_DISPATCH"`): Estado logístico (`PENDING_DISPATCH`, `DISPATCHED`, `DELIVERED`). En ventas POS es automáticamente `DELIVERED`.
+* `trackingNumber` (`String?`): Número de orden de transporte, `"RETIRO-LOCAL"` o `"VENTA-MOSTRADOR"`.
 * `trackingUrl` (`String?`): Enlace directo al rastreo del courier.
-* `dispatchedAt` (`DateTime?`): Fecha y hora en que la tienda marcó el paquete como despachado.
+* `dispatchedAt` (`DateTime?`): Fecha y hora de entrega o despacho.
 * **Relaciones:** `order`, `store`, `shippingProvider`, `items`.
 
 ### `OrderItem`
@@ -457,9 +469,38 @@ Pares clave-valor globales del marketplace (banners generales, mantenimiento, an
 
 ---
 
+## 12. Punto de Venta (POS) y Turnos de Caja
+
+### `CashShift`
+Sesión de apertura, control de flujo de caja y arqueo diario de mostrador para tiendas físicas.
+* `id` (`String`, UUID, PK)
+* `storeId` (`String`, FK -> `Store`): Tienda a la que pertenece la sesión de caja.
+* `cashierName` (`String`): Nombre del cajero o vendedor responsable del turno.
+* `status` (`String`, default: `"OPEN"`): Estado del turno (`"OPEN"`, `"CLOSED"`).
+* `openedAt` (`DateTime`, default: `now()`): Fecha y hora de apertura.
+* `closedAt` (`DateTime?`): Fecha y hora de cierre y arqueo.
+* `initialCash` (`Decimal(10,2)`): Fondo inicial en efectivo para dar cambio/vuelto.
+* `expectedCash` (`Decimal(10,2)?`): Monto en efectivo calculado automáticamente por el sistema (`initialCash` + ventas en efectivo).
+* `actualCash` (`Decimal(10,2)?`): Monto real de efectivo contado físicamente por el cajero al momento de cerrar.
+* `cardTotal` (`Decimal(10,2)`, default: 0): Total acumulado en cobros con maquinita física (Compraquí, Transbank, MP Point) para cuadrar con el cierre de lote de la terminal.
+* `transferTotal` (`Decimal(10,2)`, default: 0): Total acumulado en transferencias bancarias directas.
+* `creditTotal` (`Decimal(10,2)`, default: 0): Total cobrado en Store Credit (saldo de tienda).
+* `difference` (`Decimal(10,2)?`): Descuadre de caja calculado (`actualCash - expectedCash`). Positivo indica sobrante, negativo faltante.
+* `notes` (`String?`): Observaciones del turno o justificación de diferencias.
+* `createdAt` / `updatedAt` (`DateTime`).
+* **Índices:** `@@index([storeId, status])`.
+* **Relaciones:** `store`, `orders`.
+
+> ⚠️ **REGLA FINANCIERA CANÓNICA (NO RETENCIÓN EN BILLETERA):**  
+> Las ventas presenciales procesadas a través del módulo POS son cobradas directamente por el vendedor en su local físico (dinero en efectivo en mano o depósito en la cuenta de su maquinita propia).  
+> **Dichos fondos NO se acreditan a `Store.balance` en la tabla `WalletTransaction` como saldo retirable**, ya que el dinero nunca pasa por la cuenta recaudadora central de TapTrade. Esto evita que una tienda solicite una transferencia de liquidación (`WithdrawalRequest`) por dinero que ya percibió físicamente.
+
+---
+
 ## Resumen de Cambios Recientes (Auditoría Anti-Duplicidad)
 
 | Fecha | Cambio | Justificación Técnica |
 | :--- | :--- | :--- |
+| **Octubre 2026** | **Arquitectura de Punto de Venta (POS) y Turnos de Caja** | Se incorporó el modelo `CashShift`, campos `barcode` y `sku` en `Product`, origen `POS_IN_STORE` en `Order` y flexibilización de `VendorOrder.shippingProviderId`. Se fijó la regla financiera canónica que impide computar ventas presenciales en la billetera de custodia del marketplace. |
 | **Octubre 2026** | **Eliminación de `RETIRO_TIENDA` en `ShippingProvider`** | Se consolidó `Store.pickupEnabled` (`pickupAddress` y `pickupSchedule`) como la **única fuente de verdad** del retiro en local ($0). La tabla `ShippingProvider` queda reservada exclusivamente para couriers de despacho externos (`CHILEXPRESS`, `STARKEN`). |
 | **Octubre 2026** | **Persistencia de Carrito en `localStorage`** | Se implementó sincronización automática en `cart-slice.ts` (`taptrade_cart_v1`) para evitar la pérdida de cartas seleccionadas al refrescar la página. |

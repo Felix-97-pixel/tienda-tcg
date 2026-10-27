@@ -7,17 +7,35 @@ export class GetTopProductsHandler implements IQueryHandler<GetTopProductsQuery>
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetTopProductsQuery) {
-    const whereClause: any = { vendorOrder: { status: 'PAID' } };
-    
-    if (query.startDate || query.endDate) {
+    const { userId, role, startDate, endDate } = query;
+
+    let storeId: string | null = null;
+    if (role !== 'SUPERADMIN' && userId) {
+      const store = await this.prisma.store.findUnique({
+        where: { ownerId: userId },
+        select: { id: true },
+      });
+      if (store) {
+        storeId = store.id;
+      }
+    }
+
+    const whereClause: any = {
+      vendorOrder: {
+        ...(storeId ? { storeId } : {}),
+        status: 'PAID',
+      },
+    };
+
+    if (startDate || endDate) {
       whereClause.vendorOrder = {
         ...whereClause.vendorOrder,
         order: {
           createdAt: {
-            ...(query.startDate ? { gte: new Date(query.startDate) } : {}),
-            ...(query.endDate ? { lte: new Date(query.endDate) } : {})
-          }
-        }
+            ...(startDate ? { gte: new Date(startDate) } : {}),
+            ...(endDate ? { lte: new Date(endDate) } : {}),
+          },
+        },
       };
     }
 

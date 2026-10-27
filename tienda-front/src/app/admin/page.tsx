@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import SyncDealerPricesBtn from "./SyncDealerPricesBtn";
+import { IconPos } from "@/components/ui/Icons";
 
 export const metadata = {
   title: "Seleccionar Módulo | TapTrade Admin",
@@ -54,6 +55,16 @@ export default async function AdminHub() {
       shadow: "shadow-amber-900/30",
       accentText: "text-amber-400",
       tag: "Ajustes & Envíos"
+    },
+    {
+      href: "/admin/pos",
+      title: "Punto de Venta (POS)",
+      description: "Caja registradora para tu local físico, escáner de códigos de barra, buscador de cartas singles y cuadratura de caja.",
+      icon: <IconPos className="w-8 h-8" size={32} />,
+      color: "from-blue-600 to-indigo-700",
+      shadow: "shadow-blue-900/30",
+      accentText: "text-blue-400",
+      tag: "Venta en Mostrador"
     }
   ];
 
@@ -78,7 +89,7 @@ export default async function AdminHub() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl">
         {modules.map((mod) => (
           <Link
             key={mod.href}
