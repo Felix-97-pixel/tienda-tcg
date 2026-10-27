@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import PosNetworkBadge from './PosNetworkBadge';
+import { IconCart, IconRepeat } from '@/components/ui/Icons';
 
 interface PosHeaderProps {
   storeName: string;
@@ -20,6 +21,8 @@ interface PosHeaderProps {
   onCloseShiftClick: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
+  posMode: 'SELL' | 'BUY';
+  onTogglePosMode: (mode: 'SELL' | 'BUY') => void;
 }
 
 export default function PosHeader({
@@ -32,6 +35,8 @@ export default function PosHeader({
   onCloseShiftClick,
   isFullscreen,
   onToggleFullscreen,
+  posMode,
+  onTogglePosMode,
 }: PosHeaderProps) {
   const [currentTime, setCurrentTime] = useState<string>('');
 
@@ -55,7 +60,11 @@ export default function PosHeader({
     <header className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#0E121B] rounded-2xl border border-white/10 shadow-lg">
       {/* Información del Local y Cajero */}
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-xl bg-red/10 border border-red/30 flex items-center justify-center text-red font-black text-sm shadow-sm">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shadow-sm transition-colors ${
+          posMode === 'BUY'
+            ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+            : 'bg-red/10 border border-red/30 text-red'
+        }`}>
           TT
         </div>
         <div>
@@ -74,6 +83,35 @@ export default function PosHeader({
             </span>
           </p>
         </div>
+      </div>
+
+      {/* Switch / Interruptor Central de Modo de Operación: VENDER vs COMPRAR (Trade-in) */}
+      <div className="flex items-center p-1 rounded-2xl bg-[#07090E] border border-white/10 shadow-inner">
+        <button
+          type="button"
+          onClick={() => onTogglePosMode('SELL')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+            posMode === 'SELL'
+              ? 'bg-red text-white shadow-lg shadow-red/30'
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <IconCart className="w-4 h-4" />
+          <span>Vender Cartas</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onTogglePosMode('BUY')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+            posMode === 'BUY'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-1 ring-emerald-400/50'
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <IconRepeat className="w-4 h-4" />
+          <span>Comprar (Trade-in)</span>
+        </button>
       </div>
 
       {/* Reloj y Estado de Red */}

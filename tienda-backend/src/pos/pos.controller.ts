@@ -16,6 +16,8 @@ import { StoresService } from '../stores/stores.service';
 import { CreatePosSaleDto } from './dto/create-pos-sale.dto';
 import { OpenShiftDto, CloseShiftDto } from './dto/pos-shift.dto';
 import { SyncOfflineSalesDto } from './dto/sync-offline-sales.dto';
+import { PosBuyOperationDto } from './dto/pos-buy-operation.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('pos')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -52,8 +54,19 @@ export class PosController {
   }
 
   /**
+   * POST /api/v1/pos/buy
+   * Registra una compra / trade-in a un cliente (abono a Store Credit o pago en efectivo).
+   */
+  @Post('buy')
+  async processBuy(@Request() req: any, @Body() dto: PosBuyOperationDto) {
+    const store = await this.getStore(req);
+    const cashierName = req.user.name || req.user.email || 'Cajero';
+    return this.posService.processBuyOperation(store.id, cashierName, dto);
+  }
+
+  /**
    * GET /api/v1/pos/shift/current
-   * Consulta el estado del turno de caja activo para la tienda.
+   * Consulta el turno de caja abierto actualmente para la tienda.
    */
   @Get('shift/current')
   async getCurrentShift(@Request() req: any) {
@@ -63,12 +76,12 @@ export class PosController {
 
   /**
    * POST /api/v1/pos/shift/open
-   * Abre un turno de caja con fondo inicial para vuelto.
+   * Abre un turno de caja con fondo inicial en efectivo.
    */
   @Post('shift/open')
   async openShift(@Request() req: any, @Body() dto: OpenShiftDto) {
     const store = await this.getStore(req);
-    const cashierName = dto.cashierName || req.user.name || 'Cajero';
+    const cashierName = req.user.name || req.user.email || 'Cajero';
     return this.posService.openShift(store.id, cashierName, dto);
   }
 
@@ -85,7 +98,9 @@ export class PosController {
   /**
    * POST /api/v1/pos/sales/sync-offline
    * Sincroniza un lote de ventas realizadas en modo offline.
+   * SkipThrottle previene que la sincronización en ráfaga o reconexión sea bloqueada por 429.
    */
+  @SkipThrottle()
   @Post('sales/sync-offline')
   async syncOfflineSales(@Request() req: any, @Body() dto: SyncOfflineSalesDto) {
     const store = await this.getStore(req);

@@ -7,6 +7,9 @@ export interface PosCartItem {
   productId: string;
   name: string;
   imageUrl?: string | null;
+  expansion?: string | null;
+  collectorNum?: string | null;
+  rarity?: string | null;
   conditionLabel?: string;
   languageCode?: string;
   finishLabel?: string;
@@ -119,12 +122,23 @@ export default function PosCart({
                     <p className="text-xs font-bold text-white truncate">
                       {item.name}
                     </p>
-                    <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-white/50">
+                    <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-white/50 flex-wrap">
                       {item.conditionLabel && (
                         <span className="text-red font-semibold">{item.conditionLabel}</span>
                       )}
+                      {item.expansion && (
+                        <span className="text-white/60">{item.expansion}</span>
+                      )}
+                      {item.collectorNum && (
+                        <span className="font-mono text-white/40">#{item.collectorNum}</span>
+                      )}
+                      {item.rarity && (
+                        <span className="px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] font-bold text-amber-300 capitalize">
+                          {item.rarity}
+                        </span>
+                      )}
                       {item.languageCode && <span>• {item.languageCode}</span>}
-                      {item.finishLabel && <span>• {item.finishLabel}</span>}
+                      {item.finishLabel && <span className="text-purple-400">({item.finishLabel})</span>}
                     </div>
                     <p className="text-xs font-mono font-medium text-white/70 mt-1">
                       ${item.unitPrice.toLocaleString('es-CL')} CLP c/u

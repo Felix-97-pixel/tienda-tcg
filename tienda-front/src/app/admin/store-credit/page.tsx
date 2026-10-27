@@ -8,6 +8,7 @@ import StoreCreditModal from "@/app/admin/_components/StoreCredit/StoreCreditMod
 import StoreCreditHistoryModal from "@/app/admin/_components/StoreCredit/StoreCreditHistoryModal";
 import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useAppSelector } from "@/redux/store";
+import { IconClock, IconPlus, IconWallet } from "@/components/ui/Icons";
 import type {
   StoreCredit,
   StoreCreditUser,
@@ -79,16 +80,9 @@ export default function AdminStoreCreditPage() {
           <Button
             variant="primary"
             onClick={() => handleAdjust("MANUAL_ADD")}
-            leftIcon={<span className="text-lg font-bold">+</span>}
+            leftIcon={<IconPlus className="w-4 h-4" />}
           >
             Abonar (Trade-in)
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => handleAdjust("MANUAL_SUBTRACT")}
-            leftIcon={<span className="text-lg font-bold">-</span>}
-          >
-            Descontar (Compra)
           </Button>
         </div>
       </div>
@@ -100,8 +94,8 @@ export default function AdminStoreCreditPage() {
           </div>
         ) : credits.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-3xl">
-              💰
+            <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-white/40">
+              <IconWallet className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Sin Créditos</h3>
             <p className="text-white/40 max-w-sm text-xs">
@@ -140,19 +134,7 @@ export default function AdminStoreCreditPage() {
                           }
                         }}
                       >
-                        <svg
-                          className="w-4 h-4 mr-1 inline-block"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
+                        <IconClock className="w-4 h-4 mr-1 inline-block" />
                         Historial
                       </Button>
                       <Button
@@ -161,13 +143,6 @@ export default function AdminStoreCreditPage() {
                         onClick={() => handleAdjust("MANUAL_ADD", c)}
                       >
                         + Abonar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleAdjust("MANUAL_SUBTRACT", c)}
-                      >
-                        - Descontar
                       </Button>
                     </td>
                   </tr>

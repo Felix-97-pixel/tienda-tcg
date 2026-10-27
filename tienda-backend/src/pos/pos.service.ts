@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePosSaleDto } from './dto/create-pos-sale.dto';
 import { OpenShiftDto, CloseShiftDto } from './dto/pos-shift.dto';
 import { SyncOfflineSalesDto } from './dto/sync-offline-sales.dto';
+import { PosBuyOperationDto, PosBuyPayoutMethod } from './dto/pos-buy-operation.dto';
 
 @Injectable()
 export class PosService {
@@ -708,5 +709,113 @@ export class PosService {
       warnings,
     };
   }
-}
 
+  /**
+   * Procesa la compra / trade-in de cartas a un cliente:
+   * 1. Si payoutMethod === 'STORE_CREDIT', abona al saldo de la cuenta del usuario.
+   * 2. Si payoutMethod === 'CASH', descuenta del expectedCash de la caja y registra la orden de egreso en base de datos.
+   * 3. Registra la transacción con snapshot de items.
+   */
+  async processBuyOperation(storeId: string, cashierName: string, dto: PosBuyOperationDto) {
+    if (!dto.items || dto.items.length === 0) {
+      throw new BadRequestException('Debe incluir al menos un producto para la compra');
+    }
+
+    const totalNum = Number(dto.totalAmount);
+    if (totalNum <= 0) {
+      throw new BadRequestException('El monto total a pagar debe ser mayor a 0');
+    }
+
+    const currentShift = await this.getCurrentShift(storeId);
+    if (!currentShift) {
+      throw new BadRequestException('No hay un turno de caja abierto para registrar esta compra.');
+    }
+
+    let targetUserId = dto.userId;
+    if (!targetUserId && (dto.customerEmail || dto.customerRut)) {
+      const term = (dto.customerEmail || dto.customerRut || '').trim();
+      const user = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: { equals: term, mode: 'insensitive' } },
+            { phone: { equals: term, mode: 'insensitive' } },
+          ],
+        },
+      });
+      if (user) targetUserId = user.id;
+    }
+
+    if (dto.payoutMethod === PosBuyPayoutMethod.STORE_CREDIT && !targetUserId) {
+      throw new BadRequestException('Para abonar en Crédito de Tienda debes seleccionar o registrar un cliente.');
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      let finalBalance = 0;
+
+      // 1. PAGO EN CRÉDITO DE TIENDA
+      if (dto.payoutMethod === PosBuyPayoutMethod.STORE_CREDIT && targetUserId) {
+        const sc = await tx.storeCredit.upsert({
+          where: { storeId_userId: { storeId, userId: targetUserId } },
+          create: {
+            storeId,
+            userId: targetUserId,
+            balance: totalNum,
+          },
+          update: {
+            balance: { increment: totalNum },
+          },
+        });
+        finalBalance = Number(sc.balance);
+
+        await tx.storeCreditTransaction.create({
+          data: {
+            storeId,
+            userId: targetUserId,
+            amount: totalNum,
+            type: 'BUYLIST_TRADE',
+            reference: 'Trade-in POS (Cajero: ' + (cashierName || 'Cajero') + ')',
+            itemsData: dto.items as any,
+          },
+        });
+      }
+
+      // 2. PAGO EN EFECTIVO (EGRESO DE CAJA Y REGISTRO EN DB)
+      if (dto.payoutMethod === PosBuyPayoutMethod.CASH) {
+        await tx.cashShift.update({
+          where: { id: currentShift.id },
+          data: {
+            expectedCash: { decrement: totalNum },
+          },
+        });
+
+        // Registrar orden de compra en la base de datos para auditoria de caja
+        const buyOrder = ('BUY-CASH-' + Date.now()).slice(0, 26);
+        await tx.order.create({
+          data: {
+            buyOrder,
+            userId: targetUserId || null,
+            email: dto.customerEmail || ('tradein@' + storeId + '.taptrade.cl'),
+            name: dto.customerName || 'Cliente Trade-In (Efectivo)',
+            phone: dto.customerRut || null,
+            totalAmount: totalNum,
+            currencyCode: 'CLP',
+            status: 'PAID',
+            origin: 'POS_IN_STORE',
+            posPaymentMethod: 'CASH',
+            posCashierName: cashierName || 'Cajero',
+            cashShiftId: currentShift.id,
+            notes: dto.notes ? ('[Compra de Cartas]: ' + dto.notes) : '[Compra de Cartas / Trade-In en Efectivo]',
+          },
+        });
+      }
+
+      return {
+        success: true,
+        payoutMethod: dto.payoutMethod,
+        totalPaid: totalNum,
+        newBalance: finalBalance,
+        shiftId: currentShift.id,
+      };
+    });
+  }
+}

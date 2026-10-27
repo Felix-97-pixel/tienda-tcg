@@ -11,7 +11,12 @@ export class BuylistService {
     return this.prisma.buyListItem.findMany({
       where: { storeId },
       include: {
-        product: true,
+        product: {
+          include: {
+            cardDetail: true,
+            category: true,
+          },
+        },
         condition: true,
         language: true,
       },

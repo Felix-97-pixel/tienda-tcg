@@ -9,6 +9,10 @@ export class OfflineSalePayloadDto extends CreatePosSaleDto {
   @IsOptional()
   @IsString()
   offlineCreatedAt?: string;
+
+  @IsOptional()
+  @IsString()
+  storeId?: string;
 }
 
 export class SyncOfflineSalesDto {
