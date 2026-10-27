@@ -215,32 +215,85 @@ export class PosService {
       }
 
       // 2. Si se utilizó Store Credit, debitar saldo del usuario registrado
-      if (dto.storeCreditAmount && dto.storeCreditAmount > 0 && dto.userId) {
+      if (dto.paymentMethod === 'STORE_CREDIT' || (dto.storeCreditAmount && dto.storeCreditAmount > 0)) {
+        const creditAmount = Number(dto.storeCreditAmount || dto.totalAmount || 0);
+
+        // Resolver targetUserId a partir de userId explícito o buscando por email/RUT/nombre
+        let targetUserId = dto.userId;
+        const queryTerm = (dto.customerEmail || dto.customerRut || '').trim();
+
+        if (!targetUserId && queryTerm) {
+          const user = await tx.user.findFirst({
+            where: {
+              OR: [
+                { email: { equals: queryTerm, mode: 'insensitive' } },
+                { phone: { equals: queryTerm, mode: 'insensitive' } },
+              ],
+            },
+          });
+
+          if (user) {
+            targetUserId = user.id;
+          } else {
+            // Buscar si existe un StoreCredit en esta tienda asociado al usuario por coincidencia de email o nombre
+            const sc = await tx.storeCredit.findFirst({
+              where: {
+                storeId,
+                user: {
+                  OR: [
+                    { email: { equals: queryTerm, mode: 'insensitive' } },
+                    { name: { contains: queryTerm, mode: 'insensitive' } },
+                  ],
+                },
+              },
+            });
+            if (sc) {
+              targetUserId = sc.userId;
+            }
+          }
+        }
+
+        if (!targetUserId) {
+          throw new BadRequestException(
+            'Para pagar con Crédito en Tienda debes seleccionar un cliente registrado o indicar su email/RUT con saldo activo en tu tienda.',
+          );
+        }
+
         const creditRecord = await tx.storeCredit.findUnique({
-          where: { storeId_userId: { storeId, userId: dto.userId } },
+          where: { storeId_userId: { storeId, userId: targetUserId } },
+          include: { user: true },
         });
 
         const currentBalance = Number(creditRecord?.balance || 0);
-        if (currentBalance < dto.storeCreditAmount) {
+        if (currentBalance < creditAmount) {
           throw new BadRequestException(
-            `El cliente no tiene suficiente crédito en tienda. Saldo: $${currentBalance}, requerido: $${dto.storeCreditAmount}`,
+            `El cliente no tiene suficiente crédito en tienda. Saldo disponible: $${currentBalance.toLocaleString('es-CL')}, requerido: $${creditAmount.toLocaleString('es-CL')}`,
           );
         }
 
         await tx.storeCredit.update({
-          where: { storeId_userId: { storeId, userId: dto.userId } },
-          data: { balance: { decrement: dto.storeCreditAmount } },
+          where: { storeId_userId: { storeId, userId: targetUserId } },
+          data: { balance: { decrement: creditAmount } },
         });
 
         await tx.storeCreditTransaction.create({
           data: {
             storeId,
-            userId: dto.userId,
-            amount: -dto.storeCreditAmount,
+            userId: targetUserId,
+            amount: -creditAmount,
             type: 'PURCHASE',
-            reference: `Compra POS Mostrador`,
+            reference: `Compra POS Mostrador #${currentShift.id.slice(0, 8)}`,
           },
         });
+
+        // Asegurar que el ID y los datos del cliente se asocien a la orden
+        dto.userId = targetUserId;
+        if (!dto.customerEmail && creditRecord?.user?.email) {
+          dto.customerEmail = creditRecord.user.email;
+        }
+        if (!dto.customerName && creditRecord?.user?.name) {
+          dto.customerName = creditRecord.user.name;
+        }
       }
 
       // 3. Crear Orden Maestra y Sub-orden de tienda
@@ -535,6 +588,46 @@ export class PosService {
               where: { id: item.inventoryItemId },
               data: { stock: Math.max(0, inv.stock - item.quantity) },
             });
+          }
+
+          // Descontar saldo de Store Credit si aplica
+          if (sale.paymentMethod === 'STORE_CREDIT' || (sale.storeCreditAmount && sale.storeCreditAmount > 0)) {
+            const creditAmount = Number(sale.storeCreditAmount || totalNum);
+            let targetUserId = sale.userId;
+            const queryTerm = (sale.customerEmail || sale.customerRut || '').trim();
+
+            if (!targetUserId && queryTerm) {
+              const u = await tx.user.findFirst({
+                where: {
+                  OR: [
+                    { email: { equals: queryTerm, mode: 'insensitive' } },
+                    { phone: { equals: queryTerm, mode: 'insensitive' } },
+                  ],
+                },
+              });
+              if (u) targetUserId = u.id;
+            }
+
+            if (targetUserId) {
+              const sc = await tx.storeCredit.findUnique({
+                where: { storeId_userId: { storeId, userId: targetUserId } },
+              });
+              if (sc) {
+                await tx.storeCredit.update({
+                  where: { storeId_userId: { storeId, userId: targetUserId } },
+                  data: { balance: Math.max(0, Number(sc.balance) - creditAmount) },
+                });
+                await tx.storeCreditTransaction.create({
+                  data: {
+                    storeId,
+                    userId: targetUserId,
+                    amount: -creditAmount,
+                    type: 'PURCHASE',
+                    reference: `Venta POS Offline Sincronizada (${sale.offlineId})`,
+                  },
+                });
+              }
+            }
           }
 
           // Crear la orden con los metadatos de sincronización offline

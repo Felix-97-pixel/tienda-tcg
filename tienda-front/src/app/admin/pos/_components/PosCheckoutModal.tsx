@@ -1,6 +1,6 @@
-"use client";
 import React, { useState, useEffect } from 'react';
 import { PosCartItem } from './PosCart';
+import { API_URL } from '@/utils/api';
 
 interface PosCheckoutModalProps {
   isOpen: boolean;
@@ -17,6 +17,7 @@ interface PosCheckoutModalProps {
     customerName?: string;
     customerEmail?: string;
     customerRut?: string;
+    userId?: string;
     storeCreditAmount?: number;
   }) => Promise<void>;
   isProcessing: boolean;
@@ -39,6 +40,12 @@ export default function PosCheckoutModal({
   const [customerRut, setCustomerRut] = useState<string>('');
   const [storeCreditAmount, setStoreCreditAmount] = useState<number>(0);
 
+  // Estados para búsqueda y verificación de saldo de Store Credit
+  const [storeCreditsList, setStoreCreditsList] = useState<any[]>([]);
+  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
+  const [selectedCreditCustomer, setSelectedCreditCustomer] = useState<any | null>(null);
+  const [creditSearchQuery, setCreditSearchQuery] = useState('');
+
   // Inicializar monto recibido con el total cada vez que abre el modal
   useEffect(() => {
     if (isOpen) {
@@ -46,6 +53,37 @@ export default function PosCheckoutModal({
       setVoucherRef('');
     }
   }, [isOpen, totalAmount]);
+
+  // Cargar clientes con Store Credit cuando se activa ese método de pago
+  useEffect(() => {
+    if (isOpen && selectedMethod === 'STORE_CREDIT') {
+      setIsLoadingCredits(true);
+      fetch(`${API_URL}/store-credit`, {
+        headers: {
+          'x-auth-scope': 'admin',
+        },
+        credentials: 'include',
+      })
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setStoreCreditsList(data);
+            // Si ya había ingresado un email/RUT, intentar auto-seleccionar
+            if (customerEmail || customerRut) {
+              const term = (customerEmail || customerRut).toLowerCase().trim();
+              const matched = data.find(
+                (c) =>
+                  c.user?.email?.toLowerCase() === term ||
+                  c.user?.name?.toLowerCase().includes(term)
+              );
+              if (matched) setSelectedCreditCustomer(matched);
+            }
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsLoadingCredits(false));
+    }
+  }, [isOpen, selectedMethod, customerEmail, customerRut]);
 
   // Atajo de escape para cerrar
   useEffect(() => {
@@ -63,6 +101,9 @@ export default function PosCheckoutModal({
   const change = Math.max(0, receivedAmount - totalAmount);
   const isValidCash = receivedAmount >= totalAmount;
 
+  const creditBalance = selectedCreditCustomer ? Number(selectedCreditCustomer.balance || 0) : 0;
+  const isCreditSufficient = selectedCreditCustomer ? creditBalance >= totalAmount : true;
+
   const handleQuickBill = (amount: number) => {
     setReceivedAmount((prev) => prev + amount);
   };
@@ -70,15 +111,17 @@ export default function PosCheckoutModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedMethod === 'CASH' && !isValidCash) return;
+    if (selectedMethod === 'STORE_CREDIT' && selectedCreditCustomer && !isCreditSufficient) return;
 
     await onConfirmSale({
       paymentMethod: selectedMethod,
       receivedAmount: selectedMethod === 'CASH' ? receivedAmount : undefined,
       changeAmount: selectedMethod === 'CASH' ? change : undefined,
       voucherRef: voucherRef.trim() || undefined,
-      customerName: customerName.trim() || undefined,
-      customerEmail: customerEmail.trim() || undefined,
+      customerName: selectedCreditCustomer?.user?.name || customerName.trim() || undefined,
+      customerEmail: selectedCreditCustomer?.user?.email || customerEmail.trim() || undefined,
       customerRut: customerRut.trim() || undefined,
+      userId: selectedCreditCustomer?.userId || selectedCreditCustomer?.user?.id || undefined,
       storeCreditAmount: selectedMethod === 'STORE_CREDIT' ? totalAmount : undefined,
     });
   };
@@ -232,21 +275,133 @@ export default function PosCheckoutModal({
 
           {selectedMethod === 'STORE_CREDIT' && (
             <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
-              <p className="text-xs text-white/60">
-                Cobro total con saldo acumulado en tienda (Store Credit).
-              </p>
-              <div>
-                <label className="block text-xs font-bold text-white/70 mb-1.5">
-                  RUT o Email del Jugador / Comprador:
-                </label>
-                <input
-                  type="text"
-                  value={customerRut}
-                  onChange={(e) => setCustomerRut(e.target.value)}
-                  placeholder="12.345.678-9 o correo@ejemplo.com"
-                  className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-red"
-                />
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white">Pago con Saldo de Tienda (Store Credit)</h3>
+                  <p className="text-xs text-white/50">Debita el total directamente del saldo a favor del jugador.</p>
+                </div>
+                {isLoadingCredits && (
+                  <div className="w-4 h-4 border-2 border-red border-t-transparent rounded-full animate-spin" />
+                )}
               </div>
+
+              {selectedCreditCustomer ? (
+                <div className="p-4 rounded-xl bg-[#090C13] border border-white/10 space-y-3 font-mono">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10 text-xs">
+                    <div>
+                      <span className="text-white font-bold block text-sm">
+                        {selectedCreditCustomer.user?.name || 'Cliente'}
+                      </span>
+                      <span className="text-white/50 text-[11px]">
+                        {selectedCreditCustomer.user?.email}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCreditCustomer(null)}
+                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-[11px] border border-white/10 transition-colors"
+                    >
+                      Cambiar
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                    <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                      <span className="text-[10px] text-white/40 block">Saldo Actual</span>
+                      <span className="font-bold text-white text-xs sm:text-sm">
+                        ${creditBalance.toLocaleString('es-CL')}
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                      <span className="text-[10px] text-white/40 block">Total Venta</span>
+                      <span className="font-bold text-red text-xs sm:text-sm">
+                        -${totalAmount.toLocaleString('es-CL')}
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                      <span className="text-[10px] text-white/40 block">Saldo Nuevo</span>
+                      <span className={`font-bold text-xs sm:text-sm ${isCreditSufficient ? 'text-emerald-400' : 'text-red'}`}>
+                        ${Math.max(0, creditBalance - totalAmount).toLocaleString('es-CL')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {isCreditSufficient ? (
+                    <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+                      <span>✓</span>
+                      <span>Saldo suficiente. Se debitarán ${totalAmount.toLocaleString('es-CL')} CLP.</span>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-lg bg-red/10 border border-red/20 text-red text-xs flex items-center gap-2">
+                      <span>⚠️</span>
+                      <span>
+                        Saldo insuficiente. Faltan ${(totalAmount - creditBalance).toLocaleString('es-CL')} CLP para cubrir la compra.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-white/70 mb-1.5">
+                      Buscar cliente con saldo registrado:
+                    </label>
+                    <input
+                      type="text"
+                      value={creditSearchQuery}
+                      onChange={(e) => {
+                        setCreditSearchQuery(e.target.value);
+                        setCustomerRut(e.target.value);
+                      }}
+                      placeholder="Escribir nombre o correo del jugador (ej: Felix Cabello)..."
+                      className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-red"
+                    />
+                  </div>
+
+                  {/* Lista de clientes coincidentes */}
+                  <div className="max-h-48 overflow-y-auto space-y-1.5 rounded-xl border border-white/10 p-2 bg-[#07090E]">
+                    {storeCreditsList.length === 0 ? (
+                      <p className="text-xs text-white/40 text-center py-3">
+                        {isLoadingCredits ? 'Cargando clientes...' : 'No hay clientes con saldo de Store Credit en esta tienda.'}
+                      </p>
+                    ) : (
+                      storeCreditsList
+                        .filter((c) => {
+                          if (!creditSearchQuery) return true;
+                          const q = creditSearchQuery.toLowerCase();
+                          return (
+                            c.user?.name?.toLowerCase().includes(q) ||
+                            c.user?.email?.toLowerCase().includes(q)
+                          );
+                        })
+                        .map((c) => (
+                          <button
+                            key={c.id || c.userId}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCreditCustomer(c);
+                              setCustomerEmail(c.user?.email || '');
+                              setCustomerName(c.user?.name || '');
+                            }}
+                            className="w-full p-2.5 rounded-lg bg-white/[0.02] hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all flex items-center justify-between text-left group"
+                          >
+                            <div className="min-w-0 pr-2">
+                              <span className="text-xs font-bold text-white group-hover:text-red transition-colors block truncate">
+                                {c.user?.name || 'Cliente'}
+                              </span>
+                              <span className="text-[11px] text-white/40 truncate block font-mono">
+                                {c.user?.email}
+                              </span>
+                            </div>
+                            <span className="px-2 py-1 rounded bg-emerald-500/15 border border-emerald-500/20 text-emerald-400 font-mono font-bold text-xs shrink-0">
+                              ${Number(c.balance || 0).toLocaleString('es-CL')}
+                            </span>
+                          </button>
+                        ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -280,7 +435,12 @@ export default function PosCheckoutModal({
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isProcessing || (selectedMethod === 'CASH' && !isValidCash)}
+              disabled={
+                isProcessing ||
+                (selectedMethod === 'CASH' && !isValidCash) ||
+                (selectedMethod === 'STORE_CREDIT' && (!selectedCreditCustomer && !customerEmail.trim() && !customerRut.trim())) ||
+                (selectedMethod === 'STORE_CREDIT' && selectedCreditCustomer && !isCreditSufficient)
+              }
               className="w-full py-4 rounded-xl bg-red hover:bg-red-light disabled:opacity-40 text-white font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-red/20 flex items-center justify-center gap-2"
             >
               {isProcessing ? (

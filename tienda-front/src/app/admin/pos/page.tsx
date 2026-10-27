@@ -276,6 +276,7 @@ export default function AdminPosPage() {
     customerName?: string;
     customerEmail?: string;
     customerRut?: string;
+    userId?: string;
     storeCreditAmount?: number;
   }) => {
     setIsProcessing(true);
@@ -311,6 +312,7 @@ export default function AdminPosPage() {
             customerName: payload.customerName,
             customerEmail: payload.customerEmail,
             customerRut: payload.customerRut,
+            userId: payload.userId,
             storeCreditAmount: payload.storeCreditAmount,
             cashierName: currentShift?.cashierName || 'Cajero',
           }),
@@ -369,6 +371,7 @@ export default function AdminPosPage() {
           customerName: payload.customerName,
           customerEmail: payload.customerEmail,
           customerRut: payload.customerRut,
+          userId: payload.userId,
           storeCreditAmount: payload.storeCreditAmount,
           items: saleItemsPayload,
         });
