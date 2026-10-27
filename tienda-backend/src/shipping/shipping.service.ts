@@ -110,9 +110,8 @@ export class ShippingService implements OnModuleInit {
       orderBy: { price: 'desc' },
     });
 
-    // Si aún no existen registros propios para esta tienda, crearlos copiando los valores por defecto
+    // Si aún no existen registros propios para esta tienda, crearlos copiando los valores por defecto (solo couriers de despacho)
     const defaultConfigs = [
-      { name: 'RETIRO_TIENDA', price: 0.0, isActive: store.pickupEnabled ?? true },
       { name: 'CHILEXPRESS', price: 9990.0, isActive: true },
       { name: 'STARKEN', price: 6990.0, isActive: true },
     ];
@@ -298,6 +297,7 @@ export class ShippingService implements OnModuleInit {
       }
     }
 
+
     return this.prisma.store.update({
       where: { id: storeId },
       data: {
@@ -375,12 +375,10 @@ export class ShippingService implements OnModuleInit {
 
       const starkenProvider = storeProviders.find((p) => p.name === 'STARKEN');
       const chilexpressProvider = storeProviders.find((p) => p.name === 'CHILEXPRESS');
-      const pickupProvider = storeProviders.find((p) => p.name === 'RETIRO_TIENDA');
 
       // Aislamiento por tienda: Si la tienda configuró el proveedor, usar su estado; si no, por defecto activo.
       const isStarkenActive = starkenProvider ? starkenProvider.isActive : true;
       const isChilexpressActive = chilexpressProvider ? chilexpressProvider.isActive : true;
-      const isPickupActive = pickupProvider ? pickupProvider.isActive : true;
 
       // 2. Cubicaje TCG
       const pkg = estimateTcgPackage(
@@ -400,10 +398,10 @@ export class ShippingService implements OnModuleInit {
 
       const options: QuotedOption[] = [];
 
-      // Opción A: Retiro en Tienda (solo si la tienda lo tiene habilitado y el método está activo)
-      if (store?.pickupEnabled && isPickupActive) {
+      // Opción A: Retiro en Tienda (gestionado exclusivamente por Store.pickupEnabled)
+      if (store?.pickupEnabled) {
         options.push({
-          id: pickupProvider ? pickupProvider.id : 'pickup',
+          id: `pickup_${store.id}`,
           provider: 'RETIRO_TIENDA',
           name: 'Retiro en Tienda (Pick-up)',
           price: 0,
@@ -579,8 +577,12 @@ export class ShippingService implements OnModuleInit {
    */
   async seedProviders() {
     try {
+      // Limpiar proveedores obsoletos 'RETIRO_TIENDA' de la tabla ShippingProvider (el retiro es gestionado por Store.pickupEnabled)
+      await this.prisma.shippingProvider.deleteMany({
+        where: { name: 'RETIRO_TIENDA' },
+      }).catch(() => {});
+
       const defaultProviders = [
-        { name: 'RETIRO_TIENDA', price: 0.0, isActive: true },
         { name: 'CHILEXPRESS', price: 9990.0, isActive: true },
         { name: 'STARKEN', price: 6990.0, isActive: true },
       ];
@@ -619,7 +621,7 @@ export class ShippingService implements OnModuleInit {
                 storeId: store.id,
                 name: prov.name,
                 price: prov.price,
-                isActive: prov.name === 'RETIRO_TIENDA' ? (store.pickupEnabled ?? true) : prov.isActive,
+                isActive: prov.isActive,
               },
             });
           }

@@ -216,6 +216,7 @@ export class StoresService {
       }
     }
 
+
     // Actualizar nombre, logo, ubicación y despacho de la tienda
     await this.prisma.store.update({
       where: { id: store.id },

@@ -40,10 +40,46 @@ export type AppliedCoupon = {
   applicableItemIds?: string[];
 };
 
-const initialState: InitialState = {
-  items: [],
-  appliedCoupons: [],
+const CART_STORAGE_KEY = "taptrade_cart_v1";
+
+const getInitialCartState = (): InitialState => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(CART_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return {
+          items: Array.isArray(parsed.items) ? parsed.items : [],
+          appliedCoupons: Array.isArray(parsed.appliedCoupons) ? parsed.appliedCoupons : [],
+        };
+      }
+    } catch (e) {
+      console.warn("Error cargando carrito desde localStorage:", e);
+    }
+  }
+  return {
+    items: [],
+    appliedCoupons: [],
+  };
 };
+
+const saveCartToStorage = (state: InitialState) => {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(
+        CART_STORAGE_KEY,
+        JSON.stringify({
+          items: state.items,
+          appliedCoupons: state.appliedCoupons,
+        })
+      );
+    } catch (e) {
+      console.warn("Error guardando carrito en localStorage:", e);
+    }
+  }
+};
+
+const initialState: InitialState = getInitialCartState();
 
 export const cart = createSlice({
   name: "cart",
@@ -81,10 +117,12 @@ export const cart = createSlice({
           imgs,
         });
       }
+      saveCartToStorage(state);
     },
     removeItemFromCart: (state, action: PayloadAction<number | string>) => {
       const itemId = action.payload;
       state.items = state.items.filter((item) => item.id !== itemId);
+      saveCartToStorage(state);
     },
     updateCartItemQuantity: (
       state,
@@ -101,21 +139,27 @@ export const cart = createSlice({
           existingItem.quantity = actualStock;
         }
       }
+      saveCartToStorage(state);
     },
 
     removeAllItemsFromCart: (state) => {
       state.items = [];
+      state.appliedCoupons = [];
+      saveCartToStorage(state);
     },
     applyCoupon: (state, action: PayloadAction<AppliedCoupon>) => {
       // Evitar agregar el mismo cupón dos veces
       state.appliedCoupons = state.appliedCoupons.filter(c => c.code !== action.payload.code);
       state.appliedCoupons.push(action.payload);
+      saveCartToStorage(state);
     },
     removeCoupon: (state, action: PayloadAction<string>) => {
       state.appliedCoupons = state.appliedCoupons.filter(c => c.code !== action.payload);
+      saveCartToStorage(state);
     },
     clearCoupons: (state) => {
       state.appliedCoupons = [];
+      saveCartToStorage(state);
     }
   },
 });

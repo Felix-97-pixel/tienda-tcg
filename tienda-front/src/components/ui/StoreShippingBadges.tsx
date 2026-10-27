@@ -31,17 +31,9 @@ export function StoreShippingBadges({
 
   const activeBadges: string[] = [];
 
-  // 1. Retiro en tienda:
-  // Activo si pickupEnabled es true O si el provider RETIRO_TIENDA está activo
-  const pickupProvider = store.shipping?.find(
-    (s) => s.name?.toUpperCase() === "RETIRO_TIENDA"
-  );
-
-  const isPickupActive =
-    store.pickupEnabled === true ||
-    (pickupProvider !== undefined && pickupProvider.isActive === true);
-
-  if (isPickupActive) {
+  // 1. Retiro en tienda física:
+  // Gestionado exclusivamente por store.pickupEnabled
+  if (store.pickupEnabled) {
     activeBadges.push("retiro_tienda");
   }
 
