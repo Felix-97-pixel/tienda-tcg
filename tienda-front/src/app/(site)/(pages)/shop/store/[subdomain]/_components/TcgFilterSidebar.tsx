@@ -5,6 +5,7 @@ import {
   IconLanguageFlag,
   IconSearch,
   IconX,
+  IconFilter,
 } from "@/components/ui/Icons";
 
 import { API_URL } from "@/utils/api";
@@ -36,6 +37,9 @@ interface TcgFilterSidebarProps {
   onClearAll: () => void;
   activeFiltersCount: number;
   totalProductsCount: number;
+  inStockOnly?: boolean;
+  onToggleInStockOnly?: (val: boolean) => void;
+  totalInStockCount?: number;
 }
 
 const FINISHES = [
@@ -61,6 +65,9 @@ export default function TcgFilterSidebar({
   onClearAll,
   activeFiltersCount,
   totalProductsCount,
+  inStockOnly = false,
+  onToggleInStockOnly,
+  totalInStockCount,
 }: TcgFilterSidebarProps) {
   const [categorySearch, setCategorySearch] = React.useState("");
   const [categoryTab, setCategoryTab] = React.useState<"all" | "games" | "accessories">("all");
@@ -164,9 +171,7 @@ export default function TcgFilterSidebar({
       <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-5">
         <div>
           <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-            <svg className="w-4 h-4 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
+            <IconFilter className="w-4 h-4 text-red shrink-0" />
             Filtros TCG
           </h2>
           <span className="text-xs text-gray-400 font-mono">
@@ -185,6 +190,47 @@ export default function TcgFilterSidebar({
       </div>
 
       <div className="space-y-6">
+        {/* Disponibilidad: Todas vs Solo con Stock */}
+        {onToggleInStockOnly && (
+          <div className="pb-4 border-b border-white/5">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                Disponibilidad
+              </h3>
+              {totalInStockCount !== undefined && (
+                <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+                  {totalInStockCount} con stock
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 rounded-xl border border-white/10">
+              <button
+                type="button"
+                onClick={() => onToggleInStockOnly(false)}
+                className={`py-2 px-2 rounded-lg text-xs font-semibold transition-all text-center flex flex-col items-center justify-center gap-0.5 ${!inStockOnly
+                    ? "bg-red text-white shadow-md shadow-red/25 font-bold"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+              >
+                <span>Catálogo Completo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleInStockOnly(true)}
+                className={`py-2 px-2 rounded-lg text-xs font-semibold transition-all text-center flex flex-col items-center justify-center gap-0.5 ${inStockOnly
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25 font-bold"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+              >
+                <span>Solo con stock</span>
+                <span className="text-[10px] opacity-75 font-mono">
+                  {totalInStockCount !== undefined ? `${totalInStockCount} cartas` : "En tiendas"}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* 1. Juegos Soportados / Categorías */}
         {categories.length > 0 && (
           <div>
@@ -202,27 +248,24 @@ export default function TcgFilterSidebar({
               <button
                 type="button"
                 onClick={() => setCategoryTab("all")}
-                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${
-                  categoryTab === "all" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "all" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 Todos
               </button>
               <button
                 type="button"
                 onClick={() => setCategoryTab("games")}
-                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${
-                  categoryTab === "games" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "games" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 Juegos
               </button>
               <button
                 type="button"
                 onClick={() => setCategoryTab("accessories")}
-                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${
-                  categoryTab === "accessories" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "accessories" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
+                  }`}
               >
                 Accesorios
               </button>
@@ -264,11 +307,10 @@ export default function TcgFilterSidebar({
                     <button
                       key={cat.id || cat.name}
                       onClick={() => onSelectCategory(isSelected ? null : (cat.name || cat.id))}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
-                        isSelected
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${isSelected
                           ? "bg-red text-white shadow-md shadow-red/20 border border-red-500 font-bold"
                           : "bg-white/[0.03] text-gray-300 hover:bg-white/10 hover:text-white border border-white/5"
-                      }`}
+                        }`}
                     >
                       <span className="truncate">{cat.name}</span>
                       {isSelected && (
@@ -331,11 +373,10 @@ export default function TcgFilterSidebar({
                     <button
                       key={expName}
                       onClick={() => onSelectExpansion(isSelected ? null : expName)}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                        isSelected
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${isSelected
                           ? "bg-white/15 text-white font-bold border border-white/20"
                           : "text-gray-400 hover:text-white hover:bg-white/5"
-                      }`}
+                        }`}
                     >
                       <span className="truncate">{expName}</span>
                       {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-red shrink-0"></span>}
@@ -364,11 +405,10 @@ export default function TcgFilterSidebar({
                 <button
                   key={cond.id || cond.name}
                   onClick={() => onSelectCondition(isSelected ? null : cond.name)}
-                  className={`px-2.5 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between border ${
-                    isSelected
+                  className={`px-2.5 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between border ${isSelected
                       ? "ring-2 ring-white/50 bg-white/20 text-white font-black shadow-sm"
                       : `${cond.badgeClass} hover:opacity-80`
-                  }`}
+                    }`}
                   title={cond.label}
                 >
                   <span>{cond.code}</span>
@@ -391,11 +431,10 @@ export default function TcgFilterSidebar({
                 <button
                   key={f.id}
                   onClick={() => onSelectFinish(isSelected ? null : f.id)}
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all border flex items-center justify-center gap-1.5 ${
-                    isSelected
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all border flex items-center justify-center gap-1.5 ${isSelected
                       ? "bg-white/20 border-white/30 text-white shadow-sm"
                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
-                  }`}
+                    }`}
                 >
                   {f.id === "foil" && <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />}
                   <span>{f.label}</span>
@@ -424,11 +463,10 @@ export default function TcgFilterSidebar({
                 <button
                   key={l.id || l.code}
                   onClick={() => onSelectLanguage(isSelected ? null : (l.code || l.name))}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs transition-all border flex items-center justify-between gap-1.5 ${
-                    isSelected
+                  className={`px-2.5 py-1.5 rounded-xl text-xs transition-all border flex items-center justify-between gap-1.5 ${isSelected
                       ? "bg-red/20 border-red text-white font-bold shadow-sm ring-1 ring-red/50"
                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-1.5 min-w-0">
                     <IconLanguageFlag code={l.code} name={l.name} className="w-4 h-3 shrink-0" />

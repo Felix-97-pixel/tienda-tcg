@@ -163,7 +163,8 @@ export class ProductsController {
     @Query('isTcg') isTcg?: string,
     @Query('buylistOnly') buylistOnly?: string,
     @Query('buylistState') buylistState?: string,
-    @Query('adminCatalog') adminCatalog?: string
+    @Query('adminCatalog') adminCatalog?: string,
+    @Query('inStockOnly') inStockOnly?: string
   ) {
     // El storeId restringe los resultados al inventario de la tienda cuando aplica.
     let resolvedStoreId = storeId;
@@ -195,6 +196,10 @@ export class ProductsController {
     if (isTcg === 'true') isTcgBool = true;
     if (isTcg === 'false') isTcgBool = false;
 
+    const inStockOnlyBool = inStockOnly !== undefined
+      ? inStockOnly === 'true'
+      : (isPublic && !resolvedStoreId ? true : false);
+
     let adminCatalogStoreId: string | undefined;
     if (isAdminCatalog) {
       const tokenStoreId = await this.getStoreIdFromToken(req);
@@ -203,7 +208,7 @@ export class ProductsController {
       }
     }
 
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState, adminCatalogStoreId);
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState, adminCatalogStoreId, inStockOnlyBool);
   }
 
   @Get('meta/languages')

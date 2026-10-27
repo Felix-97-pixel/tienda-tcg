@@ -561,7 +561,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all', adminCatalogStoreId?: string) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all', adminCatalogStoreId?: string, inStockOnly: boolean = false) {
     const skip = (page - 1) * limit;
 
     const whereClause: any = { isDeleted: false };
@@ -603,8 +603,10 @@ export class ProductsService {
 
     if (storeId) {
       whereClause.items = { some: { storeId, ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {}) } };
-    } else if (isPublishedFilter !== undefined && !buylistStoreId) {
-      // Si no hay storeId ni buylistStoreId, aplicar a items generales (legacy behaviour)
+    } else if (inStockOnly) {
+      whereClause.items = { some: { isPublished: true, stock: { gt: 0 } } };
+    } else if (!publicOnly && isPublishedFilter !== undefined && !buylistStoreId) {
+      // Legacy behaviour para admin/inventario interno
       whereClause.items = { some: { isPublished: isPublishedFilter } };
     }
 
@@ -640,48 +642,129 @@ export class ProductsService {
       }
     }
 
+    const includeConfig = {
+      category: true,
+      brand: true,
+      cardDetail: {
+        include: { gameRel: true }
+      },
+      marketPrices: {
+        include: { finish: true }
+      },
+      items: {
+        where: {
+          ...((storeId || adminCatalogStoreId) ? { storeId: storeId || adminCatalogStoreId } : {}),
+          ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {})
+        },
+        include: {
+          language: true,
+          condition: true,
+          finish: true,
+          store: {
+            include: {
+              gameExchangeRates: true,
+              ...(publicOnly ? {} : { shipping: { where: { isActive: true } } })
+            }
+          }
+        }
+      },
+      buyListItems: buylistStoreId ? {
+        where: {
+          storeId: buylistStoreId,
+          ...(isBuylistActiveFilter !== undefined ? { isActive: isBuylistActiveFilter } : {})
+        },
+        include: {
+          language: true,
+          condition: true
+        }
+      } : false,
+    };
+
+    // Ordenamiento STOCK-FIRST para el catálogo global del Marketplace
+    if (publicOnly && !storeId && !inStockOnly) {
+      const inStockProducts = await this.prisma.product.findMany({
+        where: {
+          ...whereClause,
+          items: {
+            some: {
+              isPublished: true,
+              stock: { gt: 0 }
+            }
+          }
+        },
+        select: { id: true },
+        orderBy: { updatedAt: 'desc' }
+      });
+
+      const inStockIds = inStockProducts.map(p => p.id);
+      const totalInStock = inStockIds.length;
+
+      const targetIds: string[] = [];
+
+      if (skip < totalInStock) {
+        const pageInStockIds = inStockIds.slice(skip, skip + limit);
+        targetIds.push(...pageInStockIds);
+        const remaining = limit - pageInStockIds.length;
+        if (remaining > 0) {
+          const oosProducts = await this.prisma.product.findMany({
+            where: {
+              ...whereClause,
+              id: { notIn: inStockIds }
+            },
+            select: { id: true },
+            orderBy: { updatedAt: 'desc' },
+            take: remaining,
+            skip: 0
+          });
+          targetIds.push(...oosProducts.map(p => p.id));
+        }
+      } else {
+        const oosSkip = skip - totalInStock;
+        const oosProducts = await this.prisma.product.findMany({
+          where: {
+            ...whereClause,
+            id: { notIn: inStockIds }
+          },
+          select: { id: true },
+          orderBy: { updatedAt: 'desc' },
+          take: limit,
+          skip: oosSkip
+        });
+        targetIds.push(...oosProducts.map(p => p.id));
+      }
+
+      const [productsData, total] = await Promise.all([
+        targetIds.length > 0
+          ? this.prisma.product.findMany({
+              where: { id: { in: targetIds } },
+              include: includeConfig
+            })
+          : Promise.resolve([]),
+        this.prisma.product.count({ where: whereClause })
+      ]);
+
+      const productMap = new Map(productsData.map(p => [p.id, p]));
+      const orderedData = targetIds.map(id => productMap.get(id)).filter(Boolean);
+
+      return {
+        data: orderedData,
+        meta: {
+          total,
+          totalInStock,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      };
+    }
+
     const [data, total] = await Promise.all([
       this.prisma.product.findMany({
         where: whereClause,
         skip,
         take: limit,
-        include: {
-          category: true,
-          brand: true,
-          cardDetail: {
-            include: { gameRel: true }
-          },
-          marketPrices: {
-            include: { finish: true }
-          },
-          items: {
-            where: {
-              ...((storeId || adminCatalogStoreId) ? { storeId: storeId || adminCatalogStoreId } : {}),
-              ...(isPublishedFilter !== undefined ? { isPublished: isPublishedFilter } : {})
-            },
-            include: {
-              language: true,
-              condition: true,
-              finish: true,
-              store: {
-                include: {
-                  gameExchangeRates: true,
-                  shipping: { where: { isActive: true } }
-                }
-              }
-            }
-          },
-          buyListItems: buylistStoreId ? {
-            where: {
-              storeId: buylistStoreId,
-              ...(isBuylistActiveFilter !== undefined ? { isActive: isBuylistActiveFilter } : {})
-            },
-            include: {
-              language: true,
-              condition: true
-            }
-          } : false,
-        },
+        orderBy: { updatedAt: 'desc' },
+        include: includeConfig,
       }),
       this.prisma.product.count({ where: whereClause })
     ]);

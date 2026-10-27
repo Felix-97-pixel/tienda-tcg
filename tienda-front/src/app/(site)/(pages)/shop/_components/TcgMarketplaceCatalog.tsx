@@ -185,6 +185,8 @@ export default function TcgMarketplaceCatalog() {
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 0 });
+  const [inStockOnly, setInStockOnly] = useState<boolean>(searchParams.get("inStockOnly") !== "false");
+  const [totalInStockCount, setTotalInStockCount] = useState<number | undefined>(undefined);
 
   // Data State
   const [rawProducts, setRawProducts] = useState<any[]>([]);
@@ -203,11 +205,13 @@ export default function TcgMarketplaceCatalog() {
     const q = searchParams.get("search") || "";
     const cat = searchParams.get("category") || null;
     const exp = searchParams.get("expansion") || null;
+    const iso = searchParams.get("inStockOnly") !== "false";
 
     setSearchTerm(q);
     setDebouncedSearch(q);
     setSelectedCategory(cat);
     setSelectedExpansion(exp);
+    setInStockOnly(iso);
     setCurrentPage(1);
   }, [searchParams]);
 
@@ -284,6 +288,7 @@ export default function TcgMarketplaceCatalog() {
     if (selectedCategory) params.set("category", selectedCategory);
     if (selectedExpansion) params.set("expansion", selectedExpansion);
     if (debouncedSearch) params.set("search", debouncedSearch);
+    params.set("inStockOnly", inStockOnly ? "true" : "false");
 
     fetch(`${API_URL}/products?${params.toString()}`)
       .then((res) => (res.ok ? res.json() : { data: [], meta: {} }))
@@ -299,11 +304,14 @@ export default function TcgMarketplaceCatalog() {
           } else {
             setTotalCount(rawList.length);
           }
+          if (response.meta?.totalInStock !== undefined) {
+            setTotalInStockCount(response.meta.totalInStock);
+          }
         }
       })
       .catch((err) => console.error("Error fetching marketplace products:", err))
       .finally(() => setIsLoading(false));
-  }, [selectedCategory, selectedExpansion, debouncedSearch, currentPage]);
+  }, [selectedCategory, selectedExpansion, debouncedSearch, currentPage, inStockOnly]);
 
   // Resolve best available variant (cheapest price in CLP) for each product preview
   const products = useMemo(() => {
@@ -381,7 +389,21 @@ export default function TcgMarketplaceCatalog() {
     selectedFinish,
     selectedLanguage,
     priceRange.max > 0,
+    !inStockOnly,
   ].filter(Boolean).length;
+
+  const handleToggleInStockOnly = (val: boolean) => {
+    setInStockOnly(val);
+    setCurrentPage(1);
+    const p = new URLSearchParams(searchParams.toString());
+    if (!val) {
+      p.set("inStockOnly", "false");
+    } else {
+      p.delete("inStockOnly");
+    }
+    const qs = p.toString();
+    router.replace(`/shop${qs ? `?${qs}` : ""}`);
+  };
 
   const handleSelectCategory = (cat: string | null) => {
     setSelectedCategory(cat);
@@ -404,6 +426,7 @@ export default function TcgMarketplaceCatalog() {
     setPriceRange({ min: 0, max: 0 });
     setSearchTerm("");
     setDebouncedSearch("");
+    setInStockOnly(true);
     router.replace("/shop");
   };
 
@@ -427,9 +450,26 @@ export default function TcgMarketplaceCatalog() {
             </div>
 
             {totalCount > 0 && (
-              <div className="glass-vault px-4 py-2.5 rounded-xl border border-white/10 text-right">
-                <span className="text-[11px] text-gray-400 uppercase tracking-wider block">Inventario Disponible</span>
-                <span className="text-xl font-black text-white font-mono">{totalCount.toLocaleString('es-CL')} cartas</span>
+              <div className="glass-vault px-4 py-2.5 rounded-xl border border-white/10 text-right flex items-center gap-4">
+                {inStockOnly ? (
+                  <div>
+                    <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">Stock Inmediato</span>
+                    <span className="text-xl font-black text-emerald-400 font-mono">{totalCount.toLocaleString('es-CL')} cartas</span>
+                  </div>
+                ) : (
+                  <>
+                    {totalInStockCount !== undefined && totalInStockCount > 0 && (
+                      <div className="text-right border-r border-white/10 pr-4">
+                        <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">Stock Inmediato</span>
+                        <span className="text-lg font-black text-emerald-400 font-mono">{totalInStockCount.toLocaleString('es-CL')} cartas</span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Catálogo Maestro</span>
+                      <span className="text-lg font-black text-white font-mono">{totalCount.toLocaleString('es-CL')} cartas</span>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -644,6 +684,17 @@ export default function TcgMarketplaceCatalog() {
               </button>
             )}
 
+            {!inStockOnly && (
+              <button
+                type="button"
+                onClick={() => handleToggleInStockOnly(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
+              >
+                Vista: Catálogo Completo (Singles + Wishlist)
+                <span>✕</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleClearAll}
@@ -679,6 +730,9 @@ export default function TcgMarketplaceCatalog() {
               onClearAll={handleClearAll}
               activeFiltersCount={activeFiltersCount}
               totalProductsCount={sortedProducts.length}
+              inStockOnly={inStockOnly}
+              onToggleInStockOnly={handleToggleInStockOnly}
+              totalInStockCount={totalInStockCount}
             />
           </aside>
 
@@ -727,6 +781,9 @@ export default function TcgMarketplaceCatalog() {
                   onClearAll={handleClearAll}
                   activeFiltersCount={activeFiltersCount}
                   totalProductsCount={sortedProducts.length}
+                  inStockOnly={inStockOnly}
+                  onToggleInStockOnly={handleToggleInStockOnly}
+                  totalInStockCount={totalInStockCount}
                 />
               </div>
             </div>
