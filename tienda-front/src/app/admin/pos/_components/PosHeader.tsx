@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PosNetworkBadge from './PosNetworkBadge';
 import { IconCart, IconRepeat } from '@/components/ui/Icons';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface PosHeaderProps {
   storeName: string;
@@ -86,33 +87,25 @@ export default function PosHeader({
       </div>
 
       {/* Switch / Interruptor Central de Modo de Operación: VENDER vs COMPRAR (Trade-in) */}
-      <div className="flex items-center p-1 rounded-2xl bg-[#07090E] border border-white/10 shadow-inner">
-        <button
-          type="button"
-          onClick={() => onTogglePosMode('SELL')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-            posMode === 'SELL'
-              ? 'bg-red text-white shadow-lg shadow-red/30'
-              : 'text-white/50 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <IconCart className="w-4 h-4" />
-          <span>Vender Cartas</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onTogglePosMode('BUY')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-            posMode === 'BUY'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-1 ring-emerald-400/50'
-              : 'text-white/50 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <IconRepeat className="w-4 h-4" />
-          <span>Comprar (Trade-in)</span>
-        </button>
-      </div>
+      <SegmentedControl
+        fullWidth={false}
+        value={posMode}
+        onChange={(val) => onTogglePosMode(val as 'SELL' | 'BUY')}
+        options={[
+          {
+            value: 'SELL',
+            label: 'Vender Cartas',
+            icon: <IconCart className="w-4 h-4" />,
+            variant: 'default',
+          },
+          {
+            value: 'BUY',
+            label: 'Comprar (Trade-in)',
+            icon: <IconRepeat className="w-4 h-4" />,
+            variant: 'success',
+          },
+        ]}
+      />
 
       {/* Reloj y Estado de Red */}
       <div className="flex items-center gap-4">

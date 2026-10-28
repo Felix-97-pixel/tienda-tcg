@@ -3,6 +3,7 @@ import React from "react";
 import { useAppSelector } from "@/redux/store";
 import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 
 export default function AdminWishlist() {
   const { features } = useAppSelector((state) => state.adminAuthReducer);
@@ -83,26 +84,17 @@ export default function AdminWishlist() {
             Ranking de Wishlist
           </h2>
           
-          <div className="flex bg-[#080B12] p-1 rounded-xl border border-white/10">
-            <button 
-              onClick={() => setFilter('ALL')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === 'ALL' ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            >
-              Todos
-            </button>
-            <button 
-              onClick={() => setFilter('INSTOCK')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === 'INSTOCK' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            >
-              En Stock
-            </button>
-            <button 
-              onClick={() => setFilter('OUTOFSTOCK')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === 'OUTOFSTOCK' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            >
-              Agotados
-            </button>
-          </div>
+          <SegmentedControl
+            fullWidth={false}
+            size="sm"
+            value={filter}
+            onChange={(val) => setFilter(val as 'ALL' | 'INSTOCK' | 'OUTOFSTOCK')}
+            options={[
+              { value: 'ALL', label: 'Todos', variant: 'default' },
+              { value: 'INSTOCK', label: 'En Stock', variant: 'success' },
+              { value: 'OUTOFSTOCK', label: 'Agotados', variant: 'warning' },
+            ]}
+          />
         </div>
 
         <div className="p-0 overflow-x-auto">

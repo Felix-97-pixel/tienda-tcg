@@ -3,6 +3,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Input } from "@/components/ui/Input";
+import SegmentedControl, { SegmentedControlOption } from "@/components/ui/SegmentedControl";
 
 export interface ProductFiltersProps {
   searchTerm: string;
@@ -15,6 +16,7 @@ export interface ProductFiltersProps {
   expansions?: { name: string, products: number }[];
   publishState?: string;
   onPublishStateChange?: (val: string) => void;
+  publishStateOptions?: SegmentedControlOption[];
 }
 
 export default function ProductFilters({
@@ -27,48 +29,30 @@ export default function ProductFilters({
   categories,
   expansions,
   publishState,
-  onPublishStateChange
+  onPublishStateChange,
+  publishStateOptions,
 }: ProductFiltersProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
+
+  const defaultOptions: SegmentedControlOption[] = [
+    { value: "all", label: "Todos", variant: "default" },
+    { value: "published", label: "Publicados", variant: "success" },
+    { value: "paused", label: "Pausados", variant: "warning" },
+  ];
 
   return (
     <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-2xl p-4 sm:p-5 mb-6 w-full min-w-0">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-white/5">
         <p className="text-xs font-black uppercase tracking-wider text-white/70">{tc("filters")}</p>
         {publishState !== undefined && onPublishStateChange && (
-          <div className="flex w-full sm:w-auto bg-[#080B12] p-1 rounded-xl border border-white/10 overflow-x-auto">
-            <button
-              onClick={() => onPublishStateChange('all')}
-              className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
-                publishState === 'all'
-                  ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Todos
-            </button>
-            <button
-              onClick={() => onPublishStateChange('published')}
-              className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
-                publishState === 'published'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Publicados
-            </button>
-            <button
-              onClick={() => onPublishStateChange('paused')}
-              className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
-                publishState === 'paused'
-                  ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Pausados
-            </button>
-          </div>
+          <SegmentedControl
+            fullWidth={false}
+            size="sm"
+            value={publishState}
+            onChange={onPublishStateChange}
+            options={publishStateOptions || defaultOptions}
+          />
         )}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">

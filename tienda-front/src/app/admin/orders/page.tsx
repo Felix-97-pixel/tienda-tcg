@@ -12,6 +12,7 @@ import {
   IconCheckCircle,
   IconClock,
 } from "@/components/ui/Icons";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 
 // Custom Hook y Tipos
 import {
@@ -40,30 +41,6 @@ export default function AdminOrdersPage() {
 
   const statusLabel = (status: string) => t(`status.${status}` as any) ?? status;
 
-  const tabs = [
-    {
-      id: "PENDING_DISPATCH",
-      label: "Por Despachar",
-      count: counts.pendingDispatch,
-      icon: <IconClock className="w-3.5 h-3.5 shrink-0" />,
-      activeClass: "bg-red-500/10 text-white border-red-500/40 shadow-sm",
-    },
-    {
-      id: "DISPATCHED",
-      label: "Despachados / Entregados",
-      count: counts.dispatched,
-      icon: <IconCheckCircle className="w-3.5 h-3.5 shrink-0 text-emerald-400" />,
-      activeClass: "bg-emerald-500/10 text-white border-emerald-500/40 shadow-sm",
-    },
-    {
-      id: "ALL",
-      label: "Historial Completo",
-      count: counts.totalPaid,
-      icon: <IconBox className="w-3.5 h-3.5 shrink-0 text-blue-400" />,
-      activeClass: "bg-white/10 text-white border-white/20 shadow-sm",
-    },
-  ];
-
   return (
     <div className="p-6 space-y-6 pb-24">
       {/* Header */}
@@ -87,33 +64,35 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Tabs de Filtro Operativo */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3">
-        {tabs.map((tab) => {
-          const isActive = deliveryStatus === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setDeliveryStatus(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
-                isActive
-                  ? tab.activeClass
-                  : "bg-[#111318] text-gray-400 border-white/5 hover:text-white hover:border-white/10"
-              }`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-              <span
-                className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-black ${
-                  isActive
-                    ? "bg-white/20 text-white"
-                    : "bg-white/5 text-gray-400"
-                }`}
-              >
-                {tab.count}
-              </span>
-            </button>
-          );
-        })}
+      <div className="flex border-b border-white/5 pb-3">
+        <SegmentedControl
+          fullWidth={false}
+          value={deliveryStatus}
+          onChange={(val) => setDeliveryStatus(val)}
+          options={[
+            {
+              value: "PENDING_DISPATCH",
+              label: "Por Despachar",
+              count: counts.pendingDispatch,
+              icon: <IconClock className="w-3.5 h-3.5 shrink-0" />,
+              variant: "default",
+            },
+            {
+              value: "DISPATCHED",
+              label: "Despachados / Entregados",
+              count: counts.dispatched,
+              icon: <IconCheckCircle className="w-3.5 h-3.5 shrink-0 text-emerald-300" />,
+              variant: "success",
+            },
+            {
+              value: "ALL",
+              label: "Historial Completo",
+              count: counts.totalPaid,
+              icon: <IconBox className="w-3.5 h-3.5 shrink-0 text-blue-300" />,
+              variant: "neutral",
+            },
+          ]}
+        />
       </div>
 
       {/* Tabla Operativa */}

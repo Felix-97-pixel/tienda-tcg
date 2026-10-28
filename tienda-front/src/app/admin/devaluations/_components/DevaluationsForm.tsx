@@ -4,6 +4,7 @@ import Loader from "@/components/ui/Loader";
 import { Button } from "@/components/ui/Button";
 import { useStoreProfile } from "@/app/admin/_components/hooks/useStoreProfile";
 import { PenaltySlider } from "@/components/ui/PenaltySlider";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 
 export default function DevaluationsForm() {
   const { loading, saving, formData, setFormData, saveProfile } = useStoreProfile("me");
@@ -39,19 +40,16 @@ export default function DevaluationsForm() {
             Debes configurar al menos un juego en el perfil de tu tienda.
           </div>
         ) : (
-          formData.supportedGames?.map(game => (
-            <button
-              key={game.id}
-              onClick={() => setSelectedGameId(game.id)}
-              className={`px-6 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap border ${
-                selectedGameId === game.id 
-                  ? "bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 border-red/40 ring-1 ring-white/20" 
-                  : "bg-[#0E121B] text-white/60 border-white/10 hover:border-white/25 hover:text-white"
-              }`}
-            >
-              {game.name}
-            </button>
-          ))
+          <SegmentedControl
+            fullWidth={false}
+            value={selectedGameId || ""}
+            onChange={(val) => setSelectedGameId(val)}
+            options={(formData.supportedGames || []).map((game) => ({
+              value: game.id,
+              label: game.name,
+              variant: "default",
+            }))}
+          />
         )}
       </div>
 

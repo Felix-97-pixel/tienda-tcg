@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { LocalProduct } from '../_lib/posDb';
 import { IconSearch, IconGlobe, IconRepeat } from '@/components/ui/Icons';
 import SearchableSelect from '@/components/ui/SearchableSelect';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface PosSearchBarProps {
   searchQuery: string;
@@ -86,34 +87,27 @@ export default function PosSearchBar({
     <div className="flex flex-col h-full space-y-3" onMouseMove={handleMouseMove}>
       {/* Pestañas cuando estamos en MODO COMPRA (Trade-in) */}
       {posMode === 'BUY' && (
-        <div className="flex flex-wrap items-center justify-between gap-2 p-1.5 bg-[#07090E] rounded-2xl border border-white/10">
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onSetBuySourceTab && onSetBuySourceTab('BUYLIST')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                buySourceTab === 'BUYLIST'
-                  ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-sm'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <IconRepeat className="w-3.5 h-3.5" />
-              <span>Cartas en mi Buylist</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onSetBuySourceTab && onSetBuySourceTab('GLOBAL')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                buySourceTab === 'GLOBAL'
-                  ? 'bg-blue/20 border border-blue/40 text-cyan-300 shadow-sm'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <IconGlobe className="w-3.5 h-3.5" />
-              <span>Colección Maestra Global</span>
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 p-1 bg-[#07090E] rounded-2xl border border-white/10">
+          <SegmentedControl
+            fullWidth={false}
+            size="sm"
+            value={buySourceTab || 'BUYLIST'}
+            onChange={(val) => onSetBuySourceTab && onSetBuySourceTab(val as 'BUYLIST' | 'GLOBAL')}
+            options={[
+              {
+                value: 'BUYLIST',
+                label: 'Cartas en mi Buylist',
+                icon: <IconRepeat className="w-3.5 h-3.5" />,
+                variant: 'success',
+              },
+              {
+                value: 'GLOBAL',
+                label: 'Colección Maestra Global',
+                icon: <IconGlobe className="w-3.5 h-3.5" />,
+                variant: 'blue',
+              },
+            ]}
+          />
 
           {onOpenGlobalCatalogModal && (
             <button

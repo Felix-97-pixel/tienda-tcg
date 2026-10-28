@@ -767,6 +767,19 @@ export class PosService {
         });
         finalBalance = Number(sc.balance);
 
+        const itemsSnapshot = (dto.items || []).map((item) => ({
+          product: {
+            id: item.productId,
+            name: item.name,
+            imageUrl: item.imageUrl,
+          },
+          quantity: item.quantity,
+          price: Number(item.creditPrice || item.cashPrice || 0),
+          condition: item.condition,
+          language: item.language,
+          finish: item.finish,
+        }));
+
         await tx.storeCreditTransaction.create({
           data: {
             storeId,
@@ -774,7 +787,7 @@ export class PosService {
             amount: totalNum,
             type: 'BUYLIST_TRADE',
             reference: 'Trade-in POS (Cajero: ' + (cashierName || 'Cajero') + ')',
-            itemsData: dto.items as any,
+            itemsData: itemsSnapshot as any,
           },
         });
       }
