@@ -124,8 +124,8 @@ export function useStoreProfile(storeId: string) {
           website: s.website || "",
           email: s.email || "",
           address: store.address || s.address || "",
-          latitude: store.latitude || null,
-          longitude: store.longitude || null,
+          latitude: store.latitude !== null && store.latitude !== undefined ? Number(store.latitude) : null,
+          longitude: store.longitude !== null && store.longitude !== undefined ? Number(store.longitude) : null,
           supportedGames: supportedGames,
           devaluations: mappedDevaluations,
           languageDevaluations: mappedLanguageDevaluations,
@@ -146,9 +146,25 @@ export function useStoreProfile(storeId: string) {
   const saveProfile = async (gameId?: string) => {
     setSaving(true);
     try {
-      const payload = { ...formData };
-      if (payload.supportedGames) {
-        payload.supportedGames = payload.supportedGames.map((g: any) => g.id) as any;
+      // Excluir devaluations y languageDevaluations del payload principal
+      const { devaluations, languageDevaluations, ...cleanData } = formData;
+      const payload: any = { ...cleanData };
+
+      if (payload.supportedGames && Array.isArray(payload.supportedGames)) {
+        payload.supportedGames = payload.supportedGames.map((g: any) => (typeof g === "string" ? g : g.id));
+      }
+
+      // Convertir latitude / longitude si vienen vacíos o nulos
+      if (payload.latitude === "" || payload.latitude === null) {
+        delete payload.latitude;
+      } else {
+        payload.latitude = Number(payload.latitude);
+      }
+
+      if (payload.longitude === "" || payload.longitude === null) {
+        delete payload.longitude;
+      } else {
+        payload.longitude = Number(payload.longitude);
       }
       
       const res = await fetch(getEndpoint(), {
@@ -158,13 +174,22 @@ export function useStoreProfile(storeId: string) {
         credentials: "include",
       });
 
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        console.error("Error al actualizar tienda:", errorData);
+        const errMsg = Array.isArray(errorData?.message) ? errorData.message.join(", ") : errorData?.message || "Error al guardar el perfil";
+        showToast(errMsg, "error");
+        setSaving(false);
+        return;
+      }
+
       let devalResOk = true;
       if (formData.devaluations && storeId === "me" && gameId) {
-        const payload = formData.devaluations.filter((d: any) => d.gameId === gameId);
+        const payloadDeval = formData.devaluations.filter((d: any) => d.gameId === gameId);
         const devalRes = await fetch(`${API_URL}/stores/me/devaluations`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ gameId, devaluations: payload }),
+          body: JSON.stringify({ gameId, devaluations: payloadDeval }),
           credentials: "include",
         });
         devalResOk = devalRes.ok;
@@ -172,11 +197,11 @@ export function useStoreProfile(storeId: string) {
 
       let langDevalResOk = true;
       if (formData.languageDevaluations && storeId === "me" && gameId) {
-        const payload = formData.languageDevaluations.filter((d: any) => d.gameId === gameId);
+        const payloadLang = formData.languageDevaluations.filter((d: any) => d.gameId === gameId);
         const langDevalRes = await fetch(`${API_URL}/stores/me/language-devaluations`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ gameId, languageDevaluations: payload }),
+          body: JSON.stringify({ gameId, languageDevaluations: payloadLang }),
           credentials: "include",
         });
         langDevalResOk = langDevalRes.ok;
@@ -185,9 +210,10 @@ export function useStoreProfile(storeId: string) {
       if (res.ok && devalResOk && langDevalResOk) {
         showToast("Perfil de tienda guardado con éxito", "success");
       } else {
-        showToast("Error al guardar el perfil", "error");
+        showToast("Error al guardar devaluaciones", "error");
       }
     } catch (error) {
+      console.error(error);
       showToast("Error de conexión", "error");
     } finally {
       setSaving(false);

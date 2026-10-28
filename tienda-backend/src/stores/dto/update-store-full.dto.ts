@@ -63,6 +63,11 @@ export class UpdateStoreFullDto {
   @IsOptional()
   customFeatureIds?: string[];
 
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  supportedGames?: string[];
+
   @IsString()
   @IsOptional()
   subscriptionDiscountType?: string;
