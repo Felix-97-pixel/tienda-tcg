@@ -328,13 +328,21 @@ export class CreateMpPreferenceHandler
           failure: failureUrl,
           pending: pendingUrl,
         },
-        auto_return: 'approved',
+        // En localhost/HTTP Mercado Pago prohíbe auto_return (exige HTTPS público para auto_return).
+        // Si no es localhost, habilitamos auto_return: 'approved'
+        ...(cleanReturnUrl.startsWith('https://') && !cleanReturnUrl.includes('localhost')
+          ? { auto_return: 'approved' }
+          : {}),
         external_reference: order.id,
         statement_descriptor: 'TAPTRADE TCG',
       },
     });
 
-    const initPoint = preferenceResponse.init_point || preferenceResponse.sandbox_init_point;
+    // Si el access token es de prueba (TEST-), usar sandbox_init_point para redirigir al entorno Sandbox; si es producción (APP_USR-), usar init_point.
+    const isTestToken = this.mp['config']?.get?.('MERCADOPAGO_ACCESS_TOKEN')?.startsWith('TEST-') || process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith('TEST-');
+    const initPoint = isTestToken && preferenceResponse.sandbox_init_point
+      ? preferenceResponse.sandbox_init_point
+      : (preferenceResponse.init_point || preferenceResponse.sandbox_init_point);
 
     // Registrar registro inicial de pago en BD
     await this.prisma.payment.create({
