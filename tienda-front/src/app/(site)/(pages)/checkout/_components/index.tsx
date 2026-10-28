@@ -22,10 +22,16 @@ const Payment = dynamic(
   { ssr: false }
 );
 
-if (typeof window !== "undefined" && MP_PUBLIC_KEY) {
-  try {
-    initMercadoPago(MP_PUBLIC_KEY, { locale: "es-CL" });
-  } catch (err) { }
+let isMpSdkInitialized = false;
+function ensureMercadoPagoInitialized() {
+  if (typeof window !== "undefined" && MP_PUBLIC_KEY && !isMpSdkInitialized) {
+    try {
+      initMercadoPago(MP_PUBLIC_KEY, { locale: "es-CL" });
+      isMpSdkInitialized = true;
+    } catch (err) {
+      console.warn("Mercado Pago SDK init error:", err);
+    }
+  }
 }
 
 const IconMapPin = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -106,15 +112,11 @@ const CheckoutWebpay = () => {
 
   const [isMpReady, setIsMpReady] = useState(false);
 
-  // Inicializar SDK de Mercado Pago
+  // Inicializar SDK de Mercado Pago una única vez
   useEffect(() => {
-    if (MP_PUBLIC_KEY) {
-      try {
-        initMercadoPago(MP_PUBLIC_KEY, { locale: "es-CL" });
-        setIsMpReady(true);
-      } catch (err) {
-        console.warn("Mercado Pago init warning:", err);
-      }
+    if (selectedGateway === "MERCADOPAGO") {
+      ensureMercadoPagoInitialized();
+      setIsMpReady(true);
     }
   }, [selectedGateway]);
 

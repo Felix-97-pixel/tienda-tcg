@@ -150,18 +150,35 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       if (!shippingProviderId) {
         throw new BadRequestException(`No se ha seleccionado método de envío para la tienda ${store.name}`);
       }
-      const provider = await this.prisma.shippingProvider.findUnique({
-        where: { id: shippingProviderId }
-      });
-      if (!provider) {
-        throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
-      }
 
-      // Si es retiro en tienda, el costo es estrictamente 0
       let storeShippingCost = 0;
-      if (provider.name === 'RETIRO_TIENDA') {
+      let finalShippingProviderId: string | null = null;
+      let shippingCourierName: string | null = null;
+      let deliveryStatus = 'PENDING_DISPATCH';
+
+      const isPickup =
+        shippingProviderId === 'RETIRO_TIENDA' ||
+        shippingProviderId.startsWith('pickup_') ||
+        shippingProviderId === 'pickup';
+
+      if (isPickup) {
+        if (!store.pickupEnabled) {
+          throw new BadRequestException(`La tienda ${store.name} no tiene habilitada la opción de retiro en tienda.`);
+        }
         storeShippingCost = 0;
+        finalShippingProviderId = null;
+        shippingCourierName = 'RETIRO_TIENDA';
+        deliveryStatus = 'PENDING_PICKUP';
       } else {
+        const provider = await this.prisma.shippingProvider.findUnique({
+          where: { id: shippingProviderId }
+        });
+        if (!provider) {
+          throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
+        }
+        finalShippingProviderId = provider.id;
+        shippingCourierName = provider.name;
+
         // Buscar la opción cotizada dinámicamente para esta tienda
         const storeQuote = dynamicQuotes[storeId];
         const matchedOption = storeQuote?.options?.find(
@@ -189,7 +206,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
 
       vendorOrdersData.push({
         storeId,
-        shippingProviderId,
+        shippingProviderId: finalShippingProviderId,
+        shippingCourier: shippingCourierName,
+        deliveryStatus,
         shippingCost: storeShippingCost,
         subtotal: vendorBaseSubtotal,
         status: 'PENDING',

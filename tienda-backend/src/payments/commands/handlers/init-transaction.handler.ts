@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BadRequestException, Logger } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { WebpayProvider } from '../../providers/webpay.provider';
 import { ShippingService } from '../../../shipping/shipping.service';
@@ -146,22 +146,45 @@ export class InitTransactionHandler
     const vendorOrdersData = [];
 
     for (const [storeId, items] of Object.entries(vendorGroups)) {
+      const store = await this.prisma.store.findUnique({
+        where: { id: storeId },
+        select: { id: true, name: true, pickupEnabled: true },
+      });
+      if (!store) throw new NotFoundException(`Tienda ${storeId} no encontrada`);
+
       const shippingProviderId = dto.storeShippingProviders[storeId];
       if (!shippingProviderId) {
-        throw new BadRequestException(`No se ha seleccionado método de envío para la tienda.`);
-      }
-      const provider = await this.prisma.shippingProvider.findUnique({
-        where: { id: shippingProviderId }
-      });
-      if (!provider) {
-        throw new BadRequestException(`El proveedor de envío seleccionado no es válido.`);
+        throw new BadRequestException(`No se ha seleccionado método de envío para la tienda ${store.name}.`);
       }
 
-      // Si es retiro en tienda, el costo es estrictamente 0
       let storeShippingCost = 0;
-      if (provider.name === 'RETIRO_TIENDA') {
+      let finalShippingProviderId: string | null = null;
+      let shippingCourierName: string | null = null;
+      let deliveryStatus = 'PENDING_DISPATCH';
+
+      const isPickup =
+        shippingProviderId === 'RETIRO_TIENDA' ||
+        shippingProviderId.startsWith('pickup_') ||
+        shippingProviderId === 'pickup';
+
+      if (isPickup) {
+        if (!store.pickupEnabled) {
+          throw new BadRequestException(`La tienda ${store.name} no tiene habilitada la opción de retiro en tienda.`);
+        }
         storeShippingCost = 0;
+        finalShippingProviderId = null;
+        shippingCourierName = 'RETIRO_TIENDA';
+        deliveryStatus = 'PENDING_PICKUP';
       } else {
+        const provider = await this.prisma.shippingProvider.findUnique({
+          where: { id: shippingProviderId }
+        });
+        if (!provider) {
+          throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
+        }
+        finalShippingProviderId = provider.id;
+        shippingCourierName = provider.name;
+
         // Buscar la opción cotizada dinámicamente para esta tienda
         const storeQuote = dynamicQuotes[storeId];
         const matchedOption = storeQuote?.options?.find(
@@ -187,7 +210,9 @@ export class InitTransactionHandler
       
       vendorOrdersData.push({
         storeId,
-        shippingProviderId,
+        shippingProviderId: finalShippingProviderId,
+        shippingCourier: shippingCourierName,
+        deliveryStatus,
         shippingCost: storeShippingCost,
         subtotal: vendorBaseSubtotal,
         status: 'PENDING',
