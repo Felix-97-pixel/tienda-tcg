@@ -46,6 +46,14 @@ const PaymentResultPage = () => {
   const statusParam = searchParams.get("status") as Status | null;
   const orderId = searchParams.get("orderId");
 
+  // Parámetros oficiales devueltos por Mercado Pago Checkout Pro en las back_urls
+  const mpPaymentId = searchParams.get("payment_id") || searchParams.get("collection_id");
+  const mpCollectionStatus = searchParams.get("collection_status");
+  const mpStatus = searchParams.get("status");
+  const mpExternalReference = searchParams.get("external_reference");
+  const mpMerchantOrderId = searchParams.get("merchant_order_id");
+  const mpPaymentType = searchParams.get("payment_type");
+
   const [status, setStatus] = useState<Status>("loading");
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [fetchError, setFetchError] = useState(false);
@@ -99,16 +107,35 @@ const PaymentResultPage = () => {
       return;
     }
 
-    // 3. Caso Mercado Pago tradicional con status en URL
-    if (statusParam) {
-      setStatus(statusParam);
+    // 3. Caso Mercado Pago (Checkout Pro o status directo)
+    const effectiveStatus = (statusParam || (mpStatus === "approved" ? "success" : mpStatus === "rejected" ? "failed" : mpStatus === "pending" ? "failed" : null)) as Status | null;
+    const effectiveOrderId = orderId || mpExternalReference;
 
-      if (statusParam === "success") {
+    // Log completo para auditoría y depuración en consola
+    if (mpPaymentId || statusParam || mpStatus) {
+      console.log("[Mercado Pago Checkout Result]", {
+        statusParam,
+        mpStatus,
+        mpCollectionStatus,
+        mpPaymentId,
+        effectiveStatus,
+        effectiveOrderId,
+        mpExternalReference,
+        mpMerchantOrderId,
+        mpPaymentType,
+        fullQuery: Object.fromEntries(searchParams.entries()),
+      });
+    }
+
+    if (effectiveStatus) {
+      setStatus(effectiveStatus);
+
+      if (effectiveStatus === "success") {
         dispatch(removeAllItemsFromCart());
       }
 
-      if (orderId) {
-        fetch(`${API_URL}/payments/order/${orderId}`, { credentials: "include" })
+      if (effectiveOrderId) {
+        fetch(`${API_URL}/payments/order/${effectiveOrderId}`, { credentials: "include" })
           .then((r) => (r.ok ? r.json() : Promise.reject()))
           .then(setOrder)
           .catch(() => setFetchError(true));
@@ -118,7 +145,7 @@ const PaymentResultPage = () => {
 
     // Si no hay parámetros válidos, redirigir
     router.replace("/");
-  }, [tokenWs, tbkToken, statusParam, orderId, dispatch, router]);
+  }, [tokenWs, tbkToken, statusParam, orderId, mpStatus, mpPaymentId, mpExternalReference, dispatch, router, searchParams]);
 
   if (status === "loading") {
     return (
