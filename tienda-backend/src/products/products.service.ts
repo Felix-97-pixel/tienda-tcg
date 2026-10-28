@@ -561,7 +561,7 @@ export class ProductsService {
     return Array.from(counts.entries()).map(([name, products]) => ({ name, products }));
   }
 
-  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all', adminCatalogStoreId?: string, inStockOnly: boolean = false) {
+  async findAll(page: number = 1, limit: number = 50, categoryName?: string, expansionName?: string, attributeValue?: string, searchName?: string, storeId?: string, publicOnly: boolean = false, publishState: string = 'all', isTcg?: boolean, buylistStoreId?: string, buylistState: string = 'all', adminCatalogStoreId?: string, inStockOnly: boolean = false, gameNameOrId?: string) {
     const skip = (page - 1) * limit;
 
     const whereClause: any = { isDeleted: false };
@@ -628,8 +628,15 @@ export class ProductsService {
       whereClause.buyListItems = { some: buylistCondition };
     }
 
-    if (expansionName || attributeValue) {
+    if (expansionName || attributeValue || gameNameOrId) {
       whereClause.cardDetail = { is: {} };
+      if (gameNameOrId) {
+        whereClause.cardDetail.is.OR = [
+          { gameId: gameNameOrId },
+          { gameRel: { slug: gameNameOrId.toLowerCase().trim() } },
+          { gameRel: { name: { contains: gameNameOrId, mode: 'insensitive' } } }
+        ];
+      }
       if (expansionName) {
         whereClause.cardDetail.is.expansion = expansionName;
       }

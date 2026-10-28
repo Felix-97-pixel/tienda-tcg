@@ -164,7 +164,8 @@ export class ProductsController {
     @Query('buylistOnly') buylistOnly?: string,
     @Query('buylistState') buylistState?: string,
     @Query('adminCatalog') adminCatalog?: string,
-    @Query('inStockOnly') inStockOnly?: string
+    @Query('inStockOnly') inStockOnly?: string,
+    @Query('game') game?: string
   ) {
     // El storeId restringe los resultados al inventario de la tienda cuando aplica.
     let resolvedStoreId = storeId;
@@ -208,7 +209,7 @@ export class ProductsController {
       }
     }
 
-    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState, adminCatalogStoreId, inStockOnlyBool);
+    return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState, adminCatalogStoreId, inStockOnlyBool, game);
   }
 
   @Get('meta/languages')

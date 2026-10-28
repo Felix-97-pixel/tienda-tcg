@@ -150,18 +150,27 @@ export function useStoreProfile(storeId: string) {
       const { devaluations, languageDevaluations, ...cleanData } = formData;
       const payload: any = { ...cleanData };
 
+      // Si la petición es del dueño (storeId === "me"), eliminar campos que son exclusivos de SuperAdmin
+      if (storeId === "me") {
+        delete payload.subscriptionPlanIds;
+        delete payload.customFeatureIds;
+        delete payload.subscriptionDiscountType;
+        delete payload.subscriptionDiscountValue;
+        delete payload.subscriptionNotes;
+      }
+
       if (payload.supportedGames && Array.isArray(payload.supportedGames)) {
         payload.supportedGames = payload.supportedGames.map((g: any) => (typeof g === "string" ? g : g.id));
       }
 
       // Convertir latitude / longitude si vienen vacíos o nulos
-      if (payload.latitude === "" || payload.latitude === null) {
+      if (payload.latitude === "" || payload.latitude === null || isNaN(Number(payload.latitude))) {
         delete payload.latitude;
       } else {
         payload.latitude = Number(payload.latitude);
       }
 
-      if (payload.longitude === "" || payload.longitude === null) {
+      if (payload.longitude === "" || payload.longitude === null || isNaN(Number(payload.longitude))) {
         delete payload.longitude;
       } else {
         payload.longitude = Number(payload.longitude);

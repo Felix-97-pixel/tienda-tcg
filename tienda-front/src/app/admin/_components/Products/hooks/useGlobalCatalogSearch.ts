@@ -7,6 +7,7 @@ export function useGlobalCatalogSearch() {
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGame, setSelectedGame] = useState("");
 
   const searchGlobalCatalog = useCallback(async () => {
     if (!searchTerm || searchTerm.length < 3) {
@@ -19,8 +20,11 @@ export function useGlobalCatalogSearch() {
     try {
       const url = new URL(`${API_URL}/products`);
       url.searchParams.append("search", searchTerm);
-      url.searchParams.append("limit", "10"); // We only need a few results for the dropdown/modal
-      url.searchParams.append("adminCatalog", "true"); 
+      url.searchParams.append("limit", "15"); // We only need a few results for the dropdown/modal
+      url.searchParams.append("adminCatalog", "true");
+      if (selectedGame) {
+        url.searchParams.append("game", selectedGame);
+      }
 
       const res = await fetch(url.toString(), { credentials: "include" });
       const data = await res.json();
@@ -31,7 +35,7 @@ export function useGlobalCatalogSearch() {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, selectedGame]);
 
   useEffect(() => {
     const timeoutId = setTimeout(searchGlobalCatalog, 400); // 400ms debounce
@@ -41,6 +45,8 @@ export function useGlobalCatalogSearch() {
   return {
     searchTerm,
     setSearchTerm,
+    selectedGame,
+    setSelectedGame,
     results,
     loading
   };

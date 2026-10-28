@@ -41,26 +41,44 @@ export default function StoreAdminProducts() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   return (
-    <div className="p-6 space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">
+    <div className="space-y-5 pb-24 w-full min-w-0">
+      {/* Header Responsive */}
+      <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
             Mi Inventario
           </h1>
-          <p className="text-gray-4 text-sm mt-1">
+          <p className="text-gray-4 text-xs sm:text-sm mt-1">
             Revisa y gestiona las cartas que actualmente tienes en tu inventario.
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => setIsConfirmPublishOpen(true)}>
-            Publicar Todo lo Pausado
-          </Button>
-          <SyncDealerPricesBtn />
-          <Button variant="success" onClick={() => setIsGlobalSearchOpen(true)}>
+
+        {/* Action Buttons: 
+            - Móvil y tablet pequeña (< md): Lista apilada completa (100% de ancho cada botón, simétrico y táctil)
+            - Tablet y desktop mediano (md a < 2xl): Cuadrícula simétrica 2x2 (cada botón toma exactamente el 50%)
+            - Desktop XL (2xl+): Una sola fila horizontal alineada al contenido
+        */}
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:flex 2xl:items-center gap-2.5 sm:gap-3 w-full 2xl:w-auto">
+          <Button
+            variant="success"
+            className="w-full 2xl:w-auto text-xs font-bold text-center justify-center !py-2.5 whitespace-nowrap"
+            onClick={() => setIsGlobalSearchOpen(true)}
+          >
             Añadir Producto
           </Button>
-          <Button variant="secondary" onClick={() => setIsBulkOpen(true)}>
+          <Button
+            variant="secondary"
+            className="w-full 2xl:w-auto text-xs font-bold text-center justify-center !py-2.5 whitespace-nowrap"
+            onClick={() => setIsConfirmPublishOpen(true)}
+          >
+            Publicar Todo lo Pausado
+          </Button>
+          <SyncDealerPricesBtn className="w-full 2xl:w-auto" />
+          <Button
+            variant="secondary"
+            className="w-full 2xl:w-auto text-xs font-bold text-center justify-center !py-2.5 whitespace-nowrap"
+            onClick={() => setIsBulkOpen(true)}
+          >
             {t("bulkUpload")}
           </Button>
         </div>

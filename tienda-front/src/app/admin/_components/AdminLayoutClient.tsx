@@ -36,13 +36,13 @@ export default function AdminLayoutClient({
             {!isHub && <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />}
 
             {/* CONTENT AREA */}
-            <div className="relative z-10 flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            <div className="relative z-10 flex flex-1 flex-col overflow-y-auto overflow-x-hidden min-w-0">
               {/* HEADER */}
               {!isHub && <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />}
 
               {/* MAIN CONTENT */}
-              <main className="flex-1">
-                <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+              <main className="flex-1 w-full min-w-0">
+                <div className="mx-auto max-w-screen-2xl p-3 sm:p-5 md:p-6 2xl:p-10 w-full min-w-0">
                   {children}
                 </div>
               </main>

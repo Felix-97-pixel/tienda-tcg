@@ -98,33 +98,36 @@ export default function AdminBuylistPage() {
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl p-5 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-bold text-white tracking-wide">Filtros de Catálogo</p>
-          <div className="flex items-center gap-6">
-            <div className="flex bg-[#080B12] p-1 rounded-xl border border-white/10">
-              <button
-                onClick={() => handleTabChange('all')}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${currentTab === 'all' ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              >
-                Catálogo Global
-              </button>
-              <button
-                onClick={() => handleTabChange('active')}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${currentTab === 'active' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              >
-                Mis Buscados (Publicados)
-              </button>
-              <button
-                onClick={() => handleTabChange('paused')}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${currentTab === 'paused' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              >
-                Mis Buscados (Pausados)
-              </button>
-            </div>
+      {/* Tabs de Selección Superior */}
+      <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl p-4 sm:p-5 mb-6 w-full min-w-0">
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-black uppercase tracking-wider text-white/70">
+            Filtros de Catálogo
+          </p>
+          <div className="flex w-full bg-[#080B12] p-1.5 rounded-xl border border-white/10 gap-1.5 overflow-x-auto scrollbar-none">
+            <button
+              onClick={() => handleTabChange('all')}
+              className={`flex-1 text-center px-4 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${currentTab === 'all' ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            >
+              Catálogo Global
+            </button>
+            <button
+              onClick={() => handleTabChange('active')}
+              className={`flex-1 text-center px-4 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${currentTab === 'active' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            >
+              Mis Buscados (Publicados)
+            </button>
+            <button
+              onClick={() => handleTabChange('paused')}
+              className={`flex-1 text-center px-4 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${currentTab === 'paused' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            >
+              Mis Buscados (Pausados)
+            </button>
           </div>
         </div>
+      </div>
+
+      <div className="mb-6">
         <ProductFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}

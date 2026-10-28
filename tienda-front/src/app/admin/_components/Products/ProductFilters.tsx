@@ -33,35 +33,45 @@ export default function ProductFilters({
   const tc = useTranslations("common");
 
   return (
-    <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-2xl p-5 mb-6">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+    <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-2xl p-4 sm:p-5 mb-6 w-full min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-white/5">
         <p className="text-xs font-black uppercase tracking-wider text-white/70">{tc("filters")}</p>
-        <div className="flex items-center gap-6">
-          {publishState !== undefined && onPublishStateChange && (
-            <div className="flex bg-[#080B12] p-1 rounded-xl border border-white/10">
-              <button
-                onClick={() => onPublishStateChange('all')}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${publishState === 'all' ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              >
-                Todos
-              </button>
-              <button
-                onClick={() => onPublishStateChange('published')}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${publishState === 'published' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              >
-                Publicados
-              </button>
-              <button
-                onClick={() => onPublishStateChange('paused')}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${publishState === 'paused' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              >
-                Pausados
-              </button>
-            </div>
-          )}
-        </div>
+        {publishState !== undefined && onPublishStateChange && (
+          <div className="flex w-full sm:w-auto bg-[#080B12] p-1 rounded-xl border border-white/10 overflow-x-auto">
+            <button
+              onClick={() => onPublishStateChange('all')}
+              className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
+                publishState === 'all'
+                  ? 'bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 ring-1 ring-white/20'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Todos
+            </button>
+            <button
+              onClick={() => onPublishStateChange('published')}
+              className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
+                publishState === 'published'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400/40'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Publicados
+            </button>
+            <button
+              onClick={() => onPublishStateChange('paused')}
+              className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
+                publishState === 'paused'
+                  ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 ring-1 ring-amber-300/40'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Pausados
+            </button>
+          </div>
+        )}
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
         <div>
           <Input
             label={tc("search")}
