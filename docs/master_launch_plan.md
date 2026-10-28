@@ -9,9 +9,9 @@ Este documento es la **hoja de ruta actualizada** para la puesta en marcha de **
 ```mermaid
 flowchart LR
     A["1. Legal & Tributario<br/><b>COMPLETADO 100%</b>"] --> B["2. Desarrollo & Código<br/><b>COMPLETADO 100%</b>"]
-    B --> C["3. Credenciales Prod<br/><b>EN CURSO (Activo)</b>"]
-    C --> D["4. Despliegue & QA Real<br/><b>PENDIENTE</b>"]
-    D --> E["5. Apertura Oficial<br/><b>LANZAMIENTO V1.0</b>"]
+    B --> C["3. Mercado Pago Checkout Pro<br/><b>VALIDADO & OPERATIVO</b>"]
+    C --> D["4. Transbank & Starken Prod<br/><b>EN CURSO (Activo)</b>"]
+    D --> E["5. QA Real & Lanzamiento<br/><b>LANZAMIENTO V1.0</b>"]
 ```
 
 ---
@@ -34,8 +34,8 @@ flowchart LR
   - Carrito consolidado que desglosa compras multi-tienda con órdenes secundarias independientes (`VendorOrder`).
   - Panel administrativo integral de compras, inventario y despachos para cada tienda.
   - Sistema de comisiones de plataforma (`Application Fee`) y billetera con retención anti-fraude.
-- [x] **2.2. Módulo de Pagos Dual:**
-  - **Mercado Pago:** SDK oficial implementado con soporte de pagos transparentes, `AdvancedPayment` para split marketplace y controlador OAuth seguro (`/payments/mp/connect` y `/callback`) para que las tiendas vinculen sus cuentas.
+- [x] **2.2. Módulo de Pagos Dual (Checkout Pro & Webpay Plus):**
+  - **Mercado Pago Checkout Pro (Redirección Externa):** SDK oficial implementado con creación de preferencias (`Preference.create`), reserva atómica de inventario, cálculo de recargo de pasarela (3.79%), retorno automático (`back_urls`) y recepción de parámetros en `checkout/result`.
   - **Transbank Webpay Plus:** Provider inyectable con `transbank-sdk` oficial, preparado para alternar entre ambientes `integration` y `production`.
 - [x] **2.3. Logística y Despacho Multi-Courier:**
   - **Chilexpress:** Conexión en tiempo real a la API oficial (`services.wschilexpress.com`). Consulta en vivo de hitos de entrega, validación de formato OT (10-12 dígitos) y protección anti-duplicados.
@@ -50,17 +50,19 @@ flowchart LR
 
 ---
 
-## ⚡ Fase 3: Credenciales de Producción (Fase Actual en Ejecución)
-*Obtención de las llaves comerciales reales para sustituir los ambientes de prueba (Sandbox/QA).*
+## ⚡ Fase 3: Credenciales de Producción y Homologación (Fase Actual)
+*Configuración de llaves comerciales reales y habilitación de contratos bancarios.*
 
 ### A. Pasarelas de Pago
-- [ ] **3.1. Mercado Pago (Producción):**
-  - Entrar a [mercadopago.cl/developers/panel/app](https://www.mercadopago.cl/developers/panel/app) en la app ID `7728076449389840`.
-  - Completar formulario de negocio de TapTrade SpA y obtener el **Access Token de Producción** (`APP_USR-...`) y **Client Secret**.
-  - Configurar la URL de redirección OAuth de producción: `https://taptrade.cl/api/v1/payments/mp/callback`.
-- [ ] **3.2. Transbank Webpay Plus (Producción):**
-  - Completar afiliación de Webpay Plus en [transbank.cl](https://www.transbank.cl) para obtener el **Código de Comercio de Producción** (ej: `5970XXXXXXXX`).
-  - Ingresar a [transbankdevelopers.cl](https://www.transbankdevelopers.cl/) y generar la **API Key Secreta de Producción**.
+- [x] **3.1. Mercado Pago (Producción & Checkout Pro):**
+  - [x] Aplicación configurada en Mercado Pago Developers (App ID: `7728076449389840`).
+  - [x] Flujo de Checkout Pro (Redirección Externa segura) programado y validado de punta a punta.
+  - [x] Validación de retorno y comprobante en TapTrade (`/checkout/result`) operativo.
+  - [x] Variables de entorno `APP_USR-...` cargadas en Render para cobro real.
+- [ ] **3.2. Transbank Webpay Plus (Papeleo & Homologación):**
+  - [ ] Solicitar afiliación a Webpay Plus en [transbank.cl](https://publico.transbank.cl) con los antecedentes legales de TapTrade SpA para obtener Código de Comercio.
+  - [ ] Homologación en [transbankdevelopers.cl](https://www.transbankdevelopers.cl) (verificación de Términos, Políticas, Carro en CLP y logos de tarjetas).
+  - [ ] Generación de API Key Secreta de Producción y carga en variables de entorno de Render (`WEBPAY_ENV="production"`).
 
 ### B. Couriers y Logística
 - [x] **3.3. Chilexpress API:** Credenciales y Subscription Key oficiales listas y cargadas en `.env`.
@@ -71,11 +73,11 @@ flowchart LR
 ---
 
 ## ☁️ Fase 4: Despliegue en la Nube y Validación Técnica
-*Subir el sistema al entorno real con dominios definitivos y certificados SSL.*
+*Infraestructura en la nube y dominios definitivos con SSL.*
 
 ```mermaid
 flowchart TD
-    subgraph Frontend["Vercel (tienda-front)"]
+    subgraph Frontend["Vercel / Cloudflare (tienda-front)"]
         F1["taptrade.cl"] --> F2["NEXT_PUBLIC_API_URL=https://api.taptrade.cl/api/v1"]
     end
     subgraph Backend["Render / VPS (tienda-backend)"]
@@ -85,13 +87,11 @@ flowchart TD
     end
 ```
 
-- [ ] **4.1. Variables de Entorno en Servidores:**
-  - **Vercel (Frontend):** Cargar `NEXT_PUBLIC_API_URL=https://api.taptrade.cl/api/v1`, Google Client ID y Mercado Pago Public Key.
-  - **Render / VPS (Backend):** Cargar `DATABASE_URL` (Neon con pooler), `JWT_SECRET`, credenciales reales de MP, Webpay, Chilexpress, Starken, Cloudinary y SMTP.
+- [x] **4.1. Despliegue Backend en Render:** Servicio NestJS desplegado y conectado a base de datos Neon PostgreSQL.
 - [ ] **4.2. Dominios y SSL:**
   - Apuntar DNS de `taptrade.cl` y `www.taptrade.cl` a Vercel.
-  - Apuntar DNS de `api.taptrade.cl` al servicio backend en Render / VPS.
-  - Verificar certificados SSL (HTTPS obligatorio en ambos extremos).
+  - Apuntar DNS de `api.taptrade.cl` al servicio backend en Render.
+  - Verificar certificados SSL (HTTPS obligatorio en ambos extremos para auto_return de Mercado Pago y Webpay).
 - [ ] **4.3. Seguridad en Producción:**
   - Confirmar que `NODE_ENV=production` oculta la documentación Swagger y activa cookies de sesión seguras (`SameSite=None`, `Secure=true`).
   - Verificar que CORS solo admita peticiones desde `https://taptrade.cl`.
@@ -101,13 +101,11 @@ flowchart TD
 ## 🧪 Fase 5: Pruebas Transaccionales Reales (Sanity Check End-to-End)
 *Simulacro con compras reales de bajo monto antes de invitar a usuarios externos.*
 
-- [ ] **5.1. Test de Pago Real con Webpay Plus:**
-  - Realizar una compra real de $1.000 con tarjeta de débito/crédito en `taptrade.cl`.
+- [x] **5.1. Test de Flujo Mercado Pago:** Flujo de pago, retorno y comprobante de orden validado exitosamente.
+- [ ] **5.2. Test de Pago Real con Webpay Plus:**
+  - Realizar una compra real de prueba con tarjeta de débito/crédito en `taptrade.cl` una vez aprobada la API Key de Transbank.
   - Confirmar que Transbank descuenta el dinero y redirige exitosamente a la pantalla de compra confirmada.
   - Verificar en base de datos que la orden cambió a `PAID` y se desglosaron las `VendorOrder`.
-- [ ] **5.2. Test de Pago Real con Mercado Pago:**
-  - Realizar una compra con tarjeta mediante Mercado Pago.
-  - Confirmar que el webhook de notificación IPN actualiza el pedido de inmediato.
 - [ ] **5.3. Test de Despacho y Tracking:**
   - Despachar la orden de prueba ingresando un número de seguimiento real de Chilexpress o Starken.
   - Revisar en el perfil del comprador (`/my-account?tab=orders`) que la línea de tiempo `CarrierTimeline` consulte y muestre los hitos en vivo.
