@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Body,
   Controller,
@@ -37,7 +37,7 @@ export class PaymentsController {
 
   /**
    * PATCH /payments/vendor-orders/:id/dispatch
-   * Registra despacho e ingresa número de seguimiento oficial, liberando fondos en custodia.
+   * Registra despacho e ingresa nÃºmero de seguimiento oficial, liberando fondos en custodia.
    */
   @Patch('vendor-orders/:id/dispatch')
   @UseGuards(JwtAuthGuard)
@@ -60,6 +60,30 @@ export class PaymentsController {
    * POST /payments/process
    * Procesa un pago con Mercado Pago (Custom Checkout)
    */
+  /**
+   * POST /payments/create-preference
+   * Inicia una transacción de Checkout Pro con Mercado Pago (Redirección Externa)
+   */
+  @Post('create-preference')
+  @UseGuards(OptionalJwtAuthGuard)
+  async createPreference(
+    @Body() dto: CreateOrderDto,
+    @Req() req: Request & { user?: { userId: string } },
+  ) {
+    const userId = req.user?.userId ?? null;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const returnUrl = `${frontendUrl}/checkout/result`;
+    const { CreateMpPreferenceCommand } = await import(
+      './commands/impl/create-mp-preference.command'
+    );
+    return this.commandBus.execute(
+      new CreateMpPreferenceCommand(dto, userId, returnUrl),
+    );
+  }
+
+  /**
+   * POST /payments/process
+   */
   @Post('process')
   @UseGuards(OptionalJwtAuthGuard)
   async processTransaction(
@@ -75,7 +99,7 @@ export class PaymentsController {
 
   /**
    * POST /payments/init-transaction
-   * Inicia una transacción de pago con Webpay Plus (Transbank)
+   * Inicia una transacciÃ³n de pago con Webpay Plus (Transbank)
    */
   @Post('init-transaction')
   @UseGuards(OptionalJwtAuthGuard)
@@ -96,12 +120,12 @@ export class PaymentsController {
 
   /**
    * POST /payments/commit-transaction
-   * Confirma la transacción con Webpay Plus al retornar de Transbank
+   * Confirma la transacciÃ³n con Webpay Plus al retornar de Transbank
    */
   @Post('commit-transaction')
   async commitTransaction(@Body() body: { token_ws: string }) {
     if (!body?.token_ws) {
-      throw new BadRequestException('token_ws es requerido para confirmar la transacción');
+      throw new BadRequestException('token_ws es requerido para confirmar la transacciÃ³n');
     }
     const { CommitTransactionCommand } = await import(
       './commands/impl/commit-transaction.command'
@@ -115,7 +139,7 @@ export class PaymentsController {
 
   /**
    * GET /payments/order/:orderId
-   * Estado de una orden (para la página de resultado)
+   * Estado de una orden (para la pÃ¡gina de resultado)
    */
   @Get('order/:orderId')
   @UseGuards(OptionalJwtAuthGuard)
@@ -155,7 +179,7 @@ export class PaymentsController {
 
   /**
    * GET /payments/stats  (Admin)
-   * Estadísticas de ventas: revenue, top productos, órdenes recientes
+   * EstadÃ­sticas de ventas: revenue, top productos, Ã³rdenes recientes
    */
   @Get('stats')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -166,7 +190,7 @@ export class PaymentsController {
 
   /**
    * GET /payments/stats/top-products (Admin)
-   * Productos más vendidos con filtros de fecha opcionales
+   * Productos mÃ¡s vendidos con filtros de fecha opcionales
    */
   @Get('stats/top-products')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -181,7 +205,7 @@ export class PaymentsController {
 
   /**
    * GET /payments/reports/advanced (Admin)
-   * Estadísticas avanzadas de ventas, inventario y catálogo
+   * EstadÃ­sticas avanzadas de ventas, inventario y catÃ¡logo
    */
   @Get('reports/advanced')
   @UseGuards(JwtAuthGuard, RolesGuard)

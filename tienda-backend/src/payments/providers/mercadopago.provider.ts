@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import MercadoPagoConfig, { Payment, AdvancedPayment } from 'mercadopago';
+import MercadoPagoConfig, { Payment, AdvancedPayment, Preference } from 'mercadopago';
 
 @Injectable()
 export class MercadoPagoProvider {
   private readonly logger = new Logger(MercadoPagoProvider.name);
   readonly payment: Payment;
   readonly advancedPayment: AdvancedPayment;
+  readonly preference: Preference;
 
   constructor(private config: ConfigService) {
     const accessToken = this.config.get<string>('MERCADOPAGO_ACCESS_TOKEN');
@@ -23,6 +24,7 @@ export class MercadoPagoProvider {
 
     this.payment = new Payment(mpConfig);
     this.advancedPayment = new AdvancedPayment(mpConfig);
-    this.logger.log('MercadoPago configurado correctamente');
+    this.preference = new Preference(mpConfig);
+    this.logger.log('MercadoPago configurado correctamente con soporte para Checkout Pro (Preference)');
   }
 }

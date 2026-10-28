@@ -8,31 +8,11 @@ import { selectCartItems, selectTotalPrice } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
-import dynamic from "next/dynamic";
-import { initMercadoPago } from "@mercadopago/sdk-react";
-import { IconShieldCheck, IconAlertTriangle, IconStore } from "@/components/ui/Icons";
+import { IconShieldCheck, IconAlertTriangle, IconStore, IconLock } from "@/components/ui/Icons";
 import { API_URL } from "@/utils/api";
 import ChileLocationsSelect from "./ChileLocationsSelect";
 import { calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/utils/paymentFees";
 
-const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "TEST-8a4e5363-49ae-4c4e-a06b-9b716642d41a";
-
-const Payment = dynamic(
-  () => import("@mercadopago/sdk-react").then((mod) => mod.Payment),
-  { ssr: false }
-);
-
-let isMpSdkInitialized = false;
-function ensureMercadoPagoInitialized() {
-  if (typeof window !== "undefined" && MP_PUBLIC_KEY && !isMpSdkInitialized) {
-    try {
-      initMercadoPago(MP_PUBLIC_KEY, { locale: "es-CL" });
-      isMpSdkInitialized = true;
-    } catch (err) {
-      console.warn("Mercado Pago SDK init error:", err);
-    }
-  }
-}
 
 const IconMapPin = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,15 +90,6 @@ const CheckoutWebpay = () => {
     return cartItems.map((i) => `${i.id}:${i.quantity}:${i.storeId}`).join("|");
   }, [cartItems]);
 
-  const [isMpReady, setIsMpReady] = useState(false);
-
-  // Inicializar SDK de Mercado Pago una única vez
-  useEffect(() => {
-    if (selectedGateway === "MERCADOPAGO") {
-      ensureMercadoPagoInitialized();
-      setIsMpReady(true);
-    }
-  }, [selectedGateway]);
 
   // Fetch store names in batch
   useEffect(() => {
@@ -395,6 +366,77 @@ const CheckoutWebpay = () => {
   const gatewayConfig = getGatewayConfig(selectedGateway);
   const paymentFee = calculatePaymentFee(baseAmount, selectedGateway);
   const finalAmount = baseAmount + paymentFee;
+
+  const handleMercadoPagoSubmit = async () => {
+    setError(null);
+
+    if (!billing.name || !billing.email) {
+      setError("Por favor completa tu nombre y correo electrónico en los datos de contacto.");
+      return;
+    }
+    if (cartItems.length === 0) {
+      setError("Tu carrito está vacío.");
+      return;
+    }
+    const missingShipping = storeIds.find((sId) => !selectedProvidersByStore[sId]);
+    if (missingShipping) {
+      setError("Debes seleccionar un método de envío para cada tienda.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        email: billing.email,
+        name: billing.name,
+        phone: billing.phone,
+        address: billing.address,
+        city: selectedCommuneName,
+        cityCode: selectedCommuneCode,
+        regionCode: selectedRegionCode,
+        notes: billing.notes,
+        currency: currency.code,
+        exchangeRate: currency.exchangeRate,
+        gatewayFee: paymentFee,
+        storeShippingProviders: storeIds.reduce((acc, sId) => {
+          acc[sId] = selectedProvidersByStore[sId].id;
+          return acc;
+        }, {} as Record<string, string>),
+        items: cartItems.map((item) => ({
+          productId: String(item.id),
+          inventoryItemId: item.inventoryItemId ?? null,
+          productName: item.title,
+          quantity: item.quantity,
+          unitPrice: item.discountedPrice,
+        })),
+      };
+
+      const res = await fetch(`${API_URL}/payments/create-preference`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message ?? "Error al iniciar la sesión de pago con Mercado Pago");
+      }
+
+      const data = await res.json();
+      const redirectUrl = data.init_point || data.sandbox_init_point;
+
+      if (!redirectUrl) {
+        throw new Error("No se recibió la URL de redirección de Mercado Pago");
+      }
+
+      // Redirigir de inmediato al portal cifrado oficial de Mercado Pago Checkout Pro
+      window.location.href = redirectUrl;
+    } catch (err: any) {
+      setError(err.message ?? "Error al conectar con Mercado Pago");
+      setLoading(false);
+    }
+  };
 
   const handleWebpaySubmit = async () => {
     setError(null);
@@ -975,30 +1017,54 @@ const CheckoutWebpay = () => {
               )}
 
               {selectedGateway === "MERCADOPAGO" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="p-3.5 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/30 text-xs text-sky-200 flex items-center gap-2">
-                    <span className="font-bold shrink-0">Portal Mercado Pago:</span>
-                    <span>Ingresa los datos de tu tarjeta directamente a continuación:</span>
+                <div className="p-6 rounded-2xl bg-[#07090E] border border-[#009EE3]/30 space-y-5 animate-in fade-in duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#009EE3]/15 flex items-center justify-center border border-[#009EE3]/30 text-[#009EE3] shrink-0 font-black text-base">
+                      MP
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">
+                        Pagar con Mercado Pago (Checkout Pro)
+                      </h4>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Al pulsar el botón serás redirigido a la plataforma oficial y encriptada de Mercado Pago para pagar con tarjeta de crédito (hasta 12 cuotas), débito o saldo en cuenta.
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Formulario Brick único montado */}
-                  <div className={`rounded-xl overflow-hidden bg-[#07090E] p-4 border border-white/10 relative ${loading ? "pointer-events-none opacity-40" : ""}`}>
-                    {total > 0 && isMpReady ? (
-                      <Payment
-                        key="mp-payment-brick"
-                        initialization={mpInitialization}
-                        customization={mpCustomization as any}
-                        onSubmit={onMpSubmit}
-                        onReady={onMpReady}
-                        onError={onMpError}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center py-8 text-xs text-gray-400 gap-2">
-                        <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                        <span>Cargando pasarela de Mercado Pago...</span>
-                      </div>
-                    )}
+                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-300 flex items-center justify-between">
+                    <div>
+                      <span className="text-gray-400 block">Total a autorizar en Mercado Pago:</span>
+                      <span className="text-[10px] text-sky-400 font-medium">
+                        0% sobreprecio de tienda • Tarifa pasarela 3.79%
+                      </span>
+                    </div>
+                    <span className="font-mono font-black text-white text-base">
+                      ${Math.round(finalAmount).toLocaleString("es-CL")} CLP
+                    </span>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={handleMercadoPagoSubmit}
+                    disabled={loading || total <= 0}
+                    className="w-full py-4 px-6 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-lg bg-gradient-to-r from-[#009EE3] to-[#00B4D8] hover:from-[#0087c2] hover:to-[#009ee3] text-white shadow-[#009EE3]/30 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        <span>Conectando con Mercado Pago...</span>
+                      </>
+                    ) : (
+                      <>
+                        <IconLock className="w-4 h-4" />
+                        <span>Pagar con Mercado Pago</span>
+                        <span className="font-mono font-bold ml-1">
+                          (${Math.round(finalAmount).toLocaleString("es-CL")} CLP)
+                        </span>
+                      </>
+                    )}
+                  </button>
                 </div>
               )}
 
