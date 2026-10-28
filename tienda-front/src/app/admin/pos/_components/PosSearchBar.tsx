@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { LocalProduct } from '../_lib/posDb';
 import { IconSearch, IconGlobe, IconRepeat } from '@/components/ui/Icons';
+import SearchableSelect from '@/components/ui/SearchableSelect';
 
 interface PosSearchBarProps {
   searchQuery: string;
@@ -126,35 +127,33 @@ export default function PosSearchBar({
         </div>
       )}
 
-      {/* Selectores rápidos de Juego / Expansión si estamos en Trade-in */}
+      {/* Selectores rápidos de Juego / Expansión con buscador (SearchableSelect) */}
       {posMode === 'BUY' && (
-        <div className="grid grid-cols-2 gap-2">
-          <select
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <SearchableSelect
+            placeholder="Todos los juegos (Magic, Pokémon, etc.)"
+            options={[
+              { label: "Todos los juegos (Magic, Pokémon, etc.)", value: "" },
+              ...categories.map((c) => ({ label: c.name, value: c.name })),
+            ]}
             value={selectedCategory}
-            onChange={(e) => onSelectCategory && onSelectCategory(e.target.value)}
-            className="w-full bg-[#0E121B] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-          >
-            <option value="">Todos los juegos (Magic, Pokémon, etc.)</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => onSelectCategory && onSelectCategory(val)}
+            noResultsText="No se encontraron juegos"
+            inputClassName="!py-2 !text-xs !bg-[#0E121B] !rounded-xl !border-white/10 focus:!border-emerald-500"
+          />
 
-          <select
-            value={selectedExpansion}
-            onChange={(e) => onSelectExpansion && onSelectExpansion(e.target.value)}
+          <SearchableSelect
+            placeholder="Todas las expansiones"
             disabled={!selectedCategory && expansions.length === 0}
-            className="w-full bg-[#0E121B] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 disabled:opacity-40"
-          >
-            <option value="">Todas las expansiones</option>
-            {expansions.map((exp) => (
-              <option key={exp.name} value={exp.name}>
-                {exp.name}
-              </option>
-            ))}
-          </select>
+            options={[
+              { label: "Todas las expansiones", value: "" },
+              ...expansions.map((exp) => ({ label: exp.name, value: exp.name })),
+            ]}
+            value={selectedExpansion}
+            onChange={(val) => onSelectExpansion && onSelectExpansion(val)}
+            noResultsText="No se encontraron expansiones"
+            inputClassName="!py-2 !text-xs !bg-[#0E121B] !rounded-xl !border-white/10 focus:!border-emerald-500 disabled:opacity-40"
+          />
         </div>
       )}
 

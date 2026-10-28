@@ -43,11 +43,23 @@ export class PosBuyCardItemDto {
 
   @IsOptional()
   @IsString()
+  conditionId?: string;
+
+  @IsOptional()
+  @IsString()
   language?: string;
 
   @IsOptional()
   @IsString()
+  languageId?: string;
+
+  @IsOptional()
+  @IsString()
   finish?: string;
+
+  @IsOptional()
+  @IsString()
+  finishId?: string;
 }
 
 export class PosBuyOperationDto {

@@ -658,7 +658,10 @@ export default function AdminPosPage() {
       cashPrice: i.cashPrice,
       creditPrice: i.creditPrice,
       condition: i.conditionName,
+      conditionId: i.conditionId,
       language: i.languageCode,
+      languageId: i.languageId,
+      finishId: i.finishId,
     }));
 
     try {

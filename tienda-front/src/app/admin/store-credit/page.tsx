@@ -76,15 +76,7 @@ export default function AdminStoreCreditPage() {
             Gestiona los saldos a favor (Store Credit) de tus clientes para canjes o compras.
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button
-            variant="primary"
-            onClick={() => handleAdjust("MANUAL_ADD")}
-            leftIcon={<IconPlus className="w-4 h-4" />}
-          >
-            Abonar (Trade-in)
-          </Button>
-        </div>
+        
       </div>
 
       <div className="bg-[#0E121B] rounded-2xl shadow-xl border border-white/10 overflow-hidden min-h-[500px]">
@@ -136,13 +128,6 @@ export default function AdminStoreCreditPage() {
                       >
                         <IconClock className="w-4 h-4 mr-1 inline-block" />
                         Historial
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="success"
-                        onClick={() => handleAdjust("MANUAL_ADD", c)}
-                      >
-                        + Abonar
                       </Button>
                     </td>
                   </tr>

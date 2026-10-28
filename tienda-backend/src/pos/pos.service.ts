@@ -809,6 +809,82 @@ export class PosService {
         });
       }
 
+      // 3. ACTUALIZACIÓN AUTOMÁTICA DE BUYLIST E INGRESO A INVENTARIO
+      for (const item of dto.items) {
+        // A) Descontar o pausar de la Buylist si la carta estaba configurada en la tienda
+        const buylistItem = await tx.buyListItem.findFirst({
+          where: {
+            storeId,
+            productId: item.productId,
+            ...(item.conditionId ? { conditionId: item.conditionId } : {}),
+            isActive: true,
+          },
+        });
+
+        if (buylistItem) {
+          const newQtyWanted = buylistItem.quantityWanted - item.quantity;
+          if (newQtyWanted <= 0) {
+            // Ya se completó la cuota requerida: pausar o eliminar de la buylist activa
+            await tx.buyListItem.update({
+              where: { id: buylistItem.id },
+              data: {
+                quantityWanted: 0,
+                isActive: false,
+              },
+            });
+          } else {
+            // Descontar la cantidad restante buscada
+            await tx.buyListItem.update({
+              where: { id: buylistItem.id },
+              data: {
+                quantityWanted: newQtyWanted,
+              },
+            });
+          }
+        }
+
+        // B) Ingresar la carta adquirida al inventario de la tienda para que quede disponible para venta
+        if (item.conditionId && item.languageId) {
+          const existingInv = await tx.inventoryItem.findFirst({
+            where: {
+              storeId,
+              productId: item.productId,
+              conditionId: item.conditionId,
+              languageId: item.languageId,
+              finishId: item.finishId || null,
+            },
+          });
+
+          if (existingInv) {
+            await tx.inventoryItem.update({
+              where: { id: existingInv.id },
+              data: {
+                stock: { increment: item.quantity },
+              },
+            });
+          } else {
+            // Obtener precio de mercado o precio referencial de venta
+            const marketRef = await tx.marketPrice.findFirst({
+              where: { productId: item.productId },
+            });
+            const baseSellPrice = marketRef?.price || item.cashPrice * 1.3 || 1000;
+
+            await tx.inventoryItem.create({
+              data: {
+                storeId,
+                productId: item.productId,
+                conditionId: item.conditionId,
+                languageId: item.languageId,
+                finishId: item.finishId || null,
+                price: Number(baseSellPrice),
+                stock: item.quantity,
+                isPublished: true,
+              },
+            });
+          }
+        }
+      }
+
       return {
         success: true,
         payoutMethod: dto.payoutMethod,
