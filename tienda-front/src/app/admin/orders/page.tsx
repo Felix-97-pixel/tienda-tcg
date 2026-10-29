@@ -47,10 +47,10 @@ export default function AdminOrdersPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
-            {t("title")}
+            Despachos & Pedidos
           </h1>
           <p className="text-gray-4 text-xs mt-1">
-            Gestión operativa de pedidos pagados y pendientes de despacho de tu tienda.
+            Gestión logística de envíos, códigos de seguimiento (Starken / Chilexpress) y retiros en tienda pendientes.
           </p>
         </div>
         <Button

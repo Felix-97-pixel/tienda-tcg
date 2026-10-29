@@ -75,6 +75,17 @@ export class PosController {
   }
 
   /**
+   * GET /api/v1/pos/transactions-ledger
+   * Obtiene el libro mayor unificado de la tienda: ventas (online y POS),
+   * compras de cartas (Efectivo y Crédito de Tienda) y turnos/cierres de caja.
+   */
+  @Get('transactions-ledger')
+  async getTransactionsLedger(@Request() req: any) {
+    const store = await this.getStore(req);
+    return this.posService.getTransactionsLedger(store.id);
+  }
+
+  /**
    * GET /api/v1/pos/shift/current
    * Consulta el turno de caja abierto actualmente para la tienda.
    */

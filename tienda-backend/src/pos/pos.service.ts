@@ -987,4 +987,282 @@ export class PosService {
       take: limit,
     });
   }
+
+  /**
+   * Obtiene el libro mayor unificado de la tienda:
+   * - Ventas pagadas (Online y POS)
+   * - Compras de cartas en efectivo (CashPurchase)
+   * - Movimientos de Crédito de Tienda (Trade-in por crédito y canjes en compras)
+   * - Historial de turnos y cierres de caja (CashShift) con sus operaciones asociadas
+   * - Analítica de horarios y días más productivos
+   */
+  async getTransactionsLedger(storeId: string) {
+    const [vendorOrders, cashPurchases, creditTransactions, cashShifts] =
+      await Promise.all([
+        this.prisma.vendorOrder.findMany({
+          where: {
+            storeId,
+            status: 'PAID',
+          },
+          include: {
+            order: {
+              select: {
+                id: true,
+                buyOrder: true,
+                name: true,
+                email: true,
+                phone: true,
+                origin: true,
+                posPaymentMethod: true,
+                posVoucherRef: true,
+                posCashierName: true,
+                cashShiftId: true,
+                createdAt: true,
+                notes: true,
+              },
+            },
+            items: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+        this.prisma.cashPurchase.findMany({
+          where: { storeId },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+        this.prisma.storeCreditTransaction.findMany({
+          where: { storeId },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+        this.prisma.cashShift.findMany({
+          where: { storeId },
+          include: {
+            orders: {
+              include: {
+                vendorOrders: {
+                  where: { storeId },
+                  include: { items: true },
+                },
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+            cashPurchases: {
+              orderBy: { createdAt: 'desc' },
+            },
+          },
+          orderBy: { openedAt: 'desc' },
+          take: 60,
+        }),
+      ]);
+
+    const dayNames = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+    ];
+
+    const hourlyDistribution = Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      label: `${String(hour).padStart(2, '0')}:00`,
+      salesCount: 0,
+      salesAmount: 0,
+      purchasesCount: 0,
+      purchasesAmount: 0,
+    }));
+
+    const dailyDistribution = dayNames.map((dayName, dayIndex) => ({
+      dayIndex,
+      dayName,
+      salesCount: 0,
+      salesAmount: 0,
+      purchasesCount: 0,
+      purchasesAmount: 0,
+    }));
+
+    for (const vo of vendorOrders) {
+      const dt = new Date(vo.createdAt);
+      const hr = dt.getHours();
+      const day = dt.getDay();
+      const amt = Number(vo.subtotal || 0) + Number(vo.shippingCost || 0);
+      hourlyDistribution[hr].salesCount += 1;
+      hourlyDistribution[hr].salesAmount += amt;
+      dailyDistribution[day].salesCount += 1;
+      dailyDistribution[day].salesAmount += amt;
+    }
+
+    for (const cp of cashPurchases) {
+      const dt = new Date(cp.createdAt);
+      const hr = dt.getHours();
+      const day = dt.getDay();
+      const amt = Number(cp.totalAmount || 0);
+      hourlyDistribution[hr].purchasesCount += 1;
+      hourlyDistribution[hr].purchasesAmount += amt;
+      dailyDistribution[day].purchasesCount += 1;
+      dailyDistribution[day].purchasesAmount += amt;
+    }
+
+    for (const ct of creditTransactions) {
+      if (ct.type === 'BUYLIST_TRADE') {
+        const dt = new Date(ct.createdAt);
+        const hr = dt.getHours();
+        const day = dt.getDay();
+        const amt = Math.abs(Number(ct.amount || 0));
+        hourlyDistribution[hr].purchasesCount += 1;
+        hourlyDistribution[hr].purchasesAmount += amt;
+        dailyDistribution[day].purchasesCount += 1;
+        dailyDistribution[day].purchasesAmount += amt;
+      }
+    }
+
+    const bestHourSlot = [...hourlyDistribution].sort(
+      (a, b) =>
+        b.salesAmount +
+        b.purchasesAmount -
+        (a.salesAmount + a.purchasesAmount) ||
+        b.salesCount + b.purchasesCount - (a.salesCount + a.purchasesCount),
+    )[0];
+
+    const bestDaySlot = [...dailyDistribution].sort(
+      (a, b) =>
+        b.salesAmount +
+        b.purchasesAmount -
+        (a.salesAmount + a.purchasesAmount) ||
+        b.salesCount + b.purchasesCount - (a.salesCount + a.purchasesCount),
+    )[0];
+
+    const hasActivity =
+      bestHourSlot &&
+      (bestHourSlot.salesCount > 0 || bestHourSlot.purchasesCount > 0);
+
+    return {
+      sales: vendorOrders.map((vo) => ({
+        id: vo.id,
+        orderId: vo.orderId,
+        buyOrder: vo.order?.buyOrder || vo.id.slice(0, 8),
+        customerName: vo.order?.name || 'Cliente Mostrador',
+        customerEmail: vo.order?.email || null,
+        origin: vo.order?.origin || 'ONLINE_MARKETPLACE',
+        paymentMethod:
+          vo.order?.origin === 'POS_IN_STORE'
+            ? vo.order?.posPaymentMethod || 'CASH'
+            : 'ONLINE_GATEWAY',
+        voucherRef: vo.order?.posVoucherRef || null,
+        cashierName: vo.order?.posCashierName || 'Tienda Online',
+        cashShiftId: vo.order?.cashShiftId || null,
+        subtotal: Number(vo.subtotal || 0),
+        shippingCost: Number(vo.shippingCost || 0),
+        totalAmount: Number(vo.subtotal || 0) + Number(vo.shippingCost || 0),
+        createdAt: vo.createdAt,
+        notes: vo.order?.notes || null,
+        items: (vo.items || []).map((it) => ({
+          id: it.id,
+          productId: it.productId,
+          name: it.productName,
+          quantity: it.quantity,
+          unitPrice: Number(it.unitPrice || 0),
+        })),
+      })),
+      cashPurchases: cashPurchases.map((cp) => ({
+        id: cp.id,
+        code: cp.code,
+        customerName: cp.customerName || 'Cliente Mostrador',
+        customerEmail: cp.customerEmail || null,
+        customerRut: cp.customerRut || null,
+        totalAmount: Number(cp.totalAmount || 0),
+        cashierName: cp.cashierName || 'Cajero',
+        cashShiftId: cp.cashShiftId || null,
+        itemsData: Array.isArray(cp.itemsData) ? cp.itemsData : [],
+        notes: cp.notes || null,
+        createdAt: cp.createdAt,
+      })),
+      creditTransactions: creditTransactions.map((ct) => ({
+        id: ct.id,
+        userId: ct.userId,
+        customerName: ct.user?.name || 'Cliente Registrado',
+        customerEmail: ct.user?.email || null,
+        amount: Number(ct.amount || 0),
+        type: ct.type,
+        reference: ct.reference || null,
+        itemsData: Array.isArray(ct.itemsData) ? ct.itemsData : [],
+        createdAt: ct.createdAt,
+      })),
+      cashShifts: cashShifts.map((shift) => {
+        const initialCash = Number(shift.initialCash || 0);
+        const expectedCash = Number(shift.expectedCash ?? shift.initialCash ?? 0);
+        const cashOutTotal = Number(shift.cashOutTotal || 0);
+        const cashSalesTotal = Math.max(
+          0,
+          expectedCash - initialCash + cashOutTotal,
+        );
+        return {
+          id: shift.id,
+          cashierName: shift.cashierName,
+          status: shift.status,
+          openedAt: shift.openedAt,
+          closedAt: shift.closedAt,
+          initialCash,
+          cashSalesTotal,
+          cardTotal: Number(shift.cardTotal || 0),
+          transferTotal: Number(shift.transferTotal || 0),
+          creditTotal: Number(shift.creditTotal || 0),
+          cashOutTotal,
+          expectedCash,
+          actualCash: shift.actualCash !== null ? Number(shift.actualCash) : null,
+          difference: shift.difference !== null ? Number(shift.difference) : null,
+          notes: shift.notes || null,
+          ordersCount: shift.orders?.length || 0,
+          cashPurchasesCount: shift.cashPurchases?.length || 0,
+          orders: (shift.orders || []).map((ord) => {
+            const vo = ord.vendorOrders?.[0];
+            return {
+              id: ord.id,
+              buyOrder: ord.buyOrder,
+              customerName: ord.name,
+              paymentMethod: ord.posPaymentMethod || 'CASH',
+              totalAmount: Number(vo?.subtotal ?? ord.totalAmount ?? 0),
+              createdAt: ord.createdAt,
+              items: (vo?.items || []).map((it) => ({
+                name: it.productName,
+                quantity: it.quantity,
+                unitPrice: Number(it.unitPrice || 0),
+              })),
+            };
+          }),
+          cashPurchases: (shift.cashPurchases || []).map((cp) => ({
+            id: cp.id,
+            code: cp.code,
+            customerName: cp.customerName || 'Cliente Mostrador',
+            totalAmount: Number(cp.totalAmount || 0),
+            createdAt: cp.createdAt,
+            itemsData: Array.isArray(cp.itemsData) ? cp.itemsData : [],
+          })),
+        };
+      }),
+      analytics: {
+        peakHour: hasActivity
+          ? `${String(bestHourSlot.hour).padStart(2, '0')}:00 - ${String(
+              (bestHourSlot.hour + 1) % 24,
+            ).padStart(2, '0')}:00`
+          : 'Sin datos aún',
+        peakDay: hasActivity ? bestDaySlot.dayName : 'Sin datos aún',
+        hourlyDistribution,
+        dailyDistribution,
+      },
+    };
+  }
 }

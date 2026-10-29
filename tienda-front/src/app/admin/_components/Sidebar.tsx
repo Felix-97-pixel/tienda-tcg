@@ -9,6 +9,7 @@ import { API_URL } from "@/utils/api";
 import {
   IconPos,
   IconOrders,
+  IconReceipt,
   IconCard,
   IconBox,
   IconRepeat,
@@ -65,7 +66,9 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       title: "Operaciones",
       items: [
         { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
-        { href: "/admin/orders", label: "Órdenes de Venta", icon: <IconOrders className="w-4 h-4" /> },
+        { href: "/admin/transactions", label: "Transacciones & Caja", icon: <IconReceipt className="w-4 h-4" /> },
+        { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
+        { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
       ],
     },
     {
@@ -74,14 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
         { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
         { href: "/admin/buylist", label: "Buylist", icon: <IconRepeat className="w-4 h-4" /> },
-        { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
         { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
       ],
     },
     {
       title: "Métricas & Finanzas",
       items: [
-        { href: "/admin/statistics", label: "Estadísticas Diarias", icon: <IconBarChart className="w-4 h-4" /> },
         { href: "/admin/sales", label: "Reportes & Analítica", icon: <IconPieChart className="w-4 h-4" /> },
         { href: "/admin/wallet", label: "Billetera & Retiros", icon: <IconWallet className="w-4 h-4" /> },
       ],
