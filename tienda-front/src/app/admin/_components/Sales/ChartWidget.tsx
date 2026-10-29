@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -14,6 +14,11 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import {
+  IconDownload,
+  IconBarChart,
+  IconPieChart,
+} from "@/components/ui/Icons";
 
 interface ChartWidgetProps {
   id: string;
@@ -37,8 +42,16 @@ export default function ChartWidget({
   colors = COLORS,
 }: ChartWidgetProps) {
   const [chartType, setChartType] = useState<"line" | "bar" | "pie">(defaultType);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const renderChart = () => {
+    if (!isMounted) {
+      return <div className="w-full h-[260px]" />;
+    }
     if (!data || data.length === 0) {
       return <div className="flex items-center justify-center h-full text-white/40 text-sm">No hay datos suficientes</div>;
     }
@@ -46,7 +59,7 @@ export default function ChartWidget({
     switch (chartType) {
       case "line":
         return (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={260} minWidth={100} minHeight={220}>
             <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
               <XAxis dataKey={dataKeyX} stroke="#6C6F93" fontSize={12} />
@@ -62,7 +75,7 @@ export default function ChartWidget({
         );
       case "pie":
         return (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={260} minWidth={100} minHeight={220}>
             <PieChart>
               <Pie
                 data={data}
@@ -89,7 +102,7 @@ export default function ChartWidget({
       case "bar":
       default:
         return (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={260} minWidth={100} minHeight={220}>
             <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
               <XAxis dataKey={dataKeyX} stroke="#6C6F93" fontSize={12} />
@@ -115,7 +128,7 @@ export default function ChartWidget({
 
     const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#0E121B" });
     const imgData = canvas.toDataURL("image/png");
-    
+
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "mm",
@@ -126,7 +139,7 @@ export default function ChartWidget({
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`reporte-${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+    pdf.save(`reporte-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
   };
 
   return (
@@ -139,34 +152,46 @@ export default function ChartWidget({
             className="p-1.5 rounded-lg transition-colors text-white/50 hover:text-white bg-white/5 border border-white/10"
             title="Descargar este gráfico a PDF"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            <IconDownload className="w-4 h-4" />
           </button>
           <div className="flex gap-1.5 bg-[#080B12] p-1 rounded-xl border border-white/10">
-          <button
-            onClick={() => setChartType("bar")}
-            className={`p-1.5 rounded-lg transition-colors ${chartType === "bar" ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm" : "text-white/50 hover:text-white"}`}
-            title="Barras"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-          </button>
-          <button
-            onClick={() => setChartType("line")}
-            className={`p-1.5 rounded-lg transition-colors ${chartType === "line" ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm" : "text-white/50 hover:text-white"}`}
-            title="Líneas"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-          </button>
-          <button
-            onClick={() => setChartType("pie")}
-            className={`p-1.5 rounded-lg transition-colors ${chartType === "pie" ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm" : "text-white/50 hover:text-white"}`}
-            title="Torta"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
-          </button>
-        </div>
+            <button
+              onClick={() => setChartType("bar")}
+              className={`p-1.5 rounded-lg transition-colors ${
+                chartType === "bar"
+                  ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm"
+                  : "text-white/50 hover:text-white"
+              }`}
+              title="Barras"
+            >
+              <IconBarChart className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setChartType("line")}
+              className={`p-1.5 rounded-lg transition-colors ${
+                chartType === "line"
+                  ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm"
+                  : "text-white/50 hover:text-white"
+              }`}
+              title="Líneas"
+            >
+              <IconBarChart className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setChartType("pie")}
+              className={`p-1.5 rounded-lg transition-colors ${
+                chartType === "pie"
+                  ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm"
+                  : "text-white/50 hover:text-white"
+              }`}
+              title="Torta"
+            >
+              <IconPieChart className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
-      <div className="flex-1 min-h-0 relative">
+      <div className="flex-1 min-h-[260px] min-w-0 relative">
         {renderChart()}
       </div>
     </div>
