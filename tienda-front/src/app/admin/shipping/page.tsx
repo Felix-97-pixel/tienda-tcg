@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
@@ -303,16 +304,14 @@ export default function AdminShipping() {
                       Starken Domicilio & Agencia
                     </h4>
                     <span
-                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold mt-0.5 ${
-                        starkenProvider?.isActive ? "text-emerald-400" : "text-amber-400"
-                      }`}
+                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold mt-0.5 ${starkenProvider?.isActive ? "text-emerald-400" : "text-amber-400"
+                        }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          starkenProvider?.isActive
+                        className={`w-1.5 h-1.5 rounded-full ${starkenProvider?.isActive
                             ? "bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]"
                             : "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]"
-                        }`}
+                          }`}
                       />
                       {starkenProvider?.isActive ? "Activo en Checkout" : "Pausado"}
                     </span>
@@ -345,16 +344,14 @@ export default function AdminShipping() {
                       Chilexpress Express Prioritario
                     </h4>
                     <span
-                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold mt-0.5 ${
-                        chilexpressProvider?.isActive ? "text-emerald-400" : "text-amber-400"
-                      }`}
+                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold mt-0.5 ${chilexpressProvider?.isActive ? "text-emerald-400" : "text-amber-400"
+                        }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          chilexpressProvider?.isActive
+                        className={`w-1.5 h-1.5 rounded-full ${chilexpressProvider?.isActive
                             ? "bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]"
                             : "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]"
-                        }`}
+                          }`}
                       />
                       {chilexpressProvider?.isActive ? "Activo en Checkout" : "Pausado"}
                     </span>
