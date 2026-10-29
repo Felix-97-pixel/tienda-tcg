@@ -219,24 +219,208 @@ export class SyncService {
     return this.riftboundService.fetchSets();
   }
   /**
-   * Sincroniza los precios de una tienda copiando los precios del catálogo maestro.
+   * Obtiene una vista previa del impacto de sincronización de precios para la tienda
+   * filtrando opcionalmente por categoría (juego) y expansión.
    */
-  async syncDealerPrices(storeId: string) {
+  async previewDealerPrices(
+    storeId: string,
+    filters: { category?: string; expansion?: string },
+  ) {
+    const categoryFilter =
+      filters.category && filters.category !== 'ALL' ? filters.category : null;
+    const expansionFilter =
+      filters.expansion && filters.expansion !== 'ALL' ? filters.expansion : null;
+
+    const productWhere: any = {
+      marketPrices: {
+        some: {
+          price: { gt: 0 },
+        },
+      },
+    };
+
+    if (categoryFilter) {
+      productWhere.category = {
+        OR: [
+          { name: { equals: categoryFilter, mode: 'insensitive' } },
+          { slug: { equals: categoryFilter, mode: 'insensitive' } },
+          { id: categoryFilter },
+        ],
+      };
+    }
+
+    if (expansionFilter) {
+      productWhere.cardDetail = {
+        expansion: { equals: expansionFilter, mode: 'insensitive' },
+      };
+    }
+
+    const baseWhere: any = {
+      storeId,
+      product: productWhere,
+    };
+
+    const [
+      totalMatching,
+      onlyZeroPriceCount,
+      onlyInStockCount,
+      condDevs,
+      langDevs,
+      sampleRows,
+    ] = await Promise.all([
+      this.prisma.inventoryItem.count({ where: baseWhere }),
+      this.prisma.inventoryItem.count({
+        where: { ...baseWhere, price: 0 },
+      }),
+      this.prisma.inventoryItem.count({
+        where: { ...baseWhere, stock: { gt: 0 } },
+      }),
+      this.prisma.storeConditionDevaluation.findMany({ where: { storeId } }),
+      this.prisma.storeLanguageDevaluation.findMany({ where: { storeId } }),
+      this.prisma.inventoryItem.findMany({
+        where: baseWhere,
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+              category: { select: { name: true } },
+              cardDetail: { select: { expansion: true, gameId: true } },
+              marketPrices: true,
+            },
+          },
+          condition: { select: { id: true, name: true, displayName: true } },
+          language: { select: { id: true, name: true, code: true } },
+          finish: { select: { id: true, name: true } },
+        },
+        orderBy: [{ stock: 'desc' }, { updatedAt: 'desc' }],
+        take: 10,
+      }),
+    ]);
+
+    const condMap = new Map(
+      condDevs.map((d) => [`${d.conditionId}_${d.gameId}`, Number(d.multiplier)]),
+    );
+    const langMap = new Map(
+      langDevs.map((d) => [`${d.languageId}_${d.gameId}`, Number(d.multiplier)]),
+    );
+
+    const samples = sampleRows
+      .map((row) => {
+        const mp =
+          row.product.marketPrices.find(
+            (m) => (m.finishId || null) === (row.finishId || null),
+          ) || row.product.marketPrices[0];
+        if (!mp || Number(mp.price) <= 0) return null;
+
+        const gameId = row.product.cardDetail?.gameId || '';
+        const condMult = condMap.get(`${row.conditionId}_${gameId}`) ?? 1.0;
+        const langMult = langMap.get(`${row.languageId}_${gameId}`) ?? 1.0;
+
+        return {
+          id: row.id,
+          name: row.product.name,
+          imageUrl: row.product.imageUrl,
+          categoryName: row.product.category?.name || '',
+          expansion: row.product.cardDetail?.expansion || 'General',
+          condition: row.condition?.displayName || row.condition?.name || 'NM',
+          language: row.language?.code?.toUpperCase() || 'EN',
+          finish: row.finish?.name || 'Normal',
+          stock: row.stock,
+          isPublished: row.isPublished,
+          currentPrice: Number(row.price),
+          marketBasePrice: Number(mp.price),
+          conditionMultiplier: condMult,
+          languageMultiplier: langMult,
+        };
+      })
+      .filter(Boolean);
+
+    return {
+      totalMatching,
+      onlyZeroPriceCount,
+      onlyInStockCount,
+      devaluationRulesCount: condDevs.length + langDevs.length,
+      samples,
+    };
+  }
+
+  /**
+   * Sincroniza los precios de una tienda copiando los precios del catálogo maestro,
+   * permitiendo filtrar por juego (categoría), expansión, alcance de stock/precio,
+   * reglas de devaluación de estado/idioma y margen porcentual.
+   */
+  async syncDealerPrices(
+    storeId: string,
+    options: {
+      category?: string;
+      expansion?: string;
+      targetScope?: 'ALL' | 'ONLY_ZERO_PRICE' | 'ONLY_IN_STOCK';
+      applyDevaluations?: boolean;
+      marginPercent?: number;
+      autoPublish?: boolean;
+    } = {},
+  ) {
     if (!storeId) throw new Error('Store ID is required');
 
+    const categoryFilter =
+      options.category && options.category !== 'ALL' ? options.category : '';
+    const expansionFilter =
+      options.expansion && options.expansion !== 'ALL' ? options.expansion : '';
+    const targetScope = options.targetScope || 'ALL';
+    const applyDevaluations = Boolean(options.applyDevaluations);
+    const marginPercent = Number(options.marginPercent || 0);
+    const marginMultiplier = Math.max(0.05, 1 + marginPercent / 100);
+    const autoPublish = Boolean(options.autoPublish);
+
     try {
-      // Usamos una consulta cruda para máxima eficiencia
-      // Sincroniza todos los precios del inventario de la tienda sin restricción de juego
       const result = await this.prisma.$executeRaw`
         UPDATE "InventoryItem" AS d
-        SET price = m.price
+        SET
+          price = ROUND(
+            GREATEST(
+              0.01,
+              m.price
+              * (CASE WHEN ${applyDevaluations} THEN COALESCE(scd.multiplier, 1.0) ELSE 1.0 END)
+              * (CASE WHEN ${applyDevaluations} THEN COALESCE(sld.multiplier, 1.0) ELSE 1.0 END)
+              * CAST(${marginMultiplier} AS numeric)
+            ),
+            2
+          ),
+          "isPublished" = CASE
+            WHEN ${autoPublish} AND d.stock > 0 THEN true
+            ELSE d."isPublished"
+          END,
+          "updatedAt" = NOW()
         FROM "MarketPrice" AS m
+        INNER JOIN "Product" AS p ON p.id = d."productId"
+        INNER JOIN "Category" AS c ON c.id = p."categoryId"
+        LEFT JOIN "CardDetail" AS cd ON cd."productId" = p.id
+        LEFT JOIN "StoreConditionDevaluation" AS scd
+          ON scd."storeId" = d."storeId"
+          AND scd."conditionId" = d."conditionId"
+          AND scd."gameId" = cd."gameId"
+        LEFT JOIN "StoreLanguageDevaluation" AS sld
+          ON sld."storeId" = d."storeId"
+          AND sld."languageId" = d."languageId"
+          AND sld."gameId" = cd."gameId"
         WHERE d."productId" = m."productId"
           AND (d."finishId" = m."finishId" OR (d."finishId" IS NULL AND m."finishId" IS NULL))
           AND d."storeId" = ${storeId}
-          AND m.price > 0;
+          AND m.price > 0
+          AND (${categoryFilter} = '' OR LOWER(c.name) = LOWER(${categoryFilter}) OR LOWER(c.slug) = LOWER(${categoryFilter}) OR c.id = ${categoryFilter})
+          AND (${expansionFilter} = '' OR LOWER(COALESCE(cd.expansion, '')) = LOWER(${expansionFilter}))
+          AND (
+            ${targetScope} = 'ALL'
+            OR (${targetScope} = 'ONLY_ZERO_PRICE' AND d.price = 0)
+            OR (${targetScope} = 'ONLY_IN_STOCK' AND d.stock > 0)
+          );
       `;
-      return { success: true, updatedCount: Number(result) };
+      return {
+        success: true,
+        updatedCount: Number(result),
+      };
     } catch (e: any) {
       console.error("Error syncing dealer prices", e);
       throw new Error("Error sincronizando los precios.");

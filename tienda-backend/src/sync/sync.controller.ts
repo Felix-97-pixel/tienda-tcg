@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Param, Req, BadRequestException, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param, Query, Req, BadRequestException, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { SyncService } from './sync.service';
@@ -49,9 +49,36 @@ export class SyncController {
     return this.syncService.syncSet(body.game, body.setId);
   }
 
+  @Get('dealer-prices/preview')
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  async previewDealerPrices(
+    @Req() req: any,
+    @Query('category') category?: string,
+    @Query('expansion') expansion?: string,
+  ) {
+    const store = await this.prisma.store.findUnique({
+      where: { ownerId: req.user.userId },
+    });
+    if (!store) {
+      throw new BadRequestException("No se encontró una tienda para este usuario.");
+    }
+    return this.syncService.previewDealerPrices(store.id, { category, expansion });
+  }
+
   @Post('dealer-prices')
-  @Roles(Role.ADMIN)
-  async syncDealerPrices(@Req() req: any) {
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  async syncDealerPrices(
+    @Req() req: any,
+    @Body()
+    body?: {
+      category?: string;
+      expansion?: string;
+      targetScope?: 'ALL' | 'ONLY_ZERO_PRICE' | 'ONLY_IN_STOCK';
+      applyDevaluations?: boolean;
+      marginPercent?: number;
+      autoPublish?: boolean;
+    },
+  ) {
     if (req.user.email === 'f.pinto.97@gmail.com') {
       throw new BadRequestException("El Superadmin no usa esta función. Solo las tiendas.");
     }
@@ -61,7 +88,7 @@ export class SyncController {
     if (!store) {
       throw new BadRequestException("No se encontró una tienda para este usuario.");
     }
-    return this.syncService.syncDealerPrices(store.id);
+    return this.syncService.syncDealerPrices(store.id, body || {});
   }
 
   @Get('backups/:game')
