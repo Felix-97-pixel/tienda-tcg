@@ -75,7 +75,7 @@ export class MagicProvider extends TcgProvider {
     if (itemData.scryfallId) {
       product = await this.prisma.product.findUnique({
         where: { externalId: itemData.scryfallId },
-        include: { items: true, marketPrices: true }
+        include: { items: true, marketPrices: true, cardDetail: true }
       });
     }
 
@@ -86,7 +86,7 @@ export class MagicProvider extends TcgProvider {
           name: itemData.name,
           cardDetail: { expansion: itemData.expansion }
         },
-        include: { items: true, marketPrices: true }
+        include: { items: true, marketPrices: true, cardDetail: true }
       });
     }
 

@@ -8,6 +8,7 @@ import Papa from "papaparse";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
+import { IconInfo, IconSliders } from "@/components/ui/Icons";
 export interface BulkUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,6 +24,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
 
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [applyDevaluations, setApplyDevaluations] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleUpload = async () => {
@@ -79,22 +81,23 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
           }));
         } else {
           parsedItems = results.data.map((row: any, index: number) => {
-            let finishStr = row["Foil"] || "normal";
-            if (row["Foil"] && row["Foil"].toString().toUpperCase() === "TRUE") finishStr = "foil";
-            else if (row["Foil"] && row["Foil"].toString().toUpperCase() === "FALSE") finishStr = "normal";
-            
+            const rawFoil = (row["Foil"] ?? row["Finish"] ?? row["Printing"] ?? "normal").toString().trim();
+            let finishStr = rawFoil || "normal";
+            if (rawFoil.toUpperCase() === "TRUE") finishStr = "foil";
+            else if (rawFoil.toUpperCase() === "FALSE") finishStr = "normal";
+
             if (row["Variant Type"] === "Promo") finishStr = "promo";
 
             return {
               scryfallId: row["Scryfall ID"] || undefined,
-              name: row["Name"] || row["Card Name"] || "",
-              expansion: row["Set name"] || row["Set"] || "",
+              name: row["Name"] || row["Card Name"] || row["Product Name"] || "",
+              expansion: row["Set name"] || row["Set"] || row["Set Name"] || row["Expansion"] || "",
               rarity: row["Rarity"] || "",
-              collectorNum: String(row["Collector number"] || row["Variant Number"] || ""),
-              quantity: Number(row["Quantity"]) || 1,
-              price: Number(row["Purchase price"]) || 0,
-              condition: row["Condition"] || "near_mint",
-              language: row["Language"] || "en",
+              collectorNum: String(row["Collector number"] || row["Variant Number"] || row["Card Number"] || row["Number"] || ""),
+              quantity: Number(row["Quantity"] || row["Count"] || row["Qty"]) || 1,
+              price: Number(row["Purchase price"] || row["Price"] || row["Market Price"]) || 0,
+              condition: row["Condition"] || row["State"] || "near_mint",
+              language: row["Language"] || row["Lang"] || "en",
               finish: finishStr,
               originalIndex: index
             };
@@ -111,6 +114,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             },
             body: JSON.stringify({
               categoryId: bulkCategory,
+              applyDevaluations,
               items: parsedItems
             }),
             credentials: "include",
@@ -121,11 +125,14 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             // Show toast using the backend success summary if available, otherwise general success
             let successMsg = t("bulk.success");
             if (data && data.added !== undefined) {
-              successMsg = t("bulk.successMtg", {
+              const baseMsg = t("bulk.successMtg", {
                 added: data.added,
                 updated: data.updated,
                 errors: data.errors?.length || 0
               });
+              successMsg = data.devaluedCount > 0
+                ? `${baseMsg} (${data.devaluedCount} con reglas de devaluación aplicadas)`
+                : baseMsg;
             }
             showToast(successMsg, "success");
             
@@ -219,7 +226,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             <div className="mb-2 flex items-center gap-2">
               <label className="block text-sm font-medium text-white">{t("bulk.fileLabel")}</label>
               <div className="group relative flex cursor-help items-center text-gray-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <IconInfo className="w-4 h-4" />
                 <div className="absolute bottom-full left-1/2 mb-2 hidden w-64 -translate-x-1/2 rounded border border-gray-700 bg-[#1C1E26] p-3 text-xs leading-relaxed text-gray-300 shadow-xl group-hover:block z-50">
                   Asegúrate de exportar tu inventario en CSV directamente desde <strong className="text-white">Manabox</strong> (para Magic) o <strong className="text-white">Riftscan</strong> (para Riftbound).
                 </div>
@@ -230,6 +237,35 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
               onChange={(e) => setBulkFile(e.target.files?.[0] || null)}
             />
           </div>
+
+          {!isGlobal && (
+            <div className="pt-2">
+              <label className="flex items-center justify-between gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 cursor-pointer hover:border-white/20 transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red/10 border border-red/20 flex items-center justify-center text-red shrink-0 mt-0.5">
+                    <IconSliders className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase tracking-wide">
+                      Aplicar Reglas de Devaluación (Estado e Idioma)
+                    </p>
+                    <p className="text-[11px] text-white/45 mt-1 leading-relaxed">
+                      Calcula automáticamente el descuento o bonificación según el estado físico (LP, MP, HP, DMG) y el idioma de cada carta configurados por tu tienda.
+                    </p>
+                  </div>
+                </div>
+                <div className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={applyDevaluations}
+                    onChange={(e) => setApplyDevaluations(e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red"></div>
+                </div>
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 flex gap-3">

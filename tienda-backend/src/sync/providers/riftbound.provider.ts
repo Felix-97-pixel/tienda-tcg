@@ -84,7 +84,7 @@ export class RiftboundProvider extends TcgProvider {
             ]
           }
         },
-        include: { items: true, marketPrices: true }
+        include: { items: true, marketPrices: true, cardDetail: true }
       });
     }
 
@@ -99,7 +99,7 @@ export class RiftboundProvider extends TcgProvider {
           name: { in: [itemData.name, normalizedNameDash, normalizedNameComma] },
           cardDetail: { expansion: itemData.expansion }
         },
-        include: { items: true, marketPrices: true }
+        include: { items: true, marketPrices: true, cardDetail: true }
       });
     }
 

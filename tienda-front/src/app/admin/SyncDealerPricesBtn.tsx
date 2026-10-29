@@ -1,7 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { API_URL } from "@/utils/api";
-import { useToast } from "@/hooks/useToast";
+import React from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
 interface SyncDealerPricesBtnProps {
@@ -9,33 +8,11 @@ interface SyncDealerPricesBtnProps {
 }
 
 export default function SyncDealerPricesBtn({ className }: SyncDealerPricesBtnProps) {
-  const [loading, setLoading] = useState(false);
-  const { showToast } = useToast();
-
-  const handleSync = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/sync/dealer-prices`, {
-        method: "POST",
-        credentials: "include"
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(`Sincronización exitosa. ${data.updatedCount} precios actualizados.`, "success");
-      } else {
-        showToast(data.message || "Error al sincronizar precios", "error");
-      }
-    } catch (err) {
-      showToast("Error de red al sincronizar", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const router = useRouter();
 
   return (
     <Button
-      onClick={handleSync}
-      isLoading={loading}
+      onClick={() => router.push("/admin/price-sync")}
       className={`w-full 2xl:w-auto bg-gradient-to-r from-red-dark to-red text-white shadow-lg shadow-red/25 hover:shadow-red/40 border border-red/30 !px-4 !py-2.5 !rounded-xl text-xs font-bold text-center justify-center whitespace-nowrap ${className || ""}`}
     >
       Sincronizar Mis Precios

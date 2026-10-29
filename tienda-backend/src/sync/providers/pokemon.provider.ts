@@ -78,7 +78,7 @@ export class PokemonProvider extends TcgProvider {
             collectorNum: itemData.collectorNum
           }
         },
-        include: { items: true, marketPrices: true }
+        include: { items: true, marketPrices: true, cardDetail: true }
       });
     }
 
@@ -89,7 +89,7 @@ export class PokemonProvider extends TcgProvider {
           name: itemData.name,
           cardDetail: { expansion: itemData.expansion }
         },
-        include: { items: true, marketPrices: true }
+        include: { items: true, marketPrices: true, cardDetail: true }
       });
     }
 

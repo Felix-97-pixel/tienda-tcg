@@ -95,10 +95,10 @@ export class ProductsService {
     return { published: res.count };
   }
 
-  async bulkUpload(categoryId: string, items: any[], userId: string) {
+  async bulkUpload(categoryId: string, items: any[], userId: string, applyDevaluations: boolean = true) {
     const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true, settings: true } });
     const storeId = store?.id;
-    const results = { added: 0, updated: 0, errors: [] as { index: number, error: string }[] };
+    const results = { added: 0, updated: 0, devaluedCount: 0, errors: [] as { index: number, error: string }[] };
 
     if (store) {
       const mpSettingsCount = store.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length;
@@ -119,19 +119,174 @@ export class ProductsService {
     const category = await this.prisma.category.findUnique({ where: { id: categoryId } });
     const provider = category ? await this.syncService.getProviderForCategory(category.name) : null;
 
-    // Pre-cargar idiomas, condiciones, acabados y devaluaciones
-    const [languages, conditions, finishes, devaluations] = await Promise.all([
+    // Pre-cargar idiomas, condiciones, acabados y reglas de devaluación (estado e idioma)
+    const [languages, conditions, finishes, conditionDevals, languageDevals] = await Promise.all([
       this.prisma.language.findMany(),
       this.prisma.condition.findMany(),
-      this.prisma.finish.findMany(), // Traemos todos o podríamos filtrar por juego si lo tuviéramos
-      storeId ? this.prisma.storeConditionDevaluation.findMany({ where: { storeId } }) : Promise.resolve([])
+      this.prisma.finish.findMany(),
+      storeId ? this.prisma.storeConditionDevaluation.findMany({ where: { storeId } }) : Promise.resolve([]),
+      storeId ? this.prisma.storeLanguageDevaluation.findMany({ where: { storeId } }) : Promise.resolve([]),
     ]);
 
-    const langMap = new Map(languages.map(l => [l.code, l.id]));
-    const condMap = new Map(conditions.map(c => [c.name, c.id]));
-    const devalMap = new Map(devaluations.map(d => [d.conditionId, Number(d.multiplier)]));
     const defaultLang = languages.find(l => l.code === 'en')?.id || languages[0]?.id;
     const defaultCond = conditions.find(c => c.name === 'near_mint')?.id || conditions[0]?.id;
+
+    // Mapas de devaluación indexados por (id_gameId) y fallback por (id)
+    const condDevalByGame = new Map<string, number>();
+    const condDevalFallback = new Map<string, number>();
+    for (const d of conditionDevals) {
+      const mult = Number(d.multiplier);
+      condDevalByGame.set(`${d.conditionId}_${d.gameId}`, mult);
+      if (!condDevalFallback.has(d.conditionId)) {
+        condDevalFallback.set(d.conditionId, mult);
+      }
+    }
+
+    const langDevalByGame = new Map<string, number>();
+    const langDevalFallback = new Map<string, number>();
+    for (const d of languageDevals) {
+      const mult = Number(d.multiplier);
+      langDevalByGame.set(`${d.languageId}_${d.gameId}`, mult);
+      if (!langDevalFallback.has(d.languageId)) {
+        langDevalFallback.set(d.languageId, mult);
+      }
+    }
+
+    // Diccionarios de alias para normalizar valores de Excel (Manabox, Riftscan, TCGplayer, etc.)
+    const conditionAliasToCanonical: Record<string, string> = {
+      'nm': 'near_mint',
+      'near mint': 'near_mint',
+      'near_mint': 'near_mint',
+      'nearmint': 'near_mint',
+      'm/nm': 'near_mint',
+      'nm-m': 'near_mint',
+      'm': 'mint',
+      'mint': 'mint',
+      'mt': 'mint',
+      'ex': 'excellent',
+      'exc': 'excellent',
+      'excellent': 'excellent',
+      'lp': 'light_played',
+      'light_played': 'light_played',
+      'lightly_played': 'light_played',
+      'lightly played': 'light_played',
+      'light played': 'light_played',
+      'sp': 'light_played',
+      'slightly_played': 'light_played',
+      'slightly played': 'light_played',
+      'gd': 'good',
+      'good': 'good',
+      'mp': 'moderately_played',
+      'moderately_played': 'moderately_played',
+      'moderately played': 'moderately_played',
+      'moderate played': 'moderately_played',
+      'pl': 'moderately_played',
+      'played': 'moderately_played',
+      'hp': 'heavily_played',
+      'heavily_played': 'heavily_played',
+      'heavily played': 'heavily_played',
+      'heavy played': 'heavily_played',
+      'pr': 'poor',
+      'poor': 'poor',
+      'dmg': 'damaged',
+      'd': 'damaged',
+      'damaged': 'damaged',
+      'damage': 'damaged',
+    };
+
+    const languageAliasToCode: Record<string, string> = {
+      'en': 'en',
+      'eng': 'en',
+      'english': 'en',
+      'inglés': 'en',
+      'ingles': 'en',
+      'es': 'es',
+      'esp': 'es',
+      'sp': 'es',
+      'spanish': 'es',
+      'español': 'es',
+      'espanol': 'es',
+      'ja': 'ja',
+      'jp': 'ja',
+      'jpn': 'ja',
+      'japanese': 'ja',
+      'japonés': 'ja',
+      'japones': 'ja',
+      'it': 'it',
+      'ita': 'it',
+      'italian': 'it',
+      'italiano': 'it',
+      'fr': 'fr',
+      'fra': 'fr',
+      'fre': 'fr',
+      'french': 'fr',
+      'francés': 'fr',
+      'frances': 'fr',
+      'de': 'de',
+      'ger': 'de',
+      'deu': 'de',
+      'german': 'de',
+      'alemán': 'de',
+      'aleman': 'de',
+      'pt': 'pt',
+      'por': 'pt',
+      'pt-br': 'pt',
+      'pt_br': 'pt',
+      'portuguese': 'pt',
+      'portugués': 'pt',
+      'portugues': 'pt',
+      'zh_cn': 'zh_CN',
+      'zh-cn': 'zh_CN',
+      'zh': 'zh_CN',
+      'zhs': 'zh_CN',
+      'zht': 'zh_CN',
+      'chs': 'zh_CN',
+      'cht': 'zh_CN',
+      'chinese': 'zh_CN',
+      'chino': 'zh_CN',
+      'simplified chinese': 'zh_CN',
+      'traditional chinese': 'zh_CN',
+    };
+
+    const resolveConditionId = (rawCond?: string): string => {
+      const raw = (rawCond || 'near_mint').toLowerCase().trim();
+      const canonical = conditionAliasToCanonical[raw] || raw;
+      const found = conditions.find(
+        c =>
+          c.name.toLowerCase() === canonical ||
+          c.name.toLowerCase() === raw ||
+          (c.displayName && c.displayName.toLowerCase() === raw),
+      );
+      return found?.id || defaultCond;
+    };
+
+    const resolveLanguageId = (rawLang?: string): string => {
+      const raw = (rawLang || 'en').toLowerCase().trim();
+      const canonicalCode = languageAliasToCode[raw] || raw;
+      const found = languages.find(
+        l =>
+          l.code.toLowerCase() === canonicalCode.toLowerCase() ||
+          l.code.toLowerCase() === raw ||
+          l.name.toLowerCase() === raw,
+      );
+      return found?.id || defaultLang;
+    };
+
+    const resolveFinishId = (rawFinish?: string, gameId?: string | null): string | null => {
+      const csvFinish = (rawFinish || 'normal').toLowerCase().trim();
+      const candidatePool = gameId ? finishes.filter(f => f.gameId === gameId) : finishes;
+      const poolToSearch = candidatePool.length > 0 ? candidatePool : finishes;
+
+      const matched = poolToSearch.find(
+        f =>
+          f.name.toLowerCase() === csvFinish ||
+          (Array.isArray(f.aliases) && f.aliases.some(a => a.toLowerCase() === csvFinish)),
+      );
+      if (matched) return matched.id;
+
+      const normalFallback = poolToSearch.find(f => f.name.toLowerCase() === 'normal');
+      return normalFallback?.id || null;
+    };
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -154,30 +309,48 @@ export class ProductsService {
         }
 
         if (product) {
-          const conditionId = condMap.get(item.condition || "") || defaultCond;
-          const languageId = langMap.get(item.language || "") || defaultLang;
+          const gameId: string | undefined = product.cardDetail?.gameId || undefined;
+          const conditionId = resolveConditionId(item.condition);
+          const languageId = resolveLanguageId(item.language);
+          const finishId = item.finishId || resolveFinishId(item.finish, gameId);
 
-          const csvFinish = (item.finish || "").toLowerCase().trim();
-          const matchedFinish = finishes.find(f =>
-            f.name.toLowerCase() === csvFinish || f.aliases.includes(csvFinish)
-          );
-          const finishId = item.finishId || matchedFinish?.id || null;
-
-          const existingItem = product.items?.find((i: any) =>
-            i.conditionId === conditionId &&
-            i.languageId === languageId &&
-            i.finishId === finishId &&
-            i.storeId === storeId
+          const existingItem = product.items?.find((inv: any) =>
+            inv.conditionId === conditionId &&
+            inv.languageId === languageId &&
+            inv.finishId === finishId &&
+            inv.storeId === storeId
           );
 
           if (storeId) {
-            // Calcular devaluación si el precio es 0 o indefinido
-            let finalPrice = item.price;
-            if (!finalPrice) {
-              const marketPriceObj = product.marketPrices?.find((mp: any) => mp.finishId === finishId) || product.marketPrices?.[0];
-              const basePrice = marketPriceObj ? Number(marketPriceObj.price) : 0;
-              const multiplier = devalMap.get(conditionId) || 1.0;
-              finalPrice = basePrice * multiplier;
+            // Determinar precio base: si el Excel trae precio > 0, usarlo como base; si viene en 0, tomar MarketPrice del acabado correspondiente
+            const csvPrice = Number(item.price) || 0;
+            let basePrice = csvPrice;
+            if (basePrice <= 0) {
+              const marketPriceObj =
+                product.marketPrices?.find((mp: any) => mp.finishId === finishId) ||
+                product.marketPrices?.find((mp: any) => !mp.finishId) ||
+                product.marketPrices?.[0];
+              basePrice = marketPriceObj ? Number(marketPriceObj.price) : 0;
+            }
+
+            // Aplicar reglas de devaluación de la tienda (Estado Físico * Idioma) para el juego correspondiente
+            let finalPrice = basePrice;
+            if (applyDevaluations && basePrice > 0) {
+              const condMult =
+                (gameId ? condDevalByGame.get(`${conditionId}_${gameId}`) : undefined) ??
+                condDevalFallback.get(conditionId) ??
+                1.0;
+              const langMult =
+                (gameId ? langDevalByGame.get(`${languageId}_${gameId}`) : undefined) ??
+                langDevalFallback.get(languageId) ??
+                1.0;
+
+              finalPrice = Number((basePrice * condMult * langMult).toFixed(2));
+              if (condMult !== 1.0 || langMult !== 1.0) {
+                results.devaluedCount++;
+              }
+            } else {
+              finalPrice = Number(basePrice.toFixed(2));
             }
 
             if (existingItem) {
@@ -185,7 +358,7 @@ export class ProductsService {
                 where: { id: existingItem.id },
                 data: {
                   stock: existingItem.stock + item.quantity,
-                  price: finalPrice !== undefined ? finalPrice : existingItem.price
+                  price: finalPrice > 0 ? finalPrice : existingItem.price,
                 }
               });
               results.updated++;
@@ -743,9 +916,9 @@ export class ProductsService {
       const [productsData, total] = await Promise.all([
         targetIds.length > 0
           ? this.prisma.product.findMany({
-              where: { id: { in: targetIds } },
-              include: includeConfig
-            })
+            where: { id: { in: targetIds } },
+            include: includeConfig
+          })
           : Promise.resolve([]),
         this.prisma.product.count({ where: whereClause })
       ]);
@@ -801,8 +974,8 @@ export class ProductsService {
           include: { finish: true }
         },
         items: {
-          where: adminCatalogStoreId 
-            ? { storeId: adminCatalogStoreId } 
+          where: adminCatalogStoreId
+            ? { storeId: adminCatalogStoreId }
             : { isPublished: true, stock: { gt: 0 } },
           include: {
             condition: true,
@@ -834,8 +1007,8 @@ export class ProductsService {
           include: { finish: true }
         },
         items: {
-          where: adminCatalogStoreId 
-            ? { storeId: adminCatalogStoreId } 
+          where: adminCatalogStoreId
+            ? { storeId: adminCatalogStoreId }
             : { isPublished: true, stock: { gt: 0 } },
           include: {
             condition: true,

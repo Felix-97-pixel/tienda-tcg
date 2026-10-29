@@ -12,7 +12,6 @@ import InventoryModal from "@/app/admin/_components/Products/InventoryModal";
 import BulkUploadModal from "@/app/admin/_components/Products/BulkUploadModal";
 import BulkPublishConfirmModal from "@/app/admin/_components/Products/BulkPublishConfirmModal";
 import GlobalCatalogSearchModal from "@/app/admin/_components/Products/GlobalCatalogSearchModal";
-import SyncDealerPricesBtn from "../SyncDealerPricesBtn";
 import { Button } from "@/components/ui/Button";
 
 export default function StoreAdminProducts() {
@@ -72,7 +71,6 @@ export default function StoreAdminProducts() {
           >
             Publicar Todo lo Pausado
           </Button>
-          <SyncDealerPricesBtn className="w-full 2xl:w-auto" />
           <Button
             variant="secondary"
             className="w-full 2xl:w-auto text-xs font-bold text-center justify-center !py-2.5 whitespace-nowrap"

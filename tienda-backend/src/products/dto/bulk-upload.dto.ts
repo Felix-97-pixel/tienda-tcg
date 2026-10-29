@@ -50,6 +50,10 @@ export class BulkUploadDto {
   @IsString()
   categoryId: string;
 
+  @IsOptional()
+  @IsBoolean()
+  applyDevaluations?: boolean;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BulkUploadItemDto)

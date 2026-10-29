@@ -44,7 +44,12 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   bulkUpload(@Req() req: any, @Body() bulkUploadDto: BulkUploadDto) {
-    return this.productsService.bulkUpload(bulkUploadDto.categoryId, bulkUploadDto.items, req.user.userId);
+    return this.productsService.bulkUpload(
+      bulkUploadDto.categoryId,
+      bulkUploadDto.items,
+      req.user.userId,
+      bulkUploadDto.applyDevaluations !== undefined ? bulkUploadDto.applyDevaluations : true,
+    );
   }
 
   @Post('bulk-create-global')
