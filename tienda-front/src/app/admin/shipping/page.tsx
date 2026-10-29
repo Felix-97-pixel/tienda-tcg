@@ -8,6 +8,12 @@ import { useToast } from "@/hooks/useToast";
 import { useShippingProviders } from "@/app/admin/_components/Shipping/hooks/useShippingProviders";
 import ShippingProviderModal from "@/app/admin/_components/Shipping/ShippingProviderModal";
 import { ShippingProvider } from "@/types/shippingProvider";
+import {
+  IconStore,
+  IconMapPin,
+  IconTruck,
+  IconSettings,
+} from "@/components/ui/Icons";
 
 interface RegionData {
   id?: string;
@@ -167,9 +173,7 @@ export default function AdminShipping() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 min-w-[40px] min-h-[40px] flex-shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+                <IconStore className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-white tracking-tight">Retiro en Tienda Física (Pick-up)</h3>
@@ -234,10 +238,7 @@ export default function AdminShipping() {
         <div className="bg-[#0E121B] rounded-2xl border border-white/10 p-6 sm:p-8 shadow-xl space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-white/5">
             <div className="w-10 h-10 min-w-[40px] min-h-[40px] flex-shrink-0 rounded-xl bg-red/10 border border-red/25 flex items-center justify-center text-red">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <IconMapPin className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white tracking-tight">Comuna de Origen para Cotizaciones</h3>
@@ -278,9 +279,7 @@ export default function AdminShipping() {
         <div className="bg-[#0E121B] rounded-2xl border border-white/10 p-6 sm:p-8 shadow-xl space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-white/5">
             <div className="w-10 h-10 min-w-[40px] min-h-[40px] flex-shrink-0 rounded-xl bg-blue/10 border border-blue/25 flex items-center justify-center text-blue">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-              </svg>
+              <IconTruck className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white tracking-tight">Couriers Oficiales & Tarifas de Respaldo</h3>
@@ -320,8 +319,8 @@ export default function AdminShipping() {
                   </div>
                 </div>
 
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 group-hover:border-white/20 group-hover:text-white transition-colors">
-                  Editar ⚙️
+                <span className="shrink-0 text-white/40 bg-white/5 p-2 rounded-lg border border-white/5 group-hover:border-white/20 group-hover:text-white transition-colors">
+                  <IconSettings className="w-4 h-4" />
                 </span>
               </div>
 
@@ -362,8 +361,8 @@ export default function AdminShipping() {
                   </div>
                 </div>
 
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 group-hover:border-white/20 group-hover:text-white transition-colors">
-                  Editar ⚙️
+                <span className="shrink-0 text-white/40 bg-white/5 p-2 rounded-lg border border-white/5 group-hover:border-white/20 group-hover:text-white transition-colors">
+                  <IconSettings className="w-4 h-4" />
                 </span>
               </div>
 
