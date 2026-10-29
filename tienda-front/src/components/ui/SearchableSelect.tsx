@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { IconChevronDown } from "@/components/ui/Icons";
 
 interface Option {
   label: string;
@@ -52,24 +53,16 @@ export default function SearchableSelect({
         }}
         onChange={(e) => setSearch(e.target.value)}
         onBlur={() => { 
-          // Delay to allow click on option
           setTimeout(() => setIsOpen(false), 200); 
         }}
         className={`w-full rounded-xl border border-white/10 bg-[#080B12] py-2.5 pl-4 pr-10 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-red focus:ring-1 focus:ring-red/30 disabled:opacity-50 ${inputClassName}`}
       />
-      <svg
+      <IconChevronDown
+        size={14}
         className={`absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 transition-transform duration-200 ${
           isOpen ? "rotate-180 text-white" : ""
         }`}
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
+      />
       {isOpen && !disabled && (
         <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-white/10 bg-[#0E121B] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200">
           {filteredOptions.length === 0 ? (
@@ -78,6 +71,11 @@ export default function SearchableSelect({
             filteredOptions.map((opt) => (
               <li
                 key={opt.value}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
                 onClick={() => { 
                   onChange(opt.value); 
                   setIsOpen(false); 

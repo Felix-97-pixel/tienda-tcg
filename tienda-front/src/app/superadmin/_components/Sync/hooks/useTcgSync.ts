@@ -36,7 +36,9 @@ export function useTcgSync(game: string, defaultCategory: string) {
           releaseDate: s.releaseDate || s.release_date
         }));
         setSets(normalized);
-        if (normalized.length > 0) setSelectedSetId(normalized[0].id);
+        if (normalized.length > 0) {
+          setSelectedSetId(prev => prev || normalized[0].id);
+        }
       });
   }, [game, defaultCategory]);
 

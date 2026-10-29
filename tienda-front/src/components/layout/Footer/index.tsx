@@ -187,6 +187,10 @@ const Footer = () => {
             </span>
           </div>
         </div>
+
+        <div className="pt-4 mt-4 border-t border-white/[0.04] text-[10px] text-gray-500 leading-relaxed">
+          TapTrade isn&apos;t endorsed by Riot Games and doesn&apos;t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
+        </div>
       </div>
     </footer>
   );
