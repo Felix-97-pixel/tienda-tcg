@@ -28,10 +28,12 @@ interface PosBuyCartProps {
   onUpdateQuantity: (id: string, newQty: number) => void;
   onUpdatePrices: (id: string, cashPrice: number, creditPrice: number) => void;
   onUpdateCondition: (id: string, conditionId: string, conditionName: string) => void;
+  onUpdateLanguage?: (id: string, languageId: string, languageCode: string) => void;
   onRemoveItem: (id: string) => void;
   onClearCart: () => void;
   onProceedPayout: () => void;
   conditions: Array<{ id: string; name: string; displayName?: string | null }>;
+  languages?: Array<{ id: string; name: string; code: string }>;
 }
 
 export default function PosBuyCart({
@@ -39,10 +41,12 @@ export default function PosBuyCart({
   onUpdateQuantity,
   onUpdatePrices,
   onUpdateCondition,
+  onUpdateLanguage,
   onRemoveItem,
   onClearCart,
   onProceedPayout,
   conditions,
+  languages = [],
 }: PosBuyCartProps) {
   const totalCash = items.reduce((acc, i) => acc + i.cashPrice * i.quantity, 0);
   const totalCredit = items.reduce((acc, i) => acc + i.creditPrice * i.quantity, 0);
@@ -151,8 +155,8 @@ export default function PosBuyCart({
                   </button>
                 </div>
 
-                {/* Ajustes de Estado y Precios */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-white/5 text-xs">
+                {/* Ajustes de Estado, Idioma y Precios */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/5 text-xs">
                   {/* Selector de Estado / Condición */}
                   <div>
                     <label className="text-[10px] font-bold text-white/40 block mb-1 uppercase">
@@ -171,6 +175,33 @@ export default function PosBuyCart({
                           {cond.displayName || cond.name}
                         </option>
                       ))}
+                    </select>
+                  </div>
+
+                  {/* Selector de Idioma */}
+                  <div>
+                    <label className="text-[10px] font-bold text-white/40 block mb-1 uppercase">
+                      Idioma
+                    </label>
+                    <select
+                      value={item.languageId}
+                      onChange={(e) => {
+                        const lang = languages.find((l) => l.id === e.target.value);
+                        if (onUpdateLanguage) {
+                          onUpdateLanguage(item.id, e.target.value, (lang?.code || 'ES').toUpperCase());
+                        }
+                      }}
+                      className="w-full bg-[#07090E] border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    >
+                      {languages.length > 0 ? (
+                        languages.map((lang) => (
+                          <option key={lang.id} value={lang.id}>
+                            {lang.name} ({lang.code.toUpperCase()})
+                          </option>
+                        ))
+                      ) : (
+                        <option value={item.languageId}>{item.languageCode}</option>
+                      )}
                     </select>
                   </div>
 

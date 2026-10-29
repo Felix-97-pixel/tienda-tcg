@@ -801,7 +801,7 @@ export class PosService {
           },
         });
 
-        // Registrar orden de compra en la base de datos para auditoria de caja
+        // Registrar orden de egreso en la base de datos asociada a la tienda y turno para auditoría de caja
         const buyOrder = ('BUY-CASH-' + Date.now()).slice(0, 26);
         await tx.order.create({
           data: {
@@ -818,6 +818,26 @@ export class PosService {
             posCashierName: cashierName || 'Cajero',
             cashShiftId: currentShift.id,
             notes: dto.notes ? ('[Compra de Cartas]: ' + dto.notes) : '[Compra de Cartas / Trade-In en Efectivo]',
+            vendorOrders: {
+              create: {
+                storeId,
+                subtotal: totalNum,
+                shippingCost: 0,
+                status: 'PAID',
+                deliveryStatus: 'DELIVERED',
+                shippingCourier: 'TRADE_IN_PRESENCIAL',
+                trackingNumber: 'EGRESO-COMPRA-CARTAS',
+                dispatchedAt: new Date(),
+                items: {
+                  create: dto.items.map((i) => ({
+                    productId: i.productId,
+                    productName: i.name,
+                    quantity: i.quantity,
+                    unitPrice: Number(i.cashPrice || 0),
+                  })),
+                },
+              },
+            },
           },
         });
       }
@@ -857,41 +877,87 @@ export class PosService {
         }
 
         // B) Ingresar la carta adquirida al inventario de la tienda para que quede disponible para venta
-        if (item.conditionId && item.languageId) {
+        let targetConditionId = item.conditionId;
+        let targetLanguageId = item.languageId;
+
+        // Validar si targetConditionId existe como UUID real en la tabla Condition
+        if (targetConditionId) {
+          const condExists = await tx.condition.findUnique({ where: { id: targetConditionId } });
+          if (!condExists) {
+            const condByName = await tx.condition.findFirst({
+              where: {
+                OR: [
+                  { name: { equals: targetConditionId, mode: 'insensitive' } },
+                  { displayName: { equals: targetConditionId, mode: 'insensitive' } },
+                ],
+              },
+            });
+            targetConditionId = condByName?.id;
+          }
+        }
+
+        if (!targetConditionId) {
+          const defaultCond = await tx.condition.findFirst({ where: { name: 'near_mint' } }) || await tx.condition.findFirst();
+          targetConditionId = defaultCond?.id;
+        }
+
+        // Validar si targetLanguageId existe como UUID real en la tabla Language (evitar códigos sueltos como 'es' o 'en')
+        if (targetLanguageId) {
+          const langExists = await tx.language.findUnique({ where: { id: targetLanguageId } });
+          if (!langExists) {
+            const langByCode = await tx.language.findFirst({
+              where: {
+                OR: [
+                  { code: { equals: targetLanguageId, mode: 'insensitive' } },
+                  { name: { equals: targetLanguageId, mode: 'insensitive' } },
+                ],
+              },
+            });
+            targetLanguageId = langByCode?.id;
+          }
+        }
+
+        if (!targetLanguageId) {
+          const defaultLang = await tx.language.findFirst({ where: { code: 'es' } }) || await tx.language.findFirst({ where: { code: 'en' } }) || await tx.language.findFirst();
+          targetLanguageId = defaultLang?.id;
+        }
+
+        if (targetConditionId && targetLanguageId) {
           const existingInv = await tx.inventoryItem.findFirst({
             where: {
               storeId,
               productId: item.productId,
-              conditionId: item.conditionId,
-              languageId: item.languageId,
+              conditionId: targetConditionId,
+              languageId: targetLanguageId,
               finishId: item.finishId || null,
             },
           });
 
           if (existingInv) {
+            // Ya existe un ítem configurado para la MISMA carta, MISMA condición y MISMO idioma.
+            // Si el precio configurado es > 0, pasa directamente a publicado (isPublished: true).
+            // Si el precio configurado es 0, queda pausado (isPublished: false) hasta que le asignen precio.
+            const hasConfiguredPrice = Number(existingInv.price) > 0;
             await tx.inventoryItem.update({
               where: { id: existingInv.id },
               data: {
                 stock: { increment: item.quantity },
+                isPublished: hasConfiguredPrice,
               },
             });
           } else {
-            // Obtener precio de mercado o precio referencial de venta
-            const marketRef = await tx.marketPrice.findFirst({
-              where: { productId: item.productId },
-            });
-            const baseSellPrice = marketRef?.price || item.cashPrice * 1.3 || 1000;
-
+            // No existe para esta combinación exacta de (carta + condición + idioma):
+            // Se ingresa con precio 0 y en estado PAUSADO (isPublished: false).
             await tx.inventoryItem.create({
               data: {
                 storeId,
                 productId: item.productId,
-                conditionId: item.conditionId,
-                languageId: item.languageId,
+                conditionId: targetConditionId,
+                languageId: targetLanguageId,
                 finishId: item.finishId || null,
-                price: Number(baseSellPrice),
+                price: 0,
                 stock: item.quantity,
-                isPublished: true,
+                isPublished: false,
               },
             });
           }

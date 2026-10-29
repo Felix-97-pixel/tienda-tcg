@@ -66,6 +66,12 @@ export default function AdminPosPage() {
   // Catálogo completo de la Buylist de la tienda (para autocompletar precios de compra)
   const [buylistMap, setBuylistMap] = useState<Map<string, { cashPrice: number; creditPrice: number; conditionId: string; languageId: string }>>(new Map());
   const [conditions, setConditions] = useState<Array<{ id: string; name: string; displayName?: string | null }>>([]);
+  const [languages, setLanguages] = useState<Array<{ id: string; name: string; code: string }>>([]);
+
+  // Versión del catálogo local (IndexedDB): se incrementa cada vez que se guarda un catálogo nuevo
+  // para que el efecto de búsqueda (única fuente que escribe searchResults) vuelva a consultar.
+  const [catalogVersion, setCatalogVersion] = useState<number>(0);
+  const [isBuylistLoading, setIsBuylistLoading] = useState<boolean>(true);
 
   // Carrito de Venta
   const [cartItems, setCartItems] = useState<PosCartItem[]>([]);
@@ -99,6 +105,14 @@ export default function AdminPosPage() {
       })
       .catch(() => { });
 
+    // Cargar idiomas para resolución correcta de IDs
+    fetch(`${API_URL}/products/meta/languages`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setLanguages(data);
+      })
+      .catch(() => { });
+
     // Cargar categorías TCG para filtros de Trade-in
     fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`)
       .then((res) => (res.ok ? res.json() : []))
@@ -107,13 +121,11 @@ export default function AdminPosPage() {
       })
       .catch(() => { });
 
+    // IMPORTANTE: esta función NUNCA escribe searchResults directamente.
+    // Solo carga datos; el efecto de búsqueda decide qué mostrar según el modo activo.
     if (!networkStatus.isOnline) {
-      try {
-        const local = await searchLocalCatalog('');
-        setSearchResults(local);
-      } catch {
-        // ignore
-      }
+      setIsBuylistLoading(false);
+      setCatalogVersion((v) => v + 1);
       return;
     }
 
@@ -140,61 +152,75 @@ export default function AdminPosPage() {
         setCurrentShift(shiftData);
       }
 
-      // 2. Descargar catálogo para caché local
-      const catRes = await fetch(`${API_URL}/pos/catalog-cache`, {
-        credentials: 'include',
-        headers: { 'x-auth-scope': 'admin' },
-      });
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        if (catData.products) {
-          await saveCatalogToLocal(catData.products);
-          setSearchResults(catData.products.slice(0, 20));
-        }
-      }
-
-      // 3. Descargar Buylist de la tienda para autocompletar cotizaciones
-      const buylistRes = await fetch(`${API_URL}/buylist/me`, {
-        credentials: 'include',
-        headers: { 'x-auth-scope': 'admin' },
-      });
-      if (buylistRes.ok) {
-        const buylistData = await buylistRes.json();
-        if (Array.isArray(buylistData)) {
-          const map = new Map<string, { cashPrice: number; creditPrice: number; conditionId: string; languageId: string }>();
-          const prods: LocalProduct[] = [];
-          for (const item of buylistData) {
-            if (item.productId && item.isActive) {
-              map.set(item.productId, {
-                cashPrice: Number(item.cashPrice || 0),
-                creditPrice: Number(item.creditPrice || 0),
-                conditionId: item.conditionId,
-                languageId: item.languageId,
-              });
-              if (item.product) {
-                prods.push({
-                  id: item.product.id,
-                  name: item.product.name,
-                  category: item.product.category ? { id: item.product.category.id, name: item.product.category.name } : null,
-                  imageUrl: item.product.imageUrl || item.product.cardDetail?.imageUrl,
-                  cardDetail: item.product.cardDetail,
-                  items: [],
-                });
-              }
+      // 2 y 3 se descargan EN PARALELO: la Buylist (liviana) no debe esperar al catálogo completo (pesado).
+      const loadCatalog = async () => {
+        try {
+          const catRes = await fetch(`${API_URL}/pos/catalog-cache`, {
+            credentials: 'include',
+            headers: { 'x-auth-scope': 'admin' },
+          });
+          if (catRes.ok) {
+            const catData = await catRes.json();
+            if (catData.products) {
+              await saveCatalogToLocal(catData.products);
             }
           }
-          setBuylistMap(map);
-          setBuylistProducts(prods);
-          if (posMode === 'BUY' && buySourceTab === 'BUYLIST') {
-            setSearchResults(prods);
-          }
+        } catch {
+          // Sin catálogo remoto: se usa lo que exista en IndexedDB
+        } finally {
+          // Notificar al efecto de búsqueda que el catálogo local cambió
+          setCatalogVersion((v) => v + 1);
         }
-      }
+      };
+
+      const loadBuylist = async () => {
+        try {
+          const buylistRes = await fetch(`${API_URL}/buylist/me`, {
+            credentials: 'include',
+            headers: { 'x-auth-scope': 'admin' },
+          });
+          if (buylistRes.ok) {
+            const buylistData = await buylistRes.json();
+            if (Array.isArray(buylistData)) {
+              const map = new Map<string, { cashPrice: number; creditPrice: number; conditionId: string; languageId: string }>();
+              const prods: LocalProduct[] = [];
+              for (const item of buylistData) {
+                if (item.productId && item.isActive) {
+                  map.set(item.productId, {
+                    cashPrice: Number(item.cashPrice || 0),
+                    creditPrice: Number(item.creditPrice || 0),
+                    conditionId: item.conditionId,
+                    languageId: item.languageId,
+                  });
+                  if (item.product) {
+                    prods.push({
+                      id: item.product.id,
+                      name: item.product.name,
+                      category: item.product.category ? { id: item.product.category.id, name: item.product.category.name } : null,
+                      imageUrl: item.product.imageUrl || item.product.cardDetail?.imageUrl,
+                      cardDetail: item.product.cardDetail,
+                      items: [],
+                    });
+                  }
+                }
+              }
+              setBuylistMap(map);
+              setBuylistProducts(prods);
+            }
+          }
+        } catch {
+          // ignore
+        } finally {
+          setIsBuylistLoading(false);
+        }
+      };
+
+      await Promise.all([loadCatalog(), loadBuylist()]);
     } catch {
-      // Fallback a local
-      const local = await searchLocalCatalog('');
-      setSearchResults(local);
+      setIsBuylistLoading(false);
+      setCatalogVersion((v) => v + 1);
     }
+    // Solo depende de la conectividad: cambiar de modo (Vender/Comprar) NO debe recargar datos
   }, [networkStatus.isOnline]);
 
   // Cargar expansiones dinámicamente según la categoría seleccionada
@@ -217,9 +243,34 @@ export default function AdminPosPage() {
   }, [loadInitialData]);
 
   // Búsqueda inteligente según el modo activo (Venta vs Compra) y la pestaña (Buylist vs Catálogo Global)
+  // ÚNICA fuente que escribe searchResults. El flag `cancel` descarta respuestas de un modo anterior.
   useEffect(() => {
     let cancel = false;
+
+    // Modo Compra + Buylist: filtrado síncrono en memoria (sin debounce)
+    if (posMode === 'BUY' && buySourceTab === 'BUYLIST') {
+      let filtered = buylistProducts;
+      if (selectedCategory) {
+        filtered = filtered.filter((p) => p.category?.name === selectedCategory || p.category?.id === selectedCategory);
+      }
+      if (selectedExpansion) {
+        filtered = filtered.filter((p) => p.cardDetail?.expansion?.toLowerCase() === selectedExpansion.toLowerCase());
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter((p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.cardDetail?.collectorNum && p.cardDetail.collectorNum.toLowerCase().includes(q))
+        );
+      }
+      setSearchResults(filtered);
+      // Mientras la Buylist aún se descarga, mostrar estado de carga en vez de "lista vacía"
+      setIsSearching(isBuylistLoading);
+      return;
+    }
+
     setIsSearching(true);
+    const delay = (posMode === 'BUY' && buySourceTab === 'GLOBAL') ? 250 : 50;
 
     const timer = setTimeout(async () => {
       try {
@@ -228,64 +279,43 @@ export default function AdminPosPage() {
           const prods = await searchLocalCatalog(searchQuery);
           if (!cancel) setSearchResults(prods);
         } else {
-          // Modo Compra (Trade-in)
-          if (buySourceTab === 'BUYLIST') {
-            // Filtrar productos de la Buylist
-            let filtered = buylistProducts;
-            if (selectedCategory) {
-              filtered = filtered.filter((p) => p.category?.name === selectedCategory || p.category?.id === selectedCategory);
-            }
-            if (selectedExpansion) {
-              filtered = filtered.filter((p) => p.cardDetail?.expansion?.toLowerCase() === selectedExpansion.toLowerCase());
-            }
-            if (searchQuery.trim()) {
-              const q = searchQuery.toLowerCase();
-              filtered = filtered.filter((p) =>
-                p.name.toLowerCase().includes(q) ||
-                (p.cardDetail?.collectorNum && p.cardDetail.collectorNum.toLowerCase().includes(q))
-              );
-            }
-            if (!cancel) setSearchResults(filtered);
-          } else {
-            // Colección Maestra Global (SuperAdmin Catalog)
-            const params = new URLSearchParams();
-            if (searchQuery.trim()) params.set('search', searchQuery.trim());
-            params.set('adminCatalog', 'true');
-            params.set('isTcg', 'true');
-            params.set('limit', '30');
-            if (selectedCategory) params.set('category', selectedCategory);
-            if (selectedExpansion) params.set('expansion', selectedExpansion);
+          // Modo Compra: Colección Maestra Global (SuperAdmin Catalog)
+          const params = new URLSearchParams();
+          if (searchQuery.trim()) params.set('search', searchQuery.trim());
+          params.set('adminCatalog', 'true');
+          params.set('isTcg', 'true');
+          params.set('limit', '30');
+          if (selectedCategory) params.set('category', selectedCategory);
+          if (selectedExpansion) params.set('expansion', selectedExpansion);
 
-            const res = await fetch(`${API_URL}/products?${params.toString()}`, {
-              credentials: 'include',
-              headers: { 'x-auth-scope': 'admin' },
-            });
-            if (res.ok) {
-              const data = await res.json();
-              const rawProducts = Array.isArray(data) ? data : (data.data || data.products || []);
-              const prods: LocalProduct[] = rawProducts.map((p: any) => ({
-                id: p.id,
-                name: p.name,
-                category: p.category ? { id: p.category.id, name: p.category.name } : null,
-                imageUrl: p.imageUrl || p.cardDetail?.imageUrl,
-                cardDetail: p.cardDetail,
-                items: (p.items || []).map((inv: any) => ({
-                  id: inv.id,
-                  conditionId: inv.conditionId,
-                  condition: inv.condition,
-                  languageId: inv.languageId,
-                  language: inv.language,
-                  price: Number(inv.price || 0),
-                  stock: inv.stock || 0,
-                  finish: inv.finish,
-                })),
-              }));
-              if (!cancel) setSearchResults(prods);
-            } else {
-              // Fallback a catálogo local
-              const prods = await searchLocalCatalog(searchQuery);
-              if (!cancel) setSearchResults(prods);
-            }
+          const res = await fetch(`${API_URL}/products?${params.toString()}`, {
+            credentials: 'include',
+            headers: { 'x-auth-scope': 'admin' },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const rawProducts = Array.isArray(data) ? data : (data.data || data.products || []);
+            const prods: LocalProduct[] = rawProducts.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              category: p.category ? { id: p.category.id, name: p.category.name } : null,
+              imageUrl: p.imageUrl || p.cardDetail?.imageUrl,
+              cardDetail: p.cardDetail,
+              items: (p.items || []).map((inv: any) => ({
+                id: inv.id,
+                conditionId: inv.conditionId,
+                condition: inv.condition,
+                languageId: inv.languageId,
+                language: inv.language,
+                price: Number(inv.price || 0),
+                stock: inv.stock || 0,
+                finish: inv.finish,
+              })),
+            }));
+            if (!cancel) setSearchResults(prods);
+          } else {
+            const prods = await searchLocalCatalog(searchQuery);
+            if (!cancel) setSearchResults(prods);
           }
         }
       } catch {
@@ -293,13 +323,13 @@ export default function AdminPosPage() {
       } finally {
         if (!cancel) setIsSearching(false);
       }
-    }, 150);
+    }, delay);
 
     return () => {
       cancel = true;
       clearTimeout(timer);
     };
-  }, [searchQuery, posMode, buySourceTab, selectedCategory, selectedExpansion, buylistProducts]);
+  }, [searchQuery, posMode, buySourceTab, selectedCategory, selectedExpansion, buylistProducts, isBuylistLoading, catalogVersion]);
 
   // Listener global de pistola lectora de código de barras USB
   useEffect(() => {
@@ -348,7 +378,7 @@ export default function AdminPosPage() {
         return;
       }
 
-      if (e.key.length === 1) {
+      if (e.key && e.key.length === 1) {
         barcodeBuffer += e.key;
       }
     };
@@ -441,9 +471,15 @@ export default function AdminPosPage() {
       return;
     }
 
-    const defaultCondition = conditions[0] || { id: 'nm', name: 'Near Mint', displayName: 'Near Mint' };
+    const defaultCondition = conditions.find((c) => c.name === 'near_mint') || conditions[0] || { id: 'nm', name: 'Near Mint', displayName: 'Near Mint' };
+    const defaultLanguage = languages.find((l) => l.code === 'es') || languages[0] || { id: 'es', code: 'es', name: 'Spanish' };
     const defaultCash = buylistInfo ? buylistInfo.cashPrice : 0;
     const defaultCredit = buylistInfo ? buylistInfo.creditPrice : 0;
+
+    const resolvedCondId = buylistInfo?.conditionId || defaultCondition.id;
+    const resolvedCondObj = conditions.find((c) => c.id === resolvedCondId) || defaultCondition;
+    const resolvedLangId = buylistInfo?.languageId || defaultLanguage.id;
+    const resolvedLangObj = languages.find((l) => l.id === resolvedLangId) || defaultLanguage;
 
     const newItem: PosBuyCartItem = {
       id: `BUY-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -453,10 +489,10 @@ export default function AdminPosPage() {
       expansion: product.cardDetail?.expansion,
       collectorNum: product.cardDetail?.collectorNum,
       rarity: product.cardDetail?.rarity,
-      conditionId: defaultCondition.id,
-      conditionName: defaultCondition.displayName || defaultCondition.name,
-      languageId: 'es',
-      languageCode: 'ES',
+      conditionId: resolvedCondId,
+      conditionName: resolvedCondObj.displayName || resolvedCondObj.name,
+      languageId: resolvedLangId,
+      languageCode: resolvedLangObj.code?.toUpperCase() || 'ES',
       quantity: 1,
       cashPrice: defaultCash,
       creditPrice: defaultCredit,
@@ -489,6 +525,12 @@ export default function AdminPosPage() {
   const handleUpdateBuyCondition = (id: string, conditionId: string, conditionName: string) => {
     setBuyCartItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, conditionId, conditionName } : i)),
+    );
+  };
+
+  const handleUpdateBuyLanguage = (id: string, languageId: string, languageCode: string) => {
+    setBuyCartItems((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, languageId, languageCode } : i)),
     );
   };
 
@@ -765,6 +807,29 @@ export default function AdminPosPage() {
 
   const isShiftOpen = currentShift && currentShift.status === 'OPEN';
 
+  // Cambiar modo de operación (Venta <-> Compra) de forma instantánea
+  const handleTogglePosMode = (newMode: 'SELL' | 'BUY') => {
+    setPosMode(newMode);
+    setSearchQuery('');
+    setSelectedCategory('');
+    setSelectedExpansion('');
+
+    if (newMode === 'BUY' && buySourceTab === 'BUYLIST') {
+      // Pintar la Buylist en el mismo render del cambio (síncrono, sin parpadeo)
+      setSearchResults(buylistProducts);
+    } else {
+      // Vaciar para no mostrar ni un frame de las cartas del modo anterior.
+      // El efecto de búsqueda (con cancelación) completará los resultados.
+      setSearchResults([]);
+    }
+  };
+
+  // Cambiar pestaña Buylist / Catálogo Global sin mostrar resultados de la pestaña anterior
+  const handleSetBuySourceTab = (tab: 'BUYLIST' | 'GLOBAL') => {
+    setBuySourceTab(tab);
+    setSearchResults(tab === 'BUYLIST' ? buylistProducts : []);
+  };
+
   return (
     <div className="space-y-4 pb-12 text-white">
       {/* Barra Superior con interruptor VENDER / COMPRAR */}
@@ -779,7 +844,7 @@ export default function AdminPosPage() {
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
         posMode={posMode}
-        onTogglePosMode={setPosMode}
+        onTogglePosMode={handleTogglePosMode}
       />
 
       {/* Panel Principal de 2 Columnas */}
@@ -797,7 +862,7 @@ export default function AdminPosPage() {
             posMode={posMode}
             buylistMap={buylistMap}
             buySourceTab={buySourceTab}
-            onSetBuySourceTab={setBuySourceTab}
+            onSetBuySourceTab={handleSetBuySourceTab}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
             selectedExpansion={selectedExpansion}
@@ -825,10 +890,12 @@ export default function AdminPosPage() {
               onUpdateQuantity={handleUpdateBuyQuantity}
               onUpdatePrices={handleUpdateBuyPrices}
               onUpdateCondition={handleUpdateBuyCondition}
+              onUpdateLanguage={handleUpdateBuyLanguage}
               onRemoveItem={handleRemoveBuyItem}
               onClearCart={handleClearBuyCart}
               onProceedPayout={() => setIsBuyModalOpen(true)}
               conditions={conditions}
+              languages={languages}
             />
           )}
         </div>
