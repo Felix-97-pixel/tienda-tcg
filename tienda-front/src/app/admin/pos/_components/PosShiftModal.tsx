@@ -103,9 +103,17 @@ export default function PosShiftModal({
                   ${Number(currentShift?.initialCash || 0).toLocaleString('es-CL')}
                 </span>
               </div>
-              <div className="flex justify-between text-white/60">
-                <span>Efectivo Esperado en Caja:</span>
-                <span className="font-mono font-bold text-white">
+              {Number(currentShift?.cashOutTotal || 0) > 0 && (
+                <div className="flex justify-between text-white/60">
+                  <span>Egresos Compra de Cartas (Cash):</span>
+                  <span className="font-mono font-bold text-red">
+                    -${Number(currentShift?.cashOutTotal || 0).toLocaleString('es-CL')}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between text-white/60 border-t border-white/5 pt-1.5">
+                <span className="font-bold text-white/80">Efectivo Esperado en Caja:</span>
+                <span className="font-mono font-bold text-emerald-400">
                   ${expectedCash.toLocaleString('es-CL')}
                 </span>
               </div>

@@ -393,8 +393,20 @@ export class PosService {
           orderBy: { createdAt: 'desc' },
           take: 10,
         },
+        cashPurchases: {
+          select: {
+            id: true,
+            code: true,
+            totalAmount: true,
+            customerName: true,
+            cashierName: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        },
         _count: {
-          select: { orders: true },
+          select: { orders: true, cashPurchases: true },
         },
       },
     });
@@ -792,52 +804,43 @@ export class PosService {
         });
       }
 
-      // 2. PAGO EN EFECTIVO (EGRESO DE CAJA Y REGISTRO EN DB)
+      // 2. PAGO EN EFECTIVO (EGRESO DE CAJA Y REGISTRO EN TABLA EXCLUSIVA CashPurchase)
       if (dto.payoutMethod === PosBuyPayoutMethod.CASH) {
         await tx.cashShift.update({
           where: { id: currentShift.id },
           data: {
             expectedCash: { decrement: totalNum },
+            cashOutTotal: { increment: totalNum },
           },
         });
 
-        // Registrar orden de egreso en la base de datos asociada a la tienda y turno para auditoría de caja
-        const buyOrder = ('BUY-CASH-' + Date.now()).slice(0, 26);
-        await tx.order.create({
+        const itemsSnapshot = (dto.items || []).map((item) => ({
+          product: {
+            id: item.productId,
+            name: item.name,
+            imageUrl: item.imageUrl,
+          },
+          quantity: item.quantity,
+          price: Number(item.cashPrice || 0),
+          condition: item.condition,
+          language: item.language,
+          finish: item.finish,
+        }));
+
+        const purchaseCode = ('BUY-CASH-' + Date.now()).slice(0, 26);
+        await tx.cashPurchase.create({
           data: {
-            buyOrder,
+            code: purchaseCode,
+            storeId,
             userId: targetUserId || null,
-            email: dto.customerEmail || ('tradein@' + storeId + '.taptrade.cl'),
-            name: dto.customerName || 'Cliente Trade-In (Efectivo)',
-            phone: dto.customerRut || null,
+            customerName: dto.customerName || 'Cliente Mostrador (Trade-In)',
+            customerEmail: dto.customerEmail || null,
+            customerRut: dto.customerRut || null,
             totalAmount: totalNum,
-            currencyCode: 'CLP',
-            status: 'PAID',
-            origin: 'POS_IN_STORE',
-            posPaymentMethod: 'CASH',
-            posCashierName: cashierName || 'Cajero',
+            cashierName: cashierName || dto.cashierName || 'Cajero',
             cashShiftId: currentShift.id,
-            notes: dto.notes ? ('[Compra de Cartas]: ' + dto.notes) : '[Compra de Cartas / Trade-In en Efectivo]',
-            vendorOrders: {
-              create: {
-                storeId,
-                subtotal: totalNum,
-                shippingCost: 0,
-                status: 'PAID',
-                deliveryStatus: 'DELIVERED',
-                shippingCourier: 'TRADE_IN_PRESENCIAL',
-                trackingNumber: 'EGRESO-COMPRA-CARTAS',
-                dispatchedAt: new Date(),
-                items: {
-                  create: dto.items.map((i) => ({
-                    productId: i.productId,
-                    productName: i.name,
-                    quantity: i.quantity,
-                    unitPrice: Number(i.cashPrice || 0),
-                  })),
-                },
-              },
-            },
+            itemsData: itemsSnapshot as any,
+            notes: dto.notes || null,
           },
         });
       }
@@ -971,6 +974,17 @@ export class PosService {
         newBalance: finalBalance,
         shiftId: currentShift.id,
       };
+    });
+  }
+
+  /**
+   * Lista el historial de compras de cartas en efectivo (CashPurchase) de la tienda.
+   */
+  async getCashPurchases(storeId: string, limit = 50) {
+    return this.prisma.cashPurchase.findMany({
+      where: { storeId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
     });
   }
 }

@@ -253,6 +253,7 @@ model Store {
   creditTransactions StoreCreditTransaction[]
   coupons            Coupon[]
   cashShifts         CashShift[]
+  cashPurchases      CashPurchase[]
 }
 
 model User {
@@ -280,6 +281,7 @@ model User {
   storeCredits       StoreCredit[]
   creditTransactions StoreCreditTransaction[]
   addresses          Address[]
+  cashPurchases      CashPurchase[]
 }
 
 model Address {
@@ -750,13 +752,38 @@ model CashShift {
   cardTotal     Decimal   @default(0) @db.Decimal(10, 2)
   transferTotal Decimal   @default(0) @db.Decimal(10, 2)
   creditTotal   Decimal   @default(0) @db.Decimal(10, 2)
+  cashOutTotal  Decimal   @default(0) @db.Decimal(10, 2)
   difference    Decimal?  @db.Decimal(10, 2)
   notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  store         Store     @relation(fields: [storeId], references: [id])
+  store         Store          @relation(fields: [storeId], references: [id])
   orders        Order[]
+  cashPurchases CashPurchase[]
 
   @@index([storeId, status])
+}
+
+model CashPurchase {
+  id            String     @id @default(uuid())
+  code          String     @unique
+  storeId       String
+  userId        String?
+  customerName  String?
+  customerEmail String?
+  customerRut   String?
+  totalAmount   Decimal    @db.Decimal(10, 2)
+  cashierName   String
+  cashShiftId   String?
+  itemsData     Json
+  notes         String?
+  createdAt     DateTime   @default(now())
+
+  store         Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user          User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  cashShift     CashShift? @relation(fields: [cashShiftId], references: [id], onDelete: SetNull)
+
+  @@index([storeId, createdAt])
+  @@index([cashShiftId])
 }

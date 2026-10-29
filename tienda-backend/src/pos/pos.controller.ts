@@ -65,6 +65,16 @@ export class PosController {
   }
 
   /**
+   * GET /api/v1/pos/cash-purchases
+   * Lista el historial de compras de cartas pagadas en efectivo (CashPurchase).
+   */
+  @Get('cash-purchases')
+  async getCashPurchases(@Request() req: any) {
+    const store = await this.getStore(req);
+    return this.posService.getCashPurchases(store.id);
+  }
+
+  /**
    * GET /api/v1/pos/shift/current
    * Consulta el turno de caja abierto actualmente para la tienda.
    */

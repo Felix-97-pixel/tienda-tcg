@@ -485,11 +485,28 @@ Sesión de apertura, control de flujo de caja y arqueo diario de mostrador para 
 * `cardTotal` (`Decimal(10,2)`, default: 0): Total acumulado en cobros con maquinita física (Compraquí, Transbank, MP Point) para cuadrar con el cierre de lote de la terminal.
 * `transferTotal` (`Decimal(10,2)`, default: 0): Total acumulado en transferencias bancarias directas.
 * `creditTotal` (`Decimal(10,2)`, default: 0): Total cobrado en Store Credit (saldo de tienda).
+* `cashOutTotal` (`Decimal(10,2)`, default: 0): Total acumulado de salidas de efectivo por compras de cartas al público (`CashPurchase`).
 * `difference` (`Decimal(10,2)?`): Descuadre de caja calculado (`actualCash - expectedCash`). Positivo indica sobrante, negativo faltante.
 * `notes` (`String?`): Observaciones del turno o justificación de diferencias.
 * `createdAt` / `updatedAt` (`DateTime`).
 * **Índices:** `@@index([storeId, status])`.
-* **Relaciones:** `store`, `orders`.
+* **Relaciones:** `store`, `orders`, `cashPurchases`.
+
+### `CashPurchase`
+Registro canónico de **compras de cartas en efectivo (Trade-In Cash)** realizadas por la tienda a particulares en el mostrador. Separa estrictamente los egresos de efectivo real de las ventas (`Order`) y de los saldos virtuales (`StoreCreditTransaction`).
+* `id` (`String`, UUID, PK)
+* `code` (`String`, Unique): Código legible de comprobante de egreso (ej: `BUY-CASH-173021...`).
+* `storeId` (`String`, FK -> `Store`): Tienda que adquiere las cartas y desembolsa el dinero.
+* `userId` (`String?`, FK -> `User`): Usuario registrado al que se le compró (opcional si es un vendedor de paso).
+* `customerName`, `customerEmail`, `customerRut` (`String?`): Datos de identificación de la persona que recibió el efectivo.
+* `totalAmount` (`Decimal(10,2)`): Monto total desembolsado en efectivo de la caja.
+* `cashierName` (`String`): Nombre del cajero responsable de la recepción de las cartas y entrega del efectivo.
+* `cashShiftId` (`String?`, FK -> `CashShift`): Turno de caja del cual salió el efectivo.
+* `itemsData` (`Json`): Snapshot detallado de las cartas adquiridas (`product`, `quantity`, `price`, `condition`, `language`, `finish`).
+* `notes` (`String?`): Observaciones de la compra.
+* `createdAt` (`DateTime`, default: `now()`).
+* **Índices:** `@@index([storeId, createdAt])`, `@@index([cashShiftId])`.
+* **Relaciones:** `store`, `user`, `cashShift`.
 
 > ⚠️ **REGLA FINANCIERA CANÓNICA (NO RETENCIÓN EN BILLETERA):**  
 > Las ventas presenciales procesadas a través del módulo POS son cobradas directamente por el vendedor en su local físico (dinero en efectivo en mano o depósito en la cuenta de su maquinita propia).  
