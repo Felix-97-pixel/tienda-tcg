@@ -529,4 +529,104 @@ export class StoresService {
     return this.prisma.storeGameExchangeRate.delete({ where: { id, storeId: store.id } });
   }
 
+
+  /**
+   * Obtiene la empresa a la que pertenece el usuario autenticado (dueño).
+   */
+  async getCompanyByOwner(userId: string) {
+    let company = await this.prisma.company.findFirst({
+      where: { ownerId: userId },
+      include: {
+        stores: {
+          include: {
+            originRegion: true,
+            originCommune: true,
+            supportedGames: true,
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    if (!company) {
+      // Fallback: Si el usuario tiene una Store pero aún no se le creó la Company, la autogeneramos
+      const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+      if (store) {
+        company = await this.prisma.company.create({
+          data: {
+            name: store.name,
+            ownerId: userId,
+            balance: store.balance,
+            extraBranchesCount: 0,
+          },
+          include: {
+            stores: {
+              include: {
+                originRegion: true,
+                originCommune: true,
+                supportedGames: true,
+              },
+            },
+          },
+        });
+        await this.prisma.store.update({
+          where: { id: store.id },
+          data: { companyId: company.id, isMainBranch: true },
+        });
+      } else {
+        throw new NotFoundException('No tienes una empresa ni tienda asignada.');
+      }
+    }
+
+    return company;
+  }
+
+  /**
+   * Lista todas las sucursales asociadas a la empresa del usuario.
+   */
+  async getBranches(userId: string) {
+    const company = await this.getCompanyByOwner(userId);
+    return company.stores;
+  }
+
+  /**
+   * Crea una nueva sucursal (Branch) para la empresa del usuario,
+   * validando los permisos y cuotas del modelo de negocio.
+   */
+  async createBranch(userId: string, data: { name: string; subdomain: string; address?: string; originRegionId?: string; originCommuneId?: string; pickupSchedule?: string }) {
+    const company = await this.getCompanyByOwner(userId);
+
+    // Verificar si el subdominio ya existe
+    const existingSubdomain = await this.prisma.store.findUnique({
+      where: { subdomain: data.subdomain },
+    });
+    if (existingSubdomain) {
+      throw new ConflictException('El subdominio ya está registrado por otra tienda o sucursal.');
+    }
+
+    // Regla de Negocio: La primera sucursal es la principal (isMainBranch: true).
+    // Las sucursales subsiguientes son adicionales (isMainBranch: false).
+    const isFirstBranch = company.stores.length === 0;
+
+    return this.prisma.store.create({
+      data: {
+        name: data.name,
+        subdomain: data.subdomain,
+        address: data.address,
+        originRegionId: data.originRegionId,
+        originCommuneId: data.originCommuneId,
+        pickupSchedule: data.pickupSchedule,
+        pickupEnabled: !!data.address,
+        isMainBranch: isFirstBranch,
+        companyId: company.id,
+        // Generamos un ownerId único sintético para la sucursal secundaria respetando el schema
+        ownerId: isFirstBranch ? userId : require('crypto').randomUUID(),
+      },
+      include: {
+        originRegion: true,
+        originCommune: true,
+      },
+    });
+  }
+
 }

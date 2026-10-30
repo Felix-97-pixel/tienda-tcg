@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAppSelector } from "@/redux/store";
 import { useTranslations } from "next-intl";
+import BranchSelector from "./BranchSelector";
 
 const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const t = useTranslations("header");
@@ -37,7 +38,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
           </p>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
+          {isMounted && <BranchSelector />}
           <div className="flex items-center gap-4 border-l border-white/10 pl-6">
             <span className="hidden text-right lg:block">
               {isMounted && (

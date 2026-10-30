@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
+import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
 import { UpdateStoreFullDto } from './dto/update-store-full.dto';
@@ -25,6 +26,25 @@ export class StoresController {
   @Get('public-by-id/:id')
   getPublicStoreById(@Param('id') id: string) {
     return this.storesService.getPublicStoreById(id);
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/company')
+  async getCompany(@Request() req: any) {
+    return this.storesService.getCompanyByOwner(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/branches')
+  async getBranches(@Request() req: any) {
+    return this.storesService.getBranches(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/branches')
+  async createBranch(@Request() req: any, @Body() dto: CreateBranchDto) {
+    return this.storesService.createBranch(req.user.userId, dto);
   }
 
   @UseGuards(JwtAuthGuard)
