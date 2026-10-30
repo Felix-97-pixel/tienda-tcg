@@ -68,8 +68,8 @@ export default function AdminCurrencies() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Tasas de Cambio</h1>
-          <p className="text-gray-4 text-sm mt-1">Configura cuánto vale el dólar (u otras divisas) en tu tienda para cada juego.</p>
+          <h1 className="text-2xl font-bold text-white">Tasas de Cambio Globales</h1>
+          <p className="text-gray-4 text-sm mt-1">Configura cuánto vale el dólar (u otras divisas) para cada juego a nivel global (las tiendas la usan por defecto si no tienen una propia).</p>
         </div>
         <Button onClick={() => openModal()}>
           Agregar Tasa
