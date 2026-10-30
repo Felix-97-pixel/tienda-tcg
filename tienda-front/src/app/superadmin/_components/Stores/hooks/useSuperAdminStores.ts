@@ -12,10 +12,19 @@ export interface Branch {
   balance: number;
 }
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number | string;
+  skuLimit: number;
+}
+
 export interface Company {
   id: string;
   name: string;
   rut?: string;
+  planId?: string | null;
+  plan?: SubscriptionPlan | null;
   balance: number;
   extraBranchesCount: number;
   owner: {
@@ -29,10 +38,12 @@ export interface Company {
 
 export function useSuperAdminStores() {
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal para crear nueva Empresa (Holding + Casa Matriz)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [formData, setFormData] = useState({
     storeName: "",
     subdomain: "",
@@ -41,6 +52,11 @@ export function useSuperAdminStores() {
     ownerName: "",
     ownerPassword: "",
   });
+
+  // Modal para agregar una Sucursal a una Empresa existente
+  const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
+  const [selectedCompanyForBranch, setSelectedCompanyForBranch] = useState<Company | null>(null);
+  const [isSubmittingBranch, setIsSubmittingBranch] = useState(false);
 
   const fetchCompanies = useCallback(async () => {
     try {
@@ -59,9 +75,25 @@ export function useSuperAdminStores() {
     }
   }, []);
 
+  const fetchPlans = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/features/plans`, {
+        credentials: "include",
+        headers: { "x-auth-scope": "admin" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAvailablePlans(data);
+      }
+    } catch {
+      // silent
+    }
+  }, []);
+
   useEffect(() => {
     fetchCompanies();
-  }, [fetchCompanies]);
+    fetchPlans();
+  }, [fetchCompanies, fetchPlans]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -109,6 +141,51 @@ export function useSuperAdminStores() {
     }
   };
 
+  const handleCreateBranch = async (
+    companyId: string,
+    data: { name: string; subdomain: string; address?: string; pickupSchedule?: string }
+  ) => {
+    try {
+      setIsSubmittingBranch(true);
+      const res = await fetch(`${API_URL}/stores/companies/${companyId}/branches`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-auth-scope": "admin" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al agregar la sucursal");
+      }
+
+      toast.success("Sucursal agregada exitosamente");
+      setIsBranchModalOpen(false);
+      setSelectedCompanyForBranch(null);
+      fetchCompanies();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsSubmittingBranch(false);
+    }
+  };
+
+  const handleAssignPlan = async (companyId: string, planId: string | null) => {
+    try {
+      const res = await fetch(`${API_URL}/stores/companies/${companyId}/plan`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-auth-scope": "admin" },
+        credentials: "include",
+        body: JSON.stringify({ planId }),
+      });
+      if (!res.ok) throw new Error("Error al asignar el plan");
+      toast.success("Plan de suscripción actualizado");
+      fetchCompanies();
+    } catch (err: any) {
+      toast.error(err.message || "Error al actualizar plan");
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar esta sucursal?")) return;
     try {
@@ -125,16 +202,35 @@ export function useSuperAdminStores() {
     }
   };
 
+  const openCreateBranchModal = (company: Company) => {
+    setSelectedCompanyForBranch(company);
+    setIsBranchModalOpen(true);
+  };
+
+  const closeCreateBranchModal = () => {
+    setSelectedCompanyForBranch(null);
+    setIsBranchModalOpen(false);
+  };
+
   return {
     companies,
+    availablePlans,
     loading,
     isModalOpen,
     isSubmitting,
     formData,
     handleInputChange,
     handleCreateStore,
+    handleAssignPlan,
     handleDelete,
     openCreateModal: () => setIsModalOpen(true),
     closeCreateModal: () => setIsModalOpen(false),
+    // Manejo de Sucursales
+    isBranchModalOpen,
+    selectedCompanyForBranch,
+    isSubmittingBranch,
+    openCreateBranchModal,
+    closeCreateBranchModal,
+    handleCreateBranch,
   };
 }

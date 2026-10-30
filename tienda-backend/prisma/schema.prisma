@@ -213,12 +213,14 @@ model Company {
   name               String
   rut                String?
   ownerId            String
+  planId             String?
   balance            Decimal  @default(0) @db.Decimal(10, 2)
   extraBranchesCount Int      @default(0)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  owner  User    @relation(fields: [ownerId], references: [id])
+  owner  User              @relation(fields: [ownerId], references: [id])
+  plan   SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
   stores Store[]
 
   @@index([ownerId])
@@ -601,7 +603,8 @@ model SubscriptionPlan {
   isStandard     Boolean @default(true)
 
   features Feature[] @relation("PlanFeatures")
-  stores   Store[]   @relation("StoreSubscriptionPlans")
+  stores    Store[]   @relation("StoreSubscriptionPlans")
+  companies Company[]
 }
 
 model BuyListItem {

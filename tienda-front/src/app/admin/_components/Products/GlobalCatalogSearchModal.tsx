@@ -95,7 +95,18 @@ export default function GlobalCatalogSearchModal({ isOpen, onClose, onSelectProd
                     onMouseLeave={() => setHoveredImage(null)}
                   >
                     {product.imageUrl ? (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={product.imageUrl} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover" 
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (target.src && target.src.includes("?")) {
+                            target.src = target.src.split("?")[0];
+                          }
+                        }}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-xs text-gray-5">Sin img</div>
                     )}
@@ -148,7 +159,18 @@ export default function GlobalCatalogSearchModal({ isOpen, onClose, onSelectProd
             maxWidth: '280px'
           }}
         >
-          <img src={hoveredImage} alt="Preview" className="w-full h-auto object-contain" />
+          <img 
+            src={hoveredImage} 
+            alt="Preview" 
+            className="w-full h-auto object-contain" 
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src && target.src.includes("?")) {
+                target.src = target.src.split("?")[0];
+              }
+            }}
+          />
         </div>
       )}
     </Modal>

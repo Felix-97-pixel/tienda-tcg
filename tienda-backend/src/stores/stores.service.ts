@@ -426,6 +426,7 @@ export class StoresService {
             name: true,
           },
         },
+        plan: true,
         stores: {
           include: {
             originRegion: true,
@@ -627,6 +628,76 @@ export class StoresService {
   /**
    * Lista todas las sucursales asociadas a la empresa del usuario.
    */
+  /**
+   * Actualiza el plan SaaS asignado a una Empresa (Holding).
+   */
+  async updateCompanyPlan(companyId: string, planId: string | null) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
+    if (!company) {
+      throw new NotFoundException('Empresa no encontrada');
+    }
+
+    return this.prisma.company.update({
+      where: { id: companyId },
+      data: { planId },
+      include: {
+        plan: true,
+      },
+    });
+  }
+
+  /**
+   * Crea una nueva sucursal (Branch) directamente bajo una empresa (SuperAdmin).
+   */
+  async createBranchForCompany(companyId: string, data: { name: string; subdomain: string; address?: string; originRegionId?: string; originCommuneId?: string; pickupSchedule?: string }) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      include: { stores: true },
+    });
+    if (!company) {
+      throw new NotFoundException('Empresa no encontrada');
+    }
+
+    const existingSubdomain = await this.prisma.store.findUnique({
+      where: { subdomain: data.subdomain },
+    });
+    if (existingSubdomain) {
+      throw new ConflictException('El subdominio ya está registrado por otra tienda o sucursal.');
+    }
+
+    const isFirstBranch = company.stores.length === 0;
+
+    const newBranch = await this.prisma.store.create({
+      data: {
+        name: data.name,
+        subdomain: data.subdomain,
+        address: data.address,
+        originRegionId: data.originRegionId,
+        originCommuneId: data.originCommuneId,
+        pickupSchedule: data.pickupSchedule,
+        pickupEnabled: !!data.address,
+        isMainBranch: isFirstBranch,
+        companyId: company.id,
+        ownerId: company.ownerId,
+      },
+      include: {
+        originRegion: true,
+        originCommune: true,
+      },
+    });
+
+    if (!isFirstBranch) {
+      await this.prisma.company.update({
+        where: { id: company.id },
+        data: { extraBranchesCount: { increment: 1 } },
+      });
+    }
+
+    return newBranch;
+  }
+
   async getBranches(userId: string) {
     const company = await this.getCompanyByOwner(userId);
     return company.stores;

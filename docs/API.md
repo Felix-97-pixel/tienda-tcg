@@ -905,6 +905,35 @@ Obtiene el directorio global jerárquico de todas las empresas y sus sucursales 
 
 ---
 
+### `PATCH /stores/companies/:id/plan` 🛡️ (SuperAdmin)
+
+Asigna o actualiza el Plan SaaS contratado por la Empresa matriz (Holding).
+
+**Request Body:**
+```json
+{
+  "planId": "uuid-plan-store"
+}
+```
+
+---
+
+### `POST /stores/companies/:id/branches` 🛡️ (SuperAdmin)
+
+Crea una nueva sucursal física asociada directamente a la empresa indicada, configurándola como sucursal secundaria vinculada a la cuenta y billetera del dueño.
+
+**Request Body:**
+```json
+{
+  "name": "Sucursal Providencia",
+  "subdomain": "osbin-providencia",
+  "address": "Av. Providencia 2124",
+  "pickupSchedule": "Lun a Vie 11:00 a 19:30"
+}
+```
+
+---
+
 ### `GET /stores/public` 🌐
 
 Lista pública de tiendas para el marketplace con opciones de retiro y métodos de envío.

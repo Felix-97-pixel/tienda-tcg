@@ -135,7 +135,18 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
               <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border-2 border-dashed border-stroke flex items-center justify-center">
                 {creatingProduct.imageUrl ? (
                   <div className="relative h-full w-full group">
-                    <Image src={creatingProduct.imageUrl} alt="Preview" fill className="object-cover" unoptimized={creatingProduct.imageUrl.includes("scryfall")} />
+                    <img 
+                      src={creatingProduct.imageUrl} 
+                      alt="Preview" 
+                      className="h-full w-full object-cover" 
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src && target.src.includes("?")) {
+                          target.src = target.src.split("?")[0];
+                        }
+                      }}
+                    />
                     <button
                       onClick={() => { handleRemove(creatingProduct.imageUrl); setCreatingProduct({ ...creatingProduct, imageUrl: "" }); }}
                       className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"

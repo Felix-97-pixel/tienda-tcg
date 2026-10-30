@@ -3,17 +3,45 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Loader from "@/components/ui/Loader";
 import { Button } from "@/components/ui/Button";
-import { Company, Branch } from "./hooks/useSuperAdminStores";
-import { IconStore, IconMapPin, IconPencil, IconTrash, IconExternalLink, IconChevronDown, IconChevronUp } from "@/components/ui/Icons";
+import { Company, Branch, SubscriptionPlan } from "./hooks/useSuperAdminStores";
+import {
+  IconStore,
+  IconMapPin,
+  IconPencil,
+  IconTrash,
+  IconExternalLink,
+  IconChevronDown,
+  IconChevronUp,
+  IconPlus,
+} from "@/components/ui/Icons";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
 interface StoreTableProps {
   companies: Company[];
+  availablePlans: SubscriptionPlan[];
   loading: boolean;
   onDelete: (id: string) => void;
+  onAssignPlan: (companyId: string, planId: string | null) => void;
+  onAddBranch: (company: Company) => void;
 }
 
-export default function StoreTable({ companies, loading, onDelete }: StoreTableProps) {
+export default function StoreTable({
+  companies,
+  availablePlans,
+  loading,
+  onDelete,
+  onAssignPlan,
+  onAddBranch,
+}: StoreTableProps) {
   const [expandedCompanyIds, setExpandedCompanyIds] = useState<Record<string, boolean>>({});
+
+  const planOptions = [
+    { label: "Sin Plan Asignado", value: "" },
+    ...availablePlans.map((p) => ({
+      label: `${p.name} (${Number(p.price).toLocaleString("es-CL")} UF)`,
+      value: p.id,
+    })),
+  ];
 
   const toggleExpand = (companyId: string) => {
     setExpandedCompanyIds((prev) => ({ ...prev, [companyId]: !prev[companyId] }));
@@ -36,6 +64,7 @@ export default function StoreTable({ companies, loading, onDelete }: StoreTableP
             <th className="px-4 py-3 rounded-tl-lg">Empresa (Holding)</th>
             <th className="px-4 py-3">RUT / ID</th>
             <th className="px-4 py-3">Dueño / Contacto</th>
+            <th className="px-4 py-3">Plan SaaS Contratado</th>
             <th className="px-4 py-3">Sucursales</th>
             <th className="px-4 py-3">Billetera Matriz</th>
             <th className="px-4 py-3 rounded-tr-lg text-right">Detalle</th>
@@ -70,6 +99,18 @@ export default function StoreTable({ companies, loading, onDelete }: StoreTableP
                     <p className="text-white font-medium text-xs">{company.owner?.name}</p>
                     <p className="text-[11px] text-white/40">{company.owner?.email}</p>
                   </td>
+                  <td className="px-4 py-4 min-w-[220px]">
+                    <SearchableSelect
+                      options={planOptions}
+                      value={company.planId || ""}
+                      onChange={(val) => onAssignPlan(company.id, val || null)}
+                      placeholder="Buscar y asignar plan..."
+                      noResultsText="No se encontraron planes"
+                      inputClassName="!py-1.5 !text-xs !bg-[#141A26] !border-white/10 hover:!border-red/40"
+                      usePortal={true}
+                      direction="auto"
+                    />
+                  </td>
                   <td className="px-4 py-4">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-xs font-bold text-white">
                       <IconMapPin className="w-3.5 h-3.5 text-red" />
@@ -95,16 +136,27 @@ export default function StoreTable({ companies, loading, onDelete }: StoreTableP
                 {/* Subtabla Desplegable de Sucursales */}
                 {isExpanded && (
                   <tr className="bg-[#090C12]">
-                    <td colSpan={6} className="p-4 pl-12 border-y border-white/10">
+                    <td colSpan={7} className="p-4 pl-12 border-y border-white/10">
                       <div className="rounded-2xl border border-white/10 bg-[#0E121B] p-4 space-y-3">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                          <h4 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-2">
-                            <IconMapPin className="w-3.5 h-3.5 text-red" />
-                            Sucursales de {company.name}
-                          </h4>
-                          <span className="text-[10px] text-white/40 font-mono">
-                            Plan Base incluye 1 Local (Casa Matriz)
-                          </span>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-white/10 pb-3">
+                          <div className="flex items-center gap-3">
+                            <h4 className="text-xs font-bold text-white/90 uppercase tracking-wider flex items-center gap-2">
+                              <IconMapPin className="w-3.5 h-3.5 text-red" />
+                              Sucursales de {company.name}
+                            </h4>
+                            <span className="text-[10px] text-white/40 font-mono">
+                              Plan: {company.plan?.name || "Sin Plan"} (Cubre 1 Casa Matriz)
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            className="!px-3 !py-1 text-xs gap-1.5 self-start sm:self-auto"
+                            onClick={() => onAddBranch(company)}
+                          >
+                            <IconPlus className="w-3.5 h-3.5" />
+                            <span>Agregar Sucursal</span>
+                          </Button>
                         </div>
 
                         {company.stores.length > 0 ? (
@@ -125,7 +177,7 @@ export default function StoreTable({ companies, loading, onDelete }: StoreTableP
                                       <span className="font-bold text-white text-xs truncate">{branch.name}</span>
                                       {branch.isMainBranch ? (
                                         <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold uppercase">
-                                          Casa Matriz
+                                          Casa Matriz (Incluida)
                                         </span>
                                       ) : (
                                         <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold uppercase">
@@ -190,7 +242,7 @@ export default function StoreTable({ companies, loading, onDelete }: StoreTableP
 
           {companies.length === 0 && (
             <tr>
-              <td colSpan={6} className="text-center py-8 text-gray-500">
+              <td colSpan={7} className="text-center py-8 text-gray-500">
                 No hay empresas ni tiendas registradas en el sistema.
               </td>
             </tr>

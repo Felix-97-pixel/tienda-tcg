@@ -210,50 +210,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             </div>
 
 
-            {/* Asignación de Planes y Features (Solo visible para SuperAdmin) */}
-            {storeId !== "me" && (
-              <>
-                <div className="flex items-center gap-4 mb-6 mt-10">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-inner">
-                    <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Suscripción y Módulos</h2>
-                    <p className="text-xs text-white/40 font-medium mt-1">Configura a qué módulos y planes tiene acceso esta tienda.</p>
-                  </div>
-                </div>
 
-                <div className="bg-[#080B12] border border-white/10 p-6 rounded-2xl space-y-6">
-                  {/* Selector de Planes */}
-                  <Checkbox
-                    label="Planes de Suscripción"
-                    description="Añade los planes base que cubren múltiples funcionalidades."
-                    placeholder="Buscar y seleccionar plan a añadir..."
-                    options={availablePlans.map(plan => ({
-                      label: `${plan.name} (${Number(plan.price).toLocaleString()} UF)${!plan.isStandard ? ' [Oferta / Privado]' : ''}`,
-                      value: plan.id
-                    }))}
-                    selectedValues={formData.subscriptionPlanIds}
-                    onChange={(values) => setFormData(prev => ({ ...prev, subscriptionPlanIds: values }))}
-                    badgeColor="blue"
-                  />
-
-                  {/* Selector de Features Extras */}
-                  <Checkbox
-                    label="Funciones Extra (Add-ons)"
-                    description="Añade módulos o juegos individuales por separado."
-                    placeholder="Buscar y seleccionar función a añadir..."
-                    options={availableFeatures.map(feat => ({
-                      label: `${feat.name} ($${feat.price})`,
-                      value: feat.id
-                    }))}
-                    selectedValues={formData.customFeatureIds}
-                    onChange={(values) => setFormData(prev => ({ ...prev, customFeatureIds: values }))}
-                    badgeColor="emerald"
-                  />
-                </div>
-              </>
-            )}
 
             {/* Mercado Pago Integration (Solo visible para Admin propio) */}
             {storeId === "me" && (

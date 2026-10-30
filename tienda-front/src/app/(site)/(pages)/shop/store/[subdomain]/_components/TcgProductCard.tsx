@@ -190,6 +190,7 @@ export default function TcgProductCard({
             sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 220px"
             className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-[1.04]"
             unoptimized={Boolean(imageUrl.includes("scryfall"))}
+            referrerPolicy="no-referrer"
             priority={false}
           />
 
@@ -224,6 +225,7 @@ export default function TcgProductCard({
             sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 220px"
             className="object-contain p-1.5 transition-transform duration-300 group-hover:scale-[1.04]"
             unoptimized={Boolean(imageUrl.includes("scryfall"))}
+            referrerPolicy="no-referrer"
             priority={false}
           />
 

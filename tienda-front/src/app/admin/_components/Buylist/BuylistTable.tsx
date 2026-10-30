@@ -34,7 +34,23 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
             onMouseLeave={() => setHoveredImage(null)}
           >
             {product.imageUrl 
-              ? <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="object-cover h-full w-full" unoptimized={product.imageUrl.includes("scryfall")} />
+              ? (
+                <img 
+                  src={product.imageUrl} 
+                  alt={product.name} 
+                  width={48} 
+                  height={48} 
+                  className="object-cover h-full w-full" 
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (target.src && target.src.includes("?")) {
+                      target.src = target.src.split("?")[0];
+                    }
+                  }}
+                />
+              )
               : <span className="text-[10px] text-white/40 flex h-full items-center justify-center font-bold uppercase">Sin Imagen</span>
             }
           </div>
@@ -113,7 +129,20 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
             maxWidth: '280px'
           }}
         >
-          <Image src={hoveredImage} alt="Preview" width={280} height={390} className="w-full h-auto object-contain" priority unoptimized={hoveredImage.includes("scryfall")} />
+          <img 
+            src={hoveredImage} 
+            alt="Preview" 
+            width={280} 
+            height={390} 
+            className="w-full h-auto object-contain" 
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src && target.src.includes("?")) {
+                target.src = target.src.split("?")[0];
+              }
+            }}
+          />
         </div>
       )}
 

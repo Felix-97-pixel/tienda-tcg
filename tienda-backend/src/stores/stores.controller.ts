@@ -100,6 +100,20 @@ export class StoresController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
+  @Patch('companies/:id/plan')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN')
+  @Post('companies/:id/branches')
+  createBranchForCompany(@Param('id') id: string, @Body() dto: CreateBranchDto) {
+    return this.storesService.createBranchForCompany(id, dto);
+  }
+
+  updateCompanyPlan(@Param('id') id: string, @Body() data: { planId: string | null }) {
+    return this.storesService.updateCompanyPlan(id, data.planId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN')
   @Get()
   findAll() {
     return this.storesService.findAll();
