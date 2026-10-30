@@ -2,14 +2,12 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { useSuperAdminStores } from "@/app/superadmin/_components/Stores/hooks/useSuperAdminStores";
-
-// Componentes Extraídos
 import StoreTable from "@/app/superadmin/_components/Stores/StoreTable";
 import CreateStoreModal from "@/app/superadmin/_components/Stores/CreateStoreModal";
 
 export default function StoresPage() {
   const {
-    stores,
+    companies,
     loading,
     isModalOpen,
     isSubmitting,
@@ -18,28 +16,33 @@ export default function StoresPage() {
     handleCreateStore,
     handleDelete,
     openCreateModal,
-    closeCreateModal
+    closeCreateModal,
   } = useSuperAdminStores();
 
   return (
     <>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-title-md2 font-semibold text-white">
-          Gestión de Tiendas (Dealers)
-        </h2>
+        <div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Empresas & Sucursales
+          </h2>
+          <p className="text-xs text-white/50 mt-1">
+            Administra las cuentas de empresa (Holdings), planes SaaS contratados y sus sucursales físicas asociadas.
+          </p>
+        </div>
+        <Button onClick={openCreateModal}>
+          + Registrar Empresa
+        </Button>
       </div>
 
-      <div className="rounded-xl border border-white/5 bg-[#1a1d24] shadow-lg p-6">
+      <div className="rounded-2xl border border-white/10 bg-[#0E121B] shadow-2xl p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-bold text-white">Lista de Tiendas</h3>
-          <Button onClick={openCreateModal}>
-            + Agregar Dealer
-          </Button>
+          <h3 className="text-base font-bold text-white">Directorio de Empresas</h3>
         </div>
 
-        {/* Tabla Principal */}
+        {/* Tabla Jerárquica de Empresas y Sucursales */}
         <StoreTable
-          stores={stores}
+          companies={companies}
           loading={loading}
           onDelete={handleDelete}
         />

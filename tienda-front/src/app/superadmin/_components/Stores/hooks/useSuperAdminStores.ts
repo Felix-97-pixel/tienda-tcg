@@ -3,24 +3,32 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "@/utils/api";
 import toast from "react-hot-toast";
 
-export interface Owner {
-  id: string;
-  email: string;
-  name: string;
-}
-
-export interface Store {
+export interface Branch {
   id: string;
   name: string;
   subdomain: string;
-  logoUrl?: string;
-  owner: Owner;
+  isMainBranch: boolean;
+  address?: string;
   balance: number;
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  rut?: string;
+  balance: number;
+  extraBranchesCount: number;
+  owner: {
+    id: string;
+    email: string;
+    name: string;
+  };
+  stores: Branch[];
   createdAt: string;
 }
 
 export function useSuperAdminStores() {
-  const [stores, setStores] = useState<Store[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,25 +42,26 @@ export function useSuperAdminStores() {
     ownerPassword: "",
   });
 
-  const fetchStores = useCallback(async () => {
+  const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/stores`, {
+      const res = await fetch(`${API_URL}/stores/companies`, {
         credentials: "include",
+        headers: { "x-auth-scope": "admin" },
       });
-      if (!res.ok) throw new Error("Error al obtener las tiendas");
+      if (!res.ok) throw new Error("Error al obtener las empresas");
       const data = await res.json();
-      setStores(data);
-    } catch (error) {
-      toast.error("Hubo un error cargando los dealers.");
+      setCompanies(data);
+    } catch {
+      toast.error("Hubo un error cargando las empresas.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchStores();
-  }, [fetchStores]);
+    fetchCompanies();
+  }, [fetchCompanies]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,7 +74,7 @@ export function useSuperAdminStores() {
       setIsSubmitting(true);
       const res = await fetch(`${API_URL}/stores`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-auth-scope": "admin" },
         credentials: "include",
         body: JSON.stringify({
           name: formData.storeName,
@@ -79,10 +88,10 @@ export function useSuperAdminStores() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Error al crear la tienda");
+        throw new Error(errorData.message || "Error al crear la empresa");
       }
 
-      toast.success("Dealer creado exitosamente");
+      toast.success("Empresa y casa matriz creadas exitosamente");
       setIsModalOpen(false);
       setFormData({
         storeName: "",
@@ -92,7 +101,7 @@ export function useSuperAdminStores() {
         ownerName: "",
         ownerPassword: "",
       });
-      fetchStores();
+      fetchCompanies();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -101,34 +110,31 @@ export function useSuperAdminStores() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar esta tienda? Esta acción no se puede deshacer.")) return;
+    if (!confirm("¿Estás seguro de eliminar esta sucursal?")) return;
     try {
       const res = await fetch(`${API_URL}/stores/${id}`, {
         method: "DELETE",
         credentials: "include",
+        headers: { "x-auth-scope": "admin" },
       });
-      if (!res.ok) throw new Error("Error al eliminar la tienda");
-      toast.success("Tienda eliminada");
-      fetchStores();
+      if (!res.ok) throw new Error("No se pudo eliminar la tienda");
+      toast.success("Sucursal eliminada.");
+      fetchCompanies();
     } catch (error: any) {
       toast.error(error.message);
     }
   };
 
-  const openCreateModal = () => setIsModalOpen(true);
-  const closeCreateModal = () => setIsModalOpen(false);
-
   return {
-    stores,
+    companies,
     loading,
     isModalOpen,
     isSubmitting,
     formData,
-    fetchStores,
     handleInputChange,
     handleCreateStore,
     handleDelete,
-    openCreateModal,
-    closeCreateModal
+    openCreateModal: () => setIsModalOpen(true),
+    closeCreateModal: () => setIsModalOpen(false),
   };
 }

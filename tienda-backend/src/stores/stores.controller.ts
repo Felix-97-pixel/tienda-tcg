@@ -90,6 +90,14 @@ export class StoresController {
   upsertLanguageDevaluations(@Request() req: any, @Body() data: { gameId: string, languageDevaluations: { languageId: string, multiplier: number }[] }) {
     return this.storesService.upsertLanguageDevaluations(req.user.userId, data.gameId, data.languageDevaluations);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN')
+  @Get('companies')
+  findAllCompanies() {
+    return this.storesService.findAllCompanies();
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Get()

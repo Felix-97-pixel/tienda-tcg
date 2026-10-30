@@ -411,6 +411,34 @@ export class StoresService {
     return this.getStoreById(store.id);
   }
 
+
+  /**
+   * Obtiene todas las empresas registradas para el panel SuperAdmin,
+   * incluyendo sus sucursales (stores) y el usuario dueño.
+   */
+  async findAllCompanies() {
+    return this.prisma.company.findMany({
+      include: {
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+        stores: {
+          include: {
+            originRegion: true,
+            originCommune: true,
+            subscriptionPlans: true,
+          },
+          orderBy: { isMainBranch: 'desc' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findAll() {
     return this.prisma.store.findMany({
       include: {
@@ -453,7 +481,20 @@ export class StoresService {
         }
       }
 
-      // 2. Crear la tienda
+      // 2. Asegurar o crear la entidad Company (Holding)
+      let company = await tx.company.findFirst({ where: { ownerId: user.id } });
+      if (!company) {
+        company = await tx.company.create({
+          data: {
+            name: storeName || createStoreDto.name,
+            ownerId: user.id,
+            balance: 0,
+            extraBranchesCount: 0,
+          },
+        });
+      }
+
+      // 3. Crear la tienda (Casa matriz inicial)
       try {
         const store = await tx.store.create({
           data: {
@@ -461,6 +502,8 @@ export class StoresService {
             subdomain,
             logoUrl,
             ownerId: user.id,
+            companyId: company.id,
+            isMainBranch: true,
           },
           include: {
             owner: {

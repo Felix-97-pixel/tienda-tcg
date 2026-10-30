@@ -1,24 +1,31 @@
 "use client";
-import Loader from "@/components/ui/Loader";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import Loader from "@/components/ui/Loader";
 import { Button } from "@/components/ui/Button";
-import { Store } from "./hooks/useSuperAdminStores";
+import { Company, Branch } from "./hooks/useSuperAdminStores";
+import { IconStore, IconMapPin, IconPencil, IconTrash, IconExternalLink, IconChevronDown, IconChevronUp } from "@/components/ui/Icons";
 
 interface StoreTableProps {
-  stores: Store[];
+  companies: Company[];
   loading: boolean;
   onDelete: (id: string) => void;
 }
 
-export default function StoreTable({ stores, loading, onDelete }: StoreTableProps) {
+export default function StoreTable({ companies, loading, onDelete }: StoreTableProps) {
+  const [expandedCompanyIds, setExpandedCompanyIds] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (companyId: string) => {
+    setExpandedCompanyIds((prev) => ({ ...prev, [companyId]: !prev[companyId] }));
+  };
+
   const getStoreUrl = (subdomain: string) => {
-    if (typeof window === 'undefined') return '#';
+    if (typeof window === "undefined") return "#";
     return `${window.location.protocol}//${window.location.host}/shop/store/${subdomain}`;
   };
 
   if (loading) {
-    return <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />;
+    return <Loader text="Cargando empresas y sucursales..." className="min-h-[40vh] bg-transparent py-10" />;
   }
 
   return (
@@ -26,64 +33,165 @@ export default function StoreTable({ stores, loading, onDelete }: StoreTableProp
       <table className="w-full text-left text-sm text-gray-300">
         <thead className="bg-[#0a0a0a] text-gray-400">
           <tr>
-            <th className="px-4 py-3 rounded-tl-lg">Logo</th>
-            <th className="px-4 py-3">Nombre</th>
-            <th className="px-4 py-3">Subdominio</th>
-            <th className="px-4 py-3">Dueño</th>
-            <th className="px-4 py-3">Balance</th>
-            <th className="px-4 py-3 rounded-tr-lg">Acciones</th>
+            <th className="px-4 py-3 rounded-tl-lg">Empresa (Holding)</th>
+            <th className="px-4 py-3">RUT / ID</th>
+            <th className="px-4 py-3">Dueño / Contacto</th>
+            <th className="px-4 py-3">Sucursales</th>
+            <th className="px-4 py-3">Billetera Matriz</th>
+            <th className="px-4 py-3 rounded-tr-lg text-right">Detalle</th>
           </tr>
         </thead>
-        <tbody>
-          {stores.map((store) => (
-            <tr key={store.id} className="border-b border-white/5 hover:bg-white/5 transition">
-              <td className="px-4 py-3">
-                {store.logoUrl ? (
-                  <img src={store.logoUrl} alt={store.name} className="w-10 h-10 rounded-md object-contain bg-white/10" />
-                ) : (
-                  <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center font-bold">
-                    {store.name.substring(0, 2).toUpperCase()}
-                  </div>
+        <tbody className="divide-y divide-white/5">
+          {companies.map((company) => {
+            const isExpanded = !!expandedCompanyIds[company.id];
+            const branchCount = company.stores?.length || 0;
+
+            return (
+              <React.Fragment key={company.id}>
+                {/* Fila Principal de la Empresa */}
+                <tr className="hover:bg-white/[0.03] transition-colors">
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-dark to-red flex items-center justify-center font-bold text-white shadow-sm">
+                        <IconStore className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-white text-base leading-tight">{company.name}</p>
+                        <p className="text-[10px] text-white/40 font-mono mt-0.5">
+                          {branchCount} {branchCount === 1 ? "sucursal" : "sucursales"} registradas
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 text-xs font-mono text-white/70">
+                    {company.rut || <span className="text-white/30 italic">Sin RUT asignado</span>}
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="text-white font-medium text-xs">{company.owner?.name}</p>
+                    <p className="text-[11px] text-white/40">{company.owner?.email}</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-xs font-bold text-white">
+                      <IconMapPin className="w-3.5 h-3.5 text-red" />
+                      {branchCount}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 font-mono font-bold text-emerald-400">
+                    ${Number(company.balance).toLocaleString("es-CL")}
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="!px-3 !py-1.5 text-xs gap-1.5"
+                      onClick={() => toggleExpand(company.id)}
+                    >
+                      <span>Sucursales</span>
+                      {isExpanded ? <IconChevronUp className="w-3.5 h-3.5" /> : <IconChevronDown className="w-3.5 h-3.5" />}
+                    </Button>
+                  </td>
+                </tr>
+
+                {/* Subtabla Desplegable de Sucursales */}
+                {isExpanded && (
+                  <tr className="bg-[#090C12]">
+                    <td colSpan={6} className="p-4 pl-12 border-y border-white/10">
+                      <div className="rounded-2xl border border-white/10 bg-[#0E121B] p-4 space-y-3">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                          <h4 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-2">
+                            <IconMapPin className="w-3.5 h-3.5 text-red" />
+                            Sucursales de {company.name}
+                          </h4>
+                          <span className="text-[10px] text-white/40 font-mono">
+                            Plan Base incluye 1 Local (Casa Matriz)
+                          </span>
+                        </div>
+
+                        {company.stores.length > 0 ? (
+                          <div className="space-y-2">
+                            {company.stores.map((branch: Branch) => (
+                              <div
+                                key={branch.id}
+                                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all"
+                              >
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <div
+                                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                      branch.isMainBranch ? "bg-emerald-400" : "bg-purple-400"
+                                    }`}
+                                  />
+                                  <div className="truncate">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-white text-xs truncate">{branch.name}</span>
+                                      {branch.isMainBranch ? (
+                                        <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold uppercase">
+                                          Casa Matriz
+                                        </span>
+                                      ) : (
+                                        <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold uppercase">
+                                          Sucursal Extra (+2.5 UF)
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-[10px] text-purple-400 font-mono mt-0.5">
+                                      subdomain: {branch.subdomain}
+                                    </p>
+                                    {branch.address && (
+                                      <p className="text-[10px] text-white/40 truncate">{branch.address}</p>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <a
+                                    href={getStoreUrl(branch.subdomain)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Ver tienda pública"
+                                  >
+                                    <Button size="sm" variant="primary" className="!px-2.5 !py-1.5">
+                                      <IconExternalLink className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </a>
+                                  <Link href={`/superadmin/stores/${branch.id}/edit`} title="Editar sucursal">
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      className="!px-2.5 !py-1.5 hover:border-red/40 hover:text-red"
+                                    >
+                                      <IconPencil className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </Link>
+                                  {!branch.isMainBranch && (
+                                    <Button
+                                      size="sm"
+                                      variant="danger"
+                                      className="!px-2.5 !py-1.5"
+                                      onClick={() => onDelete(branch.id)}
+                                      title="Eliminar sucursal"
+                                    >
+                                      <IconTrash className="w-3.5 h-3.5" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-white/40 italic py-2">Sin sucursales registradas.</p>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
                 )}
-              </td>
-              <td className="px-4 py-3 font-semibold text-white">{store.name}</td>
-              <td className="px-4 py-3 text-purple-400">{store.subdomain}</td>
-              <td className="px-4 py-3">
-                <div className="text-white">{store.owner?.name}</div>
-                <div className="text-xs text-gray-500">{store.owner?.email}</div>
-              </td>
-              <td className="px-4 py-3">${store.balance}</td>
-              <td className="px-4 py-3 flex gap-2">
-                <a href={getStoreUrl(store.subdomain)} target="_blank" rel="noreferrer" title="Visitar tienda">
-                  <Button size="sm" variant="primary" className="!px-3 !py-2.5">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </Button>
-                </a>
-                <Link href={`/superadmin/stores/${store.id}/edit`} title="Editar tienda">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="!px-3 !py-2.5 hover:border-blue hover:text-blue"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                  </Button>
-                </Link>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  className="!px-3 !py-2.5"
-                  onClick={() => onDelete(store.id)}
-                  title="Eliminar tienda"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </Button>
-              </td>
-            </tr>
-          ))}
-          {stores.length === 0 && (
+              </React.Fragment>
+            );
+          })}
+
+          {companies.length === 0 && (
             <tr>
-              <td colSpan={6} className="text-center py-6 text-gray-500">
-                No hay tiendas registradas
+              <td colSpan={6} className="text-center py-8 text-gray-500">
+                No hay empresas ni tiendas registradas en el sistema.
               </td>
             </tr>
           )}
