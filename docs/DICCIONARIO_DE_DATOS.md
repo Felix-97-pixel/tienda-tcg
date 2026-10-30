@@ -176,9 +176,22 @@ Precios de referencia de mercado global y trazabilidad histórica de precios par
 
 ## 3. Tiendas y Vendedores (Multi-Tenant Marketplace)
 
+### `Company`
+Entidad jurídica matriz (Empresa) que agrupa una o más sucursales físicas (`Store`). Es la entidad contratante del plan SaaS.
+* `id` (`String`, UUID, PK)
+* `name` (`String`): Razón Social o nombre legal de la empresa.
+* `rut` (`String?`): Identificador tributario (RUT de la empresa).
+* `ownerId` (`String`, FK -> `User`): Usuario administrador principal o representante legal.
+* `balance` (`Decimal(10,2)`, default: 0): Billetera unificada de liquidaciones por ventas de todas las sucursales.
+* `extraBranchesCount` (`Int`, default: 0): Cantidad de sucursales adicionales contratadas fuera de la casa matriz.
+* `createdAt` / `updatedAt` (`DateTime`).
+* **Relaciones:** `company`, `owner`, `stores`.
+
 ### `Store`
 Entidad central que representa a una tienda física o virtual vendedora dentro del marketplace TapTrade.
 * `id` (`String`, UUID, PK)
+* `companyId` (`String?`, FK -> `Company`): Empresa matriz a la que pertenece la sucursal.
+* `isMainBranch` (`Boolean`, default: `true`): Indica si es la casa matriz incluida en el plan base.
 * `ownerId` (`String`, Unique, FK -> `User`): Usuario propietario de la tienda.
 * `name` (`String`): Nombre comercial de la tienda (ej: "BloodMoonGames", "TapTrade Store").
 * `subdomain` (`String`, Unique): Subdominio público asignado (ej: `bloodmoon.taptrade.cl`).
