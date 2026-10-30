@@ -47,6 +47,13 @@ flowchart LR
   - Calculador dinámico de bultos y fletes por peso y dimensiones para cartas individuales en toploaders, carpetas y cajas selladas.
 - [x] **2.5. Correos Transaccionales y Notificaciones:**
   - Envío automático de confirmaciones de compra, notificaciones de despacho y alertas de cambio de estado vía SMTP / Resend.
+- [x] **2.6. Arquitectura Multi-Branch (Empresas y Sucursales):**
+  - Modelo relacional Company (Holding legal y Billetera centralizada) -> Store (Sucursales físicas independientes con inventario y retiro propio).
+  - Selector de sucursal activa en el header superior de /admin (BranchSelector).
+  - Directorio jerárquico en /superadmin/stores con desglose de Casa Matriz y Sucursales Extra (+2.5 UF/mes).
+- [x] **2.7. Punto de Venta POS Mostrador & Arqueos de Caja:**
+  - Apertura y cierre de turnos de caja (CashShift) por sucursal física con cálculo de efectivo esperado y arqueo multi-cajero.
+  - Venta física con medios de pago múltiples (efectivo, débito, crédito, transferencia) y deducción atómica de inventario.
 
 ---
 

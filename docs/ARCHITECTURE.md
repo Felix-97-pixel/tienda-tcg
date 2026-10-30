@@ -133,6 +133,9 @@ graph LR
 | **CurrenciesModule** | CRUD de divisas y tasas de cambio. | PrismaModule |
 | **WishlistModule** | Lista de deseos por usuario (agregar/eliminar productos). | PrismaModule |
 | **SettingsModule** | Configuración global key-value (ej: destinos de sincronización por juego). | PrismaModule |
+| **StoresModule** | Gestión de Empresas (Holdings), asignación de sucursales físicas (Store), Casas Matrices, subdominios y balances. | PrismaModule |
+| **PosModule** | Punto de Venta mostrador, apertura/cierre de turnos de caja (CashShift), arqueos de caja y ventas presenciales. | PrismaModule, ProductsModule |
+| **BuylistModule** | Motor de compra de cartas a jugadores (Trade-In), cotizaciones automáticas y acreditación en Store Credit. | PrismaModule |
 
 ---
 
@@ -273,22 +276,85 @@ Cadena de guards:
 
 ```mermaid
 erDiagram
-    Category ||--o{ Product : "has many"
-    Brand ||--o{ Product : "has many"
-    Product ||--o| CardDetail : "has one (optional)"
-    Product ||--o{ InventoryItem : "has many"
-    Product ||--o{ WishlistItem : "wishlisted by"
+    Company ||--o{ Store : "agrupa (sucursales)"
+    Company ||--o{ User : "representante legal / dueno"
+    Store ||--o{ InventoryItem : "almacena stock fisico"
+    Store ||--o{ CashShift : "opera turnos POS"
+    Store ||--o{ VendorOrder : "recibe pedidos marketplace"
+    Store }o--o{ SubscriptionPlan : "contrata plan SaaS"
 
-    Language ||--o{ InventoryItem : "used by"
-    Condition ||--o{ InventoryItem : "used by"
-    Finish ||--o{ InventoryItem : "used by"
+    Category ||--o{ Product : "clasifica"
+    Brand ||--o{ Product : "fabrica"
+    Product ||--o| CardDetail : "metadatos TCG (opcional)"
+    Product ||--o{ InventoryItem : "variantes de stock"
+    Product ||--o{ WishlistItem : "deseado por"
 
-    User ||--o{ WishlistItem : "has many"
-    User ||--o{ Order : "places"
+    Language ||--o{ InventoryItem : "idioma"
+    Condition ||--o{ InventoryItem : "estado fisico"
+    Finish ||--o{ InventoryItem : "acabado"
 
-    Order ||--o{ OrderItem : "contains"
-    Order ||--o| Payment : "has one"
-    ShippingProvider ||--o{ Order : "ships"
+    User ||--o{ WishlistItem : "guarda"
+    User ||--o{ Order : "compra en marketplace"
+    User ||--o{ CashShift : "abre/cierra caja en tienda"
+    User ||--o{ StoreCredit : "acumula saldo tienda"
+
+    Order ||--o{ OrderItem : "contiene items"
+    Order ||--o{ VendorOrder : "divide pedido por sucursal"
+    Order ||--o| Payment : "procesado por"
+    ShippingProvider ||--o{ Order : "despacha"
+    CashShift ||--o{ CashShiftTransaction : "registra arqueo"
+
+    Company {
+        string id PK
+        string name "Razon Social"
+        string rut UK "RUT Empresa"
+        string ownerId FK "Dueno General"
+        decimal balance "Billetera Matriz Unificada"
+        int extraBranchesCount "Sucursales extra pagadas"
+    }
+
+    Store {
+        string id PK
+        string companyId FK "Empresa Matriz"
+        boolean isMainBranch "Casa Matriz del Plan Base"
+        string ownerId FK "Usuario Propietario"
+        string name "Nombre Sucursal / Local"
+        string subdomain UK "Subdominio publico"
+        string address "Direccion fisica local"
+        boolean pickupEnabled "Retiro en tienda ($0)"
+        string pickupSchedule "Horario de retiro"
+        string originRegionId FK
+        string originCommuneId FK
+        decimal balance "Billetera operativa"
+    }
+
+    CashShift {
+        string id PK
+        string storeId FK "Sucursal fisica"
+        string userId FK "Cajero responsable"
+        CashShiftStatus status "OPEN | CLOSED"
+        decimal initialCash "Caja inicial"
+        decimal finalCash "Caja real contada"
+        decimal expectedCash "Caja teorica sistema"
+        datetime openedAt
+        datetime closedAt
+    }
+
+    CashShiftTransaction {
+        string id PK
+        string cashShiftId FK
+        decimal amount
+        string paymentMethod "CASH, DEBIT, CREDIT, TRANSFER, MIXED"
+        string type "INFLOW, OUTFLOW, SALE, REFUND"
+    }
+
+    SubscriptionPlan {
+        string id PK
+        string name UK "Starter, Store, Mega Store, Enterprise"
+        decimal price "1.5, 3.5, 6.5, 11.5 UF"
+        int maxSingles "1500, 6000, 18000, Ilimitado"
+        int maxSealed "50, 150, 500, Ilimitado"
+    }
 
     Category {
         string id PK
@@ -312,8 +378,6 @@ erDiagram
         string imageUrl
         string categoryId FK
         string brandId FK
-        datetime createdAt
-        datetime updatedAt
     }
 
     CardDetail {
@@ -329,29 +393,12 @@ erDiagram
     InventoryItem {
         string id PK
         string productId FK
+        string storeId FK
         string conditionId FK
         string languageId FK
         string finishId FK
         decimal price
         int stock
-    }
-
-    Language {
-        string id PK
-        string name UK
-        string code UK
-    }
-
-    Condition {
-        string id PK
-        string name UK
-    }
-
-    Finish {
-        string id PK
-        string name
-        string game
-        string[] aliases
     }
 
     User {
@@ -362,92 +409,45 @@ erDiagram
         string phone
         string address
         string city
-        Role role
+        Role role "USER, ADMIN, SUPERADMIN"
         boolean isVerified
-        string verificationToken
     }
 
     Order {
         string id PK
         string buyOrder UK
         string userId FK
-        string email
-        string name
         decimal totalAmount
-        string currencyCode
-        decimal exchangeRate
-        string shippingProviderId FK
-        decimal shippingCost
-        OrderStatus status
+        OrderStatus status "PENDING, PAID, FAILED, CANCELLED"
         datetime createdAt
     }
 
-    OrderItem {
+    VendorOrder {
         string id PK
         string orderId FK
-        string productId
-        string inventoryItemId
-        string productName
-        int quantity
-        decimal unitPrice
-    }
-
-    Payment {
-        string id PK
-        string orderId FK_UK
-        string token UK
-        PaymentStatus status
-        decimal amount
-        string authCode
-        string cardLast4
-        string paymentType
-        int installments
-        datetime transactionDate
-    }
-
-    WishlistItem {
-        string userId PK_FK
-        string productId PK_FK
-        datetime createdAt
-    }
-
-    GlobalSetting {
-        string id PK
-        string key UK
-        string value
-    }
-
-    Currency {
-        string id PK
-        string code UK
-        string name
-        string symbol
-        decimal exchangeRate
-        boolean isDefault
-    }
-
-    ShippingProvider {
-        string id PK
-        string name UK
-        decimal price
-        boolean isActive
+        string storeId FK
+        decimal subtotal
+        decimal shippingCost
+        VendorOrderStatus status
     }
 ```
 
 ### Enumeraciones
 
-| Enum | Valores |
-|:---|:---|
-| `Role` | `USER`, `ADMIN` |
-| `OrderStatus` | `PENDING`, `PAID`, `FAILED`, `CANCELLED`, `REFUNDED` |
-| `PaymentStatus` | `PENDING`, `AUTHORIZED`, `FAILED`, `NULLIFIED` |
+| Enum | Valores | Descripción |
+|:---|:---|:---|
+| `Role` | `USER`, `ADMIN`, `SUPERADMIN` | Roles del sistema (Cliente, Administrador de Tienda/Empresa, Superadministrador HQ). |
+| `CashShiftStatus` | `OPEN`, `CLOSED` | Estado del turno de caja en el Punto de Venta POS. |
+| `OrderStatus` | `PENDING`, `PAID`, `FAILED`, `CANCELLED`, `REFUNDED` | Estado general de la orden en el Marketplace. |
+| `PaymentStatus` | `PENDING`, `AUTHORIZED`, `FAILED`, `NULLIFIED` | Estado del pago en Webpay Plus. |
+| `VendorOrderStatus` | `PENDING`, `PREPARING`, `SHIPPED`, `DELIVERED`, `CANCELLED` | Estado del despacho o retiro por cada sucursal individual. |
 
-### Relaciones Clave
+### Relaciones Clave de la Arquitectura Multi-Branch
 
-- **Product → InventoryItem**: Un producto puede tener múltiples variantes de inventario, cada una con una combinación única de condición + idioma + acabado (finish).
-- **Product → CardDetail**: Relación 1:1 opcional. Solo productos TCG tienen CardDetail con metadatos de la carta (expansión, rareza, número de colección, atributos).
-- **Order → Payment**: Relación 1:1. Cada orden tiene exactamente un registro de pago asociado.
-- **Finish**: Tiene un constraint `@@unique([name, game])` porque el mismo nombre de acabado puede existir para diferentes juegos.
+1. **Company → Store (1:N):** Una empresa jurídica matriz agrupa a una o más sucursales físicas. Todas las sucursales comparten la personería jurídica y la cuenta bancaria de liquidaciones.
+2. **Suscripción Base + Sucursales Adicionales:** Cada suscripción base (Starter 1.5 UF, Store 3.5 UF, Mega Store 6.5 UF, Enterprise 11.5 UF) cubre una **Casa Matriz** (`isMainBranch = true`). Cada sucursal física adicional paga un Add-on mensual de **+2.5 UF/mes**.
+3. **Consolidación Financiera:** El `balance` acumulado por ventas en el marketplace se centraliza en `Company.balance` para pagos unificados (Payouts), mientras que los arqueos físicos diarios (`CashShift`) operan localmente en cada `Store`.
+4. **Product → InventoryItem:** El inventario vive a nivel de sucursal física (`storeId`), permitiendo que el comprador elija retiro en local específico ($0) o despacho a domicilio cotizado desde la comuna de esa sucursal.
 
 ---
 
@@ -611,7 +611,7 @@ graph TB
 - Token expira en **24 horas**.
 
 ### Autorización
-- Sistema de roles: `USER` y `ADMIN`.
+- Sistema de roles: `USER`, `ADMIN` y `SUPERADMIN`.
 - Guards encadenados: `JwtAuthGuard` → `RolesGuard`.
 - `OptionalJwtAuthGuard` para rutas que aceptan usuarios autenticados y anónimos.
 

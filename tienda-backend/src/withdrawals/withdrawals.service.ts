@@ -10,7 +10,7 @@ export class WithdrawalsService {
       throw new BadRequestException('El monto a retirar debe ser mayor a cero.');
     }
 
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
     if (!store) throw new NotFoundException('Store not found');
 
     if (Number(store.balance) < amount) {
@@ -51,7 +51,7 @@ export class WithdrawalsService {
   }
 
   async getStoreHistory(userId: string) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
     if (!store) throw new NotFoundException('Store not found');
 
     const transactions = await this.prisma.walletTransaction.findMany({

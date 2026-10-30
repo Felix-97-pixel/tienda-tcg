@@ -23,7 +23,7 @@ export class WishlistService {
 
   async getWishlistCount(userId: string) {
     // Find store for the admin
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId }
     });
 

@@ -34,7 +34,7 @@ export class GetOrderStatusHandler
     // Si es ADMIN de tienda, solo mostrar el VendorOrder de su propia tienda
     let filteredVendorOrders = order.vendorOrders;
     if (isAdmin && !isSuperAdmin && query.requesterUserId) {
-      const store = await this.prisma.store.findUnique({
+      const store = await this.prisma.store.findFirst({
         where: { ownerId: query.requesterUserId },
         select: { id: true },
       });

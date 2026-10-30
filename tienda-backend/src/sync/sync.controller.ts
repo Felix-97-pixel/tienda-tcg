@@ -56,7 +56,7 @@ export class SyncController {
     @Query('category') category?: string,
     @Query('expansion') expansion?: string,
   ) {
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: req.user.userId },
     });
     if (!store) {
@@ -82,7 +82,7 @@ export class SyncController {
     if (req.user.email === 'f.pinto.97@gmail.com') {
       throw new BadRequestException("El Superadmin no usa esta función. Solo las tiendas.");
     }
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: req.user.userId }
     });
     if (!store) {

@@ -92,7 +92,7 @@ export class StoresService {
   }
 
   async getStoreByOwner(userId: string) {
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
       include: {
         settings: true,
@@ -123,7 +123,7 @@ export class StoresService {
   }
 
   async findByUserId(userId: string) {
-    return this.prisma.store.findUnique({
+    return this.prisma.store.findFirst({
       where: { ownerId: userId },
       include: {
         subscriptionPlans: { include: { features: true } },
@@ -177,7 +177,7 @@ export class StoresService {
   }
 
   async updateStoreByOwner(userId: string, data: UpdateStoreByOwnerDto) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
     }
@@ -272,7 +272,7 @@ export class StoresService {
   }
 
   async upsertDevaluations(userId: string, gameId: string, devaluationsData: { conditionId: string, multiplier: number }[]) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
     }
@@ -304,7 +304,7 @@ export class StoresService {
   }
 
   async upsertLanguageDevaluations(userId: string, gameId: string, languageDevaluationsData: { languageId: string, multiplier: number }[]) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
     }
@@ -475,7 +475,7 @@ export class StoresService {
         });
       } else {
         // Verificar si el usuario ya tiene tienda
-        const existingStore = await tx.store.findUnique({ where: { ownerId: user.id } });
+        const existingStore = await tx.store.findFirst({ where: { ownerId: user.id } });
         if (existingStore) {
           throw new ConflictException('El usuario ya es dueño de otra tienda.');
         }
@@ -593,7 +593,7 @@ export class StoresService {
 
     if (!company) {
       // Fallback: Si el usuario tiene una Store pero aún no se le creó la Company, la autogeneramos
-      const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+      const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
       if (store) {
         company = await this.prisma.company.create({
           data: {
@@ -663,7 +663,7 @@ export class StoresService {
         isMainBranch: isFirstBranch,
         companyId: company.id,
         // Generamos un ownerId único sintético para la sucursal secundaria respetando el schema
-        ownerId: isFirstBranch ? userId : require('crypto').randomUUID(),
+        ownerId: userId,
       },
       include: {
         originRegion: true,

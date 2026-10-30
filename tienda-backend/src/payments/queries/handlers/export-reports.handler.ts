@@ -11,7 +11,7 @@ export class ExportReportsHandler implements IQueryHandler<ExportReportsQuery> {
 
     let storeId: string | null = null;
     if (role !== 'SUPERADMIN' && userId) {
-      const store = await this.prisma.store.findUnique({
+      const store = await this.prisma.store.findFirst({
         where: { ownerId: userId },
         select: { id: true },
       });

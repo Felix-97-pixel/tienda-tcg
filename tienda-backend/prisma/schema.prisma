@@ -228,7 +228,7 @@ model Store {
   id                   String                      @id @default(uuid())
   companyId            String?
   isMainBranch         Boolean                     @default(true)
-  ownerId              String                      @unique
+  ownerId              String
   name                 String
   subdomain            String                      @unique
   customDomain         String?                     @unique
@@ -294,7 +294,7 @@ model User {
   verificationToken  String?
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
-  store              Store?
+  stores             Store[]
   companies          Company[]
   wishlist           WishlistItem[]
   orders             Order[]

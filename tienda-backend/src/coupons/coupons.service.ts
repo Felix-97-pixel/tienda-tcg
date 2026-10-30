@@ -8,7 +8,7 @@ export class CouponsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getStoreIdByOwner(userId: string): Promise<string> {
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
       select: { id: true },
     });

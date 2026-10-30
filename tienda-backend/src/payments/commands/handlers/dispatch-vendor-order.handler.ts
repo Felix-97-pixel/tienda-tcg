@@ -25,7 +25,7 @@ export class DispatchVendorOrderHandler
     // 1. Obtener usuario y su tienda
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { store: true },
+      include: { stores: true },
     });
 
     if (!user) {
@@ -43,7 +43,7 @@ export class DispatchVendorOrderHandler
     }
 
     // 3. Validar permisos: debe ser el dueño de la tienda o un SUPERADMIN
-    const isOwner = user.store?.id === vendorOrder.storeId;
+    const isOwner = user.stores?.some((s: any) => s.id === vendorOrder.storeId);
     const isSuperAdmin = user.role === 'SUPERADMIN';
 
     if (!isOwner && !isSuperAdmin) {

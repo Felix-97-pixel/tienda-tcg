@@ -87,7 +87,7 @@ export class ShippingService implements OnModuleInit {
    * Asegura que cada tienda tenga sus propios registros independientes en la DB
    */
   async getStoreProviders(userId: string) {
-    let store = await this.prisma.store.findUnique({
+    let store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
     });
 
@@ -150,7 +150,7 @@ export class ShippingService implements OnModuleInit {
     idOrName: string,
     data: { price?: number; isActive?: boolean }
   ) {
-    let store = await this.prisma.store.findUnique({
+    let store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
     });
 

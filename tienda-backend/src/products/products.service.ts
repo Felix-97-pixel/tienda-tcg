@@ -69,7 +69,7 @@ export class ProductsService {
   }
 
   async bulkPublishStoreInventory(userId: string) {
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
       include: { subscriptionPlans: true, settings: true }
     });
@@ -96,7 +96,7 @@ export class ProductsService {
   }
 
   async bulkUpload(categoryId: string, items: any[], userId: string, applyDevaluations: boolean = true) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId }, include: { subscriptionPlans: true, settings: true } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId }, include: { subscriptionPlans: true, settings: true } });
     const storeId = store?.id;
     const results = { added: 0, updated: 0, devaluedCount: 0, errors: [] as { index: number, error: string }[] };
 
@@ -482,7 +482,7 @@ export class ProductsService {
   }
 
   async bulkUpdateStock(items: { id: string, stock: number, originalIndex?: number }[], userId: string) {
-    const store = await this.prisma.store.findUnique({ where: { ownerId: userId } });
+    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
     const storeId = store?.id;
     const results = { updated: 0, errors: [] as { index: number, error: string }[] };
 
@@ -646,7 +646,7 @@ export class ProductsService {
 
 
   async getStoreIdByUserId(userId: string) {
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
       select: { id: true }
     });
@@ -1185,10 +1185,10 @@ export class ProductsService {
     if (userId) {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        include: { store: true }
+        include: { stores: true }
       });
-      if (user?.store) {
-        storeId = storeId || user.store.id;
+      if (user?.stores && user.stores.length > 0) {
+        storeId = storeId || user.stores[0].id;
       }
     }
 

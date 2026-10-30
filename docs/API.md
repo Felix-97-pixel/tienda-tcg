@@ -23,6 +23,9 @@ Dado que la plataforma opera bajo un modelo SaaS, los endpoints de creación y g
 10. [Wishlist](#wishlist)
 11. [Upload](#upload)
 12. [Settings](#settings)
+13. [Stores & Sucursales](#stores--sucursales)
+14. [Punto de Venta POS & Arqueos](#punto-de-venta-pos--arqueos)
+15. [Buylist & Trade-In](#buylist--trade-in)
 
 ---
 
@@ -816,3 +819,182 @@ Actualiza configuraciones globales.
   "pokemon_sync_destination": "singles pokemon"
 }
 ```
+
+
+---
+
+## Stores & Sucursales
+
+Gestión de empresas jurídicas matrices (`Company`) y sucursales físicas (`Store`).
+
+### `GET /stores/me/company` 🛡️
+
+Obtiene la información de la empresa matriz del usuario autenticado y todas sus sucursales asociadas.
+
+**Respuesta (200):**
+```json
+{
+  "id": "uuid-empresa",
+  "name": "Blood Moon Games SpA",
+  "rut": "76.123.456-7",
+  "ownerId": "uuid-owner",
+  "balance": 1540000,
+  "extraBranchesCount": 1,
+  "stores": [
+    {
+      "id": "uuid-store-1",
+      "name": "Blood Moon - Providencia",
+      "subdomain": "bloodmoon",
+      "isMainBranch": true,
+      "address": "Av. Providencia 1234, Local 5",
+      "pickupEnabled": true
+    },
+    {
+      "id": "uuid-store-2",
+      "name": "Blood Moon - Viña del Mar",
+      "subdomain": "bloodmoon-vina",
+      "isMainBranch": false,
+      "address": "Calle Valparaíso 456",
+      "pickupEnabled": true
+    }
+  ]
+}
+```
+
+---
+
+### `GET /stores/me/branches` 🛡️
+
+Lista las sucursales físicas activas de la empresa del usuario.
+
+---
+
+### `POST /stores/me/branches` 🛡️
+
+Registra una nueva sucursal física adicional para la empresa.
+
+**Body:**
+```json
+{
+  "name": "Blood Moon - Concepción",
+  "subdomain": "bloodmoon-concepcion",
+  "address": "Barros Arana 789",
+  "originRegionId": "uuid-region-biobio",
+  "originCommuneId": "uuid-comuna-concepcion",
+  "pickupSchedule": "Lunes a Viernes 11:00 a 19:00 hrs"
+}
+```
+
+**Respuesta (201):**
+```json
+{
+  "id": "uuid-store-3",
+  "name": "Blood Moon - Concepción",
+  "subdomain": "bloodmoon-concepcion",
+  "isMainBranch": false,
+  "pickupEnabled": true,
+  "companyId": "uuid-empresa"
+}
+```
+
+---
+
+### `GET /stores/companies` 🛡️ (SuperAdmin)
+
+Obtiene el directorio global jerárquico de todas las empresas y sus sucursales para el panel de Superadministrador.
+
+---
+
+### `GET /stores/public` 🌐
+
+Lista pública de tiendas para el marketplace con opciones de retiro y métodos de envío.
+
+---
+
+### `GET /stores/public/:subdomain` 🌐
+
+Obtiene la información pública de una tienda por su subdominio (ej: `bloodmoon`).
+
+---
+
+## Punto de Venta POS & Arqueos
+
+Control de mostrador, turnos de caja física y arqueos diarios por sucursal.
+
+### `POST /pos/shifts/open` 🛡️
+
+Abre un nuevo turno de caja para la sucursal activa con monto de apertura en efectivo.
+
+**Body:**
+```json
+{
+  "storeId": "uuid-store-1",
+  "initialCash": 50000
+}
+```
+
+**Respuesta (201):**
+```json
+{
+  "id": "uuid-shift",
+  "storeId": "uuid-store-1",
+  "status": "OPEN",
+  "initialCash": 50000,
+  "openedAt": "2026-10-30T10:00:00.000Z"
+}
+```
+
+---
+
+### `GET /pos/shifts/active` 🛡️
+
+Retorna el turno de caja actualmente abierto en la sucursal para el usuario.
+
+---
+
+### `POST /pos/shifts/close` 🛡️
+
+Realiza el cierre y arqueo de caja del turno activo, comparando el monto contado con el esperado por el sistema.
+
+**Body:**
+```json
+{
+  "shiftId": "uuid-shift",
+  "finalCash": 185000,
+  "notes": "Arqueo sin descuadres"
+}
+```
+
+---
+
+### `POST /pos/checkout` 🛡️
+
+Procesa una venta presencial en mostrador con medios de pago mixtos (efectivo, débito, crédito, transferencia) y descuenta stock atómicamente.
+
+**Body:**
+```json
+{
+  "storeId": "uuid-store-1",
+  "shiftId": "uuid-shift",
+  "items": [
+    { "inventoryItemId": "uuid-item", "quantity": 1, "unitPrice": 15000 }
+  ],
+  "paymentMethod": "CASH",
+  "amountPaid": 20000,
+  "changeAmount": 5000
+}
+```
+
+---
+
+## Buylist & Trade-In
+
+Módulo de compra automatizada de cartas a jugadores para nutrir el inventario físico de las tiendas.
+
+### `GET /buylist/public/:subdomain` 🌐
+
+Obtiene la lista de cartas que la tienda está interesada en comprar, con sus multiplicadores por condición y porcentajes de pago en efectivo vs. Crédito de Tienda.
+
+### `POST /buylist/submissions` 🔒
+
+Envía una solicitud de venta de cartas desde el perfil de un jugador hacia una tienda específica.

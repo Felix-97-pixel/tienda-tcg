@@ -20,7 +20,7 @@ export class MpOAuthController {
     const userId = req.user.userId;
     
     // Find the store belonging to this user
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
     });
 
@@ -161,7 +161,7 @@ export class MpOAuthController {
   async getStatus(@Req() req: Request & { user: { userId: string } }) {
     const userId = req.user.userId;
     
-    const store = await this.prisma.store.findUnique({
+    const store = await this.prisma.store.findFirst({
       where: { ownerId: userId },
     });
 
