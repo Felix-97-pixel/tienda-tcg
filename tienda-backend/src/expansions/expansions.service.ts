@@ -13,6 +13,47 @@ export class ExpansionsService {
     private readonly riftboundService: RiftboundService
   ) {}
 
+  /**
+   * Resuelve cualquier alias o nombre completo de juego hacia su clave canónica y filtro para Prisma.
+   */
+  private resolveGame(game: string): { key: 'magic' | 'pokemon' | 'riftbound'; gameCondition: any } {
+    const g = (game || '').toLowerCase().trim();
+    if (g.includes('magic') || g === 'mtg') {
+      return {
+        key: 'magic',
+        gameCondition: {
+          OR: [
+            { name: { contains: 'magic', mode: 'insensitive' } },
+            { slug: { contains: 'magic', mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+    if (g.includes('pok') || g.includes('pokemon')) {
+      return {
+        key: 'pokemon',
+        gameCondition: {
+          OR: [
+            { name: { contains: 'pok', mode: 'insensitive' } },
+            { slug: { contains: 'pok', mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+    if (g.includes('riftbound')) {
+      return {
+        key: 'riftbound',
+        gameCondition: {
+          OR: [
+            { name: { contains: 'riftbound', mode: 'insensitive' } },
+            { slug: { contains: 'riftbound', mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+    throw new Error(`Juego no soportado para remote sets: ${game}`);
+  }
+
   async getExpansions(page: number = 1, limit: number = 50, gameId?: string, search?: string) {
     const where: any = {};
     if (gameId && gameId !== 'all') {
@@ -81,24 +122,24 @@ export class ExpansionsService {
   }
 
   async getRemoteSets(game: string) {
-    const g = game.toLowerCase();
+    const resolved = this.resolveGame(game);
     let sets = [];
 
-    if (g === 'magic') {
+    if (resolved.key === 'magic') {
       const scryfallSets = await this.magicService.fetchScryfallSets();
       sets = scryfallSets.map(s => ({
         id: s.code.toUpperCase(),
         name: s.name,
         releaseDate: s.released_at
       }));
-    } else if (g === 'pokemon') {
+    } else if (resolved.key === 'pokemon') {
       const pokemonSets = await this.pokemonService.fetchSets();
       sets = pokemonSets.map(s => ({
         id: s.id,
         name: s.name,
         releaseDate: s.releaseDate
       }));
-    } else if (g === 'riftbound') {
+    } else if (resolved.key === 'riftbound') {
       const apiKey = process.env.JUSTTCG_API_KEY;
       if (!apiKey) throw new Error('JUSTTCG_API_KEY not configured');
       const justTcgSets = await this.riftboundService.fetchJustTcgSets(apiKey);
@@ -107,8 +148,6 @@ export class ExpansionsService {
         name: s.name,
         releaseDate: s.release_date
       }));
-    } else {
-      throw new Error(`Juego no soportado para remote sets: ${game}`);
     }
 
     // Sort by name
@@ -116,18 +155,20 @@ export class ExpansionsService {
   }
 
   async autoMapGameExpansions(game: string) {
+    const resolved = this.resolveGame(game);
+
     // 1. Fetch remote sets
     let remoteSets = [];
     try {
       remoteSets = await this.getRemoteSets(game);
-    } catch (e) {
-      throw new Error(`No se pudieron obtener los sets remotos para el juego ${game}`);
+    } catch (e: any) {
+      throw new Error(`No se pudieron obtener los sets remotos para el juego ${game}: ${e.message}`);
     }
 
     // 2. Fix wrongly mapped promos: if a "Promos" expansion stole a base set's code, unmap it
     const allMapped = await this.prisma.expansion.findMany({
       where: {
-        gameRel: { name: { equals: game, mode: 'insensitive' } },
+        gameRel: resolved.gameCondition,
         externalId: { not: null }
       },
       include: { _count: { select: { cardDetails: true } } }
@@ -152,7 +193,7 @@ export class ExpansionsService {
     // 3. Fetch ALL unmapped expansions (including ones we just unmapped)
     const unmapped = await this.prisma.expansion.findMany({
       where: {
-        gameRel: { name: { equals: game, mode: 'insensitive' } },
+        gameRel: resolved.gameCondition,
         OR: [
           { externalId: null },
           { externalId: '' }
@@ -171,7 +212,7 @@ export class ExpansionsService {
     // 5. Collect already-used externalIds
     const alreadyMapped2 = await this.prisma.expansion.findMany({
       where: {
-        gameRel: { name: { equals: game, mode: 'insensitive' } },
+        gameRel: resolved.gameCondition,
         externalId: { not: null }
       },
       select: { externalId: true }
@@ -296,4 +337,3 @@ export class ExpansionsService {
     return (2.0 * intersection) / (a.length - 1 + b.length - 1);
   }
 }
-
