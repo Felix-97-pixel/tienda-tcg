@@ -34,7 +34,7 @@ type OrderDetail = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
-type Status = "success" | "failed" | "cancelled" | "error" | "loading";
+type Status = "success" | "failed" | "cancelled" | "timeout" | "error" | "loading";
 
 const PaymentResultPage = () => {
   const searchParams = useSearchParams();
@@ -43,6 +43,8 @@ const PaymentResultPage = () => {
 
   const tokenWs = searchParams.get("token_ws");
   const tbkToken = searchParams.get("TBK_TOKEN");
+  const tbkOrdenCompra = searchParams.get("TBK_ORDEN_COMPRA");
+  const tbkIdSesion = searchParams.get("TBK_ID_SESION");
   const statusParam = searchParams.get("status") as Status | null;
   const orderId = searchParams.get("orderId");
 
@@ -60,7 +62,29 @@ const PaymentResultPage = () => {
   const committedRef = React.useRef(false);
 
   useEffect(() => {
-    // 1. Caso Retorno de Webpay Plus con token_ws
+    // Caso de Borde 1: Error en formulario de pago Webpay o reintento tras pestaña cerrada/recuperada
+    // Transbank envía simultáneamente token_ws y TBK_TOKEN (la transacción no debe commitearse pues fue abortada)
+    if (tokenWs && tbkToken) {
+      console.warn("[Webpay] Error en formulario de pago detectado (token_ws + TBK_TOKEN).");
+      setStatus("failed");
+      return;
+    }
+
+    // Caso de Borde 2: Timeout en Webpay Plus (usuario superó 5 minutos de inactividad)
+    // Transbank devuelve solo TBK_ORDEN_COMPRA y TBK_ID_SESION (sin token_ws ni TBK_TOKEN)
+    if (!tokenWs && !tbkToken && (tbkOrdenCompra || tbkIdSesion)) {
+      console.warn("[Webpay] Timeout de sesión detectado en Webpay (5 minutos).");
+      setStatus("timeout");
+      return;
+    }
+
+    // Caso 3: Anulación voluntaria por usuario en Webpay Plus (clic en 'Anular compra')
+    if (tbkToken && !tokenWs) {
+      setStatus("cancelled");
+      return;
+    }
+
+    // Caso 4: Retorno estándar de Webpay Plus con token_ws para confirmar (commit)
     if (tokenWs) {
       if (committedRef.current) return;
       committedRef.current = true;
@@ -98,12 +122,6 @@ const PaymentResultPage = () => {
           setStatus("failed");
           setFetchError(true);
         });
-      return;
-    }
-
-    // 2. Caso Anulación voluntaria por usuario en Webpay Plus
-    if (tbkToken) {
-      setStatus("cancelled");
       return;
     }
 
@@ -145,7 +163,7 @@ const PaymentResultPage = () => {
 
     // Si no hay parámetros válidos, redirigir
     router.replace("/");
-  }, [tokenWs, tbkToken, statusParam, orderId, mpStatus, mpPaymentId, mpExternalReference, dispatch, router, searchParams]);
+  }, [tokenWs, tbkToken, tbkOrdenCompra, tbkIdSesion, statusParam, orderId, mpStatus, mpPaymentId, mpExternalReference, dispatch, router, searchParams]);
 
   if (status === "loading") {
     return (
@@ -213,6 +231,8 @@ const PaymentResultPage = () => {
                 ? "¡Gracias por tu compra!"
                 : status === "cancelled"
                 ? "Pago cancelado por el usuario"
+                : status === "timeout"
+                ? "Tiempo de espera agotado en Webpay"
                 : "Tu pago no pudo ser procesado"}
             </h1>
             <p className="text-gray-400 text-sm max-w-md mx-auto">
@@ -220,6 +240,8 @@ const PaymentResultPage = () => {
                 ? "Hemos enviado el comprobante oficial a tu correo. Las tiendas comenzarán a preparar tu pedido."
                 : status === "cancelled"
                 ? "La transacción fue cancelada en la pasarela. Tus cartas siguen guardadas en el carrito."
+                : status === "timeout"
+                ? "La sesión de pago superó el límite de 5 minutos por inactividad en Webpay. No se realizó ningún cargo y tus cartas siguen en el carrito."
                 : "La pasarela de pago no pudo autorizar el cobro. Puedes intentar con otro medio de pago o tarjeta."}
             </p>
           </div>
