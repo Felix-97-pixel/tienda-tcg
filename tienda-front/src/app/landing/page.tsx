@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import PricingSection from "@/app/landing/_components/Marketing/PricingSection";
+import SystemShowcase from "@/app/landing/_components/Marketing/SystemShowcase";
 import {
   IconSparkles,
   IconShieldCheck,
@@ -606,6 +607,13 @@ export default function MarketingPage() {
       {/* =========================================================================
           BENTO GRID: CARACTERÍSTICAS TÉCNICAS
          ========================================================================= */}
+      {/* =========================================================================
+          INTERACTIVE SYSTEM SHOWCASE: REAL ADMIN & POS SCREENSHOTS
+         ========================================================================= */}
+      <div id="showcase" className="scroll-mt-24">
+        <SystemShowcase />
+      </div>
+
       <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
         <div className="text-center mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
