@@ -75,11 +75,6 @@ export class ProductsService {
     });
     if (!store) throw new BadRequestException('Tienda no encontrada.');
 
-    const mpSettingsCount = store.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length;
-    if (mpSettingsCount < 2) {
-      throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder vender.');
-    }
-
     const skuLimit = store.subscriptionPlans?.[0]?.skuLimit ?? -1;
     if (skuLimit !== -1) {
       // Si el plan tiene límite, no pueden publicar todo a lo loco si ya excedieron el límite.
@@ -99,13 +94,6 @@ export class ProductsService {
     const store = await this.prisma.store.findFirst({ where: { ownerId: userId }, include: { subscriptionPlans: true, settings: true } });
     const storeId = store?.id;
     const results = { added: 0, updated: 0, devaluedCount: 0, errors: [] as { index: number, error: string }[] };
-
-    if (store) {
-      const mpSettingsCount = store.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length;
-      if (mpSettingsCount < 2) {
-        throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder vender.');
-      }
-    }
 
     let skuLimit = -1;
     let currentCount = 0;

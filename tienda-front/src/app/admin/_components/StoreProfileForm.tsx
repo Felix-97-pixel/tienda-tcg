@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { IconCheck, IconCreditCard } from "@/components/ui/Icons";
 import dynamic from "next/dynamic";
 import { useStoreProfile } from "./hooks/useStoreProfile";
 
@@ -221,7 +222,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                   </div>
                   <div>
                     <h2 className="text-lg font-black text-white uppercase tracking-tight">Pagos y Cobros</h2>
-                    <p className="text-xs text-white/40 font-medium mt-1">Vincula tu cuenta de Mercado Pago para recibir el dinero de tus ventas directamente.</p>
+                    <p className="text-xs text-white/40 font-medium mt-1">Opcional: Si deseas vincular tu cuenta de Mercado Pago para cobros directos.</p>
                   </div>
                 </div>
 
@@ -234,9 +235,9 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                         Vinculada y activa para recibir pagos
                       </p>
                     ) : (
-                      <p className="text-sm text-red font-medium flex items-center gap-2">
+                      <p className="text-sm text-gray-400 font-medium flex items-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        No vinculada. Debes vincularla para poder vender.
+                        No vinculada (Opcional). Las ventas se liquidan mediante la cuenta central de TapTrade.
                       </p>
                     )}
                   </div>
