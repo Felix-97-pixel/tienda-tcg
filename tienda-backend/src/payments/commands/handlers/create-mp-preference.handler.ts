@@ -224,15 +224,15 @@ export class CreateMpPreferenceHandler
     const totalWithShipping = globalSubtotal + totalShippingCost;
 
     // SaaS Model: Tarifa pasarela Mercado Pago (~3.79% IVA incluido)
-    const gatewayFeeRate = 0.0379;
+    const gatewayFeeRate = 0.05;
     const computedFee = Math.round(totalWithShipping * gatewayFeeRate);
     const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
     const finalChargedAmount = totalWithShipping + gatewayFee;
 
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
     const orderNotes = dto.notes
-      ? `${dto.notes} | Tarifa Mercado Pago (3.79%): $${gatewayFee.toLocaleString('es-CL')}`
-      : `Tarifa Mercado Pago (3.79%): $${gatewayFee.toLocaleString('es-CL')}`;
+      ? `${dto.notes} | Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`
+      : `Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`;
 
     // Guardar orden en BD en estado PENDING
     const order = await this.prisma.order.create({
@@ -306,7 +306,7 @@ export class CreateMpPreferenceHandler
     if (gatewayFee > 0) {
       mpItems.push({
         id: 'GATEWAY-FEE',
-        title: 'Tarifa de procesamiento Mercado Pago (3.79%)',
+        title: 'Tarifa de servicio y protección al comprador (5.00%)',
         quantity: 1,
         unit_price: Math.round(gatewayFee),
         currency_id: 'CLP',

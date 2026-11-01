@@ -232,7 +232,7 @@ export class InitTransactionHandler
     const totalWithShipping = globalSubtotal + totalShippingCost;
 
     // SaaS Model: Traspaso de la tarifa de procesamiento de pasarela al cliente (Webpay Plus: ~2.90%)
-    const gatewayFeeRate = 0.029;
+    const gatewayFeeRate = 0.05;
     const computedFee = Math.round(totalWithShipping * gatewayFeeRate);
     const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
     const finalChargedAmount = totalWithShipping + gatewayFee;
@@ -242,8 +242,8 @@ export class InitTransactionHandler
     const sessionId = `SES-${Date.now()}`.slice(0, 61);
 
     const orderNotes = dto.notes
-      ? `${dto.notes} | Tarifa de pasarela (2.90%): $${gatewayFee.toLocaleString('es-CL')}`
-      : `Tarifa de pasarela (2.90%): $${gatewayFee.toLocaleString('es-CL')}`;
+      ? `${dto.notes} | Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`
+      : `Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`;
 
     // Guardar orden en BD
     const order = await this.prisma.order.create({

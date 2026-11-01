@@ -1,15 +1,16 @@
 /**
- * Utilidades para cálculo de tarifas de procesamiento de pasarelas de pago en Chile.
+ * Utilidades para cálculo de tarifas de procesamiento de pasarelas de pago y protección en Chile.
  * 
- * En el modelo SaaS 0% comisión de TapTrade, la comisión de recaudación de las pasarelas
- * se traspasa de forma transparente al comprador final para que las tiendas reciban el 100%
- * neto de sus ventas y envíos, y la plataforma no asuma costos de procesamiento ajenos.
+ * En el modelo SaaS de TapTrade, las tiendas reciben el 100% neto de sus ventas y envíos (0% comisión a la tienda).
+ * Para financiar los costos transaccionales de las pasarelas (Transbank Webpay Plus / Mercado Pago)
+ * y la garantía de protección al comprador (custodia de fondos, mediación por estado de cartas y checkout multi-tienda),
+ * se aplica una tarifa fija del 5.00% sobre el total de la orden (productos + envíos).
  */
 
 export type PaymentGatewayType = 'MERCADOPAGO' | 'WEBPAY' | 'DEFAULT';
 
 export interface GatewayFeeConfig {
-  /** Tasa porcentual decimal (ej: 0.0379 representa 3.79%) */
+  /** Tasa porcentual decimal (0.05 representa 5.00%) */
   rate: number;
   /** Texto legible del porcentaje */
   percentageText: string;
@@ -20,37 +21,37 @@ export interface GatewayFeeConfig {
 }
 
 export const GATEWAY_FEES: Record<PaymentGatewayType, GatewayFeeConfig> = {
-  // Mercado Pago Chile: 3.19% + IVA (19%) = 3.7961% ≈ 3.79%
-  MERCADOPAGO: {
-    rate: 0.0379,
-    percentageText: '3.79%',
-    label: 'Tarifa de procesamiento Mercado Pago',
-    description: 'Tarjetas de crédito, débito Redcompra y dinero en cuenta.',
-  },
-  // Transbank Webpay Plus: promedio ponderado débito/crédito ~2.9%
+  // Tarifa fija unificada 5.00% para Webpay Plus (cubre Transbank débito 1.49%+IVA / crédito 2.29%+IVA + margen TapTrade)
   WEBPAY: {
-    rate: 0.029,
-    percentageText: '2.90%',
-    label: 'Tarifa de procesamiento Webpay Plus',
-    description: 'Tarjetas de débito Redcompra y crédito bancario.',
+    rate: 0.05,
+    percentageText: '5.00%',
+    label: 'Servicio y Protección al Comprador',
+    description: 'Garantía de estado TCG, custodia de fondos y procesamiento seguro Webpay Plus.',
+  },
+  // Tarifa fija unificada 5.00% para Mercado Pago (cubre 3.19%+IVA + margen TapTrade)
+  MERCADOPAGO: {
+    rate: 0.05,
+    percentageText: '5.00%',
+    label: 'Servicio y Protección al Comprador',
+    description: 'Garantía de estado TCG, custodia de fondos y procesamiento seguro Mercado Pago.',
   },
   DEFAULT: {
-    rate: 0.0379,
-    percentageText: '3.79%',
-    label: 'Tarifa de procesamiento de pago',
-    description: 'Costo por procesamiento electrónico seguro.',
+    rate: 0.05,
+    percentageText: '5.00%',
+    label: 'Servicio y Protección al Comprador',
+    description: 'Garantía de estado TCG, custodia de fondos y procesamiento electrónico seguro.',
   },
 };
 
 /**
- * Calcula el monto en pesos chilenos correspondiente a la tarifa de la pasarela.
+ * Calcula el monto en pesos chilenos correspondiente a la tarifa del comprador (5.00%).
  * @param baseAmount Monto base (Subtotal productos + Envíos cotizados)
  * @param gateway Pasarela seleccionada ('MERCADOPAGO' | 'WEBPAY' | 'DEFAULT')
  * @returns Monto redondeado en CLP de la tarifa
  */
 export function calculatePaymentFee(
   baseAmount: number,
-  gateway: PaymentGatewayType = 'MERCADOPAGO'
+  gateway: PaymentGatewayType = 'WEBPAY'
 ): number {
   if (!baseAmount || baseAmount <= 0) return 0;
   const config = GATEWAY_FEES[gateway] || GATEWAY_FEES.DEFAULT;
@@ -60,6 +61,6 @@ export function calculatePaymentFee(
 /**
  * Obtiene la configuración de una pasarela específica.
  */
-export function getGatewayConfig(gateway: PaymentGatewayType = 'MERCADOPAGO'): GatewayFeeConfig {
+export function getGatewayConfig(gateway: PaymentGatewayType = 'WEBPAY'): GatewayFeeConfig {
   return GATEWAY_FEES[gateway] || GATEWAY_FEES.DEFAULT;
 }

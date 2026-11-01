@@ -1270,7 +1270,7 @@ const CheckoutWebpay = () => {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-300 font-semibold">
-                          {selectedGateway === "WEBPAY" ? "Tarifa Webpay Plus" : "Tarifa Mercado Pago"}
+                          {gatewayConfig.label}
                         </span>
                         <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${selectedGateway === "WEBPAY"
                           ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
@@ -1292,7 +1292,7 @@ const CheckoutWebpay = () => {
                     <div>
                       <span className="text-sm font-bold text-white block">Total Final a Pagar</span>
                       <span className="text-[10px] text-emerald-400 font-medium">
-                        Precios directos de tienda • 0% comisión
+                        Precios directos de tienda • Compra 100% protegida
                       </span>
                     </div>
                     <div className="text-right">
