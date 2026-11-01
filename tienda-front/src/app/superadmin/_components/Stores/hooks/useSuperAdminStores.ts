@@ -1,5 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { adminLogout } from "@/redux/features/admin-auth-slice";
 import { API_URL } from "@/utils/api";
 import toast from "react-hot-toast";
 
@@ -37,6 +40,9 @@ export interface Company {
 }
 
 export function useSuperAdminStores() {
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   const [companies, setCompanies] = useState<Company[]>([]);
   const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,29 +64,54 @@ export function useSuperAdminStores() {
   const [selectedCompanyForBranch, setSelectedCompanyForBranch] = useState<Company | null>(null);
   const [isSubmittingBranch, setIsSubmittingBranch] = useState(false);
 
+  const getAuthHeaders = (extraHeaders?: Record<string, string>): Record<string, string> => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const headers: Record<string, string> = { "x-auth-scope": "admin", ...(extraHeaders || {}) };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+  };
+
+  const handleUnauthorized = useCallback(() => {
+    dispatch(adminLogout());
+    toast.error("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+    router.push("/admin/login");
+  }, [dispatch, router]);
+
   const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_URL}/stores/companies`, {
         credentials: "include",
-        headers: { "x-auth-scope": "admin" },
+        headers: getAuthHeaders(),
       });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Error al obtener las empresas");
       const data = await res.json();
       setCompanies(data);
-    } catch {
-      toast.error("Hubo un error cargando las empresas.");
+    } catch (err: any) {
+      if (err.message !== "Error al obtener las empresas") {
+        toast.error("Hubo un error cargando las empresas.");
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [handleUnauthorized]);
 
   const fetchPlans = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/features/plans`, {
         credentials: "include",
-        headers: { "x-auth-scope": "admin" },
+        headers: getAuthHeaders(),
       });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setAvailablePlans(data);
@@ -88,7 +119,7 @@ export function useSuperAdminStores() {
     } catch {
       // silent
     }
-  }, []);
+  }, [handleUnauthorized]);
 
   useEffect(() => {
     fetchCompanies();
@@ -102,11 +133,16 @@ export function useSuperAdminStores() {
 
   const handleCreateStore = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.storeName || !formData.subdomain || !formData.ownerEmail || !formData.ownerPassword) {
+      toast.error("Completa todos los campos requeridos");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const res = await fetch(`${API_URL}/stores`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-auth-scope": "admin" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify({
           name: formData.storeName,
@@ -117,6 +153,11 @@ export function useSuperAdminStores() {
           ownerPassword: formData.ownerPassword,
         }),
       });
+
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -149,10 +190,15 @@ export function useSuperAdminStores() {
       setIsSubmittingBranch(true);
       const res = await fetch(`${API_URL}/stores/companies/${companyId}/branches`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-auth-scope": "admin" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify(data),
       });
+
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -174,10 +220,16 @@ export function useSuperAdminStores() {
     try {
       const res = await fetch(`${API_URL}/stores/companies/${companyId}/plan`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-auth-scope": "admin" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify({ planId }),
       });
+
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
       if (!res.ok) throw new Error("Error al asignar el plan");
       toast.success("Plan de suscripción actualizado");
       fetchCompanies();
@@ -192,8 +244,14 @@ export function useSuperAdminStores() {
       const res = await fetch(`${API_URL}/stores/${id}`, {
         method: "DELETE",
         credentials: "include",
-        headers: { "x-auth-scope": "admin" },
+        headers: getAuthHeaders(),
       });
+
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
       if (!res.ok) throw new Error("No se pudo eliminar la tienda");
       toast.success("Sucursal eliminada.");
       fetchCompanies();

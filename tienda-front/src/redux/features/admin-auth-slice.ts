@@ -89,6 +89,7 @@ export const adminAuthSlice = createSlice({
       if (typeof window !== "undefined") {
         localStorage.removeItem("admin_user");
         localStorage.removeItem("admin_features");
+        localStorage.removeItem("admin_token");
         document.cookie = "taptrade_admin_session=; path=/; max-age=0; SameSite=Lax";
       }
     },

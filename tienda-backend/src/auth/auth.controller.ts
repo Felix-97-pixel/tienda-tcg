@@ -20,7 +20,7 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(loginDto);
     this.setCookie(res, result.access_token);
-    return { user: result.user };
+    return { user: result.user, access_token: result.access_token };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -32,7 +32,7 @@ export class AuthController {
       throw new UnauthorizedException('Acceso denegado. No tienes permisos de administrador.');
     }
     this.setAdminCookie(res, result.access_token);
-    return { user: result.user };
+    return { user: result.user, access_token: result.access_token };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -83,7 +83,7 @@ export class AuthController {
   async googleLogin(@Body() googleAuthDto: GoogleAuthDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.googleLogin(googleAuthDto);
     this.setCookie(res, result.access_token);
-    return { user: result.user };
+    return { user: result.user, access_token: result.access_token };
   }
 
 
@@ -94,7 +94,7 @@ export class AuthController {
       httpOnly: true, // Inaccesible para JavaScript en el frontend
       secure: isProduction, // Solo HTTPS en producción (obligatorio para sameSite 'none')
       sameSite: isProduction ? 'none' : 'lax', // 'none' permite cross-domain en prod, 'lax' para local
-      maxAge: 1000 * 60 * 60 * 24, // 1 día
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
     });
   }
 
@@ -104,7 +104,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
-      maxAge: 1000 * 60 * 60 * 24, // 1 día
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
     });
   }
 }

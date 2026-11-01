@@ -47,6 +47,9 @@ export function useAdminSignin() {
         throw new Error("Acceso denegado. No tienes permisos de administrador.");
       }
       
+      if (data.access_token) {
+        localStorage.setItem("admin_token", data.access_token);
+      }
       dispatch(adminLoginSuccess({ user: data.user }));
 
       if (data.user.role === "SUPERADMIN") {
