@@ -232,7 +232,7 @@ Planes SaaS contratables por los dueños de tiendas (Básico, Pro, Enterprise).
 * `description` (`String?`)
 * `price` (`Decimal(10,2)`): Costo mensual del plan.
 * `skuLimit` (`Int`, default: -1): Límite de cartas/productos únicos en inventario (-1 = ilimitado).
-* `commissionRate` (`Decimal(5,4)`, default: 0): Comisión porcentual sobre ventas (actualmente 0%).
+* `commissionRate` (`Decimal(5,4)`, default: 0): Comisión porcentual sobre ventas a la tienda (0.00% bajo el modelo SaaS actual; el 5.00% de servicio y protección lo asume el comprador en checkout).
 * `isStandard` (`Boolean`, default: `true`).
 * **Relaciones:** `features`, `stores`.
 
@@ -346,8 +346,8 @@ Lista de deseos de cartas de los compradores.
 * `buyOrder` (`String`, Unique): Código alfanumérico único de compra para el banco/pasarela.
 * `userId` (`String?`, FK -> `User`): Comprador registrado (o `null` para checkout como invitado).
 * `email`, `name`, `phone`, `address`, `city`, `cityCode`, `regionCode` (`String`): Datos de contacto y entrega.
-* `notes` (`String?`): Instrucciones especiales de entrega o notas de tarifa pasarela.
-* `totalAmount` (`Decimal(10,2)`): Monto final total cobrado al cliente (Productos + Envíos + Tarifa de Pasarela).
+* `notes` (`String?`): Instrucciones especiales de entrega o notas de tarifa de servicio ("Tarifa de servicio y protección al comprador (5.00%): $X").
+* `totalAmount` (`Decimal(10,2)`): Monto final total cobrado al cliente (Productos + Envíos + Tarifa de Servicio y Protección 5%).
 * `currencyCode` (`String?`, default: "CLP").
 * `exchangeRate` (`Decimal(10,2)?`).
 * `status` (`OrderStatus`, enum: `PENDING`, `PAID`, `FAILED`, `CANCELLED`, `REFUNDED`).

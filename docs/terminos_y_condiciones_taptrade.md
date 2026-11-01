@@ -5,7 +5,7 @@
 **Domicilio Legal:** Padre Mariano N° 98, Oficina 315, Comuna de Providencia, Región Metropolitana, Santiago de Chile  
 **Correo Electrónico de Contacto:** legal@taptrade.cl / contacto@taptrade.cl  
 **Sitio Web Oficial:** https://www.taptrade.cl  
-**Fecha de Última Actualización:** 15 de Octubre de 2026  
+**Fecha de Última Actualización:** 1 de Noviembre de 2026  
 
 ---
 
@@ -40,30 +40,34 @@
 
 ---
 
-## 4. PRECIOS, COMISIONES Y MECÁNICA DE PAGOS (SPLIT PAYMENTS)
+## 4. PRECIOS, MODELO SAAS, PAGOS Y TARIFA DE PROTECCIÓN AL COMPRADOR
 
-4.1. **Moneda y Tributación:** Todos los precios exhibidos en la Plataforma están expresados en Pesos Chilenos (CLP) y, en el caso de productos vendidos por Tiendas Adheridas afectas a IVA, incluyen los impuestos correspondientes. Es obligación legal exclusiva de cada Tienda Adherida emitir la respectiva Boleta o Factura Electrónica de Venta al Comprador por los productos transados. TapTrade emitirá la correspondiente Factura de Servicios a la Tienda por concepto de comisiones o suscripciones mensuales.
+4.1. **Moneda y Tributación:** Todos los precios exhibidos en la Plataforma están expresados en Pesos Chilenos (CLP) y fijados directamente por las Tiendas Adheridas. En el caso de productos vendidos por comercios afectos a IVA, los precios incluyen los impuestos correspondientes. Es obligación legal exclusiva de cada Tienda Adherida emitir la respectiva Boleta o Factura Electrónica de Venta al Comprador final por los productos y servicios de transporte comercializados. TapTrade SpA emitirá la correspondiente Factura Electrónica de Servicios Informáticos a la Tienda por su suscripción mensual de software.
 
-4.2. **Fórmula de Precios y Gross-Up:**
-- La Tienda Adherida define libremente el **Monto Neto Solicitado** que desea percibir de forma líquida por cada producto.
-- Para garantizar que el vendedor reciba exactamente su monto neto tras las deducciones de pasarela y plataforma, TapTrade aplica un cálculo de Gross-Up:
-  $$\text{Precio Teórico} = \frac{\text{Monto Neto Solicitado}}{1 - (\text{Comisión Pasarela} + \text{Comisión Plan TapTrade})}$$
-- El precio final visible al público se redondea al múltiplo superior de **$50 CLP** más cercano para estandarizar la experiencia visual del catálogo.
-- La diferencia de redondeo es absorbida por TapTrade para costear la infraestructura y no afecta en caso alguno el monto líquido garantizado al vendedor.
+4.2. **Cero Comisión por Venta para Tiendas (Take Rate 0%):** TapTrade SpA no cobra comisión porcentual por venta a las Tiendas Adheridas. El 100% íntegro del subtotal de cartas, productos y costos de despacho fijados en vitrina o cotizados por courier es transferido y liquidado a la tienda vendedora.
 
-4.3. **Planes de Suscripción y Comisiones de Venta:**
-Las tiendas pueden adherirse a distintos niveles de servicio según la estructura tarifaria vigente:
-- **Plan Starter:** Comisión del 7.0% por venta sobre el precio visible (+ comisión de pasarela de pago). Sin costo mensual fijo.
-- **Plan Pro:** Comisión reducida del 5.0% por venta sobre el precio visible (+ pasarela). Cuota de suscripción periódica según tarifario.
-- **Plan Business:** Comisión reducida del 3.0% por venta sobre el precio visible (+ pasarela). Cuota de suscripción periódica según tarifario.
-- **Plan Enterprise:** Comisión preferencial del 1.5% por venta sobre el precio visible (+ pasarela).
+4.3. **Modelo de Suscripción Fija (SaaS):** Las tiendas acceden a la infraestructura de software, catálogos sincronizados, módulo POS y panel administrativo mediante suscripciones mensuales fijas en Unidades de Fomento (UF) o pesos convertibles:
+- **Plan Starter:** 1.5 UF/mes (hasta 1.500 cartas publicadas). Comisión por venta: 0%.
+- **Plan Store:** 3.5 UF/mes (hasta 7.500 cartas publicadas). Comisión por venta: 0%.
+- **Plan Pro / Pioneras:** 10 UF/mes (5 UF/mes con descuento preferencial; hasta 20.000 cartas). Comisión por venta: 0%.
+- **Plan Enterprise:** 15 UF/mes (7.5 UF/mes con descuento preferencial; catálogo ilimitado). Comisión por venta: 0%.
 
-4.4. **Pasarelas de Pago y Retención Cautelar:**
-- Los pagos en línea se procesan mediante pasarelas autorizadas por la Comisión para el Mercado Financiero (CMF), incluyendo **Mercado Pago (Advanced Payments / Split Payments)** y **Transbank (Webpay Plus)**.
-- Mediante el mecanismo de Split Payments, el monto pagado por el Comprador se divide automáticamente en el momento de la confirmación: la pasarela retiene su tarifa operativa (ej. 3.8%), TapTrade percibe su comisión de servicio, y el saldo neto remanente se acredita en la cuenta del Vendedor.
-- TapTrade y las pasarelas de pago se reservan la facultad de retener temporalmente la dispersión de fondos de una venta ante sospechas fundadas de fraude, desconocimiento de compra (contracargos bancarios) o disputas activas por estado o no entrega de productos.
+4.4. **Tarifa de Servicio y Protección al Comprador (5.00%):**
+- A fin de garantizar la custodia transitoria de fondos en depósito fiduciario (escrow), la autenticidad e inspección de estado de cartas coleccionables (TCG Buyer Guarantee), la cobertura ante extravíos, la mediación imparcial en disputas y los costos operativos de las pasarelas de pago bancarias autorizadas (Transbank Webpay Plus y Mercado Pago), se aplica al Comprador en el resumen de checkout una tarifa fija y transparente del **5.00%** sobre el valor total consolidado de la orden (productos + fletes).
+- Dicha tarifa es pagada de forma transparente por el Comprador al momento de finalizar la compra y permite que las Tiendas Adheridas perciban el 100% líquido de sus precios de vitrina.
+- TapTrade SpA emitirá la respectiva Boleta Electrónica de Servicios al Comprador por el monto individualizado de esta tarifa.
 
-4.5. **Cupones de Descuento:** Las tiendas pueden generar cupones promocionales. El costo del descuento es asumido íntegramente por la tienda, y las comisiones de TapTrade y pasarela se calculan sobre el precio efectivamente pagado por el Comprador tras la rebaja.
+4.5. **Mandato Mercantil de Recaudación y Liquidación por Cuenta de Terceros:**
+- Cada Tienda Adherida confiere expresamente a TapTrade SpA un mandato comercial para recaudar, percibir y custodiar temporalmente en su cuenta bancaria de empresa los dineros correspondientes a las órdenes pagadas por los Compradores a través de Webpay Plus o Mercado Pago.
+- La custodia opera como un depósito transitorio de fondos de terceros con rendición de cuentas.
+- Una vez despachado el pedido y verificado su estado o transcurrido el plazo de confirmación logística, TapTrade SpA transfiere a la Tienda Adherida mandante el 100% de los fondos recaudados por concepto de mercadería y transporte, emitiendo una Cartola o Liquidación de Mandato.
+- La Tienda Adherida reconoce ser la única obligada tributaria ante el Servicio de Impuestos Internos (SII) respecto del IVA y los ingresos generados por la venta material de las cartas y productos.
+
+4.6. **Pasarelas de Pago y Retención Cautelar:**
+- Los pagos en línea se procesan mediante pasarelas autorizadas por la Comisión para el Mercado Financiero (CMF), incluyendo **Transbank (Webpay Plus)** y **Mercado Pago**.
+- TapTrade y las pasarelas se reservan la facultad de retener temporalmente la dispersión de fondos de una venta ante sospechas fundadas de fraude, desconocimiento de compra (contracargos bancarios) o disputas activas por estado o no entrega de productos hasta su resolución.
+
+4.7. **Cupones de Descuento:** Las tiendas pueden generar cupones promocionales sobre su inventario. El costo del descuento es asumido íntegramente por la tienda oferente sobre su precio publicado.
 
 ---
 
@@ -165,7 +169,7 @@ De conformidad con lo dispuesto en el artículo 3° bis letra b) de la **Ley N°
 
 11.1. **Disponibilidad Técnica:** TapTrade realiza sus mejores esfuerzos para garantizar una disponibilidad continua y segura de la Plataforma. Sin embargo, no garantiza la ausencia total de interrupciones de servicio provocadas por caídas de servidores de alojamiento, ataques cibernéticos de denegación de servicio (DDoS), fallas de telecomunicaciones o mantenimientos programados de fuerza mayor.
 
-11.2. **Límite Cuantitativo de Responsabilidad:** En la máxima medida permitida por el ordenamiento jurídico chileno, la responsabilidad civil extracontractual o contractual total de TapTrade SpA frente a cualquier Usuario por reclamaciones derivadas del uso de la Plataforma o transacciones efectuadas a través de la misma estará limitada como tope máximo al monto correspondiente a la comisión efectivamente percibida por TapTrade en la transacción específica origen del reclamo, o al importe de $100.000 CLP, aplicándose la cifra que resulte menor.
+11.2. **Límite Cuantitativo de Responsabilidad:** En la máxima medida permitida por el ordenamiento jurídico chileno, la responsabilidad civil extracontractual o contractual total de TapTrade SpA frente a cualquier Usuario por reclamaciones derivadas del uso de la Plataforma o transacciones efectuadas a través de la misma estará limitada como tope máximo al monto correspondiente a la tarifa de servicio efectivamente percibida por TapTrade en la transacción específica origen del reclamo, o al importe de $100.000 CLP, aplicándose la cifra que resulte menor.
 
 11.3. **Indemnidad:** Cada Usuario y Tienda Adherida se compromete a indemnizar, defender y mantener indemne a TapTrade SpA, sus directores, administradores, empleados y agentes frente a cualquier reclamo, demanda, sanción administrativa, multa o acción judicial iniciada por terceros derivada de la infracción de estos Términos y Condiciones, de leyes aplicables o de derechos de propiedad intelectual cometida por el Usuario.
 

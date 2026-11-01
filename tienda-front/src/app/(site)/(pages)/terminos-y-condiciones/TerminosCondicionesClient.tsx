@@ -36,7 +36,7 @@ const TerminosCondicionesClient = () => {
       title="Términos y Condiciones | TapTrade Chile"
       navTitle="Índice de Cláusulas"
       links={sidebarLinks}
-      lastUpdated="Última actualización: 15 de Octubre de 2026"
+      lastUpdated="Última actualización: 1 de Noviembre de 2026"
       backToShopText="Volver al Marketplace"
     >
       {/* Header Overview Card */}
@@ -216,6 +216,20 @@ const TerminosCondicionesClient = () => {
 
             <p>
               <strong className="text-white font-mono">4.4. Descuentos y Condiciones Especiales:</strong> La administración de TapTrade podrá acordar y configurar en el sistema porcentajes o montos de descuento preferencial sobre la cuota mensual de software para tiendas pioneras o acuerdos comerciales específicos.
+            </p>
+
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 flex items-start gap-3 mt-1">
+              <IconShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="text-xs">
+                <span className="font-bold text-white block mb-0.5">
+                  4.5. Tarifa de Servicio y Protección al Comprador (5.00%):
+                </span>
+                Para financiar los costos transaccionales de las pasarelas de pago bancarias autorizadas (Transbank Webpay Plus y Mercado Pago), la custodia transitoria de fondos en depósito fiduciario (escrow), la garantía de autenticidad y estado de cartas TCG, y la infraestructura de checkout multi-tienda unificado, se aplica al Comprador en el resumen de compra una tarifa fija y transparente del <strong>5.00%</strong> sobre el importe total consolidado (productos + envíos). Esta tarifa es asumida directamente por el Comprador al momento del pago, asegurando que las Tiendas Adheridas perciban el 100% neto de los precios fijados en sus vitrinas sin descuentos por comisiones de venta. TapTrade SpA emitirá la respectiva Boleta Electrónica de Servicios al Comprador por el monto correspondiente a esta tarifa.
+              </div>
+            </div>
+
+            <p>
+              <strong className="text-white font-mono">4.6. Mandato Comercial de Recaudación y Liquidación por Cuenta de Terceros:</strong> La Tienda Adherida confiere a TapTrade SpA un mandato mercantil expreso para actuar en su nombre y representación como mandatario de recaudación, cobranza y custodia temporal de los dineros pagados por los Compradores en la Plataforma. En consecuencia, la Tienda Adherida es el único sujeto tributario obligado a emitir la Boleta o Factura Electrónica de Ventas y Servicios al Comprador final por los productos y despachos transados. TapTrade SpA rendirá cuenta periódica de los fondos recaudados y transferirá a la Tienda el 100% del valor de sus ventas y envíos a la cuenta bancaria comercial registrada.
             </p>
           </div>
         </LegalSection>
