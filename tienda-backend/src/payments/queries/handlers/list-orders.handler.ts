@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ListOrdersQuery } from '../impl/list-orders.query';
+import { resolveQueryStoreId } from './resolve-query-store';
 
 /**
  * Handler: Lista órdenes con paginación para el panel administrativo.
@@ -13,16 +14,7 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
     const { page, limit, userId, role, status, deliveryStatus } = query;
     const skip = (page - 1) * limit;
 
-    let storeId: string | null = null;
-    if (role !== 'SUPERADMIN' && userId) {
-      const store = await this.prisma.store.findFirst({
-        where: { ownerId: userId },
-        select: { id: true },
-      });
-      if (store) {
-        storeId = store.id;
-      }
-    }
+    const storeId = await resolveQueryStoreId(this.prisma, userId, role, query.storeId);
 
     // Regla operativa: en el panel de despacho y trabajo de la tienda,
     // solo se procesan órdenes PAGADAS (status: PAID).

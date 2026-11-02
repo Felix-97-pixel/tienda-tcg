@@ -5,5 +5,6 @@ export class ExportReportsQuery implements IQuery {
     public readonly type: 'inventory' | 'deadstock' | 'transactions' | 'lowstock',
     public readonly userId?: string,
     public readonly role?: string,
+    public readonly storeId?: string,
   ) {}
 }

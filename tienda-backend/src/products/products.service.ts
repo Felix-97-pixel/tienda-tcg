@@ -68,19 +68,33 @@ export class ProductsService {
     });
   }
 
-  async bulkPublishStoreInventory(userId: string) {
+  async bulkPublishStoreInventory(userId: string, targetStoreId?: string) {
+    let whereCondition: any = {
+      OR: [
+        { ownerId: userId },
+        { members: { some: { userId } } },
+        { company: { ownerId: userId } },
+        { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN'] } } } } },
+      ],
+    };
+
+    if (targetStoreId) {
+      whereCondition = {
+        id: targetStoreId,
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { company: { ownerId: userId } },
+          { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN'] } } } } },
+        ],
+      };
+    }
+
     const store = await this.prisma.store.findFirst({
-      where: { ownerId: userId },
+      where: whereCondition,
       include: { subscriptionPlans: true, settings: true }
     });
     if (!store) throw new BadRequestException('Tienda no encontrada.');
-
-    const skuLimit = store.subscriptionPlans?.[0]?.skuLimit ?? -1;
-    if (skuLimit !== -1) {
-      // Si el plan tiene límite, no pueden publicar todo a lo loco si ya excedieron el límite.
-      // (En realidad, el límite es sobre el total de cartas, publicadas o no, así que publicar no cuesta extra de límite.
-      // Ya están creadas en la base de datos).
-    }
 
     const res = await this.prisma.inventoryItem.updateMany({
       where: { storeId: store.id, isPublished: false },
@@ -90,8 +104,29 @@ export class ProductsService {
     return { published: res.count };
   }
 
-  async bulkUpload(categoryId: string, items: any[], userId: string, applyDevaluations: boolean = true) {
-    const store = await this.prisma.store.findFirst({ where: { ownerId: userId }, include: { subscriptionPlans: true, settings: true } });
+  async bulkUpload(categoryId: string, items: any[], userId: string, applyDevaluations: boolean = true, targetStoreId?: string) {
+    let whereCondition: any = {
+      OR: [
+        { ownerId: userId },
+        { members: { some: { userId } } },
+        { company: { ownerId: userId } },
+        { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN'] } } } } },
+      ],
+    };
+
+    if (targetStoreId) {
+      whereCondition = {
+        id: targetStoreId,
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { company: { ownerId: userId } },
+          { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN'] } } } } },
+        ],
+      };
+    }
+
+    const store = await this.prisma.store.findFirst({ where: whereCondition, include: { subscriptionPlans: true, settings: true } });
     const storeId = store?.id;
     const results = { added: 0, updated: 0, devaluedCount: 0, errors: [] as { index: number, error: string }[] };
 
@@ -633,10 +668,32 @@ export class ProductsService {
   }
 
 
-  async getStoreIdByUserId(userId: string) {
+  async getStoreIdByUserId(userId: string, requestedStoreId?: string) {
+    let whereCondition: any = {
+      OR: [
+        { ownerId: userId },
+        { members: { some: { userId } } },
+        { company: { ownerId: userId } },
+        { company: { members: { some: { userId } } } },
+      ],
+    };
+
+    if (requestedStoreId) {
+      whereCondition = {
+        id: requestedStoreId,
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { company: { ownerId: userId } },
+          { company: { members: { some: { userId } } } },
+        ],
+      };
+    }
+
     const store = await this.prisma.store.findFirst({
-      where: { ownerId: userId },
-      select: { id: true }
+      where: whereCondition,
+      select: { id: true },
+      orderBy: { isMainBranch: 'desc' },
     });
     return store?.id;
   }
@@ -1166,17 +1223,16 @@ export class ProductsService {
     });
   }
 
-  async addInventoryItem(productId: string, data: any, userId: string | null = null) {
+  async addInventoryItem(productId: string, data: any, userId: string | null = null, targetStoreId?: string) {
     const { languageId, conditionId, price, stock, finishId } = data;
 
-    let storeId: string | null = null;
-    if (userId) {
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: { stores: true }
-      });
-      if (user?.stores && user.stores.length > 0) {
-        storeId = storeId || user.stores[0].id;
+    let storeId: string | null = data.storeId || targetStoreId || null;
+    if (!storeId && userId) {
+      storeId = (await this.getStoreIdByUserId(userId)) || null;
+    } else if (storeId && userId) {
+      const verifiedStoreId = await this.getStoreIdByUserId(userId, storeId);
+      if (verifiedStoreId) {
+        storeId = verifiedStoreId;
       }
     }
 

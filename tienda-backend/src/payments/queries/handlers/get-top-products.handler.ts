@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { GetTopProductsQuery } from '../impl/get-top-products.query';
+import { resolveQueryStoreId } from './resolve-query-store';
 
 @QueryHandler(GetTopProductsQuery)
 export class GetTopProductsHandler implements IQueryHandler<GetTopProductsQuery> {
@@ -9,16 +10,7 @@ export class GetTopProductsHandler implements IQueryHandler<GetTopProductsQuery>
   async execute(query: GetTopProductsQuery) {
     const { userId, role, startDate, endDate } = query;
 
-    let storeId: string | null = null;
-    if (role !== 'SUPERADMIN' && userId) {
-      const store = await this.prisma.store.findFirst({
-        where: { ownerId: userId },
-        select: { id: true },
-      });
-      if (store) {
-        storeId = store.id;
-      }
-    }
+    const storeId = await resolveQueryStoreId(this.prisma, userId, role, query.storeId);
 
     const whereClause: any = {
       vendorOrder: {

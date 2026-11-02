@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch, API_URL } from "@/utils/api";
 import { downloadCSV } from "@/utils/exportUtils";
 import { SalesReportData, ChartDataItem } from "../types/sales.types";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 
 export function useSalesAnalytics(features: string[]) {
+  const { activeBranchId } = useActiveBranch();
   const [data, setData] = useState<SalesReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -13,10 +15,7 @@ export function useSalesAnalytics(features: string[]) {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`${API_URL}/payments/reports/advanced`, {
-        credentials: "include",
-        headers: { "x-auth-scope": "admin" },
-      });
+      const res = await adminFetch("/payments/reports/advanced");
       if (res.status === 401) {
         if (typeof window !== "undefined") {
           localStorage.removeItem("admin_user");
@@ -43,7 +42,7 @@ export function useSalesAnalytics(features: string[]) {
     if (features.includes("addon:reports")) {
       fetchReports();
     }
-  }, [features, fetchReports]);
+  }, [features, fetchReports, activeBranchId]);
 
   const handleDownloadCSV = async (type: 'inventory' | 'deadstock' | 'transactions') => {
     try {

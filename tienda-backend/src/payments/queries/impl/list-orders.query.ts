@@ -9,5 +9,6 @@ export class ListOrdersQuery {
     public readonly role?: string,
     public readonly status?: string,
     public readonly deliveryStatus?: string,
+    public readonly storeId?: string,
   ) {}
 }

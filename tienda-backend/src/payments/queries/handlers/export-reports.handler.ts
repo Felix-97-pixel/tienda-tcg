@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ExportReportsQuery } from '../impl/export-reports.query';
+import { resolveQueryStoreId } from './resolve-query-store';
 
 @QueryHandler(ExportReportsQuery)
 export class ExportReportsHandler implements IQueryHandler<ExportReportsQuery> {
@@ -9,16 +10,7 @@ export class ExportReportsHandler implements IQueryHandler<ExportReportsQuery> {
   async execute(query: ExportReportsQuery) {
     const { type, userId, role } = query;
 
-    let storeId: string | null = null;
-    if (role !== 'SUPERADMIN' && userId) {
-      const store = await this.prisma.store.findFirst({
-        where: { ownerId: userId },
-        select: { id: true },
-      });
-      if (store) {
-        storeId = store.id;
-      }
-    }
+    const storeId = await resolveQueryStoreId(this.prisma, userId, role, query.storeId);
 
     if (type === 'inventory' || type === 'deadstock') {
       const items = await this.prisma.inventoryItem.findMany({

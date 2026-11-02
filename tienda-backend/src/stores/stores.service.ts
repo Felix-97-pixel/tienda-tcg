@@ -316,8 +316,8 @@ export class StoresService {
     return this.getStoreByOwner(userId);
   }
 
-  async upsertDevaluations(userId: string, gameId: string, devaluationsData: { conditionId: string, multiplier: number }[]) {
-    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
+  async upsertDevaluations(userId: string, gameId: string, devaluationsData: { conditionId: string, multiplier: number }[], requestedStoreId?: string) {
+    const store = await this.getStoreByOwner(userId, requestedStoreId);
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
     }
@@ -348,8 +348,8 @@ export class StoresService {
     return this.getStoreByOwner(userId);
   }
 
-  async upsertLanguageDevaluations(userId: string, gameId: string, languageDevaluationsData: { languageId: string, multiplier: number }[]) {
-    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
+  async upsertLanguageDevaluations(userId: string, gameId: string, languageDevaluationsData: { languageId: string, multiplier: number }[], requestedStoreId?: string) {
+    const store = await this.getStoreByOwner(userId, requestedStoreId);
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
     }
@@ -671,13 +671,13 @@ export class StoresService {
   }
 
 
-  async getExchangeRates(userId: string) {
-    const store = await this.getStoreByOwner(userId);
+  async getExchangeRates(userId: string, requestedStoreId?: string) {
+    const store = await this.getStoreByOwner(userId, requestedStoreId);
     return this.prisma.storeGameExchangeRate.findMany({ where: { storeId: store.id }, include: { game: true } });
   }
 
-  async upsertExchangeRate(userId: string, data: { gameId: string, rate: number }) {
-    const store = await this.getStoreByOwner(userId);
+  async upsertExchangeRate(userId: string, data: { gameId: string, rate: number }, requestedStoreId?: string) {
+    const store = await this.getStoreByOwner(userId, requestedStoreId);
     return this.prisma.storeGameExchangeRate.upsert({
       where: { storeId_gameId: { storeId: store.id, gameId: data.gameId } },
       update: { rate: data.rate },
@@ -686,8 +686,8 @@ export class StoresService {
     });
   }
 
-  async deleteExchangeRate(userId: string, id: string) {
-    const store = await this.getStoreByOwner(userId);
+  async deleteExchangeRate(userId: string, id: string, requestedStoreId?: string) {
+    const store = await this.getStoreByOwner(userId, requestedStoreId);
     return this.prisma.storeGameExchangeRate.delete({ where: { id, storeId: store.id } });
   }
 

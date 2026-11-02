@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
+import { IconStore } from "@/components/ui/Icons";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/ui/Modal";
@@ -19,12 +21,13 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
   const t = useTranslations("products");
   const tc = useTranslations("common");
   const { showToast } = useToast();
+  const { activeBranch } = useActiveBranch();
   const [product, setProduct] = useState(initialProduct);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const refreshProduct = async () => {
     try {
-      const res = await fetch(`${API_URL}/products/${product?.id}`, { credentials: "include" });
+      const res = await adminFetch(`/products/${product?.id}`);
       const data = await res.json();
       if (res.ok) setProduct(data);
     } catch (err) {
@@ -49,8 +52,8 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
   });
 
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/languages`).then(r => r.json()).then(setLanguages);
-    fetch(`${API_URL}/products/meta/conditions`).then(r => r.json()).then(setConditions);
+    adminFetch("/products/meta/languages").then(r => r.json()).then(setLanguages);
+    adminFetch("/products/meta/conditions").then(r => r.json()).then(setConditions);
   }, []);
 
   const handleAddVariation = async () => {
@@ -60,12 +63,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
     }
 
     try {
-      const res = await fetch(`${API_URL}/buylist/me`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newVariation, productId: product.id }),
-        credentials: "include",
-      });
+      const res = await adminFetch("/buylist/me", { method: "POST", body: JSON.stringify({ ...newVariation, productId: product.id }) });
 
       if (res.ok) {
         showToast("Solicitud agregada correctamente", "success");
@@ -83,12 +81,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
 
   const handleUpdateItem = async (itemId: string, updates: any) => {
     try {
-      const res = await fetch(`${API_URL}/buylist/me/${itemId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-        credentials: "include",
-      });
+      const res = await adminFetch(`/buylist/me/${itemId}`, { method: "PATCH", body: JSON.stringify(updates) });
 
       if (res.ok) {
         showToast("Solicitud actualizada", "success");
@@ -110,7 +103,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
     if (!itemToDelete) return;
 
     try {
-      const res = await fetch(`${API_URL}/buylist/me/${itemToDelete}`, { method: "DELETE", credentials: "include" });
+      const res = await adminFetch(`/buylist/me/${itemToDelete}`, { method: "DELETE" });
       if (res.ok) {
         showToast("Solicitud eliminada", "success");
         setItemToDelete(null);

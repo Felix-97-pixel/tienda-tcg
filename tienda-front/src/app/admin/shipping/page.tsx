@@ -7,6 +7,8 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import { useToast } from "@/hooks/useToast";
 import { useShippingProviders } from "@/app/admin/_components/Shipping/hooks/useShippingProviders";
+import { adminFetch } from "@/utils/api";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 import ShippingProviderModal from "@/app/admin/_components/Shipping/ShippingProviderModal";
 import { ShippingProvider } from "@/types/shippingProvider";
 import {
@@ -26,6 +28,7 @@ interface RegionData {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 export default function AdminShipping() {
+  const { activeBranch, activeBranchId } = useActiveBranch();
   const { showToast } = useToast();
   const { providers, loading: loadingProviders, refresh } = useShippingProviders();
 
@@ -59,7 +62,7 @@ export default function AdminShipping() {
 
         const [locRes, storeRes] = await Promise.all([
           fetch(`${API_URL}/shipping/locations`),
-          fetch(`${API_URL}/stores/me`, { credentials: "include" }),
+          adminFetch("/stores/me"),
         ]);
 
         if (locRes.ok) {
@@ -92,7 +95,7 @@ export default function AdminShipping() {
     };
 
     loadData();
-  }, []);
+  }, [activeBranchId]);
 
   const currentRegion = regions.find((r) => r.code === originRegionCode) || regions[0];
   const regionOptions = regions.map((r) => ({ label: r.name, value: r.code }));
@@ -116,18 +119,13 @@ export default function AdminShipping() {
       const targetRegion = regions.find((r) => r.code === originRegionCode);
       const targetCommune = targetRegion?.communes.find((c) => c.code === originCommuneCode);
 
-      const res = await fetch(`${API_URL}/stores/me`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      const res = await adminFetch("/stores/me", { method: "PATCH", body: JSON.stringify({
           pickupEnabled,
           pickupAddress,
           pickupSchedule,
           originRegionId: targetRegion?.id,
           originCommuneId: targetCommune?.id,
-        }),
-      });
+        }) });
 
       if (!res.ok) {
         throw new Error("No se pudo guardar la configuración.");

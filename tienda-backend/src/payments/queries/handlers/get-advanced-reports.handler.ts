@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { GetAdvancedReportsQuery } from '../impl/get-advanced-reports.query';
+import { resolveQueryStoreId } from './resolve-query-store';
 
 @QueryHandler(GetAdvancedReportsQuery)
 export class GetAdvancedReportsHandler implements IQueryHandler<GetAdvancedReportsQuery> {
@@ -9,16 +10,7 @@ export class GetAdvancedReportsHandler implements IQueryHandler<GetAdvancedRepor
   async execute(query: GetAdvancedReportsQuery) {
     const { userId, role } = query;
 
-    let storeId: string | null = null;
-    if (role !== 'SUPERADMIN' && userId) {
-      const store = await this.prisma.store.findFirst({
-        where: { ownerId: userId },
-        select: { id: true },
-      });
-      if (store) {
-        storeId = store.id;
-      }
-    }
+    const storeId = await resolveQueryStoreId(this.prisma, userId, role, query.storeId);
 
     // Rendimiento Financiero
     const transactions = await this.prisma.walletTransaction.findMany({

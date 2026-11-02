@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { Order } from "@/types/order";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 
 export const STATUS_CLS: Record<string, string> = {
   PENDING:   "bg-amber-500/15 text-amber-400 border border-amber-500/30",
@@ -18,6 +19,7 @@ export interface OrderCounts {
 }
 
 export function useAdminOrders(limit: number = 15) {
+  const { activeBranchId } = useActiveBranch();
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -32,13 +34,10 @@ export function useAdminOrders(limit: number = 15) {
   const fetchOrders = useCallback(async (p: number, dStatus: string) => {
     setLoading(true);
     try {
-      const url = `${API_URL}/payments/orders?page=${p}&limit=${limit}&status=PAID${
+      const url = `/payments/orders?page=${p}&limit=${limit}&status=PAID${
         dStatus && dStatus !== "ALL" ? `&deliveryStatus=${dStatus}` : ""
       }`;
-      const res = await fetch(url, {
-        credentials: "include",
-        headers: { "x-auth-scope": "admin" },
-      });
+      const res = await adminFetch(url);
       if (!res.ok) throw new Error("No autorizado");
       const data = await res.json();
       setOrders(data.orders || []);
@@ -56,7 +55,7 @@ export function useAdminOrders(limit: number = 15) {
 
   useEffect(() => { 
     fetchOrders(page, deliveryStatus); 
-  }, [page, deliveryStatus, fetchOrders]);
+  }, [page, deliveryStatus, activeBranchId, fetchOrders]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
 

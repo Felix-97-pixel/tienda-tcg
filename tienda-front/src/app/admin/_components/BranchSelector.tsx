@@ -43,6 +43,7 @@ export default function BranchSelector() {
             const main = data.find((b) => b.isMainBranch) || data[0];
             setActiveBranchId(main.id);
             localStorage.setItem("taptrade_active_branch_id", main.id);
+            localStorage.setItem("admin_active_store_id", main.id);
             dispatch(setActiveStore(main));
           }
         }
@@ -70,6 +71,7 @@ export default function BranchSelector() {
   const handleSelectBranch = (branch: BranchItem) => {
     setActiveBranchId(branch.id);
     localStorage.setItem("taptrade_active_branch_id", branch.id);
+    localStorage.setItem("admin_active_store_id", branch.id);
     dispatch(setActiveStore(branch));
     setIsOpen(false);
     window.dispatchEvent(new CustomEvent("branchChanged", { detail: branch }));

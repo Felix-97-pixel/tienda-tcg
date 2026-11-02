@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 import {
   IconReceipt,
   IconCash,
@@ -53,6 +54,7 @@ interface LedgerData {
 }
 
 export default function AdminTransactionsPage() {
+  const { activeBranch, activeBranchId } = useActiveBranch();
   const [data, setData] = useState<LedgerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("ALL");
@@ -67,10 +69,7 @@ export default function AdminTransactionsPage() {
   const fetchLedger = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/pos/transactions-ledger`, {
-        credentials: "include",
-        headers: { "x-auth-scope": "admin" },
-      });
+      const res = await adminFetch("/pos/transactions-ledger");
       if (res.ok) {
         const json = await res.json();
         setData(json);
@@ -80,7 +79,7 @@ export default function AdminTransactionsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeBranchId]);
 
   useEffect(() => {
     fetchLedger();

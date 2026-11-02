@@ -64,19 +64,22 @@ export class StoresController {
   @UseGuards(JwtAuthGuard)
   @Get('me/exchange-rates')
   async getExchangeRates(@Request() req: any) {
-    return this.storesService.getExchangeRates(req.user.userId);
+    const requestedStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.storesService.getExchangeRates(req.user.userId, requestedStoreId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('me/exchange-rates')
   async upsertExchangeRate(@Request() req: any, @Body() data: { gameId: string, rate: number }) {
-    return this.storesService.upsertExchangeRate(req.user.userId, data);
+    const requestedStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.storesService.upsertExchangeRate(req.user.userId, data, requestedStoreId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('me/exchange-rates/:id')
   async deleteExchangeRate(@Request() req: any, @Param('id') id: string) {
-    return this.storesService.deleteExchangeRate(req.user.userId, id);
+    const requestedStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.storesService.deleteExchangeRate(req.user.userId, id, requestedStoreId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -89,13 +92,15 @@ export class StoresController {
   @UseGuards(JwtAuthGuard)
   @Patch('me/devaluations')
   upsertDevaluations(@Request() req: any, @Body() data: { gameId: string, devaluations: { conditionId: string, multiplier: number }[] }) {
-    return this.storesService.upsertDevaluations(req.user.userId, data.gameId, data.devaluations);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.storesService.upsertDevaluations(req.user.userId, data.gameId, data.devaluations, targetStoreId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('me/language-devaluations')
   upsertLanguageDevaluations(@Request() req: any, @Body() data: { gameId: string, languageDevaluations: { languageId: string, multiplier: number }[] }) {
-    return this.storesService.upsertLanguageDevaluations(req.user.userId, data.gameId, data.languageDevaluations);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.storesService.upsertLanguageDevaluations(req.user.userId, data.gameId, data.languageDevaluations, targetStoreId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

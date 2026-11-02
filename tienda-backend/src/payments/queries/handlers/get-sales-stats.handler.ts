@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { GetSalesStatsQuery } from '../impl/get-sales-stats.query';
+import { resolveQueryStoreId } from './resolve-query-store';
 
 /**
  * Handler: Calcula estadísticas de ventas para el panel administrativo.
@@ -16,16 +17,7 @@ export class GetSalesStatsHandler
   async execute(query: GetSalesStatsQuery) {
     const { userId, role } = query;
 
-    let storeId: string | null = null;
-    if (role !== 'SUPERADMIN' && userId) {
-      const store = await this.prisma.store.findFirst({
-        where: { ownerId: userId },
-        select: { id: true },
-      });
-      if (store) {
-        storeId = store.id;
-      }
-    }
+    const storeId = await resolveQueryStoreId(this.prisma, userId, role, query.storeId);
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);

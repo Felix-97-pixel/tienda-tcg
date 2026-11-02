@@ -1,9 +1,7 @@
 "use client";
 import Loader from "@/components/ui/Loader";
-import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
-import { MP_COMMISSION } from "@/utils/constants";
-import { calculateCommissions } from "@/utils/commissions";
+import React, { useState, useEffect, useCallback } from "react";
+import { adminFetch } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/ui/Modal";
@@ -12,6 +10,8 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
+import { IconStore, IconCheck, IconTrash, IconAlertTriangle } from "@/components/ui/Icons";
 
 export interface InventoryModalProps {
   isOpen: boolean;
@@ -24,6 +24,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const t = useTranslations("products");
   const tc = useTranslations("common");
   const { showToast } = useToast();
+  const { activeBranch, activeBranchId } = useActiveBranch();
+
   const [product, setProduct] = useState(initialProduct);
   const [storeCommissionRate, setStoreCommissionRate] = useState(0.05);
   const [exchangeRate, setExchangeRate] = useState<number>(1000);
@@ -32,9 +34,20 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const [devaluations, setDevaluations] = useState<any[]>([]);
   const [languageDevaluations, setLanguageDevaluations] = useState<any[]>([]);
 
+  const refreshProduct = useCallback(async () => {
+    if (!product?.id) return;
+    try {
+      const res = await adminFetch(`/products/${product.id}?adminCatalog=true`);
+      const data = await res.json();
+      if (res.ok) setProduct(data);
+    } catch (err) {
+      console.error("Error refreshing product:", err);
+    }
+  }, [product?.id]);
+
   useEffect(() => {
     if (isOpen) {
-      fetch(`${API_URL}/stores/me`, { credentials: "include" })
+      adminFetch("/stores/me")
         .then(r => r.json())
         .then(data => {
           if (data && data.subscriptionPlans && data.subscriptionPlans.length > 0) {
@@ -46,15 +59,14 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           if (data && data.languageDevaluations) {
             setLanguageDevaluations(data.languageDevaluations);
           }
-
         })
         .catch(err => console.error("Error fetching store commission rate:", err));
         
       const gameId = product?.cardDetail?.gameId;
       if (gameId) {
         Promise.all([
-          fetch(`${API_URL}/stores/me/exchange-rates`, { credentials: "include" }).then(r => r.json()),
-          fetch(`${API_URL}/currencies`).then(r => r.json())
+          adminFetch("/stores/me/exchange-rates").then(r => r.json()),
+          adminFetch("/currencies").then(r => r.json())
         ]).then(([storeRates, globalRates]) => {
           const global = Array.isArray(globalRates) ? globalRates.find((g: any) => g.gameId === gameId) : null;
           const store = Array.isArray(storeRates) ? storeRates.find((s: any) => s.gameId === gameId) : null;
@@ -73,21 +85,9 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     } else {
       setIsLoadingRates(true);
     }
-  }, [isOpen, product]);
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  }, [isOpen, product?.cardDetail?.gameId, activeBranchId]);
 
-  const refreshProduct = async () => {
-    try {
-      const res = await fetch(`${API_URL}/products/${product?.id}?adminCatalog=true`, {
-        credentials: "include",
-        headers: { "x-auth-scope": "admin" },
-      });
-      const data = await res.json();
-      if (res.ok) setProduct(data);
-    } catch (err) {
-      console.error("Error refreshing product:", err);
-    }
-  };
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     setProduct(initialProduct);
@@ -121,11 +121,10 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         const isEnglish = selectedLang.name.toLowerCase() === "english" || selectedLang.name.toLowerCase() === "inglés" || selectedLang.name.toLowerCase() === "ingles";
         
         if (!isNM || !isEnglish) {
-          // Find NM English item
           const nmEngItem = product.items.find((item: any) => 
             item.finishId === newVariation.finishId && 
-            (item.condition.name.toLowerCase() === "near_mint" || item.condition.name.toLowerCase() === "near mint" || item.condition.name.toLowerCase() === "nm") &&
-            (item.language.name.toLowerCase() === "english" || item.language.name.toLowerCase() === "inglés" || item.language.name.toLowerCase() === "ingles")
+            (item.condition?.name?.toLowerCase() === "near_mint" || item.condition?.name?.toLowerCase() === "near mint" || item.condition?.name?.toLowerCase() === "nm") &&
+            (item.language?.name?.toLowerCase() === "english" || item.language?.name?.toLowerCase() === "inglés" || item.language?.name?.toLowerCase() === "ingles")
           );
 
           if (nmEngItem) {
@@ -149,13 +148,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       }
     }
   }, [newVariation.conditionId, newVariation.languageId, newVariation.finishId, conditions, languages, product?.items, devaluations, languageDevaluations]);
-  const currentCalc = calculateCommissions(netPriceCLP, storeCommissionRate);
 
   useEffect(() => {
     if (isOpen && product) {
-      fetch(`${API_URL}/products/meta/languages`).then(r => r.json()).then(setLanguages);
-      fetch(`${API_URL}/products/meta/conditions`).then(r => r.json()).then(setConditions);
-      // 1. Intentar extraer los acabados recomendados desde el catálogo global (marketPrices)
+      adminFetch("/products/meta/languages").then(r => r.json()).then(setLanguages);
+      adminFetch("/products/meta/conditions").then(r => r.json()).then(setConditions);
+
       let foundGlobalFinishes = false;
       if (product.marketPrices && product.marketPrices.length > 0) {
         const uniqueFinishes = Array.from(new Map(
@@ -170,15 +168,14 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
         }
       }
 
-      // 2. Si no hay acabados definidos, usar fallback de la API con el juego correcto
       if (!foundGlobalFinishes) {
         const gameString = (product?.cardDetail as any)?.gameRel?.name || (product?.cardDetail as any)?.game || product?.category?.name;
         if (gameString) {
-          fetch(`${API_URL}/products/meta/finishes?game=${encodeURIComponent(gameString)}`)
+          adminFetch(`/products/meta/finishes?game=${encodeURIComponent(gameString)}`)
             .then(r => r.json())
             .then(setFinishes);
         } else {
-          fetch(`${API_URL}/products/meta/finishes`).then(r => r.json()).then(setFinishes);
+          adminFetch("/products/meta/finishes").then(r => r.json()).then(setFinishes);
         }
       }
     }
@@ -191,14 +188,9 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     }
 
     try {
-      const res = await fetch(`${API_URL}/products/${product.id}/inventory`, {
+      const res = await adminFetch(`/products/${product!.id}/inventory`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-scope": "admin",
-        },
-        body: JSON.stringify({ ...newVariation, productId: product.id, isPublished: false }),
-        credentials: "include",
+        body: JSON.stringify({ ...newVariation, productId: product!.id, isPublished: false }),
       });
 
       if (res.ok) {
@@ -225,14 +217,9 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       if (isPublished !== undefined) {
         payload.isPublished = isPublished;
       }
-      const res = await fetch(`${API_URL}/products/inventory/${itemId}`, {
+      const res = await adminFetch(`/products/inventory/${itemId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-scope": "admin",
-        },
         body: JSON.stringify(payload),
-        credentials: "include",
       });
 
       if (res.ok) {
@@ -255,10 +242,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     if (!itemToDelete) return;
 
     try {
-      const res = await fetch(`${API_URL}/products/inventory/${itemToDelete}`, {
+      const res = await adminFetch(`/products/inventory/${itemToDelete}`, {
         method: "DELETE",
-        headers: { "x-auth-scope": "admin" },
-        credentials: "include",
       });
       if (res.ok) {
         showToast(t("inventory.successDelete"), "success");
@@ -289,183 +274,190 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           </div>
         ) : (
           <>
+            {/* Indicador de Sucursal Activa */}
+            {activeBranch && (
+              <div className="flex items-center gap-2 px-3.5 py-2 mb-4 rounded-xl bg-blue/10 border border-blue/20 text-xs text-blue w-fit">
+                <IconStore className="w-4 h-4 shrink-0 text-blue" />
+                <span>Gestionando inventario de la sucursal: <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
+              </div>
+            )}
+
             {/* Formulario Nueva Variación */}
             <div className="mb-8 p-5 bg-[#080B12] rounded-2xl border border-white/10">
-          <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
-              <SearchableSelect
-                options={languages.map(l => ({ label: l.name, value: l.id }))}
-                value={newVariation.languageId}
-                onChange={(val) => setNewVariation({ ...newVariation, languageId: val })}
-                placeholder={`${t("inventory.language")}...`}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
-              <SearchableSelect
-                options={conditions.map(c => ({ label: c.displayName || c.name, value: c.id }))}
-                value={newVariation.conditionId}
-                onChange={(val) => setNewVariation({ ...newVariation, conditionId: val })}
-                placeholder={`${t("inventory.condition")}...`}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
-              <SearchableSelect
-                options={finishes.map(f => ({ label: f.name, value: f.id }))}
-                value={newVariation.finishId}
-                onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
-                placeholder="Acabado..."
-              />
-            </div>
-            <div>
-              <Input
-                label="A Recibir (USD)"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={newVariation.price}
-                disabled={(() => {
-                  const selectedCond = conditions.find(c => c.id === newVariation.conditionId);
-                  const selectedLang = languages.find(l => l.id === newVariation.languageId);
-                  if (!selectedCond || !selectedLang) return false;
-                  
-                  const isNM = selectedCond.name.toLowerCase() === "near_mint" || selectedCond.name.toLowerCase() === "near mint" || selectedCond.name.toLowerCase() === "nm";
-                  const isEnglish = selectedLang.name.toLowerCase() === "english" || selectedLang.name.toLowerCase() === "inglés" || selectedLang.name.toLowerCase() === "ingles";
-                  
-                  return !(isNM && isEnglish);
-                })()}
-                onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
-              />
-            </div>
-            <div>
-              <Input
-                label={t("inventory.stock")}
-                type="number"
-                value={newVariation.stock}
-                onChange={(e) => setNewVariation({ ...newVariation, stock: Number(e.target.value) })}
-              />
-            </div>
-          </div>
+              <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
+                  <SearchableSelect
+                    options={languages.map(l => ({ label: l.name, value: l.id }))}
+                    value={newVariation.languageId}
+                    onChange={(val) => setNewVariation({ ...newVariation, languageId: val })}
+                    placeholder={`${t("inventory.language")}...`}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
+                  <SearchableSelect
+                    options={conditions.map(c => ({ label: c.displayName || c.name, value: c.id }))}
+                    value={newVariation.conditionId}
+                    onChange={(val) => setNewVariation({ ...newVariation, conditionId: val })}
+                    placeholder={`${t("inventory.condition")}...`}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
+                  <SearchableSelect
+                    options={finishes.map(f => ({ label: f.name, value: f.id }))}
+                    value={newVariation.finishId}
+                    onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
+                    placeholder="Acabado..."
+                  />
+                </div>
+                <div>
+                  <Input
+                    label="A Recibir (USD)"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={newVariation.price}
+                    disabled={(() => {
+                      const selectedCond = conditions.find(c => c.id === newVariation.conditionId);
+                      const selectedLang = languages.find(l => l.id === newVariation.languageId);
+                      if (!selectedCond || !selectedLang) return false;
+                      
+                      const isNM = selectedCond.name.toLowerCase() === "near_mint" || selectedCond.name.toLowerCase() === "near mint" || selectedCond.name.toLowerCase() === "nm";
+                      const isEnglish = selectedLang.name.toLowerCase() === "english" || selectedLang.name.toLowerCase() === "inglés" || selectedLang.name.toLowerCase() === "ingles";
+                      
+                      return !(isNM && isEnglish);
+                    })()}
+                    onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Input
+                    label={t("inventory.stock")}
+                    type="number"
+                    value={newVariation.stock}
+                    onChange={(e) => setNewVariation({ ...newVariation, stock: Number(e.target.value) })}
+                  />
+                </div>
+              </div>
 
-          <div className="text-xs text-blue-400 font-bold mb-3 px-2">
-            Tasa de cambio actual: 1 {baseCurrency} = {exchangeRate} CLP
-          </div>
-          <div className="bg-[#1a1d24] rounded-xl p-4 border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-6 text-sm">
-              <div>
-                <span className="block text-white/50 text-xs mb-1 font-bold">Precio de Venta (CLP)</span>
-                <span className="text-white font-bold text-lg">${formatPriceVal(netPriceCLP)}</span>
+              <div className="text-xs text-blue-400 font-bold mb-3 px-2">
+                Tasa de cambio actual: 1 {baseCurrency} = {exchangeRate} CLP
               </div>
-              <div className="text-emerald-400 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
-                0% Comisión por Venta (Modelo SaaS)
-              </div>
-              <div>
-                <span className="block text-emerald-400 text-xs mb-1 font-bold">Recibes Íntegro (CLP)</span>
-                <span className="text-emerald-400 font-bold text-lg">
-                  ${formatPriceVal(netPriceCLP)}
-                </span>
+              <div className="bg-[#1a1d24] rounded-xl p-4 border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-6 text-sm">
+                  <div>
+                    <span className="block text-white/50 text-xs mb-1 font-bold">Precio de Venta (CLP)</span>
+                    <span className="text-white font-bold text-lg">${formatPriceVal(netPriceCLP)}</span>
+                  </div>
+                  <div className="text-emerald-400 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                    <IconCheck className="w-4 h-4 text-emerald-400" />
+                    0% Comisión por Venta (Modelo SaaS)
+                  </div>
+                  <div>
+                    <span className="block text-emerald-400 text-xs mb-1 font-bold">Recibes Íntegro (CLP)</span>
+                    <span className="text-emerald-400 font-bold text-lg">
+                      ${formatPriceVal(netPriceCLP)}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full md:w-auto min-w-[120px]">
+                  <Button variant="success" onClick={handleAddVariation} fullWidth>
+                    {t("inventory.add")}
+                  </Button>
+                </div>
               </div>
             </div>
-            <div className="w-full md:w-auto min-w-[120px]">
-              <Button variant="success" onClick={handleAddVariation} fullWidth>
-                {t("inventory.add")}
+
+            {/* Tabla de Variaciones Actuales */}
+            <div className="overflow-x-auto rounded-xl border border-stroke">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="bg-[#111318] border-b border-stroke">
+                    <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
+                    <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
+                    <th className="p-3 font-bold text-gray-4">Acabado</th>
+                    <th className="p-3 font-bold text-gray-4">Precio (USD)</th>
+                    <th className="p-3 font-bold text-gray-4">Precio Venta (CLP)</th>
+                    <th className="p-3 font-bold text-emerald-400">Comisión</th>
+                    <th className="p-3 font-bold text-emerald-400">Recibes (CLP)</th>
+                    <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
+                    <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
+                    <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {product.items?.map((item: InventoryItem) => {
+                    const itemNetCLP = Number(item.price) * exchangeRate;
+                    return (
+                      <tr key={item.id} className="border-b border-stroke hover:bg-white/[0.02] transition-colors">
+                        <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
+                        <td className="p-3 text-white">
+                          {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-[#111318] text-gray-4 border border-stroke'}`}>
+                            {item.finish?.name || "Normal"}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            className="w-20 rounded border border-stroke p-1.5 text-xs font-bold text-white bg-[#1a1d24] focus:border-blue outline-none"
+                            defaultValue={item.price}
+                            onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
+                          />
+                        </td>
+                        <td className="p-3 text-white font-medium">
+                          ${formatPriceVal(itemNetCLP)} CLP
+                        </td>
+                        <td className="p-3 text-emerald-400 text-xs font-bold">
+                          $0 CLP (0%)
+                        </td>
+                        <td className="p-3 text-emerald-400 font-bold">
+                          ${formatPriceVal(itemNetCLP)} CLP
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            className="w-16 rounded-lg border border-white/10 p-1.5 text-xs text-white bg-[#080B12] focus:border-red focus:outline-none"
+                            defaultValue={item.stock}
+                            onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
+                          />
+                        </td>
+                        <td className="p-3 text-center">
+                          <button
+                            onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
+                            className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-md transition-all text-white ${item.isPublished ? "bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/40 shadow-emerald-600/30 ring-1 ring-emerald-400/30" : "bg-amber-500 hover:bg-amber-400 border border-amber-300/40 shadow-amber-500/30 ring-1 ring-amber-300/30"}`}
+                          >
+                            {item.isPublished ? "Publicado" : "Pausado"}
+                          </button>
+                        </td>
+                        <td className="p-3 text-center">
+                          <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>
+                            <IconTrash className="w-4 h-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-8 flex justify-end">
+              <Button
+                variant="secondary"
+                onClick={onClose}
+              >
+                {tc("close")}
               </Button>
             </div>
-          </div>
-        </div>
-
-        {/* Tabla de Variaciones Actuales */}
-        <div className="overflow-x-auto rounded-xl border border-stroke">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="bg-[#111318] border-b border-stroke">
-                <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
-                <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
-                <th className="p-3 font-bold text-gray-4">Acabado</th>
-                <th className="p-3 font-bold text-gray-4">Precio (USD)</th>
-                <th className="p-3 font-bold text-gray-4">Precio Venta (CLP)</th>
-                <th className="p-3 font-bold text-emerald-400">Comisión</th>
-                <th className="p-3 font-bold text-emerald-400">Recibes (CLP)</th>
-                <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
-                <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
-                <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {product.items?.map((item: InventoryItem) => {
-                const itemNetCLP = Number(item.price) * exchangeRate;
-                const itemCalc = calculateCommissions(itemNetCLP, storeCommissionRate);
-                return (
-                  <tr key={item.id} className="border-b border-stroke hover:bg-white/[0.02] transition-colors">
-                    <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
-                    <td className="p-3 text-white">
-                      {item.condition_rel?.displayName || item.condition_rel?.name || (typeof item.condition === 'object' ? (item.condition as any).displayName || (item.condition as any).name : item.condition) || "N/A"}
-                    </td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.finish?.name && item.finish.name !== 'Normal' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-[#111318] text-gray-4 border border-stroke'}`}>
-                        {item.finish?.name || "Normal"}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        className="w-20 rounded border border-stroke p-1.5 text-xs font-bold text-white bg-[#1a1d24] focus:border-blue outline-none"
-                        defaultValue={item.price}
-                        onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
-                      />
-                    </td>
-                    <td className="p-3 text-white font-medium">
-                      ${formatPriceVal(itemNetCLP)} CLP
-                    </td>
-                    <td className="p-3 text-emerald-400 text-xs font-bold">
-                      $0 CLP (0%)
-                    </td>
-                    <td className="p-3 text-emerald-400 font-bold">
-                      ${formatPriceVal(itemNetCLP)} CLP
-                    </td>
-                    <td className="p-3">
-                      <input
-                        type="number"
-                        className="w-16 rounded-lg border border-white/10 p-1.5 text-xs text-white bg-[#080B12] focus:border-red focus:outline-none"
-                        defaultValue={item.stock}
-                        onBlur={(e) => handleUpdateItem(item.id, item.price, Number(e.target.value), item.isPublished)}
-                      />
-                    </td>
-                    <td className="p-3 text-center">
-                      <button
-                        onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-md transition-all text-white ${item.isPublished ? "bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/40 shadow-emerald-600/30 ring-1 ring-emerald-400/30" : "bg-amber-500 hover:bg-amber-400 border border-amber-300/40 shadow-amber-500/30 ring-1 ring-amber-300/30"}`}
-                      >
-                        {item.isPublished ? "Publicado" : "Pausado"}
-                      </button>
-                    </td>
-                    <td className="p-3 text-center">
-                      <Button variant="danger" size="sm" onClick={() => confirmDelete(item.id)}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-8 flex justify-end">
-          <Button
-            variant="secondary"
-            onClick={onClose}
-          >
-            {tc("close")}
-          </Button>
-        </div>
-        </>
+          </>
         )}
       </Modal>
 
@@ -473,11 +465,11 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirmar Eliminación">
         <div className="p-6">
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center text-red">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <div className="w-16 h-16 bg-red/10 border border-red/20 rounded-full flex items-center justify-center text-red">
+              <IconAlertTriangle className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-bold text-white">¿Eliminar variante?</h3>
-            <p className="text-gray-4">
+            <p className="text-gray-4 text-sm">
               ¿Estás seguro que deseas eliminar esta variante de precio permanentemente?
             </p>
           </div>

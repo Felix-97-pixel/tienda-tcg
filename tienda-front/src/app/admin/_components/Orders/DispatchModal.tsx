@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { API_URL } from "@/utils/api";
+import { API_URL, adminFetch } from "@/utils/api";
 import { VendorOrderData } from "@/types/order";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import CarrierTimeline from "./CarrierTimeline";
@@ -240,19 +240,11 @@ export default function DispatchModal({
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/payments/vendor-orders/${vendorOrder.id}/dispatch`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-scope": "admin",
-        },
-        credentials: "include",
-        body: JSON.stringify({
+      const res = await adminFetch(`/payments/vendor-orders/${vendorOrder.id}/dispatch`, { method: "PATCH", body: JSON.stringify({
           courier: courierMeta.key,
           trackingNumber: isLocalPickup && !cleanTracking ? "RETIRO-LOCAL" : cleanTracking,
           trackingUrl: validation?.trackingUrl,
-        }),
-      });
+        }) });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

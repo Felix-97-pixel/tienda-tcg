@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { AdminStatistics } from "../types/statistics.types";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 
 export function useAdminStatistics(features: string[] | undefined) {
+  const { activeBranchId } = useActiveBranch();
   const [stats, setStats] = useState<AdminStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -12,10 +14,7 @@ export function useAdminStatistics(features: string[] | undefined) {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`${API_URL}/payments/stats`, {
-        credentials: "include",
-        headers: { "x-auth-scope": "admin" },
-      });
+      const res = await adminFetch("/payments/stats");
       if (res.status === 401) {
         if (typeof window !== "undefined") {
           localStorage.removeItem("admin_user");
@@ -44,7 +43,7 @@ export function useAdminStatistics(features: string[] | undefined) {
     } else {
       setLoading(false);
     }
-  }, [fetchStats, features]);
+  }, [fetchStats, features, activeBranchId]);
 
   return {
     stats,

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import SearchableSelect from "@/components/ui/SearchableSelect";
@@ -8,7 +8,9 @@ import Papa from "papaparse";
 import { Button } from "@/components/ui/Button";
 import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
-import { IconInfo, IconSliders } from "@/components/ui/Icons";
+import { IconInfo, IconSliders, IconStore } from "@/components/ui/Icons";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
+
 export interface BulkUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,6 +23,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   const t = useTranslations("products");
   const tc = useTranslations("common");
   const { showToast } = useToast();
+  const { activeBranch } = useActiveBranch();
 
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
@@ -106,23 +109,17 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
 
         try {
           const endpoint = isGlobal ? '/products/bulk-create-global' : '/products/bulk-upload';
-          const res = await fetch(`${API_URL}${endpoint}`, {
+          const res = await adminFetch(endpoint, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-auth-scope": "admin",
-            },
             body: JSON.stringify({
               categoryId: bulkCategory,
               applyDevaluations,
               items: parsedItems
             }),
-            credentials: "include",
           });
 
           const data = await res.json();
           if (res.ok) {
-            // Show toast using the backend success summary if available, otherwise general success
             let successMsg = t("bulk.success");
             if (data && data.added !== undefined) {
               const baseMsg = t("bulk.successMtg", {
@@ -136,10 +133,9 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             }
             showToast(successMsg, "success");
             
-            // If there were errors, download error log or show warning
             if (data && data.errors && data.errors.length > 0) {
               const errorCsv = Papa.unparse(data.errors.map((e: any) => ({
-                Fila: e.index + 2, // +1 for header, +1 for 0-index
+                Fila: e.index + 2,
                 Error: e.error
               })));
               const blob = new Blob([errorCsv], { type: "text/csv;charset=utf-8;" });
@@ -194,7 +190,14 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
       maxWidth="md"
     >
       <div className="space-y-4">
-        <p className="mb-8 text-sm font-medium leading-relaxed text-gray-4">
+        {!isGlobal && activeBranch && (
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue/10 border border-blue/20 text-xs text-blue">
+            <IconStore className="w-4 h-4 shrink-0 text-blue" />
+            <span>Sucursal destino: <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
+          </div>
+        )}
+
+        <p className="mb-6 text-sm font-medium leading-relaxed text-gray-4">
           {isGlobal ? "Sube múltiples productos al catálogo global mediante un archivo CSV." : t("bulk.subtitle")}
         </p>
         
@@ -250,7 +253,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                       Aplicar Reglas de Devaluación (Estado e Idioma)
                     </p>
                     <p className="text-[11px] text-white/45 mt-1 leading-relaxed">
-                      Calcula automáticamente el descuento o bonificación según el estado físico (LP, MP, HP, DMG) y el idioma de cada carta configurados por tu tienda.
+                      Calcula automáticamente el descuento o bonificación según el estado físico (LP, MP, HP, DMG) y el idioma de cada carta configurados por tu sucursal.
                     </p>
                   </div>
                 </div>

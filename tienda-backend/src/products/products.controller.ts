@@ -18,18 +18,36 @@ export class ProductsController {
 
 
 
-  private async getStoreIdFromToken(req: Request): Promise<string | undefined> {
-    const token = req.cookies?.admin_access_token || req.cookies?.access_token;
-    if (!token) return undefined;
+  private async getStoreIdFromToken(req: any): Promise<string | undefined> {
+    const headerStoreId = (req.headers['x-store-id'] as string) || (req.query?.storeId as string);
+
+    if (req.user?.userId) {
+      const isStoreScoped = req.user.sessionType === 'CASHIER' || req.user.sessionType === 'BRANCH_MANAGER';
+      const targetStoreId = isStoreScoped ? req.user.activeStoreId : (headerStoreId || req.user.activeStoreId);
+      return this.productsService.getStoreIdByUserId(req.user.userId, targetStoreId);
+    }
+
+    let token = req.cookies?.admin_access_token || req.cookies?.access_token;
+    if (!token && req.headers?.authorization) {
+      const parts = req.headers.authorization.split(' ');
+      if (parts.length === 2 && parts[0] === 'Bearer') {
+        token = parts[1];
+      }
+    }
+    if (!token) return headerStoreId || undefined;
+
     try {
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET || '');
-      if (decoded && decoded.sub) {
-        return this.productsService.getStoreIdByUserId(decoded.sub);
+      if (decoded && (decoded.sub || decoded.userId)) {
+        const userId = decoded.sub || decoded.userId;
+        const isStoreScoped = decoded.sessionType === 'CASHIER' || decoded.sessionType === 'BRANCH_MANAGER';
+        const targetStoreId = isStoreScoped ? decoded.activeStoreId : (headerStoreId || decoded.activeStoreId);
+        return this.productsService.getStoreIdByUserId(userId, targetStoreId);
       }
     } catch (e) {
-      return undefined;
+      return headerStoreId || undefined;
     }
-    return undefined;
+    return headerStoreId || undefined;
   }
 
 
@@ -44,11 +62,13 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   bulkUpload(@Req() req: any, @Body() bulkUploadDto: BulkUploadDto) {
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
     return this.productsService.bulkUpload(
       bulkUploadDto.categoryId,
       bulkUploadDto.items,
       req.user.userId,
       bulkUploadDto.applyDevaluations !== undefined ? bulkUploadDto.applyDevaluations : true,
+      targetStoreId,
     );
   }
 
@@ -79,8 +99,13 @@ export class ProductsController {
   }
 
   @Get('meta/categories')
-  async getCategories(@Req() req: Request, @Query('storeId') storeId?: string, @Query('isTcg', new ParseBoolPipe({ optional: true })) isTcg?: boolean) {
-    return this.productsService.getCategories(storeId, isTcg);
+  async getCategories(
+    @Req() req: any,
+    @Query('storeId') storeId?: string,
+    @Query('isTcg', new ParseBoolPipe({ optional: true })) isTcg?: boolean
+  ) {
+    const resolvedStoreId = storeId || (req.headers['x-store-id'] as string) || undefined;
+    return this.productsService.getCategories(resolvedStoreId, isTcg);
   }
 
   @Patch('meta/categories/:id')
@@ -274,7 +299,8 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   bulkPublishStoreInventory(@Req() req: any) {
-    return this.productsService.bulkPublishStoreInventory(req.user.userId);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.productsService.bulkPublishStoreInventory(req.user.userId, targetStoreId);
   }
 
   @Patch('inventory/:id')
@@ -304,6 +330,7 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   addInventoryItem(@Req() req: any, @Param('productId') productId: string, @Body() body: any) {
-    return this.productsService.addInventoryItem(productId, body, req.user?.userId);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
+    return this.productsService.addInventoryItem(productId, body, req.user?.userId, targetStoreId);
   }
 }

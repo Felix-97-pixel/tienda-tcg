@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { API_URL } from '@/utils/api';
+import { API_URL, adminFetch } from '@/utils/api';
+import { useActiveBranch } from '@/hooks/useActiveBranch';
 import { useToast } from '@/hooks/useToast';
 import { useNetworkStatus } from './_lib/useNetworkStatus';
 import {
@@ -42,6 +43,7 @@ function playBeepSound() {
 }
 
 export default function AdminPosPage() {
+  const { activeBranch, activeBranchId } = useActiveBranch();
   const { showToast } = useToast();
   const networkStatus = useNetworkStatus();
 
@@ -98,7 +100,7 @@ export default function AdminPosPage() {
   // Carga inicial de datos, turno, catálogo y buylist
   const loadInitialData = useCallback(async () => {
     // Cargar condiciones para selectores
-    fetch(`${API_URL}/products/meta/conditions`)
+    adminFetch("/products/meta/conditions")
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (Array.isArray(data)) setConditions(data);
@@ -106,7 +108,7 @@ export default function AdminPosPage() {
       .catch(() => { });
 
     // Cargar idiomas para resolución correcta de IDs
-    fetch(`${API_URL}/products/meta/languages`)
+    adminFetch("/products/meta/languages")
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (Array.isArray(data)) setLanguages(data);
@@ -114,7 +116,7 @@ export default function AdminPosPage() {
       .catch(() => { });
 
     // Cargar categorías TCG para filtros de Trade-in
-    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`)
+    adminFetch("/products/meta/categories/admin?isTcg=true")
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (Array.isArray(data)) setCategories(data);
@@ -131,10 +133,7 @@ export default function AdminPosPage() {
 
     try {
       // 0. Obtener datos de la tienda activa
-      const storeRes = await fetch(`${API_URL}/stores/me`, {
-        credentials: 'include',
-        headers: { 'x-auth-scope': 'admin' },
-      });
+      const storeRes = await adminFetch("/stores/me");
       if (storeRes.ok) {
         const storeData = await storeRes.json();
         if (storeData.name) {
@@ -143,10 +142,7 @@ export default function AdminPosPage() {
       }
 
       // 1. Obtener turno actual
-      const shiftRes = await fetch(`${API_URL}/pos/shift/current`, {
-        credentials: 'include',
-        headers: { 'x-auth-scope': 'admin' },
-      });
+      const shiftRes = await adminFetch("/pos/shift/current");
       if (shiftRes.ok) {
         const shiftData = await shiftRes.json();
         setCurrentShift(shiftData);
@@ -155,10 +151,7 @@ export default function AdminPosPage() {
       // 2 y 3 se descargan EN PARALELO: la Buylist (liviana) no debe esperar al catálogo completo (pesado).
       const loadCatalog = async () => {
         try {
-          const catRes = await fetch(`${API_URL}/pos/catalog-cache`, {
-            credentials: 'include',
-            headers: { 'x-auth-scope': 'admin' },
-          });
+          const catRes = await adminFetch("/pos/catalog-cache");
           if (catRes.ok) {
             const catData = await catRes.json();
             if (catData.products) {
@@ -175,10 +168,7 @@ export default function AdminPosPage() {
 
       const loadBuylist = async () => {
         try {
-          const buylistRes = await fetch(`${API_URL}/buylist/me`, {
-            credentials: 'include',
-            headers: { 'x-auth-scope': 'admin' },
-          });
+          const buylistRes = await adminFetch("/buylist/me");
           if (buylistRes.ok) {
             const buylistData = await buylistRes.json();
             if (Array.isArray(buylistData)) {
@@ -230,7 +220,7 @@ export default function AdminPosPage() {
       setSelectedExpansion('');
       return;
     }
-    fetch(`${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
+    adminFetch(`/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
         if (Array.isArray(data)) setExpansions(data);
@@ -240,7 +230,7 @@ export default function AdminPosPage() {
 
   useEffect(() => {
     loadInitialData();
-  }, [loadInitialData]);
+  }, [loadInitialData, activeBranchId]);
 
   // Búsqueda inteligente según el modo activo (Venta vs Compra) y la pestaña (Buylist vs Catálogo Global)
   // ÚNICA fuente que escribe searchResults. El flag `cancel` descarta respuestas de un modo anterior.
@@ -288,10 +278,7 @@ export default function AdminPosPage() {
           if (selectedCategory) params.set('category', selectedCategory);
           if (selectedExpansion) params.set('expansion', selectedExpansion);
 
-          const res = await fetch(`${API_URL}/products?${params.toString()}`, {
-            credentials: 'include',
-            headers: { 'x-auth-scope': 'admin' },
-          });
+          const res = await adminFetch(`/products?${params.toString()}`);
           if (res.ok) {
             const data = await res.json();
             const rawProducts = Array.isArray(data) ? data : (data.data || data.products || []);
@@ -569,14 +556,7 @@ export default function AdminPosPage() {
 
     try {
       if (networkStatus.isOnline) {
-        const res = await fetch(`${API_URL}/pos/sales`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth-scope': 'admin',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
+        const res = await adminFetch("/pos/sales", { method: "POST", body: JSON.stringify({
             items: saleItemsPayload,
             paymentMethod: payload.paymentMethod,
             totalAmount: total,
@@ -589,8 +569,7 @@ export default function AdminPosPage() {
             userId: payload.userId,
             storeCreditAmount: payload.storeCreditAmount,
             cashierName: currentShift?.cashierName || 'Cajero',
-          }),
-        });
+          }) });
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
@@ -707,14 +686,7 @@ export default function AdminPosPage() {
     }));
 
     try {
-      const res = await fetch(`${API_URL}/pos/buy`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-scope': 'admin',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
+      const res = await adminFetch("/pos/buy", { method: "POST", body: JSON.stringify({
           payoutMethod: payload.payoutMethod,
           items: itemsPayload,
           totalAmount: payload.totalAmount,
@@ -724,8 +696,7 @@ export default function AdminPosPage() {
           customerRut: payload.customerRut,
           cashierName: currentShift?.cashierName || 'Cajero',
           notes: payload.notes,
-        }),
-      });
+        }) });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
@@ -753,15 +724,7 @@ export default function AdminPosPage() {
   const handleOpenShift = async (cashierName: string, initialCash: number) => {
     setIsProcessing(true);
     try {
-      const res = await fetch(`${API_URL}/pos/shift/open`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-scope': 'admin',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ cashierName, initialCash }),
-      });
+      const res = await adminFetch("/pos/shift/open", { method: "POST", body: JSON.stringify({ cashierName, initialCash }) });
       if (!res.ok) throw new Error('Error al abrir turno');
       const data = await res.json();
       setCurrentShift(data);
@@ -777,15 +740,7 @@ export default function AdminPosPage() {
   const handleCloseShift = async (actualCash: number, notes?: string) => {
     setIsProcessing(true);
     try {
-      const res = await fetch(`${API_URL}/pos/shift/close`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-scope': 'admin',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ actualCash, notes }),
-      });
+      const res = await adminFetch("/pos/shift/close", { method: "POST", body: JSON.stringify({ actualCash, notes }) });
       if (!res.ok) throw new Error('Error al cerrar turno');
       setCurrentShift(null);
       setShiftModalMode(null);

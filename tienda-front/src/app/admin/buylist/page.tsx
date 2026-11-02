@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { useAdminProducts } from "@/app/admin/_components/hooks/useAdminProducts";
+import { useProductMetadata } from "@/app/admin/_components/hooks/useProductMetadata";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
+import { IconStore } from "@/components/ui/Icons";
 import { Product } from "@/types/product";
-import { Category } from "@/types/productCategory";
 
 // Componentes Extraídos
 import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
@@ -14,12 +15,13 @@ import BuylistModal from "@/app/admin/_components/Buylist/BuylistModal";
 import { Button } from "@/components/ui/Button";
 
 import UpsellBanner from "@/app/admin/_components/UpsellBanner";
-import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useAppSelector } from "@/redux/store";
 
 export default function AdminBuylistPage() {
   const t = useTranslations("common");
   const { showToast } = useToast();
+  const { activeBranch } = useActiveBranch();
+  const { features } = useAppSelector((state) => state.adminAuthReducer);
 
   // Hook de Datos (Maneja productos, búsqueda, paginación)
   // isInventoryOnly = false, isTcg = true, isBuylistOnly = false
@@ -33,37 +35,14 @@ export default function AdminBuylistPage() {
     page, setPage, totalPages
   } = useAdminProducts(false, true, false);
 
-  // Estados de Metadatos
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [expansions, setExpansions] = useState<{ name: string; products: number }[]>([]);
+  // Metadatos conectados a la sucursal activa
+  const { categories, expansions } = useProductMetadata(true, selectedCategory);
 
   // Estados de Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { features } = useAppSelector((state) => state.adminAuthReducer);
-
-  // Cargar Metadatos al Montar
-  useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`)
-      .then(r => r.json())
-      .then(data => {
-        setCategories(data);
-      });
-  }, []);
-
-  // Cargar Expansiones cuando cambia la categoría
-  useEffect(() => {
-    if (!selectedCategory) {
-      setExpansions([]);
-      setSelectedExpansion(""); // Resetear la expansión seleccionada si se limpia la categoría
-      return;
-    }
-    const url = `${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`;
-    fetch(url).then(r => r.json()).then(setExpansions);
-  }, [selectedCategory, setSelectedExpansion]);
-
-    // Manejar el cambio de pestaña
+  // Manejar el cambio de pestaña
   const handleTabChange = (tab: "all" | "active" | "paused") => {
     if (tab === "all") {
       setIsBuylistOnly(false);
@@ -90,9 +69,15 @@ export default function AdminBuylistPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">
-            Mi Buylist
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-white">Mi Buylist</h1>
+            {activeBranch && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue/10 border border-blue/20 text-xs text-blue">
+                <IconStore className="w-3.5 h-3.5" />
+                <strong className="text-white">{activeBranch.name}</strong>
+              </span>
+            )}
+          </div>
           <p className="text-gray-4 text-sm mt-1">
             Busca cartas en el catálogo global y añade solicitudes de compra a tu Buylist.
           </p>

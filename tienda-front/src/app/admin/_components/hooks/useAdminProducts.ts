@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { API_URL, adminFetch } from "@/utils/api";
 import { Product } from "@/types/product";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 
 export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: boolean, initialBuylistOnly: boolean = false) {
+  const { activeBranchId } = useActiveBranch();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,6 +32,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: 
       const url = new URL(`${API_URL}/products`);
       url.searchParams.append("page", page.toString());
       url.searchParams.append("limit", "20");
+      if (activeBranchId) url.searchParams.append("storeId", activeBranchId);
       if (searchTerm) url.searchParams.append("search", searchTerm);
       if (selectedCategory) url.searchParams.append("category", selectedCategory);
       if (selectedExpansion) url.searchParams.append("expansion", selectedExpansion);
@@ -40,7 +43,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: 
       if (buylistState !== "all" && isBuylistOnly) url.searchParams.append("buylistState", buylistState);
       if (isTcg !== undefined) url.searchParams.append("isTcg", isTcg.toString());
 
-      const res = await fetch(url.toString(), { credentials: "include" });
+      const res = await adminFetch(url.toString(), {}, activeBranchId);
       const data = await res.json();
       setProducts(data.data || []);
       setTotalPages(data.meta?.totalPages || 1);
@@ -49,17 +52,17 @@ export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: 
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, selectedCategory, selectedExpansion, publishState, isInventoryOnly, isBuylistOnly, buylistState, isTcg]);
+  }, [page, searchTerm, selectedCategory, selectedExpansion, publishState, isInventoryOnly, isBuylistOnly, buylistState, isTcg, activeBranchId]);
 
   useEffect(() => {
     const timeoutId = setTimeout(fetchProducts, 400);
     return () => clearTimeout(timeoutId);
   }, [fetchProducts]);
 
-  // Reset to page 1 when filters change to avoid "stuck on empty page" bug
+  // Reset to page 1 when filters or active branch change
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, selectedCategory, selectedExpansion, publishState, buylistState, isInventoryOnly, isBuylistOnly]);
+  }, [searchTerm, selectedCategory, selectedExpansion, publishState, buylistState, isInventoryOnly, isBuylistOnly, activeBranchId]);
 
   return {
     products,
@@ -82,6 +85,7 @@ export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: 
     page,
     setPage,
     totalPages,
-    refresh: fetchProducts
+    refresh: fetchProducts,
+    activeBranchId,
   };
 }

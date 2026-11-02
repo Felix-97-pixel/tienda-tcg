@@ -5,6 +5,6 @@ export class GetSalesStatsQuery {
   constructor(
     public readonly userId?: string,
     public readonly role?: string,
+    public readonly storeId?: string,
   ) {}
 }
-
