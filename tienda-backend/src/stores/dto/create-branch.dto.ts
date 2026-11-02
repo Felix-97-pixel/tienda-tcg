@@ -7,7 +7,11 @@ export class CreateBranchDto {
 
   @IsString()
   @IsNotEmpty()
-  subdomain: string; // Subdominio único para esta sucursal (ej: "bloodmoon-vina")
+  subdomain: string; // Subdominio único para esta sucursal (ej: "bloodmoon_vina")
+
+  @IsString()
+  @IsOptional()
+  logoUrl?: string; // Logo específico para la sucursal (o heredado del holding)
 
   @IsString()
   @IsOptional()

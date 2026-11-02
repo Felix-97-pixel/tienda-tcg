@@ -181,6 +181,7 @@ Entidad jurídica matriz (Empresa) que agrupa una o más sucursales físicas (`S
 * `id` (`String`, UUID, PK)
 * `name` (`String`): Razón Social o nombre legal de la empresa.
 * `rut` (`String?`): Identificador tributario (RUT de la empresa).
+* `logoUrl` (`String?`): Logo corporativo principal del Holding / Empresa.
 * `ownerId` (`String`, FK -> `User`): Usuario administrador principal o representante legal.
 * `planId` (`String?`, FK -> `SubscriptionPlan`): Plan SaaS contratado por la empresa (Starter, Store, Mega Store, Enterprise). Todas las sucursales heredan este plan corporativo.
 * `balance` (`Decimal(10,2)`, default: 0): Billetera unificada de liquidaciones por ventas de todas las sucursales.

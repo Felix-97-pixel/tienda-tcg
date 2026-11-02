@@ -3,7 +3,19 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, IsArray } from 'c
 export class CreateStoreDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name: string; // Nombre de la Casa Matriz / Primera Sucursal
+
+  @IsString()
+  @IsOptional()
+  companyName?: string; // Nombre de la Empresa o Holding (ej: "Blood Moon Games SpA")
+
+  @IsString()
+  @IsOptional()
+  companyRut?: string; // RUT de la Empresa / Holding
+
+  @IsString()
+  @IsOptional()
+  companyLogoUrl?: string; // Logo corporativo del Holding
 
   @IsString()
   @IsNotEmpty()

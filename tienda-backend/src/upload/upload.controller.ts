@@ -38,9 +38,27 @@ export class UploadController {
     )
     file: Express.Multer.File,
     @Query('folder') folder: string = 'general',
+    @Query('companyId') companyId?: string,
+    @Query('storeId') storeId?: string,
+    @Query('type') type?: string,
   ) {
-    // Sanitizar folder para prevenir path traversal
-    const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
+    // Si se especifican entidades, construir ruta jerárquica organizada
+    let rawFolder = folder;
+    if (companyId && storeId) {
+      rawFolder = `companies/${companyId}/branches/${storeId}/${type || 'logo'}`;
+    } else if (companyId) {
+      rawFolder = `companies/${companyId}/${type || 'logo'}`;
+    } else if (storeId) {
+      rawFolder = `branches/${storeId}/${type || 'logo'}`;
+    }
+
+    // Sanitizar cada segmento de carpeta para prevenir path traversal
+    const safeFolder = rawFolder
+      .split('/')
+      .map((segment) => segment.replace(/[^a-zA-Z0-9_-]/g, ''))
+      .filter(Boolean)
+      .join('/') || 'general';
+
     const result = await this.uploadService.uploadImage(file, `tienda/${safeFolder}`);
     return {
       url: result.secure_url,

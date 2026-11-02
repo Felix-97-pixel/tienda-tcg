@@ -7,6 +7,10 @@ export class UpdateStoreFullDto {
 
   @IsString()
   @IsOptional()
+  subdomain?: string;
+
+  @IsString()
+  @IsOptional()
   logoUrl?: string;
 
   @IsString()

@@ -4,6 +4,15 @@ import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { StoreFeature, StorePlan, StoreProfileFormData } from "../types/storeProfile.types";
 
+export interface BranchOption {
+  id: string;
+  name: string;
+  subdomain: string;
+  isMainBranch: boolean;
+  address?: string;
+  logoUrl?: string | null;
+}
+
 export function useStoreProfile(storeId: string) {
   const { showToast } = useToast();
 
@@ -12,9 +21,12 @@ export function useStoreProfile(storeId: string) {
   const [availableFeatures, setAvailableFeatures] = useState<StoreFeature[]>([]);
   const [availablePlans, setAvailablePlans] = useState<StorePlan[]>([]);
   const [availableGames, setAvailableGames] = useState<any[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
+  const [activeBranchId, setActiveBranchId] = useState<string>("");
   
   const [formData, setFormData] = useState<StoreProfileFormData>({
     name: "",
+    subdomain: "",
     logoUrl: "",
     subscriptionPlanIds: [],
     customFeatureIds: [],
@@ -31,9 +43,40 @@ export function useStoreProfile(storeId: string) {
     longitude: null,
   });
 
+  const getAuthHeaders = useCallback((extraHeaders?: Record<string, string>): Record<string, string> => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const headers: Record<string, string> = { "x-auth-scope": "admin", ...(extraHeaders || {}) };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+  }, []);
+
   const getEndpoint = useCallback(() => {
     return storeId === "me" ? `${API_URL}/stores/me` : `${API_URL}/stores/${storeId}/full`;
   }, [storeId]);
+
+  // Si el usuario es admin y tiene múltiples sucursales, cargar la lista de sucursales
+  useEffect(() => {
+    if (storeId === "me") {
+      fetch(`${API_URL}/stores/me/branches`, {
+        credentials: "include",
+        headers: getAuthHeaders(),
+      })
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data: BranchOption[]) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setBranches(data);
+            // Si aún no hay sucursal activa seleccionada, seleccionar la casa matriz o la primera
+            if (!activeBranchId) {
+              const main = data.find((b) => b.isMainBranch) || data[0];
+              setActiveBranchId(main.id);
+            }
+          }
+        })
+        .catch((err) => console.error("Error al cargar sucursales:", err));
+    }
+  }, [storeId, getAuthHeaders]);
 
   const fetchStore = useCallback(async () => {
     try {
@@ -42,16 +85,18 @@ export function useStoreProfile(storeId: string) {
       // Fetch available features and plans in parallel if superadmin
       if (storeId !== "me") {
         const [featuresRes, plansRes] = await Promise.all([
-          fetch(`${API_URL}/features`, { credentials: "include" }),
-          fetch(`${API_URL}/features/plans`, { credentials: "include" })
+          fetch(`${API_URL}/features`, { credentials: "include", headers: getAuthHeaders() }),
+          fetch(`${API_URL}/features/plans`, { credentials: "include", headers: getAuthHeaders() })
         ]);
         
         if (featuresRes.ok) setAvailableFeatures(await featuresRes.json());
         if (plansRes.ok) setAvailablePlans(await plansRes.json());
       }
 
+      const storeHeaders = getAuthHeaders(activeBranchId ? { "x-store-id": activeBranchId } : {});
+
       const [res, conditionsRes, languagesRes, gamesRes] = await Promise.all([
-        fetch(getEndpoint(), { credentials: "include" }),
+        fetch(getEndpoint(), { credentials: "include", headers: storeHeaders }),
         fetch(`${API_URL}/products/meta/conditions`),
         fetch(`${API_URL}/products/meta/languages`),
         fetch(`${API_URL}/games`)
@@ -112,6 +157,7 @@ export function useStoreProfile(storeId: string) {
 
         setFormData({
           name: store.name || "",
+          subdomain: store.subdomain || "",
           logoUrl: store.logoUrl || "",
           subscriptionPlanIds: store.subscriptionPlans ? store.subscriptionPlans.map((p: any) => p.id) : [],
           customFeatureIds: store.customFeatures ? store.customFeatures.map((f: any) => f.id) : [],
@@ -137,7 +183,7 @@ export function useStoreProfile(storeId: string) {
     } finally {
       setLoading(false);
     }
-  }, [storeId, getEndpoint, showToast]);
+  }, [storeId, activeBranchId, getEndpoint, getAuthHeaders, showToast]);
 
   useEffect(() => {
     fetchStore();
@@ -150,8 +196,14 @@ export function useStoreProfile(storeId: string) {
       const { devaluations, languageDevaluations, ...cleanData } = formData;
       const payload: any = { ...cleanData };
 
+      // Limpiar subdominio
+      if (payload.subdomain) {
+        payload.subdomain = payload.subdomain.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+      }
+
       // Si la petición es del dueño (storeId === "me"), eliminar campos que son exclusivos de SuperAdmin
       if (storeId === "me") {
+        delete payload.subdomain;
         delete payload.subscriptionPlanIds;
         delete payload.customFeatureIds;
         delete payload.subscriptionDiscountType;
@@ -176,9 +228,14 @@ export function useStoreProfile(storeId: string) {
         payload.longitude = Number(payload.longitude);
       }
       
+      const reqHeaders = getAuthHeaders({
+        "Content-Type": "application/json",
+        ...(activeBranchId ? { "x-store-id": activeBranchId } : {}),
+      });
+
       const res = await fetch(getEndpoint(), {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: reqHeaders,
         body: JSON.stringify(payload),
         credentials: "include",
       });
@@ -197,7 +254,7 @@ export function useStoreProfile(storeId: string) {
         const payloadDeval = formData.devaluations.filter((d: any) => d.gameId === gameId);
         const devalRes = await fetch(`${API_URL}/stores/me/devaluations`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: reqHeaders,
           body: JSON.stringify({ gameId, devaluations: payloadDeval }),
           credentials: "include",
         });
@@ -209,7 +266,7 @@ export function useStoreProfile(storeId: string) {
         const payloadLang = formData.languageDevaluations.filter((d: any) => d.gameId === gameId);
         const langDevalRes = await fetch(`${API_URL}/stores/me/language-devaluations`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: reqHeaders,
           body: JSON.stringify({ gameId, languageDevaluations: payloadLang }),
           credentials: "include",
         });
@@ -217,7 +274,19 @@ export function useStoreProfile(storeId: string) {
       }
 
       if (res.ok && devalResOk && langDevalResOk) {
-        showToast("Perfil de tienda guardado con éxito", "success");
+        showToast("Perfil de sucursal guardado con éxito", "success");
+        // Refrescar lista de sucursales si el nombre o subdominio cambió
+        if (storeId === "me") {
+          fetch(`${API_URL}/stores/me/branches`, {
+            credentials: "include",
+            headers: getAuthHeaders(),
+          })
+            .then((r) => (r.ok ? r.json() : []))
+            .then((data: BranchOption[]) => {
+              if (Array.isArray(data)) setBranches(data);
+            })
+            .catch(() => {});
+        }
       } else {
         showToast("Error al guardar devaluaciones", "error");
       }
@@ -237,6 +306,9 @@ export function useStoreProfile(storeId: string) {
     availableFeatures,
     availablePlans,
     availableGames,
+    branches,
+    activeBranchId,
+    setActiveBranchId,
     saveProfile,
   };
 }

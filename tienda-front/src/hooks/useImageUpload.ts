@@ -7,7 +7,8 @@ export const useImageUpload = () => {
   const handleUpload = async (
     file: File,
     currentUrl?: string,
-    folder: string = 'general'
+    folder: string = 'general',
+    meta?: { companyId?: string; storeId?: string; type?: string }
   ): Promise<string | null> => {
     if (!file) return null;
     const uploadData = new FormData();
@@ -25,8 +26,13 @@ export const useImageUpload = () => {
         }).catch((err) => console.error("No se pudo borrar imagen antigua", err));
       }
 
-      //console.log("Enviando petición a:", `${API_URL}/upload/image?folder=${encodeURIComponent(folder)}`);
-      const res = await fetch(`${API_URL}/upload/image?folder=${encodeURIComponent(folder)}`, {
+      const params = new URLSearchParams();
+      if (folder) params.append("folder", folder);
+      if (meta?.companyId) params.append("companyId", meta.companyId);
+      if (meta?.storeId) params.append("storeId", meta.storeId);
+      if (meta?.type) params.append("type", meta.type);
+
+      const res = await fetch(`${API_URL}/upload/image?${params.toString()}`, {
         method: "POST",
         body: uploadData,
         credentials: "include",

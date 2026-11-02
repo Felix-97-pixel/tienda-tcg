@@ -1,13 +1,19 @@
 "use client";
 import Loader from "@/components/ui/Loader";
 import React, { useState, useEffect } from "react";
-import { useImageUpload } from "@/hooks/useImageUpload";
-import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { FileInput } from "@/components/ui/FileInput";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { IconCheck, IconCreditCard } from "@/components/ui/Icons";
+import { ImageUploadField } from "@/components/ui/ImageUploadField";
+import {
+  IconCheck,
+  IconStore,
+  IconShare,
+  IconCreditCard,
+  IconAlertTriangle,
+  IconMapPin,
+  IconExternalLink,
+  IconLock,
+} from "@/components/ui/Icons";
 import dynamic from "next/dynamic";
 import { useStoreProfile } from "./hooks/useStoreProfile";
 
@@ -18,16 +24,14 @@ interface StoreProfileFormProps {
 }
 
 export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
-  const { isUploading, handleUpload, handleRemove } = useImageUpload();
-
   const {
     loading,
     saving,
     formData,
     setFormData,
-    availableFeatures,
-    availablePlans,
-    availableGames,
+    branches,
+    activeBranchId,
+    setActiveBranchId,
     saveProfile,
   } = useStoreProfile(storeId);
 
@@ -35,14 +39,16 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
 
   useEffect(() => {
     if (storeId === "me") {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/payments/mp/status`, { credentials: "include" })
-        .then(res => res.json())
-        .then(data => {
-          if (data && typeof data.isConfigured !== 'undefined') {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/payments/mp/status`, {
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && typeof data.isConfigured !== "undefined") {
             setMpStatus({ linked: data.isConfigured, mpUserId: null });
           }
         })
-        .catch(err => console.error("Error fetching MP status:", err));
+        .catch((err) => console.error("Error fetching MP status:", err));
     }
   }, [storeId]);
 
@@ -54,79 +60,157 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
-
-        <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
+        <Loader text="Cargando perfil de la sucursal..." className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }
 
   return (
     <div className="space-y-8 pb-24">
+      {/* Selector de Sucursal Activa (Si el comercio tiene más de 1 sucursal) */}
+      {storeId === "me" && branches && branches.length > 1 && (
+        <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+              <IconMapPin className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white uppercase tracking-wider">Sucursal en Edición</p>
+              <p className="text-xs text-white/50">Selecciona qué tienda física deseas configurar:</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {branches.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setActiveBranchId(b.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeBranchId === b.id
+                    ? "bg-red text-white shadow-lg shadow-red/20 border border-red"
+                    : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/5"
+                }`}
+              >
+                <span>{b.name}</span>
+                {b.isMainBranch && (
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/30 text-white/80 uppercase font-mono">
+                    Matriz
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form Card */}
         <div className="lg:col-span-2 space-y-6">
           <form onSubmit={handleSave} className="bg-[#0E121B] rounded-3xl shadow-xl p-8 border border-white/10 space-y-6">
-            
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 rounded-2xl bg-red/10 border border-red/20 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                <IconStore className="w-6 h-6 text-red" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">Información Principal</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">Información de la Sucursal</h2>
+                <p className="text-xs text-white/50">Datos públicos, subdominio web y logotipo específico de esta tienda física.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
               <Input
-                label="Nombre de la Tienda"
+                label="Nombre de la Sucursal"
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
 
+              {/* Subdominio de la sucursal (Solo editable por SuperAdmin) */}
               <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50">Logo de la Tienda</label>
-                <div className="flex items-center gap-4">
-                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-[#080B12] border border-white/10 flex items-center justify-center">
-                    {formData.logoUrl ? (
-                      <div className="relative h-full w-full group">
-                        <Image src={formData.logoUrl} alt="Logo" fill className="object-contain" />
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const success = await handleRemove(formData.logoUrl);
-                            if (success) setFormData({ ...formData, logoUrl: "" });
-                          }}
-                          className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-white/40 font-bold text-center">Sin Logo</span>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white/50">
+                    Subdominio de la Sucursal (URL Pública)
+                  </label>
+                  {storeId === "me" && (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-400/90 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                      <IconLock className="w-3 h-3 text-amber-400" />
+                      Solo modificable por SuperAdmin
+                    </span>
+                  )}
+                </div>
+
+                {storeId === "me" ? (
+                  <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/10 px-4 py-2.5 text-sm font-mono text-white/80">
+                    <span className="truncate">
+                      <span className="text-white/40">https://taptrade.cl/shop/store/</span>
+                      <strong className="text-white font-bold">{formData.subdomain || "sin-subdominio"}</strong>
+                    </span>
+                    {formData.subdomain && (
+                      <a
+                        href={`/shop/store/${formData.subdomain}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all ml-2 shrink-0"
+                        title="Abrir tienda pública"
+                      >
+                        <IconExternalLink className="w-4 h-4" />
+                      </a>
                     )}
                   </div>
-                  <FileInput
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const url = await handleUpload(file, formData.logoUrl, 'stores');
-                        if (url) setFormData({ ...formData, logoUrl: url });
-                      }
-                    }}
-                    disabled={isUploading}
-                  />
-                </div>
-                {isUploading && <p className="mt-2 text-xs text-red animate-pulse">Subiendo imagen...</p>}
+                ) : (
+                  <div className="flex items-center rounded-xl bg-[#080B12] border border-white/10 focus-within:border-red focus-within:ring-1 focus-within:ring-red/30 transition-all overflow-hidden px-4 py-2.5">
+                    <span className="text-xs text-white/40 select-none font-mono pr-1">https://taptrade.cl/shop/store/</span>
+                    <input
+                      type="text"
+                      required
+                      value={formData.subdomain || ""}
+                      onChange={(e) => {
+                        const clean = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+                        setFormData({ ...formData, subdomain: clean });
+                      }}
+                      className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none font-mono"
+                      placeholder="bloodmoon_santiago"
+                    />
+                    {formData.subdomain && (
+                      <a
+                        href={`/shop/store/${formData.subdomain}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="ml-2 text-white/40 hover:text-white transition-colors"
+                        title="Abrir tienda pública"
+                      >
+                        <IconExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                <p className="text-[11px] text-white/40 mt-1.5">
+                  {storeId === "me"
+                    ? "El subdominio oficial solo puede ser configurado por la administración de la plataforma. Para solicitar cambios, comunícate con soporte."
+                    : "Como SuperAdmin, puedes modificar libremente el subdominio de esta sucursal (permite [a-z0-9_-])."}
+                </p>
               </div>
 
+              {/* Logo con subida a Bucket Cloudinary */}
+              <ImageUploadField
+                label="Logo de la Sucursal"
+                value={formData.logoUrl}
+                onChange={(url) => setFormData({ ...formData, logoUrl: url })}
+                folder="stores"
+                storeId={storeId === "me" ? activeBranchId || undefined : storeId}
+                type="logo"
+                description="Logo visible en el storefront público y en los recibos de esta sucursal. PNG, JPG, WEBP (Máx. 5MB)."
+              />
+
               <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50">Descripción de la Tienda</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50">
+                  Descripción de la Sucursal
+                </label>
                 <textarea
                   className="w-full rounded-xl border border-white/10 bg-[#080B12] px-4 py-3 text-white focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all placeholder:text-white/30 text-sm min-h-[100px]"
-                  placeholder="Cuenta a tus clientes sobre tu tienda..."
+                  placeholder="Cuenta a tus clientes sobre esta sucursal física..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
@@ -135,7 +219,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
 
             <div className="flex items-center gap-4 mb-6 mt-10">
               <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+                <IconShare className="w-6 h-6 text-white/70" />
               </div>
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-tight">Contacto y Redes Sociales</h2>
@@ -152,16 +236,16 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               />
               <div className="md:col-span-2 mt-4">
                 <label className="block text-sm font-semibold text-white mb-2">Ubicación Física</label>
-                <LocationPicker 
+                <LocationPicker
                   initialAddress={formData.address}
                   initialLat={formData.latitude}
                   initialLng={formData.longitude}
                   onLocationChange={(lat, lng, address) => {
-                    setFormData(prev => ({
+                    setFormData((prev) => ({
                       ...prev,
                       latitude: lat,
                       longitude: lng,
-                      address: address
+                      address: address,
                     }));
                   }}
                 />
@@ -210,19 +294,18 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               />
             </div>
 
-
-
-
             {/* Mercado Pago Integration (Solo visible para Admin propio) */}
             {storeId === "me" && (
               <>
                 <div className="flex items-center gap-4 mb-6 mt-10">
                   <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shadow-inner">
-                    <svg className="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <IconCreditCard className="w-6 h-6 text-sky-400" />
                   </div>
                   <div>
                     <h2 className="text-lg font-black text-white uppercase tracking-tight">Pagos y Cobros</h2>
-                    <p className="text-xs text-white/40 font-medium mt-1">Opcional: Si deseas vincular tu cuenta de Mercado Pago para cobros directos.</p>
+                    <p className="text-xs text-white/40 font-medium mt-1">
+                      Opcional: Si deseas vincular tu cuenta de Mercado Pago para cobros directos.
+                    </p>
                   </div>
                 </div>
 
@@ -231,12 +314,12 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     <h4 className="text-white font-bold mb-1">Cuenta de Mercado Pago</h4>
                     {mpStatus?.linked ? (
                       <p className="text-sm text-emerald-400 font-medium flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                        <IconCheck className="w-4 h-4 text-emerald-400" />
                         Vinculada y activa para recibir pagos
                       </p>
                     ) : (
                       <p className="text-sm text-gray-400 font-medium flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <IconAlertTriangle className="w-4 h-4 text-amber-400" />
                         No vinculada (Opcional). Las ventas se liquidan mediante la cuenta central de TapTrade.
                       </p>
                     )}
@@ -245,7 +328,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     type="button"
                     variant={mpStatus?.linked ? "secondary" : "primary"}
                     onClick={() => {
-                      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/payments/mp/connect`;
+                      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/payments/mp/connect`;
                     }}
                   >
                     {mpStatus?.linked ? "Actualizar Vinculación" : "Vincular con Mercado Pago"}
@@ -256,11 +339,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
 
             <div className="mt-10 pt-6 border-t border-white/10 flex justify-end">
               <div className="w-full md:w-1/3">
-                <Button
-                  type="submit"
-                  isLoading={saving || isUploading}
-                  fullWidth
-                >
+                <Button type="submit" isLoading={saving} fullWidth>
                   Guardar Cambios
                 </Button>
               </div>
@@ -274,19 +353,23 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             <div className="absolute -right-4 -top-4 w-28 h-28 bg-red/10 rounded-full blur-2xl group-hover:bg-red/20 transition-all duration-500"></div>
             <h3 className="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
               <span className="w-2 h-2 bg-red rounded-full shadow-[0_0_8px_rgba(225,14,14,0.8)]"></span>
-              Perfil Público
+              Perfil Público de Sucursal
             </h3>
             <p className="text-xs text-white/50 leading-relaxed font-medium mb-6">
-              Toda la información ingresada aquí será visible en el perfil público de tu tienda en TapTrade.
+              Toda la información ingresada aquí será visible en el catálogo online de esta sucursal en TapTrade.
             </p>
             <div className="p-4 rounded-2xl bg-[#080B12] border border-white/10 space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold text-white/80">
-                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                <IconCheck className="w-4 h-4 text-emerald-400" />
                 Actualización instantánea
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-white/80">
-                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
-                Íconos automáticos
+                <IconCheck className="w-4 h-4 text-emerald-400" />
+                Subdominio independiente por sucursal
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-white/80">
+                <IconCheck className="w-4 h-4 text-emerald-400" />
+                Logos y direcciones por tienda física
               </div>
             </div>
           </div>

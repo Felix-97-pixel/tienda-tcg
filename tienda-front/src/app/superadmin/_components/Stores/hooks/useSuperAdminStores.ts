@@ -10,6 +10,7 @@ export interface Branch {
   id: string;
   name: string;
   subdomain: string;
+  logoUrl?: string | null;
   isMainBranch: boolean;
   address?: string;
   balance: number;
@@ -25,7 +26,8 @@ export interface SubscriptionPlan {
 export interface Company {
   id: string;
   name: string;
-  rut?: string;
+  rut?: string | null;
+  logoUrl?: string | null;
   planId?: string | null;
   plan?: SubscriptionPlan | null;
   balance: number;
@@ -51,9 +53,13 @@ export function useSuperAdminStores() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
+    companyName: "",
+    companyRut: "",
+    companyLogoUrl: "",
     storeName: "",
     subdomain: "",
     logoUrl: "",
+    address: "",
     ownerEmail: "",
     ownerName: "",
     ownerPassword: "",
@@ -136,12 +142,23 @@ export function useSuperAdminStores() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "subdomain") {
+      setFormData((prev) => ({ ...prev, subdomain: value.toLowerCase().replace(/[^a-z0-9_-]/g, "") }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCreateStore = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.storeName || !formData.subdomain || !formData.ownerEmail || !formData.ownerPassword) {
+    const finalCompanyName = formData.companyName || formData.storeName;
+    const finalStoreName = formData.storeName || formData.companyName;
+
+    if (!finalCompanyName) {
+      toast.error("Ingresa el nombre de la empresa");
+      return;
+    }
+    if (!formData.subdomain || !formData.ownerEmail || !formData.ownerPassword) {
       toast.error("Completa todos los campos requeridos");
       return;
     }
@@ -153,9 +170,14 @@ export function useSuperAdminStores() {
         headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify({
-          name: formData.storeName,
+          companyName: finalCompanyName,
+          companyRut: formData.companyRut || null,
+          companyLogoUrl: formData.companyLogoUrl || null,
+          storeName: finalStoreName,
+          name: finalStoreName,
           subdomain: formData.subdomain,
-          logoUrl: formData.logoUrl,
+          logoUrl: formData.logoUrl || formData.companyLogoUrl || null,
+          address: formData.address || null,
           ownerEmail: formData.ownerEmail,
           ownerName: formData.ownerName,
           ownerPassword: formData.ownerPassword,
@@ -175,9 +197,13 @@ export function useSuperAdminStores() {
       toast.success("Empresa y casa matriz creadas exitosamente");
       setIsModalOpen(false);
       setFormData({
+        companyName: "",
+        companyRut: "",
+        companyLogoUrl: "",
         storeName: "",
         subdomain: "",
         logoUrl: "",
+        address: "",
         ownerEmail: "",
         ownerName: "",
         ownerPassword: "",
@@ -192,7 +218,7 @@ export function useSuperAdminStores() {
 
   const handleCreateBranch = async (
     companyId: string,
-    data: { name: string; subdomain: string; address?: string; pickupSchedule?: string }
+    data: { name: string; subdomain: string; logoUrl?: string; address?: string; pickupSchedule?: string }
   ) => {
     try {
       setIsSubmittingBranch(true);
@@ -306,6 +332,7 @@ export function useSuperAdminStores() {
     isModalOpen,
     isSubmitting,
     formData,
+    setFormData,
     handleInputChange,
     handleCreateStore,
     handleAssignPlan,

@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { IconMapPin, IconStore, IconPlus, IconX } from "@/components/ui/Icons";
+import { ImageUploadField } from "@/components/ui/ImageUploadField";
+import { IconMapPin, IconPlus, IconX, IconLoader } from "@/components/ui/Icons";
 import { Company } from "./hooks/useSuperAdminStores";
 
 interface CreateBranchModalProps {
@@ -10,7 +11,7 @@ interface CreateBranchModalProps {
   company: Company | null;
   onSubmit: (
     companyId: string,
-    data: { name: string; subdomain: string; address?: string; pickupSchedule?: string }
+    data: { name: string; subdomain: string; logoUrl?: string; address?: string; pickupSchedule?: string }
   ) => Promise<void>;
   isSubmitting: boolean;
 }
@@ -25,6 +26,7 @@ export default function CreateBranchModal({
   const [formData, setFormData] = useState({
     name: "",
     subdomain: "",
+    logoUrl: "",
     address: "",
     pickupSchedule: "",
   });
@@ -35,27 +37,27 @@ export default function CreateBranchModal({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "subdomain" ? value.toLowerCase().replace(/[^a-z0-9-]/g, "") : value,
+      [name]: name === "subdomain" ? value.toLowerCase().replace(/[^a-z0-9_-]/g, "") : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSubmit(company.id, formData);
-    setFormData({ name: "", subdomain: "", address: "", pickupSchedule: "" });
+    setFormData({ name: "", subdomain: "", logoUrl: "", address: "", pickupSchedule: "" });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="bg-[#0E121B] border border-white/10 rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Encabezado */}
-        <div className="flex justify-between items-center px-6 py-5 border-b border-white/10 bg-white/[0.02]">
+        <div className="flex justify-between items-center px-6 py-5 border-b border-white/10 bg-white/[0.02] flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-red/15 border border-red/30 flex items-center justify-center text-red">
+            <div className="w-10 h-10 rounded-2xl bg-red/15 border border-red/30 flex items-center justify-center text-red shadow-lg shadow-red/10">
               <IconMapPin className="w-5 h-5 text-red" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white leading-tight">
+              <h3 className="text-base font-black text-white uppercase tracking-tight">
                 Nueva Sucursal Física
               </h3>
               <p className="text-xs text-white/50">
@@ -65,14 +67,15 @@ export default function CreateBranchModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+            type="button"
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all"
           >
             <IconX className="w-4 h-4" />
           </button>
         </div>
 
         {/* Resumen Informativo */}
-        <div className="px-6 py-3.5 bg-gradient-to-r from-red/10 to-transparent border-b border-white/5">
+        <div className="px-6 py-3.5 bg-gradient-to-r from-red/10 to-transparent border-b border-white/5 flex-shrink-0">
           <p className="text-xs text-white/70 leading-relaxed">
             Esta sucursal pertenecerá al Holding de <strong className="text-white">{company.name}</strong>,
             compartiendo la billetera matriz y el plan SaaS corporativo (
@@ -81,8 +84,8 @@ export default function CreateBranchModal({
           </p>
         </div>
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+        {/* Formulario con Scroll */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
               Nombre de la Sucursal *
@@ -94,7 +97,7 @@ export default function CreateBranchModal({
               value={formData.name}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Ej: Sucursal Providencia, Mall Plaza Vespucio"
+              placeholder="Ej: Sucursal Viña del Mar Centro"
             />
           </div>
 
@@ -103,7 +106,7 @@ export default function CreateBranchModal({
               Subdominio Único (URL Web) *
             </label>
             <div className="flex items-center rounded-xl bg-[#080B12] border border-white/10 focus-within:border-red focus-within:ring-1 focus-within:ring-red/30 transition-all overflow-hidden px-4 py-2.5">
-              <span className="text-xs text-white/40 select-none font-mono pr-1">taptrade.cl/</span>
+              <span className="text-xs text-white/40 select-none font-mono pr-1">taptrade.cl/shop/store/</span>
               <input
                 required
                 type="text"
@@ -111,12 +114,23 @@ export default function CreateBranchModal({
                 value={formData.subdomain}
                 onChange={handleChange}
                 className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none font-mono"
-                placeholder="osbin-providencia"
+                placeholder="bloodmoon_vina"
               />
             </div>
             <p className="text-[11px] text-white/40 mt-1">
-              Identificador único para el catálogo online de esta sucursal física.
+              Permite letras, números, guiones y guiones bajos (ej: bloodmoon_vina).
             </p>
+          </div>
+
+          <div>
+            <ImageUploadField
+              label="Logo de la Sucursal (Opcional)"
+              value={formData.logoUrl}
+              onChange={(url) => setFormData((prev) => ({ ...prev, logoUrl: url }))}
+              companyId={company.id}
+              type="logo"
+              description="Opcional. Si no se sube, hereda automáticamente el logo corporativo del Holding."
+            />
           </div>
 
           <div>
@@ -129,7 +143,7 @@ export default function CreateBranchModal({
               value={formData.address}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Ej: Av. Providencia 2124, Local 4B"
+              placeholder="Ej: Calle Valparaíso 542, Viña del Mar"
             />
           </div>
 
@@ -148,13 +162,12 @@ export default function CreateBranchModal({
           </div>
 
           {/* Footer de Acciones */}
-          <div className="flex items-center justify-end gap-3 mt-4 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
               disabled={isSubmitting}
-              className="text-xs"
             >
               Cancelar
             </Button>
@@ -162,10 +175,18 @@ export default function CreateBranchModal({
               type="submit"
               variant="primary"
               disabled={isSubmitting}
-              className="text-xs gap-1.5"
             >
-              <IconPlus className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? "Registrando..." : "Registrar Sucursal"}</span>
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <IconLoader className="w-4 h-4 animate-spin" />
+                  Registrando...
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <IconPlus className="w-4 h-4" />
+                  Agregar Sucursal
+                </span>
+              )}
             </Button>
           </div>
         </form>
@@ -173,4 +194,3 @@ export default function CreateBranchModal({
     </div>
   );
 }
-

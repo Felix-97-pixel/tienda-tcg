@@ -14,6 +14,7 @@ export interface StorePlan {
 
 export interface StoreProfileFormData {
   name: string;
+  subdomain?: string;
   logoUrl: string;
   subscriptionPlanIds: string[];
   customFeatureIds: string[];

@@ -82,7 +82,8 @@ export class StoresController {
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   updateStoreByOwner(@Request() req: any, @Body() updateDto: UpdateStoreByOwnerDto) {
-    return this.storesService.updateStoreByOwner(req.user.userId, updateDto);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    return this.storesService.updateStoreByOwner(req.user.userId, updateDto, targetStoreId);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -200,8 +200,29 @@ export class StoresService {
     return store;
   }
 
-  async updateStoreByOwner(userId: string, data: UpdateStoreByOwnerDto) {
-    const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
+  async updateStoreByOwner(userId: string, data: UpdateStoreByOwnerDto, targetStoreId?: string) {
+    let whereCondition: any = {
+      OR: [
+        { ownerId: userId },
+        { members: { some: { userId } } },
+        { company: { ownerId: userId } },
+        { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN'] } } } } },
+      ],
+    };
+
+    if (targetStoreId) {
+      whereCondition = {
+        id: targetStoreId,
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { company: { ownerId: userId } },
+          { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN'] } } } } },
+        ],
+      };
+    }
+
+    const store = await this.prisma.store.findFirst({ where: whereCondition });
     if (!store) {
       throw new NotFoundException('No tienes una tienda asignada');
     }
@@ -366,7 +387,7 @@ export class StoresService {
     }
 
     const {
-      name, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
+      name, subdomain, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
       subscriptionPlanIds, customFeatureIds,
       subscriptionDiscountType, subscriptionDiscountValue, subscriptionNotes
     } = data;
@@ -381,6 +402,15 @@ export class StoresService {
       subscriptionDiscountValue: subscriptionDiscountValue !== undefined ? Number(subscriptionDiscountValue) : undefined,
       subscriptionNotes: subscriptionNotes !== undefined ? subscriptionNotes : undefined,
     };
+
+    if (subdomain && subdomain !== store.subdomain) {
+      const cleanSub = subdomain.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      const existing = await this.prisma.store.findUnique({ where: { subdomain: cleanSub } });
+      if (existing && existing.id !== storeId) {
+        throw new ConflictException('El subdominio ya está registrado por otra tienda o sucursal.');
+      }
+      updateData.subdomain = cleanSub;
+    }
 
     if (subscriptionPlanIds !== undefined && Array.isArray(subscriptionPlanIds)) {
       updateData.subscriptionPlans = {
@@ -504,7 +534,22 @@ export class StoresService {
   }
 
   async create(createStoreDto: CreateStoreDto) {
-    const { storeName, subdomain, logoUrl, ownerEmail, ownerName, ownerPassword } = createStoreDto as any;
+    const {
+      storeName,
+      subdomain,
+      logoUrl,
+      ownerEmail,
+      ownerName,
+      ownerPassword,
+      companyName,
+      companyRut,
+      companyLogoUrl,
+    } = createStoreDto as any;
+
+    const cleanSubdomain = (subdomain || '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!cleanSubdomain) {
+      throw new BadRequestException('El subdominio es requerido y solo puede contener letras, números, guiones y guiones bajos.');
+    }
 
     return this.prisma.$transaction(async (tx) => {
       // 1. Verificar si el usuario ya existe
@@ -535,7 +580,9 @@ export class StoresService {
       if (!company) {
         company = await tx.company.create({
           data: {
-            name: storeName || createStoreDto.name,
+            name: companyName || storeName || createStoreDto.name,
+            rut: companyRut || null,
+            logoUrl: companyLogoUrl || null,
             ownerId: user.id,
             balance: 0,
             extraBranchesCount: 0,
@@ -559,8 +606,8 @@ export class StoresService {
         const store = await tx.store.create({
           data: {
             name: storeName || createStoreDto.name, // Support both variable names
-            subdomain,
-            logoUrl,
+            subdomain: cleanSubdomain,
+            logoUrl: logoUrl || companyLogoUrl || null,
             ownerId: user.id,
             companyId: company.id,
             isMainBranch: true,
@@ -752,7 +799,7 @@ export class StoresService {
   /**
    * Crea una nueva sucursal (Branch) directamente bajo una empresa (SuperAdmin).
    */
-  async createBranchForCompany(companyId: string, data: { name: string; subdomain: string; address?: string; originRegionId?: string; originCommuneId?: string; pickupSchedule?: string }) {
+  async createBranchForCompany(companyId: string, data: { name: string; subdomain: string; logoUrl?: string; address?: string; originRegionId?: string; originCommuneId?: string; pickupSchedule?: string }) {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
       include: { stores: true },
@@ -761,8 +808,13 @@ export class StoresService {
       throw new NotFoundException('Empresa no encontrada');
     }
 
+    const cleanSubdomain = data.subdomain.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!cleanSubdomain) {
+      throw new BadRequestException('El subdominio es inválido.');
+    }
+
     const existingSubdomain = await this.prisma.store.findUnique({
-      where: { subdomain: data.subdomain },
+      where: { subdomain: cleanSubdomain },
     });
     if (existingSubdomain) {
       throw new ConflictException('El subdominio ya está registrado por otra tienda o sucursal.');
@@ -773,7 +825,8 @@ export class StoresService {
     const newBranch = await this.prisma.store.create({
       data: {
         name: data.name,
-        subdomain: data.subdomain,
+        subdomain: cleanSubdomain,
+        logoUrl: data.logoUrl || company.logoUrl || null,
         address: data.address,
         originRegionId: data.originRegionId,
         originCommuneId: data.originCommuneId,
@@ -837,12 +890,17 @@ export class StoresService {
    * Crea una nueva sucursal (Branch) para la empresa del usuario,
    * validando los permisos y cuotas del modelo de negocio.
    */
-  async createBranch(userId: string, data: { name: string; subdomain: string; address?: string; originRegionId?: string; originCommuneId?: string; pickupSchedule?: string }) {
+  async createBranch(userId: string, data: { name: string; subdomain: string; logoUrl?: string; address?: string; originRegionId?: string; originCommuneId?: string; pickupSchedule?: string }) {
     const company = await this.getCompanyByOwner(userId);
+
+    const cleanSubdomain = data.subdomain.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!cleanSubdomain) {
+      throw new BadRequestException('El subdominio es inválido.');
+    }
 
     // Verificar si el subdominio ya existe
     const existingSubdomain = await this.prisma.store.findUnique({
-      where: { subdomain: data.subdomain },
+      where: { subdomain: cleanSubdomain },
     });
     if (existingSubdomain) {
       throw new ConflictException('El subdominio ya está registrado por otra tienda o sucursal.');
@@ -853,7 +911,8 @@ export class StoresService {
     const branch = await this.prisma.store.create({
       data: {
         name: data.name,
-        subdomain: data.subdomain,
+        subdomain: cleanSubdomain,
+        logoUrl: data.logoUrl || company.logoUrl || null,
         address: data.address,
         originRegionId: data.originRegionId,
         originCommuneId: data.originCommuneId,

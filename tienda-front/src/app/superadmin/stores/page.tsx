@@ -17,6 +17,7 @@ export default function StoresPage() {
     isModalOpen,
     isSubmitting,
     formData,
+    setFormData,
     handleInputChange,
     handleCreateStore,
     handleAssignPlan,
@@ -80,6 +81,7 @@ export default function StoresPage() {
           onClose={closeCreateModal}
           onSubmit={handleCreateStore}
           formData={formData}
+          setFormData={setFormData}
           handleInputChange={handleInputChange}
           isSubmitting={isSubmitting}
         />

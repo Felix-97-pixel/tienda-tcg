@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Loader from "@/components/ui/Loader";
 import { Button } from "@/components/ui/Button";
 import { Company, Branch, SubscriptionPlan } from "./hooks/useSuperAdminStores";
@@ -87,9 +88,15 @@ export default function StoreTable({
                 <tr className="hover:bg-white/[0.03] transition-colors">
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-dark to-red flex items-center justify-center font-bold text-white shadow-sm">
-                        <IconStore className="w-4 h-4 text-white" />
-                      </div>
+                      {company.logoUrl ? (
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-black/40 border border-white/10 flex-shrink-0">
+                          <Image src={company.logoUrl} alt={company.name} fill unoptimized className="object-contain p-1" />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-dark to-red flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0">
+                          <IconStore className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                       <div>
                         <p className="font-bold text-white text-base leading-tight">{company.name}</p>
                         <p className="text-[10px] text-white/40 font-mono mt-0.5">
@@ -185,11 +192,17 @@ export default function StoreTable({
                                 className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all"
                               >
                                 <div className="flex items-center gap-3 min-w-0">
-                                  <div
-                                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                      branch.isMainBranch ? "bg-emerald-400" : "bg-purple-400"
-                                    }`}
-                                  />
+                                  {branch.logoUrl ? (
+                                    <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-black/40 border border-white/10 shrink-0">
+                                      <Image src={branch.logoUrl} alt={branch.name} fill unoptimized className="object-contain p-0.5" />
+                                    </div>
+                                  ) : (
+                                    <div
+                                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                        branch.isMainBranch ? "bg-emerald-400" : "bg-purple-400"
+                                      }`}
+                                    />
+                                  )}
                                   <div className="truncate">
                                     <div className="flex items-center gap-2">
                                       <span className="font-bold text-white text-xs truncate">{branch.name}</span>
