@@ -634,18 +634,33 @@ export class StoresService {
   async updateCompanyPlan(companyId: string, planId: string | null) {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
+      include: { stores: true },
     });
     if (!company) {
       throw new NotFoundException('Empresa no encontrada');
     }
 
-    return this.prisma.company.update({
+    const updated = await this.prisma.company.update({
       where: { id: companyId },
       data: { planId },
       include: {
         plan: true,
+        stores: true,
       },
     });
+
+    if (updated.stores && updated.stores.length > 0) {
+      for (const st of updated.stores) {
+        await this.prisma.store.update({
+          where: { id: st.id },
+          data: {
+            subscriptionPlans: planId ? { set: [{ id: planId }] } : { set: [] },
+          },
+        });
+      }
+    }
+
+    return updated;
   }
 
   /**
