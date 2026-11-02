@@ -10,15 +10,19 @@ export function ReduxProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       const originalFetch = window.fetch;
       window.fetch = async (...args) => {
-        const response = await originalFetch(...args);
-        // Deslogear si expira el token y no es la ruta de login
-        if (response.status === 401) {
-          const isLogin = typeof args[0] === 'string' && args[0].includes('/auth/login');
-          if (!isLogin) {
-            store.dispatch(logout());
+        try {
+          const response = await originalFetch(...args);
+          // Deslogear si expira el token y no es la ruta de login
+          if (response?.status === 401) {
+            const isLogin = typeof args[0] === 'string' && args[0].includes('/auth/login');
+            if (!isLogin) {
+              store.dispatch(logout());
+            }
           }
+          return response;
+        } catch (error) {
+          throw error;
         }
-        return response;
       };
     }
   }, []);

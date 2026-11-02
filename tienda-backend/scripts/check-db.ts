@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config({ path: path.join(__dirname, '../.env') });
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
@@ -17,11 +19,37 @@ async function main() {
       email: true,
       name: true,
       role: true,
-      store: {
+      stores: {
         select: {
           id: true,
           name: true,
+          subdomain: true,
+          isMainBranch: true,
           balance: true,
+        },
+      },
+      companies: {
+        select: {
+          id: true,
+          name: true,
+          rut: true,
+          balance: true,
+        },
+      },
+      companyMemberships: {
+        select: {
+          role: true,
+          company: {
+            select: { id: true, name: true },
+          },
+        },
+      },
+      storeMemberships: {
+        select: {
+          role: true,
+          store: {
+            select: { id: true, name: true, subdomain: true },
+          },
         },
       },
     },
