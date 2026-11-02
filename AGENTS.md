@@ -28,4 +28,10 @@
 - **CATÁLOGO TIPADO CENTRALIZADO**: Todo nuevo permiso debe definirse en el enum `Permission` y mapearse en `ROLE_PERMISSIONS` en [`tienda-backend/src/auth/constants/permissions.enum.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/auth/constants/permissions.enum.ts).
 - Consultar las directivas detalladas en `.agents/rules/backend-pbac-authorization.md`.
 
-
+## 6. Rendimiento en Interfaces y Frontend (REGLA ESTRICTA)
+- **PROHIBIDO MEZCLAR GUARDS DE RUTA CON LLAMADAS DE RED**: La verificación de rutas y roles en `useEffect` debe ser instantánea (0ms en cliente) sin re-ejecutar peticiones como `/stores/me` en cada cambio de subruta.
+- **USO OBLIGATORIO DE CACHÉ DE METADATOS**: Prohibido hacer `fetch` directo a metadatos estáticos (`conditions`, `languages`, `currencies`, `games`). Utilizar exclusivamente el hook [`useTcgMetadata.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-front/src/hooks/useTcgMetadata.ts) o las funciones de [`metadataCache.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-front/src/utils/metadataCache.ts).
+- **PREVENCIÓN DE BUCLES EN HOOKS**: Nunca usar objetos mutables en arrays de dependencias de `useEffect`; utilizar siempre identificadores primitivos (ej: `user?.activeStore?.id`).
+- **DEDUPLICACIÓN SSR CON `React.cache()`**: En páginas Server Components donde `generateMetadata` y el componente de página requieren los mismos datos, envolver la consulta en `React.cache()` y configurar revalidación ligera (`next: { revalidate: 60 }`).
+- **CODE SPLITTING OBLIGATORIO**: Todo modal complejo (subida de archivos, CSV, formularios grandes) y bibliotecas pesadas (`recharts`, `jspdf`, `leaflet`) deben importarse con `next/dynamic` y `{ ssr: false }`.
+- Consultar las directivas detalladas en [`.agents/rules/frontend-performance.md`](file:///c:/Users/felix/Desktop/e-commerce/.agents/rules/frontend-performance.md).

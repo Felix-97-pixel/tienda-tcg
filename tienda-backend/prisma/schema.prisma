@@ -153,6 +153,9 @@ model InventoryItem {
   @@index([storeId])
   @@index([productId])
   @@index([storeId, productId])
+  @@index([isPublished, stock])
+  @@index([storeId, isPublished, stock])
+  @@index([productId, isPublished, stock])
 }
 
 model StockReservation {

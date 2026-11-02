@@ -13,6 +13,7 @@ import { matchesCondition, matchesFinish, matchesLanguage } from "@/utils/tcgFil
 import { IconSparkles, IconCard, IconZap } from "@/components/ui/Icons";
 
 import { getBestAvailableVariant } from "@/utils/tcgPrices";
+import { useTcgMetadata } from "@/hooks/useTcgMetadata";
 
 function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?: any[] }) {
   const currency = useAppSelector((state: any) => state.currencyReducer);
@@ -190,11 +191,11 @@ export default function TcgMarketplaceCatalog() {
 
   // Data State
   const [rawProducts, setRawProducts] = useState<any[]>([]);
-  const [globalRates, setGlobalRates] = useState<any[]>([]);
+  const { conditions: conditionsData, languages: languagesData, currencies: globalRates } = useTcgMetadata();
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [expansionsData, setExpansionsData] = useState<any[]>([]);
-  const [conditionsData, setConditionsData] = useState<any[]>([]);
-  const [languagesData, setLanguagesData] = useState<any[]>([]);
+
+
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -233,36 +234,7 @@ export default function TcgMarketplaceCatalog() {
       })
       .catch((err) => console.error("Error fetching categories:", err));
   }, []);
-
-  // Fetch all conditions dynamically from database
-  useEffect(() => {
-    fetch(`${API_URL}/products/meta/conditions`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (Array.isArray(data)) setConditionsData(data);
-      })
-      .catch((err) => console.error("Error fetching conditions:", err));
-  }, []);
-
-  // Fetch all languages dynamically from database
-  useEffect(() => {
-    fetch(`${API_URL}/products/meta/languages`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (Array.isArray(data)) setLanguagesData(data);
-      })
-      .catch((err) => console.error("Error fetching languages:", err));
-  }, []);
-
-  // Fetch all global currencies and exchange rates dynamically
-  useEffect(() => {
-    fetch(`${API_URL}/currencies`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (Array.isArray(data)) setGlobalRates(data);
-      })
-      .catch((err) => console.error("Error fetching currencies:", err));
-  }, []);
+  // Metadatos cacheados provistos por useTcgMetadata
 
   // Fetch expansions when category changes
   useEffect(() => {

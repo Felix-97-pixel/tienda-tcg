@@ -17,6 +17,12 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  // 1. Verificación de Autenticación y Autorización por Rol (Rutas) - 0ms latencia, sin peticiones de red
+  useEffect(() => {
+    if (!isMounted) return;
+
     if (!isAuthenticated) {
       router.push("/admin/login");
       return;
@@ -60,12 +66,19 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         return;
       }
     }
+  }, [isMounted, isAuthenticated, user?.role, user?.sessionType, pathname, router]);
 
-    // Fetch features for ADMIN always to avoid stale features
+  // 2. Carga de Características y Tienda Activa - Solo se ejecuta al montar sesión o al cambiar de sucursal
+  const activeBranchId = user?.activeStore?.id;
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "ADMIN") return;
+
+    // Solo bloquear con spinner si no tenemos aún features cargadas
     if (features.length === 0) {
       setLoadingFeatures(true);
     }
-    adminFetch("/stores/me", {}, user?.activeStore?.id)
+
+    adminFetch("/stores/me", {}, activeBranchId)
       .then((res) => {
         if (res.status === 401) {
           dispatch(adminLogout());
@@ -79,7 +92,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
           if (data.activeFeatures) {
             dispatch(updateAdminFeatures(data.activeFeatures));
           }
-          if ((!user?.activeStore || !user?.activeStore?.id) && data.id) {
+          if (!activeBranchId && data.id) {
             dispatch(
               setActiveStore({
                 id: data.id,
@@ -94,9 +107,9 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       })
       .catch(console.error)
       .finally(() => setLoadingFeatures(false));
-  }, [isAuthenticated, user, pathname, router, dispatch]);
+  }, [isAuthenticated, user?.role, activeBranchId, dispatch, router]);
 
-  // Wait until mounted to prevent hydration errors, and show spinner if not admin
+  // Wait until mounted to prevent hydration errors, and show spinner if not admin or initial feature loading
   if (!isMounted || !isAuthenticated || user?.role !== "ADMIN" || loadingFeatures) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#07090E]">

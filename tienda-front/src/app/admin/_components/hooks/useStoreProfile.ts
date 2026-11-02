@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { adminFetch } from "@/utils/api";
+import { fetchCachedConditions, fetchCachedLanguages, fetchCachedGames } from "@/utils/metadataCache";
 import { useToast } from "@/hooks/useToast";
 import { StoreFeature, StorePlan, StoreProfileFormData } from "../types/storeProfile.types";
 
@@ -90,25 +91,14 @@ export function useStoreProfile(storeId: string) {
         if (plansRes.ok) setAvailablePlans(await plansRes.json());
       }
 
-      const [res, conditionsRes, languagesRes, gamesRes] = await Promise.all([
+      const [res, conditionsData, languagesData, gamesList] = await Promise.all([
         adminFetch(getEndpoint(), {}, activeBranchId),
-        adminFetch("/products/meta/conditions"),
-        adminFetch("/products/meta/languages"),
-        adminFetch("/games")
+        fetchCachedConditions(),
+        fetchCachedLanguages(),
+        fetchCachedGames()
       ]);
 
-      let conditionsData: any[] = [];
-      if (conditionsRes.ok) {
-        conditionsData = await conditionsRes.json();
-      }
-
-      let languagesData: any[] = [];
-      if (languagesRes.ok) {
-        languagesData = await languagesRes.json();
-      }
-
-      if (gamesRes.ok) {
-        const gamesList = await gamesRes.json();
+      if (gamesList && Array.isArray(gamesList)) {
         setAvailableGames(gamesList);
       }
 

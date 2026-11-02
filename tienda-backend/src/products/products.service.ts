@@ -905,36 +905,47 @@ export class ProductsService {
       } : false,
     };
 
-    // Ordenamiento STOCK-FIRST para el catálogo global del Marketplace
+    // Ordenamiento STOCK-FIRST para el catálogo global del Marketplace (Paginación nativa eficiente)
     if (publicOnly && !storeId && !inStockOnly) {
-      const inStockProducts = await this.prisma.product.findMany({
-        where: {
-          ...whereClause,
-          items: {
-            some: {
-              isPublished: true,
-              stock: { gt: 0 }
-            }
+      const inStockCondition = {
+        ...whereClause,
+        items: {
+          some: {
+            isPublished: true,
+            stock: { gt: 0 }
           }
-        },
-        select: { id: true },
-        orderBy: { updatedAt: 'desc' }
-      });
+        }
+      };
 
-      const inStockIds = inStockProducts.map(p => p.id);
-      const totalInStock = inStockIds.length;
+      const [totalInStock, total] = await Promise.all([
+        this.prisma.product.count({ where: inStockCondition }),
+        this.prisma.product.count({ where: whereClause })
+      ]);
 
       const targetIds: string[] = [];
 
       if (skip < totalInStock) {
-        const pageInStockIds = inStockIds.slice(skip, skip + limit);
+        const inStockProducts = await this.prisma.product.findMany({
+          where: inStockCondition,
+          select: { id: true },
+          orderBy: { updatedAt: 'desc' },
+          take: limit,
+          skip: skip
+        });
+        const pageInStockIds = inStockProducts.map(p => p.id);
         targetIds.push(...pageInStockIds);
+
         const remaining = limit - pageInStockIds.length;
         if (remaining > 0) {
           const oosProducts = await this.prisma.product.findMany({
             where: {
               ...whereClause,
-              id: { notIn: inStockIds }
+              items: {
+                none: {
+                  isPublished: true,
+                  stock: { gt: 0 }
+                }
+              }
             },
             select: { id: true },
             orderBy: { updatedAt: 'desc' },
@@ -948,7 +959,12 @@ export class ProductsService {
         const oosProducts = await this.prisma.product.findMany({
           where: {
             ...whereClause,
-            id: { notIn: inStockIds }
+            items: {
+              none: {
+                isPublished: true,
+                stock: { gt: 0 }
+              }
+            }
           },
           select: { id: true },
           orderBy: { updatedAt: 'desc' },
@@ -958,15 +974,12 @@ export class ProductsService {
         targetIds.push(...oosProducts.map(p => p.id));
       }
 
-      const [productsData, total] = await Promise.all([
-        targetIds.length > 0
-          ? this.prisma.product.findMany({
+      const productsData = targetIds.length > 0
+        ? await this.prisma.product.findMany({
             where: { id: { in: targetIds } },
             include: includeConfig
           })
-          : Promise.resolve([]),
-        this.prisma.product.count({ where: whereClause })
-      ]);
+        : [];
 
       const productMap = new Map(productsData.map(p => [p.id, p]));
       const orderedData = targetIds.map(id => productMap.get(id)).filter(Boolean);

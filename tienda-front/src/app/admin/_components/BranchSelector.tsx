@@ -17,18 +17,24 @@ export default function BranchSelector() {
 
   const sessionType = user?.sessionType || "COMPANY_OWNER";
   const isLockedToBranch = sessionType === "BRANCH_MANAGER" || sessionType === "CASHIER";
+  const userId = user?.id;
+  const currentActiveStoreId = user?.activeStore?.id;
 
+  // 1. Cargar sucursales únicamente una vez por sesión de usuario autenticado
   useEffect(() => {
+    if (!userId) return;
+
+    let isSubscribed = true;
     const fetchBranches = async () => {
       try {
         const res = await adminFetch("/stores/me/branches");
 
-        if (res.ok) {
+        if (res.ok && isSubscribed) {
           const data: BranchItem[] = await res.json();
           setBranches(data);
 
           // Obtener la sucursal activa persistida en Redux / localStorage o seleccionar la principal
-          const savedBranchId = user?.activeStore?.id || localStorage.getItem("taptrade_active_branch_id");
+          const savedBranchId = currentActiveStoreId || (typeof window !== "undefined" ? localStorage.getItem("taptrade_active_branch_id") : null);
           const exists = data.some((b) => b.id === savedBranchId);
           if (savedBranchId && exists) {
             setActiveBranchId(savedBranchId);
@@ -47,12 +53,24 @@ export default function BranchSelector() {
       } catch (err) {
         console.error("Error al cargar sucursales:", err);
       } finally {
-        setLoading(false);
+        if (isSubscribed) {
+          setLoading(false);
+        }
       }
     };
 
     fetchBranches();
-  }, [dispatch, user?.activeStore]);
+    return () => {
+      isSubscribed = false;
+    };
+  }, [userId, dispatch]);
+
+  // 2. Sincronizar activeBranchId si cambia externamente sin volver a consultar al backend
+  useEffect(() => {
+    if (currentActiveStoreId && currentActiveStoreId !== activeBranchId) {
+      setActiveBranchId(currentActiveStoreId);
+    }
+  }, [currentActiveStoreId]);
 
   // Cerrar dropdown al hacer click afuera
   useEffect(() => {

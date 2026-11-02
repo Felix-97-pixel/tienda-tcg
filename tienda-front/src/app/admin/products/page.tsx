@@ -8,10 +8,12 @@ import { Product } from "@/types/product";
 // Componentes Extraídos
 import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
 import ProductTable from "@/app/admin/_components/Products/ProductTable";
-import InventoryModal from "@/app/admin/_components/Products/InventoryModal";
-import BulkUploadModal from "@/app/admin/_components/Products/BulkUploadModal";
-import BulkPublishConfirmModal from "@/app/admin/_components/Products/BulkPublishConfirmModal";
-import GlobalCatalogSearchModal from "@/app/admin/_components/Products/GlobalCatalogSearchModal";
+import dynamic from "next/dynamic";
+
+const InventoryModal = dynamic(() => import("@/app/admin/_components/Products/InventoryModal"), { ssr: false });
+const BulkUploadModal = dynamic(() => import("@/app/admin/_components/Products/BulkUploadModal"), { ssr: false });
+const BulkPublishConfirmModal = dynamic(() => import("@/app/admin/_components/Products/BulkPublishConfirmModal"), { ssr: false });
+const GlobalCatalogSearchModal = dynamic(() => import("@/app/admin/_components/Products/GlobalCatalogSearchModal"), { ssr: false });
 import { Button } from "@/components/ui/Button";
 
 export default function StoreAdminProducts() {

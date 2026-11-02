@@ -4,9 +4,17 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 import UpsellBanner from "@/app/admin/_components/UpsellBanner";
-import ChartWidget from "@/app/admin/_components/Sales/ChartWidget";
+import dynamic from "next/dynamic";
 import TopProductsList from "@/app/admin/_components/Sales/TopProductsList";
-import MonthlyRevenueList from "@/app/admin/_components/Sales/MonthlyRevenueList";
+
+const ChartWidget = dynamic(() => import("@/app/admin/_components/Sales/ChartWidget"), {
+  ssr: false,
+  loading: () => <div className="h-64 rounded-2xl bg-white/[0.02] border border-white/5 animate-pulse" />,
+});
+const MonthlyRevenueList = dynamic(() => import("@/app/admin/_components/Sales/MonthlyRevenueList"), {
+  ssr: false,
+  loading: () => <div className="h-64 rounded-2xl bg-white/[0.02] border border-white/5 animate-pulse" />,
+});
 import LowStockList from "@/app/admin/_components/Sales/LowStockList";
 import { Button } from "@/components/ui/Button";
 import { exportToPDF } from "@/utils/exportUtils";
