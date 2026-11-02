@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import { IconUsers, IconUserPlus, IconTrash, IconX, IconShield } from "@/components/ui/Icons";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Company } from "./hooks/useSuperAdminStores";
 import { API_URL } from "@/utils/api";
 import toast from "react-hot-toast";
@@ -266,20 +267,25 @@ export default function CompanyUsersModal({
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
                   Rol Corporativo
                 </label>
-                <select
+                <SearchableSelect
+                  options={[
+                    { label: "Administrador Holding (Gestión Total)", value: "ADMIN" },
+                    { label: "Contador (Métricas y Liquidaciones)", value: "ACCOUNTANT" },
+                    { label: "Dueño Copropietario", value: "OWNER" },
+                  ]}
                   value={formData.role}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     setFormData({
                       ...formData,
-                      role: e.target.value as "OWNER" | "ADMIN" | "ACCOUNTANT",
+                      role: val as "OWNER" | "ADMIN" | "ACCOUNTANT",
                     })
                   }
-                  className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red focus:outline-none"
-                >
-                  <option value="ADMIN">Administrador Holding (Gestión Total)</option>
-                  <option value="ACCOUNTANT">Contador (Métricas y Liquidaciones)</option>
-                  <option value="OWNER">Dueño Copropietario</option>
-                </select>
+                  placeholder="Seleccionar rol corporativo..."
+                  noResultsText="No se encontraron roles"
+                  inputClassName="!py-2 !text-xs !bg-[#080B12] !border-white/10 hover:!border-red/40"
+                  usePortal={true}
+                  direction="auto"
+                />
               </div>
 
               <div className="sm:col-span-2 flex justify-end pt-1">

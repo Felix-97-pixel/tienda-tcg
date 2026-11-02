@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import { IconUser, IconUserPlus, IconTrash, IconX, IconStore } from "@/components/ui/Icons";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Branch } from "./hooks/useSuperAdminStores";
 import { API_URL } from "@/utils/api";
 import toast from "react-hot-toast";
@@ -266,19 +267,24 @@ export default function StoreUsersModal({
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
                   Rol en la Sucursal
                 </label>
-                <select
+                <SearchableSelect
+                  options={[
+                    { label: "Cajero POS (Solo cobro, arqueo y ventas locales)", value: "CASHIER" },
+                    { label: "Encargado Local (Gestión de stock local y POS)", value: "BRANCH_MANAGER" },
+                  ]}
                   value={formData.role}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     setFormData({
                       ...formData,
-                      role: e.target.value as "BRANCH_MANAGER" | "CASHIER",
+                      role: val as "BRANCH_MANAGER" | "CASHIER",
                     })
                   }
-                  className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red focus:outline-none"
-                >
-                  <option value="CASHIER">Cajero POS (Solo cobro, arqueo y ventas locales)</option>
-                  <option value="BRANCH_MANAGER">Encargado Local (Gestión de stock local y POS)</option>
-                </select>
+                  placeholder="Seleccionar rol en la sucursal..."
+                  noResultsText="No se encontraron roles"
+                  inputClassName="!py-2 !text-xs !bg-[#080B12] !border-white/10 hover:!border-red/40"
+                  usePortal={true}
+                  direction="auto"
+                />
               </div>
 
               <div className="sm:col-span-2 flex justify-end pt-1">
