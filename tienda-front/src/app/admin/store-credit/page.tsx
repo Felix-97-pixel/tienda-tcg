@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -31,7 +31,7 @@ export default function AdminStoreCreditPage() {
   const fetchCredits = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/store-credit`, { credentials: "include" });
+      const res = await adminFetch("/store-credit");
       if (!res.ok) throw new Error("Error fetching credits");
       const data: StoreCredit[] = await res.json();
       setCredits(data);

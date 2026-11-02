@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Loader from "@/components/ui/Loader";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
 
 export default function StoreWalletPage() {
@@ -12,7 +12,7 @@ export default function StoreWalletPage() {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`${API_URL}/withdrawals/history`, { credentials: "include" });
+      const res = await adminFetch("/withdrawals/history");
       if (res.ok) {
         const data = await res.json();
         setHistory(data);
@@ -37,11 +37,10 @@ export default function StoreWalletPage() {
     }
     
     try {
-      const res = await fetch(`${API_URL}/withdrawals/request`, {
+      const res = await adminFetch("/withdrawals/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: amt, bankDetails }),
-        credentials: "include"
       });
       if (res.ok) {
         alert("Retiro solicitado con éxito");

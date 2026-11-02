@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 
 export function useCoupons() {
@@ -10,9 +10,7 @@ export function useCoupons() {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/coupons`, {
-        credentials: "include",
-      });
+      const res = await adminFetch("/coupons");
       if (res.ok) {
         const data = await res.json();
         setCoupons(data);
@@ -28,9 +26,8 @@ export function useCoupons() {
     if (!confirm(`¿Estás seguro que deseas eliminar el cupón ${coupon.code}?`)) return;
 
     try {
-      const res = await fetch(`${API_URL}/coupons/${coupon.id}`, {
+      const res = await adminFetch(`/coupons/${coupon.id}`, {
         method: "DELETE",
-        credentials: "include",
       });
       if (res.ok) {
         showToast("Cupón eliminado correctamente", "success");

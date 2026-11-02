@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { useImageUpload } from "@/hooks/useImageUpload";
@@ -75,11 +75,10 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
 
   const handleUpdate = async () => {
     try {
-      const res = await fetch(`${API_URL}/products/${item.productId}`, {
+      const res = await adminFetch(`/products/${item.productId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-scope": "admin",
         },
         body: JSON.stringify({
           name: form.name,
@@ -94,7 +93,6 @@ export default function EditProductModal({ isOpen, onClose, item, categories, br
           heightCm: form.heightCm ? parseFloat(form.heightCm as string) : null,
           lengthCm: form.lengthCm ? parseFloat(form.lengthCm as string) : null,
         }),
-        credentials: "include",
       });
 
       if (res.ok) {

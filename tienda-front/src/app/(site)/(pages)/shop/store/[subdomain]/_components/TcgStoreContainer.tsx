@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import TcgStorefrontView from "./TcgStorefrontView";
 import TcgStoreBuylistView from "./TcgStoreBuylistView";
 import { API_URL } from "@/utils/api";
+import { IconCoins } from "@/components/ui/Icons";
 
 interface TcgStoreContainerProps {
   store: {
@@ -88,7 +89,7 @@ export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
                   : "bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/5"
               }`}
             >
-              <span className="text-base leading-none">💰</span>
+              <IconCoins className="w-4 h-4 text-amber-950 shrink-0" />
               <span>Cartas que Compramos (Buylist)</span>
               {buylistCount !== null && (
                 <span

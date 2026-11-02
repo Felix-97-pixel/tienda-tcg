@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Switch } from "@/components/ui/Switch";
@@ -83,9 +83,7 @@ export default function AdminPriceSyncPage() {
 
   // 1. Cargar categorías TCG al montar
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`, {
-      credentials: "include",
-    })
+    adminFetch("/products/meta/categories/admin?isTcg=true")
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
         if (Array.isArray(data)) setCategories(data);
@@ -102,11 +100,10 @@ export default function AdminPriceSyncPage() {
     }
 
     setLoadingExpansions(true);
-    fetch(
-      `${API_URL}/products/meta/expansions?category=${encodeURIComponent(
+    adminFetch(
+      `/products/meta/expansions?category=${encodeURIComponent(
         selectedCategory
-      )}`,
-      { credentials: "include" }
+      )}`
     )
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
@@ -128,12 +125,8 @@ export default function AdminPriceSyncPage() {
         params.set("expansion", selectedExpansion);
       }
 
-      const res = await fetch(
-        `${API_URL}/sync/dealer-prices/preview?${params.toString()}`,
-        {
-          credentials: "include",
-          headers: { "x-auth-scope": "admin" },
-        }
+      const res = await adminFetch(
+        `/sync/dealer-prices/preview?${params.toString()}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -193,12 +186,10 @@ export default function AdminPriceSyncPage() {
 
     setSyncing(true);
     try {
-      const res = await fetch(`${API_URL}/sync/dealer-prices`, {
+      const res = await adminFetch("/sync/dealer-prices", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-scope": "admin",
         },
         body: JSON.stringify({
           category: selectedCategory,

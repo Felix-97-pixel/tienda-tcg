@@ -13,7 +13,7 @@ export class UsersService {
   }
 
   async getUserMemberships(userId: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         companyMemberships: {
@@ -57,6 +57,72 @@ export class UsersService {
         },
       },
     });
+
+    const companyMemberships: any[] = [...(user?.companyMemberships || [])];
+    const storeMemberships: any[] = [...(user?.storeMemberships || [])];
+
+    // Defensa en profundidad: Si el usuario es dueño directo de una Company y no tiene CompanyMember explícito
+    const ownedCompanies = await this.prisma.company.findMany({
+      where: { ownerId: userId },
+      select: {
+        id: true,
+        name: true,
+        rut: true,
+        balance: true,
+        stores: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+            isMainBranch: true,
+            address: true,
+          },
+          orderBy: { isMainBranch: 'desc' },
+        },
+      },
+    });
+
+    for (const oc of ownedCompanies) {
+      if (!companyMemberships.some((cm) => cm.company?.id === oc.id)) {
+        companyMemberships.push({
+          id: `owned-${oc.id}`,
+          companyId: oc.id,
+          userId,
+          role: 'OWNER',
+          company: oc,
+        });
+      }
+    }
+
+    // Defensa en profundidad: Si el usuario es dueño directo de una Store y no tiene StoreMember explícito
+    const ownedStores = await this.prisma.store.findMany({
+      where: { ownerId: userId },
+      select: {
+        id: true,
+        name: true,
+        subdomain: true,
+        isMainBranch: true,
+        address: true,
+        companyId: true,
+        company: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    for (const os of ownedStores) {
+      if (!storeMemberships.some((sm) => sm.store?.id === os.id)) {
+        storeMemberships.push({
+          id: `owned-${os.id}`,
+          storeId: os.id,
+          userId,
+          role: 'BRANCH_MANAGER',
+          store: os,
+        });
+      }
+    }
+
+    return { companyMemberships, storeMemberships };
   }
 
   async findById(id: string) {

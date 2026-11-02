@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/Icons";
 import dynamic from "next/dynamic";
 import { useStoreProfile } from "./hooks/useStoreProfile";
+import { adminFetch } from "@/utils/api";
 
 const LocationPicker = dynamic(() => import("@/components/ui/LocationPicker"), { ssr: false });
 
@@ -39,9 +40,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
 
   useEffect(() => {
     if (storeId === "me") {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/payments/mp/status`, {
-        credentials: "include",
-      })
+      adminFetch("/payments/mp/status")
         .then((res) => res.json())
         .then((data) => {
           if (data && typeof data.isConfigured !== "undefined") {

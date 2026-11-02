@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/Input";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { CheckboxList, CheckboxItem } from "@/components/ui/CheckboxList";
 
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 
 const SCOPE_OPTIONS = [
@@ -75,7 +75,7 @@ const CouponModal: React.FC<CouponModalProps> = ({ isOpen, onClose, coupon, onSu
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_URL}/products/meta/categories`);
+      const res = await adminFetch("/products/meta/categories");
       if (res.ok) {
         setCategories(await res.json());
       }
@@ -86,7 +86,7 @@ const CouponModal: React.FC<CouponModalProps> = ({ isOpen, onClose, coupon, onSu
 
   const fetchGames = async () => {
     try {
-      const res = await fetch(`${API_URL}/products/meta/games`);
+      const res = await adminFetch("/products/meta/games");
       if (res.ok) {
         setGames(await res.json());
       }
@@ -126,14 +126,13 @@ const CouponModal: React.FC<CouponModalProps> = ({ isOpen, onClose, coupon, onSu
     };
 
     try {
-      const url = isEditing ? `${API_URL}/coupons/${coupon.id}` : `${API_URL}/coupons`;
+      const url = isEditing ? `/coupons/${coupon.id}` : "/coupons";
       const method = isEditing ? "PATCH" : "POST";
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        credentials: "include",
       });
 
       if (res.ok) {

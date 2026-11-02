@@ -4,6 +4,7 @@ import { useAppSelector } from "@/redux/store";
 import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import { IconFlame } from "@/components/ui/Icons";
 
 export default function AdminWishlist() {
   const { features } = useAppSelector((state) => state.adminAuthReducer);
@@ -56,10 +57,7 @@ export default function AdminWishlist() {
           <div className="absolute -right-6 -top-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
           <div>
             <p className="text-xs font-bold uppercase tracking-wider mb-2 text-amber-400 flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
-              </svg>
+              <IconFlame className="w-4 h-4 text-amber-400" />
               <span>En Tendencia</span>
             </p>
             {trendingProduct ? (

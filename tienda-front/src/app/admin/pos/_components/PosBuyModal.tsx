@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_URL } from '@/utils/api';
+import { adminFetch } from '@/utils/api';
 import { PosBuyCartItem } from './PosBuyCart';
 import { IconCash, IconWallet } from '@/components/ui/Icons';
 
@@ -50,10 +50,7 @@ export default function PosBuyModal({
 
     const timer = setTimeout(() => {
       setSearchingCustomer(true);
-      fetch(`${API_URL}/users/search?query=${encodeURIComponent(customerSearchTerm.trim())}`, {
-        credentials: 'include',
-        headers: { 'x-auth-scope': 'admin' },
-      })
+      adminFetch(`/users/search?query=${encodeURIComponent(customerSearchTerm.trim())}`)
         .then((res) => (res.ok ? res.json() : []))
         .then((data) => setCustomerResults(Array.isArray(data) ? data : []))
         .catch(() => setCustomerResults([]))

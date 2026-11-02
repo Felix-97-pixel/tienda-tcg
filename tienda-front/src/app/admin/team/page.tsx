@@ -13,7 +13,7 @@ import {
   IconStore,
   IconRefresh,
 } from "@/components/ui/Icons";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import toast from "react-hot-toast";
 
 interface StoreMember {
@@ -108,10 +108,7 @@ export default function AdminTeamPage() {
         setLoading(true);
 
         // Fetch company
-        const compRes = await fetch(`${API_URL}/stores/me/company`, {
-          credentials: "include",
-          headers: getAuthHeaders(),
-        });
+        const compRes = await adminFetch("/stores/me/company");
         if (compRes.ok) {
           const compData = await compRes.json();
           if (compData) {
@@ -121,10 +118,7 @@ export default function AdminTeamPage() {
         }
 
         // Fetch branches
-        const branchRes = await fetch(`${API_URL}/stores/me/branches`, {
-          credentials: "include",
-          headers: getAuthHeaders(),
-        });
+        const branchRes = await adminFetch("/stores/me/branches");
         if (branchRes.ok) {
           const bData: Branch[] = await branchRes.json();
           setBranches(bData);
@@ -153,10 +147,7 @@ export default function AdminTeamPage() {
     if (!selectedBranchId) return;
     try {
       setLoadingMembers(true);
-      const res = await fetch(`${API_URL}/stores/${selectedBranchId}/users`, {
-        credentials: "include",
-        headers: getAuthHeaders(),
-      });
+      const res = await adminFetch(`/stores/${selectedBranchId}/users`);
       if (res.ok) {
         const data = await res.json();
         setBranchMembers(data);
@@ -173,10 +164,7 @@ export default function AdminTeamPage() {
     if (!companyId) return;
     try {
       setLoadingMembers(true);
-      const res = await fetch(`${API_URL}/stores/companies/${companyId}/users`, {
-        credentials: "include",
-        headers: getAuthHeaders(),
-      });
+      const res = await adminFetch(`/stores/companies/${companyId}/users`);
       if (res.ok) {
         const data = await res.json();
         setCompanyMembers(data);
@@ -206,10 +194,9 @@ export default function AdminTeamPage() {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch(`${API_URL}/stores/${selectedBranchId}/users`, {
+      const res = await adminFetch(`/stores/${selectedBranchId}/users`, {
         method: "POST",
-        credentials: "include",
-        headers: getAuthHeaders(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: storeFormData.name,
           email: storeFormData.email,
@@ -241,10 +228,8 @@ export default function AdminTeamPage() {
 
     try {
       setRemovingId(memberUserId);
-      const res = await fetch(`${API_URL}/stores/${selectedBranchId}/users/${memberUserId}`, {
+      const res = await adminFetch(`/stores/${selectedBranchId}/users/${memberUserId}`, {
         method: "DELETE",
-        credentials: "include",
-        headers: getAuthHeaders(),
       });
 
       if (!res.ok) {
@@ -271,10 +256,9 @@ export default function AdminTeamPage() {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch(`${API_URL}/stores/companies/${companyId}/users`, {
+      const res = await adminFetch(`/stores/companies/${companyId}/users`, {
         method: "POST",
-        credentials: "include",
-        headers: getAuthHeaders(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: companyFormData.name,
           email: companyFormData.email,
@@ -306,10 +290,8 @@ export default function AdminTeamPage() {
 
     try {
       setRemovingId(memberUserId);
-      const res = await fetch(`${API_URL}/stores/companies/${companyId}/users/${memberUserId}`, {
+      const res = await adminFetch(`/stores/companies/${companyId}/users/${memberUserId}`, {
         method: "DELETE",
-        credentials: "include",
-        headers: getAuthHeaders(),
       });
 
       if (!res.ok) {

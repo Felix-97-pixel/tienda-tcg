@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PosCartItem } from './PosCart';
-import { API_URL } from '@/utils/api';
+import { adminFetch } from '@/utils/api';
 
 interface PosCheckoutModalProps {
   isOpen: boolean;
@@ -58,12 +58,7 @@ export default function PosCheckoutModal({
   useEffect(() => {
     if (isOpen && selectedMethod === 'STORE_CREDIT') {
       setIsLoadingCredits(true);
-      fetch(`${API_URL}/store-credit`, {
-        headers: {
-          'x-auth-scope': 'admin',
-        },
-        credentials: 'include',
-      })
+      adminFetch('/store-credit')
         .then((res) => (res.ok ? res.json() : []))
         .then((data) => {
           if (Array.isArray(data)) {

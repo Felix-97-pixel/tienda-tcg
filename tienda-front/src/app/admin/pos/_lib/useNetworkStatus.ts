@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { API_URL } from '@/utils/api';
+import { adminFetch } from '@/utils/api';
 import {
   getQueuedOfflineSales,
   removeQueuedOfflineSale,
@@ -75,13 +75,11 @@ export function useNetworkStatus() {
         })),
       }));
 
-      const res = await fetch(`${API_URL}/pos/sales/sync-offline`, {
+      const res = await adminFetch('/pos/sales/sync-offline', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-scope': 'admin',
         },
-        credentials: 'include',
         body: JSON.stringify({ sales: sanitizedSales }),
       });
 

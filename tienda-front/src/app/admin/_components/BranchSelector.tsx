@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useAppSelector } from "@/redux/store";
 import { setActiveStore, BranchItem } from "@/redux/features/admin-auth-slice";
 import { IconMapPin, IconStore, IconChevronDown } from "@/components/ui/Icons";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 
 export default function BranchSelector() {
   const dispatch = useDispatch();
@@ -21,10 +21,7 @@ export default function BranchSelector() {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await fetch(`${API_URL}/stores/me/branches`, {
-          credentials: "include",
-          headers: { "x-auth-scope": "admin" },
-        });
+        const res = await adminFetch("/stores/me/branches");
 
         if (res.ok) {
           const data: BranchItem[] = await res.json();

@@ -50,18 +50,28 @@ export const getAdminAuthHeaders = (
 /**
  * Función fetch estandarizada para el panel de administración que incluye automáticamente
  * credenciales (cookies), token de autenticación y el header x-store-id de la sucursal activa.
+ * Resuelve automáticamente URLs relativas anteponiendo API_URL.
  */
 export const adminFetch = async (
   input: RequestInfo | URL,
   init: RequestInit = {},
   targetStoreId?: string | null
 ): Promise<Response> => {
+  let resolvedInput: RequestInfo | URL = input;
+
+  if (typeof input === "string") {
+    if (!input.startsWith("http://") && !input.startsWith("https://")) {
+      const normalizedPath = input.startsWith("/") ? input : `/${input}`;
+      resolvedInput = `${API_URL}${normalizedPath}`;
+    }
+  }
+
   const mergedHeaders = getAdminAuthHeaders(
     (init.headers as Record<string, string>) || {},
     targetStoreId
   );
 
-  return fetch(input, {
+  return fetch(resolvedInput, {
     ...init,
     credentials: init.credentials || "include",
     headers: mergedHeaders,

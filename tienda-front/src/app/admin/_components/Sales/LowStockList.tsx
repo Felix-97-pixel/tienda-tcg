@@ -1,18 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { API_URL } from '@/utils/api';
+import { adminFetch } from '@/utils/api';
 import Papa from 'papaparse';
+import { IconAlertTriangle, IconDownload, IconChevronRight, IconCheckCircle } from '@/components/ui/Icons';
 
 export default function LowStockList({ items = [] }: { items: any[] }) {
   const t = useTranslations('sales');
   
   const downloadCSV = async () => {
     try {
-      const res = await fetch(`${API_URL}/payments/reports/export/lowstock`, {
-        credentials: "include",
-        headers: { "x-auth-scope": "admin" },
-      });
+      const res = await adminFetch("/payments/reports/export/lowstock");
       if (!res.ok) throw new Error();
       const rawData = await res.json();
       
@@ -35,17 +33,15 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
     <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col h-full group relative">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-          <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
+          <IconAlertTriangle className="w-4 h-4 text-amber-400" />
           Alertas de Bajo Stock
         </h3>
         <div className="flex items-center gap-3">
           <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title="Descargar reporte completo en CSV">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            <IconDownload className="w-4 h-4" />
           </button>
           <Link href="/admin/products" className="text-[10px] font-black text-red hover:text-red-light uppercase tracking-widest transition-colors flex items-center gap-1">
-            IR A PRODUCTOS <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
+            IR A PRODUCTOS <IconChevronRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
@@ -53,7 +49,7 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
       <div className="flex-1">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[160px] text-gray-5">
-            <svg className="w-10 h-10 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <IconCheckCircle className="w-10 h-10 mb-2 opacity-20" />
             <p className="text-sm">No hay productos con bajo stock</p>
           </div>
         ) : (

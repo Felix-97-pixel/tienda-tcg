@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/useToast";
 import { useImageUpload } from "@/hooks/useImageUpload";
@@ -59,14 +59,12 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
     };
 
     try {
-      const res = await fetch(`${API_URL}/products`, {
+      const res = await adminFetch("/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-scope": "admin",
         },
         body: JSON.stringify(payload),
-        credentials: "include",
       });
       const data = await res.json();
       if (res.ok) {
@@ -85,9 +83,9 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
   };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
       title={t("modal.createTitle")}
       maxWidth="3xl"
     >
@@ -135,10 +133,10 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
               <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border-2 border-dashed border-stroke flex items-center justify-center">
                 {creatingProduct.imageUrl ? (
                   <div className="relative h-full w-full group">
-                    <img 
-                      src={creatingProduct.imageUrl} 
-                      alt="Preview" 
-                      className="h-full w-full object-cover" 
+                    <img
+                      src={creatingProduct.imageUrl}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
                       referrerPolicy="no-referrer"
                       onError={(e) => {
                         const target = e.currentTarget;
@@ -166,14 +164,14 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
                     e.target.value = "";
                     return;
                   }
-                  
+
                   const file = e.target.files?.[0];
                   if (file) {
                     const category = categories.find(c => c.id === creatingProduct.categoryId);
-                    const folderName = category 
-                      ? `products/${category.name.toLowerCase().replace(/\s+/g, '-')}` 
+                    const folderName = category
+                      ? `products/${category.name.toLowerCase().replace(/\s+/g, '-')}`
                       : 'products';
-                      
+
                     const url = await handleUpload(file, "", folderName);
                     if (url) setCreatingProduct({ ...creatingProduct, imageUrl: url });
                   }

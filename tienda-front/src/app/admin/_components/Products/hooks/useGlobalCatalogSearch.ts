@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { API_URL, adminFetch } from "@/utils/api";
 import { Product } from "@/types/product";
 
 export function useGlobalCatalogSearch() {
@@ -26,7 +26,7 @@ export function useGlobalCatalogSearch() {
         url.searchParams.append("game", selectedGame);
       }
 
-      const res = await fetch(url.toString(), { credentials: "include" });
+      const res = await adminFetch(url.toString());
       const data = await res.json();
       setResults(data.data || []);
     } catch (err) {

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 
 interface CurrencyModalProps {
@@ -19,7 +19,6 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
   const { showToast } = useToast();
 
   const [gameId, setGameId] = useState("");
-  const [currencyCode, setCurrencyId] = useState("");
   const [rate, setRate] = useState<number | "">("");
   const [saving, setSaving] = useState(false);
 
@@ -43,10 +42,9 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
     };
 
     try {
-      const res = await fetch(`${API_URL}/stores/me/exchange-rates`, {
+      const res = await adminFetch("/stores/me/exchange-rates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(payload),
       });
 
@@ -90,8 +88,6 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             ))}
           </select>
         </div>
-
-
 
         <div>
           <Input

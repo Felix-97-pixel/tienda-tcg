@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import type { WishlistProduct, WishlistFilterType } from "../types/wishlist.types";
 
@@ -18,9 +18,7 @@ export function useWishlist() {
   const fetchWishlistData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/wishlist/count`, {
-        credentials: "include",
-      });
+      const res = await adminFetch("/wishlist/count");
       if (res.ok) {
         const data = await res.json();
         setProducts(data);

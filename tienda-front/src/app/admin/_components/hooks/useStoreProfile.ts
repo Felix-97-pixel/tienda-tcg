@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { StoreFeature, StorePlan, StoreProfileFormData } from "../types/storeProfile.types";
 
@@ -53,16 +53,13 @@ export function useStoreProfile(storeId: string) {
   }, []);
 
   const getEndpoint = useCallback(() => {
-    return storeId === "me" ? `${API_URL}/stores/me` : `${API_URL}/stores/${storeId}/full`;
+    return storeId === "me" ? "/stores/me" : `/stores/${storeId}/full`;
   }, [storeId]);
 
   // Si el usuario es admin y tiene múltiples sucursales, cargar la lista de sucursales
   useEffect(() => {
     if (storeId === "me") {
-      fetch(`${API_URL}/stores/me/branches`, {
-        credentials: "include",
-        headers: getAuthHeaders(),
-      })
+      adminFetch("/stores/me/branches")
         .then((res) => (res.ok ? res.json() : []))
         .then((data: BranchOption[]) => {
           if (Array.isArray(data) && data.length > 0) {
@@ -76,7 +73,7 @@ export function useStoreProfile(storeId: string) {
         })
         .catch((err) => console.error("Error al cargar sucursales:", err));
     }
-  }, [storeId, getAuthHeaders]);
+  }, [storeId]);
 
   const fetchStore = useCallback(async () => {
     try {
@@ -85,21 +82,19 @@ export function useStoreProfile(storeId: string) {
       // Fetch available features and plans in parallel if superadmin
       if (storeId !== "me") {
         const [featuresRes, plansRes] = await Promise.all([
-          fetch(`${API_URL}/features`, { credentials: "include", headers: getAuthHeaders() }),
-          fetch(`${API_URL}/features/plans`, { credentials: "include", headers: getAuthHeaders() })
+          adminFetch("/features"),
+          adminFetch("/features/plans")
         ]);
         
         if (featuresRes.ok) setAvailableFeatures(await featuresRes.json());
         if (plansRes.ok) setAvailablePlans(await plansRes.json());
       }
 
-      const storeHeaders = getAuthHeaders(activeBranchId ? { "x-store-id": activeBranchId } : {});
-
       const [res, conditionsRes, languagesRes, gamesRes] = await Promise.all([
-        fetch(getEndpoint(), { credentials: "include", headers: storeHeaders }),
-        fetch(`${API_URL}/products/meta/conditions`),
-        fetch(`${API_URL}/products/meta/languages`),
-        fetch(`${API_URL}/games`)
+        adminFetch(getEndpoint(), {}, activeBranchId),
+        adminFetch("/products/meta/conditions"),
+        adminFetch("/products/meta/languages"),
+        adminFetch("/games")
       ]);
 
       let conditionsData: any[] = [];
@@ -228,17 +223,13 @@ export function useStoreProfile(storeId: string) {
         payload.longitude = Number(payload.longitude);
       }
       
-      const reqHeaders = getAuthHeaders({
-        "Content-Type": "application/json",
-        ...(activeBranchId ? { "x-store-id": activeBranchId } : {}),
-      });
-
-      const res = await fetch(getEndpoint(), {
+      const res = await adminFetch(getEndpoint(), {
         method: "PATCH",
-        headers: reqHeaders,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(payload),
-        credentials: "include",
-      });
+      }, activeBranchId);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => null);
@@ -252,24 +243,26 @@ export function useStoreProfile(storeId: string) {
       let devalResOk = true;
       if (formData.devaluations && storeId === "me" && gameId) {
         const payloadDeval = formData.devaluations.filter((d: any) => d.gameId === gameId);
-        const devalRes = await fetch(`${API_URL}/stores/me/devaluations`, {
+        const devalRes = await adminFetch("/stores/me/devaluations", {
           method: "PATCH",
-          headers: reqHeaders,
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ gameId, devaluations: payloadDeval }),
-          credentials: "include",
-        });
+        }, activeBranchId);
         devalResOk = devalRes.ok;
       }
 
       let langDevalResOk = true;
       if (formData.languageDevaluations && storeId === "me" && gameId) {
         const payloadLang = formData.languageDevaluations.filter((d: any) => d.gameId === gameId);
-        const langDevalRes = await fetch(`${API_URL}/stores/me/language-devaluations`, {
+        const langDevalRes = await adminFetch("/stores/me/language-devaluations", {
           method: "PATCH",
-          headers: reqHeaders,
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ gameId, languageDevaluations: payloadLang }),
-          credentials: "include",
-        });
+        }, activeBranchId);
         langDevalResOk = langDevalRes.ok;
       }
 
@@ -277,10 +270,7 @@ export function useStoreProfile(storeId: string) {
         showToast("Perfil de sucursal guardado con éxito", "success");
         // Refrescar lista de sucursales si el nombre o subdominio cambió
         if (storeId === "me") {
-          fetch(`${API_URL}/stores/me/branches`, {
-            credentials: "include",
-            headers: getAuthHeaders(),
-          })
+          adminFetch("/stores/me/branches")
             .then((r) => (r.ok ? r.json() : []))
             .then((data: BranchOption[]) => {
               if (Array.isArray(data)) setBranches(data);

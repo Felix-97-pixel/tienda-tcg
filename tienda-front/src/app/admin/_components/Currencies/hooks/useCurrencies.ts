@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 
 export function useCurrencies() {
@@ -15,9 +15,9 @@ export function useCurrencies() {
     setLoading(true);
     try {
       const [ratesRes, currRes, gamesRes] = await Promise.all([
-        fetch(`${API_URL}/stores/me/exchange-rates`, { credentials: "include" }),
-        fetch(`${API_URL}/currencies`),
-        fetch(`${API_URL}/games`)
+        adminFetch("/stores/me/exchange-rates"),
+        adminFetch("/currencies"),
+        adminFetch("/games")
       ]);
       
       if (ratesRes.ok) setExchangeRates(await ratesRes.json());
@@ -37,9 +37,8 @@ export function useCurrencies() {
   const deleteExchangeRate = async (rate: any) => {
     if (!confirm(`¿Seguro que deseas eliminar la tasa de cambio para ${rate.game?.name}?`)) return false;
     try {
-      const res = await fetch(`${API_URL}/stores/me/exchange-rates/${rate.id}`, {
+      const res = await adminFetch(`/stores/me/exchange-rates/${rate.id}`, {
         method: "DELETE",
-        credentials: "include",
       });
       if (res.ok) {
         showToast("Tasa de cambio eliminada", "success");

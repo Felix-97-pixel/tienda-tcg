@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
@@ -61,7 +60,7 @@ export default function AdminShipping() {
         setLoading(true);
 
         const [locRes, storeRes] = await Promise.all([
-          fetch(`${API_URL}/shipping/locations`),
+          adminFetch("/shipping/locations"),
           adminFetch("/stores/me"),
         ]);
 

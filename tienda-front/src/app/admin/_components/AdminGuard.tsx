@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
-import { updateAdminFeatures, adminLogout } from "@/redux/features/admin-auth-slice";
-import { API_URL } from "@/utils/api";
+import { updateAdminFeatures, adminLogout, setActiveStore } from "@/redux/features/admin-auth-slice";
+import { adminFetch } from "@/utils/api";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -65,13 +65,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     if (features.length === 0) {
       setLoadingFeatures(true);
     }
-    fetch(`${API_URL}/stores/me`, { 
-      credentials: "include",
-      headers: { 
-        "x-auth-scope": "admin",
-        ...(user.activeStore?.id ? { "x-store-id": user.activeStore.id } : {})
-      }
-    })
+    adminFetch("/stores/me", {}, user?.activeStore?.id)
       .then((res) => {
         if (res.status === 401) {
           dispatch(adminLogout());
@@ -81,8 +75,21 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         return res.json();
       })
       .then((data) => {
-        if (data && data.activeFeatures) {
-          dispatch(updateAdminFeatures(data.activeFeatures));
+        if (data) {
+          if (data.activeFeatures) {
+            dispatch(updateAdminFeatures(data.activeFeatures));
+          }
+          if ((!user?.activeStore || !user?.activeStore?.id) && data.id) {
+            dispatch(
+              setActiveStore({
+                id: data.id,
+                name: data.name,
+                subdomain: data.subdomain,
+                isMainBranch: data.isMainBranch,
+                address: data.address,
+              })
+            );
+          }
         }
       })
       .catch(console.error)

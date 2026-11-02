@@ -375,6 +375,23 @@ export const IconGem: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...p
   </svg>
 );
 
+export const IconChevronRight: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
+  <svg
+    width={size || 16}
+    height={size || 16}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
 export const IconTrophy: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
   <svg
     width={size || 16}

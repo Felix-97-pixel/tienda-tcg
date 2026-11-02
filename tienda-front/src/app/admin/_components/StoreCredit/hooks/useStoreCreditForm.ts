@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { API_URL } from "@/utils/api";
+import { API_URL, adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import type {
   AdjustmentType,
@@ -72,7 +72,7 @@ export function useStoreCreditForm({
   useEffect(() => {
     const fetchMeta = async (endpoint: string, setter: (data: MetaOption[]) => void) => {
       try {
-        const res = await fetch(`${API_URL}/products/meta/${endpoint}`);
+        const res = await adminFetch(`/products/meta/${endpoint}`);
         if (res.ok) setter(await res.json());
       } catch {
         // Metadata is non-critical; the form still works without it
@@ -84,7 +84,7 @@ export function useStoreCreditForm({
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories/admin?isTcg=true`)
+    adminFetch("/products/meta/categories/admin?isTcg=true")
       .then((r) => r.json())
       .then(setCategories)
       .catch(() => {});
@@ -96,7 +96,7 @@ export function useStoreCreditForm({
       setSelectedExpansion("");
       return;
     }
-    fetch(`${API_URL}/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
+    adminFetch(`/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`)
       .then((r) => r.json())
       .then(setExpansions)
       .catch(() => {});
@@ -111,9 +111,7 @@ export function useStoreCreditForm({
     }
     const timeout = setTimeout(() => {
       setSearchingUsers(true);
-      fetch(`${API_URL}/users/search?query=${encodeURIComponent(userSearchTerm)}`, {
-        credentials: "include",
-      })
+      adminFetch(`/users/search?query=${encodeURIComponent(userSearchTerm)}`)
         .then((r) => r.json())
         .then((data) => setUserSearchResults(data || []))
         .finally(() => setSearchingUsers(false));
@@ -140,7 +138,7 @@ export function useStoreCreditForm({
       if (selectedCategory) url.searchParams.set("category", selectedCategory);
       if (selectedExpansion) url.searchParams.set("expansion", selectedExpansion);
 
-      fetch(url.toString(), { credentials: "include" })
+      adminFetch(url.toString())
         .then((r) => r.json())
         .then((data) => setCardSearchResults(data.data || []))
         .finally(() => setSearchingCards(false));
@@ -236,9 +234,7 @@ export function useStoreCreditForm({
       }
 
       try {
-        const res = await fetch(`${API_URL}/store-credit/adjust`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await adminFetch("/store-credit/adjust", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId: selectedUser.id,
             amount: finalAmount,
