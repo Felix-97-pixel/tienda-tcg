@@ -98,6 +98,8 @@ export class StoresService {
       OR: [
         { ownerId: userId },
         { members: { some: { userId } } },
+        { company: { ownerId: userId } },
+        { company: { members: { some: { userId } } } },
       ],
     };
 
@@ -107,6 +109,7 @@ export class StoresService {
         OR: [
           { ownerId: userId },
           { members: { some: { userId } } },
+          { company: { ownerId: userId } },
           { company: { members: { some: { userId } } } },
         ],
       };

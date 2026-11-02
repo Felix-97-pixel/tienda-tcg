@@ -1,10 +1,30 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface AdminUser {
+export interface BranchItem {
+  id: string;
+  name: string;
+  subdomain?: string;
+  address?: string;
+  isMainBranch?: boolean;
+}
+
+export interface CompanyItem {
+  id: string;
+  name: string;
+  rut?: string;
+  balance?: number;
+}
+
+export interface AdminUser {
   id: string;
   email: string;
   name?: string;
   role: string;
+  sessionType?: "SUPERADMIN" | "COMPANY_OWNER" | "COMPANY_ADMIN" | "BRANCH_MANAGER" | "CASHIER";
+  company?: CompanyItem | null;
+  activeStore?: BranchItem | null;
+  availableBranches?: BranchItem[];
+  permissions?: string[];
   features?: string[];
 }
 
@@ -70,10 +90,22 @@ export const adminAuthSlice = createSlice({
       }
       if (typeof window !== "undefined") {
         localStorage.setItem("admin_user", JSON.stringify(action.payload.user));
+        if (action.payload.user.activeStore?.id) {
+          localStorage.setItem("admin_active_store_id", action.payload.user.activeStore.id);
+        }
         if (action.payload.features) {
           localStorage.setItem("admin_features", JSON.stringify(action.payload.features));
         }
         document.cookie = "taptrade_admin_session=1; path=/; max-age=86400; SameSite=Lax";
+      }
+    },
+    setActiveStore: (state, action: PayloadAction<BranchItem>) => {
+      if (state.user) {
+        state.user.activeStore = action.payload;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("admin_user", JSON.stringify(state.user));
+          localStorage.setItem("admin_active_store_id", action.payload.id);
+        }
       }
     },
     updateAdminFeatures: (state, action: PayloadAction<string[]>) => {
@@ -90,11 +122,12 @@ export const adminAuthSlice = createSlice({
         localStorage.removeItem("admin_user");
         localStorage.removeItem("admin_features");
         localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_active_store_id");
         document.cookie = "taptrade_admin_session=; path=/; max-age=0; SameSite=Lax";
       }
     },
   },
 });
 
-export const { adminLoginSuccess, updateAdminFeatures, adminLogout } = adminAuthSlice.actions;
+export const { adminLoginSuccess, setActiveStore, updateAdminFeatures, adminLogout } = adminAuthSlice.actions;
 export default adminAuthSlice.reducer;

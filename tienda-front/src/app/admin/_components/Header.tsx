@@ -1,8 +1,10 @@
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAppSelector } from "@/redux/store";
 import { useTranslations } from "next-intl";
 import BranchSelector from "./BranchSelector";
+import { IconMenu, IconX, IconArrowLeft } from "@/components/ui/Icons";
 
 const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (arg: boolean) => void }) => {
   const t = useTranslations("header");
@@ -13,6 +15,21 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const getRoleDisplayName = () => {
+    switch (user?.sessionType) {
+      case "COMPANY_OWNER":
+        return "Dueño Holding";
+      case "COMPANY_ADMIN":
+        return "Admin Corporativo";
+      case "BRANCH_MANAGER":
+        return "Encargado";
+      case "CASHIER":
+        return "Cajero POS";
+      default:
+        return user?.role || tc("admin");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-999 flex w-full bg-[#0E121B]/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20">
@@ -26,9 +43,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
             }}
             className="z-99999 block rounded-xl border border-white/10 bg-white/5 p-2 shadow-sm lg:hidden text-white/80 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"} />
-            </svg>
+            {sidebarOpen ? <IconX className="w-5 h-5 text-white" /> : <IconMenu className="w-5 h-5 text-white" />}
           </button>
         </div>
 
@@ -48,7 +63,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
                     {user?.name || user?.email}
                   </span>
                   <span className="inline-block text-[9px] font-black text-red-light uppercase tracking-widest mt-0.5 px-2 py-0.5 rounded-full bg-red/10 border border-red/20">
-                    {user?.role || tc("admin")}
+                    {getRoleDisplayName()}
                   </span>
                 </>
               )}
@@ -59,7 +74,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
               href="/"
               className="group flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-xs font-bold text-white/70 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all shadow-sm"
             >
-              <svg className="w-4 h-4 text-white/50 group-hover:text-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              <IconArrowLeft className="w-4 h-4 text-white/50 group-hover:text-red transition-colors" />
               {isMounted && t("backToStore")}
             </Link>
           </div>

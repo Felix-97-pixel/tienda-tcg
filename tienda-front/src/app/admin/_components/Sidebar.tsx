@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useDispatch } from "react-redux";
+import { useAppSelector } from "@/redux/store";
 import { adminLogout } from "@/redux/features/admin-auth-slice";
 import { API_URL } from "@/utils/api";
 import {
@@ -16,10 +17,10 @@ import {
   IconRefresh,
   IconCreditCard,
   IconHeart,
-  IconBarChart,
   IconPieChart,
   IconWallet,
   IconStore,
+  IconUsers,
   IconTruck,
   IconTicket,
   IconCoins,
@@ -51,6 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const tc = useTranslations("common");
+  const { user } = useAppSelector((state) => state.adminAuthReducer);
+
+  const sessionType = user?.sessionType || "COMPANY_OWNER";
 
   const handleLogout = async () => {
     try {
@@ -62,45 +66,173 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     router.push("/admin/login");
   };
 
-  const sections: NavSection[] = [
-    {
-      title: "Operaciones",
-      items: [
-        { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
-        { href: "/admin/transactions", label: "Transacciones & Caja", icon: <IconReceipt className="w-4 h-4" /> },
-        { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
-        { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
-      ],
-    },
-    {
-      title: "Catálogo",
-      items: [
-        { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
-        { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
-        { href: "/admin/buylist", label: "Buylist", icon: <IconRepeat className="w-4 h-4" /> },
-        { href: "/admin/price-sync", label: "Sincronizar Precios", icon: <IconRefresh className="w-4 h-4" /> },
-        { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
-      ],
-    },
-    {
-      title: "Métricas & Finanzas",
-      items: [
-        { href: "/admin/sales", label: "Reportes & Analítica", icon: <IconPieChart className="w-4 h-4" /> },
-        { href: "/admin/wallet", label: "Billetera & Retiros", icon: <IconWallet className="w-4 h-4" /> },
-      ],
-    },
-    {
-      title: "Configuración",
-      items: [
-        { href: "/admin/profile", label: "Mi Tienda", icon: <IconStore className="w-4 h-4" /> },
-        { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
-        { href: "/admin/coupons", label: "Cupones de Descuento", icon: <IconTicket className="w-4 h-4" /> },
-        { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
-        { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
-        { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
-      ],
-    },
-  ];
+  // Build dynamic navigation sections based on sessionType
+  const getSections = (): NavSection[] => {
+    // 1. CASHIER: Solo Operaciones y Consulta de Catálogo
+    if (sessionType === "CASHIER") {
+      return [
+        {
+          title: "Operaciones de Caja",
+          items: [
+            { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
+            { href: "/admin/transactions", label: "Turno & Arqueo de Caja", icon: <IconReceipt className="w-4 h-4" /> },
+            { href: "/admin/orders", label: "Retiro en Tienda", icon: <IconOrders className="w-4 h-4" /> },
+            { href: "/admin/store-credit", label: "Canje Saldo Cliente", icon: <IconCreditCard className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Catálogo (Consulta)",
+          items: [
+            { href: "/admin/products", label: "Consulta Singles", icon: <IconCard className="w-4 h-4" /> },
+            { href: "/admin/sealed", label: "Consulta Sellado", icon: <IconBox className="w-4 h-4" /> },
+            { href: "/admin/buylist", label: "Recepción Buylist", icon: <IconRepeat className="w-4 h-4" /> },
+          ],
+        },
+      ];
+    }
+
+    // 2. BRANCH_MANAGER: Operaciones, Catálogo Local, Métricas de sucursal, Personal de tienda
+    if (sessionType === "BRANCH_MANAGER") {
+      return [
+        {
+          title: "Operaciones Locales",
+          items: [
+            { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
+            { href: "/admin/transactions", label: "Cajas & Turnos", icon: <IconReceipt className="w-4 h-4" /> },
+            { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
+            { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Inventario Local",
+          items: [
+            { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
+            { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
+            { href: "/admin/buylist", label: "Buylist Sucursal", icon: <IconRepeat className="w-4 h-4" /> },
+            { href: "/admin/price-sync", label: "Sincronizar Precios", icon: <IconRefresh className="w-4 h-4" /> },
+            { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Métricas de Sucursal",
+          items: [
+            { href: "/admin/sales", label: "Reportes & Ventas", icon: <IconPieChart className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Administración Local",
+          items: [
+            { href: "/admin/team", label: "Cajeros del Local", icon: <IconUsers className="w-4 h-4" /> },
+            { href: "/admin/profile", label: "Datos de Sucursal", icon: <IconStore className="w-4 h-4" /> },
+            { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
+            { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
+            { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
+            { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
+          ],
+        },
+      ];
+    }
+
+    // 3. COMPANY_ADMIN: Finanzas y control de holding
+    if (sessionType === "COMPANY_ADMIN") {
+      return [
+        {
+          title: "Operaciones",
+          items: [
+            { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
+            { href: "/admin/transactions", label: "Transacciones & Caja", icon: <IconReceipt className="w-4 h-4" /> },
+            { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
+            { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Catálogo Holding",
+          items: [
+            { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
+            { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
+            { href: "/admin/buylist", label: "Buylist", icon: <IconRepeat className="w-4 h-4" /> },
+            { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Métricas & Finanzas",
+          items: [
+            { href: "/admin/sales", label: "Reportes Consolidados", icon: <IconPieChart className="w-4 h-4" /> },
+            { href: "/admin/wallet", label: "Billetera Matriz & Retiros", icon: <IconWallet className="w-4 h-4" /> },
+          ],
+        },
+        {
+          title: "Configuración",
+          items: [
+            { href: "/admin/profile", label: "Información de Empresa", icon: <IconStore className="w-4 h-4" /> },
+            { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
+          ],
+        },
+      ];
+    }
+
+    // 4. COMPANY_OWNER (Por defecto): Acceso total a nivel de holding y sucursales
+    return [
+      {
+        title: "Operaciones",
+        items: [
+          { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
+          { href: "/admin/transactions", label: "Transacciones & Caja", icon: <IconReceipt className="w-4 h-4" /> },
+          { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
+          { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
+        ],
+      },
+      {
+        title: "Catálogo",
+        items: [
+          { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
+          { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
+          { href: "/admin/buylist", label: "Buylist", icon: <IconRepeat className="w-4 h-4" /> },
+          { href: "/admin/price-sync", label: "Sincronizar Precios", icon: <IconRefresh className="w-4 h-4" /> },
+          { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
+        ],
+      },
+      {
+        title: "Métricas & Finanzas",
+        items: [
+          { href: "/admin/sales", label: "Reportes & Analítica", icon: <IconPieChart className="w-4 h-4" /> },
+          { href: "/admin/wallet", label: "Billetera Matriz & Retiros", icon: <IconWallet className="w-4 h-4" /> },
+        ],
+      },
+      {
+        title: "Configuración & Equipo",
+        items: [
+          { href: "/admin/team", label: "Personal & Sucursales", icon: <IconUsers className="w-4 h-4" /> },
+          { href: "/admin/profile", label: "Empresa & Sucursales", icon: <IconStore className="w-4 h-4" /> },
+          { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
+          { href: "/admin/coupons", label: "Cupones de Descuento", icon: <IconTicket className="w-4 h-4" /> },
+          { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
+          { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
+          { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
+        ],
+      },
+    ];
+  };
+
+  const sections = getSections();
+
+  // Role tag helpers
+  const getRoleTag = () => {
+    switch (sessionType) {
+      case "COMPANY_OWNER":
+        return { tag: "OWN", label: "Dueño Holding", color: "from-red-dark to-red text-white" };
+      case "COMPANY_ADMIN":
+        return { tag: "ADM", label: "Admin Corporativo", color: "from-blue-600 to-indigo-600 text-white" };
+      case "BRANCH_MANAGER":
+        return { tag: "MGR", label: "Encargado Sucursal", color: "from-amber-600 to-orange-600 text-white" };
+      case "CASHIER":
+        return { tag: "POS", label: "Cajero de Turno", color: "from-emerald-600 to-teal-600 text-white" };
+      default:
+        return { tag: "USR", label: "Usuario", color: "from-gray-700 to-gray-800 text-white" };
+    }
+  };
+
+  const roleInfo = getRoleTag();
 
   return (
     <>
@@ -144,17 +276,19 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
 
         {/* Navigation List */}
         <div className="flex flex-col overflow-y-auto flex-1 px-4 py-4 space-y-6 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
-          {/* Hub Link */}
-          <div>
-            <Link
-              href="/admin"
-              onClick={() => setSidebarOpen(false)}
-              className="group relative flex items-center gap-3 rounded-xl py-2 px-3 font-bold text-xs text-white/70 bg-white/[0.03] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
-            >
-              <IconArrowLeft className="w-4 h-4 text-white/60 group-hover:text-red transition-colors" />
-              <span>Volver al Hub</span>
-            </Link>
-          </div>
+          {/* Hub Link - Oculto para cajeros ya que su landing es el POS */}
+          {sessionType !== "CASHIER" && (
+            <div>
+              <Link
+                href="/admin"
+                onClick={() => setSidebarOpen(false)}
+                className="group relative flex items-center gap-3 rounded-xl py-2 px-3 font-bold text-xs text-white/70 bg-white/[0.03] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
+              >
+                <IconArrowLeft className="w-4 h-4 text-white/60 group-hover:text-red transition-colors" />
+                <span>Volver al Hub</span>
+              </Link>
+            </div>
+          )}
 
           {/* Dynamic Categorized Sections */}
           {sections.map((section) => (
@@ -206,14 +340,16 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
             <span>CERRAR SESIÓN</span>
           </button>
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-red-dark to-red flex items-center justify-center text-[10px] font-black text-white shadow-md shadow-red/20">
-              AD
+            <div className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${roleInfo.color} flex items-center justify-center text-[10px] font-black shadow-md`}>
+              {roleInfo.tag}
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-xs font-bold text-white truncate uppercase tracking-tight">
-                {tc("admin")}
+                {user?.name || tc("admin")}
               </p>
-              <p className="text-[9px] text-white/40 truncate font-medium">TapTrade Vault v2.0</p>
+              <p className="text-[9px] text-white/40 truncate font-medium">
+                {roleInfo.label} {user?.activeStore ? `• ${user.activeStore.name}` : ""}
+              </p>
             </div>
           </div>
         </div>

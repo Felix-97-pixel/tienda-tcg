@@ -29,7 +29,13 @@ export class PosController {
   ) {}
 
   private async getStore(req: any) {
-    return this.storesService.getStoreByOwner(req.user.userId);
+    // Zero Trust: Si el usuario es CASHIER o BRANCH_MANAGER, FORZAR activeStoreId de su sesión
+    const isStoreScoped = req.user.sessionType === 'CASHIER' || req.user.sessionType === 'BRANCH_MANAGER';
+    const storeId = isStoreScoped
+      ? req.user.activeStoreId
+      : ((req.headers['x-store-id'] as string) || req.user.activeStoreId);
+
+    return this.storesService.getStoreByOwner(req.user.userId, storeId);
   }
 
   /**

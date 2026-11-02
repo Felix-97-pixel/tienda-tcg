@@ -52,7 +52,8 @@ export class StoresController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getStoreByOwner(@Request() req: any) {
-    const store = await this.storesService.getStoreByOwner(req.user.userId);
+    const requestedStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
+    const store = await this.storesService.getStoreByOwner(req.user.userId, requestedStoreId);
     const features = await this.storesService.getStoreFeatures(store.id);
     return { ...store, activeFeatures: features };
   }

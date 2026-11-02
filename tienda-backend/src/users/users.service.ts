@@ -19,14 +19,39 @@ export class UsersService {
         companyMemberships: {
           include: {
             company: {
-              select: { id: true, name: true },
+              select: {
+                id: true,
+                name: true,
+                rut: true,
+                balance: true,
+                stores: {
+                  select: {
+                    id: true,
+                    name: true,
+                    subdomain: true,
+                    isMainBranch: true,
+                    address: true,
+                  },
+                  orderBy: { isMainBranch: 'desc' },
+                },
+              },
             },
           },
         },
         storeMemberships: {
           include: {
             store: {
-              select: { id: true, name: true, subdomain: true, isMainBranch: true, companyId: true },
+              select: {
+                id: true,
+                name: true,
+                subdomain: true,
+                isMainBranch: true,
+                address: true,
+                companyId: true,
+                company: {
+                  select: { id: true, name: true },
+                },
+              },
             },
           },
         },

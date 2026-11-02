@@ -52,8 +52,12 @@ export function useAdminSignin() {
       }
       dispatch(adminLoginSuccess({ user: data.user }));
 
-      if (data.user.role === "SUPERADMIN") {
+      if (data.user.role === "SUPERADMIN" || data.user.sessionType === "SUPERADMIN") {
         router.push("/superadmin");
+      } else if (data.user.sessionType === "CASHIER") {
+        router.push("/admin/pos");
+      } else if (data.user.sessionType === "BRANCH_MANAGER") {
+        router.push("/admin/products");
       } else {
         router.push("/admin");
       }

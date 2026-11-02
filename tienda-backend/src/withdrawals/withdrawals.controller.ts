@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { WithdrawalsService } from './withdrawals.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -9,20 +9,28 @@ export class WithdrawalsController {
   constructor(private readonly withdrawalsService: WithdrawalsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN') // O 'STORE_OWNER' si usas ese rol
+  @Roles('ADMIN')
   @Post('request')
   async requestWithdrawal(
     @Req() req: any,
     @Body() body: { amount: number; bankDetails: string }
   ) {
+    // Zero Trust: Bloquear a cajeros y encargados de local
+    if (req.user.sessionType === 'CASHIER' || req.user.sessionType === 'BRANCH_MANAGER') {
+      throw new ForbiddenException('No tienes permisos corporativos para solicitar retiros de fondos');
+    }
     const userId = req.user.userId; 
     return this.withdrawalsService.requestWithdrawal(userId, body.amount, body.bankDetails);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN') // O 'STORE_OWNER' si usas ese rol
+  @Roles('ADMIN')
   @Get('history')
   async getHistory(@Req() req: any) {
+    // Zero Trust: Bloquear a cajeros y encargados de local
+    if (req.user.sessionType === 'CASHIER' || req.user.sessionType === 'BRANCH_MANAGER') {
+      throw new ForbiddenException('No tienes permisos corporativos para acceder a la billetera matriz');
+    }
     return this.withdrawalsService.getStoreHistory(req.user.userId);
   }
 
