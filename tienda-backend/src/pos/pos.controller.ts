@@ -18,10 +18,14 @@ import { OpenShiftDto, CloseShiftDto } from './dto/pos-shift.dto';
 import { SyncOfflineSalesDto } from './dto/sync-offline-sales.dto';
 import { PosBuyOperationDto } from './dto/pos-buy-operation.dto';
 import { SkipThrottle } from '@nestjs/throttler';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { Permission } from '../auth/constants/permissions.enum';
 
 @Controller('pos')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 @Roles(Role.ADMIN, Role.SUPERADMIN)
+@RequirePermissions(Permission.POS_ACCESS)
 export class PosController {
   constructor(
     private readonly posService: PosService,

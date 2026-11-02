@@ -11,7 +11,7 @@ import {
 
 @Injectable()
 export class LocationsService implements OnModuleInit {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async onModuleInit() {
     await this.backfillStoreLocations();
@@ -33,7 +33,6 @@ export class LocationsService implements OnModuleInit {
       });
 
       if (storesWithoutRelations.length > 0) {
-        console.log(`📍 Sincronizando ${storesWithoutRelations.length} tiendas con llaves foráneas de ubicación...`);
         const santiagoCommune = await this.prisma.commune.findUnique({
           where: { code: 'SANTIAGO' },
           include: { region: true },
@@ -50,7 +49,6 @@ export class LocationsService implements OnModuleInit {
             });
           }
         }
-        console.log('✅ Tiendas sincronizadas con relaciones de Región y Comuna exitosamente');
       }
     } catch (error: any) {
       console.error('❌ Error en backfillStoreLocations:', error?.message);

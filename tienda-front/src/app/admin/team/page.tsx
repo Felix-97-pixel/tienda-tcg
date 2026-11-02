@@ -4,6 +4,7 @@ import { useAppSelector } from "@/redux/store";
 import { Button } from "@/components/ui/Button";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import Loader from "@/components/ui/Loader";
+import { usePermission } from "@/hooks/usePermission";
 import {
   IconUsers,
   IconUserPlus,
@@ -52,8 +53,8 @@ interface Branch {
 
 export default function AdminTeamPage() {
   const { user } = useAppSelector((state) => state.adminAuthReducer);
-  const sessionType = user?.sessionType || "COMPANY_OWNER";
-  const isBranchManager = sessionType === "BRANCH_MANAGER";
+  const canManageCorporate = usePermission("TEAM_CORPORATE_MANAGE");
+  const canManageLocal = usePermission("TEAM_LOCAL_MANAGE");
 
   // Tabs
   const [activeTab, setActiveTab] = useState<"branches" | "company">("branches");
@@ -343,17 +344,17 @@ export default function AdminTeamPage() {
             </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white">
-            {isBranchManager ? "Personal de Sucursal" : "Gestión de Equipo & Personal"}
+            {canManageCorporate ? "Gestión de Equipo & Personal" : "Personal de Sucursal"}
           </h1>
           <p className="text-white/40 text-xs mt-0.5">
-            {isBranchManager
-              ? `Administra los cajeros autorizados para operar en ${currentBranch?.name || "tu sucursal"}.`
-              : "Administra los cajeros y encargados de tus sucursales, así como los copropietarios o contadores del holding."}
+            {canManageCorporate
+              ? "Administra los cajeros y encargados de tus sucursales, así como los copropietarios o contadores del holding."
+              : `Administra los cajeros autorizados para operar en ${currentBranch?.name || "tu sucursal"}.`}
           </p>
         </div>
 
         {/* Tab Controls for Owners */}
-        {!isBranchManager && (
+        {canManageCorporate && (
           <div className="flex items-center bg-white/[0.04] p-1 rounded-2xl border border-white/10 shrink-0">
             <button
               onClick={() => setActiveTab("branches")}
@@ -385,7 +386,7 @@ export default function AdminTeamPage() {
       {activeTab === "branches" && (
         <div className="space-y-6">
           {/* Branch Switcher Card for Owners */}
-          {!isBranchManager && branches.length > 1 && (
+          {canManageCorporate && branches.length > 1 && (
             <div className="p-4 rounded-2xl bg-[#0B0E17] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-white/40 block">
@@ -474,7 +475,7 @@ export default function AdminTeamPage() {
                   </label>
                   <SearchableSelect
                     options={
-                      isBranchManager
+                      !canManageCorporate
                         ? [{ value: "CASHIER", label: "Cajero POS (Solo Ventas)" }]
                         : [
                             { value: "CASHIER", label: "Cajero POS (Solo Ventas)" },
@@ -584,7 +585,7 @@ export default function AdminTeamPage() {
       )}
 
       {/* TAB 2: ACCESOS CORPORATIVOS (Solo Dueños) */}
-      {activeTab === "company" && !isBranchManager && (
+      {activeTab === "company" && canManageCorporate && (
         <div className="space-y-6">
           {/* Form to add corporate user */}
           <div className="p-5 sm:p-6 rounded-2xl bg-[#0B0E17] border border-white/10 space-y-4">

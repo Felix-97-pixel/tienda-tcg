@@ -7,6 +7,7 @@ import axios from 'axios';
 import { MailService } from '../mail/mail.service';
 import { randomUUID } from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
+import { ROLE_PERMISSIONS } from './constants/permissions.enum';
 
 @Injectable()
 export class AuthService {
@@ -139,20 +140,6 @@ export class AuthService {
         };
         availableBranches = ownerMembership.company.stores || [];
         activeStore = availableBranches.find((b: any) => b.isMainBranch) || availableBranches[0] || null;
-        permissions = [
-          'VIEW_ALL_BRANCHES',
-          'SWITCH_BRANCH',
-          'MANAGE_TEAM_HOLDING',
-          'MANAGE_TEAM_BRANCH',
-          'VIEW_WALLET_HOLDING',
-          'REQUEST_WITHDRAWALS',
-          'MANAGE_CATALOG',
-          'MANAGE_PRICES',
-          'MANAGE_ORDERS',
-          'POS_OPERATE',
-          'VIEW_HOLDING_METRICS',
-          'MANAGE_SETTINGS',
-        ];
       } else if (adminCompMembership) {
         sessionType = 'COMPANY_ADMIN';
         company = {
@@ -163,15 +150,6 @@ export class AuthService {
         };
         availableBranches = adminCompMembership.company.stores || [];
         activeStore = availableBranches.find((b: any) => b.isMainBranch) || availableBranches[0] || null;
-        permissions = [
-          'VIEW_ALL_BRANCHES',
-          'SWITCH_BRANCH',
-          'VIEW_WALLET_HOLDING',
-          'REQUEST_WITHDRAWALS',
-          'MANAGE_CATALOG',
-          'MANAGE_ORDERS',
-          'VIEW_HOLDING_METRICS',
-        ];
       } else if (managerMembership) {
         sessionType = 'BRANCH_MANAGER';
         activeStore = managerMembership.store;
@@ -179,14 +157,6 @@ export class AuthService {
         if (managerMembership.store.company) {
           company = managerMembership.store.company;
         }
-        permissions = [
-          'MANAGE_TEAM_BRANCH',
-          'MANAGE_LOCAL_STOCK',
-          'MANAGE_LOCAL_ORDERS',
-          'POS_OPERATE',
-          'VIEW_LOCAL_METRICS',
-          'MANAGE_LOCAL_SETTINGS',
-        ];
       } else if (cashierMembership) {
         sessionType = 'CASHIER';
         activeStore = cashierMembership.store;
@@ -194,15 +164,10 @@ export class AuthService {
         if (cashierMembership.store.company) {
           company = cashierMembership.store.company;
         }
-        permissions = [
-          'POS_OPERATE',
-          'CASH_SHIFT_MANAGE',
-          'VIEW_LOCAL_STOCK',
-          'DISPATCH_LOCAL_ORDERS',
-          'STORE_CREDIT_REDEEM',
-        ];
       }
     }
+
+    permissions = ROLE_PERMISSIONS[sessionType] || [];
 
     const payload = {
       sub: user.id,
@@ -211,6 +176,7 @@ export class AuthService {
       sessionType,
       activeStoreId: activeStore?.id || null,
       companyId: company?.id || null,
+      permissions,
     };
 
     return {
