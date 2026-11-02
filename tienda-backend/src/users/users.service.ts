@@ -12,6 +12,28 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
+  async getUserMemberships(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        companyMemberships: {
+          include: {
+            company: {
+              select: { id: true, name: true },
+            },
+          },
+        },
+        storeMemberships: {
+          include: {
+            store: {
+              select: { id: true, name: true, subdomain: true, isMainBranch: true, companyId: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async findById(id: string) {
     return this.prisma.user.findUnique({
       where: { id },

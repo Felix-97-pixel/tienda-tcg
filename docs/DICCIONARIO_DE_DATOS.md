@@ -186,7 +186,32 @@ Entidad jurídica matriz (Empresa) que agrupa una o más sucursales físicas (`S
 * `balance` (`Decimal(10,2)`, default: 0): Billetera unificada de liquidaciones por ventas de todas las sucursales.
 * `extraBranchesCount` (`Int`, default: 0): Cantidad de sucursales adicionales contratadas fuera de la casa matriz.
 * `createdAt` / `updatedAt` (`DateTime`).
-* **Relaciones:** `owner`, `plan`, `stores`.
+* **Relaciones:** `owner`, `plan`, `stores`, `members`.
+
+### `CompanyMember`
+Membresía que vincula un usuario de la tabla centralizada `User` con una `Company` (Holding), confiriéndole privilegios corporativos.
+* `id` (`String`, UUID, PK): Identificador único de la membresía.
+* `companyId` (`String`, FK -> `Company`): Empresa a la que pertenece.
+* `userId` (`String`, FK -> `User`): Usuario acreditado.
+* `role` (`CompanyRole`, enum: `OWNER`, `ADMIN`, `ACCOUNTANT`, default: `OWNER`):
+  * `OWNER`: Dueño o representante legal de la empresa (Super Usuario de la tienda). Visión consolidada de todas las sucursales, cambio de sucursal, gestión de suscripción SaaS y administración de personal.
+  * `ADMIN`: Administrador general del holding con permisos operativos sobre todas las tiendas.
+  * `ACCOUNTANT`: Acceso a métricas consolidadas, balances y liquidaciones bancarias.
+* `createdAt` (`DateTime`, default: `now()`).
+* **Índices:** `@@unique([companyId, userId])`, `@@index([companyId])`, `@@index([userId])`.
+* **Relaciones:** `company`, `user`.
+
+### `StoreMember`
+Membresía que asigna un usuario de la tabla centralizada `User` a una sucursal física o digital específica (`Store`), limitando su alcance operativo.
+* `id` (`String`, UUID, PK): Identificador único de la membresía local.
+* `storeId` (`String`, FK -> `Store`): Sucursal a la que está asignado.
+* `userId` (`String`, FK -> `User`): Usuario asignado.
+* `role` (`StoreRole`, enum: `BRANCH_MANAGER`, `CASHIER`, default: `CASHIER`):
+  * `BRANCH_MANAGER`: Encargado de local. Puede gestionar inventario local, ventas POS, despachos locales y cajeros de su tienda.
+  * `CASHIER`: Cajero de mesón/POS. Acceso exclusivo a apertura/cierre de turnos de caja (`CashShift`), ventas POS y búsqueda de inventario de su sucursal. No tiene acceso a billeteras matrices ni sucursales hermanas.
+* `createdAt` (`DateTime`, default: `now()`).
+* **Índices:** `@@unique([storeId, userId])`, `@@index([storeId])`, `@@index([userId])`.
+* **Relaciones:** `store`, `user`.
 
 ### `Store`
 Entidad central que representa a una tienda física o virtual vendedora dentro del marketplace TapTrade.
@@ -314,7 +339,7 @@ Cuentas de compradores, administradores de tienda y superadministradores.
 * `role` (`Role`, enum: `USER`, `ADMIN`, `SUPERADMIN`).
 * `isVerified` (`Boolean`, default: `false`) / `verificationToken` (`String?`).
 * `createdAt` / `updatedAt` (`DateTime`).
-* **Relaciones:** `store`, `wishlist`, `orders`, `storeCredits`, `creditTransactions`, `addresses`.
+* **Relaciones:** `store`, `wishlist`, `orders`, `storeCredits`, `creditTransactions`, `addresses`, `companyMemberships`, `storeMemberships`, `ownedCompanies`.
 
 ### `Address`
 Libreta de direcciones múltiples guardadas por el comprador en su perfil.

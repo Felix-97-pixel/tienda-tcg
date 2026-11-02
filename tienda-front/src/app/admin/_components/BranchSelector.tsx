@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { IconMapPin, IconStore } from "@/components/ui/Icons";
+import { IconMapPin, IconStore, IconChevronDown } from "@/components/ui/Icons";
 
 interface Branch {
   id: string;
@@ -98,14 +98,9 @@ export default function BranchSelector() {
       >
         <IconMapPin className="w-3.5 h-3.5 text-red" />
         <span className="max-w-[130px] truncate">{activeBranch?.name || "Seleccionar Sucursal"}</span>
-        <svg
+        <IconChevronDown
           className={`w-3.5 h-3.5 text-white/60 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
+        />
       </button>
 
       {isOpen && (

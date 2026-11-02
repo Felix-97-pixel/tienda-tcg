@@ -13,6 +13,8 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconPlus,
+  IconUsers,
+  IconUser,
 } from "@/components/ui/Icons";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 
@@ -23,6 +25,8 @@ interface StoreTableProps {
   onDelete: (id: string) => void;
   onAssignPlan: (companyId: string, planId: string | null) => void;
   onAddBranch: (company: Company) => void;
+  onManageCompanyUsers: (company: Company) => void;
+  onManageStoreUsers: (branch: Branch) => void;
 }
 
 export default function StoreTable({
@@ -32,6 +36,8 @@ export default function StoreTable({
   onDelete,
   onAssignPlan,
   onAddBranch,
+  onManageCompanyUsers,
+  onManageStoreUsers,
 }: StoreTableProps) {
   const [expandedCompanyIds, setExpandedCompanyIds] = useState<Record<string, boolean>>({});
 
@@ -121,15 +127,27 @@ export default function StoreTable({
                     ${Number(company.balance).toLocaleString("es-CL")}
                   </td>
                   <td className="px-4 py-4 text-right">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="!px-3 !py-1.5 text-xs gap-1.5"
-                      onClick={() => toggleExpand(company.id)}
-                    >
-                      <span>Sucursales</span>
-                      {isExpanded ? <IconChevronUp className="w-3.5 h-3.5" /> : <IconChevronDown className="w-3.5 h-3.5" />}
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="!px-2.5 !py-1.5 text-xs gap-1.5 hover:border-red/40 hover:text-white"
+                        onClick={() => onManageCompanyUsers(company)}
+                        title="Administrar usuarios corporativos de la empresa"
+                      >
+                        <IconUsers className="w-3.5 h-3.5 text-red" />
+                        <span className="hidden md:inline">Accesos</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="!px-3 !py-1.5 text-xs gap-1.5"
+                        onClick={() => toggleExpand(company.id)}
+                      >
+                        <span>Sucursales</span>
+                        {isExpanded ? <IconChevronUp className="w-3.5 h-3.5" /> : <IconChevronDown className="w-3.5 h-3.5" />}
+                      </Button>
+                    </div>
                   </td>
                 </tr>
 
@@ -195,6 +213,16 @@ export default function StoreTable({
                                 </div>
 
                                 <div className="flex items-center gap-2 shrink-0">
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="!px-2.5 !py-1.5 hover:border-red/40 hover:text-red gap-1 text-xs"
+                                    onClick={() => onManageStoreUsers(branch)}
+                                    title="Gestionar personal y cajeros de esta sucursal"
+                                  >
+                                    <IconUser className="w-3.5 h-3.5 text-red" />
+                                    <span className="hidden sm:inline">Personal</span>
+                                  </Button>
                                   <a
                                     href={getStoreUrl(branch.subdomain)}
                                     target="_blank"

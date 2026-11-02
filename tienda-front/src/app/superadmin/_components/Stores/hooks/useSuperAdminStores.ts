@@ -64,6 +64,14 @@ export function useSuperAdminStores() {
   const [selectedCompanyForBranch, setSelectedCompanyForBranch] = useState<Company | null>(null);
   const [isSubmittingBranch, setIsSubmittingBranch] = useState(false);
 
+  // Modal para gestionar usuarios corporativos de Empresa
+  const [isCompanyUsersModalOpen, setIsCompanyUsersModalOpen] = useState(false);
+  const [selectedCompanyForUsers, setSelectedCompanyForUsers] = useState<Company | null>(null);
+
+  // Modal para gestionar personal de Sucursal
+  const [isStoreUsersModalOpen, setIsStoreUsersModalOpen] = useState(false);
+  const [selectedBranchForUsers, setSelectedBranchForUsers] = useState<Branch | null>(null);
+
   const getAuthHeaders = (extraHeaders?: Record<string, string>): Record<string, string> => {
     const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
     const headers: Record<string, string> = { "x-auth-scope": "admin", ...(extraHeaders || {}) };
@@ -270,10 +278,31 @@ export function useSuperAdminStores() {
     setIsBranchModalOpen(false);
   };
 
+  const openCompanyUsersModal = (company: Company) => {
+    setSelectedCompanyForUsers(company);
+    setIsCompanyUsersModalOpen(true);
+  };
+
+  const closeCompanyUsersModal = () => {
+    setSelectedCompanyForUsers(null);
+    setIsCompanyUsersModalOpen(false);
+  };
+
+  const openStoreUsersModal = (branch: Branch) => {
+    setSelectedBranchForUsers(branch);
+    setIsStoreUsersModalOpen(true);
+  };
+
+  const closeStoreUsersModal = () => {
+    setSelectedBranchForUsers(null);
+    setIsStoreUsersModalOpen(false);
+  };
+
   return {
     companies,
     availablePlans,
     loading,
+    refreshCompanies: fetchCompanies,
     isModalOpen,
     isSubmitting,
     formData,
@@ -290,5 +319,14 @@ export function useSuperAdminStores() {
     openCreateBranchModal,
     closeCreateBranchModal,
     handleCreateBranch,
+    // Gestión de Usuarios
+    isCompanyUsersModalOpen,
+    selectedCompanyForUsers,
+    openCompanyUsersModal,
+    closeCompanyUsersModal,
+    isStoreUsersModalOpen,
+    selectedBranchForUsers,
+    openStoreUsersModal,
+    closeStoreUsersModal,
   };
 }

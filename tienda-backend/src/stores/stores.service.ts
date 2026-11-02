@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
 import { UpdateStoreFullDto } from './dto/update-store-full.dto';
+import { ManageCompanyUserDto } from './dto/manage-company-user.dto';
+import { ManageStoreUserDto } from './dto/manage-store-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -91,9 +93,27 @@ export class StoresService {
     return store;
   }
 
-  async getStoreByOwner(userId: string) {
+  async getStoreByOwner(userId: string, requestedStoreId?: string) {
+    let whereCondition: any = {
+      OR: [
+        { ownerId: userId },
+        { members: { some: { userId } } },
+      ],
+    };
+
+    if (requestedStoreId) {
+      whereCondition = {
+        id: requestedStoreId,
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { company: { members: { some: { userId } } } },
+        ],
+      };
+    }
+
     const store = await this.prisma.store.findFirst({
-      where: { ownerId: userId },
+      where: whereCondition,
       include: {
         settings: true,
         gameExchangeRates: true,
@@ -112,7 +132,8 @@ export class StoresService {
         originCommune: {
           include: { zone: true },
         },
-      }
+      },
+      orderBy: { isMainBranch: 'desc' },
     });
 
     if (!store) {
@@ -427,11 +448,35 @@ export class StoresService {
           },
         },
         plan: true,
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
         stores: {
           include: {
             originRegion: true,
             originCommune: true,
             subscriptionPlans: true,
+            members: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                  },
+                },
+              },
+              orderBy: { createdAt: 'asc' },
+            },
           },
           orderBy: { isMainBranch: 'desc' },
         },
@@ -495,6 +540,17 @@ export class StoresService {
         });
       }
 
+      // Asegurar membresía de empresa como OWNER
+      await tx.companyMember.upsert({
+        where: { companyId_userId: { companyId: company.id, userId: user.id } },
+        update: {},
+        create: {
+          companyId: company.id,
+          userId: user.id,
+          role: 'OWNER',
+        },
+      });
+
       // 3. Crear la tienda (Casa matriz inicial)
       try {
         const store = await tx.store.create({
@@ -512,6 +568,18 @@ export class StoresService {
             }
           }
         });
+
+        // Asegurar membresía de sucursal como BRANCH_MANAGER
+        await tx.storeMember.upsert({
+          where: { storeId_userId: { storeId: store.id, userId: user.id } },
+          update: {},
+          create: {
+            storeId: store.id,
+            userId: user.id,
+            role: 'BRANCH_MANAGER',
+          },
+        });
+
         return store;
       } catch (error: any) {
         if (error.code === 'P2002') {
@@ -575,11 +643,17 @@ export class StoresService {
 
 
   /**
-   * Obtiene la empresa a la que pertenece el usuario autenticado (dueño).
+   * Obtiene la empresa a la que pertenece el usuario autenticado (dueño o miembro).
    */
   async getCompanyByOwner(userId: string) {
     let company = await this.prisma.company.findFirst({
-      where: { ownerId: userId },
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { stores: { some: { members: { some: { userId } } } } },
+        ],
+      },
       include: {
         stores: {
           include: {
@@ -594,12 +668,19 @@ export class StoresService {
 
     if (!company) {
       // Fallback: Si el usuario tiene una Store pero aún no se le creó la Company, la autogeneramos
-      const store = await this.prisma.store.findFirst({ where: { ownerId: userId } });
+      const store = await this.prisma.store.findFirst({
+        where: {
+          OR: [
+            { ownerId: userId },
+            { members: { some: { userId } } },
+          ],
+        },
+      });
       if (store) {
         company = await this.prisma.company.create({
           data: {
             name: store.name,
-            ownerId: userId,
+            ownerId: store.ownerId,
             balance: store.balance,
             extraBranchesCount: 0,
           },
@@ -617,6 +698,11 @@ export class StoresService {
           where: { id: store.id },
           data: { companyId: company.id, isMainBranch: true },
         });
+        await this.prisma.companyMember.upsert({
+          where: { companyId_userId: { companyId: company.id, userId: store.ownerId } },
+          update: {},
+          create: { companyId: company.id, userId: store.ownerId, role: 'OWNER' },
+        });
       } else {
         throw new NotFoundException('No tienes una empresa ni tienda asignada.');
       }
@@ -625,9 +711,6 @@ export class StoresService {
     return company;
   }
 
-  /**
-   * Lista todas las sucursales asociadas a la empresa del usuario.
-   */
   /**
    * Actualiza el plan SaaS asignado a una Empresa (Holding).
    */
@@ -703,6 +786,17 @@ export class StoresService {
       },
     });
 
+    // Vincular al dueño en StoreMember
+    await this.prisma.storeMember.upsert({
+      where: { storeId_userId: { storeId: newBranch.id, userId: company.ownerId } },
+      update: {},
+      create: {
+        storeId: newBranch.id,
+        userId: company.ownerId,
+        role: 'BRANCH_MANAGER',
+      },
+    });
+
     if (!isFirstBranch) {
       await this.prisma.company.update({
         where: { id: company.id },
@@ -713,9 +807,27 @@ export class StoresService {
     return newBranch;
   }
 
+  /**
+   * Lista las sucursales asociadas a la empresa del usuario.
+   * Si el usuario es dueño o admin corporativo, ve todas las sucursales.
+   * Si es personal/cajero asignado, solo ve las sucursales donde es miembro.
+   */
   async getBranches(userId: string) {
     const company = await this.getCompanyByOwner(userId);
-    return company.stores;
+    const isCompanyLevel = company.ownerId === userId || await this.prisma.companyMember.findFirst({
+      where: { companyId: company.id, userId, role: { in: ['OWNER', 'ADMIN'] } },
+    });
+
+    if (isCompanyLevel) {
+      return company.stores;
+    }
+
+    const storeMemberships = await this.prisma.storeMember.findMany({
+      where: { userId },
+      select: { storeId: true },
+    });
+    const allowedStoreIds = storeMemberships.map((sm) => sm.storeId);
+    return company.stores.filter((s) => allowedStoreIds.includes(s.id));
   }
 
   /**
@@ -733,11 +845,9 @@ export class StoresService {
       throw new ConflictException('El subdominio ya está registrado por otra tienda o sucursal.');
     }
 
-    // Regla de Negocio: La primera sucursal es la principal (isMainBranch: true).
-    // Las sucursales subsiguientes son adicionales (isMainBranch: false).
     const isFirstBranch = company.stores.length === 0;
 
-    return this.prisma.store.create({
+    const branch = await this.prisma.store.create({
       data: {
         name: data.name,
         subdomain: data.subdomain,
@@ -748,14 +858,251 @@ export class StoresService {
         pickupEnabled: !!data.address,
         isMainBranch: isFirstBranch,
         companyId: company.id,
-        // Generamos un ownerId único sintético para la sucursal secundaria respetando el schema
-        ownerId: userId,
+        ownerId: company.ownerId,
       },
       include: {
         originRegion: true,
         originCommune: true,
       },
     });
+
+    await this.prisma.storeMember.upsert({
+      where: { storeId_userId: { storeId: branch.id, userId } },
+      update: {},
+      create: {
+        storeId: branch.id,
+        userId,
+        role: 'BRANCH_MANAGER',
+      },
+    });
+
+    if (!isFirstBranch) {
+      await this.prisma.company.update({
+        where: { id: company.id },
+        data: { extraBranchesCount: { increment: 1 } },
+      });
+    }
+
+    return branch;
   }
 
+  // ==========================================
+  // GESTIÓN DE USUARIOS DE EMPRESA Y SUCURSAL
+  // ==========================================
+
+  private async checkCompanyAccess(companyId: string, currentUser: any) {
+    if (currentUser?.role === 'SUPERADMIN') return true;
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      include: { members: true },
+    });
+    if (!company) {
+      throw new NotFoundException('Empresa no encontrada');
+    }
+    const isOwner = company.ownerId === currentUser.userId;
+    const isMemberAdmin = company.members.some(
+      (m) => m.userId === currentUser.userId && (m.role === 'OWNER' || m.role === 'ADMIN'),
+    );
+    if (!isOwner && !isMemberAdmin) {
+      throw new ForbiddenException('No tienes permisos para administrar esta empresa');
+    }
+    return company;
+  }
+
+  private async checkStoreAccess(storeId: string, currentUser: any) {
+    if (currentUser?.role === 'SUPERADMIN') return true;
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      include: {
+        members: true,
+        company: {
+          include: { members: true },
+        },
+      },
+    });
+    if (!store) {
+      throw new NotFoundException('Sucursal no encontrada');
+    }
+    const isOwner = store.ownerId === currentUser.userId || store.company?.ownerId === currentUser.userId;
+    const isCompanyAdmin = store.company?.members.some(
+      (m) => m.userId === currentUser.userId && (m.role === 'OWNER' || m.role === 'ADMIN'),
+    );
+    const isBranchManager = store.members.some(
+      (m) => m.userId === currentUser.userId && m.role === 'BRANCH_MANAGER',
+    );
+    if (!isOwner && !isCompanyAdmin && !isBranchManager) {
+      throw new ForbiddenException('No tienes permisos para administrar el personal de esta sucursal');
+    }
+    return store;
+  }
+
+  /**
+   * Obtiene los miembros corporativos de una empresa.
+   */
+  async getCompanyUsers(companyId: string, currentUser: any) {
+    await this.checkCompanyAccess(companyId, currentUser);
+    return this.prisma.companyMember.findMany({
+      where: { companyId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /**
+   * Agrega o vincula un usuario a nivel de empresa (Holding).
+   */
+  async addCompanyUser(companyId: string, data: ManageCompanyUserDto, currentUser: any) {
+    await this.checkCompanyAccess(companyId, currentUser);
+    const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+    if (!company) throw new NotFoundException('Empresa no encontrada');
+
+    let user = await this.prisma.user.findUnique({ where: { email: data.email } });
+    if (!user) {
+      const rawPassword = data.password || 'TapTrade2026!';
+      const hashedPassword = await bcrypt.hash(rawPassword, 10);
+      user = await this.prisma.user.create({
+        data: {
+          email: data.email,
+          name: data.name,
+          password: hashedPassword,
+          role: 'ADMIN',
+          isVerified: true,
+        },
+      });
+    } else {
+      if (data.name && (!user.name || user.name === 'Jugador')) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { name: data.name },
+        });
+      }
+    }
+
+    const memberRole = data.role || 'ADMIN';
+    return this.prisma.companyMember.upsert({
+      where: { companyId_userId: { companyId, userId: user.id } },
+      update: { role: memberRole },
+      create: {
+        companyId,
+        userId: user.id,
+        role: memberRole,
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, createdAt: true },
+        },
+      },
+    });
+  }
+
+  /**
+   * Desvincula un miembro de la empresa.
+   */
+  async removeCompanyUser(companyId: string, targetUserId: string, currentUser: any) {
+    await this.checkCompanyAccess(companyId, currentUser);
+    const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+    if (!company) throw new NotFoundException('Empresa no encontrada');
+
+    if (company.ownerId === targetUserId) {
+      throw new BadRequestException('No es posible desvincular al dueño titular de la empresa.');
+    }
+
+    return this.prisma.companyMember.delete({
+      where: { companyId_userId: { companyId, userId: targetUserId } },
+    });
+  }
+
+  /**
+   * Obtiene los miembros (cajeros / encargados) asignados a una sucursal específica.
+   */
+  async getStoreUsers(storeId: string, currentUser: any) {
+    await this.checkStoreAccess(storeId, currentUser);
+    return this.prisma.storeMember.findMany({
+      where: { storeId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /**
+   * Agrega o vincula un usuario a una sucursal específica.
+   */
+  async addStoreUser(storeId: string, data: ManageStoreUserDto, currentUser: any) {
+    await this.checkStoreAccess(storeId, currentUser);
+    const store = await this.prisma.store.findUnique({ where: { id: storeId } });
+    if (!store) throw new NotFoundException('Sucursal no encontrada');
+
+    let user = await this.prisma.user.findUnique({ where: { email: data.email } });
+    if (!user) {
+      const rawPassword = data.password || 'TapTrade2026!';
+      const hashedPassword = await bcrypt.hash(rawPassword, 10);
+      user = await this.prisma.user.create({
+        data: {
+          email: data.email,
+          name: data.name,
+          password: hashedPassword,
+          role: 'ADMIN',
+          isVerified: true,
+        },
+      });
+    } else {
+      if (data.name && (!user.name || user.name === 'Jugador')) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { name: data.name },
+        });
+      }
+    }
+
+    const memberRole = data.role || 'CASHIER';
+    return this.prisma.storeMember.upsert({
+      where: { storeId_userId: { storeId, userId: user.id } },
+      update: { role: memberRole },
+      create: {
+        storeId,
+        userId: user.id,
+        role: memberRole,
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, createdAt: true },
+        },
+      },
+    });
+  }
+
+  /**
+   * Desvincula un usuario de una sucursal.
+   */
+  async removeStoreUser(storeId: string, targetUserId: string, currentUser: any) {
+    await this.checkStoreAccess(storeId, currentUser);
+    const store = await this.prisma.store.findUnique({ where: { id: storeId } });
+    if (!store) throw new NotFoundException('Sucursal no encontrada');
+
+    if (store.ownerId === targetUserId && store.isMainBranch) {
+      throw new BadRequestException('No es posible desvincular al dueño titular de la casa matriz.');
+    }
+
+    return this.prisma.storeMember.delete({
+      where: { storeId_userId: { storeId, userId: targetUserId } },
+    });
+  }
 }

@@ -108,6 +108,7 @@ export class AuthService {
       throw new UnauthorizedException('Tu cuenta no está verificada. Por favor verifica tu correo para poder ingresar.');
     }
 
+    const memberships = await this.usersService.getUserMemberships(user.id);
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -115,7 +116,9 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        companyMemberships: memberships?.companyMemberships || [],
+        storeMemberships: memberships?.storeMemberships || [],
       }
     };
   }

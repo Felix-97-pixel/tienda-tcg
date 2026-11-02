@@ -277,7 +277,12 @@ Cadena de guards:
 ```mermaid
 erDiagram
     Company ||--o{ Store : "agrupa (sucursales)"
-    Company ||--o{ User : "representante legal / dueno"
+    Company ||--o{ CompanyMember : "miembros corporativos"
+    Company ||--o| User : "dueno titular"
+    Store ||--o{ StoreMember : "personal asignado"
+    User ||--o{ CompanyMember : "membresia empresa"
+    User ||--o{ StoreMember : "membresia sucursal"
+
     Store ||--o{ InventoryItem : "almacena stock fisico"
     Store ||--o{ CashShift : "opera turnos POS"
     Store ||--o{ VendorOrder : "recibe pedidos marketplace"
@@ -313,6 +318,14 @@ erDiagram
         int extraBranchesCount "Sucursales extra pagadas"
     }
 
+    CompanyMember {
+        string id PK
+        string companyId FK
+        string userId FK
+        CompanyRole role "OWNER, ADMIN, ACCOUNTANT"
+        datetime createdAt
+    }
+
     Store {
         string id PK
         string companyId FK "Empresa Matriz"
@@ -326,6 +339,14 @@ erDiagram
         string originRegionId FK
         string originCommuneId FK
         decimal balance "Billetera operativa"
+    }
+
+    StoreMember {
+        string id PK
+        string storeId FK
+        string userId FK
+        StoreRole role "BRANCH_MANAGER, CASHIER"
+        datetime createdAt
     }
 
     CashShift {

@@ -5,12 +5,15 @@ import { useSuperAdminStores } from "@/app/superadmin/_components/Stores/hooks/u
 import StoreTable from "@/app/superadmin/_components/Stores/StoreTable";
 import CreateStoreModal from "@/app/superadmin/_components/Stores/CreateStoreModal";
 import CreateBranchModal from "@/app/superadmin/_components/Stores/CreateBranchModal";
+import CompanyUsersModal from "@/app/superadmin/_components/Stores/CompanyUsersModal";
+import StoreUsersModal from "@/app/superadmin/_components/Stores/StoreUsersModal";
 
 export default function StoresPage() {
   const {
     companies,
     availablePlans,
     loading,
+    refreshCompanies,
     isModalOpen,
     isSubmitting,
     formData,
@@ -27,6 +30,15 @@ export default function StoresPage() {
     openCreateBranchModal,
     closeCreateBranchModal,
     handleCreateBranch,
+    // Gestión de Usuarios
+    isCompanyUsersModalOpen,
+    selectedCompanyForUsers,
+    openCompanyUsersModal,
+    closeCompanyUsersModal,
+    isStoreUsersModalOpen,
+    selectedBranchForUsers,
+    openStoreUsersModal,
+    closeStoreUsersModal,
   } = useSuperAdminStores();
 
   return (
@@ -58,6 +70,8 @@ export default function StoresPage() {
           onDelete={handleDelete}
           onAssignPlan={handleAssignPlan}
           onAddBranch={openCreateBranchModal}
+          onManageCompanyUsers={openCompanyUsersModal}
+          onManageStoreUsers={openStoreUsersModal}
         />
 
         {/* Modal de Creación de Empresa (Holding + Primera Tienda) */}
@@ -77,6 +91,22 @@ export default function StoresPage() {
           company={selectedCompanyForBranch}
           onSubmit={handleCreateBranch}
           isSubmitting={isSubmittingBranch}
+        />
+
+        {/* Modal de Usuarios Corporativos de Empresa */}
+        <CompanyUsersModal
+          isOpen={isCompanyUsersModalOpen}
+          onClose={closeCompanyUsersModal}
+          company={selectedCompanyForUsers}
+          onRefresh={refreshCompanies}
+        />
+
+        {/* Modal de Personal y Cajeros de Sucursal */}
+        <StoreUsersModal
+          isOpen={isStoreUsersModalOpen}
+          onClose={closeStoreUsersModal}
+          branch={selectedBranchForUsers}
+          onRefresh={refreshCompanies}
         />
       </div>
     </>

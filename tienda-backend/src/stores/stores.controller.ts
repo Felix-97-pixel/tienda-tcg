@@ -5,6 +5,8 @@ import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
 import { UpdateStoreFullDto } from './dto/update-store-full.dto';
+import { ManageCompanyUserDto } from './dto/manage-company-user.dto';
+import { ManageStoreUserDto } from './dto/manage-store-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -110,6 +112,44 @@ export class StoresController {
   @Post('companies/:id/branches')
   createBranchForCompany(@Param('id') id: string, @Body() dto: CreateBranchDto) {
     return this.storesService.createBranchForCompany(id, dto);
+  }
+
+  // --- Usuarios y Accesos a nivel de Empresa ---
+  @UseGuards(JwtAuthGuard)
+  @Get('companies/:id/users')
+  getCompanyUsers(@Request() req: any, @Param('id') companyId: string) {
+    return this.storesService.getCompanyUsers(companyId, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('companies/:id/users')
+  addCompanyUser(@Request() req: any, @Param('id') companyId: string, @Body() dto: ManageCompanyUserDto) {
+    return this.storesService.addCompanyUser(companyId, dto, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('companies/:id/users/:userId')
+  removeCompanyUser(@Request() req: any, @Param('id') companyId: string, @Param('userId') targetUserId: string) {
+    return this.storesService.removeCompanyUser(companyId, targetUserId, req.user);
+  }
+
+  // --- Personal y Cajeros a nivel de Sucursal ---
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/users')
+  getStoreUsers(@Request() req: any, @Param('id') storeId: string) {
+    return this.storesService.getStoreUsers(storeId, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/users')
+  addStoreUser(@Request() req: any, @Param('id') storeId: string, @Body() dto: ManageStoreUserDto) {
+    return this.storesService.addStoreUser(storeId, dto, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/users/:userId')
+  removeStoreUser(@Request() req: any, @Param('id') storeId: string, @Param('userId') targetUserId: string) {
+    return this.storesService.removeStoreUser(storeId, targetUserId, req.user);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

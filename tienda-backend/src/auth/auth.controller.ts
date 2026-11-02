@@ -28,7 +28,9 @@ export class AuthController {
   @Post('admin/login')
   async adminLogin(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(loginDto);
-    if (result.user.role !== 'ADMIN' && result.user.role !== 'SUPERADMIN') {
+    const hasMembership = (result.user.companyMemberships && result.user.companyMemberships.length > 0) ||
+                          (result.user.storeMemberships && result.user.storeMemberships.length > 0);
+    if (result.user.role !== 'ADMIN' && result.user.role !== 'SUPERADMIN' && !hasMembership) {
       throw new UnauthorizedException('Acceso denegado. No tienes permisos de administrador.');
     }
     this.setAdminCookie(res, result.access_token);

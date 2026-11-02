@@ -222,9 +222,26 @@ model Company {
   owner  User              @relation(fields: [ownerId], references: [id])
   plan   SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
   stores Store[]
+  members CompanyMember[]
 
   @@index([ownerId])
 }
+
+model CompanyMember {
+  id        String      @id @default(uuid())
+  companyId String
+  userId    String
+  role      CompanyRole @default(OWNER)
+  createdAt DateTime    @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([companyId])
+  @@index([userId])
+}
+
 
 model Store {
   id                   String                      @id @default(uuid())
@@ -275,7 +292,24 @@ model Store {
   coupons            Coupon[]
   cashShifts         CashShift[]
   cashPurchases      CashPurchase[]
+  members            StoreMember[]
 }
+
+model StoreMember {
+  id        String    @id @default(uuid())
+  storeId   String
+  userId    String
+  role      StoreRole @default(CASHIER)
+  createdAt DateTime  @default(now())
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, userId])
+  @@index([storeId])
+  @@index([userId])
+}
+
 
 model User {
   id                 String                   @id @default(uuid())
@@ -304,6 +338,8 @@ model User {
   creditTransactions StoreCreditTransaction[]
   addresses          Address[]
   cashPurchases      CashPurchase[]
+  companyMemberships CompanyMember[]
+  storeMemberships   StoreMember[]
 }
 
 model Address {
@@ -437,6 +473,18 @@ enum Role {
   ADMIN
   SUPERADMIN
 }
+
+enum CompanyRole {
+  OWNER
+  ADMIN
+  ACCOUNTANT
+}
+
+enum StoreRole {
+  BRANCH_MANAGER
+  CASHIER
+}
+
 
 enum OrderStatus {
   PENDING
@@ -784,7 +832,6 @@ model CashShift {
   store         Store          @relation(fields: [storeId], references: [id])
   orders        Order[]
   cashPurchases CashPurchase[]
-
   @@index([storeId, status])
 }
 
