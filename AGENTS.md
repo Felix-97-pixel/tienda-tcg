@@ -22,3 +22,10 @@
 - **ACTUALIZACIÓN OBLIGATORIA DE LA DOCUMENTACIÓN**: Todo nuevo campo legítimo añadido al esquema debe documentarse inmediatamente en el diccionario de datos.
 - Consultar las directivas detalladas en `.agents/rules/database-anti-duplication.md`.
 
+## 5. Autorización Backend Basada en Permisos - PBAC (REGLA ESTRICTA)
+- **PROHIBIDO EL USO DE CONDICIONALES MANUALES DE ROL EN CONTROLADORES**: Nunca escribir `if (req.user.sessionType === ...)` o `if (user.role === ...)` dentro de los métodos del controlador.
+- **USO OBLIGATORIO DE DECORADORES Y GUARDS**: Todo endpoint administrativo o con restricción de acceso debe usar `@UseGuards(JwtAuthGuard, PermissionsGuard)` y el decorador declarativo `@RequirePermissions(Permission.XYZ)`.
+- **CATÁLOGO TIPADO CENTRALIZADO**: Todo nuevo permiso debe definirse en el enum `Permission` y mapearse en `ROLE_PERMISSIONS` en [`tienda-backend/src/auth/constants/permissions.enum.ts`](file:///c:/Users/felix/Desktop/e-commerce/tienda-backend/src/auth/constants/permissions.enum.ts).
+- Consultar las directivas detalladas en `.agents/rules/backend-pbac-authorization.md`.
+
+

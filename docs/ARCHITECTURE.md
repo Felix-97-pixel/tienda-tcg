@@ -632,9 +632,11 @@ graph TB
 - Token expira en **24 horas**.
 
 ### Autorización
-- Sistema de roles: `USER`, `ADMIN` y `SUPERADMIN`.
-- Guards encadenados: `JwtAuthGuard` → `RolesGuard`.
-- `OptionalJwtAuthGuard` para rutas que aceptan usuarios autenticados y anónimos.
+- **Roles Globales de Plataforma:** `USER`, `ADMIN` y `SUPERADMIN`.
+- **Autorización Declarativa B2B (PBAC):** Implementación de control de acceso basado en permisos (`PermissionsGuard` + decorador `@RequirePermissions(Permission.XYZ)`). Los controladores nunca evalúan nombres de roles en texto plano.
+- **Tenancy Scoping:** Aislamiento multi-tenant por empresa (`CompanyMember`) y sucursal (`StoreMember`). Si un cajero o encargado de tienda realiza una operación, el backend fuerza de manera obligatoria su `activeStoreId` en el servidor (Zero Trust).
+- **Guards encadenados:** `JwtAuthGuard` → `RolesGuard` → `PermissionsGuard`.
+- Documentación completa detallada en [`docs/AUTORIZACION_PBAC.md`](file:///c:/Users/felix/Desktop/e-commerce/docs/AUTORIZACION_PBAC.md) y regla de desarrollo en [`.agents/rules/backend-pbac-authorization.md`](file:///c:/Users/felix/Desktop/e-commerce/.agents/rules/backend-pbac-authorization.md).
 
 ### Protección Anti-Bots
 - **Cloudflare Turnstile** en registro y login.
