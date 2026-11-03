@@ -7,6 +7,7 @@ export interface ModalProps {
   children: React.ReactNode;
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
   className?: string;
+  zIndex?: string;
 }
 
 const maxWidthClasses = {
@@ -29,7 +30,8 @@ export const Modal: React.FC<ModalProps> = ({
   title, 
   children, 
   maxWidth = "md",
-  className = "" 
+  className = "",
+  zIndex = "z-[9999]"
 }) => {
   // Evitar scroll en el fondo cuando el modal está abierto
   useEffect(() => {
@@ -46,7 +48,7 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-[#07090E]/80 backdrop-blur-md transition-all">
+    <div className={`fixed inset-0 ${zIndex} overflow-y-auto bg-[#07090E]/80 backdrop-blur-md transition-all`}>
       <div className="flex min-h-full items-center justify-center p-4">
         <div 
           className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-3xl border border-white/10 bg-[#0E121B] p-6 md:p-8 shadow-2xl shadow-black ring-1 ring-white/5 animate-in zoom-in-95 duration-200 ${className}`}

@@ -59,12 +59,10 @@ export default function DispatchModal({
   const [validation, setValidation] = useState<TrackingValidation | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  if (!isOpen || !vendorOrder) return null;
-
   // Courier o método de entrega oficial pagado por el comprador
   const rawCourier = (
-    vendorOrder.shippingProvider?.name ||
-    vendorOrder.shippingCourier ||
+    vendorOrder?.shippingProvider?.name ||
+    vendorOrder?.shippingCourier ||
     "STARKEN"
   ).toUpperCase();
 
@@ -125,16 +123,21 @@ export default function DispatchModal({
 
   const courierMeta = getCourierMeta();
 
-  const shippingCostNum = parseFloat(String(vendorOrder.shippingCost || 0));
-  const shippingCostFormatted =
-    isLocalPickup || shippingCostNum === 0
-      ? "Gratis ($0)"
-      : `$${shippingCostNum.toLocaleString("es-CL")}`;
+  // Reset y sincronización de estado al abrir/cerrar modal o cambiar de orden
+  useEffect(() => {
+    if (isOpen && vendorOrder) {
+      setTrackingNumber(vendorOrder.trackingNumber || "");
+      setError(null);
+      setValidation(null);
+      setValidating(false);
+      setLoading(false);
+    }
+  }, [isOpen, vendorOrder?.id]);
 
   // Función para consultar a la API de validación
   const runValidation = async (code: string) => {
     const clean = code.replace(/[\s-]/g, "").trim();
-    if (!clean || isLocalPickup) {
+    if (!clean || isLocalPickup || !vendorOrder) {
       setValidation(null);
       setValidating(false);
       return;
@@ -177,7 +180,7 @@ export default function DispatchModal({
         });
       }
     } catch {
-      // Fallback suave
+      // Fallback suave si no responde la API externa
       setValidation({
         valid: true,
         courier: courierMeta.key,
@@ -193,7 +196,7 @@ export default function DispatchModal({
 
   // Debounce automático al tipear
   useEffect(() => {
-    if (isLocalPickup) return;
+    if (!isOpen || !vendorOrder || isLocalPickup) return;
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -220,10 +223,11 @@ export default function DispatchModal({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [trackingNumber]);
+  }, [trackingNumber, isOpen, vendorOrder?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!vendorOrder) return;
     setError(null);
 
     const cleanTracking = trackingNumber.trim();
@@ -240,11 +244,14 @@ export default function DispatchModal({
 
     setLoading(true);
     try {
-      const res = await adminFetch(`/payments/vendor-orders/${vendorOrder.id}/dispatch`, { method: "PATCH", body: JSON.stringify({
+      const res = await adminFetch(`/payments/vendor-orders/${vendorOrder.id}/dispatch`, {
+        method: "PATCH",
+        body: JSON.stringify({
           courier: courierMeta.key,
           trackingNumber: isLocalPickup && !cleanTracking ? "RETIRO-LOCAL" : cleanTracking,
           trackingUrl: validation?.trackingUrl,
-        }) });
+        }),
+      });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -260,6 +267,14 @@ export default function DispatchModal({
     }
   };
 
+  if (!isOpen || !vendorOrder) return null;
+
+  const shippingCostNum = parseFloat(String(vendorOrder.shippingCost || 0));
+  const shippingCostFormatted =
+    isLocalPickup || shippingCostNum === 0
+      ? "Gratis ($0)"
+      : `$${shippingCostNum.toLocaleString("es-CL")}`;
+
   const isSubmitDisabled =
     loading ||
     validating ||
@@ -269,6 +284,7 @@ export default function DispatchModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      zIndex="z-[10010]"
       title={
         isLocalPickup
           ? `Confirmar Entrega en Local #${orderBuyOrder}`
@@ -541,4 +557,3 @@ export default function DispatchModal({
     </Modal>
   );
 }
-

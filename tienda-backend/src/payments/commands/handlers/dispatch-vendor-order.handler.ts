@@ -42,11 +42,23 @@ export class DispatchVendorOrderHandler
       throw new NotFoundException('Sub-orden de tienda no encontrada');
     }
 
-    // 3. Validar permisos: debe ser el dueño de la tienda o un SUPERADMIN
-    const isOwner = user.stores?.some((s: any) => s.id === vendorOrder.storeId);
+    // 3. Validar permisos: debe ser dueño/miembro de la tienda, de la empresa matriz o un SUPERADMIN
     const isSuperAdmin = user.role === 'SUPERADMIN';
+    const storeAccess = isSuperAdmin
+      ? true
+      : await this.prisma.store.findFirst({
+          where: {
+            id: vendorOrder.storeId,
+            OR: [
+              { ownerId: userId },
+              { members: { some: { userId } } },
+              { company: { ownerId: userId } },
+              { company: { members: { some: { userId } } } },
+            ],
+          },
+        });
 
-    if (!isOwner && !isSuperAdmin) {
+    if (!storeAccess) {
       throw new ForbiddenException(
         'No tienes permisos para despachar órdenes de esta tienda',
       );
