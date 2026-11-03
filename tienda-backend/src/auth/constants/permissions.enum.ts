@@ -24,6 +24,9 @@ export enum Permission {
   // Configuración de Tiendas & Holding
   LOCAL_STORE_SETTINGS = 'LOCAL_STORE_SETTINGS',
   HOLDING_SETTINGS = 'HOLDING_SETTINGS',
+
+  // Contabilidad y Reportes Financieros (Superadmin / Contador)
+  ACCOUNTING_READ = 'ACCOUNTING_READ',
 }
 
 export const ROLE_PERMISSIONS: Record<string, Permission[]> = {

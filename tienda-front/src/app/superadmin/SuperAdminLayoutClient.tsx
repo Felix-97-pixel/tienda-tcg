@@ -65,6 +65,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
       items: [
         { path: "/superadmin/stores", label: "Empresas & Sucursales", icon: <IconStore className="w-4 h-4" /> },
         { path: "/superadmin/payouts", label: "Payouts (Liquidaciones)", icon: <IconWallet className="w-4 h-4" /> },
+        { path: "/superadmin/accounting", label: "Contabilidad & SII", icon: <IconCoins className="w-4 h-4" /> },
       ],
     },
     {
