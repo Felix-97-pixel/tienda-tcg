@@ -81,6 +81,27 @@ interface AccountingKPIs {
     transbankVatCreditEstimate: number;
     netPlatformMargin: number;
   };
+  saas?: {
+    activeCompaniesCount: number;
+    totalUf: number;
+    ufValueClp: number;
+    netRevenue: number;
+    vatDebit: number;
+    grossRevenue: number;
+  };
+  f29?: {
+    marketplaceNet: number;
+    marketplaceVatDebit: number;
+    saasNet: number;
+    saasVatDebit: number;
+    totalNetSales: number;
+    totalVatDebit: number;
+    transbankVatCredit: number;
+    netVatToPay: number;
+    ppmRate: number;
+    ppmAmount: number;
+    totalF29ToPay: number;
+  };
   escrow: {
     held: number;
     available: number;
@@ -564,6 +585,144 @@ export default function SuperAdminAccountingPage() {
             <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-[11px] text-white/70 flex items-start gap-1.5 mt-2">
               <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
               <span>Cuadra exactamente con la cartola de la cuenta corriente de la empresa.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* PANEL DE LIQUIDACIÓN TRIBUTARIA F29 (TAPTRADE SpA)        */}
+      {/* Consolidación oficial: Comisiones Marketplace + SaaS     */}
+      {/* ========================================================= */}
+      <div className="bg-[#0E121B] border border-red/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden space-y-6">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-red/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-red shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+              <h2 className="text-base font-black text-white uppercase tracking-wider">
+                Liquidación Tributaria Proyectada • Formulario F29 (TapTrade SpA)
+              </h2>
+            </div>
+            <p className="text-xs text-white/50">
+              Consolida todas las ventas propias afectas a IVA del período: <strong>Comisiones Marketplace</strong> (boletas a compradores) y <strong>Suscripciones SaaS de Software</strong> (facturas a tiendas).
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-white/5 border border-white/10 text-white/80">
+              RUT: 78.531.106-K
+            </span>
+            <span className="px-3 py-1 rounded-lg text-xs font-bold bg-red/10 text-red border border-red/30">
+              Régimen Pro-Pyme (PPM 0.25%)
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Columna 1: Ventas Propias Netas */}
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
+            <span className="text-xs font-bold text-white/60 uppercase tracking-wider block">
+              1. Ventas Propias Netas (Base Imponible)
+            </span>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-white/60">Comisiones Marketplace (3% neto):</span>
+                <span className="font-mono font-bold text-white">
+                  {formatCLP(kpis?.f29?.marketplaceNet || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-white/60">
+                  Suscripciones SaaS ({kpis?.saas?.activeCompaniesCount || 0} emp. / {kpis?.saas?.totalUf || 0} UF):
+                </span>
+                <span className="font-mono font-bold text-white">
+                  {formatCLP(kpis?.f29?.saasNet || 0)}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-white/10 flex justify-between items-center text-sm font-black text-white">
+                <span>Total Ventas Netas TapTrade:</span>
+                <span className="font-mono text-emerald-400">
+                  {formatCLP(kpis?.f29?.totalNetSales || 0)}
+                </span>
+              </div>
+            </div>
+            <p className="text-[10px] text-white/40 leading-relaxed pt-1">
+              Valor UF referencial: {formatCLP(kpis?.saas?.ufValueClp || 38500)} CLP. Suma base imponible sobre la cual se calcula el PPM.
+            </p>
+          </div>
+
+          {/* Columna 2: Cuadratura de IVA */}
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
+            <span className="text-xs font-bold text-white/60 uppercase tracking-wider block">
+              2. IVA Débito vs Crédito Fiscal
+            </span>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-white/60">(+) IVA Débito Comisiones:</span>
+                <span className="font-mono text-white/80">
+                  {formatCLP(kpis?.f29?.marketplaceVatDebit || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-white/60">(+) IVA Débito Suscripciones SaaS:</span>
+                <span className="font-mono text-white/80">
+                  {formatCLP(kpis?.f29?.saasVatDebit || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-amber-400 font-bold">
+                <span>(=) IVA Débito Bruto Total (Código 538):</span>
+                <span className="font-mono">
+                  {formatCLP(kpis?.f29?.totalVatDebit || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-emerald-400">
+                <span>(-) IVA Crédito Pasarelas (Transbank/MP):</span>
+                <span className="font-mono">
+                  -{formatCLP(kpis?.f29?.transbankVatCredit || 0)}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-white/10 flex justify-between items-center font-bold text-white">
+                <span>(=) IVA Neto a Pagar al Fisco:</span>
+                <span className="font-mono text-amber-400">
+                  {formatCLP(kpis?.f29?.netVatToPay || 0)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Columna 3: Total Formulario F29 */}
+          <div className="p-4 rounded-xl bg-gradient-to-br from-red/10 to-red/5 border border-red/40 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-black text-red uppercase tracking-wider block mb-2">
+                3. Total a Pagar en Formulario F29
+              </span>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between items-center text-white/70">
+                  <span>IVA Neto Liquidado:</span>
+                  <span className="font-mono font-bold text-white">
+                    {formatCLP(kpis?.f29?.netVatToPay || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-white/70">
+                  <span>PPM Anticipo Renta (0.25% - Cód 115):</span>
+                  <span className="font-mono font-bold text-white">
+                    {formatCLP(kpis?.f29?.ppmAmount || 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-white/10 mt-3">
+              <span className="text-[11px] font-bold text-white/50 uppercase block">
+                Monto Final a Pagar al SII (TGR):
+              </span>
+              <div className="text-3xl font-black text-white font-mono tracking-tight text-emerald-400 mt-1">
+                {formatCLP(kpis?.f29?.totalF29ToPay || 0)}
+              </div>
+              <span className="text-[10px] text-white/40 block mt-1">
+                Vence el día 20 del mes siguiente. Los fondos de custodia de las tiendas están 100% exentos de este pago.
+              </span>
             </div>
           </div>
         </div>

@@ -84,7 +84,15 @@ export class AccountingService {
     const netPlatformMargin = platformServiceFeeNet;
 
     // 2. Fondos en Custodia de Tiendas (Ledger WalletTransaction)
-    const [heldInEscrowSum, availableSum, totalWithdrawnSum] = await Promise.all([
+    // 2. Facturación SaaS de Suscripciones (Planes y Sucursales contratadas por Empresas)
+    const [companiesWithPlan, ufSetting, heldInEscrowSum, availableSum, totalWithdrawnSum] = await Promise.all([
+      this.prisma.company.findMany({
+        where: { planId: { not: null } },
+        include: { plan: true },
+      }),
+      this.prisma.globalSetting.findUnique({
+        where: { key: 'platform.ufValue' },
+      }),
       this.prisma.walletTransaction.aggregate({
         where: { type: 'SALE', isWithdrawable: false },
         _sum: { amount: true },
@@ -98,6 +106,34 @@ export class AccountingService {
         _sum: { amount: true },
       }),
     ]);
+
+    const ufValueClp = ufSetting && ufSetting.value ? parseFloat(ufSetting.value) : 38500;
+    const extraBranchUfRate = 1.5;
+
+    let totalSaaSPlanUf = 0;
+    let totalSaaSExtraBranchesUf = 0;
+
+    for (const c of companiesWithPlan) {
+      if (c.plan) {
+        totalSaaSPlanUf += Number(c.plan.price || 0);
+      }
+      if (c.extraBranchesCount > 0) {
+        totalSaaSExtraBranchesUf += c.extraBranchesCount * extraBranchUfRate;
+      }
+    }
+
+    const totalSaaSUf = Number((totalSaaSPlanUf + totalSaaSExtraBranchesUf).toFixed(2));
+    const saasNetRevenue = Math.round(totalSaaSUf * ufValueClp);
+    const saasVatDebit = Math.round(saasNetRevenue * 0.19);
+    const saasGrossRevenue = saasNetRevenue + saasVatDebit;
+
+    // Consolidación Liquidación F29 Total (Marketplace + Suscripciones SaaS)
+    const totalNetSales = Math.round(platformServiceFeeNet + saasNetRevenue);
+    const totalVatDebit = Math.round(platformVatDebit + saasVatDebit);
+    const netVatToPay = Math.max(0, totalVatDebit - transbankVatCreditEstimate);
+    const ppmRate = 0.0025; // 0.25% Régimen Pro-Pyme primer año
+    const ppmAmount = Math.round(totalNetSales * ppmRate);
+    const totalF29ToPay = netVatToPay + ppmAmount;
 
     const escrowHeld = Number(heldInEscrowSum._sum.amount || 0);
     const escrowAvailable = Number(availableSum._sum.amount || 0);
@@ -144,6 +180,27 @@ export class AccountingService {
           transbankFeeEstimate: Math.round(transbankFeeEstimate),
           transbankVatCreditEstimate: Math.round(transbankVatCreditEstimate),
           netPlatformMargin: Math.round(netPlatformMargin),
+        },
+        saas: {
+          activeCompaniesCount: companiesWithPlan.length,
+          totalUf: totalSaaSUf,
+          ufValueClp,
+          netRevenue: saasNetRevenue,
+          vatDebit: saasVatDebit,
+          grossRevenue: saasGrossRevenue,
+        },
+        f29: {
+          marketplaceNet: Math.round(platformServiceFeeNet),
+          marketplaceVatDebit: Math.round(platformVatDebit),
+          saasNet: saasNetRevenue,
+          saasVatDebit: saasVatDebit,
+          totalNetSales,
+          totalVatDebit,
+          transbankVatCredit: Math.round(transbankVatCreditEstimate),
+          netVatToPay,
+          ppmRate,
+          ppmAmount,
+          totalF29ToPay,
         },
         escrow: {
           held: Math.round(escrowHeld),

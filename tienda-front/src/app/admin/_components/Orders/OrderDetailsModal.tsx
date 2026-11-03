@@ -23,6 +23,7 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconTruck,
+  IconShieldCheck,
 } from "@/components/ui/Icons";
 
 export interface OrderDetailsModalProps {
@@ -164,6 +165,33 @@ export default function OrderDetailsModal({
               <span className="font-black text-blue text-lg">
                 ${(storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)).toLocaleString("es-CL")}
               </span>
+            </div>
+
+            {/* Desglose Tributario Referencial para la Tienda (Normativa SII DL 825) */}
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Abono Tienda: 100% Íntegro ($0 Comisión)</span>
+                </span>
+                <span className="font-mono font-bold text-emerald-400">
+                  ${(storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)).toLocaleString("es-CL")} CLP
+                </span>
+              </div>
+              <div className="pt-2 border-t border-white/5 grid grid-cols-2 gap-2 text-[11px] text-white/60">
+                <div>
+                  <span className="block text-white/40 text-[10px]">Venta Neta Tienda:</span>
+                  <span className="font-mono font-medium text-white">
+                    ${Math.round((storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)) / 1.19).toLocaleString("es-CL")}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-white/40 text-[10px]">IVA Débito (19% para tu F29):</span>
+                  <span className="font-mono font-medium text-amber-400">
+                    ${((storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)) - Math.round((storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)) / 1.19)).toLocaleString("es-CL")}
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-4 font-medium">{tc("status")}</span>
