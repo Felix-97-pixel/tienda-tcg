@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import SearchableSelect from "@/components/ui/SearchableSelect";
+import DatePicker from "@/components/ui/DatePicker";
 import { API_URL, getAdminAuthHeaders } from "@/utils/api";
 import {
   IconCoins,
@@ -234,6 +236,26 @@ export default function SuperAdminAccountingPage() {
     }
   };
 
+  // Opciones para SearchableSelect
+  const storeOptions = useMemo(() => {
+    return [
+      { value: "ALL", label: "Todas las Tiendas" },
+      ...stores.map((s) => ({
+        value: s.id,
+        label: `${s.name} (${s.subdomain})`,
+      })),
+    ];
+  }, [stores]);
+
+  const statusOptions = useMemo(() => {
+    return [
+      { value: "PAID", label: "Pagadas (PAID)" },
+      { value: "ALL", label: "Todos los Estados" },
+      { value: "PENDING", label: "Pendientes (PENDING)" },
+      { value: "CANCELLED", label: "Canceladas (CANCELLED)" },
+    ];
+  }, []);
+
   const formatCLP = (amount: number) => {
     return new Intl.NumberFormat("es-CL", {
       style: "currency",
@@ -315,34 +337,30 @@ export default function SuperAdminAccountingPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div>
-            <label className="block text-xs font-bold text-white/70 mb-1.5">
-              Fecha Desde
-            </label>
-            <input
-              type="date"
+            <DatePicker
+              label="Fecha Desde"
               value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
+              onChange={(val) => {
+                setStartDate(val);
                 setPage(1);
               }}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red transition-colors"
+              placeholder="Desde..."
+              usePortal={true}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/70 mb-1.5">
-              Fecha Hasta
-            </label>
-            <input
-              type="date"
+            <DatePicker
+              label="Fecha Hasta"
               value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
+              onChange={(val) => {
+                setEndDate(val);
                 setPage(1);
               }}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red transition-colors"
+              placeholder="Hasta..."
+              usePortal={true}
             />
           </div>
 
@@ -350,40 +368,36 @@ export default function SuperAdminAccountingPage() {
             <label className="block text-xs font-bold text-white/70 mb-1.5">
               Filtrar por Tienda
             </label>
-            <select
+            <SearchableSelect
+              options={storeOptions}
               value={storeId}
-              onChange={(e) => {
-                setStoreId(e.target.value);
+              onChange={(val) => {
+                setStoreId(val || "ALL");
                 setPage(1);
               }}
-              className="w-full bg-[#141A26] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red transition-colors"
-            >
-              <option value="ALL">Todas las Tiendas</option>
-              {stores.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.subdomain})
-                </option>
-              ))}
-            </select>
+              placeholder="Buscar o seleccionar tienda..."
+              className="w-full"
+              inputClassName="h-[38px] bg-[#141A26] border border-white/10 rounded-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-red transition-colors"
+              usePortal={true}
+            />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5">
               Estado de Orden
             </label>
-            <select
+            <SearchableSelect
+              options={statusOptions}
               value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
+              onChange={(val) => {
+                setStatus(val || "PAID");
                 setPage(1);
               }}
-              className="w-full bg-[#141A26] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red transition-colors"
-            >
-              <option value="PAID">Pagadas (PAID)</option>
-              <option value="ALL">Todos los Estados</option>
-              <option value="PENDING">Pendientes</option>
-              <option value="CANCELLED">Canceladas</option>
-            </select>
+              placeholder="Seleccionar estado..."
+              className="w-full"
+              inputClassName="h-[38px] bg-[#141A26] border border-white/10 rounded-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-red transition-colors"
+              usePortal={true}
+            />
           </div>
         </div>
       </div>
