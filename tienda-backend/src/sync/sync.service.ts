@@ -360,6 +360,7 @@ export class SyncService {
       applyDevaluations?: boolean;
       marginPercent?: number;
       autoPublish?: boolean;
+      sourcePriceBasis?: 'GROSS' | 'NET';
     } = {},
   ) {
     if (!storeId) throw new Error('Store ID is required');
@@ -373,6 +374,8 @@ export class SyncService {
     const marginPercent = Number(options.marginPercent || 0);
     const marginMultiplier = Math.max(0.05, 1 + marginPercent / 100);
     const autoPublish = Boolean(options.autoPublish);
+    // Normativa SII / Decisión del usuario: Si la fuente es neta, agregar 19% IVA al precio de catálogo
+    const vatMultiplier = options.sourcePriceBasis === 'NET' ? 1.19 : 1.0;
 
     try {
       const result = await this.prisma.$executeRaw`
@@ -385,6 +388,7 @@ export class SyncService {
               * (CASE WHEN ${applyDevaluations} THEN COALESCE(scd.multiplier, 1.0) ELSE 1.0 END)
               * (CASE WHEN ${applyDevaluations} THEN COALESCE(sld.multiplier, 1.0) ELSE 1.0 END)
               * CAST(${marginMultiplier} AS numeric)
+              * CAST(${vatMultiplier} AS numeric)
             ),
             2
           ),

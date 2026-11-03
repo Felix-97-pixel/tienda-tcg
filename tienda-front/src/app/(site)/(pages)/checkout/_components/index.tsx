@@ -8,18 +8,11 @@ import { selectCartItems, selectTotalPrice } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 import { formatPrice } from "@/utils/currency";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
-import { IconShieldCheck, IconAlertTriangle, IconStore, IconLock } from "@/components/ui/Icons";
+import { IconShieldCheck, IconAlertTriangle, IconStore, IconLock, IconMapPin, IconPencil, IconCheck, IconCreditCard, IconClock } from "@/components/ui/Icons";
 import { API_URL } from "@/utils/api";
 import ChileLocationsSelect from "./ChileLocationsSelect";
 import { calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/utils/paymentFees";
 
-
-const IconMapPin = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
 
 type SavedAddress = {
   id: string;
@@ -318,8 +311,7 @@ const CheckoutWebpay = () => {
         notes: billing.notes,
         currency: currency.code,
         exchangeRate: currency.exchangeRate,
-        gatewayFee: paymentFee,
-        storeShippingProviders: storeIds.reduce((acc, sId) => {
+                storeShippingProviders: storeIds.reduce((acc, sId) => {
           acc[sId] = selectedProvidersByStore[sId].id;
           return acc;
         }, {} as Record<string, string>),
@@ -397,8 +389,7 @@ const CheckoutWebpay = () => {
         notes: billing.notes,
         currency: currency.code,
         exchangeRate: currency.exchangeRate,
-        gatewayFee: paymentFee,
-        storeShippingProviders: storeIds.reduce((acc, sId) => {
+                storeShippingProviders: storeIds.reduce((acc, sId) => {
           acc[sId] = selectedProvidersByStore[sId].id;
           return acc;
         }, {} as Record<string, string>),
@@ -468,8 +459,7 @@ const CheckoutWebpay = () => {
         notes: billing.notes,
         currency: currency.code,
         exchangeRate: currency.exchangeRate,
-        gatewayFee: paymentFee,
-        storeShippingProviders: storeIds.reduce((acc, sId) => {
+                storeShippingProviders: storeIds.reduce((acc, sId) => {
           acc[sId] = selectedProvidersByStore[sId].id;
           return acc;
         }, {} as Record<string, string>),
@@ -610,7 +600,7 @@ const CheckoutWebpay = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium leading-relaxed">
-              🔒 Por favor, no recargues ni cierres la página mientras validamos tu compra.
+              <IconLock className="w-4 h-4 text-emerald-400 inline-block mr-1.5 align-middle" /> Por favor, no recargues ni cierres la página mientras validamos tu compra.
             </div>
           </div>
         </div>
@@ -688,11 +678,11 @@ const CheckoutWebpay = () => {
                   >
                     {savedAddresses.map((addr) => (
                       <option key={addr.id} value={addr.id} className="bg-[#0B0E14] text-white">
-                        📍 {addr.alias || "Dirección"} — {addr.address}, {addr.city} ({addr.regionCode}) {addr.isDefault ? "★ Predeterminada" : ""}
+                        <IconMapPin className="w-3.5 h-3.5 inline mr-1 text-gray-400" /> {addr.alias || "Dirección"} — {addr.address}, {addr.city} ({addr.regionCode}) {addr.isDefault ? "(Predeterminada)" : ""}
                       </option>
                     ))}
                     <option value="custom" className="bg-[#0B0E14] text-amber-400 font-bold">
-                      ✏️ + Ingresar otra dirección para este pedido
+                      <IconPencil className="w-3.5 h-3.5 inline mr-1.5 text-gray-400" /> Ingresar otra dirección para este pedido
                     </option>
                   </select>
 
@@ -711,7 +701,7 @@ const CheckoutWebpay = () => {
                           {billing.address}, {selectedCommuneName} ({selectedRegionCode})
                         </p>
                         <p className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-                          <span>✓ Dirección seleccionada y cotización de envío activada</span>
+                          <span className="flex items-center gap-1.5"><IconCheck className="w-4 h-4 text-emerald-400" /> Dirección seleccionada y cotización de envío activada</span>
                         </p>
                       </div>
                       <button
@@ -912,7 +902,7 @@ const CheckoutWebpay = () => {
                       Recomendado en Chile
                     </span>
                     <span className="text-xs font-mono font-bold text-gray-300">
-                      Tarifa: 2.90%
+                      Comisión: 3% + IVA
                     </span>
                   </div>
                 </div>
@@ -960,7 +950,7 @@ const CheckoutWebpay = () => {
                       Hasta 12 cuotas
                     </span>
                     <span className="text-xs font-mono font-bold text-gray-300">
-                      Tarifa: 3.79%
+                      Comisión: 3% + IVA
                     </span>
                   </div>
                 </div>
@@ -970,7 +960,7 @@ const CheckoutWebpay = () => {
               {selectedGateway === "WEBPAY" && (
                 <div className="p-6 rounded-2xl bg-[#07090E] border border-red-500/30 space-y-5 animate-in fade-in duration-300">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">🇨🇱</span>
+                    <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center shrink-0"><IconCreditCard className="w-5 h-5" /></div>
                     <div>
                       <h4 className="text-sm font-bold text-white">
                         Pagar con Webpay Plus de Transbank
@@ -985,7 +975,7 @@ const CheckoutWebpay = () => {
                     <div>
                       <span className="text-gray-400 block">Total a autorizar en Transbank:</span>
                       <span className="text-[10px] text-emerald-400 font-medium">
-                        0% sobreprecio de tienda • Tarifa pasarela 2.90%
+                        0% sobreprecio de tienda • Comisión TapTrade 3% + IVA
                       </span>
                     </div>
                     <span className="font-mono font-black text-white text-base">
@@ -1006,7 +996,7 @@ const CheckoutWebpay = () => {
                       </>
                     ) : (
                       <>
-                        <span>🔒 Pagar con Webpay Plus</span>
+                        <span className="flex items-center gap-1.5"><IconLock className="w-4 h-4" /> Pagar con Webpay Plus</span>
                         <span className="font-mono font-bold ml-1">
                           (${Math.round(finalAmount).toLocaleString("es-CL")} CLP)
                         </span>
@@ -1036,7 +1026,7 @@ const CheckoutWebpay = () => {
                     <div>
                       <span className="text-gray-400 block">Total a autorizar en Mercado Pago:</span>
                       <span className="text-[10px] text-sky-400 font-medium">
-                        0% sobreprecio de tienda • Tarifa pasarela 3.79%
+                        0% sobreprecio de tienda • Comisión TapTrade 3% + IVA
                       </span>
                     </div>
                     <span className="font-mono font-black text-white text-base">
@@ -1111,7 +1101,7 @@ const CheckoutWebpay = () => {
                         </span>
                       </div>
                       <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
-                        ✓ Verificada
+                        Verificada
                       </span>
                     </div>
 
@@ -1159,7 +1149,7 @@ const CheckoutWebpay = () => {
                       {/* Información de cubicaje y origen de la tienda si está cotizada */}
                       {quotedStores[sId] && (
                         <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 text-[11px] text-white/50 flex items-center justify-between">
-                          <span>📍 Desde: <strong className="text-white/80">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
+                          <span className="flex items-center gap-1"><IconMapPin className="w-3 h-3 text-gray-400 shrink-0" /> Desde: <strong className="text-white/80">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
                           <span className="text-[10px] text-white/40">{quotedStores[sId].packageDescription}</span>
                         </div>
                       )}
@@ -1236,8 +1226,8 @@ const CheckoutWebpay = () => {
                                 {/* Si es Retiro en Tienda, mostrar dirección y horarios */}
                                 {opt.provider === "RETIRO_TIENDA" && opt.address && (
                                   <div className="mt-2 pt-2 border-t border-white/5 text-[11px] text-white/50 pl-6 space-y-0.5">
-                                    <p className="text-white/70">📍 {opt.address}</p>
-                                    {opt.schedule && <p className="text-[10px] text-white/40">⏰ {opt.schedule}</p>}
+                                    <p className="text-white/70 flex items-center gap-1 mt-0.5"><IconMapPin className="w-3 h-3 text-gray-400 shrink-0" /> {opt.address}</p>
+                                    {opt.schedule && <p className="text-[10px] text-white/40 flex items-center gap-1"><IconClock className="w-3 h-3 text-gray-400 shrink-0" /> {opt.schedule}</p>}
                                   </div>
                                 )}
                               </label>
@@ -1252,7 +1242,7 @@ const CheckoutWebpay = () => {
                 {/* Desglose Financiero */}
                 <div className="pt-4 border-t border-white/10 space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Subtotal Productos</span>
+                    <span className="text-gray-400">Subtotal Productos (IVA incluido)</span>
                     <span className="font-mono font-bold text-white">
                       ${Math.round(total).toLocaleString("es-CL")} CLP
                     </span>
@@ -1307,11 +1297,11 @@ const CheckoutWebpay = () => {
                 {/* Trust Badges */}
                 <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-400 space-y-1.5">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-emerald-400">✓</span>
+                    <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span>Despacho 24-48h con seguimiento en vivo</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-emerald-400">✓</span>
+                    <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span>Protección al comprador TapTrade SpA</span>
                   </div>
                 </div>

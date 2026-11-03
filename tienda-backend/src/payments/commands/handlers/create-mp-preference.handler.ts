@@ -3,11 +3,13 @@ import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { MercadoPagoProvider } from '../../providers/mercadopago.provider';
 import { ShippingService } from '../../../shipping/shipping.service';
+import { PricingService } from '../../../tax/pricing.service';
+import { CheckoutPricingService } from '../../../tax/checkout-pricing.service';
 import { CreateMpPreferenceCommand } from '../impl/create-mp-preference.command';
 
 /**
  * Handler: Procesa la creación de una Preferencia de Pago en Mercado Pago (Checkout Pro).
- * Crea la orden en BD, bloquea/reserva stock e inicia la preferencia con Mercado Pago.
+ * Crea la orden en BD con snapshot tributario, bloquea/reserva stock e inicia la preferencia con Mercado Pago.
  */
 @CommandHandler(CreateMpPreferenceCommand)
 export class CreateMpPreferenceHandler
@@ -19,6 +21,8 @@ export class CreateMpPreferenceHandler
     private readonly prisma: PrismaService,
     private readonly mp: MercadoPagoProvider,
     private readonly shippingService: ShippingService,
+    private readonly pricingService: PricingService,
+    private readonly checkoutPricing: CheckoutPricingService,
   ) {}
 
   async execute(command: CreateMpPreferenceCommand) {
@@ -54,47 +58,24 @@ export class CreateMpPreferenceHandler
           }
           const availableStock = inv.stock - inv.reservedStock;
           if (availableStock < item.quantity) {
-            throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
+            throw new BadRequestException(
+              `El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`,
+            );
           }
           if (inv.storeId) storeId = inv.storeId;
           productName = inv.product.name;
 
-          const rawPrice = Number(inv.price);
-          const gameId = inv.product.cardDetail?.gameId;
-
-          if (gameId) {
-            let itemRate = 1000;
-            if (storeId && storeId !== 'admin-store') {
-              const storeRate = await this.prisma.storeGameExchangeRate.findUnique({
-                where: { storeId_gameId: { storeId, gameId } },
-              });
-              if (storeRate) {
-                itemRate = Number(storeRate.rate);
-              } else {
-                const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
-                  where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
-                });
-                if (globalRate) {
-                  itemRate = Number(globalRate.rate);
-                }
-              }
-            } else {
-              const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
-                where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
-              });
-              if (globalRate) {
-                itemRate = Number(globalRate.rate);
-              }
-            }
-            realUnitPrice = Math.round(rawPrice * itemRate);
-          } else {
-            realUnitPrice = Math.round(rawPrice);
-          }
+          // Resolver precio BRUTO (IVA incluido) en CLP entero
+          realUnitPrice = await this.pricingService.resolveUnitGrossCLP({
+            price: inv.price,
+            storeId: storeId !== 'admin-store' ? storeId : null,
+            gameId: inv.product.cardDetail?.gameId,
+          });
         } else {
           realUnitPrice = Math.round(Number(item.unitPrice));
         }
         return { ...item, storeId, realUnitPrice, productName };
-      })
+      }),
     );
 
     // 2. Agrupar items por storeId
@@ -106,14 +87,13 @@ export class CreateMpPreferenceHandler
       return acc;
     }, {} as Record<string, typeof itemsWithRealData>);
 
-    // Currency
     const defaultCurrency = await this.prisma.currency.findFirst({
       where: { isDefault: true },
     });
+
     const currencyCode = dto.currency || defaultCurrency?.code || 'CLP';
     const exchangeRate = Number(dto.exchangeRate || defaultCurrency?.exchangeRate || 1);
 
-    // Métodos de envío por tienda
     if (!dto.storeShippingProviders || Object.keys(dto.storeShippingProviders).length === 0) {
       throw new BadRequestException('El proveedor de envío es obligatorio para cada tienda.');
     }
@@ -137,9 +117,8 @@ export class CreateMpPreferenceHandler
       }
     }
 
-    let globalSubtotal = 0;
-    let totalShippingCost = 0;
-    const vendorOrdersData = [];
+    const vendorOrdersData: any[] = [];
+    const quoteGroupInputs: Array<{ storeId: string; productsGross: number; shippingGross: number }> = [];
 
     for (const [storeId, items] of Object.entries(vendorGroups)) {
       const store = await this.prisma.store.findUnique({
@@ -173,7 +152,7 @@ export class CreateMpPreferenceHandler
         deliveryStatus = 'PENDING_PICKUP';
       } else {
         const provider = await this.prisma.shippingProvider.findUnique({
-          where: { id: shippingProviderId }
+          where: { id: shippingProviderId },
         });
         if (!provider) {
           throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
@@ -183,7 +162,7 @@ export class CreateMpPreferenceHandler
 
         const storeQuote = dynamicQuotes[storeId];
         const matchedOption = storeQuote?.options?.find(
-          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name
+          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name,
         );
         if (matchedOption && typeof matchedOption.price === 'number') {
           storeShippingCost = Math.round(matchedOption.price);
@@ -192,14 +171,16 @@ export class CreateMpPreferenceHandler
         }
       }
 
-      totalShippingCost += storeShippingCost;
-
-      const vendorBaseSubtotal = items.reduce(
+      const vendorProductsGross = items.reduce(
         (sum, i) => sum + i.realUnitPrice * i.quantity,
         0,
       );
 
-      globalSubtotal += vendorBaseSubtotal;
+      quoteGroupInputs.push({
+        storeId,
+        productsGross: vendorProductsGross,
+        shippingGross: storeShippingCost,
+      });
 
       vendorOrdersData.push({
         storeId,
@@ -207,7 +188,7 @@ export class CreateMpPreferenceHandler
         shippingCourier: shippingCourierName,
         deliveryStatus,
         shippingCost: storeShippingCost,
-        subtotal: vendorBaseSubtotal,
+        subtotal: vendorProductsGross,
         status: 'PENDING',
         items: {
           create: items.map((item) => ({
@@ -221,20 +202,15 @@ export class CreateMpPreferenceHandler
       });
     }
 
-    const totalWithShipping = globalSubtotal + totalShippingCost;
-
-    // SaaS Model: Tarifa pasarela Mercado Pago (~3.79% IVA incluido)
-    const gatewayFeeRate = 0.05;
-    const computedFee = Math.round(totalWithShipping * gatewayFeeRate);
-    const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
-    const finalChargedAmount = totalWithShipping + gatewayFee;
+    // 3. Cotización tributaria oficial del servidor
+    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs);
 
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
     const orderNotes = dto.notes
-      ? `${dto.notes} | Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`
-      : `Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`;
+      ? `${dto.notes} | Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`
+      : `Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`;
 
-    // Guardar orden en BD en estado PENDING
+    // 4. Guardar orden en BD en estado PENDING con snapshot fiscal inmutable
     const order = await this.prisma.order.create({
       data: {
         buyOrder,
@@ -247,31 +223,47 @@ export class CreateMpPreferenceHandler
         cityCode: dto.cityCode,
         regionCode: dto.regionCode,
         notes: orderNotes,
-        totalAmount: finalChargedAmount,
+        totalAmount: quote.amountToCharge,
+        productsTotal: quote.productsTotal,
+        shippingTotal: quote.shippingTotal,
+        serviceFeeGross: quote.serviceFee.gross,
+        serviceFeeNet: quote.serviceFee.net,
+        serviceFeeVat: quote.serviceFee.vat,
+        transbankFeeEstimate: quote.transbankFeeEstimate,
+        vatRateSnapshot: quote.vatRate,
         currencyCode,
         exchangeRate,
         status: 'PENDING',
         vendorOrders: {
-          create: vendorOrdersData as any,
+          create: vendorOrdersData.map((v) => {
+            const vQuote = quote.vendors.find((vq) => vq.storeId === v.storeId);
+            return {
+              ...v,
+              vatRate: quote.vatRate,
+              taxableNet: vQuote?.tax.net ?? 0,
+              vatAmount: vQuote?.tax.vat ?? 0,
+              sellerRut: vQuote?.sellerRut ?? null,
+              sellerLegalName: vQuote?.sellerLegalName ?? null,
+            };
+          }),
         },
         reservations: {
           create: dto.items
-            .filter(i => i.inventoryItemId)
-            .map(item => ({
+            .filter((i) => i.inventoryItemId)
+            .map((item) => ({
               inventoryItemId: item.inventoryItemId,
               quantity: item.quantity,
-              expiresAt: new Date(Date.now() + 15 * 60 * 1000)
-            }))
-        }
+              expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+            })),
+        },
       },
     });
 
-    // Incrementar reservedStock en inventario
     for (const item of dto.items) {
       if (item.inventoryItemId) {
         await this.prisma.inventoryItem.update({
           where: { id: item.inventoryItemId },
-          data: { reservedStock: { increment: item.quantity } }
+          data: { reservedStock: { increment: item.quantity } },
         });
       }
     }
@@ -282,40 +274,37 @@ export class CreateMpPreferenceHandler
     const failureUrl = `${cleanReturnUrl}?status=failed&orderId=${order.id}`;
     const pendingUrl = `${cleanReturnUrl}?status=pending&orderId=${order.id}`;
 
-    // Construir items para Mercado Pago
-    // Para reflejar exactamente el total cobrado (productos + envíos + tarifa de pasarela),
-    // incluimos cada producto con su precio real, y adicionamos envío y tarifa como conceptos claros
+    // Construir items para Mercado Pago con desglose explícito
     const mpItems: any[] = itemsWithRealData.map((item) => ({
       id: item.productId,
       title: item.productName || 'Producto TCG',
       quantity: item.quantity,
       unit_price: Math.round(item.realUnitPrice),
-      currency_id: currencyCode === 'CLP' ? 'CLP' : 'CLP',
+      currency_id: 'CLP',
     }));
 
-    if (totalShippingCost > 0) {
+    if (quote.shippingTotal > 0) {
       mpItems.push({
         id: 'SHIPPING-COST',
         title: 'Costo de Envío Despacho',
         quantity: 1,
-        unit_price: Math.round(totalShippingCost),
+        unit_price: Math.round(quote.shippingTotal),
         currency_id: 'CLP',
       });
     }
 
-    if (gatewayFee > 0) {
+    if (quote.serviceFee.gross > 0) {
       mpItems.push({
-        id: 'GATEWAY-FEE',
-        title: 'Tarifa de servicio y protección al comprador (5.00%)',
+        id: 'TAPTRADE-COMMISSION',
+        title: 'Comisión de Servicio TapTrade (3% + IVA)',
         quantity: 1,
-        unit_price: Math.round(gatewayFee),
+        unit_price: Math.round(quote.serviceFee.gross),
         currency_id: 'CLP',
       });
     }
 
-    this.logger.log(`Creando preferencia de Mercado Pago para Orden ${order.id} por un total de $${finalChargedAmount} CLP`);
+    this.logger.log(`Creando preferencia de Mercado Pago para Orden ${order.id} por $${quote.amountToCharge} CLP`);
 
-    // Crear la preferencia usando el SDK oficial de Mercado Pago
     const preferenceResponse = await this.mp.preference.create({
       body: {
         items: mpItems,
@@ -328,8 +317,6 @@ export class CreateMpPreferenceHandler
           failure: failureUrl,
           pending: pendingUrl,
         },
-        // En localhost/HTTP Mercado Pago prohíbe auto_return (exige HTTPS público para auto_return).
-        // Si no es localhost, habilitamos auto_return: 'approved'
         ...(cleanReturnUrl.startsWith('https://') && !cleanReturnUrl.includes('localhost')
           ? { auto_return: 'approved' }
           : {}),
@@ -338,24 +325,25 @@ export class CreateMpPreferenceHandler
       },
     });
 
-    // Si el access token es de prueba (TEST-), usar sandbox_init_point para redirigir al entorno Sandbox; si es producción (APP_USR-), usar init_point.
-    const isTestToken = this.mp['config']?.get?.('MERCADOPAGO_ACCESS_TOKEN')?.startsWith('TEST-') || process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith('TEST-');
-    const initPoint = isTestToken && preferenceResponse.sandbox_init_point
-      ? preferenceResponse.sandbox_init_point
-      : (preferenceResponse.init_point || preferenceResponse.sandbox_init_point);
+    const isTestToken =
+      this.mp['config']?.get?.('MERCADOPAGO_ACCESS_TOKEN')?.startsWith('TEST-') ||
+      process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith('TEST-');
+    const initPoint =
+      isTestToken && preferenceResponse.sandbox_init_point
+        ? preferenceResponse.sandbox_init_point
+        : preferenceResponse.init_point || preferenceResponse.sandbox_init_point;
 
-    // Registrar registro inicial de pago en BD
     await this.prisma.payment.create({
       data: {
         orderId: order.id,
         token: preferenceResponse.id || buyOrder,
-        amount: finalChargedAmount,
+        amount: quote.amountToCharge,
         status: 'PENDING',
         paymentType: 'MERCADOPAGO_CHECKOUT_PRO',
       },
     });
 
-    this.logger.log(`Preferencia Mercado Pago creada exitosamente: id=${preferenceResponse.id}, redirect=${initPoint}`);
+    this.logger.log(`Preferencia Mercado Pago creada: id=${preferenceResponse.id}, redirect=${initPoint}`);
 
     return {
       preferenceId: preferenceResponse.id,
@@ -363,7 +351,7 @@ export class CreateMpPreferenceHandler
       sandbox_init_point: preferenceResponse.sandbox_init_point,
       orderId: order.id,
       buyOrder,
+      quote,
     };
   }
 }
-

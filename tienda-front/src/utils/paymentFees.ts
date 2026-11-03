@@ -1,53 +1,61 @@
 /**
- * Utilidades para cálculo de tarifas de procesamiento de pasarelas de pago y protección en Chile.
+ * Utilidades para cálculo de comisiones de plataforma e impuestos (Normativa SII Chile).
  * 
- * En el modelo SaaS de TapTrade, las tiendas reciben el 100% neto de sus ventas y envíos (0% comisión a la tienda).
- * Para financiar los costos transaccionales de las pasarelas (Transbank Webpay Plus / Mercado Pago)
- * y la garantía de protección al comprador (custodia de fondos, mediación por estado de cartas y checkout multi-tienda),
- * se aplica una tarifa fija del 5.00% sobre el total de la orden (productos + envíos).
+ * En el modelo de marketplace TapTrade:
+ * 1. Las tiendas reciben el 100% de sus ventas y envíos (0% comisión a la tienda).
+ * 2. Los precios de catálogo y despachos son BRUTOS (IVA 19% incluido por cada tienda).
+ * 3. La comisión de intermediación de TapTrade es 3% neto + IVA (3.57% nominal),
+ *    con gross-up por tarifa de procesamiento pasarela peor caso (Transbank crédito 2.29% + IVA = 2.7251%),
+ *    resultando en un factor de ~3.67% sobre la base imponible total (productos + despacho).
  */
 
 export type PaymentGatewayType = 'MERCADOPAGO' | 'WEBPAY' | 'DEFAULT';
 
 export interface GatewayFeeConfig {
-  /** Tasa porcentual decimal (0.05 representa 5.00%) */
+  /** Tasa efectiva con gross-up (~3.67%) */
   rate: number;
-  /** Texto legible del porcentaje */
+  /** Texto legible */
   percentageText: string;
-  /** Nombre comercial amigable */
+  /** Nombre comercial transparente */
   label: string;
   /** Descripción para el comprador */
   description: string;
 }
 
+// Tasas oficiales según directrices tributarias SII y confirmación de negocio
+export const VAT_RATE = 0.19;
+export const TAPTRADE_COMMISSION_NET = 0.03; // 3% neto
+export const TRANSBANK_CREDIT_RATE_NET = 0.0229; // 2.29% crédito peor caso
+
+// Gross-up exacto: (0.03 * 1.19) / (1 - (0.0229 * 1.19)) ≈ 0.0366999
+const GROSS_UP_RATE = (TAPTRADE_COMMISSION_NET * (1 + VAT_RATE)) / (1 - (TRANSBANK_CREDIT_RATE_NET * (1 + VAT_RATE)));
+
 export const GATEWAY_FEES: Record<PaymentGatewayType, GatewayFeeConfig> = {
-  // Tarifa fija unificada 5.00% para Webpay Plus (cubre Transbank débito 1.49%+IVA / crédito 2.29%+IVA + margen TapTrade)
   WEBPAY: {
-    rate: 0.05,
-    percentageText: '5.00%',
-    label: 'Servicio y Protección al Comprador',
-    description: 'Garantía de estado TCG, custodia de fondos y procesamiento seguro Webpay Plus.',
+    rate: GROSS_UP_RATE,
+    percentageText: '3% + IVA',
+    label: 'Comisión TapTrade',
+    description: 'Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.',
   },
-  // Tarifa fija unificada 5.00% para Mercado Pago (cubre 3.19%+IVA + margen TapTrade)
   MERCADOPAGO: {
-    rate: 0.05,
-    percentageText: '5.00%',
-    label: 'Servicio y Protección al Comprador',
-    description: 'Garantía de estado TCG, custodia de fondos y procesamiento seguro Mercado Pago.',
+    rate: GROSS_UP_RATE,
+    percentageText: '3% + IVA',
+    label: 'Comisión TapTrade',
+    description: 'Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.',
   },
   DEFAULT: {
-    rate: 0.05,
-    percentageText: '5.00%',
-    label: 'Servicio y Protección al Comprador',
-    description: 'Garantía de estado TCG, custodia de fondos y procesamiento electrónico seguro.',
+    rate: GROSS_UP_RATE,
+    percentageText: '3% + IVA',
+    label: 'Comisión TapTrade',
+    description: 'Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.',
   },
 };
 
 /**
- * Calcula el monto en pesos chilenos correspondiente a la tarifa del comprador (5.00%).
- * @param baseAmount Monto base (Subtotal productos + Envíos cotizados)
- * @param gateway Pasarela seleccionada ('MERCADOPAGO' | 'WEBPAY' | 'DEFAULT')
- * @returns Monto redondeado en CLP de la tarifa
+ * Calcula el monto en pesos chilenos correspondiente a la comisión del comprador (3% + IVA con gross-up).
+ * @param baseAmount Monto base bruto (Subtotal productos + Despachos cotizados)
+ * @param gateway Pasarela seleccionada
+ * @returns Monto redondeado en CLP
  */
 export function calculatePaymentFee(
   baseAmount: number,
@@ -59,7 +67,7 @@ export function calculatePaymentFee(
 }
 
 /**
- * Obtiene la configuración de una pasarela específica.
+ * Obtiene la configuración de la comisión.
  */
 export function getGatewayConfig(gateway: PaymentGatewayType = 'WEBPAY'): GatewayFeeConfig {
   return GATEWAY_FEES[gateway] || GATEWAY_FEES.DEFAULT;

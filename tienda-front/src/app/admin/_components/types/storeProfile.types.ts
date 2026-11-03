@@ -29,7 +29,10 @@ export interface StoreProfileFormData {
   address: string;
   latitude: number | null;
   longitude: number | null;
-  supportedGames?: { id: string, name: string }[];
+  rut?: string;
+  legalName?: string;
+  taxActivity?: string;
+  supportedGames?: { id: string; name: string }[];
   devaluations?: { conditionId: string; conditionName: string; gameId: string; multiplier: number }[];
   languageDevaluations?: { languageId: string; languageName: string; gameId: string; multiplier: number }[];
 }

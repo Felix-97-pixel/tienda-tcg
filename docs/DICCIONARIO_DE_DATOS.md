@@ -181,6 +181,8 @@ Entidad jurídica matriz (Empresa) que agrupa una o más sucursales físicas (`S
 * `id` (`String`, UUID, PK)
 * `name` (`String`): Razón Social o nombre legal de la empresa.
 * `rut` (`String?`): Identificador tributario (RUT de la empresa).
+* `legalName` (`String?`): Razón social legal registrada ante el Servicio de Impuestos Internos (SII).
+* `taxActivity` (`String?`): Giro o actividad económica principal registrada ante el SII.
 * `logoUrl` (`String?`): Logo corporativo principal del Holding / Empresa.
 * `ownerId` (`String`, FK -> `User`): Usuario administrador principal o representante legal.
 * `planId` (`String?`, FK -> `SubscriptionPlan`): Plan SaaS contratado por la empresa (Starter, Store, Mega Store, Enterprise). Todas las sucursales heredan este plan corporativo.
@@ -437,6 +439,8 @@ Libro mayor contable (Ledger) de las tiendas para registrar créditos y débitos
 * `id` (`String`, UUID, PK)
 * `storeId` (`String`, FK -> `Store`)
 * `amount` (`Decimal(10,2)`): Monto (+ positivo para abonos de ventas, - negativo para retiros).
+* `netAmount` (`Decimal(10,2)?`): Monto neto de la transacción (específico para comisiones COMMISSION).
+* `vatAmount` (`Decimal(10,2)?`): IVA asociado a la transacción (específico para comisiones COMMISSION).
 * `type` (`TransactionType`, enum: `SALE`, `COMMISSION`, `WITHDRAWAL`, `REFUND`).
 * `paymentMethod` (`String`, default: "WEBPAY").
 * `isWithdrawable` (`Boolean`, default: `true`).

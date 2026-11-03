@@ -83,4 +83,16 @@ export class UpdateStoreFullDto {
   @IsString()
   @IsOptional()
   subscriptionNotes?: string;
+
+  @IsString()
+  @IsOptional()
+  rut?: string;
+
+  @IsString()
+  @IsOptional()
+  legalName?: string;
+
+  @IsString()
+  @IsOptional()
+  taxActivity?: string;
 }

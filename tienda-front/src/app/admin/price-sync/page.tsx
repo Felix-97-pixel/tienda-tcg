@@ -71,6 +71,7 @@ export default function AdminPriceSyncPage() {
   const [selectedExpansion, setSelectedExpansion] = useState<string>("ALL");
   const [targetScope, setTargetScope] = useState<TargetScope>("ONLY_IN_STOCK");
   const [applyDevaluations, setApplyDevaluations] = useState<boolean>(true);
+  const [sourcePriceBasis, setSourcePriceBasis] = useState<"GROSS" | "NET">("GROSS");
 
   // Estado de vista previa y ejecución
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
@@ -171,10 +172,11 @@ export default function AdminPriceSyncPage() {
     (sample: PreviewSample) => {
       const condMult = applyDevaluations ? sample.conditionMultiplier : 1.0;
       const langMult = applyDevaluations ? sample.languageMultiplier : 1.0;
-      const raw = sample.marketBasePrice * condMult * langMult;
+      const vatMult = sourcePriceBasis === "NET" ? 1.19 : 1.0;
+      const raw = sample.marketBasePrice * condMult * langMult * vatMult;
       return Number(Math.max(0.01, raw).toFixed(2));
     },
-    [applyDevaluations]
+    [applyDevaluations, sourcePriceBasis]
   );
 
   // Ejecutar sincronización
@@ -196,6 +198,7 @@ export default function AdminPriceSyncPage() {
           expansion: selectedExpansion,
           targetScope,
           applyDevaluations,
+          sourcePriceBasis,
           autoPublish: true,
         }),
       });

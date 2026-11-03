@@ -85,4 +85,16 @@ export class UpdateStoreByOwnerDto {
   @IsString({ each: true })
   @IsOptional()
   supportedGames?: string[];
+
+  @IsString()
+  @IsOptional()
+  rut?: string;
+
+  @IsString()
+  @IsOptional()
+  legalName?: string;
+
+  @IsString()
+  @IsOptional()
+  taxActivity?: string;
 }

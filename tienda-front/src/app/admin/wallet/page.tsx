@@ -3,12 +3,15 @@ import React, { useState, useEffect } from "react";
 import Loader from "@/components/ui/Loader";
 import { adminFetch } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
+import { useToast } from "@/hooks/useToast";
+import { IconInfo, IconShieldCheck } from "@/components/ui/Icons";
 
 export default function StoreWalletPage() {
   const [history, setHistory] = useState<any>({ transactions: [], withdrawals: [], balance: 0 });
   const [loading, setLoading] = useState(true);
   const [requestAmount, setRequestAmount] = useState("");
   const [bankDetails, setBankDetails] = useState("");
+  const { showToast } = useToast();
 
   const fetchHistory = async () => {
     try {
@@ -32,7 +35,7 @@ export default function StoreWalletPage() {
     e.preventDefault();
     const amt = Number(requestAmount);
     if (!amt || amt <= 0 || amt > history.balance) {
-      alert("Monto inválido");
+      showToast("Monto inválido", "error");
       return;
     }
     
@@ -43,15 +46,15 @@ export default function StoreWalletPage() {
         body: JSON.stringify({ amount: amt, bankDetails }),
       });
       if (res.ok) {
-        alert("Retiro solicitado con éxito");
+        showToast("Retiro solicitado con éxito", "success");
         setRequestAmount("");
         fetchHistory();
       } else {
         const data = await res.json();
-        alert(data.message || "Error al solicitar retiro");
+        showToast(data.message || "Error al solicitar retiro", "error");
       }
     } catch (err) {
-      alert("Error de conexión");
+      showToast("Error de conexión", "error");
     }
   };
 
@@ -67,6 +70,21 @@ export default function StoreWalletPage() {
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white">Billetera de la Tienda</h1>
           <p className="text-white/40 text-xs mt-0.5">Administra tus ganancias y retiros de dinero de ventas por Webpay y pasarelas.</p>
+        </div>
+      </div>
+
+            {/* Banner Informativo Tributario (Normativa SII) */}
+      <div className="p-4 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+            <IconShieldCheck className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">0% Comisión por Venta • 100% de Abono para tu Tienda</h4>
+            <p className="text-[11px] text-white/60 mt-0.5 leading-relaxed">
+              Recibes el valor bruto íntegro de tus productos y despachos. Conforme a la legislación chilena (DL 825), tu empresa declara el 19% de IVA de cada venta en su respectivo Formulario 29 ante el SII.
+            </p>
+          </div>
         </div>
       </div>
 

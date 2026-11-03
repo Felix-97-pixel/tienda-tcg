@@ -28,6 +28,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [applyDevaluations, setApplyDevaluations] = useState(true);
+  const [csvPriceBasis, setCsvPriceBasis] = useState<"GROSS" | "NET">("GROSS");
   const [isUploading, setIsUploading] = useState(false);
 
   const handleUpload = async () => {
@@ -98,7 +99,17 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
               rarity: row["Rarity"] || "",
               collectorNum: String(row["Collector number"] || row["Variant Number"] || row["Card Number"] || row["Number"] || ""),
               quantity: Number(row["Quantity"] || row["Count"] || row["Qty"]) || 1,
-              price: Number(row["Purchase price"] || row["Price"] || row["Market Price"]) || 0,
+              price: (() => {
+                const netPriceVal = Number(row["precio_neto"] || row["Precio Neto"] || row["Net Price"] || row["net_price"]);
+                const rawPriceVal = Number(row["precio_bruto"] || row["Precio Bruto"] || row["Purchase price"] || row["Price"] || row["Market Price"]) || 0;
+                if (!isNaN(netPriceVal) && netPriceVal > 0) {
+                  return Number((netPriceVal * 1.19).toFixed(2));
+                }
+                if (csvPriceBasis === "NET" && rawPriceVal > 0) {
+                  return Number((rawPriceVal * 1.19).toFixed(2));
+                }
+                return rawPriceVal;
+              })(),
               condition: row["Condition"] || row["State"] || "near_mint",
               language: row["Language"] || row["Lang"] || "en",
               finish: finishStr,

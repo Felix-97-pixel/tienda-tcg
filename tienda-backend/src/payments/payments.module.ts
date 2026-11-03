@@ -10,9 +10,10 @@ import { MpOAuthController } from './mp-oauth.controller';
 import { ReservationCronService } from './cron/reservation.cron';
 
 import { ShippingModule } from '../shipping/shipping.module';
+import { TaxModule } from '../tax/tax.module';
 
 @Module({
-  imports: [PrismaModule, CqrsModule, ShippingModule],
+  imports: [PrismaModule, CqrsModule, ShippingModule, TaxModule],
   controllers: [PaymentsController, MpOAuthController],
   providers: [
     MercadoPagoProvider,

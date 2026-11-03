@@ -3,6 +3,8 @@ import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { MercadoPagoProvider } from '../../providers/mercadopago.provider';
 import { ShippingService } from '../../../shipping/shipping.service';
+import { PricingService } from '../../../tax/pricing.service';
+import { CheckoutPricingService } from '../../../tax/checkout-pricing.service';
 import { ProcessPaymentCommand } from '../impl/process-payment.command';
 
 @CommandHandler(ProcessPaymentCommand)
@@ -13,7 +15,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     private readonly prisma: PrismaService,
     private readonly mp: MercadoPagoProvider,
     private readonly shippingService: ShippingService,
-  ) { }
+    private readonly pricingService: PricingService,
+    private readonly checkoutPricing: CheckoutPricingService,
+  ) {}
 
   async execute(command: ProcessPaymentCommand) {
     const { dto, userId } = command;
@@ -48,54 +52,33 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
           }
           const availableStock = inv.stock - inv.reservedStock;
           if (availableStock < item.quantity) {
-            throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
+            throw new BadRequestException(
+              `El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`,
+            );
           }
           if (inv.storeId) storeId = inv.storeId;
           productName = inv.product.name;
 
-          const rawPrice = Number(inv.price);
-          const gameId = inv.product.cardDetail?.gameId;
-
-          if (gameId) {
-            let itemRate = 1000;
-            if (storeId && storeId !== 'admin-store') {
-              const storeRate = await this.prisma.storeGameExchangeRate.findUnique({
-                where: { storeId_gameId: { storeId, gameId } },
-              });
-              if (storeRate) {
-                itemRate = Number(storeRate.rate);
-              } else {
-                const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
-                  where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
-                });
-                if (globalRate) {
-                  itemRate = Number(globalRate.rate);
-                }
-              }
-            } else {
-              const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
-                where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
-              });
-              if (globalRate) {
-                itemRate = Number(globalRate.rate);
-              }
-            }
-            realUnitPrice = Math.round(rawPrice * itemRate);
-          } else {
-            realUnitPrice = Math.round(rawPrice);
-          }
+          // Resolver precio BRUTO (IVA incluido) en CLP entero
+          realUnitPrice = await this.pricingService.resolveUnitGrossCLP({
+            price: inv.price,
+            storeId: storeId !== 'admin-store' ? storeId : null,
+            gameId: inv.product.cardDetail?.gameId,
+          });
         } else {
           realUnitPrice = Math.round(Number(item.unitPrice));
         }
 
-        if (!storeId) {
-          throw new BadRequestException(`No se encontró la tienda para el producto ${item.productName}`);
-        }
-        return { ...item, storeId, realUnitPrice, productName };
-      })
+        return {
+          ...item,
+          storeId: storeId || 'admin-store',
+          realUnitPrice,
+          productName,
+        };
+      }),
     );
 
-    // 2. Agrupar items por storeId
+    // 2. Agrupar por storeId
     const vendorGroups = itemsWithStoreId.reduce((acc, item) => {
       if (!acc[item.storeId]) {
         acc[item.storeId] = [];
@@ -107,7 +90,6 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     const defaultCurrency = await this.prisma.currency.findFirst({
       where: { isDefault: true },
     });
-
     const currencyCode = dto.currency || defaultCurrency?.code || 'CLP';
     const exchangeRate = Number(dto.exchangeRate || defaultCurrency?.exchangeRate || 1);
 
@@ -115,7 +97,6 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       throw new BadRequestException('El proveedor de envío es obligatorio para cada tienda.');
     }
 
-    // Obtener cotización dinámica en vivo para calcular el costo de envío exacto
     let dynamicQuotes: Record<string, any> = {};
     if (dto.cityCode || dto.city) {
       try {
@@ -135,20 +116,19 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       }
     }
 
-    let globalTotal = 0;
-    const vendorOrdersData = [];
+    const vendorOrdersData: any[] = [];
+    const quoteGroupInputs: Array<{ storeId: string; productsGross: number; shippingGross: number }> = [];
 
     for (const [storeId, items] of Object.entries(vendorGroups)) {
       const store = await this.prisma.store.findUnique({
         where: { id: storeId },
-        include: { subscriptionPlans: true, settings: true },
+        select: { id: true, name: true, pickupEnabled: true },
       });
-
       if (!store) throw new NotFoundException(`Tienda ${storeId} no encontrada`);
 
       const shippingProviderId = dto.storeShippingProviders[storeId];
       if (!shippingProviderId) {
-        throw new BadRequestException(`No se ha seleccionado método de envío para la tienda ${store.name}`);
+        throw new BadRequestException(`No se ha seleccionado método de envío para la tienda ${store.name}.`);
       }
 
       let storeShippingCost = 0;
@@ -171,7 +151,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         deliveryStatus = 'PENDING_PICKUP';
       } else {
         const provider = await this.prisma.shippingProvider.findUnique({
-          where: { id: shippingProviderId }
+          where: { id: shippingProviderId },
         });
         if (!provider) {
           throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
@@ -179,10 +159,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         finalShippingProviderId = provider.id;
         shippingCourierName = provider.name;
 
-        // Buscar la opción cotizada dinámicamente para esta tienda
         const storeQuote = dynamicQuotes[storeId];
         const matchedOption = storeQuote?.options?.find(
-          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name
+          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name,
         );
         if (matchedOption && typeof matchedOption.price === 'number') {
           storeShippingCost = Math.round(matchedOption.price);
@@ -191,18 +170,13 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         }
       }
 
-      // Calcular subtotal BASE con el PRECIO REAL DE LA BD en CLP
-      const vendorBaseSubtotal = items.reduce(
-        (sum, i) => sum + i.realUnitPrice * i.quantity,
-        0,
-      );
+      const vendorProductsGross = items.reduce((sum, i) => sum + i.realUnitPrice * i.quantity, 0);
 
-      // 3. SaaS Model: 0% Comisión por venta (Take Rate = 0)
-      const commissionRate = 0;
-      const commissionAmount = 0;
-
-      const vendorTotal = vendorBaseSubtotal + storeShippingCost; // Precio productos + envío
-      globalTotal += vendorTotal;
+      quoteGroupInputs.push({
+        storeId,
+        productsGross: vendorProductsGross,
+        shippingGross: storeShippingCost,
+      });
 
       vendorOrdersData.push({
         storeId,
@@ -210,7 +184,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         shippingCourier: shippingCourierName,
         deliveryStatus,
         shippingCost: storeShippingCost,
-        subtotal: vendorBaseSubtotal,
+        subtotal: vendorProductsGross,
         status: 'PENDING',
         items: {
           create: items.map((item) => ({
@@ -224,15 +198,12 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       });
     }
 
-    // 3.1 SaaS Model: Traspaso de la tarifa de procesamiento de pasarela al cliente (Mercado Pago: 3.19% + IVA ≈ 3.79%)
-    const gatewayFeeRate = 0.05;
-    const computedFee = Math.round(globalTotal * gatewayFeeRate);
-    const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
-    const finalChargedAmount = globalTotal + gatewayFee;
+    // 3. Generar cotización oficial del servidor
+    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs);
 
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
 
-    // 4. Ejecutar la llamada a Mercado Pago (Cuenta central en Custodia / Escrow)
+    // 4. Ejecutar la llamada a Mercado Pago
     let paymentResponse;
     try {
       const mpPayer: any = {
@@ -254,7 +225,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       const payload: any = {
         payment_method_id: dto.payment_method_id,
         token: dto.token,
-        transaction_amount: Math.round(finalChargedAmount),
+        transaction_amount: Math.round(quote.amountToCharge),
         installments: dto.installments ? Number(dto.installments) : 1,
         description: `Compra TapTrade - ${buyOrder}`,
         issuer_id: dto.issuer_id,
@@ -262,25 +233,27 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         external_reference: buyOrder,
       };
 
-      this.logger.log(`Iniciando cobro central Mercado Pago: monto=${payload.transaction_amount}, email=${mpPayer.email}`);
+      this.logger.log(`Iniciando cobro Mercado Pago: monto=${payload.transaction_amount}, email=${mpPayer.email}`);
       paymentResponse = await this.mp.payment.create({
         body: payload,
       });
 
-      this.logger.log(`Respuesta Mercado Pago: status=${paymentResponse.status}, detail=${paymentResponse.status_detail}, id=${paymentResponse.id}`);
+      this.logger.log(
+        `Respuesta Mercado Pago: status=${paymentResponse.status}, detail=${paymentResponse.status_detail}, id=${paymentResponse.id}`,
+      );
     } catch (error: any) {
       this.logger.error('Error procesando pago con Mercado Pago', error);
       const mpMessage = error.response?.message || error.message || 'Error desconocido';
       throw new BadRequestException(`Error al procesar el pago con la tarjeta: ${mpMessage}`);
     }
 
-    // 5. Guardar Orden en BD
+    // 5. Guardar Orden en BD con snapshot fiscal inmutable
     const isApproved = paymentResponse.status === 'approved';
     const statusDb = isApproved ? 'PAID' : 'FAILED';
 
     const orderNotes = dto.notes
-      ? `${dto.notes} | Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`
-      : `Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`;
+      ? `${dto.notes} | Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`
+      : `Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`;
 
     const order = await this.prisma.order.create({
       data: {
@@ -294,26 +267,41 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         cityCode: dto.cityCode,
         regionCode: dto.regionCode,
         notes: orderNotes,
-        totalAmount: finalChargedAmount,
+        totalAmount: quote.amountToCharge,
+        productsTotal: quote.productsTotal,
+        shippingTotal: quote.shippingTotal,
+        serviceFeeGross: quote.serviceFee.gross,
+        serviceFeeNet: quote.serviceFee.net,
+        serviceFeeVat: quote.serviceFee.vat,
+        transbankFeeEstimate: quote.transbankFeeEstimate,
+        vatRateSnapshot: quote.vatRate,
         currencyCode,
         exchangeRate,
         status: statusDb,
         vendorOrders: {
-          create: vendorOrdersData.map(v => ({
-            ...v,
-            status: statusDb,
-            deliveryStatus: isApproved ? 'PENDING_DISPATCH' : 'PENDING_PAYMENT',
-          })) as any,
+          create: vendorOrdersData.map((v) => {
+            const vQuote = quote.vendors.find((vq) => vq.storeId === v.storeId);
+            return {
+              ...v,
+              status: statusDb,
+              deliveryStatus: isApproved ? 'PENDING_DISPATCH' : 'PENDING_PAYMENT',
+              vatRate: quote.vatRate,
+              taxableNet: vQuote?.tax.net ?? 0,
+              vatAmount: vQuote?.tax.vat ?? 0,
+              sellerRut: vQuote?.sellerRut ?? null,
+              sellerLegalName: vQuote?.sellerLegalName ?? null,
+            };
+          }) as any,
         },
       },
-      include: { vendorOrders: { include: { items: true } } }
+      include: { vendorOrders: { include: { items: true } } },
     });
 
     await this.prisma.payment.create({
       data: {
         orderId: order.id,
-        token: String(paymentResponse.id), // MP Payment ID
-        amount: finalChargedAmount,
+        token: String(paymentResponse.id),
+        amount: quote.amountToCharge,
         status: isApproved ? 'AUTHORIZED' : 'FAILED',
         paymentType: dto.payment_method_id,
         installments: dto.installments,
@@ -324,7 +312,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     if (isApproved) {
       await this.prisma.$transaction(async (tx) => {
         for (const vendorOrder of order.vendorOrders) {
-          const itemsConInventario = vendorOrder.items.filter(i => i.inventoryItemId);
+          const itemsConInventario = vendorOrder.items.filter((i) => i.inventoryItemId);
 
           for (const item of itemsConInventario) {
             const inventory = await tx.inventoryItem.findUnique({
@@ -340,7 +328,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             }
           }
 
-          // SaaS Model: Registrar en la Billetera con 0% de comisión
+          // SaaS Model: Registrar en la Billetera con 0% de comisión (tienda recibe el 100% de productos + despacho)
           const totalAbono = Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
 
           await tx.walletTransaction.create({
@@ -358,11 +346,12 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     }
 
     return {
-      approved: isApproved,
       orderId: order.id,
       paymentId: paymentResponse.id,
       status: paymentResponse.status,
-      status_detail: paymentResponse.status_detail,
+      statusDetail: paymentResponse.status_detail,
+      approved: isApproved,
+      quote,
     };
   }
 }

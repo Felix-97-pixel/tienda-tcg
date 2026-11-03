@@ -3,11 +3,14 @@ import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { WebpayProvider } from '../../providers/webpay.provider';
 import { ShippingService } from '../../../shipping/shipping.service';
+import { PricingService } from '../../../tax/pricing.service';
+import { CheckoutPricingService } from '../../../tax/checkout-pricing.service';
 import { InitTransactionCommand } from '../impl/init-transaction.command';
 
 /**
- * Handler: Procesa el comando de iniciar transacción.
- * Crea la orden en BD e inicia la transacción con Webpay.
+ * Handler: Procesa el comando de iniciar transacción con Webpay Plus.
+ * Calcula precios reales del servidor, desglose de IVA y comisión TapTrade (3% + IVA con gross-up),
+ * crea la orden con snapshot fiscal inmutable e inicia la transacción en Webpay.
  */
 @CommandHandler(InitTransactionCommand)
 export class InitTransactionHandler
@@ -19,6 +22,8 @@ export class InitTransactionHandler
     private readonly prisma: PrismaService,
     private readonly webpay: WebpayProvider,
     private readonly shippingService: ShippingService,
+    private readonly pricingService: PricingService,
+    private readonly checkoutPricing: CheckoutPricingService,
   ) {}
 
   async execute(command: InitTransactionCommand) {
@@ -54,48 +59,25 @@ export class InitTransactionHandler
           }
           const availableStock = inv.stock - inv.reservedStock;
           if (availableStock < item.quantity) {
-             throw new BadRequestException(`El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`);
+            throw new BadRequestException(
+              `El producto ${inv.product.name} no tiene suficiente stock disponible (Alguien más está procesando su compra).`,
+            );
           }
           if (inv.storeId) storeId = inv.storeId;
           productName = inv.product.name;
 
-          const rawPrice = Number(inv.price);
-          const gameId = inv.product.cardDetail?.gameId;
-
-          if (gameId) {
-            let itemRate = 1000;
-            if (storeId && storeId !== 'admin-store') {
-              const storeRate = await this.prisma.storeGameExchangeRate.findUnique({
-                where: { storeId_gameId: { storeId, gameId } },
-              });
-              if (storeRate) {
-                itemRate = Number(storeRate.rate);
-              } else {
-                const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
-                  where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
-                });
-                if (globalRate) {
-                  itemRate = Number(globalRate.rate);
-                }
-              }
-            } else {
-              const globalRate = await this.prisma.globalGameExchangeRate.findUnique({
-                where: { gameId_currencyCode: { gameId, currencyCode: 'CLP' } },
-              });
-              if (globalRate) {
-                itemRate = Number(globalRate.rate);
-              }
-            }
-            realUnitPrice = Math.round(rawPrice * itemRate);
-          } else {
-            realUnitPrice = Math.round(rawPrice);
-          }
+          // Resolver precio BRUTO (IVA incluido) en CLP entero usando el servicio centralizado
+          realUnitPrice = await this.pricingService.resolveUnitGrossCLP({
+            price: inv.price,
+            storeId: storeId !== 'admin-store' ? storeId : null,
+            gameId: inv.product.cardDetail?.gameId,
+          });
         } else {
           // Para productos custom o sin inventario directo
           realUnitPrice = Math.round(Number(item.unitPrice));
         }
         return { ...item, storeId, realUnitPrice, productName };
-      })
+      }),
     );
 
     // 2. Agrupar items por storeId
@@ -140,10 +122,9 @@ export class InitTransactionHandler
       }
     }
 
-    // Calcular totales
-    let globalSubtotal = 0;
-    let totalShippingCost = 0;
-    const vendorOrdersData = [];
+    // Calcular costos por tienda y estructurar subórdenes
+    const vendorOrdersData: any[] = [];
+    const quoteGroupInputs: Array<{ storeId: string; productsGross: number; shippingGross: number }> = [];
 
     for (const [storeId, items] of Object.entries(vendorGroups)) {
       const store = await this.prisma.store.findUnique({
@@ -177,7 +158,7 @@ export class InitTransactionHandler
         deliveryStatus = 'PENDING_PICKUP';
       } else {
         const provider = await this.prisma.shippingProvider.findUnique({
-          where: { id: shippingProviderId }
+          where: { id: shippingProviderId },
         });
         if (!provider) {
           throw new BadRequestException(`El proveedor de envío seleccionado para la tienda ${store.name} no es válido.`);
@@ -188,7 +169,7 @@ export class InitTransactionHandler
         // Buscar la opción cotizada dinámicamente para esta tienda
         const storeQuote = dynamicQuotes[storeId];
         const matchedOption = storeQuote?.options?.find(
-          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name
+          (opt: any) => opt.id === shippingProviderId || opt.provider === provider.name,
         );
         if (matchedOption && typeof matchedOption.price === 'number') {
           storeShippingCost = Math.round(matchedOption.price);
@@ -197,24 +178,25 @@ export class InitTransactionHandler
         }
       }
 
-      totalShippingCost += storeShippingCost;
-
-      // Calcular subtotal BASE con el PRECIO REAL DE LA BD en CLP
-      const vendorBaseSubtotal = items.reduce(
+      // Subtotal bruto de los productos de esta tienda (IVA incluido)
+      const vendorProductsGross = items.reduce(
         (sum, i) => sum + i.realUnitPrice * i.quantity,
         0,
       );
-      
-      // SaaS Model: 0% Comisión por venta. El subtotal es exactamente el precio neto de la tienda
-      globalSubtotal += vendorBaseSubtotal;
-      
+
+      quoteGroupInputs.push({
+        storeId,
+        productsGross: vendorProductsGross,
+        shippingGross: storeShippingCost,
+      });
+
       vendorOrdersData.push({
         storeId,
         shippingProviderId: finalShippingProviderId,
         shippingCourier: shippingCourierName,
         deliveryStatus,
         shippingCost: storeShippingCost,
-        subtotal: vendorBaseSubtotal,
+        subtotal: vendorProductsGross,
         status: 'PENDING',
         items: {
           create: items.map((item) => ({
@@ -222,30 +204,24 @@ export class InitTransactionHandler
             inventoryItemId: item.inventoryItemId,
             productName: item.productName,
             quantity: item.quantity,
-            // SaaS Model: El precio unitario guardado en la orden es exactamente el fijado por la tienda (0% markup)
             unitPrice: item.realUnitPrice,
           })),
         },
       });
     }
 
-    const totalWithShipping = globalSubtotal + totalShippingCost;
-
-    // SaaS Model: Traspaso de la tarifa de procesamiento de pasarela al cliente (Webpay Plus: ~2.90%)
-    const gatewayFeeRate = 0.05;
-    const computedFee = Math.round(totalWithShipping * gatewayFeeRate);
-    const gatewayFee = dto.gatewayFee && Number(dto.gatewayFee) > 0 ? Math.round(Number(dto.gatewayFee)) : computedFee;
-    const finalChargedAmount = totalWithShipping + gatewayFee;
+    // 3. Generar cotización tributaria oficial del servidor (3% + IVA TapTrade, Transbank gross-up)
+    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs);
 
     // Generar buyOrder único
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
     const sessionId = `SES-${Date.now()}`.slice(0, 61);
 
     const orderNotes = dto.notes
-      ? `${dto.notes} | Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`
-      : `Tarifa de servicio y protección al comprador (5.00%): $${gatewayFee.toLocaleString('es-CL')}`;
+      ? `${dto.notes} | Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`
+      : `Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`;
 
-    // Guardar orden en BD
+    // 4. Guardar orden en BD con snapshot tributario inmutable (Order + VendorOrder)
     const order = await this.prisma.order.create({
       data: {
         buyOrder,
@@ -258,22 +234,39 @@ export class InitTransactionHandler
         cityCode: dto.cityCode,
         regionCode: dto.regionCode,
         notes: orderNotes,
-        totalAmount: finalChargedAmount,
+        totalAmount: quote.amountToCharge,
+        productsTotal: quote.productsTotal,
+        shippingTotal: quote.shippingTotal,
+        serviceFeeGross: quote.serviceFee.gross,
+        serviceFeeNet: quote.serviceFee.net,
+        serviceFeeVat: quote.serviceFee.vat,
+        transbankFeeEstimate: quote.transbankFeeEstimate,
+        vatRateSnapshot: quote.vatRate,
         currencyCode,
         exchangeRate,
         status: 'PENDING',
         vendorOrders: {
-          create: vendorOrdersData as any,
+          create: vendorOrdersData.map((v) => {
+            const vQuote = quote.vendors.find((vq) => vq.storeId === v.storeId);
+            return {
+              ...v,
+              vatRate: quote.vatRate,
+              taxableNet: vQuote?.tax.net ?? 0,
+              vatAmount: vQuote?.tax.vat ?? 0,
+              sellerRut: vQuote?.sellerRut ?? null,
+              sellerLegalName: vQuote?.sellerLegalName ?? null,
+            };
+          }),
         },
         reservations: {
           create: dto.items
-            .filter(i => i.inventoryItemId)
-            .map(item => ({
+            .filter((i) => i.inventoryItemId)
+            .map((item) => ({
               inventoryItemId: item.inventoryItemId,
               quantity: item.quantity,
-              expiresAt: new Date(Date.now() + 15 * 60 * 1000)
-            }))
-        }
+              expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+            })),
+        },
       },
     });
 
@@ -281,13 +274,13 @@ export class InitTransactionHandler
       if (item.inventoryItemId) {
         await this.prisma.inventoryItem.update({
           where: { id: item.inventoryItemId },
-          data: { reservedStock: { increment: item.quantity } }
+          data: { reservedStock: { increment: item.quantity } },
         });
       }
     }
 
-    // Llamar a Webpay para crear transacción
-    const amountInCLP = Math.round(finalChargedAmount); // Webpay usa enteros en CLP
+    // 5. Llamar a Webpay para crear transacción con el monto final consolidado
+    const amountInCLP = Math.round(quote.amountToCharge);
     const response = await this.webpay.transaction.create(
       buyOrder,
       sessionId,
@@ -295,25 +288,25 @@ export class InitTransactionHandler
       returnUrl,
     );
 
-    // Guardar token en BD
+    // Guardar token en BD con el monto exacto cobrado
     await this.prisma.payment.create({
       data: {
         orderId: order.id,
         token: response.token,
-        amount: totalWithShipping,
+        amount: quote.amountToCharge,
         status: 'PENDING',
       },
     });
 
     this.logger.log(
-      `Transacción iniciada: buyOrder=${buyOrder}, token=${response.token}, total=${totalWithShipping}`,
+      `Transacción Webpay iniciada: buyOrder=${buyOrder}, token=${response.token}, total=${quote.amountToCharge} (comisión TapTrade=${quote.serviceFee.gross})`,
     );
 
     return {
       token: response.token,
       url: response.url,
       orderId: order.id,
-      buyOrder,
+      quote,
     };
   }
 }

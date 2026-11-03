@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
-import { IconStore, IconCheck, IconTrash, IconAlertTriangle } from "@/components/ui/Icons";
+import { IconStore, IconCheck, IconTrash, IconAlertTriangle, IconInfo } from "@/components/ui/Icons";
 
 export interface InventoryModalProps {
   isOpen: boolean;
@@ -109,7 +109,10 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     return val.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   };
 
-  const netPriceCLP = (newVariation.price || 0) * exchangeRate;
+  const grossPriceCLP = Math.round((newVariation.price || 0) * exchangeRate);
+  const netEstimatedCLP = Math.round(grossPriceCLP / 1.19);
+  const vatEstimatedCLP = grossPriceCLP - netEstimatedCLP;
+  const netPriceCLP = grossPriceCLP;
 
   useEffect(() => {
     if (newVariation.conditionId && newVariation.languageId && product?.items) {

@@ -215,6 +215,8 @@ model Company {
   id                 String   @id @default(uuid())
   name               String
   rut                String?
+  legalName          String?
+  taxActivity        String?
   logoUrl            String?
   ownerId            String
   planId             String?
@@ -394,6 +396,14 @@ model Order {
   cityCode      String?
   notes         String?
   totalAmount   Decimal            @db.Decimal(10, 2)
+  // Desglose tributario y comisiones de plataforma (Normativa SII)
+  productsTotal        Decimal           @default(0) @db.Decimal(10, 2)
+  shippingTotal        Decimal           @default(0) @db.Decimal(10, 2)
+  serviceFeeGross      Decimal           @default(0) @db.Decimal(10, 2)
+  serviceFeeNet        Decimal           @default(0) @db.Decimal(10, 2)
+  serviceFeeVat        Decimal           @default(0) @db.Decimal(10, 2)
+  transbankFeeEstimate Decimal           @default(0) @db.Decimal(10, 2)
+  vatRateSnapshot      Decimal           @default(0.19) @db.Decimal(5, 4)
   currencyCode  String?            @default("CLP")
   exchangeRate  Decimal?           @db.Decimal(10, 2)
   status        OrderStatus        @default(PENDING)
@@ -421,6 +431,12 @@ model VendorOrder {
   shippingProviderId String?
   shippingCost       Decimal           @default(0) @db.Decimal(10, 2)
   subtotal           Decimal           @default(0) @db.Decimal(10, 2)
+  // Desglose fiscal por tienda (Normativa SII)
+  vatRate          Decimal           @default(0.19) @db.Decimal(5, 4)
+  taxableNet       Decimal           @default(0) @db.Decimal(10, 2)
+  vatAmount        Decimal           @default(0) @db.Decimal(10, 2)
+  sellerRut        String?
+  sellerLegalName  String?
   status             OrderStatus       @default(PENDING)
   deliveryStatus     String?           @default("PENDING_DISPATCH")
   shippingCourier    String?
@@ -593,6 +609,8 @@ model WalletTransaction {
   id             String          @id @default(uuid())
   storeId        String
   amount         Decimal         @db.Decimal(10, 2)
+  netAmount      Decimal?        @db.Decimal(10, 2)
+  vatAmount      Decimal?        @db.Decimal(10, 2)
   type           TransactionType
   paymentMethod  String          @default("WEBPAY")
   isWithdrawable Boolean         @default(true)

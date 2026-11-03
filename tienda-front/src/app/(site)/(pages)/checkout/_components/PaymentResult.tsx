@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { removeAllItemsFromCart } from "@/redux/features/cart-slice";
-import { IconBox, IconStore } from "@/components/ui/Icons";
+import { IconBox, IconStore, IconCheck, IconX } from "@/components/ui/Icons";
 
 type OrderDetail = {
   id: string;
@@ -12,11 +12,18 @@ type OrderDetail = {
   email: string;
   name: string;
   totalAmount: string;
+  productsTotal?: string | number;
+  shippingTotal?: string | number;
+  serviceFeeGross?: string | number;
   status: string;
   createdAt: string;
   vendorOrders: {
     id: string;
     store: { id: string; name: string };
+    sellerRut?: string;
+    sellerLegalName?: string;
+    subtotal: string | number;
+    shippingCost: string | number;
     items: {
       id: string;
       productName: string;
@@ -215,7 +222,7 @@ const PaymentResultPage = () => {
                     : "bg-red-500/15 border-red-500/30 text-red-400"
                 }`}
               >
-                {isSuccess ? "✓" : "✕"}
+                {isSuccess ? <IconCheck className="w-8 h-8 text-emerald-400" /> : <IconX className="w-8 h-8 text-red" />}
               </div>
             </div>
 
@@ -263,12 +270,25 @@ const PaymentResultPage = () => {
                   <span className="text-gray-400">Comprador</span>
                   <span className="font-medium text-white">{order.name}</span>
                 </div>
-                <div className="flex justify-between items-center">
+                                <div className="flex justify-between items-center">
                   <span className="text-gray-400">Correo Confirmación</span>
                   <span className="font-medium text-white">{order.email}</span>
                 </div>
+                {order.serviceFeeGross !== undefined && Number(order.serviceFeeGross) > 0 && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-400">Comisión TapTrade (3% + IVA)</span>
+                    <span className="font-mono font-bold text-white/90">
+                      ${Math.round(Number(order.serviceFeeGross)).toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                  <span className="text-gray-300 font-semibold">Total Cancelado</span>
+                  <div>
+                    <span className="text-gray-300 font-semibold block">Total Cancelado</span>
+                    <span className="text-[10px] text-gray-400 font-mono">
+                      IVA 19% estimado en compra: ${Math.round((parseFloat(order.totalAmount) * 0.19) / 1.19).toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
                   <span className="font-mono font-black text-white text-base">
                     ${parseFloat(order.totalAmount).toLocaleString("es-CL")} CLP
                   </span>

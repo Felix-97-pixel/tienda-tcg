@@ -42,6 +42,9 @@ export function useStoreProfile(storeId: string) {
     address: "",
     latitude: null,
     longitude: null,
+    rut: "",
+    legalName: "",
+    taxActivity: "",
   });
 
   const getAuthHeaders = useCallback((extraHeaders?: Record<string, string>): Record<string, string> => {
@@ -157,6 +160,9 @@ export function useStoreProfile(storeId: string) {
           address: store.address || s.address || "",
           latitude: store.latitude !== null && store.latitude !== undefined ? Number(store.latitude) : null,
           longitude: store.longitude !== null && store.longitude !== undefined ? Number(store.longitude) : null,
+          rut: store.company?.rut || "",
+          legalName: store.company?.legalName || store.company?.name || "",
+          taxActivity: store.company?.taxActivity || "",
           supportedGames: supportedGames,
           devaluations: mappedDevaluations,
           languageDevaluations: mappedLanguageDevaluations,

@@ -118,6 +118,15 @@ export class StoresService {
     const store = await this.prisma.store.findFirst({
       where: whereCondition,
       include: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+            rut: true,
+            legalName: true,
+            taxActivity: true,
+          },
+        },
         settings: true,
         gameExchangeRates: true,
         devaluations: {
@@ -180,6 +189,15 @@ export class StoresService {
     const store = await this.prisma.store.findUnique({
       where: { id },
       include: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+            rut: true,
+            legalName: true,
+            taxActivity: true,
+          },
+        },
         settings: true,
         gameExchangeRates: true,
         devaluations: {
@@ -388,6 +406,7 @@ export class StoresService {
 
     const {
       name, subdomain, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
+      rut, legalName, taxActivity,
       subscriptionPlanIds, customFeatureIds,
       subscriptionDiscountType, subscriptionDiscountValue, subscriptionNotes
     } = data;
@@ -428,6 +447,17 @@ export class StoresService {
       where: { id: store.id },
       data: updateData
     });
+
+    if ((rut !== undefined || legalName !== undefined || taxActivity !== undefined) && store.companyId) {
+      await this.prisma.company.update({
+        where: { id: store.companyId },
+        data: {
+          ...(rut !== undefined ? { rut: rut.trim() || null } : {}),
+          ...(legalName !== undefined ? { legalName: legalName.trim() || null } : {}),
+          ...(taxActivity !== undefined ? { taxActivity: taxActivity.trim() || null } : {}),
+        },
+      });
+    }
 
     // Keys de settings
     const settingsKeys = {

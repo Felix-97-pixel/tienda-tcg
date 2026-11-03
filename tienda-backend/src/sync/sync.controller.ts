@@ -77,6 +77,7 @@ export class SyncController {
       applyDevaluations?: boolean;
       marginPercent?: number;
       autoPublish?: boolean;
+      sourcePriceBasis?: 'GROSS' | 'NET';
     },
   ) {
     if (req.user.email === 'f.pinto.97@gmail.com') {

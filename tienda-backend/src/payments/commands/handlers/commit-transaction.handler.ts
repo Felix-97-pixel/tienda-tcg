@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Logger, NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { WebpayProvider } from '../../providers/webpay.provider';
 import { CommitTransactionCommand } from '../impl/commit-transaction.command';
@@ -44,8 +44,23 @@ export class CommitTransactionHandler
 
     this.logger.log(`Resultado commit Webpay: ${JSON.stringify(result)}`);
 
-    const isApproved =
+        const isApproved =
       result.response_code === 0 && result.status === 'AUTHORIZED';
+
+    // VALIDACION CRITICA: Verificar que el monto y la orden de compra coincidan exactamente
+    const amountMatches = Number(result.amount) === Number(payment.amount);
+    const orderMatches = result.buy_order === payment.order.buyOrder;
+
+    if (isApproved && (!amountMatches || !orderMatches)) {
+      this.logger.error(
+        `Descuadre Webpay detectado para token=${token}: esperado=${payment.amount} (buyOrder=${payment.order.buyOrder}), recibido=${result.amount} (buyOrder=${result.buy_order})`
+      );
+      await this.prisma.payment.update({
+        where: { token },
+        data: { status: 'FAILED' },
+      });
+      throw new ConflictException('El monto o identificador autorizado no coincide con la orden registrada');
+    }
 
     // Ejecutar todo en una transacción atómica
     await this.prisma.$transaction(async (tx) => {
