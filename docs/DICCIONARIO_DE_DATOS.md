@@ -442,6 +442,55 @@ Registro de la transacción financiera con el procesador de pago.
 * `transactionDate` (`DateTime?`): Timestamp bancario.
 * **Relaciones:** `order`.
 
+### `DispatchEvidence` (TapTrade Shield)
+Evidencia multimedia y sellos de seguridad registrados por la tienda al momento de despachar un paquete para blindar la operación contra fraudes.
+* `id` (`String`, UUID, PK)
+* `vendorOrderId` (`String`, Unique, FK -> `VendorOrder`): Sub-orden asociada.
+* `contentPhotoUrl` (`String`): Foto 1 - Cartas sobre la mesa junto a la orden de despacho/packing slip.
+* `packagingPhotoUrl` (`String`): Foto 2 - Cartas protegidas dentro de toploaders/sleeves/cartón.
+* `packagePhotoUrl` (`String`): Foto 3 - Paquete exterior sellado con etiqueta de transporte legible.
+* `securitySealCode` (`String?`): Código alfanumérico del precinto o sello de seguridad numerado (ej. `TAP-008124`), obligatorio en órdenes > $75.000 CLP.
+* `capturedAt` (`DateTime`, default: `now()`): Marca temporal inmutable del momento del empaque.
+* `uploaderUserId` (`String`, FK -> `User`): Empleado o administrador de tienda que realizó el empaque.
+* `lifecycleExpiresAt` (`DateTime?`): Fecha programada de eliminación automática de fotos (30 días tras entrega sin reclamos) para ahorro de almacenamiento en la nube.
+* **Relaciones:** `vendorOrder`, `uploader`.
+
+### `OrderDispute` (Arbitraje Antifraude)
+Procedimiento de reclamación y arbitraje formal entre comprador y tienda con congelamiento de fondos en escrow.
+* `id` (`String`, UUID, PK)
+* `vendorOrderId` (`String`, Unique, FK -> `VendorOrder`): Sub-orden disputada.
+* `orderId` (`String`, FK -> `Order`): Orden maestra.
+* `buyerId` (`String`, FK -> `User`): Comprador reclamante.
+* `storeId` (`String`, FK -> `Store`): Tienda reclamada.
+* `reason` (`DisputeReason`, enum: `WRONG_ITEM`, `MISSING_ITEM`, `CONDITION_MISMATCH`, `COUNTERFEIT_SUSPECT`, `PACKAGE_TAMPERED`): Motivo tipificado de la disputa.
+* `buyerDescription` (`String`): Argumentos expuestos por el comprador.
+* `unboxingVideoUrl` (`String?`): Enlace o archivo al video continuo de desempaque (obligatorio en reclamos > $20.000 CLP).
+* `buyerPhotoUrls` (`String[]`): Fotografías de detalle aportadas por el comprador.
+* `sellerResponse` (`String?`): Descargo formal de la tienda.
+* `status` (`DisputeStatus`, enum: `OPEN`, `UNDER_REVIEW`, `RESOLVED_STORE`, `RESOLVED_BUYER`, `DISMISSED_FRAUD`): Estado del proceso arbitral.
+* `resolutionNotes` (`String?`): Fundamento del fallo emitido por el Superadministrador.
+* `arbitratedById` (`String?`, FK -> `User`): Superadministrador que resolvió la disputa.
+* `resolvedAt` (`DateTime?`): Timestamp de cierre de la disputa.
+* `createdAt` / `updatedAt` (`DateTime`).
+* **Relaciones:** `vendorOrder`, `order`, `buyer`, `store`, `arbitratedBy`.
+
+### `UserFraudScore`
+Métricas de reputación y riesgo automatizadas para compradores y tiendas.
+* `id` (`String`, UUID, PK)
+* `userId` (`String`, Unique, FK -> `User`): Usuario evaluado.
+* `riskScore` (`Int`, default: 0): Puntuación de riesgo de 0 a 100 (>= 80 gatilla bloqueo preventivo).
+* `totalOrdersCount` (`Int`, default: 0): Total histórico de órdenes completadas.
+* `disputesOpenedCount` (`Int`, default: 0): Cantidad de disputas iniciadas.
+* `disputesWonCount` (`Int`, default: 0): Disputas resueltas a favor.
+* `disputesLostCount` (`Int`, default: 0): Disputas resueltas en contra o desestimadas por fraude.
+* `isBanned` (`Boolean`, default: `false`): Flag de inhabilitación permanente de cuenta.
+* `bannedAt` (`DateTime?`): Fecha de sanción.
+* `banReason` (`String?`): Motivo del baneo.
+* `associatedRuts` (`String[]`): RUTs vinculados para bloqueo cruzado.
+* `associatedIps` (`String[]`): Direcciones IP registradas en actividades fraudulentas.
+* `createdAt` / `updatedAt` (`DateTime`).
+* **Relaciones:** `user`.
+
 ---
 
 ## 8. Billetera y Finanzas de Tiendas

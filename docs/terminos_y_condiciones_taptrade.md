@@ -106,6 +106,12 @@
 - El transporte físico es ejecutado por terceros contratados (Chilexpress o Starken).
 - En caso de pérdida, extravío, robo o siniestro declarado oficialmente por la empresa de mensajería durante el trayecto, TapTrade intermediará ante el courier para tramitar las indemnizaciones o seguros aplicables, garantizando la restitución del dinero al Comprador afectado.
 
+6.5. **Protocolo de Verificación de Despacho y Sellos de Seguridad (TapTrade Shield):**
+- A fin de garantizar la veracidad de los envíos y proteger a ambas partes:
+  1. **Pedidos sobre $20.000 CLP:** La Tienda Adherida debe cargar en la Plataforma evidencia fotográfica nítida del contenido verificado junto al packing slip, el embalaje rígido protector (toploaders/sleeves) y el paquete exterior sellado con la etiqueta de transporte.
+  2. **Pedidos de Alto Valor sobre $75.000 CLP:** Se exige adicionalmente la aplicación de un Sello de Seguridad numerado e inviolable (*Tamper-Evident Tape/Sticker*), cuyo código correlativo queda registrado e inmutable en los metadatos de la orden.
+- El incumplimiento de este protocolo de empaque trasladará automáticamente a la Tienda la carga probatoria ante eventuales discrepancias físicas o siniestros.
+
 ---
 
 ## 7. MOTOR DE BUYLIST Y BILLETERA DE CRÉDITO DE TIENDA (STORE CREDIT)
@@ -130,8 +136,21 @@ De conformidad con lo dispuesto en el artículo 3° bis letra b) de la **Ley N°
 
 8.2. **Garantía Legal por No Conformidad o Defecto:**
 - Conforme a los artículos 19, 20 y 21 de la Ley N° 19.496, si el producto recibido presenta fallas sustanciales de fabricación, daño físico previo no advertido, o existe una discrepancia grave y demostrable entre la condición de graduación pagada (ej. se compró Near Mint) y la condición real entregada (ej. se recibió Damaged o con pliegues):
-  - El Comprador deberá notificar a soporte (`soporte@taptrade.cl`) o a la Tienda Adherida dentro de las **48 horas corridas** siguientes a la recepción del paquete, adjuntando fotografías nítidas y detalladas de la carta recibida y del embalaje.
-  - Verificada la no conformidad, el Comprador tendrá derecho a la sustitución de la carta por un ejemplar equivalente o a la devolución total del dinero pagado.
+  - El Comprador deberá notificar a soporte (`soporte@taptrade.cl`) o a través del módulo de disputas de la Plataforma dentro de las **48 horas corridas** siguientes a la entrega oficial certificada por el courier, adjuntando fotografías nítidas y detalladas de la carta recibida y del embalaje.
+  - Verificada la no conformidad, el Comprador tendrá derecho a la sustitución de la carta por un ejemplar equivalente o a la devolución total del dinero pagado con cargo al saldo en custodia de la Tienda.
+
+8.3. **Carga de la Prueba y Protocolo Probatorio de Unboxing:**
+- Para compras superiores a **$20.000 CLP**, o en cualquier reclamo fundado en **artículo faltante, carta equivocada (*card swapping*) o paquete adulterado**, es condición de admisibilidad probatoria indispensable que el Comprador aporte una **grabación continua de video sin cortes** del proceso de apertura (*unboxing*), donde se evidencie nítidamente:
+  1. La etiqueta original del transportista con los datos de remitente, destinatario y número de seguimiento legibles.
+  2. La integridad del paquete y del Sello de Seguridad numerado (en pedidos sobre $75.000 CLP) previo a la apertura.
+  3. La apertura física ininterrumpida y la extracción inmediata de los ítems contenidos.
+- **Efecto Probatorio:** Si el Comprador no aporta dicho registro de unboxing continuo y la Tienda Adherida cuenta con su evidencia reglamentaria de empaque y sello coincidente cargada en el sistema, la disputa será resuelta de pleno derecho a favor de la Tienda y los fondos en escrow serán liberados inmediatamente.
+
+8.4. **Sanciones por Fraude y Abuso del Sistema de Disputas:**
+- TapTrade mantiene un sistema de monitoreo automatizado de fraude (*Fraud Score*). Si se detecta un patrón de abuso deliberado, reclamaciones falsas coordinadas, suplantación de cartas o extorsión a tiendas asociadas:
+  1. Se procederá al **cierre y baneo definitivo e irrevocable** de la cuenta del usuario infractor.
+  2. Se bloqueará de forma permanente el RUT, número de teléfono, direcciones físicas y huellas de pago vinculadas a la cuenta.
+  3. TapTrade pondrá los antecedentes a disposición del Ministerio Público para el inicio de las acciones penales por el delito de estafa (Art. 467 y siguientes del Código Penal).
 
 ---
 
