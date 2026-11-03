@@ -7,6 +7,7 @@ import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
 import { UpdateStoreFullDto } from './dto/update-store-full.dto';
 import { ManageCompanyUserDto } from './dto/manage-company-user.dto';
 import { ManageStoreUserDto } from './dto/manage-store-user.dto';
+import { UpdateUserCredentialsDto } from './dto/update-user-credentials.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -210,5 +211,16 @@ export class StoresController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.storesService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.TEAM_CORPORATE_MANAGE)
+  @Patch('users/:userId/credentials')
+  updateUserCredentials(
+    @Request() req: any,
+    @Param('userId') targetUserId: string,
+    @Body() dto: UpdateUserCredentialsDto,
+  ) {
+    return this.storesService.updateUserCredentials(targetUserId, dto, req.user);
   }
 }

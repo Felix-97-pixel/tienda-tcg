@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { adminLogout } from "@/redux/features/admin-auth-slice";
 import { API_URL } from "@/utils/api";
+import { TargetUserToEdit } from "../EditUserCredentialsModal";
 import toast from "react-hot-toast";
 
 export interface Branch {
@@ -73,6 +74,10 @@ export function useSuperAdminStores() {
   // Modal para gestionar usuarios corporativos de Empresa
   const [isCompanyUsersModalOpen, setIsCompanyUsersModalOpen] = useState(false);
   const [selectedCompanyForUsers, setSelectedCompanyForUsers] = useState<Company | null>(null);
+
+  // Modal para editar credenciales de usuario
+  const [isEditCredentialsModalOpen, setIsEditCredentialsModalOpen] = useState(false);
+  const [targetUserForCredentials, setTargetUserForCredentials] = useState<TargetUserToEdit | null>(null);
 
   // Modal para gestionar personal de Sucursal
   const [isStoreUsersModalOpen, setIsStoreUsersModalOpen] = useState(false);
@@ -319,6 +324,16 @@ export function useSuperAdminStores() {
     setIsStoreUsersModalOpen(true);
   };
 
+  const openEditCredentialsModal = (targetUser: TargetUserToEdit) => {
+    setTargetUserForCredentials(targetUser);
+    setIsEditCredentialsModalOpen(true);
+  };
+
+  const closeEditCredentialsModal = () => {
+    setTargetUserForCredentials(null);
+    setIsEditCredentialsModalOpen(false);
+  };
+
   const closeStoreUsersModal = () => {
     setSelectedBranchForUsers(null);
     setIsStoreUsersModalOpen(false);
@@ -355,5 +370,9 @@ export function useSuperAdminStores() {
     selectedBranchForUsers,
     openStoreUsersModal,
     closeStoreUsersModal,
+    isEditCredentialsModalOpen,
+    targetUserForCredentials,
+    openEditCredentialsModal,
+    closeEditCredentialsModal,
   };
 }

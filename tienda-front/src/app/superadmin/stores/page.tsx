@@ -7,6 +7,7 @@ import CreateStoreModal from "@/app/superadmin/_components/Stores/CreateStoreMod
 import CreateBranchModal from "@/app/superadmin/_components/Stores/CreateBranchModal";
 import CompanyUsersModal from "@/app/superadmin/_components/Stores/CompanyUsersModal";
 import StoreUsersModal from "@/app/superadmin/_components/Stores/StoreUsersModal";
+import EditUserCredentialsModal from "@/app/superadmin/_components/Stores/EditUserCredentialsModal";
 
 export default function StoresPage() {
   const {
@@ -40,6 +41,11 @@ export default function StoresPage() {
     selectedBranchForUsers,
     openStoreUsersModal,
     closeStoreUsersModal,
+    // Edición de Credenciales
+    isEditCredentialsModalOpen,
+    targetUserForCredentials,
+    openEditCredentialsModal,
+    closeEditCredentialsModal,
   } = useSuperAdminStores();
 
   return (
@@ -73,6 +79,7 @@ export default function StoresPage() {
           onAddBranch={openCreateBranchModal}
           onManageCompanyUsers={openCompanyUsersModal}
           onManageStoreUsers={openStoreUsersModal}
+          onEditCredentials={openEditCredentialsModal}
         />
 
         {/* Modal de Creación de Empresa (Holding + Primera Tienda) */}
@@ -101,6 +108,7 @@ export default function StoresPage() {
           onClose={closeCompanyUsersModal}
           company={selectedCompanyForUsers}
           onRefresh={refreshCompanies}
+          onEditCredentials={openEditCredentialsModal}
         />
 
         {/* Modal de Personal y Cajeros de Sucursal */}
@@ -109,6 +117,15 @@ export default function StoresPage() {
           onClose={closeStoreUsersModal}
           branch={selectedBranchForUsers}
           onRefresh={refreshCompanies}
+          onEditCredentials={openEditCredentialsModal}
+        />
+
+        {/* Modal de Edición de Credenciales y Contraseña */}
+        <EditUserCredentialsModal
+          isOpen={isEditCredentialsModalOpen}
+          onClose={closeEditCredentialsModal}
+          targetUser={targetUserForCredentials}
+          onSuccess={refreshCompanies}
         />
       </div>
     </>

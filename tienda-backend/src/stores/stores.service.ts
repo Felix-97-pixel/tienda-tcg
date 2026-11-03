@@ -6,6 +6,7 @@ import { UpdateStoreByOwnerDto } from './dto/update-store-by-owner.dto';
 import { UpdateStoreFullDto } from './dto/update-store-full.dto';
 import { ManageCompanyUserDto } from './dto/manage-company-user.dto';
 import { ManageStoreUserDto } from './dto/manage-store-user.dto';
+import { UpdateUserCredentialsDto } from './dto/update-user-credentials.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -1196,5 +1197,112 @@ export class StoresService {
     return this.prisma.storeMember.delete({
       where: { storeId_userId: { storeId, userId: targetUserId } },
     });
+  }
+
+  /**
+   * Actualiza las credenciales (nombre, correo o contraseña) de un usuario perteneciente a la empresa o sucursal.
+   * Permite a Superadmin o administradores corporativos reestablecer accesos.
+   */
+  async updateUserCredentials(targetUserId: string, data: UpdateUserCredentialsDto, currentUser: any) {
+    const isSuperAdmin = currentUser?.role === 'SUPERADMIN' || currentUser?.sessionType === 'SUPERADMIN';
+
+    const targetUser = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!targetUser) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (!isSuperAdmin) {
+      const managedCompanies = await this.prisma.company.findMany({
+        where: {
+          OR: [
+            { ownerId: currentUser.userId },
+            { members: { some: { userId: currentUser.userId, role: { in: ['OWNER', 'ADMIN'] } } } },
+          ],
+        },
+        select: { id: true },
+      });
+      const managedCompanyIds = managedCompanies.map((c) => c.id);
+
+      const isTargetInManagedCompany = await this.prisma.companyMember.findFirst({
+        where: { companyId: { in: managedCompanyIds }, userId: targetUserId },
+      });
+
+      const isTargetInManagedStore = await this.prisma.storeMember.findFirst({
+        where: {
+          store: { companyId: { in: managedCompanyIds } },
+          userId: targetUserId,
+        },
+      });
+
+      const isTargetCompanyOwner = await this.prisma.company.findFirst({
+        where: { id: { in: managedCompanyIds }, ownerId: targetUserId },
+      });
+
+      if (!isTargetInManagedCompany && !isTargetInManagedStore && !isTargetCompanyOwner) {
+        throw new ForbiddenException('No tienes permisos para modificar las credenciales de este usuario');
+      }
+
+      if (targetUser.role === 'SUPERADMIN') {
+        throw new ForbiddenException('No puedes modificar las credenciales de un Superadministrador');
+      }
+    }
+
+    // Validar unicidad del correo electrónico si cambia
+    if (data.email && data.email.toLowerCase() !== targetUser.email.toLowerCase()) {
+      const emailExists = await this.prisma.user.findUnique({
+        where: { email: data.email.toLowerCase() },
+      });
+      if (emailExists) {
+        throw new BadRequestException('El correo electrónico ya se encuentra registrado por otro usuario');
+      }
+    }
+
+    // Construir objeto de actualización
+    const userUpdate: any = {};
+    if (data.name) userUpdate.name = data.name.trim();
+    if (data.email) userUpdate.email = data.email.toLowerCase().trim();
+    if (data.password) {
+      userUpdate.password = await bcrypt.hash(data.password, 10);
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: userUpdate,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    // Actualizar rol en CompanyMember si se especificó companyId y role
+    if (data.companyId && data.role) {
+      const validCompanyRoles = ['OWNER', 'ADMIN', 'ACCOUNTANT'];
+      if (validCompanyRoles.includes(data.role)) {
+        await this.prisma.companyMember.updateMany({
+          where: { companyId: data.companyId, userId: targetUserId },
+          data: { role: data.role as any },
+        });
+      }
+    }
+
+    // Actualizar rol en StoreMember si se especificó storeId y role
+    if (data.storeId && data.role) {
+      const validStoreRoles = ['BRANCH_MANAGER', 'CASHIER'];
+      if (validStoreRoles.includes(data.role)) {
+        await this.prisma.storeMember.updateMany({
+          where: { storeId: data.storeId, userId: targetUserId },
+          data: { role: data.role as any },
+        });
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Credenciales actualizadas exitosamente',
+      user: updatedUser,
+    };
   }
 }

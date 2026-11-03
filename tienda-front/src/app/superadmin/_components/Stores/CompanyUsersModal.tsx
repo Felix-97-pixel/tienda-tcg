@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { IconUsers, IconUserPlus, IconTrash, IconX, IconShield } from "@/components/ui/Icons";
+import { IconUsers, IconUserPlus, IconTrash, IconX, IconShield, IconLock } from "@/components/ui/Icons";
+import { TargetUserToEdit } from "./EditUserCredentialsModal";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Company } from "./hooks/useSuperAdminStores";
 import { API_URL } from "@/utils/api";
@@ -26,6 +27,7 @@ interface CompanyUsersModalProps {
   onClose: () => void;
   company: Company | null;
   onRefresh?: () => void;
+  onEditCredentials?: (user: TargetUserToEdit) => void;
 }
 
 export default function CompanyUsersModal({
@@ -33,6 +35,7 @@ export default function CompanyUsersModal({
   onClose,
   company,
   onRefresh,
+  onEditCredentials,
 }: CompanyUsersModalProps) {
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(false);
@@ -342,7 +345,28 @@ export default function CompanyUsersModal({
                         </div>
                       </div>
 
-                      <div className="shrink-0 flex items-center gap-2">
+                      <div className="shrink-0 flex items-center gap-1.5">
+                        {onEditCredentials && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="!p-1.5 hover:border-red/40 hover:text-red"
+                            onClick={() =>
+                              onEditCredentials({
+                                userId: member.user.id,
+                                name: member.user.name,
+                                email: member.user.email,
+                                role: member.role,
+                                companyId: company.id,
+                                roleType: "COMPANY",
+                                isOwner,
+                              })
+                            }
+                            title="Editar credenciales y contraseña"
+                          >
+                            <IconLock className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
                         {isOwner ? (
                           <span className="text-[10px] text-white/40 font-mono px-2 py-1">
                             Titular

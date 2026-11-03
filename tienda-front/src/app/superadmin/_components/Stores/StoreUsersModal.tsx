@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { IconUser, IconUserPlus, IconTrash, IconX, IconStore } from "@/components/ui/Icons";
+import { IconUser, IconUserPlus, IconTrash, IconX, IconStore, IconLock } from "@/components/ui/Icons";
+import { TargetUserToEdit } from "./EditUserCredentialsModal";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Branch } from "./hooks/useSuperAdminStores";
 import { API_URL } from "@/utils/api";
@@ -26,6 +27,7 @@ interface StoreUsersModalProps {
   onClose: () => void;
   branch: Branch | null;
   onRefresh?: () => void;
+  onEditCredentials?: (user: TargetUserToEdit) => void;
 }
 
 export default function StoreUsersModal({
@@ -33,6 +35,7 @@ export default function StoreUsersModal({
   onClose,
   branch,
   onRefresh,
+  onEditCredentials,
 }: StoreUsersModalProps) {
   const [members, setMembers] = useState<StoreMember[]>([]);
   const [loading, setLoading] = useState(false);
@@ -338,7 +341,28 @@ export default function StoreUsersModal({
                       </div>
                     </div>
 
-                    <div className="shrink-0 flex items-center gap-2">
+                    <div className="shrink-0 flex items-center gap-1.5">
+                      {onEditCredentials && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="!p-1.5 hover:border-red/40 hover:text-red"
+                          onClick={() =>
+                            onEditCredentials({
+                              userId: member.user.id,
+                              name: member.user.name,
+                              email: member.user.email,
+                              role: member.role,
+                              storeId: branch.id,
+                              roleType: "STORE",
+                              isOwner: false,
+                            })
+                          }
+                          title="Editar credenciales y contraseña"
+                        >
+                          <IconLock className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="danger"

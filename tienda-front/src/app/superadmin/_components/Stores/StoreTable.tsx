@@ -16,7 +16,9 @@ import {
   IconPlus,
   IconUsers,
   IconUser,
+  IconLock,
 } from "@/components/ui/Icons";
+import { TargetUserToEdit } from "./EditUserCredentialsModal";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 
 interface StoreTableProps {
@@ -28,6 +30,7 @@ interface StoreTableProps {
   onAddBranch: (company: Company) => void;
   onManageCompanyUsers: (company: Company) => void;
   onManageStoreUsers: (branch: Branch) => void;
+  onEditCredentials?: (user: TargetUserToEdit) => void;
 }
 
 export default function StoreTable({
@@ -39,6 +42,7 @@ export default function StoreTable({
   onAddBranch,
   onManageCompanyUsers,
   onManageStoreUsers,
+  onEditCredentials,
 }: StoreTableProps) {
   const [expandedCompanyIds, setExpandedCompanyIds] = useState<Record<string, boolean>>({});
 
@@ -109,8 +113,33 @@ export default function StoreTable({
                     {company.rut || <span className="text-white/30 italic">Sin RUT asignado</span>}
                   </td>
                   <td className="px-4 py-4">
-                    <p className="text-white font-medium text-xs">{company.owner?.name}</p>
-                    <p className="text-[11px] text-white/40">{company.owner?.email}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="text-white font-medium text-xs">{company.owner?.name}</p>
+                        <p className="text-[11px] text-white/40">{company.owner?.email}</p>
+                      </div>
+                      {company.owner && onEditCredentials && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="!p-1.5 hover:border-red/40 hover:text-red shrink-0"
+                          onClick={() =>
+                            onEditCredentials({
+                              userId: company.owner.id,
+                              name: company.owner.name,
+                              email: company.owner.email,
+                              isOwner: true,
+                              companyId: company.id,
+                              roleType: "COMPANY",
+                              role: "OWNER",
+                            })
+                          }
+                          title="Editar credenciales del Dueño Titular"
+                        >
+                          <IconLock className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-4 min-w-[220px]">
                     <SearchableSelect
@@ -138,20 +167,20 @@ export default function StoreTable({
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="!px-2.5 !py-1.5 text-xs gap-1.5 hover:border-red/40 hover:text-white"
+                        className="!p-2 text-xs hover:border-red/40 hover:text-white"
                         onClick={() => onManageCompanyUsers(company)}
-                        title="Administrar usuarios corporativos de la empresa"
+                        title="Administrar usuarios y accesos corporativos"
                       >
-                        <IconUsers className="w-3.5 h-3.5 text-red" />
-                        <span className="hidden md:inline">Accesos</span>
+                        <IconUsers className="w-4 h-4 text-red" />
                       </Button>
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="!px-3 !py-1.5 text-xs gap-1.5"
+                        className="!px-2.5 !py-2 text-xs gap-1 hover:border-purple-500/40"
                         onClick={() => toggleExpand(company.id)}
+                        title={isExpanded ? "Ocultar sucursales" : "Ver sucursales"}
                       >
-                        <span>Sucursales</span>
+                        <IconStore className="w-4 h-4 text-purple-400" />
                         {isExpanded ? <IconChevronUp className="w-3.5 h-3.5" /> : <IconChevronDown className="w-3.5 h-3.5" />}
                       </Button>
                     </div>
@@ -229,12 +258,11 @@ export default function StoreTable({
                                   <Button
                                     size="sm"
                                     variant="secondary"
-                                    className="!px-2.5 !py-1.5 hover:border-red/40 hover:text-red gap-1 text-xs"
+                                    className="!p-2 hover:border-red/40 hover:text-red text-xs"
                                     onClick={() => onManageStoreUsers(branch)}
                                     title="Gestionar personal y cajeros de esta sucursal"
                                   >
-                                    <IconUser className="w-3.5 h-3.5 text-red" />
-                                    <span className="hidden sm:inline">Personal</span>
+                                    <IconUser className="w-4 h-4 text-red" />
                                   </Button>
                                   <a
                                     href={getStoreUrl(branch.subdomain)}
