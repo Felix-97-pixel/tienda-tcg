@@ -3,7 +3,7 @@
 **Razón Social:** TAPTRADE SpA  
 **RUT:** 78.531.106-K  
 **Fecha de Actualización:** 3 de Noviembre de 2026  
-**Versión:** 2.1 (Modelo Mandato Mercantil + Tarifa 3.00% + IVA con Gross-Up Financiero)
+**Versión:** 2.2 (Desglose Transparente: Comisión TapTrade 3% + IVA y Costo Pasarela de Pago)
 
 ---
 
@@ -16,9 +16,11 @@ TapTrade opera bajo un modelo híbrido de **Software como Servicio (SaaS)** para
    * La tienda define libremente sus precios en catálogo (los cuales se consideran **brutos con IVA incluido** para consumidores B2C conforme a la normativa del SII) y recibe el **100% neto del valor de sus productos y el 100% de los envíos** cotizados.
 2. **Monetización del Software (SaaS):**
    * TapTrade monetiza mediante el cobro de suscripciones fijas mensuales en Unidades de Fomento (UF) según la escala de inventario sincronizado de cada tienda.
-3. **Tarifa de Servicio y Pasarela de Pago al Comprador (3.00% + IVA con Gross-Up):**
-   * Los costos operativos de las pasarelas bancarias autorizadas (Transbank Webpay Plus y Mercado Pago) y el servicio de garantía y custodia transitoria se financian a través de una **tarifa transparente cobrada al comprador** en el checkout.
-   * La plataforma percibe un **3.00% neto más IVA (19%)** sobre el valor consolidado de la compra (productos + despachos), incorporando un factor de *gross-up* para que el cobro financiero de la pasarela de pagos no reduzca el ingreso tributario de la plataforma ni afecte el saldo de las tiendas.
+3. **Desglose Transparente de Tarifas al Comprador en Checkout:**
+   * En el checkout se desglosan de forma **100% transparente y separada**:
+     1. **Comisión de Plataforma TapTrade (3.00% Neto + IVA 19%):** Servicio de intermediación tecnológica, custodia transitoria y protección al comprador.
+     2. **Costo de Pasarela de Pago:** Tarifa de procesamiento bancario (Transbank Webpay Plus peor caso crédito 2.29% + IVA o Mercado Pago 3.19% + IVA).
+   * Mediante un cálculo de *gross-up* sobre la pasarela, ni la tienda ni TapTrade absorben mermas financieras: la tienda recibe el 100% de su venta, y TapTrade recibe íntegro su 3% neto + IVA.
 
 ---
 
@@ -33,76 +35,69 @@ TapTrade opera bajo un modelo híbrido de **Software como Servicio (SaaS)** para
 
 ---
 
-## 3. Tarifa de Servicio y Pasarela Pagada por el Comprador
+## 3. Desglose Transparente Pagado por el Comprador
 
-### 3.1. ¿Qué cubre la tarifa cobrada al comprador?
-1. **Comisión de Plataforma TapTrade (3.00% Neto + IVA 19%):** Financia la custodia transitoria de fondos en depósito fiduciario (escrow), la validación de inventario en tiempo real, el soporte al cliente y la infraestructura técnica del checkout unificado.
-2. **Costos de Procesamiento Bancario (Transbank Webpay Plus):**
-   * Tarifa Débito Transbank: **1.49% + IVA** ($1.49 \times 1.19 = 1.7731\%$).
-   * Tarifa Crédito Transbank: **2.29% + IVA** ($2.29 \times 1.19 = 2.7251\%$).
-3. **Fórmula de Gross-up Financiero:**  
-   Dado que Transbank aplica su comisión porcentual sobre el **monto total cobrado en la pasarela** (que ya incluye la tarifa de servicio), si no se aplicara gross-up la plataforma absorbería un déficit.
-   Para evitarlo, la tarifa cobrada se calcula bajo el peor escenario de crédito (2.29% + IVA) mediante la fórmula:
-   $$\text{TarifaBruta} = \left\lceil \frac{\text{Base} \times (0.03 \times 1.19)}{1 - (0.0229 \times 1.19)} \right\rceil \approx \text{Base} \times 3.6687\%$$
-
-### 3.2. Tabla de Rendimiento Económico Real
-
-| Medio de Pago | Tarifa Pasarela c/ IVA | Tarifa Cobrada al Comprador | Comisión Bruta TapTrade (3% + IVA) | Margen Neto TapTrade |
-| :--- | :--- | :--- | :--- | :--- |
-| **Webpay Débito** | 1.7731% | ~3.67% | 3.57% | **+1.90%** neto + IVA recuperable |
-| **Webpay Crédito** | 2.7251% | ~3.67% | 3.57% | **+0.94%** neto (equilibrio exacto) |
+### 3.1. Conceptos Desglosados en Checkout
+1. **Comisión de Plataforma TapTrade (3.00% Neto + IVA 19%):**
+   * Financia la custodia transitoria de fondos en depósito fiduciario (escrow), la validación de inventario en tiempo real, el soporte al cliente y la infraestructura técnica del checkout unificado.
+   * Se calcula sobre la base imponible total (productos + despacho).
+2. **Costo de Pasarela de Pagos (Webpay Plus Transbank / Mercado Pago):**
+   * Tarifa bancaria oficial de recaudación y procesamiento seguro.
+   * Tasa Transbank Crédito peor caso: **2.29% + IVA** ($2.29 \times 1.19 = 2.7251\%$).
+   * Tasa Mercado Pago: **3.19% + IVA** ($3.19 \times 1.19 = 3.7961\%$).
+3. **Fórmula de Absorción Financiera (Gross-Up):**  
+   Dado que las pasarelas retienen su comisión sobre el **monto total transado en el terminal**, el total a recaudar se calcula para garantizar que el remanente cubra con exactitud el abono a la tienda y la comisión de TapTrade:
+   $$\text{TotalCobrado} = \left\lceil \frac{\text{BaseTienda} + \text{ComisiónBrutaTapTrade}}{1 - \text{TasaPasarela}} \right\rceil$$
+   $$\text{CostoPasarela} = \text{TotalCobrado} - (\text{BaseTienda} + \text{ComisiónBrutaTapTrade})$$
 
 ---
 
-## 4. Algoritmo Exacto de Cálculo en Backend (`CheckoutPricingService`)
+## 4. Algoritmo Exacto en Backend (`CheckoutPricingService`)
 
 ```typescript
 // 1. Monto base consolidado (Productos con IVA incluido + Envíos con IVA incluido)
-const baseAmount = productsTotal + shippingTotal;
+const baseTotal = productsTotal + shippingTotal;
 
-// 2. Comisión neta de plataforma TapTrade (3%)
-const serviceFeeNet = Math.round(baseAmount * 0.03);
-
-// 3. IVA débito fiscal propio de TapTrade (19%)
+// 2. Comisión propia de TapTrade (3% neto + IVA 19%)
+const serviceFeeNet = Math.round(baseTotal * 0.03);
 const serviceFeeVat = Math.round(serviceFeeNet * 0.19);
+const serviceFeeGross = serviceFeeNet + serviceFeeVat;
 
-// 4. Tarifa bruta cobrada al comprador con gross-up de Transbank peor caso (Crédito 2.29% + IVA)
-const transbankRateGross = 0.0229 * 1.19; // 0.027251
-const serviceFeeGross = Math.round((baseAmount * (0.03 * 1.19)) / (1 - transbankRateGross));
+// 3. Tasa de pasarela con IVA (Webpay crédito peor caso 2.29% + IVA = 2.7251%)
+const gatewayGrossRate = 0.0229 * 1.19; // 0.027251
 
-// 5. Total final enviado a la pasarela Webpay Plus / Mercado Pago
-const finalTotal = baseAmount + serviceFeeGross;
+// 4. Monto total recaudado en terminal de pago
+const amountToCharge = Math.round((baseTotal + serviceFeeGross) / (1 - gatewayGrossRate));
 
-// 6. Abono íntegro a la tienda vendedora (0% de descuento)
-const storePayout = baseAmount; // 100% de productos + 100% de despachos
+// 5. Costo financiero de la pasarela pagado transparentemente por el comprador
+const gatewayFee = amountToCharge - (baseTotal + serviceFeeGross);
+
+// Invariante contable estricta:
+// amountToCharge === baseTotal + serviceFeeGross + gatewayFee
 ```
 
 ---
 
 ## 5. Ejemplo Práctico de Liquidación y Cobro
 
-Un comprador adquiere cartas en dos tiendas distintas de la plataforma:
-* **Tienda A:** Subtotal productos **$15.000 CLP**. Envío Starken **$3.500 CLP**. Total Tienda A: **$18.500 CLP**.
-* **Tienda B:** Subtotal productos **$20.000 CLP**. Envío Chilexpress **$4.200 CLP**. Total Tienda B: **$24.200 CLP**.
+### Ejemplo A: Carrito de $3.960 CLP ($270 productos + $3.690 despacho Starken)
+* **Subtotal Productos:** $270 CLP.
+* **Total Envíos Consolidados:** $3.690 CLP.
+* **Monto Base:** $3.960 CLP.
+* **Comisión TapTrade (3% + IVA):**
+  * Neto: $\text{round}(3.960 \times 0.03) = \mathbf{\$119\text{ CLP}}$.
+  * IVA Débito (19%): $\text{round}(119 \times 0.19) = \mathbf{\$23\text{ CLP}}$.
+  * Total Comisión TapTrade (Boleta de servicios): $\mathbf{\$142\text{ CLP}}$.
+* **Costo Pasarela Webpay Plus (2.29% + IVA):**
+  * $\text{Total} = \text{round}\left(\frac{3.960 + 142}{1 - 0.027251}\right) = \text{round}(4.102 / 0.972749) = \mathbf{\$4.217\text{ CLP}}$.
+  * $\text{Costo Pasarela} = 4.217 - 4.102 = \mathbf{\$115\text{ CLP}}$.
+* **Total Final a Pagar:** **$4.217 CLP**.
 
-### 1. Cálculo del Total de la Orden:
-* **Monto Base:** $\$18.500 + \$24.200 = \mathbf{\$42.700\text{ CLP}}$.
-* **Comisión Neta TapTrade (3%):** $\$42.700 \times 0.03 = \mathbf{\$1.281\text{ CLP}}$.
-* **IVA Débito Fiscal TapTrade (19%):** $\$1.281 \times 0.19 = \mathbf{\$243\text{ CLP}}$.
-* **Tarifa Bruta de Servicio Checkout (con gross-up):**
-  $$\text{TarifaBruta} = \frac{42.700 \times 0.0357}{1 - 0.027251} = \frac{1.524,39}{0.972749} \approx \mathbf{\$1.567\text{ CLP}}$$
-* **Total Cobrado al Comprador en Webpay:**
-  $$\$42.700 + \$1.567 = \mathbf{\$44.267\text{ CLP}}$$
-
-### 2. Distribución de Fondos y Cumplimiento Tributario (SII):
-* **Abono a Tienda A:** **$18.500 CLP** íntegros ($15.000 productos + $3.500 flete).
-* **Abono a Tienda B:** **$24.200 CLP** íntegros ($20.000 productos + $4.200 flete).
-* **Ingreso Propio TapTrade:**
-  * Base Neta Imponible: **$1.281 CLP**.
-  * IVA Débito Fiscal a declarar en Formulario F29 (Código 538): **$243 CLP**.
-* **Costo de Pasarela Transbank Estimado:**
-  * Si el comprador paga con Crédito ($44.267 \times 2.7251\%$): Transbank cobra ~$1.206 CLP (incluye $193 CLP de IVA crédito fiscal recuperable para TapTrade).
-  * Margen operacional neto de TapTrade garantizado sin déficit.
+#### Cuadratura de Fondos:
+* **Abono Tienda:** **$3.960 CLP** (100% íntegro).
+* **Ingreso Propio TapTrade:** **$142 CLP** ($119 neto utilidad + $23 IVA débito fiscal F29).
+* **Descuento Transbank en Terminal:** $4.217 \times 0.027251 = \mathbf{\$115\text{ CLP}}$ ($97 neto costo financiero + $18 IVA crédito fiscal).
+* **F29 al Fisco:** Débito $23 - Crédito $18 = **$5 al SII**. Margen neto TapTrade: **$119 CLP** (exactamente 3% de la venta).
 
 ---
 
@@ -114,5 +109,5 @@ Un comprador adquiere cartas en dos tiendas distintas de la plataforma:
 
 ### 6.2. Emisión de Documentos Tributarios Electrónicos (DTEs)
 1. **La Tienda Vendedora** es la única obligada tributaria ante el SII a emitir la **Boleta Electrónica de Ventas y Servicios** o **Factura Electrónica** al comprador final por el 100% de los productos y envíos transados.
-2. **TapTrade SpA** emite la respectiva **Boleta o Factura Electrónica de Servicios** al comprador por el monto correspondiente a la comisión de servicio e intermediación ($1.567 CLP en el ejemplo).
+2. **TapTrade SpA** emite la respectiva **Boleta o Factura Electrónica de Servicios** al comprador por el monto correspondiente a la comisión de servicio e intermediación ($142 CLP en el ejemplo).
 3. **Liquidación de Mandato:** Al momento de liberar los fondos a la tienda tras el despacho, TapTrade genera un comprobante de liquidación mercantil donde se acredita la rendición de cuentas del mandato.

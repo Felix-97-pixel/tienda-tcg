@@ -4,71 +4,149 @@
  * En el modelo de marketplace TapTrade:
  * 1. Las tiendas reciben el 100% de sus ventas y envíos (0% comisión a la tienda).
  * 2. Los precios de catálogo y despachos son BRUTOS (IVA 19% incluido por cada tienda).
- * 3. La comisión de intermediación de TapTrade es 3% neto + IVA (3.57% nominal),
- *    con gross-up por tarifa de procesamiento pasarela peor caso (Transbank crédito 2.29% + IVA = 2.7251%),
- *    resultando en un factor de ~3.67% sobre la base imponible total (productos + despacho).
+ * 3. Comisión TapTrade: 3% neto + IVA (19% de la comisión neta) por intermediación y protección al comprador.
+ * 4. Costo de Pasarela de Pago: Tarifa de procesamiento bancario (Transbank Webpay Plus o Mercado Pago).
+ *    Se calcula mediante gross-up sobre (Base + Comisión TapTrade) para que tiendas y TapTrade reciban
+ *    el 100% íntegro de sus fondos sin mermas financieras.
  */
 
 export type PaymentGatewayType = 'MERCADOPAGO' | 'WEBPAY' | 'DEFAULT';
 
-export interface GatewayFeeConfig {
-  /** Tasa efectiva con gross-up (~3.67%) */
-  rate: number;
-  /** Texto legible */
-  percentageText: string;
-  /** Nombre comercial transparente */
-  label: string;
-  /** Descripción para el comprador */
-  description: string;
-}
-
-// Tasas oficiales según directrices tributarias SII y confirmación de negocio
 export const VAT_RATE = 0.19;
 export const TAPTRADE_COMMISSION_NET = 0.03; // 3% neto
 export const TRANSBANK_CREDIT_RATE_NET = 0.0229; // 2.29% crédito peor caso
+export const MERCADOPAGO_RATE_NET = 0.0319; // 3.19% crédito/débito MP
 
-// Gross-up exacto: (0.03 * 1.19) / (1 - (0.0229 * 1.19)) ≈ 0.0366999
-const GROSS_UP_RATE = (TAPTRADE_COMMISSION_NET * (1 + VAT_RATE)) / (1 - (TRANSBANK_CREDIT_RATE_NET * (1 + VAT_RATE)));
+export interface DetailedFeeBreakdown {
+  /** Monto base imponible (subtotal productos + despachos consolidados) */
+  baseAmount: number;
 
-export const GATEWAY_FEES: Record<PaymentGatewayType, GatewayFeeConfig> = {
+  /** Comisión neta propia de TapTrade (3% de baseAmount) */
+  taptradeFeeNet: number;
+  /** IVA débito fiscal (19%) sobre la comisión de TapTrade */
+  taptradeFeeVat: number;
+  /** Comisión bruta total TapTrade (boleta de servicios) */
+  taptradeFeeGross: number;
+
+  /** Costo exacto de procesamiento financiero cobrado por la pasarela */
+  gatewayFee: number;
+  /** Tasa efectiva pasarela con IVA */
+  gatewayGrossRate: number;
+  /** Identificador de la pasarela */
+  gatewayName: PaymentGatewayType;
+  /** Nombre comercial amigable */
+  gatewayLabel: string;
+  /** Texto de tasa para badges */
+  gatewayPercentageText: string;
+  /** Descripción explicativa para el comprador */
+  gatewayDescription: string;
+
+  /** Suma total final a pagar en el terminal bancario */
+  finalAmount: number;
+}
+
+export interface GatewayFeeConfig {
+  rate: number;
+  percentageText: string;
+  label: string;
+  description: string;
+}
+
+export const GATEWAY_CONFIGS: Record<PaymentGatewayType, { netRate: number; label: string; description: string }> = {
   WEBPAY: {
-    rate: GROSS_UP_RATE,
-    percentageText: '3% + IVA',
-    label: 'Comisión TapTrade',
-    description: 'Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.',
+    netRate: TRANSBANK_CREDIT_RATE_NET,
+    label: 'Webpay Plus',
+    description: 'Tarifa bancaria Transbank de recaudación y procesamiento seguro (tarjetas de crédito y débito).',
   },
   MERCADOPAGO: {
-    rate: GROSS_UP_RATE,
-    percentageText: '3% + IVA',
-    label: 'Comisión TapTrade',
-    description: 'Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.',
+    netRate: MERCADOPAGO_RATE_NET,
+    label: 'Mercado Pago',
+    description: 'Tarifa de procesamiento Mercado Pago (tarjetas de crédito y débito).',
   },
   DEFAULT: {
-    rate: GROSS_UP_RATE,
-    percentageText: '3% + IVA',
-    label: 'Comisión TapTrade',
-    description: 'Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.',
+    netRate: TRANSBANK_CREDIT_RATE_NET,
+    label: 'Pasarela Segura',
+    description: 'Tarifa de recaudación y procesamiento bancario seguro.',
   },
 };
 
 /**
- * Calcula el monto en pesos chilenos correspondiente a la comisión del comprador (3% + IVA con gross-up).
- * @param baseAmount Monto base bruto (Subtotal productos + Despachos cotizados)
- * @param gateway Pasarela seleccionada
- * @returns Monto redondeado en CLP
+ * Calcula el desglose financiero detallado y transparente para el checkout.
+ * Separa explícitamente:
+ * 1. Comisión de servicio TapTrade (3% + IVA)
+ * 2. Tarifa de la pasarela de pagos (Webpay / MP)
+ */
+export function calculateDetailedFees(
+  baseAmount: number,
+  gateway: PaymentGatewayType = 'WEBPAY'
+): DetailedFeeBreakdown {
+  if (!baseAmount || baseAmount <= 0) {
+    return {
+      baseAmount: 0,
+      taptradeFeeNet: 0,
+      taptradeFeeVat: 0,
+      taptradeFeeGross: 0,
+      gatewayFee: 0,
+      gatewayGrossRate: 0,
+      gatewayName: gateway,
+      gatewayLabel: 'Pasarela de Pago',
+      gatewayPercentageText: '0%',
+      gatewayDescription: '',
+      finalAmount: 0,
+    };
+  }
+
+  // 1. Comisión TapTrade: 3% neto + IVA (19%)
+  const taptradeFeeNet = Math.round(baseAmount * TAPTRADE_COMMISSION_NET);
+  const taptradeFeeVat = Math.round(taptradeFeeNet * VAT_RATE);
+  const taptradeFeeGross = taptradeFeeNet + taptradeFeeVat;
+
+  // 2. Tarifa de procesamiento pasarela (Gross-up sobre Base + TapTrade Gross)
+  const gwConfig = GATEWAY_CONFIGS[gateway] || GATEWAY_CONFIGS.DEFAULT;
+  const gatewayGrossRate = gwConfig.netRate * (1 + VAT_RATE);
+
+  const grossUpDenominator = Math.max(0.01, 1 - gatewayGrossRate);
+  const finalAmount = Math.round((baseAmount + taptradeFeeGross) / grossUpDenominator);
+  const gatewayFee = finalAmount - (baseAmount + taptradeFeeGross);
+
+  const pctString = `${(gwConfig.netRate * 100).toFixed(2)}% + IVA`;
+
+  return {
+    baseAmount,
+    taptradeFeeNet,
+    taptradeFeeVat,
+    taptradeFeeGross,
+    gatewayFee,
+    gatewayGrossRate,
+    gatewayName: gateway,
+    gatewayLabel: gwConfig.label,
+    gatewayPercentageText: pctString,
+    gatewayDescription: gwConfig.description,
+    finalAmount,
+  };
+}
+
+/**
+ * Retorna la suma consolidada de todas las tarifas adicionales al comprador (TapTrade + Pasarela)
  */
 export function calculatePaymentFee(
   baseAmount: number,
   gateway: PaymentGatewayType = 'WEBPAY'
 ): number {
-  if (!baseAmount || baseAmount <= 0) return 0;
-  const config = GATEWAY_FEES[gateway] || GATEWAY_FEES.DEFAULT;
-  return Math.round(baseAmount * config.rate);
+  const detailed = calculateDetailedFees(baseAmount, gateway);
+  return detailed.taptradeFeeGross + detailed.gatewayFee;
 }
 
-/**
- * Obtiene la configuración de la comisión.
- */
 export function getGatewayConfig(gateway: PaymentGatewayType = 'WEBPAY'): GatewayFeeConfig {
-  return GATEWAY_FEES[gateway] || GATEWAY_FEES.DEFAULT;
+  const isMP = gateway === 'MERCADOPAGO';
+  const netRate = isMP ? MERCADOPAGO_RATE_NET : TRANSBANK_CREDIT_RATE_NET;
+  const grossRate = netRate * (1 + VAT_RATE);
+  return {
+    rate: grossRate,
+    percentageText: `${(netRate * 100).toFixed(2)}% + IVA`,
+    label: isMP ? 'Mercado Pago' : 'Webpay Plus',
+    description: isMP
+      ? 'Tarifa de procesamiento Mercado Pago.'
+      : 'Tarifa bancaria Transbank Webpay Plus.',
+  };
 }

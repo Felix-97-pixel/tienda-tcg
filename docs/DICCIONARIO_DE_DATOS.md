@@ -374,8 +374,15 @@ Lista de deseos de cartas de los compradores.
 * `buyOrder` (`String`, Unique): Código alfanumérico único de compra para el banco/pasarela.
 * `userId` (`String?`, FK -> `User`): Comprador registrado (o `null` para checkout como invitado).
 * `email`, `name`, `phone`, `address`, `city`, `cityCode`, `regionCode` (`String`): Datos de contacto y entrega.
-* `notes` (`String?`): Instrucciones especiales de entrega o notas de tarifa de servicio ("Tarifa de servicio y protección al comprador (5.00%): $X").
-* `totalAmount` (`Decimal(10,2)`): Monto final total cobrado al cliente (Productos + Envíos + Tarifa de Servicio y Protección 5%).
+* `notes` (`String?`): Instrucciones especiales de entrega y desglose financiero ("Comisión TapTrade (3% + IVA): $X | Pasarela Webpay: $Y").
+* `totalAmount` (`Decimal(10,2)`): Monto final total cobrado al comprador en el terminal de pago (Productos + Envíos + Comisión TapTrade + Tarifa Pasarela de Pago).
+* `productsTotal` (`Decimal(10,2)`, default: 0): Subtotal bruto consolidado de productos (IVA incluido por las tiendas).
+* `shippingTotal` (`Decimal(10,2)`, default: 0): Subtotal bruto consolidado de envíos (IVA incluido por las tiendas o couriers).
+* `serviceFeeGross` (`Decimal(10,2)`, default: 0): Comisión bruta de TapTrade (3% neto + IVA 19% propio).
+* `serviceFeeNet` (`Decimal(10,2)`, default: 0): Comisión neta de ingresos propios de TapTrade SpA.
+* `serviceFeeVat` (`Decimal(10,2)`, default: 0): IVA débito fiscal propio de TapTrade SpA para declaración en Formulario F29 (Código 538).
+* `transbankFeeEstimate` (`Decimal(10,2)`, default: 0): Costo de procesamiento financiero cobrado de manera transparente al comprador (Webpay Plus o Mercado Pago).
+* `vatRateSnapshot` (`Decimal(5,4)`, default: 0.19): Tasa de IVA vigente al momento de la transacción.
 * `currencyCode` (`String?`, default: "CLP").
 * `exchangeRate` (`Decimal(10,2)?`).
 * `status` (`OrderStatus`, enum: `PENDING`, `PAID`, `FAILED`, `CANCELLED`, `REFUNDED`).
@@ -397,7 +404,12 @@ Lista de deseos de cartas de los compradores.
 * `shippingProviderId` (`String?`, FK -> `ShippingProvider`): Courier contratado para este paquete. **Es `null` para ventas presenciales POS** donde la entrega es inmediata en mostrador ($0).
 * `shippingCourier` (`String?`): Nombre legible del método (`"STARKEN"`, `"CHILEXPRESS"`, `"POS_PRESENCIAL"`, `"RETIRO_TIENDA"`).
 * `shippingCost` (`Decimal(10,2)`, default: 0): Costo de envío específico asignado a este paquete ($0 si es retiro o POS).
-* `subtotal` (`Decimal(10,2)`, default: 0): Monto neto de productos de esta tienda.
+* `subtotal` (`Decimal(10,2)`, default: 0): Monto bruto de productos de esta tienda (IVA incluido).
+* `taxableNet` (`Decimal(10,2)`, default: 0): Base neta imponible de la tienda para su propia boleta/factura electrónica ante el SII.
+* `vatAmount` (`Decimal(10,2)`, default: 0): Monto del débito fiscal IVA (19%) correspondiente a la tienda.
+* `vatRate` (`Decimal(5,4)`, default: 0.19): Tasa de IVA aplicada por la tienda.
+* `sellerRut` (`String?`): RUT del comercio emisor del DTE.
+* `sellerLegalName` (`String?`): Razón social del comercio emisor.
 * `status` (`OrderStatus`, default: `PENDING`): Estado de pago.
 * `deliveryStatus` (`String?`, default: `"PENDING_DISPATCH"`): Estado logístico (`PENDING_DISPATCH`, `DISPATCHED`, `DELIVERED`). En ventas POS es automáticamente `DELIVERED`.
 * `trackingNumber` (`String?`): Número de orden de transporte, `"RETIRO-LOCAL"` o `"VENTA-MOSTRADOR"`.

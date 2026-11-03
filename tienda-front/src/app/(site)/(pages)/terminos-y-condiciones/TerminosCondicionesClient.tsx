@@ -222,9 +222,12 @@ const TerminosCondicionesClient = () => {
               <IconShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div className="text-xs">
                 <span className="font-bold text-white block mb-0.5">
-                  4.5. Tarifa de Servicio, Pasarela de Pago y Protección al Comprador (3.00% + IVA con Absorción Financiera):
+                  4.5. Desglose Transparente de Tarifas de Servicio, Pasarela de Pago y Protección al Comprador:
                 </span>
-                Para financiar los costos transaccionales de las pasarelas de pago bancarias autorizadas en Chile (Transbank Webpay Plus y Mercado Pago), la custodia transitoria de fondos en depósito fiduciario (escrow), la garantía de autenticidad y estado de cartas TCG, y la infraestructura de checkout multi-tienda unificado, se aplica al Comprador en el resumen de compra una tarifa de servicio transparente equivalente al <strong>3.00% neto más IVA (19%)</strong> calculada sobre el importe consolidado de la compra (productos + envíos), ajustada por la tasa de absorción de adquirencia de Transbank (tasa peor escenario de crédito 2.29% + IVA, equivalente a una tasa bruta efectiva aproximada de ~3.67%). Esta tarifa es asumida de forma visible e individualizada por el Comprador en el checkout, garantizando que las Tiendas Adheridas perciban el <strong>100% íntegro</strong> de los precios fijados en sus vitrinas y costos de envío cotizados, sin deducciones por comisiones de venta (0% Take Rate a tiendas). TapTrade SpA emitirá la respectiva Boleta o Factura Electrónica de Servicios exclusivamente por el valor de esta tarifa de intermediación.
+                El checkout de TapTrade desglosa de manera individualizada y transparente para el Comprador:
+                (i) <strong>Comisión TapTrade (3.00% neto + IVA 19%):</strong> retribuye el servicio de intermediación tecnológica, la custodia transitoria de fondos en depósito fiduciario (escrow), la garantía de autenticidad de cartas TCG y la infraestructura de checkout unificado; y
+                (ii) <strong>Costo de Pasarela de Pago:</strong> retribuye los costos de adquirencia y procesamiento bancario seguro (Transbank Webpay Plus o Mercado Pago) calculados mediante la tasa correspondiente con IVA.
+                Ambos conceptos se individualizan en el resumen de compra, garantizando que las Tiendas Adheridas perciban el <strong>100% íntegro</strong> del valor de sus productos y costos de despacho (0% Take Rate a tiendas). TapTrade SpA emitirá la Boleta Electrónica de Servicios al Comprador por el valor de su comisión de intermediación.
               </div>
             </div>
 

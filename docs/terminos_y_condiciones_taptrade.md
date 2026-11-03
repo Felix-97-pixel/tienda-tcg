@@ -52,10 +52,12 @@
 - **Plan Pro / Pioneras:** 10 UF/mes (5 UF/mes con descuento preferencial; hasta 20.000 cartas). Comisión por venta: 0%.
 - **Plan Enterprise:** 15 UF/mes (7.5 UF/mes con descuento preferencial; catálogo ilimitado). Comisión por venta: 0%.
 
-4.4. **Tarifa de Servicio, Pasarela de Pago y Protección al Comprador (3.00% + IVA con Gross-Up Financiero):**
-- A fin de financiar la custodia transitoria de fondos en depósito fiduciario (escrow), la autenticidad e inspección de estado de cartas coleccionables (TCG Buyer Guarantee), la infraestructura de checkout multi-tienda y las tarifas de las pasarelas bancarias autorizadas (Transbank Webpay Plus y Mercado Pago), se aplica al Comprador en el resumen de checkout una tarifa de servicio transparente del **3.00% neto más IVA (19%)** sobre el valor consolidado de la orden (productos + despachos), incorporando la tasa de absorción de adquirencia de Transbank (tasa peor escenario de crédito 2.29% + IVA, equivalente a una tasa bruta efectiva aproximada de ~3.67%).
-- Dicha tarifa es informada e individualizada de forma transparente al Comprador al momento de pagar y garantiza que las Tiendas Adheridas perciban el **100% íntegro** de sus precios de vitrina y fletes (0% de comisión por venta a las tiendas).
-- TapTrade SpA emitirá la respectiva Boleta o Factura Electrónica de Servicios al Comprador exclusivamente por el monto correspondiente a esta tarifa de intermediación.
+4.4. **Desglose Transparente de Comisión de Plataforma y Costo de Pasarela de Pago:**
+- A fin de garantizar la máxima claridad al Comprador, el checkout de TapTrade desglosa de manera individualizada y transparente:
+  1. **Comisión TapTrade (3.00% neto + IVA 19%):** Servicio de intermediación tecnológica, custodia fiduciaria en escrow, garantía al comprador e infraestructura de checkout unificado.
+  2. **Costo de Pasarela de Pago:** Tarifa de procesamiento bancario seguro cobrada por la pasarela adquirente (Transbank Webpay Plus peor caso crédito 2.29% + IVA o Mercado Pago 3.19% + IVA).
+- Ambos conceptos se individualizan de forma visible en el resumen de compra, garantizando que las Tiendas Adheridas perciban el **100% íntegro** de sus precios de vitrina y fletes cotizados (0% de comisión por venta a las tiendas).
+- TapTrade SpA emitirá la respectiva Boleta o Factura Electrónica de Servicios al Comprador exclusivamente por el monto correspondiente a la comisión de servicio de plataforma.
 
 4.5. **Mandato Mercantil de Recaudación y Liquidación por Cuenta de Terceros:**
 - Cada Tienda Adherida confiere expresamente a TapTrade SpA un mandato comercial para recaudar, percibir y custodiar temporalmente en su cuenta bancaria de empresa los dineros correspondientes a las órdenes pagadas por los Compradores a través de Webpay Plus o Mercado Pago.

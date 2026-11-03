@@ -10,10 +10,11 @@ describe('TaxController', () => {
         productsTotal: 10000,
         shippingTotal: 3690,
         baseTotal: 13690,
-        serviceFee: { net: 422, vat: 80, gross: 502, rate: 0.19 },
-        transbankFeeEstimate: 387,
-        amountToCharge: 14192,
-        totalVatIncluded: 2266,
+        serviceFee: { net: 411, vat: 78, gross: 489, rate: 0.19 },
+        gatewayFee: 397,
+        transbankFeeEstimate: 397,
+        amountToCharge: 14576,
+        totalVatIncluded: 2264,
         vatRate: 0.19,
         vendors: [],
       }),
@@ -33,15 +34,17 @@ describe('TaxController', () => {
       ],
     });
 
-    expect(quote.amountToCharge).toBe(14192);
-    expect(quote.serviceFee.gross).toBe(502);
-    expect(mockCheckoutPricing.buildQuote).toHaveBeenCalledWith([
-      {
-        storeId: 'store-1',
-        productsGross: 10000,
-        shippingGross: 3690,
-      },
-    ]);
+    expect(quote.amountToCharge).toBe(14576);
+    expect(quote.serviceFee.gross).toBe(489);
+    expect(mockCheckoutPricing.buildQuote).toHaveBeenCalledWith(
+      [
+        {
+          storeId: 'store-1',
+          productsGross: 10000,
+          shippingGross: 3690,
+        },
+      ],
+      'WEBPAY',
+    );
   });
 });
-

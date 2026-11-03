@@ -211,15 +211,14 @@ export class InitTransactionHandler
     }
 
     // 3. Generar cotización tributaria oficial del servidor (3% + IVA TapTrade, Transbank gross-up)
-    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs);
+    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs, 'WEBPAY');
 
     // Generar buyOrder único
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
     const sessionId = `SES-${Date.now()}`.slice(0, 61);
 
-    const orderNotes = dto.notes
-      ? `${dto.notes} | Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`
-      : `Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`;
+    const feeDetails = `Comisión TapTrade (3% + IVA): ${quote.serviceFee.gross.toLocaleString('es-CL')} | Pasarela Webpay: ${quote.gatewayFee.toLocaleString('es-CL')}`;
+    const orderNotes = dto.notes ? `${dto.notes} | ${feeDetails}` : feeDetails;
 
     // 4. Guardar orden en BD con snapshot tributario inmutable (Order + VendorOrder)
     const order = await this.prisma.order.create({

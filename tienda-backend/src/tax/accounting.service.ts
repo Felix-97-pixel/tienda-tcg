@@ -81,7 +81,7 @@ export class AccountingService {
     const platformVatDebit = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeVat || 0), 0);
     const transbankFeeEstimate = allMatchingOrders.reduce((sum, o) => sum + Number(o.transbankFeeEstimate || 0), 0);
     const transbankVatCreditEstimate = Math.round((transbankFeeEstimate * 0.19) / 1.19);
-    const netPlatformMargin = platformServiceFeeNet - (transbankFeeEstimate - transbankVatCreditEstimate);
+    const netPlatformMargin = platformServiceFeeNet;
 
     // 2. Fondos en Custodia de Tiendas (Ledger WalletTransaction)
     const [heldInEscrowSum, availableSum, totalWithdrawnSum] = await Promise.all([

@@ -11,7 +11,7 @@ import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import { IconShieldCheck, IconAlertTriangle, IconStore, IconLock, IconMapPin, IconPencil, IconCheck, IconCreditCard, IconClock } from "@/components/ui/Icons";
 import { API_URL } from "@/utils/api";
 import ChileLocationsSelect from "./ChileLocationsSelect";
-import { calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/utils/paymentFees";
+import { calculateDetailedFees, calculatePaymentFee, getGatewayConfig, PaymentGatewayType } from "@/utils/paymentFees";
 
 
 type SavedAddress = {
@@ -355,9 +355,9 @@ const CheckoutWebpay = () => {
   };
 
   const baseAmount = total + totalShippingCost / currency.exchangeRate;
-  const gatewayConfig = getGatewayConfig(selectedGateway);
-  const paymentFee = calculatePaymentFee(baseAmount, selectedGateway);
-  const finalAmount = baseAmount + paymentFee;
+  const detailedFees = calculateDetailedFees(baseAmount, selectedGateway);
+  const paymentFee = detailedFees.taptradeFeeGross + detailedFees.gatewayFee;
+  const finalAmount = detailedFees.finalAmount;
 
   const handleMercadoPagoSubmit = async () => {
     setError(null);
@@ -1255,26 +1255,47 @@ const CheckoutWebpay = () => {
                     </span>
                   </div>
 
-                  {/* Tarifa de procesamiento de pasarela (traspaso transparente al comprador) */}
+                  {/* Comisión de Servicio TapTrade (3% + IVA) */}
                   <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white/[0.03] border border-white/5 transition-all">
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-300 font-semibold">
-                          {gatewayConfig.label}
+                          Comisión TapTrade
                         </span>
-                        <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${selectedGateway === "WEBPAY"
-                          ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                          : "bg-sky-500/10 border border-sky-500/20 text-sky-400"
-                          }`}>
-                          {gatewayConfig.percentageText}
+                        <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                          3% + IVA
                         </span>
                       </div>
                       <span className="text-[10px] text-gray-400 block mt-0.5">
-                        {gatewayConfig.description}
+                        Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-white">
-                      +${Math.round(paymentFee).toLocaleString("es-CL")} CLP
+                    <span className="font-mono font-bold text-white shrink-0 ml-2">
+                      +${Math.round(detailedFees.taptradeFeeGross).toLocaleString("es-CL")} CLP
+                    </span>
+                  </div>
+
+                  {/* Tarifa de Pasarela de Pago */}
+                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white/[0.03] border border-white/5 transition-all">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-300 font-semibold">
+                          Costo Pasarela de Pago
+                        </span>
+                        <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
+                          selectedGateway === "WEBPAY"
+                            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                            : "bg-sky-500/10 border border-sky-500/20 text-sky-400"
+                        }`}>
+                          {detailedFees.gatewayLabel} [ {detailedFees.gatewayPercentageText} ]
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-gray-400 block mt-0.5">
+                        {detailedFees.gatewayDescription}
+                      </span>
+                    </div>
+                    <span className="font-mono font-bold text-white shrink-0 ml-2">
+                      +${Math.round(detailedFees.gatewayFee).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
 

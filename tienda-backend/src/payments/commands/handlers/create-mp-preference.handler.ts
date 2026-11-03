@@ -203,12 +203,11 @@ export class CreateMpPreferenceHandler
     }
 
     // 3. Cotización tributaria oficial del servidor
-    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs);
+    const quote = await this.checkoutPricing.buildQuote(quoteGroupInputs, 'MERCADOPAGO');
 
     const buyOrder = `ORD-${Date.now()}`.slice(0, 26);
-    const orderNotes = dto.notes
-      ? `${dto.notes} | Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`
-      : `Comisión TapTrade (3% + IVA): $${quote.serviceFee.gross.toLocaleString('es-CL')}`;
+    const feeDetails = `Comisión TapTrade (3% + IVA): ${quote.serviceFee.gross.toLocaleString('es-CL')} | Pasarela Mercado Pago: ${quote.gatewayFee.toLocaleString('es-CL')}`;
+    const orderNotes = dto.notes ? `${dto.notes} | ${feeDetails}` : feeDetails;
 
     // 4. Guardar orden en BD en estado PENDING con snapshot fiscal inmutable
     const order = await this.prisma.order.create({

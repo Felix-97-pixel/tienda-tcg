@@ -29,10 +29,13 @@ export interface CheckoutQuote {
   productsTotal: number;
   shippingTotal: number;
   baseTotal: number; // productos + despacho
-  serviceFee: TaxBreakdown; // Comisión TapTrade (3% + IVA + gross-up)
-  transbankFeeEstimate: number; // Costo estimado de pasarela retenido por Transbank
+  serviceFee: TaxBreakdown; // Comisión TapTrade (3% neto + IVA)
+  gatewayFee: number; // Costo estimado de pasarela retenido por Transbank / MP
+  transbankFeeEstimate: number; // Alias para compatibilidad de BD
+  gatewayRate: number; // Tasa efectiva pasarela con IVA
+  gatewayName: string; // 'WEBPAY' | 'MERCADOPAGO'
   amountToCharge: number; // Total final enviado a la pasarela
-  totalVatIncluded: number; // IVA total consolidado (tiendas + comisión)
+  totalVatIncluded: number; // IVA total consolidado (tiendas + comisión TapTrade)
   vatRate: number;
 }
 
@@ -56,10 +59,14 @@ export class CheckoutPricingService {
    * 4. Gross-up según tasa peor caso Transbank (crédito 2.29% + IVA) para no mermar la utilidad.
    * 5. Snapshot fiscal completo por tienda y consolidado.
    */
-  async buildQuote(groups: VendorGroupInput[]): Promise<CheckoutQuote> {
+  async buildQuote(
+    groups: VendorGroupInput[],
+    gateway: 'WEBPAY' | 'MERCADOPAGO' = 'WEBPAY',
+  ): Promise<CheckoutQuote> {
     const vatRate = await this.getGlobalNumberSetting('tax.vatRate', DEFAULT_VAT_RATE);
     const taptradeRate = await this.getGlobalNumberSetting('platform.serviceFeeRate', this.DEFAULT_TAPTRADE_COMMISSION_RATE);
     const transbankCreditRate = await this.getGlobalNumberSetting('platform.transbankCreditRate', this.DEFAULT_TRANSBANK_CREDIT_RATE);
+    const mercadopagoRate = await this.getGlobalNumberSetting('platform.mercadopagoRate', 0.0319);
 
     const storeIds = groups.map((g) => g.storeId);
     const profiles = await this.sellerTaxProfile.getForStores(storeIds);
@@ -97,31 +104,34 @@ export class CheckoutPricingService {
     const shippingTotal = vendors.reduce((sum, v) => sum + v.shippingGross, 0);
     const baseTotal = productsTotal + shippingTotal;
 
-    // Cálculo de la comisión TapTrade con gross-up:
-    // Comisión neta TapTrade = 3%
-    // Con IVA 19% = taptradeRate * (1 + vatRate)
-    const taptradeGrossRate = taptradeRate * (1 + vatRate);
-    // Tasa Transbank con IVA = transbankCreditRate * (1 + vatRate)
-    const transbankGrossRate = transbankCreditRate * (1 + vatRate);
+    // 1. Comisión propia de TapTrade: 3% neto + IVA (19%) sobre el total de venta
+    const serviceFeeNet = Math.round(baseTotal * taptradeRate);
+    const serviceFeeVat = Math.round(serviceFeeNet * vatRate);
+    const serviceFeeGross = serviceFeeNet + serviceFeeVat;
+    const serviceFee = {
+      net: serviceFeeNet,
+      vat: serviceFeeVat,
+      gross: serviceFeeGross,
+      rate: vatRate,
+    };
 
-    // Gross-up para que el porcentaje cobrado por la pasarela sobre el TOTAL no consuma la comisión de TapTrade:
-    // TarifaBruta = (baseTotal * taptradeGrossRate) / (1 - transbankGrossRate)
-    const grossUpDenominator = Math.max(0.01, 1 - transbankGrossRate);
-    const serviceFeeGrossAmount = Math.round((baseTotal * taptradeGrossRate) / grossUpDenominator);
+    // 2. Costo de Pasarela de Pago: Gross-up para que tiendas y TapTrade reciban el 100% íntegro
+    const gatewayNetRate = gateway === 'MERCADOPAGO' ? mercadopagoRate : transbankCreditRate;
+    const gatewayGrossRate = gatewayNetRate * (1 + vatRate);
+    const grossUpDenominator = Math.max(0.01, 1 - gatewayGrossRate);
 
-    const serviceFee = breakdownFromGross(serviceFeeGrossAmount, vatRate);
+    // Monto final exacto a recaudar en la pasarela
+    const amountToCharge = Math.round((baseTotal + serviceFeeGross) / grossUpDenominator);
 
-    // Monto final exacto a cobrar en Webpay / Mercado Pago
-    const amountToCharge = baseTotal + serviceFee.gross;
+    // Costo de procesamiento retenido por la pasarela
+    const gatewayFee = amountToCharge - (baseTotal + serviceFeeGross);
+    const transbankFeeEstimate = gatewayFee;
 
-    // Estimación de costo de pasarela real (Transbank crédito peor caso sobre el monto liquidado)
-    const transbankFeeEstimate = Math.round(amountToCharge * transbankGrossRate);
-
-    // Consolidación de IVA total incluido en la compra para información al consumidor
+    // Consolidación de IVA total incluido en la compra para información al consumidor (tiendas + comisión TapTrade)
     const totalVatIncluded = vendors.reduce((sum, v) => sum + v.tax.vat, 0) + serviceFee.vat;
 
     // Verificación de invariante contable:
-    const expectedTotal = productsTotal + shippingTotal + serviceFee.gross;
+    const expectedTotal = productsTotal + shippingTotal + serviceFee.gross + gatewayFee;
     if (expectedTotal !== amountToCharge) {
       throw new InternalServerErrorException(
         `Descuadre contable en CheckoutPricingService: esperado=${expectedTotal}, calculado=${amountToCharge}`,
@@ -134,7 +144,10 @@ export class CheckoutPricingService {
       shippingTotal,
       baseTotal,
       serviceFee,
+      gatewayFee,
       transbankFeeEstimate,
+      gatewayRate: gatewayGrossRate,
+      gatewayName: gateway,
       amountToCharge,
       totalVatIncluded,
       vatRate,

@@ -14,7 +14,7 @@ export class TaxController {
   @Post('quote')
   @HttpCode(HttpStatus.OK)
   async getQuote(@Body() dto: CheckoutQuoteRequestDto): Promise<CheckoutQuote> {
-    return this.checkoutPricing.buildQuote(dto.vendorGroups);
+    return this.checkoutPricing.buildQuote(dto.vendorGroups, dto.gateway || "WEBPAY");
   }
 }
 

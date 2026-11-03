@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 
 export class VendorGroupQuoteDto {
   @IsString()
@@ -20,5 +20,9 @@ export class CheckoutQuoteRequestDto {
   @ValidateNested({ each: true })
   @Type(() => VendorGroupQuoteDto)
   vendorGroups: VendorGroupQuoteDto[];
-}
 
+  @IsOptional()
+  @IsString()
+  @IsIn(['WEBPAY', 'MERCADOPAGO'])
+  gateway?: 'WEBPAY' | 'MERCADOPAGO';
+}

@@ -596,6 +596,7 @@ export default function SuperAdminAccountingPage() {
                 <th className="py-3 px-4 text-right">Comisión TapTrade (Neto)</th>
                 <th className="py-3 px-4 text-right">IVA Débito (19%)</th>
                 <th className="py-3 px-4 text-right">Comisión Total</th>
+                <th className="py-3 px-4 text-right">Pasarela (Est.)</th>
                 <th className="py-3 px-4 text-right">Total Webpay</th>
                 <th className="py-3 px-4 text-center">Estado</th>
                 <th className="py-3 px-4 text-center">Detalle</th>
@@ -604,7 +605,7 @@ export default function SuperAdminAccountingPage() {
             <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-white/40">
+                  <td colSpan={11} className="py-12 text-center text-white/40">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <IconRefresh className="w-6 h-6 animate-spin text-red" />
                       <span>Cargando transacciones contables...</span>
@@ -613,7 +614,7 @@ export default function SuperAdminAccountingPage() {
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-white/40">
+                  <td colSpan={11} className="py-12 text-center text-white/40">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <IconInfo className="w-6 h-6 text-white/30" />
                       <p>No se encontraron transacciones en el rango seleccionado.</p>
@@ -673,6 +674,10 @@ export default function SuperAdminAccountingPage() {
                           {formatCLP(o.serviceFeeGross)}
                         </td>
 
+                        <td className="py-3 px-4 text-right font-mono text-amber-400 font-medium">
+                          {formatCLP(o.transbankFeeEstimate)}
+                        </td>
+
                         <td className="py-3 px-4 text-right font-mono font-black text-emerald-400 text-sm">
                           {formatCLP(o.totalAmount)}
                         </td>
@@ -711,7 +716,7 @@ export default function SuperAdminAccountingPage() {
                       {/* Fila Desplegable con detalle por tienda */}
                       {isExpanded && (
                         <tr className="bg-black/30 border-b border-white/10">
-                          <td colSpan={10} className="p-4">
+                          <td colSpan={11} className="p-4">
                             <div className="bg-[#141A26] rounded-xl p-4 border border-white/10 space-y-3">
                               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                                 <div className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-2">
