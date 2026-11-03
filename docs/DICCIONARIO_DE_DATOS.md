@@ -443,13 +443,12 @@ Registro de la transacción financiera con el procesador de pago.
 * **Relaciones:** `order`.
 
 ### `DispatchEvidence` (TapTrade Shield)
-Evidencia multimedia y sellos de seguridad registrados por la tienda al momento de despachar un paquete para blindar la operación contra fraudes.
+Evidencia multimedia registrada por la tienda al momento de despachar un paquete para blindar la operación contra fraudes.
 * `id` (`String`, UUID, PK)
 * `vendorOrderId` (`String`, Unique, FK -> `VendorOrder`): Sub-orden asociada.
 * `contentPhotoUrl` (`String`): Foto 1 - Cartas sobre la mesa junto a la orden de despacho/packing slip.
 * `packagingPhotoUrl` (`String`): Foto 2 - Cartas protegidas dentro de toploaders/sleeves/cartón.
-* `packagePhotoUrl` (`String`): Foto 3 - Paquete exterior sellado con etiqueta de transporte legible.
-* `securitySealCode` (`String?`): Código alfanumérico del precinto o sello de seguridad numerado (ej. `TAP-008124`), obligatorio en órdenes > $75.000 CLP.
+* `packagePhotoUrl` (`String`): Foto 3 - Paquete exterior sellado con etiqueta de transporte del courier sobre la solapa o cierre.
 * `capturedAt` (`DateTime`, default: `now()`): Marca temporal inmutable del momento del empaque.
 * `uploaderUserId` (`String`, FK -> `User`): Empleado o administrador de tienda que realizó el empaque.
 * `lifecycleExpiresAt` (`DateTime?`): Fecha programada de eliminación automática de fotos (30 días tras entrega sin reclamos) para ahorro de almacenamiento en la nube.

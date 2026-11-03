@@ -106,11 +106,13 @@
 - El transporte físico es ejecutado por terceros contratados (Chilexpress o Starken).
 - En caso de pérdida, extravío, robo o siniestro declarado oficialmente por la empresa de mensajería durante el trayecto, TapTrade intermediará ante el courier para tramitar las indemnizaciones o seguros aplicables, garantizando la restitución del dinero al Comprador afectado.
 
-6.5. **Protocolo de Verificación de Despacho y Sellos de Seguridad (TapTrade Shield):**
+6.5. **Protocolo de Verificación de Despacho (TapTrade Shield):**
 - A fin de garantizar la veracidad de los envíos y proteger a ambas partes:
-  1. **Pedidos sobre $20.000 CLP:** La Tienda Adherida debe cargar en la Plataforma evidencia fotográfica nítida del contenido verificado junto al packing slip, el embalaje rígido protector (toploaders/sleeves) y el paquete exterior sellado con la etiqueta de transporte.
-  2. **Pedidos de Alto Valor sobre $75.000 CLP:** Se exige adicionalmente la aplicación de un Sello de Seguridad numerado e inviolable (*Tamper-Evident Tape/Sticker*), cuyo código correlativo queda registrado e inmutable en los metadatos de la orden.
-- El incumplimiento de este protocolo de empaque trasladará automáticamente a la Tienda la carga probatoria ante eventuales discrepancias físicas o siniestros.
+  - **Pedidos sobre $20.000 CLP:** La Tienda Adherida debe cargar en la Plataforma evidencia fotográfica nítida de:
+    1. Las cartas verificadas junto a la comanda o packing slip del pedido.
+    2. El embalaje rígido protector (toploaders/sleeves).
+    3. El paquete exterior sellado, disponiendo preferentemente la etiqueta oficial de transporte del courier (Starken / Chilexpress) sobre la solapa o cierre de apertura, o utilizando las bolsas de mensajería inviolables oficiales de la empresa transportista.
+- El incumplimiento de este protocolo de empaque trasladará a la Tienda la carga probatoria ante eventuales discrepancias físicas o siniestros.
 
 ---
 
@@ -142,9 +144,9 @@ De conformidad con lo dispuesto en el artículo 3° bis letra b) de la **Ley N°
 8.3. **Carga de la Prueba y Protocolo Probatorio de Unboxing:**
 - Para compras superiores a **$20.000 CLP**, o en cualquier reclamo fundado en **artículo faltante, carta equivocada (*card swapping*) o paquete adulterado**, es condición de admisibilidad probatoria indispensable que el Comprador aporte una **grabación continua de video sin cortes** del proceso de apertura (*unboxing*), donde se evidencie nítidamente:
   1. La etiqueta original del transportista con los datos de remitente, destinatario y número de seguimiento legibles.
-  2. La integridad del paquete y del Sello de Seguridad numerado (en pedidos sobre $75.000 CLP) previo a la apertura.
+  2. La integridad física del paquete, los cierres y la etiqueta del courier previo a la apertura.
   3. La apertura física ininterrumpida y la extracción inmediata de los ítems contenidos.
-- **Efecto Probatorio:** Si el Comprador no aporta dicho registro de unboxing continuo y la Tienda Adherida cuenta con su evidencia reglamentaria de empaque y sello coincidente cargada en el sistema, la disputa será resuelta de pleno derecho a favor de la Tienda y los fondos en escrow serán liberados inmediatamente.
+- **Efecto Probatorio:** Si el Comprador no aporta dicho registro de unboxing continuo y la Tienda Adherida cuenta con su evidencia reglamentaria de empaque cargada en el sistema, la disputa será resuelta de pleno derecho a favor de la Tienda y los fondos en escrow serán liberados inmediatamente.
 
 8.4. **Sanciones por Fraude y Abuso del Sistema de Disputas:**
 - TapTrade mantiene un sistema de monitoreo automatizado de fraude (*Fraud Score*). Si se detecta un patrón de abuso deliberado, reclamaciones falsas coordinadas, suplantación de cartas o extorsión a tiendas asociadas:
