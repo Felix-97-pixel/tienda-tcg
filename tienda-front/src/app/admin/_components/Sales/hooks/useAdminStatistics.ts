@@ -38,12 +38,8 @@ export function useAdminStatistics(features: string[] | undefined) {
   }, []);
 
   useEffect(() => {
-    if (features && features.includes("addon:reports")) {
-      fetchStats();
-    } else {
-      setLoading(false);
-    }
-  }, [fetchStats, features, activeBranchId]);
+    fetchStats();
+  }, [fetchStats, activeBranchId]);
 
   return {
     stats,

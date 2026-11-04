@@ -14,7 +14,6 @@ import BuylistTable from "@/app/admin/_components/Buylist/BuylistTable";
 import BuylistModal from "@/app/admin/_components/Buylist/BuylistModal";
 import { Button } from "@/components/ui/Button";
 
-import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useAppSelector } from "@/redux/store";
 
 export default function AdminBuylistPage() {
@@ -55,14 +54,6 @@ export default function AdminBuylistPage() {
   };
 
   const currentTab = isBuylistOnly === false ? "all" : buylistState;
-
-  if (!features?.includes("addon:buylist")) {
-    return (
-      <div className="p-6 pb-24">
-        <UpsellBanner featureName="Radar de Demanda" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 space-y-6 pb-24">

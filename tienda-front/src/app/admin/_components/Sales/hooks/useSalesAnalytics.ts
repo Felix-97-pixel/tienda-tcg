@@ -39,10 +39,8 @@ export function useSalesAnalytics(features: string[]) {
   }, []);
 
   useEffect(() => {
-    if (features.includes("addon:reports")) {
-      fetchReports();
-    }
-  }, [features, fetchReports, activeBranchId]);
+    fetchReports();
+  }, [fetchReports, activeBranchId]);
 
   const handleDownloadCSV = async (type: 'inventory' | 'deadstock' | 'transactions') => {
     try {

@@ -74,9 +74,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     if (!isAuthenticated || user?.role !== "ADMIN") return;
 
     // Solo bloquear con spinner si no tenemos aún features cargadas
-    if (features.length === 0) {
-      setLoadingFeatures(true);
-    }
+    
 
     adminFetch("/stores/me", {}, activeBranchId)
       .then((res) => {
@@ -110,7 +108,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }, [isAuthenticated, user?.role, activeBranchId, dispatch, router]);
 
   // Wait until mounted to prevent hydration errors, and show spinner if not admin or initial feature loading
-  if (!isMounted || !isAuthenticated || user?.role !== "ADMIN" || loadingFeatures) {
+  if (!isMounted || !isAuthenticated || user?.role !== "ADMIN") {
     return (
       <div className="flex h-screen items-center justify-center bg-[#07090E]">
         <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-red border-t-transparent shadow-lg shadow-red/20"></div>

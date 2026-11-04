@@ -182,8 +182,17 @@ export class StoresService {
     const planFeatures = store.subscriptionPlans?.flatMap(p => p.features.map(f => f.key)) || [];
     const customFeats = store.customFeatures.map(f => f.key) || [];
 
+        // Modelo Value-Metric por SKUs: Todos los módulos base (addons) están incluidos para todas las tiendas
+    const ALL_ADDONS = [
+      'addon:buylist',
+      'addon:reports',
+      'addon:store_credit',
+      'addon:radar',
+      'addon:estadisticas',
+    ];
+
     // Union unique
-    return Array.from(new Set([...planFeatures, ...customFeats]));
+    return Array.from(new Set([...ALL_ADDONS, ...planFeatures, ...customFeats]));
   }
 
   async getStoreById(id: string) {

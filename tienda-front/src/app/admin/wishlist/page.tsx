@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useAppSelector } from "@/redux/store";
-import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { IconFlame } from "@/components/ui/Icons";
@@ -9,14 +8,6 @@ import { IconFlame } from "@/components/ui/Icons";
 export default function AdminWishlist() {
   const { features } = useAppSelector((state) => state.adminAuthReducer);
   const { loading, filter, setFilter, kpis, filteredProducts } = useWishlist();
-
-  if (!features.includes("addon:radar")) {
-    return (
-      <div className="p-6 pb-24">
-        <UpsellBanner featureName="Radar de Demanda" />
-      </div>
-    );
-  }
 
   const { totalSalesPotential, missedOpportunities, trendingProduct } = kpis;
 

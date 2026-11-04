@@ -16,8 +16,8 @@ export class FeatureGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (!requiredFeature) {
-      return true; // No feature required
+        if (!requiredFeature || requiredFeature.startsWith('addon:')) {
+      return true; // Todos los addons base están disponibles para todos los usuarios
     }
 
     const request = context.switchToHttp().getRequest();

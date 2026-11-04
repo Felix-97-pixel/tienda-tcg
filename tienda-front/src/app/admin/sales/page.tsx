@@ -3,7 +3,6 @@ import Loader from "@/components/ui/Loader";
 import React from "react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
-import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import dynamic from "next/dynamic";
 import TopProductsList from "@/app/admin/_components/Sales/TopProductsList";
 
@@ -50,14 +49,6 @@ export default function AdminSalesPage() {
     fetchReports();
     refreshStats();
   };
-
-  if (!features.includes("addon:reports")) {
-    return (
-      <div className="p-6 pb-24">
-        <UpsellBanner featureName="Reportes & Analítica" />
-      </div>
-    );
-  }
 
   if (loading && loadingStats) {
     return (

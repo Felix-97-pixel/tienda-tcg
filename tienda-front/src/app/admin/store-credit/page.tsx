@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import StoreCreditModal from "@/app/admin/_components/StoreCredit/StoreCreditModal";
 import StoreCreditHistoryModal from "@/app/admin/_components/StoreCredit/StoreCreditHistoryModal";
-import UpsellBanner from "@/app/admin/_components/UpsellBanner";
 import { useAppSelector } from "@/redux/store";
 import { IconClock, IconPlus, IconWallet } from "@/components/ui/Icons";
 import type {
@@ -54,14 +53,6 @@ export default function AdminStoreCreditPage() {
     setDefaultType(type);
     setIsModalOpen(true);
   };
-
-  if (!features.includes("addon:store_credit")) {
-    return (
-      <div className="p-6 pb-24">
-        <UpsellBanner featureName="Crédito de Tienda" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 pb-24 text-white">
