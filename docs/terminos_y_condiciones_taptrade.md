@@ -5,7 +5,7 @@
 **Domicilio Legal:** Padre Mariano N° 98, Oficina 315, Comuna de Providencia, Región Metropolitana, Santiago de Chile  
 **Correo Electrónico de Contacto:** legal@taptrade.cl / contacto@taptrade.cl  
 **Sitio Web Oficial:** https://www.taptrade.cl  
-**Fecha de Última Actualización:** 1 de Noviembre de 2026  
+**Fecha de Última Actualización:** 4 de Noviembre de 2026  
 
 ---
 
@@ -42,34 +42,46 @@
 
 ## 4. PRECIOS, MODELO SAAS, PAGOS Y TARIFA DE PROTECCIÓN AL COMPRADOR
 
-4.1. **Moneda y Tributación:** Todos los precios exhibidos en la Plataforma están expresados en Pesos Chilenos (CLP) y fijados directamente por las Tiendas Adheridas. En el caso de productos vendidos por comercios afectos a IVA, los precios incluyen los impuestos correspondientes. Es obligación legal exclusiva de cada Tienda Adherida emitir la respectiva Boleta o Factura Electrónica de Venta al Comprador final por los productos y servicios de transporte comercializados. TapTrade SpA emitirá la correspondiente Factura Electrónica de Servicios Informáticos a la Tienda por su suscripción mensual de software.
+4.1. **Moneda y Tributación:** Todos los precios exhibidos en la Plataforma están expresados en Pesos Chilenos (CLP) y fijados directamente por las Tiendas Adheridas. En el caso de productos vendidos por comercios afectos a IVA, los precios incluyen los impuestos correspondientes. Es obligación legal exclusiva de cada Tienda Adherida emitir la respectiva Boleta o Factura Electrónica de Venta al Comprador final por los productos y servicios de transporte comercializados. TapTrade SpA emitirá la correspondiente Factura Electrónica de Servicios Informáticos a la Tienda por su suscripción mensual de software (+ 19% IVA mensual).
 
-4.2. **Cero Comisión por Venta para Tiendas (Take Rate 0%):** TapTrade SpA no cobra comisión porcentual por venta a las Tiendas Adheridas. El 100% íntegro del subtotal de cartas, productos y costos de despacho fijados en vitrina o cotizados por courier es transferido y liquidado a la tienda vendedora.
+4.2. **Cero Comisión por Venta para Tiendas (Take Rate 0%):** TapTrade SpA no cobra comisión porcentual por venta a las Tiendas Adheridas. El 100% íntegro del subtotal de cartas, productos sellados, accesorios y costos de despacho fijados en vitrina o cotizados por courier es transferido y liquidado a la tienda vendedora.
 
-4.3. **Modelo de Suscripción Fija (SaaS):** Las tiendas acceden a la infraestructura de software, catálogos sincronizados, módulo POS y panel administrativo mediante suscripciones mensuales fijas en Unidades de Fomento (UF) o pesos convertibles:
-- **Plan Starter:** 1.5 UF/mes (hasta 1.500 cartas publicadas). Comisión por venta: 0%.
-- **Plan Store:** 3.5 UF/mes (hasta 7.500 cartas publicadas). Comisión por venta: 0%.
-- **Plan Pro / Pioneras:** 10 UF/mes (5 UF/mes con descuento preferencial; hasta 20.000 cartas). Comisión por venta: 0%.
-- **Plan Enterprise:** 15 UF/mes (7.5 UF/mes con descuento preferencial; catálogo ilimitado). Comisión por venta: 0%.
+4.3. **Modelo de Suscripción Fija (SaaS) y Capacidad Total de Catálogo:** El modelo de monetización para las Tiendas Adheridas se basa en el cobro de una cuota mensual fija por el uso del software, catálogos e infraestructura tecnológica, con planes escalonados según la capacidad total de catálogo (SKUs acumulados de cartas singles, productos sellados y accesorios) y sin comisión por transacción (0% Take Rate):
+- **Plan Starter:** 1.50 UF/mes (+ IVA) (hasta 1.500 SKUs totales en catálogo). Comisión por venta: 0%. Abono: 100% de Ventas + Envíos.
+- **Plan Store:** 3.50 UF/mes (+ IVA) (hasta 6.000 SKUs totales en catálogo). Comisión por venta: 0%. Abono: 100% de Ventas + Envíos.
+- **Plan Mega Store:** 6.50 UF/mes (+ IVA) (hasta 18.000 SKUs totales en catálogo). Comisión por venta: 0%. Abono: 100% de Ventas + Envíos.
+- **Plan Enterprise:** 11.50 UF/mes (+ IVA) (SKUs ilimitados en catálogo). Comisión por venta: 0%. Abono: 100% de Ventas + Envíos.
 
-4.4. **Desglose Transparente de Comisión de Plataforma y Costo de Pasarela de Pago:**
+4.4. **Estructura Holding y Red de Sucursales Físicas:**
+Cualquier plan contratado incluye 1 Casa Matriz base. Las empresas que operen más de un local físico o bodega pueden sumar sucursales adicionales por **+2.50 UF/mes (+ IVA) cada una**, manteniendo un único RUT comercial y cuenta de liquidación unificada, con inventarios, arqueos POS, personal y retiro presencial completamente independientes.
+
+4.5. **Usuarios y Cajeros POS Adicionales:**
+Cada sucursal incluye el personal base requerido para operar (1 Dueño, 1 Contador, 1 Encargado y 1 Cajero). En caso de requerir terminales o cuentas de cajero adicionales para puntos de cobro simultáneos en el Punto de Venta físico, cada cajero extra tiene un valor de **+0.35 UF/mes (+ IVA)**.
+
+4.6. **Soporte Técnico Directo e Igualitario:**
+TapTrade no segmenta la atención técnica por categorías artificiales de pago ni relega a planes iniciales. Todas las tiendas adheridas, sin distinción de su plan, acceden al mismo nivel de soporte técnico directo vía WhatsApp, chat y correo electrónico para resolución de incidencias operativas y consultas técnicas.
+
+4.7. **Descuentos y Condiciones Comerciales Especiales:**
+La administración de TapTrade podrá acordar y configurar en el sistema porcentajes o montos de descuento preferencial sobre la cuota mensual de software para tiendas pioneras o acuerdos comerciales específicos.
+
+4.8. **Desglose Transparente de Comisión de Plataforma y Costo de Pasarela de Pago:**
 - A fin de garantizar la máxima claridad al Comprador, el checkout de TapTrade desglosa de manera individualizada y transparente:
   1. **Comisión TapTrade (3.00% neto + IVA 19%):** Servicio de intermediación tecnológica, custodia fiduciaria en escrow, garantía al comprador e infraestructura de checkout unificado.
   2. **Costo de Pasarela de Pago:** Tarifa de procesamiento bancario seguro cobrada por la pasarela adquirente (Transbank Webpay Plus peor caso crédito 2.29% + IVA o Mercado Pago 3.19% + IVA).
 - Ambos conceptos se individualizan de forma visible en el resumen de compra, garantizando que las Tiendas Adheridas perciban el **100% íntegro** de sus precios de vitrina y fletes cotizados (0% de comisión por venta a las tiendas).
 - TapTrade SpA emitirá la respectiva Boleta o Factura Electrónica de Servicios al Comprador exclusivamente por el monto correspondiente a la comisión de servicio de plataforma.
 
-4.5. **Mandato Mercantil de Recaudación y Liquidación por Cuenta de Terceros:**
+4.9. **Mandato Mercantil de Recaudación y Liquidación por Cuenta de Terceros:**
 - Cada Tienda Adherida confiere expresamente a TapTrade SpA un mandato comercial para recaudar, percibir y custodiar temporalmente en su cuenta bancaria de empresa los dineros correspondientes a las órdenes pagadas por los Compradores a través de Webpay Plus o Mercado Pago.
 - La custodia opera como un depósito transitorio de fondos de terceros con rendición de cuentas.
 - Una vez despachado el pedido y verificado su estado o transcurrido el plazo de confirmación logística, TapTrade SpA transfiere a la Tienda Adherida mandante el 100% de los fondos recaudados por concepto de mercadería y transporte, emitiendo una Cartola o Liquidación de Mandato.
 - La Tienda Adherida reconoce ser la única obligada tributaria ante el Servicio de Impuestos Internos (SII) respecto del IVA y los ingresos generados por la venta material de las cartas y productos.
 
-4.6. **Pasarelas de Pago y Retención Cautelar:**
+4.10. **Pasarelas de Pago y Retención Cautelar:**
 - Los pagos en línea se procesan mediante pasarelas autorizadas por la Comisión para el Mercado Financiero (CMF), incluyendo **Transbank (Webpay Plus)** y **Mercado Pago**.
 - TapTrade y las pasarelas se reservan la facultad de retener temporalmente la dispersión de fondos de una venta ante sospechas fundadas de fraude, desconocimiento de compra (contracargos bancarios) o disputas activas por estado o no entrega de productos hasta su resolución.
 
-4.7. **Cupones de Descuento:** Las tiendas pueden generar cupones promocionales sobre su inventario. El costo del descuento es asumido íntegramente por la tienda oferente sobre su precio publicado.
+4.11. **Cupones de Descuento:** Las tiendas pueden generar cupones promocionales sobre su inventario. El costo del descuento es asumido íntegramente por la tienda oferente sobre su precio publicado.
 
 ---
 

@@ -54,7 +54,7 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
   {
     id: "inventory",
     title: "Inventario Inteligente TCG",
-    shortLabel: "Inventario & Singles",
+    shortLabel: "Inventario & Catálogo",
     badge: "Sincronización Scryfall",
     headline: "Publica miles de cartas en minutos sin ingresar fotos ni textos a mano",
     description:
@@ -100,7 +100,7 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
   {
     id: "pos",
     title: "Punto de Venta Físico (POS)",
-    shortLabel: "Terminal POS Mostrador",
+    shortLabel: "POS Mostrador",
     badge: "100% Offline-First",
     headline: "Atiende a toda velocidad en mostrador, incluso si se corta internet",
     description:
@@ -192,11 +192,11 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
   {
     id: "dashboard",
     title: "Métricas & Analítica en Vivo",
-    shortLabel: "Métricas & Analítica",
+    shortLabel: "Métricas & KPIs",
     badge: "Analítica Avanzada",
     headline: "KPIs de inventario activo, rotación, dead stock y evolución de ventas",
     description:
-      "Panel de control para supervisar el rendimiento de tus singles. Gráficos de facturación por mes, alertas automáticas de bajo stock, top 10 cartas más vendidas y soporte multi-sucursal con trazabilidad total.",
+      "Panel de control para supervisar el rendimiento de tu catálogo y productos. Gráficos de facturación por mes, alertas automáticas de bajo stock, top 10 cartas más vendidas y soporte multi-sucursal con trazabilidad total.",
     imageSrc: "/images/showcase/showcase-dashboard.png",
     simulatedUrl: "taptrade.cl/admin/sales",
     glowColor: "from-purple-600/20 via-pink-600/10 to-transparent",
@@ -231,7 +231,7 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
     ],
     metrics: [
       { value: "En Vivo", label: "Actualización de KPIs y alertas" },
-      { value: "Top 10", label: "Ranking de singles más vendidos" },
+      { value: "Top 10", label: "Ranking de productos más vendidos" },
       { value: "100%", label: "Trazabilidad multi-sucursal" },
     ],
   },
@@ -284,7 +284,7 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
   {
     id: "accounting",
     title: "Liquidaciones F29 & Contabilidad Tributaria",
-    shortLabel: "Liquidaciones & F29",
+    shortLabel: "Contabilidad F29",
     badge: "Cuadratura SII",
     headline: "Cifras consolidadas listas para el Formulario F29 de tu contador",
     description:
@@ -337,7 +337,7 @@ export default function SystemShowcase() {
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
       {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+      <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 mb-4 backdrop-blur-md">
           <IconSparkles className="w-3.5 h-3.5 text-[#E10E0E]" />
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-300">
@@ -353,9 +353,11 @@ export default function SystemShowcase() {
         <p className="text-gray-400 text-sm sm:text-base mt-4 leading-relaxed font-normal">
           Olvídate de adaptar plataformas genéricas. TapTrade reúne en una sola interfaz el Punto de Venta para mostrador, sincronización con bases de datos mundiales, catálogo web y compra automatizada de cartas.
         </p>
+      </div>
 
-        {/* Tab Switcher Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-8 p-1.5 rounded-2xl bg-[#0B0E16] border border-white/10 max-w-2xl mx-auto backdrop-blur-xl">
+      {/* Tab Switcher Navigation Bar */}
+      <div className="max-w-5xl mx-auto mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-2 rounded-2xl bg-[#0B0E16]/90 border border-white/10 backdrop-blur-xl shadow-2xl">
           {SHOWCASE_TABS.map((tab) => {
             const isActive = tab.id === activeTabId;
             return (
@@ -363,19 +365,19 @@ export default function SystemShowcase() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTabId(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 select-none ${
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 select-none whitespace-nowrap ${
                   isActive
-                    ? "bg-[#E10E0E] text-white shadow-lg shadow-[#E10E0E]/30 scale-[1.02]"
+                    ? "bg-[#E10E0E] text-white shadow-lg shadow-[#E10E0E]/30"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {tab.id === "inventory" && <IconBox className="w-4 h-4" />}
-                {tab.id === "pos" && <IconPosTerminal className="w-4 h-4" />}
-                {tab.id === "buylist" && <IconTag className="w-4 h-4" />}
-                {tab.id === "dashboard" && <IconBarChart className="w-4 h-4" />}
-                {tab.id === "shield" && <IconShieldCheck className="w-4 h-4 text-emerald-400" />}
-                {tab.id === "accounting" && <IconReceipt className="w-4 h-4 text-cyan-400" />}
-                <span>{tab.shortLabel}</span>
+                {tab.id === "inventory" && <IconBox className="w-4 h-4 shrink-0" />}
+                {tab.id === "pos" && <IconPosTerminal className="w-4 h-4 shrink-0" />}
+                {tab.id === "buylist" && <IconTag className="w-4 h-4 shrink-0" />}
+                {tab.id === "dashboard" && <IconBarChart className="w-4 h-4 shrink-0" />}
+                {tab.id === "shield" && <IconShieldCheck className="w-4 h-4 shrink-0" />}
+                {tab.id === "accounting" && <IconReceipt className="w-4 h-4 shrink-0" />}
+                <span className="truncate">{tab.shortLabel}</span>
               </button>
             );
           })}

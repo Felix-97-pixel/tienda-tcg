@@ -92,7 +92,7 @@ export class ProductsService {
 
     const store = await this.prisma.store.findFirst({
       where: whereCondition,
-      include: { subscriptionPlans: true, settings: true }
+      include: { subscriptionPlans: true, settings: true, company: { include: { plan: true } } }
     });
     if (!store) throw new BadRequestException('Tienda no encontrada.');
 
@@ -126,14 +126,24 @@ export class ProductsService {
       };
     }
 
-    const store = await this.prisma.store.findFirst({ where: whereCondition, include: { subscriptionPlans: true, settings: true } });
+    const store = await this.prisma.store.findFirst({
+      where: whereCondition,
+      include: {
+        subscriptionPlans: true,
+        settings: true,
+        company: { include: { plan: true } }
+      }
+    });
     const storeId = store?.id;
     const results = { added: 0, updated: 0, devaluedCount: 0, errors: [] as { index: number, error: string }[] };
 
     let skuLimit = -1;
     let currentCount = 0;
-    if (store && store.subscriptionPlans && store.subscriptionPlans.length > 0) {
-      skuLimit = store.subscriptionPlans[0].skuLimit;
+    if (store) {
+      const planSkuLimit = store.subscriptionPlans?.[0]?.skuLimit ?? store.company?.plan?.skuLimit;
+      if (planSkuLimit !== undefined && planSkuLimit !== null) {
+        skuLimit = planSkuLimit;
+      }
       if (skuLimit !== -1) {
         currentCount = await this.prisma.inventoryItem.count({ where: { storeId: store.id } });
       }
@@ -389,7 +399,7 @@ export class ProductsService {
               if (skuLimit !== -1 && currentCount >= skuLimit) {
                 results.errors.push({
                   index: item.originalIndex !== undefined ? item.originalIndex : i,
-                  error: `No se pudo añadir. Has alcanzado el límite de ${skuLimit} cartas sincronizadas de tu plan. Actualiza tu suscripción para ampliar tu catálogo.`
+                  error: `No se pudo añadir. Has alcanzado el límite de ${skuLimit} productos en catálogo de tu plan (incluye cartas y productos sellados). Actualiza tu suscripción para ampliar tu catálogo.`
                 });
                 continue;
               }
@@ -1262,7 +1272,11 @@ export class ProductsService {
     if (!exists && storeId) {
       const store = await this.prisma.store.findUnique({
         where: { id: storeId },
-        include: { subscriptionPlans: true, settings: true }
+        include: {
+          subscriptionPlans: true,
+          settings: true,
+          company: { include: { plan: true } }
+        }
       });
 
       // const mpSettingsCount = store?.settings.filter(s => ['MP_ACCESS_TOKEN', 'MP_USER_ID'].includes(s.key)).length || 0;
@@ -1270,11 +1284,11 @@ export class ProductsService {
       //   throw new BadRequestException('Debes vincular tu cuenta de Mercado Pago antes de poder empezar a vender.');
       // }
 
-      const skuLimit = store?.subscriptionPlans?.[0]?.skuLimit ?? -1;
+      const skuLimit = store?.subscriptionPlans?.[0]?.skuLimit ?? store?.company?.plan?.skuLimit ?? -1;
       if (skuLimit !== -1) {
         const currentCount = await this.prisma.inventoryItem.count({ where: { storeId } });
         if (currentCount >= skuLimit) {
-          throw new BadRequestException(`Has alcanzado el límite de ${skuLimit} cartas sincronizadas de tu plan. Actualiza tu suscripción para ampliar tu catálogo.`);
+          throw new BadRequestException(`Has alcanzado el límite de ${skuLimit} productos en catálogo de tu plan (incluye cartas y productos sellados). Actualiza tu suscripción para ampliar tu catálogo.`);
         }
       }
     }

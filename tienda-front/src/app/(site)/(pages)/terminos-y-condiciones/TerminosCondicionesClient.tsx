@@ -166,7 +166,7 @@ const TerminosCondicionesClient = () => {
               <strong className="text-white font-mono">4.2. Cero Comisión por Venta (Take Rate 0%):</strong> TapTrade descarta por completo el cobro de comisiones sobre las transacciones de cartas o productos. El 100% del subtotal de venta y los costos de envío van directamente a la tienda vendedora, sin recargos ocultos ni intermediación monetaria en las ventas.
             </p>
             <p>
-              <strong className="text-white font-mono">4.3. Modelo de Monetización por Suscripción Fija (SaaS):</strong> El modelo de ingresos de TapTrade se basa exclusivamente en el cobro de una cuota mensual fija por el uso del software, catálogos e infraestructura tecnológica, con planes escalonados según el límite de cartas sincronizadas:
+              <strong className="text-white font-mono">4.3. Modelo de Monetización por Suscripción Fija (SaaS):</strong> El modelo de ingresos de TapTrade se basa exclusivamente en el cobro de una cuota mensual fija por el uso del software, catálogos e infraestructura tecnológica, con planes escalonados según la capacidad total de catálogo (SKUs acumulados de cartas singles, productos sellados y accesorios):
             </p>
 
             {/* Plans Table */}
@@ -176,37 +176,37 @@ const TerminosCondicionesClient = () => {
                   <tr>
                     <th className="p-3 border-b border-white/10">Plan SaaS</th>
                     <th className="p-3 border-b border-white/10">Cuota Base</th>
-                    <th className="p-3 border-b border-white/10">Límite Catálogo</th>
+                    <th className="p-3 border-b border-white/10">Límite Total de Catálogo</th>
                     <th className="p-3 border-b border-white/10">Comisión por Venta</th>
                     <th className="p-3 border-b border-white/10">Abono a Tienda</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-gray-300">
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Starter (Pequeña Tienda)</td>
-                    <td className="p-3 font-mono font-bold text-white">1.5 UF/mes</td>
-                    <td className="p-3 font-mono">1.500 cartas</td>
+                    <td className="p-3 font-bold text-white">Plan Starter</td>
+                    <td className="p-3 font-mono font-bold text-white">1.50 UF/mes (+ IVA)</td>
+                    <td className="p-3 font-mono">Hasta 1.500 SKUs (Singles y sellados)</td>
                     <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
                     <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Store (Crecimiento)</td>
-                    <td className="p-3 font-mono font-bold text-white">3.5 UF/mes</td>
-                    <td className="p-3 font-mono">7.500 cartas</td>
+                    <td className="p-3 font-bold text-white">Plan Store</td>
+                    <td className="p-3 font-mono font-bold text-white">3.50 UF/mes (+ IVA)</td>
+                    <td className="p-3 font-mono">Hasta 6.000 SKUs (Singles y sellados)</td>
                     <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
                     <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Pioneras / Pro (Early Adopter)</td>
-                    <td className="p-3 font-mono font-bold text-white">10 UF (5 UF con desc.)</td>
-                    <td className="p-3 font-mono">20.000 cartas</td>
+                    <td className="p-3 font-bold text-white">Plan Mega Store</td>
+                    <td className="p-3 font-mono font-bold text-white">6.50 UF/mes (+ IVA)</td>
+                    <td className="p-3 font-mono">Hasta 18.000 SKUs (Singles y sellados)</td>
                     <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
                     <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
                   <tr className="hover:bg-white/[0.02]">
-                    <td className="p-3 font-bold text-white">Enterprise</td>
-                    <td className="p-3 font-mono font-bold text-white">15 UF (7.5 UF con desc.)</td>
-                    <td className="p-3 font-mono">Ilimitado</td>
+                    <td className="p-3 font-bold text-white">Plan Enterprise</td>
+                    <td className="p-3 font-mono font-bold text-white">11.50 UF/mes (+ IVA)</td>
+                    <td className="p-3 font-mono">SKUs Ilimitados</td>
                     <td className="p-3 text-emerald-400 font-mono font-bold">0%</td>
                     <td className="p-3 text-emerald-400 font-bold">100% de Ventas + Envíos</td>
                   </tr>
@@ -215,14 +215,26 @@ const TerminosCondicionesClient = () => {
             </div>
 
             <p>
-              <strong className="text-white font-mono">4.4. Descuentos y Condiciones Especiales:</strong> La administración de TapTrade podrá acordar y configurar en el sistema porcentajes o montos de descuento preferencial sobre la cuota mensual de software para tiendas pioneras o acuerdos comerciales específicos.
+              <strong className="text-white font-mono">4.4. Estructura Holding y Red de Sucursales Físicas:</strong> Cualquier plan contratado incluye 1 Casa Matriz base. Las empresas que operen más de un local físico o bodega pueden sumar sucursales adicionales por <strong>+2.50 UF/mes (+ IVA) cada una</strong>, manteniendo un único RUT comercial y cuenta de liquidación unificada, con inventarios, arqueos POS, personal y retiro en tienda completamente independientes.
+            </p>
+
+            <p>
+              <strong className="text-white font-mono">4.5. Usuarios y Cajeros POS Adicionales:</strong> Cada sucursal incluye el personal base requerido para operar (1 Dueño, 1 Contador, 1 Encargado y 1 Cajero). En caso de requerir terminales o cuentas de cajero adicionales para puntos de cobro simultáneos en el Punto de Venta físico, cada cajero extra tiene un valor de <strong>+0.35 UF/mes (+ IVA)</strong>.
+            </p>
+
+            <p>
+              <strong className="text-white font-mono">4.6. Soporte Técnico Directo e Igualitario:</strong> TapTrade no segmenta la atención técnica por categorías artificiales de pago ni relega a planes iniciales. Todas las tiendas adheridas, sin distinción de su plan, acceden al mismo nivel de soporte técnico directo vía WhatsApp, chat y correo electrónico para resolución de incidencias operativas y consultas técnicas.
+            </p>
+
+            <p>
+              <strong className="text-white font-mono">4.7. Descuentos y Condiciones Comerciales Especiales:</strong> La administración de TapTrade podrá acordar y configurar en el sistema porcentajes o montos de descuento preferencial sobre la cuota mensual de software para tiendas pioneras o acuerdos comerciales específicos.
             </p>
 
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 flex items-start gap-3 mt-1">
               <IconShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div className="text-xs">
                 <span className="font-bold text-white block mb-0.5">
-                  4.5. Desglose Transparente de Tarifas de Servicio, Pasarela de Pago y Protección al Comprador:
+                  4.8. Desglose Transparente de Tarifas de Servicio, Pasarela de Pago y Protección al Comprador:
                 </span>
                 El checkout de TapTrade desglosa de manera individualizada y transparente para el Comprador:
                 (i) <strong>Comisión TapTrade (3.00% neto + IVA 19%):</strong> retribuye el servicio de intermediación tecnológica, la custodia transitoria de fondos en depósito fiduciario (escrow), la garantía de autenticidad de cartas TCG y la infraestructura de checkout unificado; y
@@ -232,7 +244,7 @@ const TerminosCondicionesClient = () => {
             </div>
 
             <p>
-              <strong className="text-white font-mono">4.6. Mandato Comercial de Recaudación y Liquidación por Cuenta de Terceros:</strong> La Tienda Adherida confiere a TapTrade SpA un mandato mercantil expreso para actuar en su nombre y representación como mandatario de recaudación, cobranza y custodia temporal de los dineros pagados por los Compradores en la Plataforma. En consecuencia, la Tienda Adherida es el único sujeto tributario obligado a emitir la Boleta o Factura Electrónica de Ventas y Servicios al Comprador final por los productos y despachos transados. TapTrade SpA rendirá cuenta periódica de los fondos recaudados y transferirá a la Tienda el 100% del valor de sus ventas y envíos a la cuenta bancaria comercial registrada.
+              <strong className="text-white font-mono">4.9. Mandato Comercial de Recaudación y Liquidación por Cuenta de Terceros:</strong> La Tienda Adherida confiere a TapTrade SpA un mandato mercantil expreso para actuar en su nombre y representación como mandatario de recaudación, cobranza y custodia temporal de los dineros pagados por los Compradores en la Plataforma. En consecuencia, la Tienda Adherida es el único sujeto tributario obligado a emitir la Boleta o Factura Electrónica de Ventas y Servicios al Comprador final por los productos y despachos transados. TapTrade SpA rendirá cuenta periódica de los fondos recaudados y transferirá a la Tienda el 100% del valor de sus ventas y envíos a la cuenta bancaria comercial registrada.
             </p>
           </div>
         </LegalSection>

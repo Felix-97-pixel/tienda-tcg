@@ -26,12 +26,17 @@ TapTrade opera bajo un modelo híbrido de **Software como Servicio (SaaS)** para
 
 ## 2. Tarifas SaaS para Tiendas Adheridas (Vendedores LGS)
 
-| Plan SaaS | Cuota Base Mensual | Límite de Cartas | Comisión por Venta | Abono a Tienda |
+| Plan SaaS | Cuota Base Mensual | Límite Total de Catálogo | Comisión por Venta | Abono a Tienda |
 | :--- | :--- | :--- | :--- | :--- |
-| **Starter** (Pequeña Tienda) | 1.5 UF / mes | 1.500 singles | **0%** | 100% Productos + 100% Envíos |
-| **Store** (Crecimiento) | 3.5 UF / mes | 7.500 singles | **0%** | 100% Productos + 100% Envíos |
-| **Pro / Pioneras** (Early Adopter) | 10 UF / mes *(5 UF c/desc.)* | 20.000 singles | **0%** | 100% Productos + 100% Envíos |
-| **Enterprise** | 15 UF / mes *(7.5 UF c/desc.)* | Ilimitado | **0%** | 100% Productos + 100% Envíos |
+| **Starter** (Pequeña Tienda) | 1.50 UF / mes (+ IVA) | Hasta 1.500 SKUs (Singles, sellados y accesorios) | **0%** | 100% Productos + 100% Envíos |
+| **Store** (Crecimiento) | 3.50 UF / mes (+ IVA) | Hasta 6.000 SKUs (Singles, sellados y accesorios) | **0%** | 100% Productos + 100% Envíos |
+| **Mega Store** (Consolidadas) | 6.50 UF / mes (+ IVA) | Hasta 18.000 SKUs (Singles, sellados y accesorios) | **0%** | 100% Productos + 100% Envíos |
+| **Enterprise** (Grandes Cadenas) | 11.50 UF / mes (+ IVA) | SKUs Ilimitados | **0%** | 100% Productos + 100% Envíos |
+
+### Add-ons y Estructura Operativa:
+* **Holding y Red de Sucursales:** 1 Casa Matriz base incluida. Cada sucursal física o bodega adicional tiene un valor de **+2.50 UF/mes (+ IVA)**.
+* **Cajeros POS Adicionales:** Cada sucursal dispone de personal base (1 Dueño, 1 Contador, 1 Encargado, 1 Cajero). Cada cajero POS adicional: **+0.35 UF/mes (+ IVA)**.
+* **Soporte Técnico Directo e Igualitario:** Sin distinciones ni niveles artificiales de prioridad; todos los comercios acceden al mismo canal directo de soporte técnico vía WhatsApp, chat y correo.
 
 ---
 

@@ -260,7 +260,7 @@ Planes SaaS contratables por los dueños de tiendas (Básico, Pro, Enterprise).
 * `description` (`String?`)
 * `price` (`Decimal(10,2)`): Costo mensual del plan.
 * `skuLimit` (`Int`, default: -1): Límite de cartas/productos únicos en inventario (-1 = ilimitado).
-* `commissionRate` (`Decimal(5,4)`, default: 0): Comisión porcentual sobre ventas a la tienda (0.00% bajo el modelo SaaS actual; el 5.00% de servicio y protección lo asume el comprador en checkout).
+* `commissionRate` (`Decimal(5,4)`, default: 0): Comisión porcentual sobre ventas a la tienda (0.00% bajo el modelo SaaS actual; el 3.00% neto + IVA de servicio y protección lo asume el comprador en checkout).
 * `isStandard` (`Boolean`, default: `true`).
 * **Relaciones:** `features`, `stores`.
 
