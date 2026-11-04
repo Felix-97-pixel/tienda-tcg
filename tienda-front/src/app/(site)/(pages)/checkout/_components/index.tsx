@@ -1249,7 +1249,7 @@ const CheckoutWebpay = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Total Envíos Consolidados</span>
+                    <span className="text-gray-400">Total Envíos Consolidados <span className="text-gray-500 text-xs">(IVA incluido)</span></span>
                     <span className="font-mono font-bold text-emerald-400">
                       ${Math.round(totalShippingCost).toLocaleString("es-CL")} CLP
                     </span>
