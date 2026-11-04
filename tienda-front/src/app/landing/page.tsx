@@ -187,12 +187,12 @@ export default function MarketingPage() {
       a: "Para compras iguales o superiores a $20.000 CLP, la tienda registra 3 fotos obligatorias de empaque: cartas sobre comanda, protección rígida y sobre sellado con la etiqueta del courier sobre el cierre. Al comprador se le exige video continuo de unboxing sin cortes para abrir cualquier disputa. Este blindaje bilateral elimina reclamos falsos de paquetes vacíos o cartas cambiadas, liberando tus fondos en custodia automáticamente al validar el envío.",
     },
     {
-      q: "¿Cómo se gestiona el IVA y la declaración del F29 de mi tienda?",
-      a: "TapTrade opera bajo un modelo limpio sin doble tributación: como tienda, tú declaras tus ventas brutas con su 19% de IVA (Débito Fiscal para tu F29) y emites tu boleta o factura al comprador. TapTrade te emite una factura por su comisión de servicio, que utilizas como Crédito Fiscal deducible. En tu panel cuentas con una vista macro de 'Liquidaciones & F29' que entrega las cifras consolidadas de forma inmediata para tu contador.",
+      q: "¿Cómo se factura la suscripción SaaS mensual y cómo impacta el IVA en mi F29?",
+      a: "A fin de mes, TapTrade liquida tu cuenta sumando tu Plan Base en UF, las sucursales adicionales activas (+2.50 UF/mes c/u) y los cajeros de mesón extra (+0.35 UF/mes c/u). El total neto en UF se convierte a CLP según el valor oficial de la UF a la fecha de facturación y se emite una Factura Electrónica afecta a 19% de IVA. Ese 19% de IVA es 100% Crédito Fiscal deducible para tu comercio ante el SII, descontándose directamente de tu Débito Fiscal en tu declaración mensual de Formulario 29 (F29).",
     },
     {
-      q: "¿Puedo operar varias sucursales físicas bajo la misma empresa?",
-      a: "Sí. Todos los planes SaaS de TapTrade incluyen 1 Casa Matriz base. Si tu comercio opera más de un local físico o bodega (ej: Providencia, Viña del Mar, Concepción), puedes sumar sucursales adicionales por tan solo +2.5 UF/mes cada una. Cada sucursal cuenta con inventario independiente, terminales POS con arqueo de caja propio, cuentas de cajero asignadas, subdominio web propio y retiro presencial gratis ($0) para tus clientes locales.",
+      q: "¿Puedo operar varias sucursales físicas y agregar más cajeros en mesón?",
+      a: "Sí. Todos los planes incluyen 1 Casa Matriz con su dotación operativa completa (1 Dueño, 1 Contador, 1 Encargado de Sucursal y 1 Cajero POS). Si tu comercio opera más locales (ej: Providencia, Viña del Mar), sumas sucursales por +2.50 UF/mes (+ IVA) cada una (incluyendo su propio Encargado y Cajero). Y si necesitas más terminales de cobro en mesón para torneos presenciales, puedes añadir cajeros adicionales por solo +0.35 UF/mes (+ IVA) c/u.",
     }
   ];
 

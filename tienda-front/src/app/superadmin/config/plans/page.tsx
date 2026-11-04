@@ -145,12 +145,18 @@ export default function PlansPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 mb-4 flex items-center justify-between text-xs">
-                  <span className="text-gray-400 flex items-center gap-1.5">
-                    <IconStore className="w-3.5 h-3.5 text-purple-400" />
-                    Sucursales Físicas:
-                  </span>
-                  <span className="font-bold text-purple-300 font-mono text-[11px]">1 Base (+2.5 UF extra)</span>
+                <div className="space-y-1.5 mb-4 text-xs">
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center justify-between">
+                    <span className="text-gray-400 flex items-center gap-1.5">
+                      <IconStore className="w-3.5 h-3.5 text-purple-400" />
+                      Sucursales:
+                    </span>
+                    <span className="font-bold text-purple-300 font-mono text-[11px]">1 Base (+2.50 UF extra)</span>
+                  </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center justify-between">
+                    <span className="text-gray-400">Personal Operativo:</span>
+                    <span className="font-bold text-white font-mono text-[11px]">1 de c/tipo (+0.35 UF cajero)</span>
+                  </div>
                 </div>
 
                 {/* Nota de Módulos Base Incluidos */}
@@ -288,8 +294,10 @@ export default function PlansPage() {
                     <IconStore className="w-4 h-4 text-purple-400" />
                   </div>
                   <div>
-                    <span className="font-bold text-white block">Regla Multi-Sucursal Holding</span>
-                    <span className="text-gray-400">Todos los planes cubren 1 Casa Matriz base. Toda sucursal física o bodega extra se cobra a <strong className="text-purple-300">+2.5 UF/mes</strong> desde el panel de Empresas & Sucursales.</span>
+                    <span className="font-bold text-white block">Regla de Facturación Mensual (+ 19% IVA)</span>
+                    <span className="text-gray-400">
+                      Todos los planes cubren 1 Casa Matriz base con su equipo operativo completo (Dueño, Contador, Encargado y Cajero). A fin de mes se liquida: Plan Base + (Sucursales Extra × 2.50 UF) + (Cajeros Extra × 0.35 UF) en UF + 19% IVA. La factura emitida es Crédito Fiscal 100% deducible en F29.
+                    </span>
                   </div>
                 </div>
               </form>
