@@ -25,6 +25,26 @@ export interface NormalizedVariantDetails {
  * Calculates the final price in CLP for a given inventory item.
  * Accounts for store-specific game exchange rates, global rates, or default fallback.
  */
+/**
+ * Redondea un monto en CLP según la regla de redondeo comercial chilena (decena más cercana).
+ * Elimina monedas fraccionarias de 1 peso (ej: $11.687 -> $11.690 CLP).
+ */
+export function roundToCLP(amount: number, step: number = 10): number {
+  if (!amount || isNaN(amount)) return 0;
+  return Math.round(amount / step) * step;
+}
+
+/**
+ * Desglosa un precio final con IVA en CLP en su Precio Neto y Débito Fiscal IVA (19%).
+ * Mantiene la suma exacta: Neto + IVA = Precio Final sin descuadre alguno.
+ */
+export function calculateVatBreakdownCLP(rawPriceCLP: number, step: number = 10) {
+  const total = roundToCLP(rawPriceCLP, step);
+  const net = Math.round(total / 1.19);
+  const vat = total - net;
+  return { net, vat, total };
+}
+
 export function calculateItemPriceCLP(
   item: any,
   gameId?: string,
@@ -56,10 +76,10 @@ export function calculateItemPriceCLP(
       }
     }
 
-    return Math.round(rawPrice * exchangeRate);
+    return roundToCLP(rawPrice * exchangeRate);
   }
 
-  return Math.round(rawPrice);
+  return roundToCLP(rawPrice);
 }
 
 /**

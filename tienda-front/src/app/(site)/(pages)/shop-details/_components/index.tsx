@@ -15,6 +15,7 @@ import Loader from "@/components/ui/Loader";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import { IconSparkles, IconBox } from "@/components/ui/Icons";
+import { roundToCLP } from "@/utils/tcgPrices";
 
 export default function ShopDetails() {
   const dispatch = useDispatch();
@@ -112,7 +113,7 @@ export default function ShopDetails() {
 
     const priceInCLP = Number(item.price) * exchangeRate;
     // SaaS Model: 0% Comisión por venta. El comprador paga exactamente el precio neto fijado por la tienda.
-    return Math.round(priceInCLP);
+    return roundToCLP(priceInCLP);
   };
 
   const handleAddToCart = (item: InventoryItem | any, qty: number) => {

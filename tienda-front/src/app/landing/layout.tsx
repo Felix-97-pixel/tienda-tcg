@@ -21,7 +21,7 @@ export default async function MarketingLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning={true} data-scroll-behavior="smooth">
-      <body className="bg-[#0f1115] text-white antialiased selection:bg-[#ff3366] selection:text-white">
+      <body className="bg-[#07090E] text-white antialiased selection:bg-[#ff3366] selection:text-white">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex flex-col min-h-screen">
             <Header />

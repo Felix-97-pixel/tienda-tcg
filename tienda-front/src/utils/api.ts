@@ -14,11 +14,15 @@ export const API_URL = getApiUrl();
  */
 export const getAdminActiveBranchId = (): string | null => {
   if (typeof window === "undefined") return null;
-  return (
+  const rawId = (
     localStorage.getItem("taptrade_active_branch_id") ||
     localStorage.getItem("admin_active_store_id") ||
     null
   );
+  if (!rawId || rawId === "undefined" || rawId === "null" || rawId.trim() === "") {
+    return null;
+  }
+  return rawId.trim();
 };
 
 /**
@@ -29,7 +33,9 @@ export const getAdminAuthHeaders = (
   targetStoreId?: string | null
 ): Record<string, string> => {
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
-  const activeBranchId = targetStoreId !== undefined ? targetStoreId : getAdminActiveBranchId();
+  const activeBranchId = (targetStoreId !== undefined && targetStoreId !== null) 
+    ? (targetStoreId === "undefined" || targetStoreId === "null" ? null : targetStoreId) 
+    : getAdminActiveBranchId();
 
   const headers: Record<string, string> = {
     "x-auth-scope": "admin",

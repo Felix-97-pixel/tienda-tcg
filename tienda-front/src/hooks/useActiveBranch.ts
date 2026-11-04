@@ -22,6 +22,10 @@ export function useActiveBranch() {
     if (user?.activeStore) {
       setActiveBranchId(user.activeStore.id);
       setActiveBranch(user.activeStore);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("taptrade_active_branch_id", user.activeStore.id);
+        localStorage.setItem("admin_active_store_id", user.activeStore.id);
+      }
     }
   }, [user?.activeStore]);
 
@@ -61,4 +65,3 @@ export function useActiveBranch() {
     changeBranch,
   };
 }
-

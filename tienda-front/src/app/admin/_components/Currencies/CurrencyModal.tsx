@@ -4,6 +4,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { adminFetch } from "@/utils/api";
+import { useActiveBranch } from "@/hooks/useActiveBranch";
 import { useToast } from "@/hooks/useToast";
 
 interface CurrencyModalProps {
@@ -17,6 +18,7 @@ interface CurrencyModalProps {
 
 export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCurrencies, games, onSuccess }: CurrencyModalProps) {
   const { showToast } = useToast();
+  const { activeBranchId } = useActiveBranch();
 
   const [gameId, setGameId] = useState("");
   const [rate, setRate] = useState<number | "">("");
@@ -34,6 +36,11 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!gameId || !rate || Number(rate) <= 0) {
+      showToast("Ingresa un valor de tasa válido mayor a 0", "error");
+      return;
+    }
+
     setSaving(true);
 
     const payload = {
@@ -46,25 +53,27 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      });
+      }, activeBranchId);
 
       if (res.ok) {
         showToast("Tasa de cambio guardada correctamente", "success");
         onSuccess();
         onClose();
       } else {
-        const errData = await res.json();
-        showToast(errData.message || "Error al guardar", "error");
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.message || "Error al guardar tasa", "error");
       }
     } catch (error) {
-      showToast("Error de red", "error");
+      showToast("Error de red al guardar tasa", "error");
     } finally {
       setSaving(false);
     }
   };
 
   const selectedGlobalRate = globalCurrencies.find(c => c.gameId === gameId);
-  const baseCurrency = selectedGlobalRate?.currencyCode || "USD";
+  const baseCurrency = (selectedGlobalRate?.currencyCode && selectedGlobalRate.currencyCode !== "CLP") 
+    ? selectedGlobalRate.currencyCode 
+    : "USD";
 
   return (
     <Modal
@@ -81,7 +90,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             onChange={(e) => setGameId(e.target.value)}
             className="w-full bg-[#111318] border border-stroke rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none transition-colors"
             required
-            disabled={!!exchangeRate} // No permitir cambiar juego si estamos editando
+            disabled={!!exchangeRate}
           >
             {games.map(game => (
               <option key={game.id} value={game.id}>{game.name}</option>
@@ -91,18 +100,23 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
 
         <div>
           <Input
-            label="Valor Local *"
+            label="Valor Local en CLP *"
             type="number"
             required
-            step="0.01"
-            min="0.01"
+            step="1"
+            min="1"
             value={rate}
             onChange={(e) => setRate(e.target.value ? Number(e.target.value) : "")}
-            placeholder="950"
+            placeholder="1300"
           />
-          <p className="text-xs text-gray-4 mt-1.5 ml-1">
-            Valor de 1 {baseCurrency} en CLP. Ej: 1 {baseCurrency} = {rate || 'X'} CLP
-          </p>
+          <div className="bg-[#111318] border border-white/10 rounded-xl p-3 mt-3 text-xs text-gray-4 space-y-1">
+            <p className="text-white font-medium">
+              1 {baseCurrency} = {rate ? `$${Number(rate).toLocaleString("es-CL")} CLP` : "$X CLP"}
+            </p>
+            <p className="text-[11px] text-gray-400">
+              Esta tasa fija el <strong>Precio Final al Cliente (con IVA incluido)</strong> en tu tienda para las cartas de este juego.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-6 border-t border-stroke mt-6">

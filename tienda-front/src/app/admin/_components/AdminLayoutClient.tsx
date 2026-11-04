@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import AdminGuard from "@/app/admin/_components/AdminGuard";
 import Sidebar from "@/app/admin/_components/Sidebar";
@@ -12,10 +12,17 @@ export default function AdminLayoutClient({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
   const isHub = pathname === "/admin";
   const isAuthPage = pathname === "/admin/login";
+
+  // En pantallas pequeñas (< 1024px), iniciar con la barra colapsada
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, []);
 
   return (
     <ReduxProvider>

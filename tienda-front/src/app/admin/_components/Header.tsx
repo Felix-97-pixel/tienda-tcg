@@ -34,14 +34,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSide
   return (
     <header className="sticky top-0 z-999 flex w-full bg-[#0E121B]/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20">
       <div className="flex flex-grow items-center justify-between px-6 py-4 md:px-8 2xl:px-11">
-        <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             aria-controls="sidebar"
             onClick={(e) => {
               e.stopPropagation();
               setSidebarOpen(!sidebarOpen);
             }}
-            className="z-99999 block rounded-xl border border-white/10 bg-white/5 p-2 shadow-sm lg:hidden text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="z-99999 block rounded-xl border border-white/10 bg-white/5 p-2 shadow-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors" title={sidebarOpen ? "Ocultar menú lateral" : "Mostrar menú lateral"}
           >
             {sidebarOpen ? <IconX className="w-5 h-5 text-white" /> : <IconMenu className="w-5 h-5 text-white" />}
           </button>

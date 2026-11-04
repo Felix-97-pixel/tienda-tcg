@@ -8,11 +8,9 @@ import { menuData } from "./menuData";
 import Dropdown from "./Dropdown";
 import UserDropdown from "./UserDropdown";
 import { useAppSelector } from "@/redux/store";
-import { useSelector, useDispatch } from "react-redux";
-import { selectTotalPrice } from "@/redux/features/cart-slice";
+import { useDispatch } from "react-redux";
 import { logout } from "@/redux/features/auth-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
-import { formatPrice } from "@/utils/currency";
 
 const Header = () => {
   const router = useRouter();
@@ -23,7 +21,6 @@ const Header = () => {
   const { openCartModal } = useCartModalContext();
 
   const cartItems = useAppSelector((state) => state.cartReducer.items);
-  const totalPrice = useSelector(selectTotalPrice);
   const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
   const currency = useAppSelector((state: any) => state.currencyReducer);
   const dispatch = useDispatch();
@@ -193,7 +190,9 @@ const Header = () => {
             <button
               type="button"
               onClick={handleOpenCartModal}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-white transition-all shadow-sm group"
+              aria-label="Ver carrito de compras"
+              title="Carrito de compras"
+              className="relative p-2 sm:px-2.5 sm:py-2 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group"
             >
               <div className="relative">
                 <svg
@@ -208,14 +207,11 @@ const Header = () => {
                   <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                 </svg>
                 {cartItems.length > 0 && (
-                  <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold font-mono flex items-center justify-center animate-pulse">
-                    {cartItems.length}
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[9px] font-bold font-mono flex items-center justify-center animate-pulse">
+                    {cartItems.length > 99 ? "99+" : cartItems.length}
                   </span>
                 )}
               </div>
-              <span className="hidden sm:inline font-mono font-bold text-xs text-white">
-                {formatPrice(totalPrice, currency)}
-              </span>
             </button>
 
             {/* Mobile Hamburger Toggle */}

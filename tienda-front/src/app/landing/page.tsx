@@ -27,11 +27,13 @@ import {
   IconMapPin,
   IconClock,
   IconUsers,
+  IconChevronDown,
 } from "@/components/ui/Icons";
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<"players" | "stores">("players");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [showAllFaqs, setShowAllFaqs] = useState(false);
   const [vaultCategory, setVaultCategory] = useState<"featured" | "magic" | "riftbound">("featured");
 
   const vaultCards = [
@@ -380,7 +382,7 @@ export default function MarketingPage() {
                   href="/shop"
                   className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 hover:shadow-lg hover:shadow-[#E10E0E]/40 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
                 >
-                  Ver catálogo completo (28+ cartas) →
+                  Ver catálogo completo →
                 </Link>
               </div>
 
@@ -1005,7 +1007,7 @@ export default function MarketingPage() {
         </div>
 
         <div className="space-y-3.5">
-          {faqs.map((faq, index) => {
+          {(showAllFaqs ? faqs : faqs.slice(0, 4)).map((faq, index) => {
             const isOpen = openFaq === index;
             return (
               <div
@@ -1031,6 +1033,27 @@ export default function MarketingPage() {
             );
           })}
         </div>
+
+        {faqs.length > 4 && (
+          <div className="text-center mt-6">
+            <button
+              type="button"
+              onClick={() => setShowAllFaqs(!showAllFaqs)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-white text-xs sm:text-sm font-bold transition-all shadow-lg active:scale-95 group"
+            >
+              <span>
+                {showAllFaqs
+                  ? "Ver menos preguntas"
+                  : `Ver más preguntas frecuentes (${faqs.length - 4} adicionales)`}
+              </span>
+              <IconChevronDown
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  showAllFaqs ? "rotate-180 text-[#E10E0E]" : "text-gray-400 group-hover:text-white"
+                }`}
+              />
+            </button>
+          </div>
+        )}
       </section>
 
       {/* =========================================================================

@@ -4,7 +4,7 @@ import { IconShieldCheck, IconTruck, IconCreditCard } from "@/components/ui/Icon
 
 const Footer = () => {
   return (
-    <footer className="bg-[#07090E] border-t border-white/[0.08] text-white pt-16 pb-12 mt-24 relative overflow-hidden">
+    <footer className="bg-[#07090E] border-t border-white/[0.08] text-white pt-16 pb-12 relative overflow-hidden">
       {/* Glow orb */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[#E10E0E]/5 blur-[120px] pointer-events-none"></div>
 

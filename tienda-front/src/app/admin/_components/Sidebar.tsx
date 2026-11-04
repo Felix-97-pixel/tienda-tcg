@@ -28,7 +28,6 @@ import {
   IconSliders,
   IconArrowLeft,
   IconLogout,
-  IconX,
 } from "@/components/ui/Icons";
 
 interface NavItem {
@@ -246,8 +245,8 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full w-72 max-w-[85vw] flex-col overflow-y-hidden bg-[#0B0E17] border-r border-white/10 duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0 shadow-2xl shadow-black/80" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col overflow-y-hidden bg-[#0B0E17] border-r border-white/10 duration-300 ease-in-out lg:static ${
+          sidebarOpen ? "w-72 max-w-[85vw] translate-x-0 shadow-2xl shadow-black/80 lg:shadow-none" : "w-0 -translate-x-full lg:w-0 lg:-translate-x-full border-r-0 pointer-events-none opacity-0"
         }`}
       >
         {/* Logo & Header */}
@@ -265,13 +264,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
               </span>
             </div>
           </Link>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 lg:hidden transition-colors"
-            aria-label="Cerrar barra lateral"
-          >
-            <IconX className="w-5 h-5" />
-          </button>
+          
         </div>
 
         {/* Navigation List */}

@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
-import { IconStore, IconCheck, IconTrash, IconAlertTriangle, IconInfo } from "@/components/ui/Icons";
+import { IconStore, IconCheck, IconTrash, IconAlertTriangle, IconInfo, IconChevronUp, IconChevronDown } from "@/components/ui/Icons";
+import { calculateVatBreakdownCLP } from "@/utils/tcgPrices";
 
 export interface InventoryModalProps {
   isOpen: boolean;
@@ -27,32 +28,29 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
   const { activeBranch, activeBranchId } = useActiveBranch();
 
   const [product, setProduct] = useState(initialProduct);
-  const [storeCommissionRate, setStoreCommissionRate] = useState(0.05);
   const [exchangeRate, setExchangeRate] = useState<number>(1000);
   const [baseCurrency, setBaseCurrency] = useState<string>("USD");
   const [isLoadingRates, setIsLoadingRates] = useState<boolean>(true);
   const [devaluations, setDevaluations] = useState<any[]>([]);
   const [languageDevaluations, setLanguageDevaluations] = useState<any[]>([]);
+  const [isAddFormOpen, setIsAddFormOpen] = useState<boolean>(true);
 
   const refreshProduct = useCallback(async () => {
     if (!product?.id) return;
     try {
-      const res = await adminFetch(`/products/${product.id}?adminCatalog=true`);
+      const res = await adminFetch(`/products/${product.id}?adminCatalog=true`, {}, activeBranchId);
       const data = await res.json();
       if (res.ok) setProduct(data);
     } catch (err) {
       console.error("Error refreshing product:", err);
     }
-  }, [product?.id]);
+  }, [product?.id, activeBranchId]);
 
   useEffect(() => {
     if (isOpen) {
-      adminFetch("/stores/me")
+      adminFetch("/stores/me", {}, activeBranchId)
         .then(r => r.json())
         .then(data => {
-          if (data && data.subscriptionPlans && data.subscriptionPlans.length > 0) {
-            setStoreCommissionRate(Number(data.subscriptionPlans[0].commissionRate));
-          }
           if (data && data.devaluations) {
             setDevaluations(data.devaluations);
           }
@@ -60,21 +58,26 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             setLanguageDevaluations(data.languageDevaluations);
           }
         })
-        .catch(err => console.error("Error fetching store commission rate:", err));
+        .catch(err => console.error("Error fetching store data:", err));
         
-      const gameId = product?.cardDetail?.gameId;
+      const targetProduct = initialProduct || product;
+      const gameId = targetProduct?.cardDetail?.gameId || (targetProduct as any)?.gameId;
       if (gameId) {
         Promise.all([
-          adminFetch("/stores/me/exchange-rates").then(r => r.json()),
-          adminFetch("/currencies").then(r => r.json())
+          adminFetch("/stores/me/exchange-rates", {}, activeBranchId).then(r => r.json()),
+          adminFetch("/currencies", {}, activeBranchId).then(r => r.json())
         ]).then(([storeRates, globalRates]) => {
           const global = Array.isArray(globalRates) ? globalRates.find((g: any) => g.gameId === gameId) : null;
           const store = Array.isArray(storeRates) ? storeRates.find((s: any) => s.gameId === gameId) : null;
           
-          if (global) setBaseCurrency(global.currencyCode);
-          if (store) {
+          if (global && global.currencyCode && global.currencyCode !== "CLP") {
+            setBaseCurrency(global.currencyCode);
+          } else {
+            setBaseCurrency("USD");
+          }
+          if (store && store.rate) {
             setExchangeRate(Number(store.rate));
-          } else if (global) {
+          } else if (global && global.rate) {
             setExchangeRate(Number(global.rate));
           }
         }).catch(err => console.error("Error fetching exchange rates:", err))
@@ -85,7 +88,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     } else {
       setIsLoadingRates(true);
     }
-  }, [isOpen, product?.cardDetail?.gameId, activeBranchId]);
+  }, [isOpen, initialProduct?.id, initialProduct?.cardDetail?.gameId, product?.cardDetail?.gameId, activeBranchId]);
 
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
@@ -109,10 +112,9 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     return val.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   };
 
-  const grossPriceCLP = Math.round((newVariation.price || 0) * exchangeRate);
-  const netEstimatedCLP = Math.round(grossPriceCLP / 1.19);
-  const vatEstimatedCLP = grossPriceCLP - netEstimatedCLP;
-  const netPriceCLP = grossPriceCLP;
+  // Opción A: PVP final en tienda con IVA incluido y redondeo a la decena (Ley del Redondeo chilena)
+  const rawFinalCLP = (newVariation.price || 0) * exchangeRate;
+  const { net: netPriceCLP, vat: vatPriceCLP, total: finalPriceCLP } = calculateVatBreakdownCLP(rawFinalCLP);
 
   useEffect(() => {
     if (newVariation.conditionId && newVariation.languageId && product?.items) {
@@ -154,8 +156,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
   useEffect(() => {
     if (isOpen && product) {
-      adminFetch("/products/meta/languages").then(r => r.json()).then(setLanguages);
-      adminFetch("/products/meta/conditions").then(r => r.json()).then(setConditions);
+      adminFetch("/products/meta/languages", {}, activeBranchId).then(r => r.json()).then(setLanguages);
+      adminFetch("/products/meta/conditions", {}, activeBranchId).then(r => r.json()).then(setConditions);
 
       let foundGlobalFinishes = false;
       if (product.marketPrices && product.marketPrices.length > 0) {
@@ -174,15 +176,15 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       if (!foundGlobalFinishes) {
         const gameString = (product?.cardDetail as any)?.gameRel?.name || (product?.cardDetail as any)?.game || product?.category?.name;
         if (gameString) {
-          adminFetch(`/products/meta/finishes?game=${encodeURIComponent(gameString)}`)
+          adminFetch(`/products/meta/finishes?game=${encodeURIComponent(gameString)}`, {}, activeBranchId)
             .then(r => r.json())
             .then(setFinishes);
         } else {
-          adminFetch("/products/meta/finishes").then(r => r.json()).then(setFinishes);
+          adminFetch("/products/meta/finishes", {}, activeBranchId).then(r => r.json()).then(setFinishes);
         }
       }
     }
-  }, [isOpen, product?.cardDetail?.game, product?.category?.name, product?.marketPrices]);
+  }, [isOpen, product?.cardDetail?.game, product?.category?.name, product?.marketPrices, activeBranchId]);
 
   const handleAddVariation = async () => {
     if (!newVariation.languageId || !newVariation.conditionId) {
@@ -194,7 +196,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       const res = await adminFetch(`/products/${product!.id}/inventory`, {
         method: "POST",
         body: JSON.stringify({ ...newVariation, productId: product!.id, isPublished: false }),
-      });
+      }, activeBranchId);
 
       if (res.ok) {
         showToast(t("inventory.successAdd"), "success");
@@ -223,7 +225,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       const res = await adminFetch(`/products/inventory/${itemId}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
-      });
+      }, activeBranchId);
 
       if (res.ok) {
         showToast(tc("success"), "success");
@@ -243,94 +245,116 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
   const handleDeleteItem = async () => {
     if (!itemToDelete) return;
-
     try {
       const res = await adminFetch(`/products/inventory/${itemToDelete}`, {
-        method: "DELETE",
-      });
+        method: "DELETE"
+      }, activeBranchId);
+
       if (res.ok) {
-        showToast(t("inventory.successDelete"), "success");
+        showToast(tc("success"), "success");
         setItemToDelete(null);
         await refreshProduct();
         onSuccess();
       } else {
-        showToast(t("inventory.errorDelete"), "error");
+        showToast(tc("error"), "error");
       }
     } catch (err) {
       showToast(tc("networkError"), "error");
     }
   };
 
-  if (!isOpen || !product) return null;
-
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        title={<>{t("inventory.title")} - <span className="text-red font-black">{product?.name}</span></>}
-        maxWidth="6xl"
-      >
+      <Modal isOpen={isOpen} onClose={onClose} title={`${t("inventory.title")} - ${product?.name}`} maxWidth="6xl">
         {isLoadingRates ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader text="Cargando tasas..." className="min-h-[20vh] bg-transparent py-6" />
+          <div className="py-20 flex justify-center items-center">
+            <Loader />
+          </div>
+        ) : !product ? (
+          <div className="py-12 text-center text-gray-4 text-sm font-medium">
+            No se encontró información del producto.
           </div>
         ) : (
           <>
-            {/* Indicador de Sucursal Activa */}
             {activeBranch && (
-              <div className="flex items-center gap-2 px-3.5 py-2 mb-4 rounded-xl bg-blue/10 border border-blue/20 text-xs text-blue w-fit">
-                <IconStore className="w-4 h-4 shrink-0 text-blue" />
+              <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
+                <IconStore className="w-3.5 h-3.5 shrink-0" />
                 <span>Gestionando inventario de la sucursal: <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
               </div>
             )}
 
-            {/* Formulario Nueva Variación */}
-            <div className="mb-8 p-5 bg-[#080B12] rounded-2xl border border-white/10">
-              <h3 className="text-sm font-bold text-white mb-4">{t("inventory.addVariation")}</h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-5 mb-4">
+            {/* Añadir Nueva Variación (Colapsable) */}
+            <div className="bg-[#111318] p-5 rounded-2xl border border-stroke mb-8 transition-all">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-bold text-white">{t("inventory.addVariation")}</h4>
+                  <span className="text-[11px] text-gray-400">
+                    {isAddFormOpen ? "(Plegar para enfocar la tabla de cartas)" : "(Desplegar para agregar variantes)"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddFormOpen(!isAddFormOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white transition-all cursor-pointer"
+                >
+                  {isAddFormOpen ? (
+                    <>
+                      <IconChevronUp className="w-3.5 h-3.5" />
+                      <span>Plegar Formulario</span>
+                    </>
+                  ) : (
+                    <>
+                      <IconChevronDown className="w-3.5 h-3.5" />
+                      <span>Desplegar Formulario</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {isAddFormOpen && (
+                <div className="mt-4 pt-4 border-t border-white/5">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.language")}</label>
+                  <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">{t("inventory.language")}</label>
                   <SearchableSelect
-                    options={languages.map(l => ({ label: l.name, value: l.id }))}
+                    placeholder={`${t("inventory.language")}...`}
+                    options={languages.map(l => ({ value: l.id, label: l.name }))}
                     value={newVariation.languageId}
                     onChange={(val) => setNewVariation({ ...newVariation, languageId: val })}
-                    placeholder={`${t("inventory.language")}...`}
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-4">{t("inventory.condition")}</label>
+                  <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">{t("inventory.condition")}</label>
                   <SearchableSelect
-                    options={conditions.map(c => ({ label: c.displayName || c.name, value: c.id }))}
+                    placeholder={`${t("inventory.condition")}...`}
+                    options={conditions.map(c => ({ value: c.id, label: c.displayName || c.name }))}
                     value={newVariation.conditionId}
                     onChange={(val) => setNewVariation({ ...newVariation, conditionId: val })}
-                    placeholder={`${t("inventory.condition")}...`}
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
+                  <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Acabado</label>
                   <SearchableSelect
-                    options={finishes.map(f => ({ label: f.name, value: f.id }))}
+                    placeholder="Acabado..."
+                    options={finishes.map(f => ({ value: f.id, label: f.name }))}
                     value={newVariation.finishId}
                     onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
-                    placeholder="Acabado..."
                   />
                 </div>
                 <div>
                   <Input
-                    label="A Recibir (USD)"
+                    label={`Precio Base (${baseCurrency})`}
                     type="number"
                     step="0.01"
-                    min="0.01"
+                    min="0"
                     value={newVariation.price}
                     disabled={(() => {
+                      if (!newVariation.conditionId || !newVariation.languageId) return false;
                       const selectedCond = conditions.find(c => c.id === newVariation.conditionId);
                       const selectedLang = languages.find(l => l.id === newVariation.languageId);
                       if (!selectedCond || !selectedLang) return false;
-                      
                       const isNM = selectedCond.name.toLowerCase() === "near_mint" || selectedCond.name.toLowerCase() === "near mint" || selectedCond.name.toLowerCase() === "nm";
                       const isEnglish = selectedLang.name.toLowerCase() === "english" || selectedLang.name.toLowerCase() === "inglés" || selectedLang.name.toLowerCase() === "ingles";
-                      
                       return !(isNM && isEnglish);
                     })()}
                     onChange={(e) => setNewVariation({ ...newVariation, price: Number(e.target.value) })}
@@ -346,24 +370,34 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 </div>
               </div>
 
-              <div className="text-xs text-blue-400 font-bold mb-3 px-2">
-                Tasa de cambio actual: 1 {baseCurrency} = {exchangeRate} CLP
+              {/* Tasa y Desglose IVA (Opción A) */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs mb-3 px-2 gap-2">
+                <div className="text-blue-400 font-bold">
+                  Tasa de cambio actual: 1 {baseCurrency} = ${exchangeRate.toLocaleString("es-CL")} CLP
+                </div>
+                <div className="text-gray-400 text-[11px]">
+                  Modelo chileno: PVP final redondeado a la decena con 19% IVA incluido (Neto tienda + Débito Fiscal F29)
+                </div>
               </div>
+
               <div className="bg-[#1a1d24] rounded-xl p-4 border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-6 text-sm">
                   <div>
-                    <span className="block text-white/50 text-xs mb-1 font-bold">Precio de Venta (CLP)</span>
+                    <span className="block text-white/50 text-xs mb-1 font-bold">Precio Neto (CLP)</span>
                     <span className="text-white font-bold text-lg">${formatPriceVal(netPriceCLP)}</span>
-                  </div>
-                  <div className="text-emerald-400 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <IconCheck className="w-4 h-4 text-emerald-400" />
-                    0% Comisión por Venta (Modelo SaaS)
+                    <span className="block text-[10px] text-gray-400 font-medium">100% para tu tienda</span>
                   </div>
                   <div>
-                    <span className="block text-emerald-400 text-xs mb-1 font-bold">Recibes Íntegro (CLP)</span>
+                    <span className="block text-amber-400 text-xs mb-1 font-bold">IVA (19%)</span>
+                    <span className="text-amber-400 font-bold text-lg">+${formatPriceVal(vatPriceCLP)}</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">Débito Fiscal F29</span>
+                  </div>
+                  <div>
+                    <span className="block text-emerald-400 text-xs mb-1 font-bold">Precio Final Tienda</span>
                     <span className="text-emerald-400 font-bold text-lg">
-                      ${formatPriceVal(netPriceCLP)}
+                      ${formatPriceVal(finalPriceCLP)}
                     </span>
+                    <span className="block text-[10px] text-emerald-400/80 font-medium">PVP al público con IVA</span>
                   </div>
                 </div>
                 <div className="w-full md:w-auto min-w-[120px]">
@@ -372,6 +406,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                   </Button>
                 </div>
               </div>
+            </div>
+            )}
             </div>
 
             {/* Tabla de Variaciones Actuales */}
@@ -382,10 +418,10 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
                     <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
                     <th className="p-3 font-bold text-gray-4">Acabado</th>
-                    <th className="p-3 font-bold text-gray-4">Precio (USD)</th>
-                    <th className="p-3 font-bold text-gray-4">Precio Venta (CLP)</th>
-                    <th className="p-3 font-bold text-emerald-400">Comisión</th>
-                    <th className="p-3 font-bold text-emerald-400">Recibes (CLP)</th>
+                    <th className="p-3 font-bold text-gray-4">Precio ({baseCurrency})</th>
+                    <th className="p-3 font-bold text-gray-4">Precio Neto (CLP)</th>
+                    <th className="p-3 font-bold text-amber-400">IVA (19%)</th>
+                    <th className="p-3 font-bold text-emerald-400">Precio Final Tienda</th>
                     <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
                     <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
                     <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
@@ -393,7 +429,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 </thead>
                 <tbody>
                   {product.items?.map((item: InventoryItem) => {
-                    const itemNetCLP = Number(item.price) * exchangeRate;
+                    const rawFinal = Number(item.price) * exchangeRate;
+                    const { net: itemNetCLP, vat: itemVatCLP, total: itemFinalCLP } = calculateVatBreakdownCLP(rawFinal);
                     return (
                       <tr key={item.id} className="border-b border-stroke hover:bg-white/[0.02] transition-colors">
                         <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
@@ -417,12 +454,15 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                         </td>
                         <td className="p-3 text-white font-medium">
                           ${formatPriceVal(itemNetCLP)} CLP
+                          <span className="block text-[10px] text-gray-500 font-normal">100% tienda</span>
                         </td>
-                        <td className="p-3 text-emerald-400 text-xs font-bold">
-                          $0 CLP (0%)
+                        <td className="p-3 text-amber-400 text-xs font-semibold">
+                          +${formatPriceVal(itemVatCLP)} CLP
+                          <span className="block text-[10px] text-amber-400/70 font-normal">Débito F29</span>
                         </td>
-                        <td className="p-3 text-emerald-400 font-bold">
-                          ${formatPriceVal(itemNetCLP)} CLP
+                        <td className="p-3 text-emerald-400 font-black">
+                          ${formatPriceVal(itemFinalCLP)} CLP
+                          <span className="block text-[10px] text-emerald-400/80 font-normal">PVP con IVA</span>
                         </td>
                         <td className="p-3">
                           <input
