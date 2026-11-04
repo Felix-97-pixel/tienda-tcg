@@ -29,7 +29,7 @@ const STATIC_PLANS: PlanItem[] = [
     id: "plan-starter",
     name: "Plan Starter",
     description: "Para tiendas emergentes y coleccionistas que inician su catálogo digital en línea.",
-    price: "1.50",
+    price: "1.5",
     skuLimit: "Hasta 1.500 SKUs",
     popular: false,
   },
@@ -37,7 +37,7 @@ const STATIC_PLANS: PlanItem[] = [
     id: "plan-store",
     name: "Plan Store",
     description: "El estándar para tiendas establecidas con rotación activa de cartas y productos.",
-    price: "3.50",
+    price: "3.5",
     skuLimit: "Hasta 6.000 SKUs",
     popular: true,
   },
@@ -45,7 +45,7 @@ const STATIC_PLANS: PlanItem[] = [
     id: "plan-mega-store",
     name: "Plan Mega Store",
     description: "Para tiendas consolidadas con alto volumen de inventario y múltiples líneas TCG.",
-    price: "6.50",
+    price: "6.5",
     skuLimit: "Hasta 18.000 SKUs",
     popular: false,
   },
@@ -53,7 +53,7 @@ const STATIC_PLANS: PlanItem[] = [
     id: "plan-enterprise",
     name: "Plan Enterprise",
     description: "Operación masiva sin restricciones para holdings, distribuidoras y grandes cadenas.",
-    price: "11.50",
+    price: "11.5",
     skuLimit: "SKUs Ilimitados",
     popular: false,
   },
@@ -123,8 +123,8 @@ export default function PricingSection() {
             <div
               key={plan.id}
               className={`relative flex flex-col justify-between rounded-3xl p-5 sm:p-6 xl:p-8 backdrop-blur-xl transition-all duration-300 ${plan.popular
-                  ? "bg-gradient-to-b from-[#1C1417] via-[#10131B] to-[#0A0D14] border-2 border-[#E10E0E] shadow-[0_0_50px_rgba(225,14,14,0.22)] hover:shadow-[0_0_70px_rgba(225,14,14,0.35)] hover:-translate-y-1.5"
-                  : "bg-gradient-to-b from-[#111520] to-[#090C12] border border-white/10 hover:border-white/25 hover:-translate-y-1.5 shadow-xl hover:shadow-2xl"
+                ? "bg-gradient-to-b from-[#1C1417] via-[#10131B] to-[#0A0D14] border-2 border-[#E10E0E] shadow-[0_0_50px_rgba(225,14,14,0.22)] hover:shadow-[0_0_70px_rgba(225,14,14,0.35)] hover:-translate-y-1.5"
+                : "bg-gradient-to-b from-[#111520] to-[#090C12] border border-white/10 hover:border-white/25 hover:-translate-y-1.5 shadow-xl hover:shadow-2xl"
                 }`}
             >
               {/* Popular Pill */}
@@ -180,8 +180,8 @@ export default function PricingSection() {
               <Link
                 href="mailto:contacto@taptrade.cl"
                 className={`w-full text-center py-3.5 rounded-xl font-bold text-sm transition-all duration-200 block ${plan.popular
-                    ? "bg-gradient-to-r from-[#E10E0E] to-[#FF2E2E] hover:from-[#F21A1A] hover:to-[#FF4D4D] text-white font-black shadow-lg shadow-[#E10E0E]/40 border border-[#FF5555]/30 active:scale-[0.98]"
-                    : "bg-white/[0.08] hover:bg-white/[0.15] text-white border border-white/15 hover:border-white/30 active:scale-[0.98]"
+                  ? "bg-gradient-to-r from-[#E10E0E] to-[#FF2E2E] hover:from-[#F21A1A] hover:to-[#FF4D4D] text-white font-black shadow-lg shadow-[#E10E0E]/40 border border-[#FF5555]/30 active:scale-[0.98]"
+                  : "bg-white/[0.08] hover:bg-white/[0.15] text-white border border-white/15 hover:border-white/30 active:scale-[0.98]"
                   }`}
               >
                 Comenzar con {plan.name}
