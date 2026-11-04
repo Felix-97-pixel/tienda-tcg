@@ -71,6 +71,10 @@ export const adminFetch = async (
     targetStoreId
   );
 
+  if (init.body && !(init.body instanceof FormData) && !mergedHeaders["Content-Type"]) {
+    mergedHeaders["Content-Type"] = "application/json";
+  }
+
   return fetch(resolvedInput, {
     ...init,
     credentials: init.credentials || "include",

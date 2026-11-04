@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class DispatchVendorOrderDto {
   @IsString()
@@ -12,4 +12,17 @@ export class DispatchVendorOrderDto {
   @IsString()
   @IsOptional()
   trackingUrl?: string;
+
+  // Evidencias fotográficas de empaque (Protocolo TapTrade Shield)
+  @IsString()
+  @IsOptional()
+  contentPhotoUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  packagingPhotoUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  packagePhotoUrl?: string;
 }

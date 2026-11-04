@@ -15,6 +15,15 @@ export interface OrderItem {
   finish?: string | null;
 }
 
+export interface DispatchEvidenceData {
+  id: string;
+  vendorOrderId: string;
+  contentPhotoUrl: string;
+  packagingPhotoUrl: string;
+  packagePhotoUrl: string;
+  capturedAt: string;
+}
+
 export interface VendorOrderData {
   id: string;
   storeId?: string;
@@ -33,6 +42,7 @@ export interface VendorOrderData {
   dispatchedAt?: string | null;
   store: { id: string; name: string };
   items: OrderItem[];
+  evidence?: DispatchEvidenceData | null;
 }
 
 export interface Order {
@@ -53,4 +63,3 @@ export interface Order {
     cardLast4?: string;
   } | null;
 }
-

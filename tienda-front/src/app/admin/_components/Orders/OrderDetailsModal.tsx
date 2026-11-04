@@ -339,6 +339,69 @@ export default function OrderDetailsModal({
                           )}
                         </div>
 
+                        {/* Evidencias TapTrade Shield */}
+                        {vo.evidence && (
+                          <div className="w-full mt-3 pt-3 border-t border-emerald-500/20">
+                            <p className="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5 mb-2">
+                              <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Respaldo TapTrade Shield (Fotos de Empaque)</span>
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {vo.evidence.contentPhotoUrl && (
+                                <a
+                                  href={vo.evidence.contentPhotoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group relative rounded-lg overflow-hidden border border-white/10 aspect-video bg-black/40 flex items-center justify-center hover:border-emerald-500/50 transition-all"
+                                >
+                                  <img
+                                    src={vo.evidence.contentPhotoUrl}
+                                    alt="Contenido"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  />
+                                  <span className="absolute bottom-0 inset-x-0 bg-black/70 py-0.5 text-[9px] text-center text-gray-300 font-semibold">
+                                    Contenido
+                                  </span>
+                                </a>
+                              )}
+                              {vo.evidence.packagingPhotoUrl && (
+                                <a
+                                  href={vo.evidence.packagingPhotoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group relative rounded-lg overflow-hidden border border-white/10 aspect-video bg-black/40 flex items-center justify-center hover:border-emerald-500/50 transition-all"
+                                >
+                                  <img
+                                    src={vo.evidence.packagingPhotoUrl}
+                                    alt="Protección"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  />
+                                  <span className="absolute bottom-0 inset-x-0 bg-black/70 py-0.5 text-[9px] text-center text-gray-300 font-semibold">
+                                    Protección
+                                  </span>
+                                </a>
+                              )}
+                              {vo.evidence.packagePhotoUrl && (
+                                <a
+                                  href={vo.evidence.packagePhotoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group relative rounded-lg overflow-hidden border border-white/10 aspect-video bg-black/40 flex items-center justify-center hover:border-emerald-500/50 transition-all"
+                                >
+                                  <img
+                                    src={vo.evidence.packagePhotoUrl}
+                                    alt="Paquete Sellado"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  />
+                                  <span className="absolute bottom-0 inset-x-0 bg-black/70 py-0.5 text-[9px] text-center text-gray-300 font-semibold">
+                                    Paquete Sellado
+                                  </span>
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {trackingDataMap[vo.id] && (
                           <div className="w-full mt-3 pt-3 border-t border-emerald-500/20">
                             <CarrierTimeline
@@ -369,10 +432,15 @@ export default function OrderDetailsModal({
                           </p>
                         </div>
                         <Button
+                          type="button"
                           size="sm"
-                          variant="primary"
-                          className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 shadow-md flex items-center gap-1.5"
-                          onClick={() => setSelectedVoForDispatch(vo)}
+                          variant={isPickup ? "success" : "primary"}
+                          className="font-bold text-xs shrink-0 shadow-md flex items-center gap-1.5 cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedVoForDispatch(vo);
+                          }}
                         >
                           {isPickup ? (
                             <>

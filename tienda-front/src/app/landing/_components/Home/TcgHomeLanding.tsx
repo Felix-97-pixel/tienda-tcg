@@ -7,7 +7,19 @@ import { API_URL } from "@/utils/api";
 import ShippingBadge from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
-import { IconStore, IconZap, IconShieldCheck, IconCreditCard, IconSparkles } from "@/components/ui/Icons";
+import {
+  IconStore,
+  IconZap,
+  IconShieldCheck,
+  IconCreditCard,
+  IconSparkles,
+  IconTruck,
+  IconMapPin,
+  IconClock,
+  IconFlame,
+  IconEye,
+  IconGlobe,
+} from "@/components/ui/Icons";
 import { getBestAvailableVariant } from "@/utils/tcgPrices";
 
 // Official TCG Games Grid Data
@@ -290,7 +302,7 @@ export default function TcgHomeLanding() {
 
               {/* Subtitle */}
               <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-                Conecta directamente con tiendas especializadas y coleccionistas verificados de todo Chile. Cotización oficial de envíos con <strong className="text-white">Chilexpress</strong> y <strong className="text-white">Starken</strong>, o <strong className="text-emerald-400">Retiro en Tienda $0</strong>.
+                Conecta directamente con tiendas especializadas y coleccionistas verificados de todo Chile. Protección antifraude <strong className="text-white">TapTrade Shield</strong>, envíos oficiales con <strong className="text-white">Chilexpress</strong> y <strong className="text-white">Starken</strong>, o <strong className="text-emerald-400">Retiro en Tienda $0</strong>.
               </p>
 
               {/* Hero Search Box */}
@@ -530,7 +542,7 @@ export default function TcgHomeLanding() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "foil" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
                   }`}
               >
-                ✨ Foils
+                Foils
               </button>
               <button
                 type="button"
@@ -622,10 +634,10 @@ export default function TcgHomeLanding() {
                   </div>
 
                   <p className="text-xs text-gray-300 mb-2 font-mono">
-                    📍 {store.address}
+                    <span className="inline-flex items-center gap-1.5"><IconMapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.address}</span>
                   </p>
                   <p className="text-[11px] text-gray-400 mb-4 font-mono">
-                    🕒 {store.hours}
+                    <span className="inline-flex items-center gap-1.5"><IconClock className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.hours}</span>
                   </p>
 
                   <div className="mb-5">
@@ -662,7 +674,7 @@ export default function TcgHomeLanding() {
                 ¿Tienes una Tienda TCG o una Colección Valiosa?
               </h2>
               <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                Vende tus singles y sellado a coleccionistas de todo Chile. Gestión centralizada de stock, etiquetas de despacho automáticas (Chilexpress / Starken) y pagos garantizados.
+                Vende tus singles y sellado a coleccionistas de todo Chile. Terminal POS mostrador con modo desconectado, escudo antifraude TapTrade Shield, cuadratura tributaria para tu F29 y arquitectura multi-sucursal.
               </p>
             </div>
 

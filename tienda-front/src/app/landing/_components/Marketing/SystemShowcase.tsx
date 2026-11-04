@@ -18,10 +18,12 @@ import {
   IconRefresh,
   IconShieldCheck,
   IconStore,
+  IconReceipt,
+  IconCamera,
 } from "@/components/ui/Icons";
 
 interface ShowcaseTab {
-  id: "inventory" | "pos" | "buylist" | "dashboard";
+  id: "inventory" | "pos" | "buylist" | "dashboard" | "shield" | "accounting";
   title: string;
   shortLabel: string;
   badge: string;
@@ -233,6 +235,98 @@ const SHOWCASE_TABS: ShowcaseTab[] = [
       { value: "100%", label: "Trazabilidad multi-sucursal" },
     ],
   },
+  {
+    id: "shield",
+    title: "TapTrade Shield & Despachos Inteligentes",
+    shortLabel: "TapTrade Shield",
+    badge: "Antifraude & Custodia",
+    headline: "Protección blindada en cada despacho y fondos en custodia liberados en vivo",
+    description:
+      "El protocolo que elimina estafas de cartas cambiadas o reclamos de paquetes vacíos. Registro de 3 fotos de empaque con compresión WebP, validación en tiempo real con Starken y Chilexpress, y exigencia de video continuo de unboxing para compradores en órdenes de valor.",
+    imageSrc: "/images/showcase/showcase-shield.png",
+    simulatedUrl: "taptrade.cl/admin/orders/dispatch",
+    glowColor: "from-emerald-600/20 via-teal-600/10 to-transparent",
+    accentBadgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+    features: [
+      {
+        title: "Evidencia de 3 Fotos en Empaque",
+        description: "Cartas sobre comanda, protección rígida y paquete sellado con la etiqueta de transporte sobre el cierre.",
+      },
+      {
+        title: "Custodia Escrow Inteligente",
+        description: "Los fondos del comprador se retienen de forma segura y se liberan automáticamente al validar el tracking oficial.",
+      },
+      {
+        title: "Línea de Tiempo Courier en Vivo",
+        description: "Seguimiento minuto a minuto de Starken, Chilexpress y Correos de Chile dentro del detalle del pedido.",
+      },
+    ],
+    floatingHighlights: [
+      {
+        top: "20%",
+        left: "22%",
+        label: "Blindaje de Empaque 3x",
+        sublabel: "Cero reclamos por cartas falsas o cambiadas",
+      },
+      {
+        top: "48%",
+        right: "10%",
+        label: "Liberación Atómica de Fondos",
+        sublabel: "Dinero disponible al despachar con guía oficial",
+      },
+    ],
+    metrics: [
+      { value: "3 Fotos", label: "Protocolo obligatorio sobre $20k" },
+      { value: "100%", label: "Validación de tracking oficial" },
+      { value: "0 Riesgo", label: "Blindaje antifraude probado" },
+    ],
+  },
+  {
+    id: "accounting",
+    title: "Liquidaciones F29 & Contabilidad Tributaria",
+    shortLabel: "Liquidaciones & F29",
+    badge: "Cuadratura SII",
+    headline: "Cifras consolidadas listas para el Formulario F29 de tu contador",
+    description:
+      "Cuadratura automática de ventas de tu tienda para declarar ante el SII. Desglose transparente de tus ventas brutas con débito fiscal, la factura de comisión emitida por TapTrade (crédito fiscal para ti) y retiros bancarios directos por TEF a la cuenta corriente de tu empresa.",
+    imageSrc: "/images/showcase/showcase-accounting.png",
+    simulatedUrl: "taptrade.cl/admin/finances/f29",
+    glowColor: "from-cyan-600/20 via-blue-600/10 to-transparent",
+    accentBadgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+    features: [
+      {
+        title: "Cuadratura F29 Consolidada",
+        description: "Total de ventas brutas e IVA débito fiscal de tu negocio en el mes sin sumar boleta por boleta.",
+      },
+      {
+        title: "Factura Limpia por Comisión",
+        description: "TapTrade no duplica impuestos en tus cartas; factura únicamente su comisión como gasto y crédito fiscal.",
+      },
+      {
+        title: "Retiros TEF a Cuenta Empresa",
+        description: "Transferencia directa de tus fondos disponibles a la cuenta bancaria de tu empresa sin cobros ocultos.",
+      },
+    ],
+    floatingHighlights: [
+      {
+        top: "20%",
+        left: "25%",
+        label: "Débito Fiscal Consolidado",
+        sublabel: "Total listo para el casillero de tu F29",
+      },
+      {
+        top: "48%",
+        right: "12%",
+        label: "Retiro TEF Bancario",
+        sublabel: "Transferencia a cuenta de tu empresa",
+      },
+    ],
+    metrics: [
+      { value: "19% IVA", label: "Desglose claro sin doble tributación" },
+      { value: "1 Clic", label: "Reporte mensual para tu contador" },
+      { value: "TEF Directo", label: "Depósitos a tu cuenta bancaria" },
+    ],
+  }
 ];
 
 export default function SystemShowcase() {
@@ -279,6 +373,8 @@ export default function SystemShowcase() {
                 {tab.id === "pos" && <IconPosTerminal className="w-4 h-4" />}
                 {tab.id === "buylist" && <IconTag className="w-4 h-4" />}
                 {tab.id === "dashboard" && <IconBarChart className="w-4 h-4" />}
+                {tab.id === "shield" && <IconShieldCheck className="w-4 h-4 text-emerald-400" />}
+                {tab.id === "accounting" && <IconReceipt className="w-4 h-4 text-cyan-400" />}
                 <span>{tab.shortLabel}</span>
               </button>
             );

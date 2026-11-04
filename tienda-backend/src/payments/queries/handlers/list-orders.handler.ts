@@ -51,7 +51,7 @@ export class ListOrdersHandler implements IQueryHandler<ListOrdersQuery> {
         include: {
           vendorOrders: {
             where: storeId ? { storeId } : undefined,
-            include: { items: true, store: true, shippingProvider: true },
+            include: { items: true, store: true, shippingProvider: true, evidence: true },
           },
           payment: { select: { status: true, authCode: true, cardLast4: true } },
         },

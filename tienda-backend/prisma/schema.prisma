@@ -346,6 +346,7 @@ model User {
   cashPurchases      CashPurchase[]
   companyMemberships CompanyMember[]
   storeMemberships   StoreMember[]
+  uploadedEvidences  DispatchEvidence[] @relation("UploadedEvidences")
 }
 
 model Address {
@@ -449,6 +450,23 @@ model VendorOrder {
   store              Store             @relation(fields: [storeId], references: [id])
   shippingProvider   ShippingProvider? @relation(fields: [shippingProviderId], references: [id])
   items              OrderItem[]
+  evidence           DispatchEvidence?
+}
+
+model DispatchEvidence {
+  id                 String       @id @default(uuid())
+  vendorOrderId      String       @unique
+  contentPhotoUrl    String
+  packagingPhotoUrl  String
+  packagePhotoUrl    String
+  capturedAt         DateTime     @default(now())
+  uploaderUserId     String?
+  lifecycleExpiresAt DateTime?
+
+  vendorOrder        VendorOrder  @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
+  uploader           User?        @relation("UploadedEvidences", fields: [uploaderUserId], references: [id], onDelete: SetNull)
+
+  @@index([vendorOrderId])
 }
 
 model OrderItem {

@@ -15,6 +15,8 @@ import {
   IconLoader,
   IconExternalLink,
   IconSearch,
+  IconCamera,
+  IconUpload,
 } from "@/components/ui/Icons";
 
 export interface DispatchModalProps {
@@ -43,6 +45,58 @@ interface TrackingValidation {
   }>;
 }
 
+/**
+ * Comprime una imagen en el cliente a formato WebP (máx. 1920px de resolución, calidad 80%)
+ * para que no sobrecargue la red ni el almacenamiento del servidor.
+ */
+function compressImageToWebP(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const MAX_DIM = 1920;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File(
+                [blob],
+                file.name.replace(/\.[^.]+$/, ".webp"),
+                { type: "image/webp" }
+              );
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          "image/webp",
+          0.8
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+}
+
 export default function DispatchModal({
   isOpen,
   onClose,
@@ -58,6 +112,13 @@ export default function DispatchModal({
   const [validating, setValidating] = useState(false);
   const [validation, setValidation] = useState<TrackingValidation | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Estados de evidencia fotográfica TapTrade Shield (3 fotos)
+  const [contentPhotoUrl, setContentPhotoUrl] = useState<string>("");
+  const [packagingPhotoUrl, setPackagingPhotoUrl] = useState<string>("");
+  const [packagePhotoUrl, setPackagePhotoUrl] = useState<string>("");
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   // Courier o método de entrega oficial pagado por el comprador
   const rawCourier = (
@@ -131,8 +192,50 @@ export default function DispatchModal({
       setValidation(null);
       setValidating(false);
       setLoading(false);
+      setContentPhotoUrl(vendorOrder.evidence?.contentPhotoUrl || "");
+      setPackagingPhotoUrl(vendorOrder.evidence?.packagingPhotoUrl || "");
+      setPackagePhotoUrl(vendorOrder.evidence?.packagePhotoUrl || "");
+      setPhotoError(null);
+      setUploadingSlot(null);
     }
-  }, [isOpen, vendorOrder?.id]);
+  }, [isOpen, vendorOrder?.id, vendorOrder?.trackingNumber, vendorOrder?.evidence]);
+
+  // Función para subir una foto a Cloudinary comprimida en cliente a WebP
+  const uploadPhotoSlot = async (file: File, slot: 1 | 2 | 3) => {
+    setUploadingSlot(slot);
+    setPhotoError(null);
+    try {
+      const compressed = await compressImageToWebP(file);
+      const formData = new FormData();
+      formData.append("file", compressed);
+
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+      const headers: Record<string, string> = {
+        "x-auth-scope": "admin",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/upload/image?folder=dispatch-evidence`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Error al subir fotografía de evidencia");
+      }
+
+      const data = await res.json();
+      if (slot === 1) setContentPhotoUrl(data.url);
+      else if (slot === 2) setPackagingPhotoUrl(data.url);
+      else if (slot === 3) setPackagePhotoUrl(data.url);
+    } catch (err: any) {
+      setPhotoError(err.message || "No se pudo subir la foto");
+    } finally {
+      setUploadingSlot(null);
+    }
+  };
 
   // Función para consultar a la API de validación
   const runValidation = async (code: string) => {
@@ -153,18 +256,12 @@ export default function DispatchModal({
     setError(null);
 
     try {
-      const res = await fetch(
-        `${API_URL}/shipping/validate-tracking?courier=${encodeURIComponent(
+      const res = await adminFetch(
+        `/shipping/validate-tracking?courier=${encodeURIComponent(
           courierMeta.key
         )}&trackingNumber=${encodeURIComponent(clean)}&vendorOrderId=${encodeURIComponent(
           vendorOrder.id
-        )}`,
-        {
-          headers: {
-            "x-auth-scope": "admin",
-          },
-          credentials: "include",
-        }
+        )}`
       );
 
       if (res.ok) {
@@ -209,7 +306,6 @@ export default function DispatchModal({
       return;
     }
 
-    // Si tiene al menos 8 dígitos, consultar automáticamente tras 500ms
     if (clean.length >= 8) {
       debounceRef.current = setTimeout(() => {
         runValidation(clean);
@@ -224,6 +320,13 @@ export default function DispatchModal({
       }
     };
   }, [trackingNumber, isOpen, vendorOrder?.id]);
+
+  if (!isOpen || !vendorOrder) return null;
+
+  const totalOrderGross =
+    Number(vendorOrder.subtotal || 0) + Number(vendorOrder.shippingCost || 0);
+  const isShieldRequired = totalOrderGross >= 20000 && !isLocalPickup;
+  const isPhotosComplete = !!(contentPhotoUrl && packagingPhotoUrl && packagePhotoUrl);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,6 +345,12 @@ export default function DispatchModal({
       return;
     }
 
+    // Validación TapTrade Shield (Nivel 2/3)
+    if (isShieldRequired && !isPhotosComplete) {
+      setError("Para pedidos superiores a $20.000 CLP es obligatorio cargar las 3 fotografías de respaldo.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await adminFetch(`/payments/vendor-orders/${vendorOrder.id}/dispatch`, {
@@ -250,6 +359,9 @@ export default function DispatchModal({
           courier: courierMeta.key,
           trackingNumber: isLocalPickup && !cleanTracking ? "RETIRO-LOCAL" : cleanTracking,
           trackingUrl: validation?.trackingUrl,
+          contentPhotoUrl: contentPhotoUrl || undefined,
+          packagingPhotoUrl: packagingPhotoUrl || undefined,
+          packagePhotoUrl: packagePhotoUrl || undefined,
         }),
       });
 
@@ -267,8 +379,6 @@ export default function DispatchModal({
     }
   };
 
-  if (!isOpen || !vendorOrder) return null;
-
   const shippingCostNum = parseFloat(String(vendorOrder.shippingCost || 0));
   const shippingCostFormatted =
     isLocalPickup || shippingCostNum === 0
@@ -278,7 +388,9 @@ export default function DispatchModal({
   const isSubmitDisabled =
     loading ||
     validating ||
-    (!isLocalPickup && (!trackingNumber.trim() || (validation !== null && !validation.valid)));
+    uploadingSlot !== null ||
+    (!isLocalPickup && (!trackingNumber.trim() || (validation !== null && !validation.valid))) ||
+    (isShieldRequired && !isPhotosComplete);
 
   return (
     <Modal
@@ -316,6 +428,12 @@ export default function DispatchModal({
             <span>Artículos a entregar:</span>
             <span className="font-bold text-white">
               {vendorOrder.items?.reduce((sum, i) => sum + i.quantity, 0)} cartas
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-gray-400 pt-1 border-t border-white/5">
+            <span>Total Paquete:</span>
+            <span className="font-bold text-emerald-400">
+              ${totalOrderGross.toLocaleString("es-CL")} CLP
             </span>
           </div>
         </div>
@@ -356,6 +474,203 @@ export default function DispatchModal({
             </p>
           </div>
         </div>
+
+        {/* PROTOCOLO TAPTRADE SHIELD: EVIDENCIA FOTOGRÁFICA DE EMPAQUE */}
+        {!isLocalPickup && (
+          <div className="space-y-3 rounded-2xl bg-[#090C14] border border-white/10 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IconCamera className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="text-xs font-black uppercase tracking-wider text-white">
+                  TapTrade Shield • Respaldo de Empaque
+                </span>
+              </div>
+              {isShieldRequired ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  Obligatorio (≥ $20.000 CLP)
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-white/40">
+                  Opcional recomendado
+                </span>
+              )}
+            </div>
+
+            <p className="text-[11px] text-white/50 leading-relaxed">
+              Toma o sube 3 fotografías antes de entregar el paquete. Si un comprador alega que la carta no llegó o fue cambiada, este respaldo libera tus fondos automáticamente y desestima el reclamo.
+            </p>
+
+            {photoError && (
+              <div className="p-2.5 rounded-xl bg-red/10 border border-red/30 text-red text-xs flex items-center gap-2">
+                <IconAlertTriangle className="w-4 h-4 shrink-0 text-red" />
+                <span>{photoError}</span>
+              </div>
+            )}
+
+            {/* Grid 3 casillas de fotos */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Casilla 1: Cartas + Comanda */}
+              <div
+                className={`p-3 rounded-xl border flex flex-col items-center text-center justify-between transition-all ${
+                  contentPhotoUrl
+                    ? "border-emerald-500/40 bg-emerald-950/20"
+                    : "border-white/10 bg-[#121622] hover:border-white/20"
+                }`}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">
+                  1. Cartas + Comanda
+                </span>
+                {contentPhotoUrl ? (
+                  <div className="space-y-2 w-full">
+                    <img
+                      src={contentPhotoUrl}
+                      alt="Cartas"
+                      className="w-full h-24 object-cover rounded-lg border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setContentPhotoUrl("")}
+                      className="text-[10px] text-red hover:underline block mx-auto cursor-pointer"
+                    >
+                      Cambiar foto
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/40 hover:bg-white/5 transition-all p-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) uploadPhotoSlot(f, 1);
+                      }}
+                    />
+                    {uploadingSlot === 1 ? (
+                      <IconLoader className="w-5 h-5 text-blue animate-spin" />
+                    ) : (
+                      <>
+                        <IconUpload className="w-5 h-5 text-white/40 mb-1" />
+                        <span className="text-[10px] text-white/60 font-semibold">Subir Foto</span>
+                      </>
+                    )}
+                  </label>
+                )}
+                <span className="text-[9px] text-white/40 mt-1">Cartas junto al Nº de orden</span>
+              </div>
+
+              {/* Casilla 2: Toploader / Protección */}
+              <div
+                className={`p-3 rounded-xl border flex flex-col items-center text-center justify-between transition-all ${
+                  packagingPhotoUrl
+                    ? "border-emerald-500/40 bg-emerald-950/20"
+                    : "border-white/10 bg-[#121622] hover:border-white/20"
+                }`}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">
+                  2. Protección Rígida
+                </span>
+                {packagingPhotoUrl ? (
+                  <div className="space-y-2 w-full">
+                    <img
+                      src={packagingPhotoUrl}
+                      alt="Embalaje"
+                      className="w-full h-24 object-cover rounded-lg border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPackagingPhotoUrl("")}
+                      className="text-[10px] text-red hover:underline block mx-auto cursor-pointer"
+                    >
+                      Cambiar foto
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/40 hover:bg-white/5 transition-all p-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) uploadPhotoSlot(f, 2);
+                      }}
+                    />
+                    {uploadingSlot === 2 ? (
+                      <IconLoader className="w-5 h-5 text-blue animate-spin" />
+                    ) : (
+                      <>
+                        <IconUpload className="w-5 h-5 text-white/40 mb-1" />
+                        <span className="text-[10px] text-white/60 font-semibold">Subir Foto</span>
+                      </>
+                    )}
+                  </label>
+                )}
+                <span className="text-[9px] text-white/40 mt-1">Toploaders o cartón rígido</span>
+              </div>
+
+              {/* Casilla 3: Paquete sellado con etiqueta sobre el cierre */}
+              <div
+                className={`p-3 rounded-xl border flex flex-col items-center text-center justify-between transition-all ${
+                  packagePhotoUrl
+                    ? "border-emerald-500/40 bg-emerald-950/20"
+                    : "border-white/10 bg-[#121622] hover:border-white/20"
+                }`}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">
+                  3. Paquete Sellado
+                </span>
+                {packagePhotoUrl ? (
+                  <div className="space-y-2 w-full">
+                    <img
+                      src={packagePhotoUrl}
+                      alt="Paquete sellado"
+                      className="w-full h-24 object-cover rounded-lg border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPackagePhotoUrl("")}
+                      className="text-[10px] text-red hover:underline block mx-auto cursor-pointer"
+                    >
+                      Cambiar foto
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/40 hover:bg-white/5 transition-all p-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) uploadPhotoSlot(f, 3);
+                      }}
+                    />
+                    {uploadingSlot === 3 ? (
+                      <IconLoader className="w-5 h-5 text-blue animate-spin" />
+                    ) : (
+                      <>
+                        <IconUpload className="w-5 h-5 text-white/40 mb-1" />
+                        <span className="text-[10px] text-white/60 font-semibold">Subir Foto</span>
+                      </>
+                    )}
+                  </label>
+                )}
+                <span className="text-[9px] text-white/40 mt-1">Etiqueta sobre la solapa/cierre</span>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 flex items-start gap-2">
+              <IconShieldCheck className="w-3.5 h-3.5 text-blue shrink-0 mt-0.5" />
+              <span>
+                <strong>Técnica de Cierre Seguro:</strong> Pega la etiqueta oficial de {courierMeta.name} cruzando la solapa de apertura del sobre. De este modo, nadie puede abrir el paquete sin destruir el código de barras oficial.
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Input Número de Seguimiento o Comprobante */}
         <div className="space-y-2">
@@ -398,7 +713,7 @@ export default function DispatchModal({
                   type="button"
                   onClick={() => runValidation(trackingNumber)}
                   disabled={validating || !trackingNumber.trim()}
-                  className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 disabled:opacity-40 text-xs font-semibold text-gray-200 transition-colors flex items-center gap-1 border border-white/10"
+                  className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 disabled:opacity-40 text-xs font-semibold text-gray-200 transition-colors flex items-center gap-1 border border-white/10 cursor-pointer"
                 >
                   {validating ? (
                     <>
@@ -538,7 +853,7 @@ export default function DispatchModal({
             ) : (
               <>
                 {loading ? (
-                  <IconLoader className="w-4 h-4 shrink-0" />
+                  <IconLoader className="w-4 h-4 shrink-0 animate-spin" />
                 ) : (
                   <IconBox className="w-4 h-4 shrink-0" />
                 )}
@@ -547,6 +862,10 @@ export default function DispatchModal({
                     ? "Procesando..."
                     : validating
                     ? "Validando OT..."
+                    : uploadingSlot !== null
+                    ? "Subiendo fotos..."
+                    : isShieldRequired && !isPhotosComplete
+                    ? "Faltan fotos de respaldo (3)"
                     : "Confirmar Despacho & Liberar Fondos"}
                 </span>
               </>

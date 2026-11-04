@@ -118,6 +118,15 @@ export class DispatchVendorOrderHandler
     const totalAbono =
       Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
 
+    // Validación TapTrade Shield (Nivel 2 y 3 >= $20.000 CLP)
+    if (totalAbono >= 20000 && !isLocalPickup) {
+      if (!dto.contentPhotoUrl || !dto.packagingPhotoUrl || !dto.packagePhotoUrl) {
+        throw new BadRequestException(
+          'Para pedidos iguales o superiores a $20.000 CLP es obligatorio registrar las 3 fotografías de evidencia de empaque (Protocolo TapTrade Shield).',
+        );
+      }
+    }
+
     const dispatchRef = isLocalPickup
       ? `Order: ${vendorOrderId} (Entregado en local / Retiro en Tienda)`
       : `Order: ${vendorOrderId} (Despachado con ${officialCourier} #${cleanTracking})`;
@@ -176,6 +185,27 @@ export class DispatchVendorOrderHandler
           balance: { increment: totalAbono },
         },
       });
+
+      // D. Guardar evidencia fotográfica (TapTrade Shield)
+      if (dto.contentPhotoUrl && dto.packagingPhotoUrl && dto.packagePhotoUrl) {
+        await tx.dispatchEvidence.upsert({
+          where: { vendorOrderId },
+          create: {
+            vendorOrderId,
+            contentPhotoUrl: dto.contentPhotoUrl,
+            packagingPhotoUrl: dto.packagingPhotoUrl,
+            packagePhotoUrl: dto.packagePhotoUrl,
+            uploaderUserId: userId,
+            lifecycleExpiresAt: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
+          },
+          update: {
+            contentPhotoUrl: dto.contentPhotoUrl,
+            packagingPhotoUrl: dto.packagingPhotoUrl,
+            packagePhotoUrl: dto.packagePhotoUrl,
+            uploaderUserId: userId,
+          },
+        });
+      }
 
       return {
         success: true,

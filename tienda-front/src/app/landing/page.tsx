@@ -21,6 +21,12 @@ import {
   IconPosTerminal,
   IconWifiOff,
   IconBarcode,
+  IconReceipt,
+  IconCamera,
+  IconCheckCircle,
+  IconMapPin,
+  IconClock,
+  IconUsers,
 } from "@/components/ui/Icons";
 
 export default function MarketingPage() {
@@ -176,6 +182,18 @@ export default function MarketingPage() {
       q: "¿Cómo despacho las ventas que entran a mi tienda?",
       a: "Directamente desde tu panel de vendedor tendrás un botón para 'Generar Etiqueta'. El sistema calcula las dimensiones del envío, genera el código de seguimiento de Chilexpress o Starken y te entrega la etiqueta lista para imprimir y entregar en la sucursal más cercana.",
     },
+    {
+      q: "¿Cómo funciona TapTrade Shield y cómo protege a mi tienda de reclamos fraudulentos?",
+      a: "Para compras iguales o superiores a $20.000 CLP, la tienda registra 3 fotos obligatorias de empaque: cartas sobre comanda, protección rígida y sobre sellado con la etiqueta del courier sobre el cierre. Al comprador se le exige video continuo de unboxing sin cortes para abrir cualquier disputa. Este blindaje bilateral elimina reclamos falsos de paquetes vacíos o cartas cambiadas, liberando tus fondos en custodia automáticamente al validar el envío.",
+    },
+    {
+      q: "¿Cómo se gestiona el IVA y la declaración del F29 de mi tienda?",
+      a: "TapTrade opera bajo un modelo limpio sin doble tributación: como tienda, tú declaras tus ventas brutas con su 19% de IVA (Débito Fiscal para tu F29) y emites tu boleta o factura al comprador. TapTrade te emite una factura por su comisión de servicio, que utilizas como Crédito Fiscal deducible. En tu panel cuentas con una vista macro de 'Liquidaciones & F29' que entrega las cifras consolidadas de forma inmediata para tu contador.",
+    },
+    {
+      q: "¿Puedo operar varias sucursales físicas bajo la misma empresa?",
+      a: "Sí. TapTrade cuenta con arquitectura Multi-Sucursal nativa. Una empresa holding puede gestionar Casa Matriz y múltiples sucursales físicas (ej: Providencia, Viña del Mar, Concepción). Cada local cuenta con stock independiente, terminales POS con arqueo propio, cajeros con roles asignados, subdominio web y retiro presencial gratis ($0) para los compradores locales.",
+    }
   ];
 
   return (
@@ -215,7 +233,7 @@ export default function MarketingPage() {
 
           {/* Subtitle */}
           <p className="text-base sm:text-xl text-gray-400 max-w-3xl mb-10 leading-relaxed font-normal">
-            Centralizamos el inventario de las mejores tiendas y dealers de Chile. Punto de Venta (POS) mostrador con modo desconectado, sincronización oficial de catálogos (Scryfall y Pokémon), motor de Buylist inteligente, un solo carrito multi-tienda y envíos integrados con Chilexpress y Starken.
+            Centralizamos el inventario de las mejores tiendas y dealers de Chile. Punto de Venta (POS) mostrador con modo desconectado, sincronización oficial de catálogos (Scryfall, Pokémon y Riftbound), motor de Buylist inteligente, protocolo antifraude TapTrade Shield, cuadratura tributaria para F29, un solo carrito multi-tienda y envíos integrados con Chilexpress y Starken.
           </p>
 
           {/* Action CTAs */}
@@ -398,8 +416,8 @@ export default function MarketingPage() {
                   <span className="text-xs text-gray-400">Tiendas Verificadas con RUT</span>
                 </div>
                 <div className="text-center md:text-left">
-                  <span className="text-2xl sm:text-3xl font-black text-white font-mono block">24-48h</span>
-                  <span className="text-xs text-gray-400">Envíos Chilexpress & Starken</span>
+                  <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono block">Shield</span>
+                  <span className="text-xs text-gray-400">Protección Antifraude 3x</span>
                 </div>
                 <div className="text-center md:text-left">
                   <span className="text-2xl sm:text-3xl font-black text-[#E10E0E] font-mono block">$0</span>
@@ -486,7 +504,7 @@ export default function MarketingPage() {
 
         {/* Dynamic Tab Content */}
         {activeTab === "players" ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-500 mb-6">
@@ -517,18 +535,33 @@ export default function MarketingPage() {
               </div>
             </div>
 
-            <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
+            <div className="p-8 rounded-3xl bg-[#111522] border border-emerald-500/30 hover:border-emerald-500/50 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
                   <IconShieldCheck className="w-6 h-6 text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Garantía de Estado & Protección</h3>
+                <h3 className="text-lg font-bold text-white mb-2">TapTrade Shield: Envío Blindado</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Solo comercios verificados con RUT. Si una carta no corresponde al estado descrito (Near Mint, Lightly Played), cuentas con mediación y reembolso garantizado.
+                  La tienda fotografía tus cartas y el paquete sellado antes del envío. Con tu video de unboxing continuo estás 100% cubierto ante faltantes o daños.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/5 text-xs text-emerald-400 font-mono">
+                ✓ Evidencia de empaque • Despacho Asegurado
+              </div>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-6">
+                  <IconStore className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">Retiro en Tienda $0 Multi-Local</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Compra online y retira gratis en la sucursal física de tu tienda favorita. Sin pagar flete ni esperar los tiempos del transporte.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ 100% Tiendas con respaldo legal en Chile
+                ✓ Retiro presencial inmediato • Costo $0
               </div>
             </div>
           </div>
@@ -585,19 +618,51 @@ export default function MarketingPage() {
               </div>
             </div>
 
-            {/* 4. Logística */}
-            <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
+            {/* 4. TapTrade Shield Antifraude */}
+            <div className="p-8 rounded-3xl bg-[#111522] border border-emerald-500/30 hover:border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
-                  <IconTruck className="w-6 h-6 text-emerald-400" />
+                  <IconShieldCheck className="w-6 h-6 text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Logística Chilexpress & Starken</h3>
+                <h3 className="text-lg font-bold text-white mb-2">TapTrade Shield Antifraude</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Genera etiquetas oficiales en 1 clic. El cliente paga el envío según peso y comuna, y tú solo imprimes la guía para entregar en sucursal.
+                  Blindaje contra reclamos de cartas cambiadas o paquetes vacíos. Registra 3 fotos de empaque con compresión WebP, pega la etiqueta sobre el cierre y libera los fondos en custodia al despachar.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/5 text-xs text-emerald-400 font-mono">
+                ✓ 3 Fotos de Empaque • Custodia Escrow
+              </div>
+            </div>
+
+            {/* 5. Liquidaciones F29 & Contabilidad */}
+            <div className="p-8 rounded-3xl bg-[#111522] border border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6">
+                  <IconReceipt className="w-6 h-6 text-cyan-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">Cuadratura Tributaria & F29</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Cero fricción con tu contador. Vista mensual con el total de ventas brutas para tu débito fiscal, factura deducible por comisión de TapTrade y retiros directos por TEF a tu cuenta bancaria.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/5 text-xs text-cyan-400 font-mono">
+                ✓ Débito Fiscal Tienda • Retiros TEF Directos
+              </div>
+            </div>
+
+            {/* 6. Multi-Sucursal & Holding */}
+            <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6">
+                  <IconStore className="w-6 h-6 text-purple-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">Multi-Sucursal & Red de Tiendas</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Gestiona Casa Matriz y múltiples sucursales físicas (ej: Providencia, Viña del Mar). Cada local cuenta con stock, terminales POS, cajeros, subdominio web y retiro presencial gratis.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Tarifas preferenciales integradas
+                ✓ Control Multi-Local • Roles PBAC
               </div>
             </div>
           </div>
@@ -793,7 +858,60 @@ export default function MarketingPage() {
             </div>
           </div>
 
-          {/* Bento 1: Vitrina con Subdominio */}
+          {/* Bento 1: TapTrade Shield Antifraude */}
+          <div className="md:col-span-2 p-8 rounded-3xl bg-gradient-to-br from-[#0E121B] via-[#0B1516] to-[#0A1A17] border border-emerald-500/30 hover:border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.08)] transition-all relative overflow-hidden group">
+            <div className="relative z-10">
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-4 inline-flex items-center gap-1.5">
+                <IconShieldCheck className="w-3 h-3 text-emerald-400" />
+                Protocolo Antifraude TapTrade Shield
+              </span>
+              <h3 className="text-2xl font-bold text-white mb-2">Blindaje en Despachos & Custodia Escrow</h3>
+              <p className="text-gray-300 text-sm max-w-xl mb-6 leading-relaxed font-normal">
+                Protege a tu tienda contra reclamos de cartas cambiadas o paquetes vacíos. En órdenes sobre $20.000 CLP se registran 3 fotos de empaque (cartas, protección física y sello del courier) con compresión WebP en cliente. El comprador debe registrar su video de unboxing sin cortes para abrir reclamos, y tus fondos en custodia se liberan al despachar.
+              </p>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-400 font-mono pt-3 border-t border-emerald-500/20">
+                <span>✓ 3 Fotos de empaque</span>
+                <span>✓ Unboxing continuo obligatorio</span>
+                <span>✓ Custodia Escrow atómica</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bento 2: Cuadratura F29 & Finanzas */}
+          <div className="p-8 rounded-3xl bg-gradient-to-br from-[#0E121B] via-[#0E1724] to-[#0B1A24] border border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_40px_rgba(6,182,212,0.08)] transition-all flex flex-col justify-between">
+            <div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 mb-4 inline-flex items-center gap-1.5">
+                <IconReceipt className="w-3 h-3 text-cyan-400" />
+                Cuadratura Tributaria
+              </span>
+              <h3 className="text-xl font-bold text-white mb-2">Liquidaciones F29 para tu Contador</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                Total de ventas brutas e IVA Débito Fiscal listo para tu declaración mensual. TapTrade factura su comisión de servicio entregándote crédito fiscal, y transfiere el dinero directo a tu cuenta corriente bancaria por TEF.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-cyan-500/20 text-xs text-cyan-400 font-mono">
+              ✓ Débito Fiscal Tienda • Retiros TEF
+            </div>
+          </div>
+
+          {/* Bento 3: Multi-Sucursal Holding */}
+          <div className="p-8 rounded-3xl bg-[#0E121B] border border-purple-500/30 hover:border-purple-500/50 transition-all flex flex-col justify-between">
+            <div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30 mb-4 inline-flex items-center gap-1.5">
+                <IconStore className="w-3 h-3 text-purple-400" />
+                Red Multi-Local
+              </span>
+              <h3 className="text-xl font-bold text-white mb-2">Gestión Multi-Sucursal (Holding)</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                Opera Casa Matriz y sucursales físicas con inventarios independientes, cajas POS para cada cajero, subdominio web por local y retiro presencial $0 para tus clientes.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-purple-500/20 text-xs text-purple-400 font-mono">
+              ✓ Control de sucursales • Permisos PBAC
+            </div>
+          </div>
+
+          {/* Bento 4: Vitrina con Subdominio */}
           <div className="md:col-span-2 p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all relative overflow-hidden group">
             <div className="relative z-10">
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-600/20 text-blue-400 border border-blue-500/30 mb-4 inline-block">
@@ -807,22 +925,6 @@ export default function MarketingPage() {
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                 <span>Responsive Dark Vault • Optimizado para móviles</span>
               </div>
-            </div>
-          </div>
-
-          {/* Bento 2: Recaudación y Liquidación a tu Empresa */}
-          <div className="p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
-            <div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-4 inline-block">
-                Finanzas Claras
-              </span>
-              <h3 className="text-xl font-bold text-white mb-2">Liquidación a la Cuenta de tu Empresa</h3>
-              <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Todas las ventas se recaudan de forma centralizada y protegida en la cuenta de TapTrade (vía Webpay Plus y Mercado Pago), para luego ser depositadas directamente en la cuenta bancaria de tu empresa que tú elijas.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-white/5 text-xs text-gray-400 font-mono">
-              ✓ Depósitos directos a la cuenta de tu empresa
             </div>
           </div>
 
