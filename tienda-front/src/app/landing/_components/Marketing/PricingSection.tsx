@@ -20,7 +20,8 @@ interface PlanItem {
   name: string;
   description: string;
   price: string;
-  skuLimit: string;
+  skuLimitLine1: string;
+  skuLimitLine2?: string;
   popular: boolean;
 }
 
@@ -30,7 +31,8 @@ const STATIC_PLANS: PlanItem[] = [
     name: "Plan Starter",
     description: "Para tiendas emergentes y coleccionistas que inician su catálogo digital en línea.",
     price: "1.5",
-    skuLimit: "Hasta 1.500 SKUs",
+    skuLimitLine1: "Hasta 1.500",
+    skuLimitLine2: "SKUs",
     popular: false,
   },
   {
@@ -38,7 +40,8 @@ const STATIC_PLANS: PlanItem[] = [
     name: "Plan Store",
     description: "El estándar para tiendas establecidas con rotación activa de cartas y productos.",
     price: "3.5",
-    skuLimit: "Hasta 6.000 SKUs",
+    skuLimitLine1: "Hasta 6.000",
+    skuLimitLine2: "SKUs",
     popular: true,
   },
   {
@@ -46,7 +49,8 @@ const STATIC_PLANS: PlanItem[] = [
     name: "Plan Mega Store",
     description: "Para tiendas consolidadas con alto volumen de inventario y múltiples líneas TCG.",
     price: "6.5",
-    skuLimit: "Hasta 18.000 SKUs",
+    skuLimitLine1: "Hasta 18.000",
+    skuLimitLine2: "SKUs",
     popular: false,
   },
   {
@@ -54,7 +58,8 @@ const STATIC_PLANS: PlanItem[] = [
     name: "Plan Enterprise",
     description: "Operación masiva sin restricciones para holdings, distribuidoras y grandes cadenas.",
     price: "11.5",
-    skuLimit: "SKUs Ilimitados",
+    skuLimitLine1: "SKUs Ilimitados",
+    skuLimitLine2: undefined,
     popular: false,
   },
 ];
@@ -162,17 +167,19 @@ export default function PricingSection() {
                   </p>
                 </div>
 
-                {/* Límite Total de Catálogo - Diseño apilado centrado inmune a cortes de texto */}
-                <div className="mb-7 bg-white/[0.03] border border-white/10 rounded-2xl py-3.5 px-3 text-center">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-400 block mb-1">
-                    Límite Total de Catálogo
+                {/* Capacidad de Catálogo - Calco exacto al diseño premium */}
+                <div className="mb-7 bg-[#0C101A] border border-white/10 rounded-2xl py-4 px-3 text-center flex flex-col justify-center min-h-[105px] shadow-inner">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-sky-400 block mb-1.5">
+                    Capacidad de Catálogo
                   </span>
-                  <span className="text-lg xl:text-xl font-black text-white font-mono tracking-tight block">
-                    {plan.skuLimit}
+                  <span className="text-2xl xl:text-[26px] font-black text-white tracking-tight leading-tight block font-sans">
+                    {plan.skuLimitLine1}
                   </span>
-                  <span className="text-[10px] text-gray-500 font-medium block mt-1">
-                    Cartas, sellado y accesorios
-                  </span>
+                  {plan.skuLimitLine2 && (
+                    <span className="text-2xl xl:text-[26px] font-black text-white tracking-tight leading-tight block font-sans">
+                      {plan.skuLimitLine2}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -212,7 +219,7 @@ export default function PricingSection() {
                 Tus ventas son 100% tuyas: sin cobros porcentuales ni comisiones ocultas
               </h4>
               <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
-                A diferencia de los marketplaces tradicionales que descuentan entre el 8% y el 15% de cada transacción, en TapTrade operas bajo un modelo SaaS puro con suscripción mensual en UF. El 100% del dinero recaudado en tu vitrina web y en tu mesón POS ingresa íntegro a tu comercio.
+                A diferencia de los marketplaces tradicionales que descuentan entre el 8% y el 15% de cada transacción, en TapTrade solo pagas tu cuota mensual en UF. El total recaudado en tu vitrina online y en tu mesón físico ingresa íntegro a tu comercio.
               </p>
             </div>
           </div>
