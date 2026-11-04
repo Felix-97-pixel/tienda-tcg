@@ -220,6 +220,16 @@ export default function CompanyUsersModal({
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {/* Formulario Agregar Usuario */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] space-y-4">
+            <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 text-xs flex items-start gap-2.5 mb-3">
+              <IconShield className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-white text-[11px]">Tarifario de Personal Holding (Empresa)</p>
+                <p className="text-gray-400 text-[10px] leading-relaxed">
+                  Cada comercio incluye su Dueño Titular y 1er Contador gratis. Administradores adicionales se tarifican a <strong>+0.85 UF/mes (+ IVA)</strong> y Contadores extra a <strong>+0.30 UF/mes (+ IVA)</strong>.
+                </p>
+              </div>
+            </div>
+
             <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <IconUserPlus className="w-4 h-4 text-red" />
               Asignar Nuevo Usuario Corporativo
@@ -272,9 +282,9 @@ export default function CompanyUsersModal({
                 </label>
                 <SearchableSelect
                   options={[
-                    { label: "Administrador Holding (Gestión Total)", value: "ADMIN" },
-                    { label: "Contador (Métricas y Liquidaciones)", value: "ACCOUNTANT" },
-                    { label: "Dueño Copropietario", value: "OWNER" },
+                    { label: "Administrador Holding (+0.85 UF/mes + IVA)", value: "ADMIN" },
+                    { label: "Contador (+0.30 UF/mes + IVA — 1ro gratis)", value: "ACCOUNTANT" },
+                    { label: "Dueño Copropietario (Incluido en Plan)", value: "OWNER" },
                   ]}
                   value={formData.role}
                   onChange={(val) =>

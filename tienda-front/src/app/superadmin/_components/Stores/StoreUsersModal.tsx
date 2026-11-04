@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { IconUser, IconUserPlus, IconTrash, IconX, IconStore, IconLock } from "@/components/ui/Icons";
+import { IconUser, IconUserPlus, IconTrash, IconX, IconStore, IconLock, IconUsers } from "@/components/ui/Icons";
 import { TargetUserToEdit } from "./EditUserCredentialsModal";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Branch } from "./hooks/useSuperAdminStores";
@@ -220,6 +220,16 @@ export default function StoreUsersModal({
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {/* Formulario Agregar Personal */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] space-y-4">
+            <div className="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-xs flex items-start gap-2.5 mb-3">
+              <IconUsers className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-white text-[11px]">Dotación Operativa por Sucursal</p>
+                <p className="text-gray-400 text-[10px] leading-relaxed">
+                  Cada sucursal incluye 1 Encargado y 1 Cajero POS base para operar. Cada cajero adicional activo en mesón suma <strong>+0.35 UF/mes (+ 19% IVA)</strong> en la facturación mensual del holding.
+                </p>
+              </div>
+            </div>
+
             <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <IconUserPlus className="w-4 h-4 text-red" />
               Asignar Personal / Cajero a esta Sucursal
@@ -272,8 +282,8 @@ export default function StoreUsersModal({
                 </label>
                 <SearchableSelect
                   options={[
-                    { label: "Cajero POS (Solo cobro, arqueo y ventas locales)", value: "CASHIER" },
-                    { label: "Encargado Local (Gestión de stock local y POS)", value: "BRANCH_MANAGER" },
+                    { label: "Cajero POS (+0.35 UF/mes + IVA — 1ro incluido por sucursal)", value: "CASHIER" },
+                    { label: "Encargado Local (+0.60 UF/mes + IVA — 1ro incluido por sucursal)", value: "BRANCH_MANAGER" },
                   ]}
                   value={formData.role}
                   onChange={(val) =>

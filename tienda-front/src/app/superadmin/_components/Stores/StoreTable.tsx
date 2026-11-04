@@ -152,6 +152,19 @@ export default function StoreTable({
                       usePortal={true}
                       direction="auto"
                     />
+                    {company.plan && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[10px] font-mono">
+                        <span className="text-white/50">Base:</span>
+                        <span className="font-bold text-white">
+                          {(
+                            Number(company.plan.price) +
+                            Math.max(0, (company.stores?.length || 0) - 1) * 2.5
+                          ).toFixed(2)}{" "}
+                          UF/mes
+                        </span>
+                        <span className="text-emerald-400 font-semibold">+ IVA</span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-4">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-xs font-bold text-white">
@@ -198,9 +211,19 @@ export default function StoreTable({
                               <IconMapPin className="w-3.5 h-3.5 text-red" />
                               Sucursales de {company.name}
                             </h4>
-                            <span className="text-[10px] text-white/40 font-mono">
-                              Plan: {company.plan?.name || "Sin Plan"} (Cubre 1 Casa Matriz)
-                            </span>
+                            <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono">
+                              <span className="text-white/60">
+                                Plan: <strong className="text-white">{company.plan?.name || "Sin Plan"}</strong>
+                              </span>
+                              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                                1 Casa Matriz incluida
+                              </span>
+                              {branchCount > 1 && (
+                                <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold">
+                                  {branchCount - 1} extra (+{((branchCount - 1) * 2.5).toFixed(1)} UF/mes + IVA)
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <Button
                             size="sm"

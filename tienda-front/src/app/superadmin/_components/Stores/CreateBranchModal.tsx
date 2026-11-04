@@ -75,12 +75,15 @@ export default function CreateBranchModal({
         </div>
 
         {/* Resumen Informativo */}
-        <div className="px-6 py-3.5 bg-gradient-to-r from-red/10 to-transparent border-b border-white/5 flex-shrink-0">
+        <div className="px-6 py-3.5 bg-gradient-to-r from-purple-950/30 via-red/10 to-transparent border-b border-white/5 flex-shrink-0">
           <p className="text-xs text-white/70 leading-relaxed">
             Esta sucursal pertenecerá al Holding de <strong className="text-white">{company.name}</strong>,
             compartiendo la billetera matriz y el plan SaaS corporativo (
-            <span className="text-red font-semibold">{company.plan?.name || "Sin Plan"}</span>
+            <span className="text-purple-300 font-semibold">{company.plan?.name || "Sin Plan"}</span>
             ).
+          </p>
+          <p className="text-[11px] text-purple-300 font-mono mt-1">
+            Tarifa adicional: <strong>+2.50 UF/mes (+ IVA)</strong> en la facturación de fin de mes. Incluye dotación base para operar (1 Encargado + 1 Cajero POS).
           </p>
         </div>
 

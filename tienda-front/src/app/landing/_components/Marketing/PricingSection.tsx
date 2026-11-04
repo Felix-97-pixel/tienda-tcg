@@ -279,6 +279,131 @@ export default function PricingSection() {
         </Link>
       </div>
 
+      
+      {/* Sección Tarifario de Personal & Asientos Adicionales (Seat-Based Pricing) */}
+      <div className="mt-12 bg-[#0E121B] border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue/10 border border-blue/20 text-blue text-xs font-bold mb-3 font-mono">
+              <IconUsers className="w-3.5 h-3.5" />
+              <span>Dotación Flexible por Asientos (Seat-Based)</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black text-white">
+              Tarifario de Personal & Roles de Usuario
+            </h3>
+            <p className="text-gray-400 text-sm mt-1 max-w-2xl">
+              Cada plan incluye tu dotación base para operar al 100% (1 Dueño, 1 Contador, 1 Encargado y 1 Cajero por local). Si tu operación crece o necesitas más personal en mesón, agrega cuentas a la carta:
+            </p>
+          </div>
+          <div className="text-xs text-gray-400 font-mono bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 shrink-0">
+            ✓ Facturación mensual unificada + 19% IVA
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 1. Cajero */}
+          <div className="p-5 rounded-2xl bg-[#111522] border border-sky-500/20 hover:border-sky-500/40 transition-all flex flex-col justify-between group">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                  Nivel Sucursal
+                </span>
+                <span className="text-[10px] font-mono text-gray-400">1 base incluido</span>
+              </div>
+              <h4 className="text-base font-bold text-white mb-1 group-hover:text-sky-300 transition-colors">
+                Cajero de Mesón
+              </h4>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Terminal POS adicional, arqueo propio de caja, cobro y venta presencial en mesón o torneos.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/5">
+              <div className="flex items-baseline gap-1 font-mono">
+                <span className="text-xl font-black text-white">+0.35</span>
+                <span className="text-xs font-bold text-sky-300">UF / mes</span>
+              </div>
+              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$13.500 CLP (+ IVA)</p>
+            </div>
+          </div>
+
+          {/* 2. Encargado */}
+          <div className="p-5 rounded-2xl bg-[#111522] border border-emerald-500/20 hover:border-emerald-500/40 transition-all flex flex-col justify-between group">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  Nivel Sucursal
+                </span>
+                <span className="text-[10px] font-mono text-gray-400">1 base incluido</span>
+              </div>
+              <h4 className="text-base font-bold text-white mb-1 group-hover:text-emerald-300 transition-colors">
+                Encargado de Sucursal
+              </h4>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Supervisor de turno de tarde, jefe de compras en Buylist o encargado de bodega local.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/5">
+              <div className="flex items-baseline gap-1 font-mono">
+                <span className="text-xl font-black text-white">+0.60</span>
+                <span className="text-xs font-bold text-emerald-300">UF / mes</span>
+              </div>
+              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$23.000 CLP (+ IVA)</p>
+            </div>
+          </div>
+
+          {/* 3. Administrador Holding */}
+          <div className="p-5 rounded-2xl bg-[#111522] border border-purple-500/20 hover:border-purple-500/40 transition-all flex flex-col justify-between group">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  Nivel Holding
+                </span>
+                <span className="text-[10px] font-mono text-gray-400">1 Dueño base</span>
+              </div>
+              <h4 className="text-base font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">
+                Admin Corporativo
+              </h4>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Socio comercial, gerente general de operaciones o director de e-commerce del holding.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/5">
+              <div className="flex items-baseline gap-1 font-mono">
+                <span className="text-xl font-black text-white">+0.85</span>
+                <span className="text-xs font-bold text-purple-300">UF / mes</span>
+              </div>
+              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$32.500 CLP (+ IVA)</p>
+            </div>
+          </div>
+
+          {/* 4. Contador */}
+          <div className="p-5 rounded-2xl bg-[#111522] border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex flex-col justify-between group">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                  Nivel Holding
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold">1ro Gratis</span>
+              </div>
+              <h4 className="text-base font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">
+                Contador Adicional
+              </h4>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Estudio contable externo o segundo auditor para liquidaciones y Formulario 29 ante el SII.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/5">
+              <div className="flex items-baseline gap-1 font-mono">
+                <span className="text-xl font-black text-white">+0.30</span>
+                <span className="text-xs font-bold text-cyan-300">UF / mes</span>
+              </div>
+              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$11.500 CLP (+ IVA)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       {/* Tarjeta de Liquidación Mensual & Cumplimiento Tributario F29 (Facturación con IVA) */}
       <div className="mt-8 p-6 md:p-8 rounded-3xl bg-gradient-to-r from-cyan-950/20 via-[#0E131E] to-blue/10 border border-cyan-500/30 shadow-xl">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
@@ -300,8 +425,8 @@ export default function PricingSection() {
               </h4>
               <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
                 A fin de cada ciclo mensual, se liquida tu cuenta según tus recursos activos: <br className="hidden sm:inline" />
-                <span className="font-mono text-white text-xs bg-white/5 px-2 py-1 rounded inline-block mt-1.5">
-                  Total Neto (UF) = [Plan Base] + [Sucursales Extra × 2.50 UF] + [Cajeros Extra × 0.35 UF]
+                <span className="font-mono text-white text-xs bg-white/5 px-2 py-1 rounded inline-block mt-1.5 leading-relaxed">
+                  Total Neto (UF) = [Plan Base] + [Sucursales Extra × 2.50 UF] + [Cajeros Extra × 0.35 UF] + [Encargados Extra × 0.60 UF] + [Admins Extra × 0.85 UF]
                 </span>
               </p>
             </div>
