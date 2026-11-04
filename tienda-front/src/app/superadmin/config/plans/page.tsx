@@ -145,18 +145,12 @@ export default function PlansPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 mb-4 text-xs">
-                  <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center justify-between">
-                    <span className="text-gray-400 flex items-center gap-1.5">
-                      <IconStore className="w-3.5 h-3.5 text-purple-400" />
-                      Sucursales:
-                    </span>
-                    <span className="font-bold text-purple-300 font-mono text-[11px]">1 Base (+2.50 UF extra)</span>
-                  </div>
-                  <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center justify-between">
-                    <span className="text-gray-400">Personal Operativo:</span>
-                    <span className="font-bold text-white font-mono text-[11px]">1 de c/tipo (+0.35 UF cajero)</span>
-                  </div>
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 mb-4 flex items-center justify-between text-xs">
+                  <span className="text-gray-400 flex items-center gap-1.5">
+                    <IconStore className="w-3.5 h-3.5 text-purple-400" />
+                    Sucursal Base:
+                  </span>
+                  <span className="font-bold text-emerald-400 font-mono text-[11px]">1 Casa Matriz</span>
                 </div>
 
                 {/* Nota de Módulos Base Incluidos */}

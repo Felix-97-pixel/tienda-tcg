@@ -12,6 +12,7 @@ import {
   IconArrowRight,
   IconUsers,
   IconReceipt,
+  IconHeadphones,
 } from "@/components/ui/Icons";
 
 interface PlanItem {
@@ -20,9 +21,6 @@ interface PlanItem {
   description: string;
   price: string;
   skuLimit: string;
-  branches: string;
-  staff: string;
-  support: string;
   popular: boolean;
 }
 
@@ -31,44 +29,32 @@ const STATIC_PLANS: PlanItem[] = [
     id: "plan-starter",
     name: "Plan Starter",
     description: "Para tiendas emergentes y coleccionistas que inician su catálogo digital en línea.",
-    price: "1.5",
+    price: "1.50",
     skuLimit: "Hasta 1.500 SKUs",
-    branches: "1 Casa Matriz",
-    staff: "1 de c/tipo para operar",
-    support: "Soporte Estándar",
     popular: false,
   },
   {
     id: "plan-store",
     name: "Plan Store",
-    description: "El estándar para tiendas de hobby establecidas con rotación constante de singles.",
-    price: "3.5",
+    description: "El estándar para tiendas establecidas con rotación activa de cartas y productos.",
+    price: "3.50",
     skuLimit: "Hasta 6.000 SKUs",
-    branches: "1 Casa Matriz",
-    staff: "1 de c/tipo para operar",
-    support: "Soporte Prioritario",
     popular: true,
   },
   {
     id: "plan-mega-store",
     name: "Plan Mega Store",
-    description: "Para tiendas consolidadas con alto volumen de inventario y múltiples formatos TCG.",
-    price: "6.5",
+    description: "Para tiendas consolidadas con alto volumen de inventario y múltiples líneas TCG.",
+    price: "6.50",
     skuLimit: "Hasta 18.000 SKUs",
-    branches: "1 Casa Matriz",
-    staff: "1 de c/tipo para operar",
-    support: "Soporte Preferencial WhatsApp",
     popular: false,
   },
   {
     id: "plan-enterprise",
     name: "Plan Enterprise",
     description: "Operación masiva sin restricciones para holdings, distribuidoras y grandes cadenas.",
-    price: "11.5",
+    price: "11.50",
     skuLimit: "SKUs Ilimitados",
-    branches: "1 Casa Matriz",
-    staff: "1 de c/tipo para operar",
-    support: "Onboarding & Asesoría VIP",
     popular: false,
   },
 ];
@@ -111,28 +97,32 @@ export default function PricingSection() {
     <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t border-white/5">
       {/* Header Section */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-4 shadow-sm">
-          <IconPosTerminal className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Todos los módulos incluidos en todos los planes • 100% Sin Comisiones por Venta</span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-gray-300 text-xs font-bold mb-4 shadow-sm backdrop-blur-md">
+          <IconCheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>SaaS Puro: 0% Comisión por Venta</span>
+          <span className="text-gray-500">•</span>
+          <span>100% Herramientas Incluidas</span>
+          <span className="text-gray-500">•</span>
+          <span>Mismo Soporte Para Todos</span>
         </div>
         <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#E10E0E] block mb-3">
-          Suscripción SaaS Simple • Escala Únicamente por Límite de SKUs
+          Suscripción Simple • Escala Únicamente por Capacidad de Catálogo
         </span>
         <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
           Un solo sistema, todas las herramientas
         </h2>
         <p className="text-gray-400 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-          Cada plan incluye 1 Casa Matriz base con su dotación completa de usuarios para operar. Puedes sumar sucursales y cajeros según la escala de tu negocio.
+          Elige tu plan según el volumen total de tu catálogo (singles, productos sellados y accesorios). Todos los planes cuentan con la misma infraestructura tecnológica, 1 Casa Matriz base, soporte técnico total y 0% de comisión por venta.
         </p>
       </div>
 
-      {/* Grid de Planes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+      {/* Grid de Planes - Enfocado estrictamente en Capacidad de SKUs y Precio */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 xl:gap-6 items-stretch">
         {STATIC_PLANS.map((plan) => {
           return (
             <div
               key={plan.id}
-              className={`relative flex flex-col justify-between rounded-3xl p-7 md:p-8 backdrop-blur-xl transition-all duration-300 ${plan.popular
+              className={`relative flex flex-col justify-between rounded-3xl p-5 sm:p-6 xl:p-8 backdrop-blur-xl transition-all duration-300 ${plan.popular
                   ? "bg-gradient-to-b from-[#1C1417] via-[#10131B] to-[#0A0D14] border-2 border-[#E10E0E] shadow-[0_0_50px_rgba(225,14,14,0.22)] hover:shadow-[0_0_70px_rgba(225,14,14,0.35)] hover:-translate-y-1.5"
                   : "bg-gradient-to-b from-[#111520] to-[#090C12] border border-white/10 hover:border-white/25 hover:-translate-y-1.5 shadow-xl hover:shadow-2xl"
                 }`}
@@ -146,85 +136,43 @@ export default function PricingSection() {
 
               {/* Top Info */}
               <div>
-                <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-2.5">
+                <h3 className="text-xl xl:text-2xl font-black text-white tracking-tight mb-2">
                   {plan.name}
                 </h3>
 
-                <p className="text-xs md:text-sm text-gray-400 leading-relaxed mb-6 min-h-[48px] flex items-start">
+                <p className="text-xs xl:text-sm text-gray-400 leading-relaxed mb-6 min-h-[44px]">
                   {plan.description}
                 </p>
 
                 {/* Bloque de Precio */}
                 <div className="mb-6 pb-6 border-b border-white/[0.08]">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-4xl md:text-5xl font-black text-white font-mono tracking-tight">
+                  <div className="flex items-baseline gap-1.5 font-mono">
+                    <span className="text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight">
                       {plan.price}
                     </span>
-                    <span className="text-xl font-black text-emerald-400 font-mono ml-1">
+                    <span className="text-lg xl:text-xl font-bold text-emerald-400 ml-1">
                       UF
                     </span>
                     <span className="text-xs text-gray-400 font-medium ml-0.5">
                       /mes
                     </span>
                   </div>
-                  <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mt-1.5 font-mono">
-                    + 19% IVA mensual (Factura deducible)
+                  <p className="text-[10px] text-gray-400 font-mono uppercase tracking-wider font-semibold mt-1.5">
+                    + 19% IVA mensual
                   </p>
                 </div>
 
-                {/* Especificaciones de Escala (SKUs, Sucursales, Staff, Soporte) */}
-                <div className="space-y-2 mb-6">
-                  <div className="bg-blue/10 border border-blue/20 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
-                    <span className="text-gray-400 font-medium">Límite de Catálogo:</span>
-                    <span className="font-bold text-white font-mono">{plan.skuLimit}</span>
-                  </div>
-                  <div className="bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
-                    <span className="text-gray-400 font-medium">Sucursal Base:</span>
-                    <span className="font-bold text-emerald-400 font-mono">1 Casa Matriz</span>
-                  </div>
-                  <div className="bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2 flex flex-col gap-0.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400 font-medium">Personal Base:</span>
-                      <span className="font-bold text-white font-mono text-[11px]">1 de c/tipo para operar</span>
-                    </div>
-                    <span className="text-[10px] text-gray-500 font-mono">
-                      (1 Dueño, 1 Contador, 1 Encargado, 1 Cajero)
-                    </span>
-                  </div>
-                  <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
-                    <span className="text-purple-300 font-medium">Sucursal Extra:</span>
-                    <span className="font-bold text-purple-300 font-mono">+2.50 UF/mes (+ IVA)</span>
-                  </div>
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
-                    <span className="text-amber-300 font-medium">Cajero POS Extra:</span>
-                    <span className="font-bold text-amber-300 font-mono">+0.35 UF/mes (+ IVA)</span>
-                  </div>
-                  <div className="bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
-                    <span className="text-gray-400 font-medium">Soporte:</span>
-                    <span className="font-bold text-gray-300">{plan.support}</span>
-                  </div>
-                </div>
-
-                {/* 0% Comisión SaaS */}
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3.5 py-2.5 flex items-center justify-between mb-6 shadow-sm">
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-2">
-                    <IconCheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>0% Comisión por Venta</span>
+                {/* Límite Total de Catálogo - Diseño apilado centrado inmune a cortes de texto */}
+                <div className="mb-7 bg-white/[0.03] border border-white/10 rounded-2xl py-3.5 px-3 text-center">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-400 block mb-1">
+                    Límite Total de Catálogo
                   </span>
-                  <span className="text-[10px] font-mono text-emerald-300 font-bold uppercase bg-emerald-500/20 px-2 py-0.5 rounded">
-                    SaaS
+                  <span className="text-lg xl:text-xl font-black text-white font-mono tracking-tight block">
+                    {plan.skuLimit}
                   </span>
-                </div>
-
-                {/* Banner Universal: Todos los Módulos Incluidos */}
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/10 text-xs space-y-1 mb-8">
-                  <p className="font-bold text-emerald-400 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                    <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Suite Completa Incluida</span>
-                  </p>
-                  <p className="text-gray-400 text-[11px] leading-relaxed">
-                    POS Mostrador, Buylist, Radar, Créditos, F29, Shield y Envíos activos sin costo adicional.
-                  </p>
+                  <span className="text-[10px] text-gray-500 font-medium block mt-1">
+                    Cartas, sellado y accesorios
+                  </span>
                 </div>
               </div>
 
@@ -243,59 +191,125 @@ export default function PricingSection() {
         })}
       </div>
 
-      {/* Bloque Destacado de Multi-Sucursal Holding (+2.50 UF/mes) y Personal Operativo */}
-      <div className="mt-10 p-6 md:p-8 rounded-3xl bg-gradient-to-r from-purple-950/20 via-[#111522] to-purple-950/20 border border-purple-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
-            <IconStore className="w-6 h-6 text-purple-400" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-purple-400">
-                Holding & Red de Tiendas
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                +2.50 UF / mes (+ IVA) por sucursal
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                +0.35 UF / mes (+ IVA) por cajero extra
-              </span>
+      {/* Secciones de Infraestructura, Sucursales y Soporte */}
+      <div className="mt-12 space-y-6">
+        {/* Bloque 1: Modelo SaaS Puro (0% Comisión por Transacción) */}
+        <div className="p-6 md:p-8 rounded-3xl bg-[#0E121B] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl hover:border-emerald-500/30 transition-colors">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+              <IconCheckCircle className="w-6 h-6" />
             </div>
-            <h4 className="text-lg md:text-xl font-bold text-white mb-1.5">
-              ¿Tu empresa opera más de un local físico o requiere más cajas en mesón?
-            </h4>
-            <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
-              Cualquiera sea tu plan base, incluye 1 Casa Matriz equipada con 1 usuario de cada rol (Dueño, Contador, Encargado y Cajero POS). Puedes sumar todas las sucursales que necesites por <strong className="text-purple-300">+2.50 UF/mes (+ IVA) cada una</strong> (incluye su propio Encargado + Cajero local), y agregar terminales de cobro adicionales para torneos o fin de semana por <strong className="text-amber-300">+0.35 UF/mes (+ IVA)</strong> por cajero.
-            </p>
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400">
+                  Modelo SaaS Puro • 100% Para Tu Tienda
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                  0% Comisión por Transacción
+                </span>
+              </div>
+              <h4 className="text-lg md:text-xl font-black text-white mb-1.5">
+                Tus ventas son 100% tuyas: sin cobros porcentuales ni comisiones ocultas
+              </h4>
+              <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
+                A diferencia de los marketplaces tradicionales que descuentan entre el 8% y el 15% de cada transacción, en TapTrade operas bajo un modelo SaaS puro con suscripción mensual en UF. El 100% del dinero recaudado en tu vitrina web y en tu mesón POS ingresa íntegro a tu comercio.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 w-full md:w-auto text-right">
+            <div className="inline-block px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 font-mono text-emerald-400 text-xs font-bold uppercase tracking-wider">
+              100% Margen Para Ti
+            </div>
           </div>
         </div>
 
-        <Link
-          href="mailto:contacto@taptrade.cl"
-          className="shrink-0 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-purple-950/50 whitespace-nowrap"
-        >
-          <span>Consultar Multi-Sucursal</span>
-          <IconArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        {/* Bloque 2: Multi-Sucursal Holding (+2.50 UF/mes por sucursal extra) */}
+        <div className="p-6 md:p-8 rounded-3xl bg-[#0E121B] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl hover:border-purple-500/30 transition-colors">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+              <IconStore className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-purple-400">
+                  Holding & Red de Tiendas
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                  +2.50 UF / mes (+ IVA) por sucursal extra
+                </span>
+              </div>
+              <h4 className="text-lg md:text-xl font-black text-white mb-1.5">
+                ¿Tu empresa opera más de un local físico o bodega?
+              </h4>
+              <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
+                Cualquiera sea tu plan contratado, incluye 1 Casa Matriz base. Puedes sumar todas las sucursales adicionales que necesites por <strong className="text-purple-300">+2.50 UF/mes (+ IVA) cada una</strong> (ej: Providencia, Viña del Mar, Concepción), con inventario, arqueos POS, cajeros, subdominio web y retiro presencial gratis ($0) completamente independientes.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 w-full md:w-auto">
+            <Link
+              href="mailto:contacto@taptrade.cl"
+              className="w-full md:w-auto px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 whitespace-nowrap"
+            >
+              <span>Consultar Multi-Sucursal</span>
+              <IconArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Bloque 3: Soporte Técnico Directo e Igualitario (Mismo Nivel Para Todos) */}
+        <div className="p-6 md:p-8 rounded-3xl bg-[#0E121B] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl hover:border-red-500/30 transition-colors">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#E10E0E]/15 border border-[#E10E0E]/30 flex items-center justify-center text-[#E10E0E] shrink-0">
+              <IconHeadphones className="w-6 h-6 text-[#E10E0E]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#E10E0E]">
+                  Soporte Técnico Directo • Todos Tienen el Mismo Respaldo
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#E10E0E]/15 text-red-300 border border-[#E10E0E]/25">
+                  Sin Niveles Artificiales
+                </span>
+              </div>
+              <h4 className="text-lg md:text-xl font-black text-white mb-1.5">
+                Misma atención técnica inmediata para cualquier tienda
+              </h4>
+              <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
+                En TapTrade no discriminamos a ninguna tienda por tamaño ni cobramos por &quot;soporte prioritario&quot;. Si el sistema presenta alguna eventualidad o requieres ayuda con tu inventario, mesón POS o facturación electrónica, nuestro equipo técnico te atiende con la misma máxima prioridad y rapidez por canales oficiales, tanto en el Plan Starter de 1.50 UF como en Enterprise.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 w-full md:w-auto">
+            <Link
+              href="mailto:soporte@taptrade.cl"
+              className="w-full md:w-auto px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 border border-white/15 whitespace-nowrap"
+            >
+              <span>Contactar Soporte</span>
+              <IconArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
       </div>
 
-      
-      {/* Sección Tarifario de Personal & Asientos Adicionales (Seat-Based Pricing) */}
-      <div className="mt-12 bg-[#0E121B] border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      {/* Bloque Tarifario de Personal & Roles de Usuario (Seat-Based Pricing) */}
+      <div className="mt-12 p-6 md:p-8 rounded-3xl bg-[#0E131F] border border-white/10 shadow-2xl">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-white/5">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue/10 border border-blue/20 text-blue text-xs font-bold mb-3 font-mono">
-              <IconUsers className="w-3.5 h-3.5" />
-              <span>Dotación Flexible por Asientos (Seat-Based)</span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-sky-400">
+                Dotación Flexible por Asientos (Seat-Based)
+              </span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-black text-white">
+            <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
               Tarifario de Personal & Roles de Usuario
             </h3>
-            <p className="text-gray-400 text-sm mt-1 max-w-2xl">
+            <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-2xl">
               Cada plan incluye tu dotación base para operar al 100% (1 Dueño, 1 Contador, 1 Encargado y 1 Cajero por local). Si tu operación crece o necesitas más personal en mesón, agrega cuentas a la carta:
             </p>
           </div>
-          <div className="text-xs text-gray-400 font-mono bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 shrink-0">
+          <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-300 shrink-0 font-mono">
             ✓ Facturación mensual unificada + 19% IVA
           </div>
         </div>
@@ -322,7 +336,7 @@ export default function PricingSection() {
                 <span className="text-xl font-black text-white">+0.35</span>
                 <span className="text-xs font-bold text-sky-300">UF / mes</span>
               </div>
-              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$13.500 CLP (+ IVA)</p>
+              <p className="text-[10px] text-gray-400 font-mono mt-0.5">+ IVA mensual</p>
             </div>
           </div>
 
@@ -347,7 +361,7 @@ export default function PricingSection() {
                 <span className="text-xl font-black text-white">+0.60</span>
                 <span className="text-xs font-bold text-emerald-300">UF / mes</span>
               </div>
-              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$23.000 CLP (+ IVA)</p>
+              <p className="text-[10px] text-gray-400 font-mono mt-0.5">+ IVA mensual</p>
             </div>
           </div>
 
@@ -372,7 +386,7 @@ export default function PricingSection() {
                 <span className="text-xl font-black text-white">+0.85</span>
                 <span className="text-xs font-bold text-purple-300">UF / mes</span>
               </div>
-              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$32.500 CLP (+ IVA)</p>
+              <p className="text-[10px] text-gray-400 font-mono mt-0.5">+ IVA mensual</p>
             </div>
           </div>
 
@@ -397,12 +411,11 @@ export default function PricingSection() {
                 <span className="text-xl font-black text-white">+0.30</span>
                 <span className="text-xs font-bold text-cyan-300">UF / mes</span>
               </div>
-              <p className="text-[10px] text-gray-500 font-mono mt-0.5">~$11.500 CLP (+ IVA)</p>
+              <p className="text-[10px] text-gray-400 font-mono mt-0.5">+ IVA mensual</p>
             </div>
           </div>
         </div>
       </div>
-
 
       {/* Tarjeta de Liquidación Mensual & Cumplimiento Tributario F29 (Facturación con IVA) */}
       <div className="mt-8 p-6 md:p-8 rounded-3xl bg-gradient-to-r from-cyan-950/20 via-[#0E131E] to-blue/10 border border-cyan-500/30 shadow-xl">
@@ -435,7 +448,7 @@ export default function PricingSection() {
           <div className="bg-[#111522] border border-white/10 rounded-2xl p-4 w-full lg:w-auto shrink-0 space-y-2 text-xs">
             <div className="flex items-center justify-between gap-6">
               <span className="text-gray-400 font-medium">Conversión Oficial:</span>
-              <span className="text-white font-mono font-bold">Valor UF al día de facturación</span>
+              <span className="text-white font-mono font-bold">Valor UF al día de emisión</span>
             </div>
             <div className="flex items-center justify-between gap-6">
               <span className="text-gray-400 font-medium">Impuesto Aplicable:</span>
