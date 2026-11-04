@@ -3,12 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 
-export interface Feature {
-  id: string;
-  key: string;
-  name: string;
-}
-
 export interface Plan {
   id: string;
   name: string;
@@ -17,13 +11,12 @@ export interface Plan {
   skuLimit: number;
   commissionRate: string | number;
   isStandard: boolean;
-  features: Feature[];
+  features?: any[];
 }
 
 export function useSuperAdminPlans() {
   const { showToast } = useToast();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [allFeatures, setAllFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Modal state
@@ -38,19 +31,13 @@ export function useSuperAdminPlans() {
     skuLimit: "-1", 
     commissionRate: "0", 
     isStandard: true,
-    featureIds: [] as string[] 
   });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [plansRes, featuresRes] = await Promise.all([
-        fetch(`${API_URL}/features/plans`, { credentials: "include" }),
-        fetch(`${API_URL}/features`, { credentials: "include" })
-      ]);
-      
+      const plansRes = await fetch(`${API_URL}/features/plans`, { credentials: "include" });
       if (plansRes.ok) setPlans(await plansRes.json());
-      if (featuresRes.ok) setAllFeatures(await featuresRes.json());
     } catch (e) {
       console.error(e);
       showToast("Error al cargar datos", "error");
@@ -73,7 +60,6 @@ export function useSuperAdminPlans() {
         skuLimit: plan.skuLimit !== undefined ? String(plan.skuLimit) : "-1",
         commissionRate: plan.commissionRate ? String(Number(plan.commissionRate) * 100) : "0",
         isStandard: plan.isStandard !== undefined ? plan.isStandard : true,
-        featureIds: plan.features.map(f => f.id)
       });
     } else {
       setEditingPlan(null);
@@ -84,7 +70,6 @@ export function useSuperAdminPlans() {
         skuLimit: "-1", 
         commissionRate: "0", 
         isStandard: true, 
-        featureIds: [] 
       });
     }
     setIsModalOpen(true);
@@ -92,15 +77,6 @@ export function useSuperAdminPlans() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-  };
-
-  const handleToggleFeature = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      featureIds: prev.featureIds.includes(id) 
-        ? prev.featureIds.filter(fId => fId !== id)
-        : [...prev.featureIds, id]
-    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -113,11 +89,13 @@ export function useSuperAdminPlans() {
       const method = editingPlan ? "PATCH" : "POST";
       
       const payload = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
         price: parseFloat(formData.price) || 0,
         skuLimit: parseInt(formData.skuLimit, 10),
         commissionRate: 0, // SaaS Model: Siempre 0% comisión
         isStandard: Boolean(formData.isStandard),
+        featureIds: [], // Sin restricción de funciones
       };
 
       const res = await fetch(url, {
@@ -154,7 +132,6 @@ export function useSuperAdminPlans() {
 
   return {
     plans,
-    allFeatures,
     loading,
     isModalOpen,
     editingPlan,
@@ -162,7 +139,6 @@ export function useSuperAdminPlans() {
     setFormData,
     handleOpenModal,
     handleCloseModal,
-    handleToggleFeature,
     handleSave,
     handleDelete
   };

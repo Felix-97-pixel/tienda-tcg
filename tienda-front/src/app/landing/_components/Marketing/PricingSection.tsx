@@ -10,6 +10,7 @@ import {
   IconWallet,
   IconSearch,
   IconArrowRight,
+  IconPlus,
 } from "@/components/ui/Icons";
 
 interface PlanItem {
@@ -19,29 +20,22 @@ interface PlanItem {
   price: string;
   skuLimit: string;
   branches: string;
+  staff: string;
+  support: string;
   popular: boolean;
-  features: string[];
 }
 
 const STATIC_PLANS: PlanItem[] = [
   {
     id: "plan-starter",
     name: "Plan Starter",
-    description: "Para tiendas emergentes y coleccionistas que inician su catálogo digital.",
+    description: "Para tiendas emergentes y coleccionistas que inician su catálogo digital en línea.",
     price: "1.50",
     skuLimit: "Hasta 1.500 SKUs",
-    branches: "1 Sucursal",
+    branches: "1 Casa Matriz",
+    staff: "2 Cuentas de Cajero",
+    support: "Soporte Estándar",
     popular: false,
-    features: [
-      "Catálogo de hasta 1.500 cartas",
-      "Punto de Venta POS Mostrador (Offline-First)",
-      "Motor de Buylist Automatizada",
-      "Radar de Demanda (Wishlists)",
-      "Crédito de Tienda y Billetera",
-      "TapTrade Shield & Despacho Seguro",
-      "Sincronización Scryfall & Pokémon",
-      "Envíos Starken & Chilexpress",
-    ],
   },
   {
     id: "plan-store",
@@ -49,20 +43,10 @@ const STATIC_PLANS: PlanItem[] = [
     description: "El estándar para tiendas de hobby establecidas con rotación constante de singles.",
     price: "3.50",
     skuLimit: "Hasta 6.000 SKUs",
-    branches: "1 Sucursal",
+    branches: "1 Casa Matriz",
+    staff: "5 Cuentas de Cajero",
+    support: "Soporte Prioritario",
     popular: true,
-    features: [
-      "Catálogo de hasta 6.000 cartas",
-      "Punto de Venta POS Mostrador (Offline-First)",
-      "Motor de Buylist Automatizada",
-      "Radar de Demanda (Wishlists)",
-      "Crédito de Tienda y Billetera",
-      "Reportes de Ventas & Analítica",
-      "Cuadratura F29 para el SII",
-      "TapTrade Shield & Despacho Seguro",
-      "Importación Masiva por CSV",
-      "Soporte Prioritario",
-    ],
   },
   {
     id: "plan-mega-store",
@@ -70,20 +54,10 @@ const STATIC_PLANS: PlanItem[] = [
     description: "Para tiendas consolidadas con alto volumen de inventario y múltiples formatos TCG.",
     price: "6.50",
     skuLimit: "Hasta 18.000 SKUs",
-    branches: "Hasta 2 Sucursales",
+    branches: "1 Casa Matriz",
+    staff: "Cuentas de Cajero Ilimitadas",
+    support: "Soporte Preferencial WhatsApp",
     popular: false,
-    features: [
-      "Catálogo de hasta 18.000 cartas",
-      "Soporte Multi-Sucursal (2 locales)",
-      "Punto de Venta POS Mostrador (Offline-First)",
-      "Motor de Buylist Automatizada",
-      "Radar de Demanda (Wishlists)",
-      "Crédito de Tienda y Billetera",
-      "Reportes de Ventas & Analítica F29",
-      "Cuentas de Cajero Simultáneas",
-      "Arqueo Ciego y Turnos de Caja",
-      "TapTrade Shield & Despacho Seguro",
-    ],
   },
   {
     id: "plan-enterprise",
@@ -91,19 +65,10 @@ const STATIC_PLANS: PlanItem[] = [
     description: "Operación masiva sin restricciones para holdings, distribuidoras y grandes cadenas.",
     price: "11.50",
     skuLimit: "SKUs Ilimitados",
-    branches: "Multi-Sucursal Ilimitado",
+    branches: "1 Casa Matriz",
+    staff: "Usuarios Staff Ilimitados",
+    support: "Onboarding & Asesoría VIP",
     popular: false,
-    features: [
-      "Catálogo y SKUs 100% Ilimitados",
-      "Multi-Sucursal Holding Ilimitado",
-      "Punto de Venta POS Mostrador (Offline-First)",
-      "Motor de Buylist Automatizada",
-      "Radar de Demanda (Wishlists)",
-      "Crédito de Tienda y Billetera",
-      "Reportes Consolidados de Holding",
-      "API & Sincronización Dedicada",
-      "Asesoría Técnica y Onboarding VIP",
-    ],
   },
 ];
 
@@ -120,7 +85,7 @@ const INCLUDED_MODULES = [
   },
   {
     title: "Radar de Demanda (Wishlists)",
-    desc: "Detecta qué cartas buscan activamente los jugadores para ajustar tus precios de compra y optimizar compras.",
+    desc: "Detecta qué cartas buscan activamente los jugadores para ajustar tus precios de compra y rotar tu inventario.",
     icon: <IconSearch className="w-5 h-5 text-purple-400" />,
   },
   {
@@ -150,13 +115,13 @@ export default function PricingSection() {
           <span>Todos los módulos profesionales incluidos en todos los planes • 100% Sin Comisiones por Venta</span>
         </div>
         <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#E10E0E] block mb-3">
-          Suscripción SaaS Simple • Escala por Cantidad de SKUs
+          Suscripción SaaS Simple • Escala Únicamente por Cantidad de SKUs
         </span>
         <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
           Un solo sistema, todas las herramientas
         </h2>
         <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-          No cobramos extra por activar funciones. Tienes acceso completo a la suite desde el día 1; solo eliges el tramo de cartas que necesitas en vitrina.
+          Todos los planes incluyen 1 Casa Matriz y acceso completo a toda la suite desde el día 1. Solo eliges el tramo de cartas que necesitas en vitrina.
         </p>
       </div>
 
@@ -207,19 +172,31 @@ export default function PricingSection() {
                   </p>
                 </div>
 
-                {/* Badges de Límite de SKUs y Sucursales */}
+                {/* Especificaciones de Escala (SKUs, Sucursales, Staff, Soporte) */}
                 <div className="space-y-2 mb-6">
-                  <div className="bg-blue/10 border border-blue/20 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
+                  <div className="bg-blue/10 border border-blue/20 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
                     <span className="text-gray-400 font-medium">Límite de Catálogo:</span>
                     <span className="font-bold text-white font-mono">{plan.skuLimit}</span>
                   </div>
                   <div className="bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
-                    <span className="text-gray-400 font-medium">Sucursales Físicas:</span>
-                    <span className="font-bold text-gray-300 font-mono">{plan.branches}</span>
+                    <span className="text-gray-400 font-medium">Sucursal Base:</span>
+                    <span className="font-bold text-emerald-400 font-mono">1 Casa Matriz</span>
+                  </div>
+                  <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
+                    <span className="text-purple-300 font-medium">Sucursal Extra:</span>
+                    <span className="font-bold text-purple-300 font-mono">+2.5 UF/mes c/u</span>
+                  </div>
+                  <div className="bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
+                    <span className="text-gray-400 font-medium">Cuentas de Personal:</span>
+                    <span className="font-bold text-gray-300 font-mono">{plan.staff}</span>
+                  </div>
+                  <div className="bg-white/[0.03] border border-white/10 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs">
+                    <span className="text-gray-400 font-medium">Soporte:</span>
+                    <span className="font-bold text-gray-300">{plan.support}</span>
                   </div>
                 </div>
 
-                {/* Destacado 0% Comisión SaaS */}
+                {/* 0% Comisión SaaS */}
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3.5 py-2.5 flex items-center justify-between mb-6 shadow-sm">
                   <span className="text-xs font-bold text-emerald-400 flex items-center gap-2">
                     <IconCheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -230,16 +207,15 @@ export default function PricingSection() {
                   </span>
                 </div>
 
-                {/* Features List */}
-                <div className="space-y-2.5 mb-8">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5 text-xs text-white">
-                      <div className="w-5 h-5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                        <IconCheckCircle className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="font-medium text-gray-200">{feature}</span>
-                    </div>
-                  ))}
+                {/* Banner Universal: Todos los Módulos Incluidos */}
+                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/10 text-xs space-y-1 mb-8">
+                  <p className="font-bold text-emerald-400 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                    <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Suite Completa Incluida</span>
+                  </p>
+                  <p className="text-gray-400 text-[11px] leading-relaxed">
+                    POS Mostrador, Buylist, Radar, Créditos, F29, Shield y Envíos activos sin costo adicional.
+                  </p>
                 </div>
               </div>
 
@@ -259,7 +235,40 @@ export default function PricingSection() {
         })}
       </div>
 
-      {/* Grid de Todos los Módulos Incluidos (Reemplazo de los addons de pago) */}
+      {/* Bloque Destacado de Multi-Sucursal Holding (+2.5 UF/mes) */}
+      <div className="mt-10 p-6 md:p-8 rounded-3xl bg-gradient-to-r from-purple-950/20 via-[#111522] to-purple-950/20 border border-purple-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+            <IconStore className="w-6 h-6 text-purple-400" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-purple-400">
+                Holding & Red de Tiendas
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                +2.5 UF / mes por sucursal
+              </span>
+            </div>
+            <h4 className="text-lg md:text-xl font-bold text-white mb-1.5">
+              ¿Tu empresa opera más de un local físico o bodega?
+            </h4>
+            <p className="text-gray-400 text-xs md:text-sm leading-relaxed max-w-3xl">
+              Cualquiera sea tu plan contratado, incluye 1 Casa Matriz base. Puedes sumar todas las sucursales adicionales que necesites por <strong className="text-purple-300">+2.5 UF/mes cada una</strong> (ej: Providencia, Viña del Mar, Concepción), con inventario, arqueos POS, cajeros, subdominio web y retiro en tienda presencial $0 completamente independientes.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="mailto:contacto@taptrade.cl"
+          className="shrink-0 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-purple-950/50 whitespace-nowrap"
+        >
+          <span>Consultar Multi-Sucursal</span>
+          <IconArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* Grid de Todos los Módulos Incluidos */}
       <div className="mt-16 bg-[#0E121B] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
         <div className="text-center mb-10">
           <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">

@@ -88,8 +88,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
     {
       title: "Configuración Sistema",
       items: [
-        { path: "/superadmin/config/plans", label: "Planes SaaS & Add-ons", icon: <IconTicket className="w-4 h-4" /> },
-        { path: "/superadmin/config/features", label: "Funciones (Features)", icon: <IconSettings className="w-4 h-4" /> },
+        { path: "/superadmin/config/plans", label: "Planes de Suscripción (SaaS)", icon: <IconTicket className="w-4 h-4" /> },
         { path: "/superadmin/config/expansions", label: "Mapeo de Expansiones", icon: <IconSliders className="w-4 h-4" /> },
         { path: "/superadmin/config/sync", label: "Destinos de Sincronización", icon: <IconSliders className="w-4 h-4" /> },
         { path: "/superadmin/config/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },

@@ -192,7 +192,7 @@ export default function MarketingPage() {
     },
     {
       q: "¿Puedo operar varias sucursales físicas bajo la misma empresa?",
-      a: "Sí. TapTrade cuenta con arquitectura Multi-Sucursal nativa. Una empresa holding puede gestionar Casa Matriz y múltiples sucursales físicas (ej: Providencia, Viña del Mar, Concepción). Cada local cuenta con stock independiente, terminales POS con arqueo propio, cajeros con roles asignados, subdominio web y retiro presencial gratis ($0) para los compradores locales.",
+      a: "Sí. Todos los planes SaaS de TapTrade incluyen 1 Casa Matriz base. Si tu comercio opera más de un local físico o bodega (ej: Providencia, Viña del Mar, Concepción), puedes sumar sucursales adicionales por tan solo +2.5 UF/mes cada una. Cada sucursal cuenta con inventario independiente, terminales POS con arqueo de caja propio, cuentas de cajero asignadas, subdominio web propio y retiro presencial gratis ($0) para tus clientes locales.",
     }
   ];
 
@@ -658,7 +658,7 @@ export default function MarketingPage() {
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">Multi-Sucursal & Red de Tiendas</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Gestiona Casa Matriz y múltiples sucursales físicas (ej: Providencia, Viña del Mar). Cada local cuenta con stock, terminales POS, cajeros, subdominio web y retiro presencial gratis.
+                  Todos los planes incluyen 1 Casa Matriz base. Suma sucursales físicas por +2.5 UF/mes cada una con inventario propio, terminales POS, cajeros, subdominio web y retiro presencial gratis.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
@@ -903,7 +903,7 @@ export default function MarketingPage() {
               </span>
               <h3 className="text-xl font-bold text-white mb-2">Gestión Multi-Sucursal (Holding)</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Opera Casa Matriz y sucursales físicas con inventarios independientes, cajas POS para cada cajero, subdominio web por local y retiro presencial $0 para tus clientes.
+                1 Casa Matriz base incluida en todos los planes (+2.5 UF/mes por cada sucursal adicional). Opera inventarios independientes, cajas POS para cada cajero, subdominio web por local y retiro presencial $0 para tus clientes.
               </p>
             </div>
             <div className="pt-4 border-t border-purple-500/20 text-xs text-purple-400 font-mono">
