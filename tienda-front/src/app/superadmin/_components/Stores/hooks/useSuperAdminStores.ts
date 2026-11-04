@@ -134,7 +134,7 @@ export function useSuperAdminStores() {
 
   const fetchPlans = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/features/plans`, {
+      const res = await fetch(`${API_URL}/plans`, {
         credentials: "include",
         headers: getAuthHeaders(),
       });

@@ -120,23 +120,6 @@ export default function MarketingPage() {
       searchQuery: "Sivir",
       isFeatured: false,
     },
-    {
-      id: "emberheart-challenger",
-      name: "Emberheart Challenger",
-      set: "Bloomburrow",
-      game: "Magic: The Gathering",
-      gameCategory: "magic",
-      gameColor: "text-amber-400",
-      imageUrl: "https://cards.scryfall.io/normal/front/0/0/0035082e-bb86-4f95-be48-ffc87fe5286d.jpg?1721426609",
-      condition: "NM",
-      language: "ES",
-      price: "$2.290 CLP",
-      store: "BloodMoonGames",
-      badge: "Standard Red",
-      isFoil: false,
-      searchQuery: "Emberheart",
-      isFeatured: false,
-    },
   ];
 
   const displayedVaultCards =
@@ -202,7 +185,7 @@ export default function MarketingPage() {
       <div className="absolute top-[-10%] left-[-15%] w-[60%] h-[60%] bg-[#E10E0E]/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute top-[30%] right-[-15%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute bottom-[10%] left-[10%] w-[45%] h-[45%] bg-amber-500/5 rounded-full blur-[160px] pointer-events-none z-0" />
-      
+
       {/* Subtle Matrix Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none z-0"></div>
 
@@ -278,33 +261,30 @@ export default function MarketingPage() {
                   <button
                     type="button"
                     onClick={() => setVaultCategory("featured")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      vaultCategory === "featured"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${vaultCategory === "featured"
                         ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
                         : "text-gray-400 hover:text-white"
-                    }`}
+                      }`}
                   >
                     Destacadas
                   </button>
                   <button
                     type="button"
                     onClick={() => setVaultCategory("magic")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      vaultCategory === "magic"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${vaultCategory === "magic"
                         ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
                         : "text-gray-400 hover:text-white"
-                    }`}
+                      }`}
                   >
                     Magic
                   </button>
                   <button
                     type="button"
                     onClick={() => setVaultCategory("riftbound")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      vaultCategory === "riftbound"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${vaultCategory === "riftbound"
                         ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
                         : "text-gray-400 hover:text-white"
-                    }`}
+                      }`}
                   >
                     Riftbound
                   </button>
@@ -317,11 +297,10 @@ export default function MarketingPage() {
                   <Link
                     key={card.id}
                     href={`/shop?search=${encodeURIComponent(card.searchQuery)}`}
-                    className={`group relative rounded-2xl bg-[#111522] border transition-all duration-300 hover:-translate-y-1.5 p-4 flex flex-col justify-between text-left ${
-                      card.isFoil
+                    className={`group relative rounded-2xl bg-[#111522] border transition-all duration-300 hover:-translate-y-1.5 p-4 flex flex-col justify-between text-left ${card.isFoil
                         ? "border-red-500/40 hover:border-[#E10E0E] shadow-xl shadow-[#E10E0E]/10"
                         : "border-white/10 hover:border-white/30 shadow-lg shadow-black/40"
-                    }`}
+                      }`}
                   >
                     {/* Top Header: Characteristics Badges (NM, Language Flag & Code, Foil/Normal) */}
                     <div className="flex items-center justify-between gap-1.5 mb-2.5 z-10 w-full">
@@ -480,22 +459,20 @@ export default function MarketingPage() {
             <button
               type="button"
               onClick={() => setActiveTab("players")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                activeTab === "players"
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "players"
                   ? "bg-[#E10E0E] text-white shadow-lg shadow-[#E10E0E]/30"
                   : "text-gray-400 hover:text-white"
-              }`}
+                }`}
             >
               <IconCard className="w-4 h-4" /> Para Jugadores & Coleccionistas
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("stores")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                activeTab === "stores"
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "stores"
                   ? "bg-[#E10E0E] text-white shadow-lg shadow-[#E10E0E]/30"
                   : "text-gray-400 hover:text-white"
-              }`}
+                }`}
             >
               <IconStore className="w-4 h-4" /> Para Tiendas & Dealers (SaaS)
             </button>
