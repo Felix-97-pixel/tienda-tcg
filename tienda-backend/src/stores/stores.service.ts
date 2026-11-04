@@ -136,10 +136,7 @@ export class StoresService {
         languageDevaluations: {
           include: { language: true }
         },
-        subscriptionPlans: {
-          include: { features: true }
-        },
-        customFeatures: true,
+        subscriptionPlans: true,
         supportedGames: true,
         originRegion: true,
         originCommune: {
@@ -160,39 +157,21 @@ export class StoresService {
     return this.prisma.store.findFirst({
       where: { ownerId: userId },
       include: {
-        subscriptionPlans: { include: { features: true } },
-        customFeatures: true,
+        subscriptionPlans: true,
         gameExchangeRates: true,
       }
     });
   }
 
   async getStoreFeatures(storeId: string): Promise<string[]> {
-    const store = await this.prisma.store.findUnique({
-      where: { id: storeId },
-      include: {
-        subscriptionPlans: { include: { features: true } },
-        customFeatures: true,
-        gameExchangeRates: true,
-      }
-    });
-
-    if (!store) return [];
-
-    const planFeatures = store.subscriptionPlans?.flatMap(p => p.features.map(f => f.key)) || [];
-    const customFeats = store.customFeatures.map(f => f.key) || [];
-
-        // Modelo Value-Metric por SKUs: Todos los módulos base (addons) están incluidos para todas las tiendas
-    const ALL_ADDONS = [
+    // Modelo Value-Metric por SKUs: Todos los módulos base (addons) están incluidos para todas las tiendas
+    return [
       'addon:buylist',
       'addon:reports',
       'addon:store_credit',
       'addon:radar',
       'addon:estadisticas',
     ];
-
-    // Union unique
-    return Array.from(new Set([...ALL_ADDONS, ...planFeatures, ...customFeats]));
   }
 
   async getStoreById(id: string) {
@@ -216,8 +195,7 @@ export class StoresService {
         languageDevaluations: {
           include: { language: true }
         },
-        subscriptionPlans: { include: { features: true } },
-        customFeatures: true,
+        subscriptionPlans: true,
       }
     });
 
@@ -417,7 +395,7 @@ export class StoresService {
     const {
       name, subdomain, logoUrl, description, facebook, instagram, twitter, twitch, whatsapp, email, address, latitude, longitude, website,
       rut, legalName, taxActivity,
-      subscriptionPlanIds, customFeatureIds,
+      subscriptionPlanIds,
       subscriptionDiscountType, subscriptionDiscountValue, subscriptionNotes
     } = data;
 
@@ -447,11 +425,7 @@ export class StoresService {
       };
     }
 
-    if (customFeatureIds !== undefined && Array.isArray(customFeatureIds)) {
-      updateData.customFeatures = {
-        set: customFeatureIds.map((id: string) => ({ id }))
-      };
-    }
+
 
     await this.prisma.store.update({
       where: { id: store.id },

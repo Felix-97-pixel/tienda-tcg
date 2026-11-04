@@ -11,7 +11,6 @@ export interface Plan {
   skuLimit: number;
   commissionRate: string | number;
   isStandard: boolean;
-  features?: any[];
 }
 
 export function useSuperAdminPlans() {
@@ -36,7 +35,7 @@ export function useSuperAdminPlans() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const plansRes = await fetch(`${API_URL}/features/plans`, { credentials: "include" });
+      const plansRes = await fetch(`${API_URL}/plans`, { credentials: "include" });
       if (plansRes.ok) setPlans(await plansRes.json());
     } catch (e) {
       console.error(e);
@@ -83,8 +82,8 @@ export function useSuperAdminPlans() {
     e.preventDefault();
     try {
       const url = editingPlan 
-        ? `${API_URL}/features/plans/${editingPlan.id}`
-        : `${API_URL}/features/plans`;
+        ? `${API_URL}/plans/${editingPlan.id}`
+        : `${API_URL}/plans`;
       
       const method = editingPlan ? "PATCH" : "POST";
       
@@ -118,7 +117,7 @@ export function useSuperAdminPlans() {
   const handleDelete = async (id: string) => {
     if (!confirm("¿Seguro que deseas eliminar este Plan?")) return;
     try {
-      const res = await fetch(`${API_URL}/features/plans/${id}`, {
+      const res = await fetch(`${API_URL}/plans/${id}`, {
         method: "DELETE",
         credentials: "include"
       });

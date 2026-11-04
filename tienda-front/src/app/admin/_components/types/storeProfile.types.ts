@@ -1,10 +1,3 @@
-export interface StoreFeature {
-  id: string;
-  name: string;
-  key: string;
-  price: number;
-}
-
 export interface StorePlan {
   id: string;
   name: string;
@@ -17,7 +10,6 @@ export interface StoreProfileFormData {
   subdomain?: string;
   logoUrl: string;
   subscriptionPlanIds: string[];
-  customFeatureIds: string[];
   description: string;
   facebook: string;
   instagram: string;

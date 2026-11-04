@@ -84,11 +84,20 @@ export class AccountingService {
     const netPlatformMargin = platformServiceFeeNet;
 
     // 2. Fondos en Custodia de Tiendas (Ledger WalletTransaction)
-    // 2. Facturación SaaS de Suscripciones (Planes y Sucursales contratadas por Empresas)
+    // 2. Facturación SaaS de Suscripciones (Planes, Sucursales y Cajeros contratados por Empresas)
     const [companiesWithPlan, ufSetting, heldInEscrowSum, availableSum, totalWithdrawnSum] = await Promise.all([
       this.prisma.company.findMany({
         where: { planId: { not: null } },
-        include: { plan: true },
+        include: {
+          plan: true,
+          stores: {
+            include: {
+              members: {
+                where: { role: 'CASHIER' },
+              },
+            },
+          },
+        },
       }),
       this.prisma.globalSetting.findUnique({
         where: { key: 'platform.ufValue' },
@@ -108,21 +117,35 @@ export class AccountingService {
     ]);
 
     const ufValueClp = ufSetting && ufSetting.value ? parseFloat(ufSetting.value) : 38500;
-    const extraBranchUfRate = 1.5;
+    const extraBranchUfRate = 2.50; // +2.50 UF/mes por sucursal física adicional
+    const extraCashierUfRate = 0.35; // +0.35 UF/mes por cajero POS extra
 
     let totalSaaSPlanUf = 0;
     let totalSaaSExtraBranchesUf = 0;
+    let totalSaaSExtraCashiersUf = 0;
 
     for (const c of companiesWithPlan) {
       if (c.plan) {
         totalSaaSPlanUf += Number(c.plan.price || 0);
       }
-      if (c.extraBranchesCount > 0) {
-        totalSaaSExtraBranchesUf += c.extraBranchesCount * extraBranchUfRate;
+      const branchCount = c.stores?.length || (c.extraBranchesCount ? c.extraBranchesCount + 1 : 1);
+      const extraBranches = Math.max(0, branchCount - 1);
+      if (extraBranches > 0) {
+        totalSaaSExtraBranchesUf += extraBranches * extraBranchUfRate;
+      }
+
+      // Conteo de cajeros extra (más de 1 cajero en una sucursal física)
+      if (c.stores && c.stores.length > 0) {
+        for (const s of c.stores) {
+          const cashiersCount = s.members?.length || 0;
+          if (cashiersCount > 1) {
+            totalSaaSExtraCashiersUf += (cashiersCount - 1) * extraCashierUfRate;
+          }
+        }
       }
     }
 
-    const totalSaaSUf = Number((totalSaaSPlanUf + totalSaaSExtraBranchesUf).toFixed(2));
+    const totalSaaSUf = Number((totalSaaSPlanUf + totalSaaSExtraBranchesUf + totalSaaSExtraCashiersUf).toFixed(2));
     const saasNetRevenue = Math.round(totalSaaSUf * ufValueClp);
     const saasVatDebit = Math.round(saasNetRevenue * 0.19);
     const saasGrossRevenue = saasNetRevenue + saasVatDebit;

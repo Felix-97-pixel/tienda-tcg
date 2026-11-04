@@ -141,7 +141,7 @@ export default function StoreTable({
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-4 min-w-[220px]">
+                  <td className="px-4 py-4 min-w-[260px]">
                     <SearchableSelect
                       options={planOptions}
                       value={company.planId || ""}
@@ -152,19 +152,47 @@ export default function StoreTable({
                       usePortal={true}
                       direction="auto"
                     />
-                    {company.plan && (
-                      <div className="mt-1.5 flex items-center gap-1.5 text-[10px] font-mono">
-                        <span className="text-white/50">Base:</span>
-                        <span className="font-bold text-white">
-                          {(
-                            Number(company.plan.price) +
-                            Math.max(0, (company.stores?.length || 0) - 1) * 2.5
-                          ).toFixed(2)}{" "}
-                          UF/mes
-                        </span>
-                        <span className="text-emerald-400 font-semibold">+ IVA</span>
-                      </div>
-                    )}
+                    {company.plan && (() => {
+                      const planPrice = Number(company.plan.price || 0);
+                      const extraBranches = Math.max(0, branchCount - 1);
+                      const branchesCost = extraBranches * 2.50;
+                      const extraCashiers = company.stores?.reduce((acc, s) => {
+                        const cashiers = s.members?.filter((m) => m.role === "CASHIER")?.length || 0;
+                        return acc + Math.max(0, cashiers - 1);
+                      }, 0) || 0;
+                      const cashiersCost = extraCashiers * 0.35;
+                      const totalNetUF = planPrice + branchesCost + cashiersCost;
+                      const totalGrossUF = totalNetUF * 1.19;
+
+                      return (
+                        <div className="mt-2 p-2.5 rounded-xl bg-black/40 border border-white/10 space-y-1 text-[11px] font-mono shadow-inner">
+                          <div className="flex items-center justify-between text-white/60">
+                            <span>Plan Base ({company.plan.name}):</span>
+                            <span className="text-white font-bold">{planPrice.toFixed(2)} UF</span>
+                          </div>
+                          {extraBranches > 0 && (
+                            <div className="flex items-center justify-between text-purple-300">
+                              <span>{extraBranches} {extraBranches === 1 ? "sucursal extra" : "sucursales extra"}:</span>
+                              <span className="font-bold">+{branchesCost.toFixed(2)} UF</span>
+                            </div>
+                          )}
+                          {extraCashiers > 0 && (
+                            <div className="flex items-center justify-between text-amber-300">
+                              <span>{extraCashiers} {extraCashiers === 1 ? "cajero extra" : "cajeros extra"}:</span>
+                              <span className="font-bold">+{cashiersCost.toFixed(2)} UF</span>
+                            </div>
+                          )}
+                          <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-white/70 font-semibold">Total Neto:</span>
+                            <span className="text-white font-extrabold">{totalNetUF.toFixed(2)} UF <span className="text-emerald-400 font-semibold">+ IVA</span></span>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-emerald-400 font-bold">
+                            <span>Total Bruto (19% IVA):</span>
+                            <span>{totalGrossUF.toFixed(2)} UF/mes</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-4">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-xs font-bold text-white">
@@ -213,14 +241,40 @@ export default function StoreTable({
                             </h4>
                             <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono">
                               <span className="text-white/60">
-                                Plan: <strong className="text-white">{company.plan?.name || "Sin Plan"}</strong>
+                                Plan: <strong className="text-white">{company.plan?.name || "Sin Plan"} ({Number(company.plan?.price || 0).toFixed(2)} UF)</strong>
                               </span>
                               <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                                1 Casa Matriz incluida
+                                1 Casa Matriz incluida ($0 extra)
                               </span>
                               {branchCount > 1 && (
                                 <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold">
-                                  {branchCount - 1} extra (+{((branchCount - 1) * 2.5).toFixed(1)} UF/mes + IVA)
+                                  {branchCount - 1} extra (+{((branchCount - 1) * 2.5).toFixed(2)} UF/mes + IVA)
+                                </span>
+                              )}
+                              {(() => {
+                                const extraCashiers = company.stores?.reduce((acc, s) => {
+                                  const cashiers = s.members?.filter((m) => m.role === "CASHIER")?.length || 0;
+                                  return acc + Math.max(0, cashiers - 1);
+                                }, 0) || 0;
+                                if (extraCashiers > 0) {
+                                  return (
+                                    <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-bold">
+                                      {extraCashiers} cajero(s) extra (+{(extraCashiers * 0.35).toFixed(2)} UF/mes + IVA)
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })()}
+                              {company.plan && (
+                                <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20 font-bold">
+                                  Total a Facturar: {(
+                                    (Number(company.plan.price || 0) +
+                                    Math.max(0, branchCount - 1) * 2.5 +
+                                    (company.stores?.reduce((acc, s) => {
+                                      const cashiers = s.members?.filter((m) => m.role === "CASHIER")?.length || 0;
+                                      return acc + Math.max(0, cashiers - 1);
+                                    }, 0) || 0) * 0.35) * 1.19
+                                  ).toFixed(2)} UF con IVA
                                 </span>
                               )}
                             </div>

@@ -25,7 +25,7 @@ Antes de proponer o agregar un nuevo campo o modelo a la base de datos:
 3. [Tiendas y Vendedores (Multi-Tenant Marketplace)](#3-tiendas-y-vendedores)
    * `Store`, `StoreSetting`, `SyncBackup`
 4. [Suscripciones y Monetización SaaS](#4-suscripciones-y-monetización-saas)
-   * `Feature`, `SubscriptionPlan`
+   * `SubscriptionPlan`
 5. [Logística, Envíos y Territorio (Chile)](#5-logística-envíos-y-territorio)
    * `LogisticZone`, `Region`, `Commune`, `ShippingProvider`, `ShippingLabel`
 6. [Usuarios, Autenticación y Direcciones](#6-usuarios-autenticación-y-direcciones)
@@ -239,7 +239,7 @@ Entidad central que representa a una tienda física o virtual vendedora dentro d
 * `subscriptionDiscountValue` (`Decimal(10,2)`)
 * `subscriptionNotes` (`String?`)
 * `createdAt` / `updatedAt` (`DateTime`).
-* **Relaciones:** `owner`, `inventory`, `customProducts`, `vendorOrders`, `shipping`, `settings`, `transactions`, `withdrawals`, `devaluations`, `languageDevaluations`, `gameExchangeRates`, `subscriptionPlans`, `customFeatures`, `buyListItems`, `storeCredits`, `creditTransactions`, `coupons`, `originRegion`, `originCommune`, `supportedGames`, `cashShifts`.
+* **Relaciones:** `owner`, `inventory`, `customProducts`, `vendorOrders`, `shipping`, `settings`, `transactions`, `withdrawals`, `devaluations`, `languageDevaluations`, `gameExchangeRates`, `subscriptionPlans`, `buyListItems`, `storeCredits`, `creditTransactions`, `coupons`, `originRegion`, `originCommune`, `supportedGames`, `cashShifts`.
 
 ### `StoreSetting`
 Pares clave-valor para configuraciones adicionales de la tienda (redes sociales, descripción, contacto).
@@ -262,14 +262,7 @@ Planes SaaS contratables por los dueños de tiendas (Básico, Pro, Enterprise).
 * `skuLimit` (`Int`, default: -1): Límite de cartas/productos únicos en inventario (-1 = ilimitado).
 * `commissionRate` (`Decimal(5,4)`, default: 0): Comisión porcentual sobre ventas a la tienda (0.00% bajo el modelo SaaS actual; el 3.00% neto + IVA de servicio y protección lo asume el comprador en checkout).
 * `isStandard` (`Boolean`, default: `true`).
-* **Relaciones:** `features`, `stores`.
-
-### `Feature`
-Funcionalidades o módulos desbloqueables por plan o addons independientes (ej: buylist, api_sync, pos).
-* `id` (`String`, UUID, PK)
-* `key` (`String`, Unique): Identificador clave (ej: "module:buylist", "game:magic", "module:pos").
-* `name` (`String`), `description` (`String?`), `price` (`Decimal(10,2)`).
-* **Relaciones:** `plans`, `stores`.
+* **Relaciones:** `stores`, `companies`.
 
 ---
 

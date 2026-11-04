@@ -7,6 +7,16 @@ import { API_URL } from "@/utils/api";
 import { TargetUserToEdit } from "../EditUserCredentialsModal";
 import toast from "react-hot-toast";
 
+export interface BranchMember {
+  id: string;
+  role: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
 export interface Branch {
   id: string;
   name: string;
@@ -15,6 +25,7 @@ export interface Branch {
   isMainBranch: boolean;
   address?: string;
   balance: number;
+  members?: BranchMember[];
 }
 
 export interface SubscriptionPlan {

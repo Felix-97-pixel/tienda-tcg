@@ -62,10 +62,6 @@ export class UpdateStoreFullDto {
   @IsOptional()
   subscriptionPlanIds?: string[];
 
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  customFeatureIds?: string[];
 
   @IsArray()
   @IsString({ each: true })

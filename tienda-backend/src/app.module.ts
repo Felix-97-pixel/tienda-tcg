@@ -21,7 +21,7 @@ import { MailModule } from './mail/mail.module';
 import { StoresModule } from './stores/stores.module';
 import { ExpansionsModule } from './expansions/expansions.module';
 import { GamesModule } from './games/games.module';
-import { FeaturesModule } from './features/features.module';
+import { PlansModule } from './plans/plans.module';
 import { BuylistModule } from './buylist/buylist.module';
 import { StoreCreditModule } from './store-credit/store-credit.module';
 import { CouponsModule } from './coupons/coupons.module';
@@ -64,7 +64,7 @@ import { APP_GUARD } from '@nestjs/core';
     StoresModule,
     ExpansionsModule,
     GamesModule,
-    FeaturesModule,
+    PlansModule,
     BuylistModule,
     StoreCreditModule,
     CouponsModule,

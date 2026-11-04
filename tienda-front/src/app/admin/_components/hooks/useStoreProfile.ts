@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { adminFetch } from "@/utils/api";
 import { fetchCachedConditions, fetchCachedLanguages, fetchCachedGames } from "@/utils/metadataCache";
 import { useToast } from "@/hooks/useToast";
-import { StoreFeature, StorePlan, StoreProfileFormData } from "../types/storeProfile.types";
+import { StorePlan, StoreProfileFormData } from "../types/storeProfile.types";
 
 export interface BranchOption {
   id: string;
@@ -19,7 +19,6 @@ export function useStoreProfile(storeId: string) {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [availableFeatures, setAvailableFeatures] = useState<StoreFeature[]>([]);
   const [availablePlans, setAvailablePlans] = useState<StorePlan[]>([]);
   const [availableGames, setAvailableGames] = useState<any[]>([]);
   const [branches, setBranches] = useState<BranchOption[]>([]);
@@ -30,7 +29,6 @@ export function useStoreProfile(storeId: string) {
     subdomain: "",
     logoUrl: "",
     subscriptionPlanIds: [],
-    customFeatureIds: [],
     description: "",
     facebook: "",
     instagram: "",
@@ -85,12 +83,7 @@ export function useStoreProfile(storeId: string) {
       
       // Fetch available features and plans in parallel if superadmin
       if (storeId !== "me") {
-        const [featuresRes, plansRes] = await Promise.all([
-          adminFetch("/features"),
-          adminFetch("/features/plans")
-        ]);
-        
-        if (featuresRes.ok) setAvailableFeatures(await featuresRes.json());
+        const plansRes = await adminFetch("/plans");
         if (plansRes.ok) setAvailablePlans(await plansRes.json());
       }
 
@@ -148,7 +141,6 @@ export function useStoreProfile(storeId: string) {
           subdomain: store.subdomain || "",
           logoUrl: store.logoUrl || "",
           subscriptionPlanIds: store.subscriptionPlans ? store.subscriptionPlans.map((p: any) => p.id) : [],
-          customFeatureIds: store.customFeatures ? store.customFeatures.map((f: any) => f.id) : [],
           description: s.description || "",
           facebook: s.facebook || "",
           instagram: s.instagram || "",
@@ -196,7 +188,6 @@ export function useStoreProfile(storeId: string) {
       if (storeId === "me") {
         delete payload.subdomain;
         delete payload.subscriptionPlanIds;
-        delete payload.customFeatureIds;
         delete payload.subscriptionDiscountType;
         delete payload.subscriptionDiscountValue;
         delete payload.subscriptionNotes;
@@ -289,7 +280,6 @@ export function useStoreProfile(storeId: string) {
     saving,
     formData,
     setFormData,
-    availableFeatures,
     availablePlans,
     availableGames,
     branches,

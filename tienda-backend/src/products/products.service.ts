@@ -1051,7 +1051,7 @@ export class ProductsService {
             finish: true,
             store: {
               include: {
-                subscriptionPlans: { include: { features: true } },
+                subscriptionPlans: true,
                 gameExchangeRates: true,
                 shipping: { where: { isActive: true } }
               }
@@ -1084,7 +1084,7 @@ export class ProductsService {
             finish: true,
             store: {
               include: {
-                subscriptionPlans: { include: { features: true } },
+                subscriptionPlans: true,
                 gameExchangeRates: true,
                 shipping: { where: { isActive: true } }
               }
