@@ -251,7 +251,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       >
         {/* Logo & Header */}
         <div className="flex items-center justify-between gap-2 px-5 py-4 sm:px-6 sm:py-5 border-b border-white/5 bg-[#080A10]">
-          <Link href="/admin" className="flex items-center gap-3 group" onClick={() => setSidebarOpen(false)}>
+          <Link href="/admin" className="flex items-center gap-3 group">
             <div className="w-9 h-9 bg-gradient-to-br from-red-dark to-red rounded-xl flex items-center justify-center shadow-lg shadow-red/25 border border-white/10 group-hover:scale-105 transition-transform">
               <span className="text-white font-black text-lg">T</span>
             </div>
@@ -274,7 +274,6 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
             <div>
               <Link
                 href="/admin"
-                onClick={() => setSidebarOpen(false)}
                 className="group relative flex items-center gap-3 rounded-xl py-2 px-3 font-bold text-xs text-white/70 bg-white/[0.03] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
               >
                 <IconArrowLeft className="w-4 h-4 text-white/60 group-hover:text-red transition-colors" />
@@ -296,7 +295,6 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                     <li key={href}>
                       <Link
                         href={href}
-                        onClick={() => setSidebarOpen(false)}
                         className={`group relative flex items-center gap-3 rounded-xl py-2.5 px-3 font-semibold text-xs transition-all duration-200 border ${
                           isActive
                             ? "bg-gradient-to-r from-red-dark to-red text-white shadow-md shadow-red/25 border-red/40 font-bold"
