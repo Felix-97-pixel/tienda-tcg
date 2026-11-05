@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import CheckboxDropdown from "@/components/ui/CheckboxDropdown";
 import { Product } from "@/types/product";
 
 export interface BuylistModalProps {
@@ -275,141 +276,45 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
             </div>
           </div>
 
-          {/* Sección 1: Checkboxes de Idiomas */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-white/80">
-                Idiomas Aceptados ({selectedLanguageIds.length} seleccionados)
-              </label>
-              <div className="flex items-center gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={handleSelectCommonLanguages}
-                  className="text-blue hover:underline font-semibold"
-                >
-                  Español e Inglés
-                </button>
-                <span className="text-white/20">•</span>
-                <button
-                  type="button"
-                  onClick={() => handleToggleAllLanguages(true)}
-                  className="text-gray-4 hover:text-white"
-                >
-                  Todos
-                </button>
-                <span className="text-white/20">•</span>
-                <button
-                  type="button"
-                  onClick={() => handleToggleAllLanguages(false)}
-                  className="text-gray-4 hover:text-white"
-                >
-                  Ninguno
-                </button>
-              </div>
-            </div>
+          {/* Selectores Desplegables con Checkboxes para Selección Múltiple */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Dropdown con Checkbox para Idiomas */}
+            <CheckboxDropdown
+              label={`Idiomas Aceptados (${selectedLanguageIds.length} seleccionados)`}
+              options={languages.map((l) => ({
+                label: l.name,
+                value: l.id,
+                code: (l.code || l.name || "").substring(0, 2).toUpperCase(),
+              }))}
+              selectedValues={selectedLanguageIds}
+              onChange={setSelectedLanguageIds}
+              placeholder="Seleccionar idiomas..."
+              searchPlaceholder="Buscar idioma..."
+              quickToggles={[
+                { label: "Español e Inglés", onClick: handleSelectCommonLanguages },
+                { label: "Todos", onClick: () => handleToggleAllLanguages(true) },
+                { label: "Ninguno", onClick: () => handleToggleAllLanguages(false) },
+              ]}
+            />
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {languages.map((l) => {
-                const isChecked = selectedLanguageIds.includes(l.id);
-                const code = (l.code || l.name || "").substring(0, 2).toUpperCase();
-
-                return (
-                  <label
-                    key={l.id}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-xs font-medium cursor-pointer transition-all select-none ${
-                      isChecked
-                        ? "bg-blue/15 border-blue text-white shadow-sm shadow-blue/20"
-                        : "bg-[#111522] border-white/10 text-gray-400 hover:border-white/20 hover:text-white"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedLanguageIds([...selectedLanguageIds, l.id]);
-                        } else {
-                          setSelectedLanguageIds(selectedLanguageIds.filter((id) => id !== l.id));
-                        }
-                      }}
-                      className="rounded border-white/30 bg-[#0A0D14] text-blue focus:ring-blue/30 focus:ring-offset-0 w-4 h-4 cursor-pointer"
-                    />
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white/5 border border-white/10 text-gray-300">
-                      {code}
-                    </span>
-                    <span className="truncate">{l.name}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Sección 2: Checkboxes de Estados / Condiciones */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-white/80">
-                Estados / Condiciones Aceptadas ({selectedConditionIds.length} seleccionadas)
-              </label>
-              <div className="flex items-center gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={handleSelectTopConditions}
-                  className="text-amber-400 hover:underline font-semibold"
-                >
-                  Solo NM y LP
-                </button>
-                <span className="text-white/20">•</span>
-                <button
-                  type="button"
-                  onClick={() => handleToggleAllConditions(true)}
-                  className="text-gray-4 hover:text-white"
-                >
-                  Todas
-                </button>
-                <span className="text-white/20">•</span>
-                <button
-                  type="button"
-                  onClick={() => handleToggleAllConditions(false)}
-                  className="text-gray-4 hover:text-white"
-                >
-                  Limpiar
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {conditions.map((c) => {
-                const isChecked = selectedConditionIds.includes(c.id);
-                const badgeClass = getConditionStyle(c.name);
-
-                return (
-                  <label
-                    key={c.id}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-xs font-medium cursor-pointer transition-all select-none ${
-                      isChecked
-                        ? "bg-amber-500/15 border-amber-500 text-white shadow-sm shadow-amber-500/20"
-                        : "bg-[#111522] border-white/10 text-gray-400 hover:border-white/20 hover:text-white"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedConditionIds([...selectedConditionIds, c.id]);
-                        } else {
-                          setSelectedConditionIds(selectedConditionIds.filter((id) => id !== c.id));
-                        }
-                      }}
-                      className="rounded border-white/30 bg-[#0A0D14] text-amber-500 focus:ring-amber-500/30 focus:ring-offset-0 w-4 h-4 cursor-pointer"
-                    />
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono border ${badgeClass}`}>
-                      {c.displayName || c.name}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
+            {/* Dropdown con Checkbox para Estados / Condiciones */}
+            <CheckboxDropdown
+              label={`Estados / Condiciones (${selectedConditionIds.length} seleccionadas)`}
+              options={conditions.map((c) => ({
+                label: c.displayName || c.name,
+                value: c.id,
+                badge: c.name,
+              }))}
+              selectedValues={selectedConditionIds}
+              onChange={setSelectedConditionIds}
+              placeholder="Seleccionar estados..."
+              searchPlaceholder="Buscar estado..."
+              quickToggles={[
+                { label: "Solo NM y LP", onClick: handleSelectTopConditions },
+                { label: "Todas", onClick: () => handleToggleAllConditions(true) },
+                { label: "Limpiar", onClick: () => handleToggleAllConditions(false) },
+              ]}
+            />
           </div>
 
           {/* Sección 3: Cantidad y Precios (Efectivo y Crédito en CLP) */}

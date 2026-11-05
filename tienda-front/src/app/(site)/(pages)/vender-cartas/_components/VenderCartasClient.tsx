@@ -1,16 +1,19 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { IconZap, IconSearch, IconCash, IconGem } from "@/components/ui/Icons";
+import { fetchCachedConditions, fetchCachedLanguages } from "@/utils/metadataCache";
 
 interface BuylistItem {
   id: string;
   storeId: string;
   productId: string;
+  conditionId?: string;
+  languageId?: string;
   quantityWanted: number;
   cashPrice: string | number;
   creditPrice: string | number;
@@ -29,10 +32,12 @@ interface BuylistItem {
     };
   };
   condition?: {
+    id?: string;
     name: string;
     displayName?: string;
   };
   language?: {
+    id?: string;
     name: string;
     code: string;
   };
@@ -72,6 +77,24 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
   const [payoutMethod, setPayoutMethod] = useState<"credit" | "cash">("credit");
   const [copiedNotification, setCopiedNotification] = useState(false);
 
+  // Metadatos dinámicos desde Base de Datos (metadataCache)
+  const [dbConditions, setDbConditions] = useState<Array<{ id: string; name: string; displayName?: string }>>([]);
+  const [dbLanguages, setDbLanguages] = useState<Array<{ id: string; name: string; code?: string }>>([]);
+
+  useEffect(() => {
+    fetchCachedConditions()
+      .then((data) => {
+        if (Array.isArray(data)) setDbConditions(data);
+      })
+      .catch((err) => console.error("Error al obtener condiciones de metadataCache:", err));
+
+    fetchCachedLanguages()
+      .then((data) => {
+        if (Array.isArray(data)) setDbLanguages(data);
+      })
+      .catch((err) => console.error("Error al obtener idiomas de metadataCache:", err));
+  }, []);
+
   // Extract unique games
   const uniqueGames = useMemo(() => {
     const set = new Set<string>();
@@ -80,19 +103,6 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
       if (catName) set.add(catName);
     });
     return Array.from(set);
-  }, [initialItems]);
-
-  // Extract unique languages
-  const uniqueLanguages = useMemo(() => {
-    const map = new Map<string, { code: string; name: string }>();
-    initialItems.forEach((item) => {
-      if (item.language) {
-        const code = (item.language.code || item.language.name || "").substring(0, 2).toUpperCase();
-        const name = item.language.name || code;
-        if (!map.has(code)) map.set(code, { code, name });
-      }
-    });
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [initialItems]);
 
   const storeOptions = useMemo(() => [
@@ -105,10 +115,98 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     ...uniqueGames.map((g) => ({ label: g, value: g })),
   ], [uniqueGames]);
 
-  const languageOptions = useMemo(() => [
-    { label: "Todos los idiomas", value: "ALL" },
-    ...uniqueLanguages.map((l) => ({ label: `${l.name} (${l.code})`, value: l.code })),
-  ], [uniqueLanguages]);
+  // Idiomas dinámicos consultados a la base de datos (con fallback inmediato de initialItems)
+  const languageOptions = useMemo(() => {
+    if (dbLanguages.length > 0) {
+      const sorted = [...dbLanguages].sort((a, b) => {
+        const codeA = (a.code || "").toLowerCase();
+        const codeB = (b.code || "").toLowerCase();
+        if (codeA === "es") return -1;
+        if (codeB === "es") return 1;
+        if (codeA === "en") return -1;
+        if (codeB === "en") return 1;
+        return (a.name || "").localeCompare(b.name || "");
+      });
+      return [
+        { label: "Todos los idiomas", value: "ALL" },
+        ...sorted.map((l) => ({
+          label: `${l.name} (${(l.code || l.name).substring(0, 2).toUpperCase()})`,
+          value: l.id,
+        })),
+      ];
+    }
+
+    const map = new Map<string, { id: string; code: string; name: string }>();
+    initialItems.forEach((item) => {
+      if (item.language) {
+        const id = item.languageId || item.language.id || item.language.code;
+        const code = (item.language.code || item.language.name || "").substring(0, 2).toUpperCase();
+        const name = item.language.name || code;
+        if (!map.has(id)) map.set(id, { id, code, name });
+      }
+    });
+
+    return [
+      { label: "Todos los idiomas", value: "ALL" },
+      ...Array.from(map.values())
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((l) => ({ label: `${l.name} (${l.code})`, value: l.id })),
+    ];
+  }, [dbLanguages, initialItems]);
+
+  // Estados físicos dinámicos consultados a la base de datos (con fallback inmediato de initialItems)
+  const conditionOptions = useMemo(() => {
+    const rankCondition = (rawName: string) => {
+      const n = (rawName || "").toLowerCase();
+      if (n.includes("near") || n === "nm" || n === "mint") return 1;
+      if (n.includes("light") || n === "lp" || n.includes("excel")) return 2;
+      if (n.includes("moderat") || n === "mp" || n.includes("good")) return 3;
+      if (n.includes("heav") || n === "hp") return 4;
+      if (n.includes("damag") || n === "dmg" || n.includes("poor")) return 5;
+      return 6;
+    };
+
+    if (dbConditions.length > 0) {
+      const sorted = [...dbConditions].sort((a, b) => rankCondition(a.name) - rankCondition(b.name));
+      return [
+        { label: "Todo estado", value: "ALL" },
+        ...sorted.map((c) => ({
+          label: c.displayName || c.name,
+          value: c.id,
+        })),
+      ];
+    }
+
+    // Fallback dinámico con las cartas recibidas por SSR
+    const map = new Map<string, { id: string; name: string; displayName?: string }>();
+    initialItems.forEach((item) => {
+      if (item.condition) {
+        const id = item.conditionId || item.condition.id || item.condition.name;
+        if (!map.has(id)) {
+          map.set(id, {
+            id,
+            name: item.condition.name,
+            displayName: item.condition.displayName || item.condition.name,
+          });
+        }
+      }
+    });
+
+    const extracted = Array.from(map.values()).sort((a, b) => rankCondition(a.name) - rankCondition(b.name));
+    return [
+      { label: "Todo estado", value: "ALL" },
+      ...extracted.map((c) => ({
+        label: c.displayName || c.name,
+        value: c.id,
+      })),
+    ];
+  }, [dbConditions, initialItems]);
+
+  const sortOptions = useMemo(() => [
+    { label: "Mayor Crédito", value: "credit-desc" },
+    { label: "Mayor Efectivo", value: "cash-desc" },
+    { label: "Nombre (A-Z)", value: "name-asc" },
+  ], []);
 
   const filteredItems = useMemo(() => {
     return initialItems
@@ -128,20 +226,29 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         // Game filter
         if (selectedGame !== "ALL" && item.product?.category?.name !== selectedGame) return false;
 
-        // Language filter
+        // Language filter (dinámico: coincide por UUID en BD, código ISO o nombre)
         if (selectedLanguage !== "ALL") {
+          const matchId = item.languageId === selectedLanguage || item.language?.id === selectedLanguage;
           const itemLangCode = (item.language?.code || item.language?.name || "").substring(0, 2).toUpperCase();
-          if (itemLangCode !== selectedLanguage) return false;
+          const matchCode = itemLangCode === selectedLanguage.toUpperCase();
+          const matchName = (item.language?.name || "").toLowerCase() === selectedLanguage.toLowerCase();
+          if (!matchId && !matchCode && !matchName) return false;
         }
 
-        // Condition filter
+        // Condition filter (dinámico: coincide por UUID en BD o nombre exacto)
         if (selectedCondition !== "ALL") {
+          const matchId = item.conditionId === selectedCondition || item.condition?.id === selectedCondition;
           const condName = (item.condition?.name || "").toLowerCase();
-          if (selectedCondition === "NM" && !condName.includes("near_mint") && !condName.includes("mint") && condName !== "nm") return false;
-          if (selectedCondition === "LP" && !condName.includes("light") && !condName.includes("excel") && condName !== "lp" && condName !== "ex") return false;
-          if (selectedCondition === "MP" && !condName.includes("moderate") && !condName.includes("good") && condName !== "mp" && condName !== "gd") return false;
-          if (selectedCondition === "HP" && !condName.includes("heavy") && condName !== "hp") return false;
-          if (selectedCondition === "DMG" && !condName.includes("damag") && !condName.includes("poor") && condName !== "dmg") return false;
+          const matchName = condName === selectedCondition.toLowerCase();
+          // Fallback para códigos abreviados si se usan
+          const matchAbbr =
+            (selectedCondition === "NM" && (condName.includes("near_mint") || condName.includes("mint") || condName === "nm")) ||
+            (selectedCondition === "LP" && (condName.includes("light") || condName.includes("excel") || condName === "lp" || condName === "ex")) ||
+            (selectedCondition === "MP" && (condName.includes("moderate") || condName.includes("good") || condName === "mp" || condName === "gd")) ||
+            (selectedCondition === "HP" && (condName.includes("heavy") || condName === "hp")) ||
+            (selectedCondition === "DMG" && (condName.includes("damag") || condName.includes("poor") || condName === "dmg"));
+
+          if (!matchId && !matchName && !matchAbbr) return false;
         }
 
         return true;
@@ -278,132 +385,94 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
       </div>
 
       {/* 3. Global Buylist Toolbar & Live Search */}
-      <div className="bg-[#111522] border border-white/[0.08] rounded-2xl p-5 mb-8 shadow-xl">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar carta en todas las buylists (ej. Orcish Bowmasters, Black Knight...)"
-              className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500 transition-all"
-            />
-            <svg
-              className="absolute left-3.5 top-3.5 text-gray-500"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+      <div className="bg-[#111522] border border-white/[0.08] rounded-2xl p-4 sm:p-5 mb-8 shadow-xl space-y-3.5">
+        {/* Row 1: Full-Width Prominent Search Bar */}
+        <div className="relative w-full">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar carta en todas las buylists (ej. Orcish Bowmasters, Charizard, Black Lotus...)"
+            className="w-full h-12 pl-11 pr-10 rounded-xl bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner"
+          />
+          <IconSearch className="w-4 h-4 text-gray-500 absolute left-4 top-4 pointer-events-none" />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3.5 top-3.5 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white flex items-center justify-center text-xs transition-all"
             >
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => setSearchTerm("")}
-                className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+              ✕
+            </button>
+          )}
+        </div>
 
-          {/* Quick Filters */}
-          <div className="flex flex-wrap items-center gap-2.5">
+        {/* Row 2: Quick Filters Grid & Sort */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-3 border-t border-white/5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 flex-1">
             {/* Store filter */}
-            <div className="w-44 sm:w-52">
+            <div>
               <SearchableSelect
                 options={storeOptions}
                 value={selectedStoreId}
                 onChange={(val) => setSelectedStoreId(val || "ALL")}
                 placeholder="Filtrar por tienda..."
-                inputClassName="h-11 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+                inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
                 noResultsText="Tienda no encontrada"
               />
             </div>
 
             {/* Game filter */}
             {uniqueGames.length > 0 && (
-              <div className="w-44 sm:w-52">
+              <div>
                 <SearchableSelect
                   options={gameOptions}
                   value={selectedGame}
                   onChange={(val) => setSelectedGame(val || "ALL")}
                   placeholder="Filtrar por juego..."
-                  inputClassName="h-11 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+                  inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
                   noResultsText="Juego no encontrado"
                 />
               </div>
             )}
 
             {/* Language filter */}
-            {uniqueLanguages.length > 0 && (
-              <div className="w-40 sm:w-48">
+            {languageOptions.length > 1 && (
+              <div>
                 <SearchableSelect
                   options={languageOptions}
                   value={selectedLanguage}
                   onChange={(val) => setSelectedLanguage(val || "ALL")}
                   placeholder="Filtrar por idioma..."
-                  inputClassName="h-11 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+                  inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
                   noResultsText="Idioma no encontrado"
                 />
               </div>
             )}
 
             {/* Condition filter */}
-            <div className="relative">
-              <select
+            <div>
+              <SearchableSelect
+                options={conditionOptions}
                 value={selectedCondition}
-                onChange={(e) => setSelectedCondition(e.target.value)}
-                className="h-11 px-3 pr-8 rounded-xl bg-[#0A0D14] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
-              >
-                <option value="ALL">Todo estado</option>
-                <option value="NM">Near Mint (NM)</option>
-                <option value="LP">Lightly Played (LP)</option>
-                <option value="MP">Moderately Played (MP)</option>
-                <option value="HP">Heavily Played (HP)</option>
-                <option value="DMG">Damaged (DMG)</option>
-              </select>
-              <svg
-                className="absolute right-3 top-4 pointer-events-none text-gray-400"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+                onChange={(val) => setSelectedCondition(val || "ALL")}
+                placeholder="Filtrar por estado..."
+                inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+                noResultsText="Estado no encontrado"
+              />
             </div>
+          </div>
 
-            {/* Sort order */}
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="h-11 px-3 pr-8 rounded-xl bg-[#0A0D14] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
-              >
-                <option value="credit-desc">Mayor Crédito</option>
-                <option value="cash-desc">Mayor Efectivo</option>
-                <option value="name-asc">Nombre (A-Z)</option>
-              </select>
-              <svg
-                className="absolute right-3 top-4 pointer-events-none text-gray-400"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
+          {/* Sort order */}
+          <div className="w-full lg:w-48 shrink-0">
+            <SearchableSelect
+              options={sortOptions}
+              value={sortBy}
+              onChange={(val) => setSortBy((val as any) || "credit-desc")}
+              placeholder="Ordenar por..."
+              inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+              noResultsText="Opción no encontrada"
+            />
           </div>
         </div>
       </div>
