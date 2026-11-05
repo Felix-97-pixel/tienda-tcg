@@ -22,7 +22,12 @@
     "filter_by_language": "Filtrar por idioma...",
     "filter_by_condition": "Filtrar por estado...",
     "order_by": "Ordenar por...",
-    "active_filters": "Filtros ativos:"
+    "active_filters": "Filtros ativos:",
+    "no_store_found": "Nenhuma loja encontrada",
+    "no_game_found": "Nenhum jogo encontrado",
+    "no_language_found": "Nenhum idioma encontrado",
+    "no_condition_found": "Nenhum estado encontrado",
+    "no_option_found": "Nenhuma opção encontrada"
   },
   "item_card": {
     "view_store_buylist": "Ver buylist da loja →",
@@ -75,5 +80,20 @@
     "table_status": "Status",
     "table_actions": "Ações",
     "close_button": "FECHAR"
+  },
+  "b2b_banner": {
+    "badge": "Para Lojas e Negócios de TCG",
+    "title_prefix": "Você tem uma loja de TCG? ",
+    "title_highlight": "Contrate o TapTrade e alavanque suas vendas",
+    "description": "Ative seu próprio Motor de Buylist automatizado para comprar singles de jogadores em dinheiro ou crédito em loja, sincronize coleções inteiras em 1 clique e venda em sua vitrine própria com 0% de comissão por venda.",
+    "feature_commission_title": "0% Comissão",
+    "feature_commission_desc": "Suas vendas são 100% suas sob assinatura mensal fixa.",
+    "feature_buylist_title": "Buylist Inteligente",
+    "feature_buylist_desc": "Desvalorização automática por estado e idioma em tempo real.",
+    "feature_storefront_title": "Vitrine Exclusiva",
+    "feature_storefront_desc": "Subdomínio próprio para sua loja + catálogo no marketplace global.",
+    "cta_plans": "Conheça os Planos e Junte-se ao TapTrade",
+    "cta_already_seller": "Já tem loja? Ir para o painel de Buylist",
+    "reassurance": "Assinatura mensal transparente • Sem comissões por venda • Pagamentos e envíos integrados"
   }
 }

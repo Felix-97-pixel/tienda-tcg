@@ -386,5 +386,106 @@
       "save": "Guardar Configuración",
       "success": "Configuración guardada correctamente"
     }
+  },
+  "sidebar": {
+    "sections": {
+      "cashier_ops": "Operaciones de Caja",
+      "cashier_catalog": "Catálogo (Consulta)",
+      "branch_ops": "Operaciones Locales",
+      "branch_inventory": "Inventario Local",
+      "branch_metrics": "Métricas de Sucursal",
+      "branch_staff": "Personal de Tienda",
+      "branch_config": "Configuración Local",
+      "company_ops": "Operaciones",
+      "company_catalog": "Catálogo & Stock",
+      "company_metrics": "Métricas & Finanzas",
+      "company_management": "Gestión de Empresa",
+      "company_config": "Configuración de Tienda"
+    },
+    "items": {
+      "pos": "Punto de Venta (POS)",
+      "cash_shifts": "Turno & Arqueo de Caja",
+      "orders_pickup": "Retiro en Tienda",
+      "store_credit_redeem": "Canje Saldo Cliente",
+      "singles_inquiry": "Consulta Singles",
+      "sealed_inquiry": "Consulta Sellado",
+      "buylist_reception": "Recepción Buylist",
+      "registers_and_shifts": "Cajas & Turnos",
+      "orders_dispatch": "Despachos & Pedidos",
+      "store_credit": "Crédito de Tienda",
+      "singles": "Singles",
+      "sealed": "Sellado",
+      "buylist_branch": "Buylist Sucursal",
+      "price_sync": "Sincronizar Precios",
+      "wishlist": "Lista de Deseos",
+      "reports_sales": "Reportes & Ventas",
+      "team_branch": "Personal de Sucursal",
+      "shipping_methods": "Envíos & Retiros",
+      "orders_shipping": "Envíos & Pedidos",
+      "buylist_engine": "Motor Buylist",
+      "metrics_sales": "Métricas & Ventas",
+      "wallet_payouts": "Wallet & Liquidaciones",
+      "team_colleagues": "Colaboradores",
+      "coupons": "Cupones",
+      "currencies": "Monedas & Divisas",
+      "games_config": "Configurar Juegos",
+      "store_settings": "Ajustes de Tienda",
+      "back_to_hub": "Volver al Hub",
+      "back_to_shop": "Volver a la Tienda",
+      "logout": "Cerrar Sesión"
+    },
+    "roles": {
+      "company_owner": "Propietario de Empresa",
+      "branch_manager": "Administrador de Sucursal",
+      "cashier": "Cajero"
+    }
+  },
+  "superadmin": {
+    "sections": {
+      "commercial": "Gestión Comercial",
+      "master_catalog": "Catálogo Maestro",
+      "tcg_sync": "Sincronización TCG",
+      "system_config": "Configuración Sistema"
+    },
+    "items": {
+      "companies_branches": "Empresas & Sucursales",
+      "payouts": "Payouts (Liquidaciones)",
+      "accounting_sii": "Contabilidad & SII",
+      "global_products": "Productos Globales",
+      "categories": "Categorías",
+      "brands": "Marcas",
+      "sync_magic": "Magic: The Gathering",
+      "sync_pokemon": "Pokémon TCG",
+      "sync_riftbound": "Riftbound TCG",
+      "sync_backups": "Backups CSV",
+      "config_plans": "Planes de Suscripción (SaaS)",
+      "config_expansions": "Mapeo de Expansiones",
+      "config_sync": "Destinos de Sincronización",
+      "config_games": "Juegos Soportados",
+      "config_currencies": "Divisas & Tasas",
+      "config_locations": "Regiones y Comunas",
+      "back_to_shop": "Volver a la Tienda",
+      "logout": "Cerrar Sesión",
+      "badge": "SuperAdmin Global"
+    }
+  },
+  "hub": {
+    "back_to_shop": "Volver a la Tienda",
+    "badge": "TapTrade Store Admin",
+    "title": "Centro de Control",
+    "subtitle": "Bienvenido a tu panel de administración. Selecciona un módulo para gestionar tu catálogo, ventas o configuración.",
+    "enter_module": "Entrar al Módulo",
+    "catalog_title": "Módulo de Catálogo",
+    "catalog_desc": "Administra tu inventario de singles y sellado, define precios, revisa tu buylist y sincroniza tus cartas TCG.",
+    "catalog_tag": "Cartas & Stock",
+    "sales_title": "Transacciones & Ventas",
+    "sales_desc": "Monitorea tus ventas, compras de cartas (Cash y Crédito), cierres de caja, despachos y analítica del negocio.",
+    "sales_tag": "Caja & Finanzas",
+    "settings_title": "Módulo de Configuración",
+    "settings_desc": "Personaliza el perfil de tu tienda, métodos de envío, divisas de cobro, cupones y reglas de estado de cartas.",
+    "settings_tag": "Ajustes & Envíos",
+    "pos_title": "Punto de Venta (POS)",
+    "pos_desc": "Caja registradora para tu local físico, escáner de códigos de barra, compra/venta de cartas singles y cuadratura.",
+    "pos_tag": "Venta en Mostrador"
   }
 }

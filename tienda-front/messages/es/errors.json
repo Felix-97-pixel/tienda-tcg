@@ -5,5 +5,10 @@
   "not_found": "El recurso solicitado no fue encontrado.",
   "invalid_input": "Por favor revisa los campos ingresados.",
   "buylist_min_price": "Debes ingresar un precio en efectivo o crédito mayor a 0",
-  "buylist_select_required": "Debes seleccionar al menos un idioma y un estado físico con los checkboxes"
+  "buylist_select_required": "Debes seleccionar al menos un idioma y un estado físico con los checkboxes",
+  "not_found_title": "Lo sentimos, no encontramos esta página",
+  "not_found_desc": "La página que buscas parece haber sido movida, eliminada o no existe en TapTrade.",
+  "back_to_home": "Volver al Inicio",
+  "breadcrumb_title": "Error 404",
+  "breadcrumb_page": "Página no encontrada"
 }

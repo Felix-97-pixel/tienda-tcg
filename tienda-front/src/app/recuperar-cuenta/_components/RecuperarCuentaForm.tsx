@@ -4,9 +4,21 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
+import LanguageSelector from "@/components/ui/LanguageSelector";
+import {
+  IconShieldCheck,
+  IconClock,
+  IconMail,
+  IconArrowLeft,
+  IconCheckCircle,
+  IconAlertTriangle,
+  IconLock,
+} from "@/components/ui/Icons";
 
 export default function RecuperarCuentaForm() {
+  const t = useTranslations("recovery");
   const [email, setEmail] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,11 +41,11 @@ export default function RecuperarCuentaForm() {
 
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail) {
-      return setError("Por favor, ingresa tu correo electrónico.");
+      return setError(t("err_email_required"));
     }
 
     if (!captchaToken) {
-      return setError("Por favor, completa el CAPTCHA de seguridad para continuar.");
+      return setError(t("err_captcha_required"));
     }
 
     setIsLoading(true);
@@ -49,13 +61,13 @@ export default function RecuperarCuentaForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "No se pudo procesar la solicitud.");
+        throw new Error(data.message || t("err_generic"));
       }
 
       setIsSubmitted(true);
-      setCooldown(60); // 60 segundos antes de permitir reenviar
+      setCooldown(60);
     } catch (err: any) {
-      setError(err.message || "Ocurrió un error inesperado al solicitar el restablecimiento.");
+      setError(err.message || t("err_generic"));
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +88,7 @@ export default function RecuperarCuentaForm() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al reenviar el correo.");
+        throw new Error(data.message || t("err_generic"));
       }
 
       setCooldown(60);
@@ -126,75 +138,66 @@ export default function RecuperarCuentaForm() {
 
           <div className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-mono text-white/80">Recuperación Segura</span>
+            <span className="text-xs font-mono text-white/80">{t("security_badge")}</span>
           </div>
         </div>
 
         {/* Center: Mensaje y tarjetas de seguridad de la Bóveda */}
         <div className="relative z-10 my-auto py-12 max-w-lg">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red-light text-xs font-semibold mb-6">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-            Protocolo de Bóveda y Autenticación
+            <IconLock className="w-3.5 h-3.5 text-red-light" />
+            <span>{t("protocol_tag")}</span>
           </div>
 
           <h1 className="text-3xl xl:text-4xl font-black tracking-tight leading-tight text-white mb-4">
-            Tu colección y tus datos siempre <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-light via-orange to-yellow">protegidos</span>.
+            {t("hero_title")}
           </h1>
 
           <p className="text-white/70 text-sm leading-relaxed mb-8">
-            En TapTrade aplicamos rigurosos estándares de seguridad digital. El proceso de recuperación genera enlaces efímeros de uso único para garantizar que solo tú puedas restablecer el acceso a tu cuenta.
+            {t("hero_desc")}
           </p>
 
           {/* Cards informativas sobre seguridad */}
           <div className="space-y-3">
             <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur-sm flex items-start gap-3">
               <div className="p-2 rounded-lg bg-red/10 border border-red/20 text-red shrink-0 mt-0.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
+                <IconShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">Cifrado Criptográfico</h2>
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t("crypto_title")}</h2>
                 <p className="text-[12px] text-white/50 leading-snug mt-0.5">
-                  Tus contraseñas están protegidas con hashing bcrypt y los tokens de recuperación expiran en 60 minutos.
+                  {t("crypto_desc")}
                 </p>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur-sm flex items-start gap-3">
               <div className="p-2 rounded-lg bg-orange/10 border border-orange/20 text-orange shrink-0 mt-0.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="8" x2="12" y2="12"/>
-                  <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
+                <IconShieldCheck className="w-4 h-4 text-orange" />
               </div>
               <div>
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">Protección de Cuenta y Bóveda</h2>
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">{t("vault_safe_title")}</h2>
                 <p className="text-[12px] text-white/50 leading-snug mt-0.5">
-                  Tus compras, ventas, historial y cartas coleccionables permanecen totalmente a resguardo en todo momento.
+                  {t("vault_safe_desc")}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom: Legalidad ANPD y Ley 19.628 */}
+        {/* Bottom */}
         <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
           <span>TapTrade SpA • Chile</span>
-          <span className="font-mono">Cumplimiento Ley N° 19.628</span>
+          <span className="font-mono">{t("compliance")}</span>
         </div>
       </div>
 
       {/* ============================================================ */}
       {/* COLUMNA DERECHA: FORMULARIO INTERACTIVO DE RECUPERACIÓN */}
       {/* ============================================================ */}
-      <div className="w-full lg:w-1/2 xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 min-h-screen">
+      <div className="w-full lg:w-1/2 xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 min-h-screen relative">
         {/* Barra superior de navegación rápida */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 gap-3">
           {/* Logo en versión mobile */}
           <Link href="/" className="lg:hidden flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center font-black text-white text-base">
@@ -205,24 +208,16 @@ export default function RecuperarCuentaForm() {
             </span>
           </Link>
 
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-white/70 hover:text-white transition-colors group px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 ml-auto"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="group-hover:-translate-x-0.5 transition-transform"
+          <div className="flex items-center gap-2.5 ml-auto">
+            <LanguageSelector />
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/70 hover:text-white transition-colors group px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10"
             >
-              <line x1="19" y1="12" x2="5" y2="12"/>
-              <polyline points="12 19 5 12 12 5"/>
-            </svg>
-            Volver a Iniciar Sesión
-          </Link>
+              <IconArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+              <span>{t("back_to_login")}</span>
+            </Link>
+          </div>
         </div>
 
         {/* Contenedor Central */}
@@ -235,16 +230,13 @@ export default function RecuperarCuentaForm() {
               {/* Encabezado del Formulario */}
               <div className="mb-8">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red/20 via-orange/10 to-transparent border border-red/30 flex items-center justify-center text-red shadow-lg shadow-red/20 mb-5">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                  </svg>
+                  <IconLock className="w-5 h-5 text-red" />
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
-                  Recuperar Cuenta
+                  {t("title")}
                 </h2>
                 <p className="text-sm text-white/60 leading-relaxed">
-                  Ingresa el correo electrónico asociado a tu cuenta de TapTrade y te enviaremos un enlace seguro para crear una nueva contraseña.
+                  {t("subtitle")}
                 </p>
               </div>
 
@@ -252,11 +244,7 @@ export default function RecuperarCuentaForm() {
               {error && (
                 <div className="mb-6 p-4 rounded-xl bg-red/10 border border-red/30 flex items-start gap-3 animate-shake">
                   <div className="text-red shrink-0 mt-0.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="12" y1="8" x2="12" y2="12"/>
-                      <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
+                    <IconAlertTriangle className="w-4 h-4 text-red" />
                   </div>
                   <p className="text-xs text-red-light leading-relaxed">{error}</p>
                 </div>
@@ -267,21 +255,18 @@ export default function RecuperarCuentaForm() {
                 {/* Campo Email */}
                 <div>
                   <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                    Correo Electrónico
+                    {t("email_label")}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                      </svg>
+                      <IconMail className="w-4 h-4" />
                     </div>
                     <input
                       id="email"
                       type="email"
                       required
                       autoFocus
-                      placeholder="nombre@ejemplo.com"
+                      placeholder={t("email_placeholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all"
@@ -294,7 +279,7 @@ export default function RecuperarCuentaForm() {
                   <Turnstile
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                     onSuccess={(token) => setCaptchaToken(token)}
-                    onError={() => setError("Error al cargar la verificación CAPTCHA. Intenta recargar la página.")}
+                    onError={() => setError(t("err_captcha_load"))}
                     options={{ theme: "dark" }}
                   />
                 </div>
@@ -309,23 +294,12 @@ export default function RecuperarCuentaForm() {
                     {isLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span className="text-sm">Enviando enlace seguro...</span>
+                        <span className="text-sm">{t("sending_btn")}</span>
                       </>
                     ) : (
                       <>
-                        <span className="text-sm">Enviar Enlace de Recuperación</span>
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          className="group-hover:translate-x-1 transition-transform"
-                        >
-                          <line x1="5" y1="12" x2="19" y2="12"/>
-                          <polyline points="12 5 19 12 12 19"/>
-                        </svg>
+                        <span className="text-sm">{t("submit_btn")}</span>
+                        <IconMail className="w-4 h-4" />
                       </>
                     )}
                   </div>
@@ -335,9 +309,9 @@ export default function RecuperarCuentaForm() {
               {/* Links adicionales */}
               <div className="mt-8 pt-6 border-t border-white/10 text-center">
                 <p className="text-xs text-white/50">
-                  ¿Te acordaste de tu contraseña?{" "}
+                  {t("remember_pwd_prompt")}{" "}
                   <Link href="/login" className="text-white hover:text-red-light font-bold transition-colors">
-                    Inicia Sesión aquí
+                    {t("login_here")}
                   </Link>
                 </p>
               </div>
@@ -349,34 +323,30 @@ export default function RecuperarCuentaForm() {
             <div className="text-center py-2 animate-fadeIn">
               {/* Icono de Correo Enviado */}
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-6 shadow-xl shadow-emerald-500/10">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h9"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                  <polyline points="16 19 19 22 24 17"/>
-                </svg>
+                <IconCheckCircle className="w-8 h-8 text-emerald-400" />
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3">
-                ¡Revisa tu correo!
+                {t("success_title")}
               </h2>
 
               <p className="text-sm text-white/70 leading-relaxed mb-4">
-                Hemos enviado las instrucciones y el enlace para restablecer tu contraseña a:
+                {t("success_desc")}
               </p>
 
               <div className="font-mono text-sm font-semibold text-white bg-[#0E121B] border border-white/10 rounded-xl py-3 px-4 mb-6 break-all">
                 {email}
               </div>
 
-              {/* Banner Informativo */}
-              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-left space-y-2 mb-6">
+              {/* Banner Informativo sin emojis */}
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-left space-y-2.5 mb-6">
                 <div className="flex items-start gap-2.5 text-xs text-white/80">
-                  <span className="text-amber-400 font-bold shrink-0">⏳</span>
-                  <span>El enlace es válido por <strong>60 minutos</strong> por seguridad.</span>
+                  <IconClock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <span>{t("link_valid_notice")}</span>
                 </div>
                 <div className="flex items-start gap-2.5 text-xs text-white/80">
-                  <span className="text-blue-400 font-bold shrink-0">📁</span>
-                  <span>Si no lo ves en tu bandeja principal, revisa la carpeta de <strong>Spam</strong> o Promociones.</span>
+                  <IconMail className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                  <span>{t("spam_notice")}</span>
                 </div>
               </div>
 
@@ -388,13 +358,11 @@ export default function RecuperarCuentaForm() {
                   disabled={cooldown > 0 || isLoading}
                   className="w-full py-3 px-4 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? (
-                    "Reenviando..."
-                  ) : cooldown > 0 ? (
-                    `Reenviar correo disponible en ${cooldown}s`
-                  ) : (
-                    "¿No recibiste el correo? Haz clic para reenviar"
-                  )}
+                  {isLoading
+                    ? t("resending_btn")
+                    : cooldown > 0
+                    ? t("resend_available_in", { seconds: cooldown })
+                    : t("resend_btn")}
                 </button>
 
                 <button
@@ -405,7 +373,7 @@ export default function RecuperarCuentaForm() {
                   }}
                   className="w-full text-xs text-white/50 hover:text-white py-1 transition-colors"
                 >
-                  Probar con otro correo electrónico
+                  {t("try_another_email")}
                 </button>
 
                 <div className="pt-4">
@@ -413,7 +381,7 @@ export default function RecuperarCuentaForm() {
                     href="/login"
                     className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl bg-gradient-to-r from-red-dark via-red to-orange text-white font-bold text-sm shadow-lg shadow-red/25 hover:brightness-110 transition-all"
                   >
-                    Volver a Iniciar Sesión
+                    {t("back_to_login")}
                   </Link>
                 </div>
               </div>
@@ -428,11 +396,11 @@ export default function RecuperarCuentaForm() {
           <p>© {new Date().getFullYear()} TapTrade Marketplace.</p>
           <div className="flex items-center gap-4">
             <Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">
-              Términos
+              {t("terms")}
             </Link>
             <span>•</span>
             <Link href="/politica-de-privacidad" className="hover:text-white transition-colors">
-              Privacidad (Ley 19.628)
+              {t("privacy")}
             </Link>
           </div>
         </div>

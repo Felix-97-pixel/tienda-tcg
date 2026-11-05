@@ -1,10 +1,153 @@
 {
   "terms": {
-    "title": "Termos e Condições",
-    "updated": "Última atualização"
+    "pageTitle": "Termos e Condições",
+    "mainTitle": "Termos, Condições e Políticas de Compra",
+    "badge": "Políticas Oficiais",
+    "description": "Por favor, leia atentamente os termos a seguir antes de realizar uma transação.",
+    "lastUpdated": "Última Atualização: 01 de Janeiro de 2025",
+    "backToShop": "Voltar à Loja",
+    "navTitle": "Navegação Rápida",
+    "nav": {
+      "introduccion": "1. Introdução",
+      "informacion": "2. Informações da Loja",
+      "precios": "3. Preços e Pagamentos",
+      "envios": "4. Envios e Entregas",
+      "devoluciones": "5. Devoluções e Reembolsos",
+      "privacidad": "6. Privacidade",
+      "responsabilidad": "7. Limitação de Responsabilidade",
+      "ley": "8. Lei e Jurisdição",
+      "disposiciones": "9. Disposições Gerais",
+      "creditos": "10. Créditos de Loja",
+      "transferencias": "Transferências Bancárias"
+    },
+    "introduccion": {
+      "title": "Introdução",
+      "p1": "Bem-vindo à TapTrade, a plataforma SaaS e marketplace para Trading Card Games (TCG) e colecionáveis no Chile. Estas políticas regulam o uso da plataforma e transações entre compradores e lojas vinculadas.",
+      "p2": "A TapTrade SpA reserva-se o direito de atualizar estas políticas a qualquer momento para adequação a normas legais e técnicas."
+    },
+    "informacion": {
+      "title": "Informações da Plataforma",
+      "p1": "A TapTrade é operada legalmente pela TAPTRADE SpA (RUT 78.531.106-K), sociedade constituída sob as leis da República do Chile.",
+      "p2": "Nossos escritórios centrais estão localizados em Padre Mariano 98 Of. 315, Providencia, Santiago, Chile. Contato: contacto@taptrade.cl ou legal@taptrade.cl."
+    },
+    "precios": {
+      "title": "Preços e Pagamentos",
+      "p1": "Todos os preços estão expressos em Pesos Chilenos (CLP) e incluem o Imposto sobre Valor Agregado (IVA).",
+      "p2": "Aceitamos Débito e Crédito através de gateways de pagamento seguros.",
+      "p3": "O pagamento é efetuado integralmente no momento da compra com confirmação por e-mail."
+    },
+    "envios": {
+      "title": "Envios e Entregas",
+      "p1": "Os produtos serão enviados ao endereço cadastrado pelo usuário. O frete é calculado automaticamente com base no destino e peso.",
+      "p2": "Não nos responsabilizamos por atrasos operacionais decorrentes diretamente das transportadoras.",
+      "p3": "O usuário é estritamente responsável pela exatidão do endereço fornecido.",
+      "scheduleTitle": "Horários de Despacho e Retirada:",
+      "scheduleDesc": "Compras antes das 14:00 hrs são despachadas ou retiradas no mesmo dia a partir das 16:00 hrs."
+    },
+    "devoluciones": {
+      "title": "Devoluções e Reembolsos",
+      "p1": "Prazo legal de 5 dias corridos para devolução em condições idênticas de entrega.",
+      "p2": "Reembolso em até 3 dias úteis para Crédito e 6 dias úteis para Débito.",
+      "p3": "Não são aceitas devoluções de produtos personalizados ou cartas alteradas."
+    },
+    "privacidad": {
+      "title": "Privacidade",
+      "p1": "Compromisso rigoroso com a proteção e privacidade dos dados de acordo com a lei."
+    },
+    "responsabilidad": {
+      "title": "Limitação de Responsabilidade",
+      "p1": "Não nos responsabilizamos por danos indiretos decorrentes do uso técnico da plataforma.",
+      "p2": "Aplicamos padrões modernos de segurança digital para mitigar riscos.",
+      "p3": "A responsabilidade total da empresa não excederá o valor pago pelo item adquirido."
+    },
+    "ley": {
+      "title": "Lei Aplicável e Jurisdição",
+      "p1": "Regulado pelas leis da República do Chile.",
+      "p2": "Foro da comarca de Santiago, Chile."
+    },
+    "disposiciones": {
+      "title": "Disposições Gerais",
+      "p1": "Acordo integral vinculante entre o usuário e a plataforma.",
+      "p2": "Nulidade de cláusula individual não invalida as demais disposições.",
+      "p3": "A tolerância a descumprimentos não configura renúncia de direitos."
+    },
+    "creditos": {
+      "title": "Políticas de Créditos de Loja",
+      "p1": "Regras sobre uso de saldos de loja.",
+      "t1_title": "Créditos de Torneios:",
+      "t1_desc": "Validade de 30 dias para uso em torneios organizados.",
+      "t2_title": "Créditos por Venda de Cartas (Buylist):",
+      "t2_desc": "Sem data de expiração para saldos padrão de venda de cartas.",
+      "p4_desc": "Créditos utilizáveis para compra de itens disponíveis exceto:",
+      "p4_li1": "Custos de frete.",
+      "p4_li2": "Inscrições em torneios presenciais.",
+      "p4_li3": "Produtos em pré-venda.",
+      "p5_desc": "Não acumuláveis com cupons promocionais ou descontos físicos.",
+      "p5_li1": "Cupons promocionais web.",
+      "p5_li2": "Cartões de desconto presenciais."
+    },
+    "transferencias": {
+      "title": "Pagamentos por Transferência Bancária",
+      "p1": "Comprovante obrigatório em até 24 horas contadas a partir do pedido.",
+      "warning": "Aviso: Pedidos não quitados em 24 horas serão cancelados automaticamente pelo sistema."
+    }
   },
   "privacy": {
-    "title": "Política de Privacidade",
-    "updated": "Última atualização"
+    "pageTitle": "Política de Privacidade",
+    "mainTitle": "Política de Privacidade de Dados",
+    "badge": "Privacidade e Segurança",
+    "description": "Na TapTrade levamos muito a sério a segurança e privacidade de suas informações pessoais.",
+    "lastUpdated": "Última Atualização: 01 de Janeiro de 2025",
+    "backToShop": "Voltar à Loja",
+    "navTitle": "Navegação Rápida",
+    "nav": {
+      "introduccion": "Introdução",
+      "informacion": "1. Informações Coletadas",
+      "uso": "2. Uso das Informações",
+      "compartir": "3. Compartilhamento de Dados",
+      "retencion": "4. Retenção de Dados",
+      "contacto": "5. Alterações e Contato"
+    },
+    "introduccion": {
+      "p1": "Esta Política descreve como suas informações são tratadas ao navegar ou comprar na plataforma."
+    },
+    "informacion": {
+      "title": "Quais Informações Coletamos",
+      "p1": "Coletamos dados técnicos do dispositivo, incluindo navegador, endereço IP e cookies necessários.",
+      "p2": "Registramos dados de navegação e termos de busca para aprimorar a experiência.",
+      "techTitle": "Tecnologias Utilizadas:",
+      "techLi1": "Cookies para autenticação e sessão segura.",
+      "techLi2": "Arquivos de log para rastreamento de segurança.",
+      "orderTitle": "Dados do Pedido:",
+      "orderDesc": "Nome, endereço de entrega e faturamento, e-mail e telefone para processamento das compras.",
+      "p3": "Informações pessoais abrangem dados de dispositivo e pedidos."
+    },
+    "uso": {
+      "title": "Como Usamos suas Informações",
+      "p1": "Para atendimento de pedidos, emissão fiscal e despacho logístico.",
+      "listTitle": "Adicionalmente para:",
+      "listLi1": "Comunicação sobre o status dos envios.",
+      "listLi2": "Prevenção contra riscos e fraudes.",
+      "listLi3": "Divulgação de novidades conforme consentimento.",
+      "p2": "Otimização técnica do marketplace."
+    },
+    "compartir": {
+      "title": "Compartilhamento de Informações",
+      "p1": "Compartilhamento com operadoras logísticas e gateways de pagamento exclusivamente para execução do serviço.",
+      "analyticsTitle": "Google Analytics:",
+      "analyticsDesc": "Análise agregada de navegação para aprimoramento de catálogo.",
+      "p2": "Cumprimento de exigências legais e judiciais chilenas."
+    },
+    "retencion": {
+      "title": "Retenção de Dados",
+      "p1": "Manutenção de registros fiscais e de pedidos conforme prazos legais chilenos."
+    },
+    "contacto": {
+      "title": "Alterações e Contato",
+      "p1": "Atualizações periódicas conforme mudanças legislativas ou operacionais.",
+      "boxTitle": "Dúvidas?",
+      "boxDesc": "Entre em contato conosco pelo e-mail oficial.",
+      "btn": "contacto@taptrade.cl"
+    }
   }
 }

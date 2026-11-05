@@ -34,5 +34,13 @@
   "refresh": "Atualizar",
   "back": "Voltar",
   "seeMore": "Ver mais",
-  "currency": "CLP"
+  "currency": "CLP",
+  "mail_success": {
+    "title": "Envio Bem-sucedido!",
+    "subtitle": "Sua mensagem foi enviada com sucesso",
+    "desc": "Muito obrigado pela sua mensagem. Verificamos as solicitações com frequência e responderemos em breve.",
+    "back_to_home": "Voltar ao Início",
+    "breadcrumb_title": "Mensagem Enviada",
+    "breadcrumb_page": "Sucesso"
+  }
 }

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations, useMessages } from "next-intl";
 import PricingSection from "@/app/landing/_components/Marketing/PricingSection";
 import SystemShowcase from "@/app/landing/_components/Marketing/SystemShowcase";
 import {
@@ -14,23 +15,19 @@ import {
   IconZap,
   IconBox,
   IconTag,
-  IconFlagES,
-  IconFlagUS,
-  IconFlagJP,
   IconLanguageFlag,
   IconPosTerminal,
   IconWifiOff,
   IconBarcode,
   IconReceipt,
-  IconCamera,
-  IconCheckCircle,
-  IconMapPin,
-  IconClock,
-  IconUsers,
   IconChevronDown,
 } from "@/components/ui/Icons";
 
 export default function MarketingPage() {
+  const t = useTranslations("landing.page");
+  const messages = useMessages() as any;
+  const faqs: Array<{ q: string; a: string }> = messages?.landing?.faqs || [];
+
   const [activeTab, setActiveTab] = useState<"players" | "stores">("players");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllFaqs, setShowAllFaqs] = useState(false);
@@ -138,49 +135,6 @@ export default function MarketingPage() {
     { name: "Mitos y Leyendas", publisher: "Fenix / Klu", badge: "Chile Tradición", color: "from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-300" },
   ];
 
-  const faqs = [
-    {
-      q: "¿Cómo funciona comprar cartas de distintas tiendas en un solo carrito?",
-      a: "TapTrade cuenta con un sistema de checkout multi-tienda inteligente. Puedes agregar singles de cualquier tienda verificada de Chile a un único carrito. Al momento de pagar realizas una sola transacción protegida; los fondos ingresan a la cuenta central de TapTrade y luego se transfieren y depositan a la cuenta bancaria de tu empresa que hayas configurado, generando las etiquetas de envío individuales con Chilexpress o Starken.",
-    },
-    {
-      q: "¿Qué es el Motor de Buylist y cómo ayuda a mi tienda?",
-      a: "El Buylist permite que tus clientes te vendan sus cartas directamente desde tu vitrina online. El sistema calcula en tiempo real los valores de compra aplicando devaluaciones automáticas según el estado (Near Mint, Lightly Played, etc.) y el idioma de cada carta. Puedes liquidar la compra en efectivo o acreditar saldo digital (Crédito en Tienda) para compras futuras.",
-    },
-    {
-      q: "¿Cómo funciona la monetización y qué comisiones cobra TapTrade?",
-      a: "En TapTrade cobramos 0% de comisión por venta (cero take-rate). No tocamos ni intervenimos en el dinero de tus transacciones: el 100% de lo que vendes es tuyo. Operamos bajo un modelo SaaS de suscripción fija mensual adaptada a las necesidades y tamaño de inventario de cada tienda.",
-    },
-    {
-      q: "¿Cómo se garantiza el estado y autenticidad de las cartas?",
-      a: "Todas las tiendas y dealers pasan por un proceso de verificación legal de su RUT chileno. Además, exigimos el estándar internacional de graduación TCG (Mint, Near Mint, Excellent, Lightly Played, Good, Moderately Played, Heavily Played y Damaged). Si una carta recibida no coincide con el estado descrito, cuentas con protección y garantía de devolución.",
-    },
-    {
-      q: "¿Cómo se sincroniza el catálogo de cartas en mi tienda?",
-      a: "Olvídate de ingresar fotos, nombres en inglés y español o textos de reglas a mano. TapTrade está integrado directamente con Scryfall, PokemonTCG y Riftcodex. Solo buscas el nombre de la carta o expansión y en 1 clic importas toda la metadata oficial con fotos en alta resolución.",
-    },
-    {
-      q: "¿El Punto de Venta (POS) tiene costo adicional o funciona si se corta internet?",
-      a: "El Punto de Venta (POS) está 100% incluido para todas las tiendas y suscripciones sin costo adicional ni comisiones. Cuenta con arquitectura Offline-First en el navegador con IndexedDB. Si tu tienda se queda sin internet o sufres cortes durante un torneo presencial, tus cajeros pueden seguir buscando cartas, escaneando códigos de barra, cobrando y emitiendo tickets. En cuanto regresa la conexión, las ventas se sincronizan solas con tu inventario sin pérdidas de datos.",
-    },
-    {
-      q: "¿Cómo despacho las ventas que entran a mi tienda?",
-      a: "Directamente desde tu panel de vendedor tendrás un botón para 'Generar Etiqueta'. El sistema calcula las dimensiones del envío, genera el código de seguimiento de Chilexpress o Starken y te entrega la etiqueta lista para imprimir y entregar en la sucursal más cercana.",
-    },
-    {
-      q: "¿Cómo funciona TapTrade Shield y cómo protege a mi tienda de reclamos fraudulentos?",
-      a: "Para compras iguales o superiores a $20.000 CLP, la tienda registra 3 fotos obligatorias de empaque: cartas sobre comanda, protección rígida y sobre sellado con la etiqueta del courier sobre el cierre. Al comprador se le exige video continuo de unboxing sin cortes para abrir cualquier disputa. Este blindaje bilateral elimina reclamos falsos de paquetes vacíos o cartas cambiadas, liberando tus fondos en custodia automáticamente al validar el envío.",
-    },
-    {
-      q: "¿Cómo se factura la suscripción SaaS mensual y cómo impacta el IVA en mi F29?",
-      a: "A fin de mes, TapTrade liquida tu cuenta sumando tu Plan Base en UF, las sucursales adicionales activas (+2.50 UF/mes c/u) y las cuentas de personal extra que mantengas activas. El total neto en UF se liquida según el valor oficial de la UF a la fecha de emisión y se emite una Factura Electrónica afecta a 19% de IVA. Ese 19% de IVA es 100% Crédito Fiscal deducible para tu comercio ante el SII, descontándose directamente de tu Débito Fiscal en tu declaración mensual de Formulario 29 (F29).",
-    },
-    {
-      q: "¿Puedo operar varias sucursales físicas y agregar más cuentas de personal?",
-      a: "Sí. Todos los planes incluyen 1 Casa Matriz con su dotación base para operar (1 Dueño, 1 Contador, 1 Encargado y 1 Cajero). Puedes sumar sucursales por +2.50 UF/mes (+ IVA) cada una (con inventario y dotación local independiente), y cuentas de personal adicionales a la carta según la escala de tu equipo (Cajeros a +0.35 UF, Encargados a +0.60 UF, Admins a +0.85 UF o Contadores a +0.30 UF/mes + IVA).",
-    }
-  ];
-
   return (
     <div className="w-full relative overflow-hidden bg-[#07090E] text-white selection:bg-[#E10E0E] selection:text-white">
       {/* Dynamic Background Atmosphere */}
@@ -191,34 +145,32 @@ export default function MarketingPage() {
       {/* Subtle Matrix Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none z-0"></div>
 
-      {/* =========================================================================
-          HERO SECTION: High-Impact Cinematic Intro
-         ========================================================================= */}
+      {/* HERO SECTION */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24 pb-20">
         <div className="flex flex-col items-center text-center">
           {/* Official Launch Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 mb-8 backdrop-blur-md shadow-lg shadow-black/40 hover:border-red-500/40 transition-all">
             <span className="flex w-2 h-2 rounded-full bg-[#E10E0E] animate-pulse"></span>
             <span className="text-xs font-semibold text-gray-300 tracking-wide uppercase">
-              La Plataforma Integral de TCG en Chile
+              {t("hero.badge")}
             </span>
           </div>
 
           {/* Master Headline */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white max-w-5xl leading-[1.08] mb-6">
-            El ecosistema definitivo para{" "}
+            {t("hero.title_prefix")}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400">
-              comprar, vender
+              {t("hero.title_highlight1")}
             </span>{" "}
-            y escalar en{" "}
+            {t("hero.title_middle")}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E10E0E] via-[#F23030] to-amber-500">
-              Trading Cards.
+              {t("hero.title_highlight2")}
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-base sm:text-xl text-gray-400 max-w-3xl mb-10 leading-relaxed font-normal">
-            Centralizamos el inventario de las mejores tiendas y dealers de Chile. Punto de Venta (POS) mostrador con modo desconectado, sincronización oficial de catálogos (Scryfall, Pokémon y Riftbound), motor de Buylist inteligente, protocolo antifraude TapTrade Shield, cuadratura tributaria para F29, un solo carrito multi-tienda y envíos integrados con Chilexpress y Starken.
+            {t("hero.subtitle")}
           </p>
 
           {/* Action CTAs */}
@@ -228,22 +180,19 @@ export default function MarketingPage() {
               className="w-full sm:w-auto px-8 py-4 bg-[#E10E0E] hover:bg-[#F23030] text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-[#E10E0E]/30 hover:shadow-2xl hover:shadow-[#E10E0E]/50 active:scale-95 transition-all flex items-center justify-center gap-2 group"
             >
               <IconSparkles className="w-4 h-4 text-white group-hover:rotate-12 transition-transform" />
-              Explorar Catálogo de Singles
+              {t("hero.cta_explore")}
             </Link>
             <Link
               href="/admin/login"
               className="w-full sm:w-auto px-8 py-4 bg-[#111522] hover:bg-[#161C2C] text-white font-bold text-sm rounded-2xl border border-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2 shadow-lg"
             >
               <IconStore className="w-4 h-4 text-amber-400" />
-              Crear mi Tienda / Acceso LGS
+              {t("hero.cta_create_store")}
             </Link>
           </div>
 
-          {/* =========================================================================
-              FLOATING HOLOGRAPHIC VAULT SHOWCASE (REAL DATABASE TCG CARDS)
-             ========================================================================= */}
+          {/* FLOATING HOLOGRAPHIC VAULT SHOWCASE */}
           <div id="marketplace" className="w-full max-w-5xl relative mt-4 scroll-mt-28">
-            {/* Ambient Backlight Glow */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#E10E0E]/20 via-blue-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
 
             <div className="rounded-3xl bg-[#0E121B]/80 border border-white/10 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
@@ -252,83 +201,83 @@ export default function MarketingPage() {
                   <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
                   <div>
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <IconZap className="w-4 h-4 text-amber-400" /> Mercado TCG en Vivo (Singles Reales de Tiendas)
+                      <IconZap className="w-4 h-4 text-amber-400" /> {t("vault.title")}
                     </h3>
-                    <p className="text-xs text-gray-400">Cartas autenticadas con stock físico sincronizado en tiempo real</p>
+                    <p className="text-xs text-gray-400">{t("vault.subtitle")}</p>
                   </div>
                 </div>
 
-                {/* Filter Pills between games */}
+                {/* Filter Pills */}
                 <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10 self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setVaultCategory("featured")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${vaultCategory === "featured"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      vaultCategory === "featured"
                         ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
                         : "text-gray-400 hover:text-white"
-                      }`}
+                    }`}
                   >
-                    Destacadas
+                    {t("vault.cat_featured")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setVaultCategory("magic")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${vaultCategory === "magic"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      vaultCategory === "magic"
                         ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
                         : "text-gray-400 hover:text-white"
-                      }`}
+                    }`}
                   >
-                    Magic
+                    {t("vault.cat_magic")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setVaultCategory("riftbound")}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${vaultCategory === "riftbound"
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      vaultCategory === "riftbound"
                         ? "bg-[#E10E0E] text-white shadow-md shadow-[#E10E0E]/30"
                         : "text-gray-400 hover:text-white"
-                      }`}
+                    }`}
                   >
-                    Riftbound
+                    {t("vault.cat_riftbound")}
                   </button>
                 </div>
               </div>
 
-              {/* Holographic Real Cards Grid */}
+              {/* Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {displayedVaultCards.map((card) => (
                   <Link
                     key={card.id}
                     href={`/shop?search=${encodeURIComponent(card.searchQuery)}`}
-                    className={`group relative rounded-2xl bg-[#111522] border transition-all duration-300 hover:-translate-y-1.5 p-4 flex flex-col justify-between text-left ${card.isFoil
+                    className={`group relative rounded-2xl bg-[#111522] border transition-all duration-300 hover:-translate-y-1.5 p-4 flex flex-col justify-between text-left ${
+                      card.isFoil
                         ? "border-red-500/40 hover:border-[#E10E0E] shadow-xl shadow-[#E10E0E]/10"
                         : "border-white/10 hover:border-white/30 shadow-lg shadow-black/40"
-                      }`}
+                    }`}
                   >
-                    {/* Top Header: Characteristics Badges (NM, Language Flag & Code, Foil/Normal) */}
                     <div className="flex items-center justify-between gap-1.5 mb-2.5 z-10 w-full">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        {/* Condition Badge (NM) */}
                         <span className="px-2.5 py-0.5 rounded-md text-[11px] font-black font-mono tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                           {card.condition}
                         </span>
 
-                        {/* Language Badge (EN, ES, etc) with Flag */}
                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-extrabold font-mono bg-white/10 text-white border border-white/20 shadow-sm">
                           <IconLanguageFlag code={card.language} className="w-4 h-3 rounded-[1px] shrink-0 shadow-sm" />
                           <span>{card.language}</span>
                         </span>
                       </div>
 
-                      {/* Foil / Normal Finish Badge */}
                       {card.isFoil ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-400/25 via-pink-400/25 to-cyan-400/25 border border-amber-400/80 text-amber-300 shadow-md">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                          FOIL
+                          {t("vault.badge_foil")}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold text-gray-400 bg-white/5 border border-white/10 uppercase">
-                          Normal
+                          {t("vault.badge_normal")}
                         </span>
                       )}
                     </div>
@@ -355,7 +304,7 @@ export default function MarketingPage() {
                       </h4>
                       <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-white/[0.08]">
                         <div>
-                          <span className="text-[10px] text-gray-500 block leading-tight">Mejor precio</span>
+                          <span className="text-[10px] text-gray-500 block leading-tight">{t("vault.best_price")}</span>
                           <span className="text-sm font-black text-white font-mono">{card.price}</span>
                         </div>
                         <span className="text-[10px] text-gray-400 font-medium px-2 py-1 rounded bg-white/5 border border-white/10 group-hover:border-white/20 transition-colors">
@@ -367,22 +316,22 @@ export default function MarketingPage() {
                 ))}
               </div>
 
-              {/* Bottom Quick-Link to full catalog */}
+              {/* Bottom Quick-Link */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t border-white/[0.08] bg-white/[0.02] p-4 rounded-2xl">
                 <div className="flex items-center gap-3 text-left">
                   <div className="w-8 h-8 rounded-xl bg-[#E10E0E]/15 border border-[#E10E0E]/30 flex items-center justify-center text-[#E10E0E] shrink-0">
                     <IconSparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Cartas 100% reales con inventario físico en Chile</p>
-                    <p className="text-[11px] text-gray-400">Precios locales en CLP, retiro inmediato en tienda o despacho en 24-48h</p>
+                    <p className="text-xs font-bold text-white">{t("vault.info_title")}</p>
+                    <p className="text-[11px] text-gray-400">{t("vault.info_desc")}</p>
                   </div>
                 </div>
                 <Link
                   href="/shop"
                   className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 hover:shadow-lg hover:shadow-[#E10E0E]/40 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
                 >
-                  Ver catálogo completo →
+                  {t("vault.cta_catalog")}
                 </Link>
               </div>
 
@@ -390,19 +339,19 @@ export default function MarketingPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/[0.08]">
                 <div className="text-center md:text-left">
                   <span className="text-2xl sm:text-3xl font-black text-white font-mono block">+850</span>
-                  <span className="text-xs text-gray-400">Expansiones Sincronizadas</span>
+                  <span className="text-xs text-gray-400">{t("vault.stat_expansions")}</span>
                 </div>
                 <div className="text-center md:text-left">
                   <span className="text-2xl sm:text-3xl font-black text-white font-mono block">100%</span>
-                  <span className="text-xs text-gray-400">Tiendas Verificadas con RUT</span>
+                  <span className="text-xs text-gray-400">{t("vault.stat_stores")}</span>
                 </div>
                 <div className="text-center md:text-left">
                   <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono block">Shield</span>
-                  <span className="text-xs text-gray-400">Protección Antifraude 3x</span>
+                  <span className="text-xs text-gray-400">{t("vault.stat_shield")}</span>
                 </div>
                 <div className="text-center md:text-left">
                   <span className="text-2xl sm:text-3xl font-black text-[#E10E0E] font-mono block">$0</span>
-                  <span className="text-xs text-gray-400">Retiro Presencial en Tienda</span>
+                  <span className="text-xs text-gray-400">{t("vault.stat_pickup")}</span>
                 </div>
               </div>
             </div>
@@ -410,19 +359,17 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* =========================================================================
-          TCG GAMES SHOWCASE
-         ========================================================================= */}
+      {/* TCG GAMES SHOWCASE */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
         <div className="text-center mb-10">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
-            Compatibilidad Universal
+            {t("games.badge")}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-            Soporte nativo para los Trading Card Games más populares
+            {t("games.title")}
           </h2>
           <p className="text-gray-400 text-sm mt-2 max-w-2xl mx-auto">
-            Catálogos sincronizados directamente con las APIs maestras globales para garantizar datos exactos de cartas, sets y rarezas.
+            {t("games.subtitle")}
           </p>
         </div>
 
@@ -444,44 +391,42 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* =========================================================================
-          INTERACTIVE DUAL AUDIENCE SWITCHER (Players vs Stores)
-         ========================================================================= */}
+      {/* INTERACTIVE DUAL AUDIENCE SWITCHER */}
       <section id="for-stores" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
         <div className="text-center mb-10">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
-            Diseñado a tu Medida
+            {t("audience.badge")}
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-white">
-            Una solución hecha para cada actor del TCG
+            {t("audience.title")}
           </h2>
 
-          {/* Tab Selector */}
           <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 mt-6 backdrop-blur-md">
             <button
               type="button"
               onClick={() => setActiveTab("players")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "players"
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === "players"
                   ? "bg-[#E10E0E] text-white shadow-lg shadow-[#E10E0E]/30"
                   : "text-gray-400 hover:text-white"
-                }`}
+              }`}
             >
-              <IconCard className="w-4 h-4" /> Para Jugadores & Coleccionistas
+              <IconCard className="w-4 h-4" /> {t("audience.tab_players")}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("stores")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "stores"
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === "stores"
                   ? "bg-[#E10E0E] text-white shadow-lg shadow-[#E10E0E]/30"
                   : "text-gray-400 hover:text-white"
-                }`}
+              }`}
             >
-              <IconStore className="w-4 h-4" /> Para Tiendas & Dealers (SaaS)
+              <IconStore className="w-4 h-4" /> {t("audience.tab_stores")}
             </button>
           </div>
         </div>
 
-        {/* Dynamic Tab Content */}
         {activeTab === "players" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
@@ -489,13 +434,11 @@ export default function MarketingPage() {
                 <div className="w-12 h-12 rounded-2xl bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-500 mb-6">
                   <IconZap className="w-6 h-6 text-[#E10E0E]" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Un Solo Carrito Multi-Tienda</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  ¿Necesitas cartas de 3 tiendas distintas? Agrégalas todas a un solo pedido. Pagas una única vez mediante Webpay o Mercado Pago y el sistema genera los envíos correspondientes.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.players.cart_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.players.cart_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Checkout consolidado • Sin transferencias manuales
+                {t("audience.players.cart_footer")}
               </div>
             </div>
 
@@ -504,13 +447,11 @@ export default function MarketingPage() {
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-6">
                   <IconSparkles className="w-6 h-6 text-amber-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Búsqueda Rápida Deckbuilder</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Pega tu lista de mazo completa o busca por edición, acabado (Foil / Normal) e idioma. Compara precios en vivo y adquiere las versiones más convenientes en segundos.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.players.deck_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.players.deck_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Filtros por Foil, Idioma y Condición NM a DMG
+                {t("audience.players.deck_footer")}
               </div>
             </div>
 
@@ -519,13 +460,11 @@ export default function MarketingPage() {
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
                   <IconShieldCheck className="w-6 h-6 text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">TapTrade Shield: Envío Blindado</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  La tienda fotografía tus cartas y el paquete sellado antes del envío. Con tu video de unboxing continuo estás 100% cubierto ante faltantes o daños.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.players.shield_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.players.shield_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-emerald-400 font-mono">
-                ✓ Evidencia de empaque • Despacho Asegurado
+                {t("audience.players.shield_footer")}
               </div>
             </div>
 
@@ -534,165 +473,144 @@ export default function MarketingPage() {
                 <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-6">
                   <IconStore className="w-6 h-6 text-blue-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Retiro en Tienda $0 Multi-Local</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Compra online y retira gratis en la sucursal física de tu tienda favorita. Sin pagar flete ni esperar los tiempos del transporte.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.players.pickup_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.players.pickup_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Retiro presencial inmediato • Costo $0
+                {t("audience.players.pickup_footer")}
               </div>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in duration-300">
-            {/* 1. Punto de Venta POS */}
+            {/* 1. POS */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-red-500/30 hover:border-red-500/50 shadow-[0_0_30px_rgba(225,14,14,0.12)] transition-all flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-red-500/20 text-[#FF5555] border border-red-500/30 text-[9px] font-mono font-bold uppercase tracking-wider">
-                100% Incluido
+                {t("audience.stores.pos_badge")}
               </div>
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-500 mb-6">
                   <IconPosTerminal className="w-6 h-6 text-[#E10E0E]" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Punto de Venta (POS) Mostrador</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Atiende a tus clientes en el mostrador físico a máxima velocidad. Búsqueda instantánea de cartas, escaneo con pistola USB, arqueo diario de caja e impresión térmica.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.stores.pos_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.stores.pos_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-red-400 font-mono">
-                ✓ Modo Desconectado • Sincronización Automática
+                {t("audience.stores.pos_footer")}
               </div>
             </div>
 
-            {/* 2. Sincronización Scryfall */}
+            {/* 2. Sync */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-6">
                   <IconBox className="w-6 h-6 text-blue-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Sincronización Scryfall & Pokémon</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Cero tipeo manual. Sincroniza sets completos con arte oficial, precios de referencia, texto de reglas y números de coleccionista con un solo clic.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.stores.sync_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.stores.sync_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Catálogos actualizados automáticamente
+                {t("audience.stores.sync_footer")}
               </div>
             </div>
 
-            {/* 3. Motor de Buylist */}
+            {/* 3. Buylist */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-6">
                   <IconTag className="w-6 h-6 text-amber-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Motor de Buylist Automatizado</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Permite a tus clientes venderte sus cartas. El sistema calcula devaluaciones automáticas por condición e idioma, liquidando en efectivo o crédito en tu tienda.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.stores.buylist_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.stores.buylist_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Devaluaciones dinámicas configurables
+                {t("audience.stores.buylist_footer")}
               </div>
             </div>
 
-            {/* 4. TapTrade Shield Antifraude */}
+            {/* 4. Shield */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-emerald-500/30 hover:border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
                   <IconShieldCheck className="w-6 h-6 text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">TapTrade Shield Antifraude</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Blindaje contra reclamos de cartas cambiadas o paquetes vacíos. Registra 3 fotos de empaque con compresión WebP, pega la etiqueta sobre el cierre y libera los fondos en custodia al despachar.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.stores.shield_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.stores.shield_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-emerald-400 font-mono">
-                ✓ 3 Fotos de Empaque • Custodia Escrow
+                {t("audience.stores.shield_footer")}
               </div>
             </div>
 
-            {/* 5. Liquidaciones F29 & Contabilidad */}
+            {/* 5. F29 */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6">
                   <IconReceipt className="w-6 h-6 text-cyan-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Cuadratura Tributaria & F29</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Cero fricción con tu contador. Vista mensual con el total de ventas brutas para tu débito fiscal, factura deducible por comisión de TapTrade y retiros directos por TEF a tu cuenta bancaria.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.stores.f29_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.stores.f29_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-cyan-400 font-mono">
-                ✓ Débito Fiscal Tienda • Retiros TEF Directos
+                {t("audience.stores.f29_footer")}
               </div>
             </div>
 
-            {/* 6. Multi-Sucursal & Holding */}
+            {/* 6. Holding */}
             <div className="p-8 rounded-3xl bg-[#111522] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6">
                   <IconStore className="w-6 h-6 text-purple-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Multi-Sucursal & Red de Tiendas</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Todos los planes incluyen 1 Casa Matriz base. Suma sucursales físicas por +2.5 UF/mes cada una con inventario propio, terminales POS, cajeros, subdominio web y retiro presencial gratis.
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t("audience.stores.holding_title")}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t("audience.stores.holding_desc")}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-white/5 text-xs text-gray-500 font-mono">
-                ✓ Control Multi-Local • Roles PBAC
+                {t("audience.stores.holding_footer")}
               </div>
             </div>
           </div>
         )}
       </section>
 
-      {/* =========================================================================
-          BENTO GRID: CARACTERÍSTICAS TÉCNICAS
-         ========================================================================= */}
-      {/* =========================================================================
-          INTERACTIVE SYSTEM SHOWCASE: REAL ADMIN & POS SCREENSHOTS
-         ========================================================================= */}
+      {/* SYSTEM SHOWCASE */}
       <div id="showcase" className="scroll-mt-24">
         <SystemShowcase />
       </div>
 
+      {/* BENTO GRID: CARACTERÍSTICAS TÉCNICAS */}
       <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
         <div className="text-center mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
-            Arquitectura de Grado Profesional
+            {t("features.badge")}
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white">
-            Todo lo necesario para operar tu negocio de TCG
+            {t("features.title")}
           </h2>
           <p className="text-gray-400 text-base max-w-2xl mx-auto mt-3">
-            Construido con tecnología moderna para asegurar que tu tienda nunca se caiga en lanzamientos de nuevas expansiones.
+            {t("features.subtitle")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Flagship Bento Card: Punto de Venta (POS) Mostrador */}
+          {/* Flagship Bento Card: POS Mostrador */}
           <div
             id="pos"
             className="md:col-span-3 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-[#141824] via-[#0E121B] to-[#1A0E13] border-2 border-red-500/40 hover:border-red-500/60 shadow-[0_0_50px_rgba(225,14,14,0.18)] transition-all relative overflow-hidden group scroll-mt-28"
           >
-            {/* Ambient Background Glow */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20 group-hover:bg-red-600/15 transition-all"></div>
             <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10 flex flex-col lg:flex-row items-stretch justify-between gap-8">
-              {/* Left Column: Description & Key Capabilities */}
               <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-600/20 text-[#FF5555] border border-red-500/30 flex items-center gap-1.5">
                       <IconPosTerminal className="w-3.5 h-3.5 text-[#FF5555]" />
-                      Terminal Mostrador • Offline-First
+                      {t("features.pos_badge_counter")}
                     </span>
                     <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
-                      Incluido en Todos los Planes (0% Extra)
+                      {t("features.pos_badge_included")}
                     </span>
                     <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-[10px] font-mono text-gray-400">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -701,24 +619,21 @@ export default function MarketingPage() {
                   </div>
 
                   <h3 className="text-2xl sm:text-3xl font-black text-white mb-3 tracking-tight">
-                    Punto de Venta (POS) Mostrador: Vende en tu local con o sin Internet
+                    {t("features.pos_title")}
                   </h3>
 
                   <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl font-normal">
-                    El primer terminal de caja diseñado exclusivamente para tiendas de cartas coleccionables. Permite buscar entre miles de singles al instante, escanear con lector de código de barras USB y procesar pagos en efectivo, tarjeta física o crédito en tienda. Si se corta el internet en tu local o durante un torneo concurrido, el sistema sigue vendiendo de forma autónoma y sincroniza todo con tu vitrina online en cuanto regresa la conexión.
+                    {t("features.pos_desc")}
                   </p>
 
-                  {/* 4 Feature Points Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
                       <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0 text-[#FF5555]">
                         <IconBarcode className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white mb-0.5">Búsqueda & Pistola USB</h4>
-                        <p className="text-[11px] text-gray-400 leading-tight">
-                          Encuentra cartas por nombre, edición o código de barras al instante con atajos [F2] y [F10].
-                        </p>
+                        <h4 className="text-xs font-bold text-white mb-0.5">{t("features.f_search")}</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">{t("features.f_search_desc")}</p>
                       </div>
                     </div>
 
@@ -727,10 +642,8 @@ export default function MarketingPage() {
                         <IconWifiOff className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white mb-0.5">Cero Caídas Offline</h4>
-                        <p className="text-[11px] text-gray-400 leading-tight">
-                          IndexedDB local guarda tu catálogo y cola de ventas. Vende sin importar cortes de luz o red.
-                        </p>
+                        <h4 className="text-xs font-bold text-white mb-0.5">{t("features.f_offline")}</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">{t("features.f_offline_desc")}</p>
                       </div>
                     </div>
 
@@ -739,10 +652,8 @@ export default function MarketingPage() {
                         <IconCreditCard className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white mb-0.5">Control de Caja & Turnos</h4>
-                        <p className="text-[11px] text-gray-400 leading-tight">
-                          Apertura con fondo inicial, movimientos de caja chica, conteo ciego y reportes X/Z diarios.
-                        </p>
+                        <h4 className="text-xs font-bold text-white mb-0.5">{t("features.f_cash")}</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">{t("features.f_cash_desc")}</p>
                       </div>
                     </div>
 
@@ -751,36 +662,33 @@ export default function MarketingPage() {
                         <IconBox className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white mb-0.5">Stock Físico y Web Unificado</h4>
-                        <p className="text-[11px] text-gray-400 leading-tight">
-                          Al cobrar en el mostrador, el stock se descuenta automáticamente de tu vitrina web.
-                        </p>
+                        <h4 className="text-xs font-bold text-white mb-0.5">{t("features.f_stock")}</h4>
+                        <p className="text-[11px] text-gray-400 leading-tight">{t("features.f_stock_desc")}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-400 font-mono">
-                  <span>✓ Compatible con impresoras térmicas de 80mm / 58mm y gavetas</span>
-                  <span className="text-emerald-400 font-semibold">100% Sin Costo Adicional en Todos los Planes</span>
+                  <span>{t("features.pos_footer")}</span>
+                  <span className="text-emerald-400 font-semibold">{t("features.pos_no_cost")}</span>
                 </div>
               </div>
 
-              {/* Right Column: High-Tech POS Live Terminal Mockup */}
+              {/* Terminal Mockup */}
               <div className="w-full lg:w-[380px] shrink-0 rounded-2xl bg-[#090C13] border border-white/15 p-4 shadow-2xl flex flex-col justify-between font-mono relative overflow-hidden">
                 <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10 text-[11px]">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span className="text-white font-bold ml-1 text-xs">POS Mostrador</span>
+                    <span className="text-white font-bold ml-1 text-xs">{t("features.mock_title")}</span>
                   </div>
                   <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-                    ONLINE • IDB LISTO
+                    {t("features.mock_status")}
                   </span>
                 </div>
 
-                {/* Items in Mock Cart */}
                 <div className="space-y-2 mb-4">
                   <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-[11px]">
                     <div className="min-w-0 pr-2">
@@ -807,7 +715,6 @@ export default function MarketingPage() {
                   </div>
                 </div>
 
-                {/* Summary calculation */}
                 <div className="p-3 rounded-xl bg-black/60 border border-white/10 mb-3 space-y-1 text-xs">
                   <div className="flex justify-between text-gray-400 text-[11px]">
                     <span>Items (3)</span>
@@ -819,191 +726,175 @@ export default function MarketingPage() {
                   </div>
                 </div>
 
-                {/* Hotkeys */}
                 <div className="grid grid-cols-2 gap-2 text-[10px] text-center">
                   <div className="py-1.5 px-2 rounded-lg bg-white/5 border border-white/10 text-gray-300">
-                    <strong className="text-white font-bold">[F2]</strong> Buscar
+                    {t("features.mock_f2")}
                   </div>
                   <div className="py-1.5 px-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">
-                    [F10] Cobrar
+                    {t("features.mock_f10")}
                   </div>
                 </div>
 
-                {/* Footer Hardware note */}
                 <div className="mt-3 pt-2 text-[9px] text-gray-400 text-center leading-tight">
-                  Sin hardware propietario. Funciona en Windows, Mac, Linux, iPad o Android.
+                  {t("features.mock_hw")}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bento 1: TapTrade Shield Antifraude */}
+          {/* Bento 1: Shield */}
           <div className="md:col-span-2 p-8 rounded-3xl bg-gradient-to-br from-[#0E121B] via-[#0B1516] to-[#0A1A17] border border-emerald-500/30 hover:border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.08)] transition-all relative overflow-hidden group">
             <div className="relative z-10">
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-4 inline-flex items-center gap-1.5">
                 <IconShieldCheck className="w-3 h-3 text-emerald-400" />
-                Protocolo Antifraude TapTrade Shield
+                {t("features.bento_shield_badge")}
               </span>
-              <h3 className="text-2xl font-bold text-white mb-2">Blindaje en Despachos & Custodia Escrow</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">{t("features.bento_shield_title")}</h3>
               <p className="text-gray-300 text-sm max-w-xl mb-6 leading-relaxed font-normal">
-                Protege a tu tienda contra reclamos de cartas cambiadas o paquetes vacíos. En órdenes sobre $20.000 CLP se registran 3 fotos de empaque (cartas, protección física y sello del courier) con compresión WebP en cliente. El comprador debe registrar su video de unboxing sin cortes para abrir reclamos, y tus fondos en custodia se liberan al despachar.
+                {t("features.bento_shield_desc")}
               </p>
               <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-400 font-mono pt-3 border-t border-emerald-500/20">
-                <span>✓ 3 Fotos de empaque</span>
-                <span>✓ Unboxing continuo obligatorio</span>
-                <span>✓ Custodia Escrow atómica</span>
+                <span>{t("features.bento_shield_p1")}</span>
+                <span>{t("features.bento_shield_p2")}</span>
+                <span>{t("features.bento_shield_p3")}</span>
               </div>
             </div>
           </div>
 
-          {/* Bento 2: Cuadratura F29 & Finanzas */}
+          {/* Bento 2: F29 */}
           <div className="p-8 rounded-3xl bg-gradient-to-br from-[#0E121B] via-[#0E1724] to-[#0B1A24] border border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_40px_rgba(6,182,212,0.08)] transition-all flex flex-col justify-between">
             <div>
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 mb-4 inline-flex items-center gap-1.5">
                 <IconReceipt className="w-3 h-3 text-cyan-400" />
-                Cuadratura Tributaria
+                {t("features.bento_f29_badge")}
               </span>
-              <h3 className="text-xl font-bold text-white mb-2">Liquidaciones F29 para tu Contador</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t("features.bento_f29_title")}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Total de ventas brutas e IVA Débito Fiscal listo para tu declaración mensual. TapTrade factura su comisión de servicio entregándote crédito fiscal, y transfiere el dinero directo a tu cuenta corriente bancaria por TEF.
+                {t("features.bento_f29_desc")}
               </p>
             </div>
             <div className="pt-4 border-t border-cyan-500/20 text-xs text-cyan-400 font-mono">
-              ✓ Débito Fiscal Tienda • Retiros TEF
+              {t("features.bento_f29_p")}
             </div>
           </div>
 
-          {/* Bento 3: Multi-Sucursal Holding */}
+          {/* Bento 3: Holding */}
           <div className="p-8 rounded-3xl bg-[#0E121B] border border-purple-500/30 hover:border-purple-500/50 transition-all flex flex-col justify-between">
             <div>
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30 mb-4 inline-flex items-center gap-1.5">
                 <IconStore className="w-3 h-3 text-purple-400" />
-                Red Multi-Local
+                {t("features.bento_branch_badge")}
               </span>
-              <h3 className="text-xl font-bold text-white mb-2">Gestión Multi-Sucursal (Holding)</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t("features.bento_branch_title")}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                1 Casa Matriz base incluida en todos los planes (+2.5 UF/mes por cada sucursal adicional). Opera inventarios independientes, cajas POS para cada cajero, subdominio web por local y retiro presencial $0 para tus clientes.
+                {t("features.bento_branch_desc")}
               </p>
             </div>
             <div className="pt-4 border-t border-purple-500/20 text-xs text-purple-400 font-mono">
-              ✓ Control de sucursales • Permisos PBAC
+              {t("features.bento_branch_p")}
             </div>
           </div>
 
-          {/* Bento 4: Vitrina con Subdominio */}
+          {/* Bento 4: Vitrina */}
           <div className="md:col-span-2 p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all relative overflow-hidden group">
             <div className="relative z-10">
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-600/20 text-blue-400 border border-blue-500/30 mb-4 inline-block">
-                Multi-tenant SaaS
+                {t("features.bento_domain_badge")}
               </span>
-              <h3 className="text-2xl font-bold text-white mb-2">Vitrina Digital con Subdominio Propio</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">{t("features.bento_domain_title")}</h3>
               <p className="text-gray-400 text-sm max-w-lg mb-6 leading-relaxed">
-                Obtén tu propia tienda online personalizada (ej: <span className="text-white font-mono">mitienda.taptrade.cl</span>) con tu logotipo, redes sociales, horarios de atención presencial y catálogo exclusivo, además de figurar en el marketplace nacional.
+                {t("features.bento_domain_desc")}
               </p>
               <div className="flex items-center gap-3 text-xs text-gray-400 font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>Responsive Dark Vault • Optimizado para móviles</span>
+                <span>{t("features.bento_domain_p")}</span>
               </div>
             </div>
           </div>
 
-          {/* Bento 3: Radar de Precios */}
+          {/* Bento 5: Radar */}
           <div className="p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
             <div>
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30 mb-4 inline-block">
-                Inteligencia Comercial
+                {t("features.bento_radar_badge")}
               </span>
-              <h3 className="text-xl font-bold text-white mb-2">Radar de Precios de Mercado</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t("features.bento_radar_title")}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Consulta los precios históricos y actuales de cada carta para ajustar tu stock sin vender bajo el costo de reposición.
+                {t("features.bento_radar_desc")}
               </p>
             </div>
             <div className="pt-4 border-t border-white/5 text-xs text-gray-400 font-mono">
-              ✓ Comparativas Scryfall & TCGPlayer
+              {t("features.bento_radar_p")}
             </div>
           </div>
 
-          {/* Bento 4: Crédito en Tienda */}
+          {/* Bento 6: Crédito */}
           <div className="md:col-span-2 p-8 rounded-3xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
             <div>
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-4 inline-block">
-                Fidelización Activa
+                {t("features.bento_credit_badge")}
               </span>
-              <h3 className="text-2xl font-bold text-white mb-2">Billetera de Crédito en Tienda (Store Credit)</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">{t("features.bento_credit_title")}</h3>
               <p className="text-gray-400 text-sm max-w-lg mb-6 leading-relaxed">
-                Retén el capital dentro de tu negocio. Ofrece hasta un 20% o 30% extra en crédito en tienda a los clientes que te vendan singles por Buylist, asegurando que reinviertan su saldo en tus productos.
+                {t("features.bento_credit_desc")}
               </p>
             </div>
             <div className="pt-4 border-t border-white/5 text-xs text-gray-400 font-mono">
-              ✓ Saldo digital asociado a la cuenta del usuario
+              {t("features.bento_credit_p")}
             </div>
           </div>
         </div>
       </section>
 
-      {/* =========================================================================
-          CÓMO FUNCIONA: 3 PASOS
-         ========================================================================= */}
+      {/* CÓMO FUNCIONA */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
         <div className="text-center mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
-            Flujo Sin Fricción
+            {t("how_it_works.badge")}
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">¿Cómo funciona TapTrade?</h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-white">{t("how_it_works.title")}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="relative p-8 rounded-3xl bg-white/[0.02] border border-white/10 text-center">
             <div className="w-12 h-12 rounded-full bg-[#E10E0E]/20 text-[#E10E0E] font-mono font-black text-lg flex items-center justify-center mx-auto mb-6 border border-[#E10E0E]/30">
-              01
+              {t("how_it_works.step1_num")}
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Conecta tu Tienda o Busca Singles</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Las tiendas suben su stock en segundos mediante importador masivo o sincronización Scryfall. Los jugadores exploran miles de cartas con filtros por edición, estado e idioma.
-            </p>
+            <h3 className="text-lg font-bold text-white mb-2">{t("how_it_works.step1_title")}</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">{t("how_it_works.step1_desc")}</p>
           </div>
 
           <div className="relative p-8 rounded-3xl bg-white/[0.02] border border-white/10 text-center">
             <div className="w-12 h-12 rounded-full bg-blue-600/20 text-blue-400 font-mono font-black text-lg flex items-center justify-center mx-auto mb-6 border border-blue-500/30">
-              02
+              {t("how_it_works.step2_num")}
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Pago Protegido & Liquidación Central</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              El comprador paga con Webpay Plus o Mercado Pago. Los fondos ingresan a la cuenta central de TapTrade y luego se transfieren directamente a la cuenta bancaria de tu empresa.
-            </p>
+            <h3 className="text-lg font-bold text-white mb-2">{t("how_it_works.step2_title")}</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">{t("how_it_works.step2_desc")}</p>
           </div>
 
           <div className="relative p-8 rounded-3xl bg-white/[0.02] border border-white/10 text-center">
             <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-mono font-black text-lg flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
-              03
+              {t("how_it_works.step3_num")}
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Despacho Express o Retiro $0</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              La tienda genera la etiqueta de Chilexpress o Starken con 1 clic. El comprador hace seguimiento en vivo o retira presencialmente sin costo de envío.
-            </p>
+            <h3 className="text-lg font-bold text-white mb-2">{t("how_it_works.step3_title")}</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">{t("how_it_works.step3_desc")}</p>
           </div>
         </div>
       </section>
 
-      {/* =========================================================================
-          PLANES Y PRECIOS DINÁMICOS DESDE LA BASE DE DATOS
-         ========================================================================= */}
+      {/* PRICING SECTION */}
       <div className="relative z-10">
         <PricingSection />
       </div>
 
-      {/* =========================================================================
-          FAQ: PREGUNTAS FRECUENTES INTERACTIVAS
-         ========================================================================= */}
+      {/* FAQ SECTION */}
       <section id="faq" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
         <div className="text-center mb-14">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
-            Resolvemos tus Dudas
+            {t("faq_section.badge")}
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">Preguntas Frecuentes</h2>
-          <p className="text-gray-400 text-sm mt-2">
-            Todo lo que necesitas saber antes de comprar o vender en la plataforma.
-          </p>
+          <h2 className="text-3xl sm:text-4xl font-black text-white">{t("faq_section.title")}</h2>
+          <p className="text-gray-400 text-sm mt-2">{t("faq_section.subtitle")}</p>
         </div>
 
         <div className="space-y-3.5">
@@ -1043,8 +934,8 @@ export default function MarketingPage() {
             >
               <span>
                 {showAllFaqs
-                  ? "Ver menos preguntas"
-                  : `Ver más preguntas frecuentes (${faqs.length - 4} adicionales)`}
+                  ? t("faq_section.btn_less")
+                  : t("faq_section.btn_more", { count: faqs.length - 4 })}
               </span>
               <IconChevronDown
                 className={`w-4 h-4 transition-transform duration-300 ${
@@ -1056,21 +947,19 @@ export default function MarketingPage() {
         )}
       </section>
 
-      {/* =========================================================================
-          FINAL HIGH-CONVERTING CTA BANNER
-         ========================================================================= */}
+      {/* FINAL CTA BANNER */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="relative rounded-3xl bg-gradient-to-r from-red-950/60 via-[#111522] to-amber-950/40 border border-red-500/30 p-8 sm:p-14 text-center overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
           <span className="text-xs font-bold font-mono uppercase tracking-widest text-amber-400 mb-3 inline-block">
-            El Futuro del TCG en Chile Comienza Aquí
+            {t("cta_banner.badge")}
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white max-w-3xl mx-auto leading-tight mb-6">
-            ¿Listo para llevar tu colección o tu tienda al siguiente nivel?
+            {t("cta_banner.title")}
           </h2>
           <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto mb-8">
-            Únete a la comunidad de tiendas especializadas y coleccionistas que ya operan con la tecnología de TapTrade.
+            {t("cta_banner.subtitle")}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -1079,14 +968,14 @@ export default function MarketingPage() {
               className="w-full sm:w-auto px-8 py-4 bg-[#E10E0E] hover:bg-[#F23030] text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-[#E10E0E]/40 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <IconSparkles className="w-4 h-4 text-white" />
-              Explorar Singles en Vivo
+              {t("cta_banner.btn_explore")}
             </Link>
             <Link
               href="/admin/login"
               className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/15 text-white font-bold text-sm rounded-2xl border border-white/20 transition-all flex items-center justify-center gap-2"
             >
               <IconStore className="w-4 h-4 text-white" />
-              Ingresar como Tienda
+              {t("cta_banner.btn_store")}
             </Link>
           </div>
         </div>

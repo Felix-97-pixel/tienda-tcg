@@ -133,7 +133,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
 
       {/* Juego / Categoría (Col 2) */}
       <div className="col-span-6 sm:col-span-2 text-left sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">Juego:</span>
+        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">{tw("th_game")}:</span>
         <span className="inline-block text-xs font-medium text-gray-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
           {categoryName || "TCG"}
         </span>
@@ -141,7 +141,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
 
       {/* Unit Price (Col 2) */}
       <div className="col-span-6 sm:col-span-2 text-right sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">Precio:</span>
+        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">{tw("th_unit_price")}:</span>
         <span className="text-sm font-mono font-bold text-white">
           ${Math.round(unitPrice).toLocaleString("es-CL")}{" "}
           <span className="text-xs text-gray-400 font-normal">CLP</span>
@@ -150,7 +150,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
 
       {/* Stock Status (Col 2) */}
       <div className="col-span-6 sm:col-span-2 text-left sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">Disponibilidad:</span>
+        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">{tw("th_stock")}:</span>
         {isInStock ? (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -183,7 +183,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
         <button
           type="button"
           onClick={handleRemoveFromWishlist}
-          title="Eliminar de mi wishlist"
+          title={t("remove_from_wishlist")}
           className="p-2.5 rounded-xl text-gray-400 hover:text-red-400 bg-white/[0.02] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all active:scale-95 flex items-center justify-center"
         >
           <IconTrash className="w-4 h-4" />

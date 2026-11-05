@@ -1,10 +1,153 @@
 {
   "terms": {
-    "title": "Terms and Conditions",
-    "updated": "Last updated"
+    "pageTitle": "Terms and Conditions",
+    "mainTitle": "Terms, Conditions and Purchasing Policies",
+    "badge": "Official Policies",
+    "description": "Please read the following terms in detail before completing a transaction.",
+    "lastUpdated": "Last Updated: January 01, 2025",
+    "backToShop": "Back to Shop",
+    "navTitle": "Quick Navigation",
+    "nav": {
+      "introduccion": "1. Introduction",
+      "informacion": "2. Store Information",
+      "precios": "3. Prices and Payments",
+      "envios": "4. Shipping and Deliveries",
+      "devoluciones": "5. Returns and Refunds",
+      "privacidad": "6. Privacy",
+      "responsabilidad": "7. Limitation of Liability",
+      "ley": "8. Governing Law and Jurisdiction",
+      "disposiciones": "9. General Provisions",
+      "creditos": "10. Store Credits",
+      "transferencias": "Bank Transfers"
+    },
+    "introduccion": {
+      "title": "Introduction",
+      "p1": "Welcome to TapTrade, the SaaS platform and comprehensive marketplace for Trading Card Games (TCG) and collectibles in Chile. These policies, terms, and conditions govern your use of the platform and transactions between buyers and member stores. By using the platform or making a purchase, you agree to these binding policies.",
+      "p2": "TapTrade SpA reserves the right to update, modify, or change these policies at any time to adapt to legal or technical standards. It is the user's responsibility to periodically review these terms."
+    },
+    "informacion": {
+      "title": "Platform Information",
+      "p1": "TapTrade is legally operated by TAPTRADE SpA (Tax ID 78.531.106-K), a corporation constituted under the laws of the Republic of Chile.",
+      "p2": "Our headquarters are located at Padre Mariano 98 Of. 315, Providencia, Santiago, Chile. For legal or support inquiries, contact contacto@taptrade.cl or legal@taptrade.cl."
+    },
+    "precios": {
+      "title": "Prices and Payments",
+      "p1": "All prices on our store are listed in Chilean Pesos (CLP) and include Value Added Tax (VAT / IVA).",
+      "p2": "We accept the following authorized payment methods: Debit and Credit cards (via secure payment gateways).",
+      "p3": "Full payment is required at the time of purchase. Once payment is processed and verified, an automated confirmation email is sent to the customer."
+    },
+    "envios": {
+      "title": "Shipping and Deliveries",
+      "p1": "Products will be shipped to the address provided by the user at checkout. Shipping fees are calculated automatically based on destination and package weight.",
+      "p2": "We make every effort to ship and deliver within the timeframe indicated. However, we are not liable for operational delays caused directly by courier service providers.",
+      "p3": "The customer is strictly responsible for providing an accurate and complete delivery address. If returned due to an invalid address, the user must bear reshipment costs.",
+      "scheduleTitle": "Dispatch and Pickup Hours:",
+      "scheduleDesc": "Orders placed before 14:00 hrs can be picked up in store or dispatched the same day from 16:00 hrs. Subsequent orders will be processed next business day."
+    },
+    "devoluciones": {
+      "title": "Returns and Refunds",
+      "p1": "If you are not completely satisfied, you have a statutory period of 5 continuous days from delivery to return the item in identical received condition with intact seals.",
+      "p2": "The customer assumes shipping return costs. Once inspected, a full refund will be processed within 3 business days for Credit and 6 business days for Debit.",
+      "p3": "No returns are accepted under any circumstances for custom products, altered singles, or opened booster products."
+    },
+    "privacidad": {
+      "title": "Privacy",
+      "p1": "We are committed to absolute protection and privacy of personal data. For details regarding processing and storage, please consult our Privacy Policy."
+    },
+    "responsabilidad": {
+      "title": "Limitation of Liability",
+      "p1": "We are not liable for direct, indirect, incidental, or consequential damages resulting from technical use or inability to use our store.",
+      "p2": "We apply industry security standards to mitigate risks of technical interruptions or malware.",
+      "p3": "Under no circumstance shall total company liability exceed the purchase amount paid by the customer for the specific item in question."
+    },
+    "ley": {
+      "title": "Governing Law and Jurisdiction",
+      "p1": "These policies are governed by and construed in strict accordance with the laws of the Republic of Chile.",
+      "p2": "Any dispute or litigation arising shall be submitted and resolved exclusively before the ordinary courts of Santiago, Chile."
+    },
+    "disposiciones": {
+      "title": "General Provisions",
+      "p1": "These terms constitute the entire binding agreement between the user and TapTrade regarding platform use, superseding prior communications.",
+      "p2": "If any clause is held invalid by a competent court, remaining clauses remain in full force and effect.",
+      "p3": "Failure to enforce any provision shall not be construed as a waiver of such right or provision."
+    },
+    "creditos": {
+      "title": "Store Credit Policies",
+      "p1": "These terms govern the use of credits granted or accumulated in the store.",
+      "t1_title": "Tournament Credits:",
+      "t1_desc": "Credits won in tournaments have a 30-day validity. Unused credits after 31 days are reduced to a maximum ceiling of $10,000 CLP.",
+      "t2_title": "Card Sales Credits (Buylist):",
+      "t2_desc": "Credits obtained from card buybacks do not expire. If exceeding $100,000 CLP, you have 60 days to spend the full balance.",
+      "p4_desc": "Store credits may be used for any available item except:",
+      "p4_li1": "Shipping and delivery fees.",
+      "p4_li2": "In-person tournament entry fees.",
+      "p4_li3": "Products cataloged as pre-orders.",
+      "p5_desc": "Store credits cannot be combined with:",
+      "p5_li1": "Promotional discount coupons.",
+      "p5_li2": "Physical store discount cards."
+    },
+    "transferencias": {
+      "title": "Bank Transfer Payments",
+      "p1": "Orders paid via direct bank transfer must be verified with payment receipt within 24 hours of order confirmation.",
+      "warning": "Important: Unpaid orders after 24 hours will be automatically cancelled by the system, releasing inventory back for sale."
+    }
   },
   "privacy": {
-    "title": "Privacy Policy",
-    "updated": "Last updated"
+    "pageTitle": "Privacy Policy",
+    "mainTitle": "Data Privacy Policy",
+    "badge": "Privacy and Security",
+    "description": "At TapTrade we take the security and privacy of your personal information very seriously.",
+    "lastUpdated": "Last Updated: January 01, 2025",
+    "backToShop": "Back to Shop",
+    "navTitle": "Quick Navigation",
+    "nav": {
+      "introduccion": "Introduction",
+      "informacion": "1. Information We Collect",
+      "uso": "2. How We Use Personal Information",
+      "compartir": "3. Sharing Personal Information",
+      "retencion": "4. Data Retention",
+      "contacto": "5. Changes and Contact"
+    },
+    "introduccion": {
+      "p1": "This Privacy Policy describes how your personal information is collected, used, and shared when you visit or make a purchase on our portal."
+    },
+    "informacion": {
+      "title": "What Personal Information We Collect",
+      "p1": "When you visit the site, we automatically collect device information, including browser details, IP address, timezone, and cookies.",
+      "p2": "As you browse, we collect information on individual pages and products viewed, referring search terms, and platform interactions.",
+      "techTitle": "Technologies We Use:",
+      "techLi1": "Cookies: Small data files placed on your computer often including an anonymous unique identifier.",
+      "techLi2": "Log Files: Track actions on the site and record IP address, browser type, ISP, and timestamps.",
+      "orderTitle": "Order Information:",
+      "orderDesc": "When making a purchase, we securely collect name, billing address, shipping address, payment details, email, and phone number.",
+      "p3": "Personal Information refers to both Device and Order Information."
+    },
+    "uso": {
+      "title": "How We Use Your Personal Information",
+      "p1": "We use Order Information to fulfill purchases (processing payments, shipping logistics, and issuing invoices).",
+      "listTitle": "Additionally, we use Order Information to:",
+      "listLi1": "Communicate directly regarding order status.",
+      "listLi2": "Screen orders for potential risk or fraud.",
+      "listLi3": "Provide information and targeted promotions per your preferences.",
+      "p2": "We use Device Information to assist in fraud screening and improve site performance."
+    },
+    "compartir": {
+      "title": "Sharing Your Personal Information",
+      "p1": "We share Personal Information with logistics couriers, authorized payment gateways, and analytics to serve orders effectively.",
+      "analyticsTitle": "Google Analytics:",
+      "analyticsDesc": "We use Google Analytics to analyze customer interaction and improve product catalogs.",
+      "p2": "We may disclose Personal Information to comply with applicable Chilean laws, subpoena requests, or protect legal rights."
+    },
+    "retencion": {
+      "title": "Data Retention",
+      "p1": "We maintain Order Information for accounting and warranty verification unless requested for deletion via official channels."
+    },
+    "contacto": {
+      "title": "Policy Changes and Contact",
+      "p1": "We may update this policy periodically to reflect operational, legal, or regulatory modifications under Chilean law.",
+      "boxTitle": "Have questions?",
+      "boxDesc": "Reach out to us directly and we will respond promptly.",
+      "btn": "contacto@taptrade.cl"
+    }
   }
 }

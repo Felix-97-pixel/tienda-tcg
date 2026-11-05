@@ -3,8 +3,12 @@ import Link from "next/link";
 import React from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useAdminSignin } from "./hooks/useAdminSignin";
+import { useTranslations } from "next-intl";
+import LanguageSelector from "@/components/ui/LanguageSelector";
+import { IconArrowLeft } from "@/components/ui/Icons";
 
 const AdminSignin = () => {
+  const t = useTranslations("login");
   const {
     email,
     setEmail,
@@ -13,7 +17,7 @@ const AdminSignin = () => {
     setCaptchaToken,
     error,
     isLoading,
-    handleSubmit
+    handleSubmit,
   } = useAdminSignin();
 
   return (
@@ -23,18 +27,27 @@ const AdminSignin = () => {
       <div className="absolute top-[-10%] left-[20%] w-[500px] h-[350px] bg-red/15 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute bottom-[-10%] right-[10%] w-[450px] h-[350px] bg-red-dark/10 rounded-full blur-[140px] pointer-events-none z-0" />
 
+      {/* Top right language switch */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSelector />
+      </div>
+
       <div className="max-w-[450px] w-full relative z-10">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-dark to-red flex items-center justify-center shadow-lg shadow-red/30 border border-white/10 group-hover:scale-105 transition-transform">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <span className="text-white font-black text-xl font-mono">T</span>
             </div>
-            <span className="text-2xl font-black tracking-tight text-white">Tap<span className="text-red">Trade</span> Admin</span>
+            <span className="text-2xl font-black tracking-tight text-white">
+              Tap<span className="text-red">Trade</span> Admin
+            </span>
           </Link>
-          <h2 className="text-2xl font-black text-white tracking-tight mb-1">Bienvenido de vuelta</h2>
-          <p className="text-white/60 text-sm">Ingresa las credenciales para acceder a tu panel</p>
+          <h2 className="text-2xl font-black text-white tracking-tight mb-1">
+            {t("hero_welcome")}
+          </h2>
+          <p className="text-white/60 text-sm">
+            {t("subtitle")}
+          </p>
         </div>
 
         <div className="bg-[#0E121B] border border-white/10 p-8 rounded-3xl backdrop-blur-xl shadow-2xl shadow-black ring-1 ring-white/5">
@@ -43,11 +56,11 @@ const AdminSignin = () => {
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
               <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                Correo Electrónico
+                {t("email")}
               </label>
               <input
                 type="email"
@@ -55,14 +68,14 @@ const AdminSignin = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="tu@email.com"
+                placeholder={t("email_placeholder")}
                 className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all text-sm"
               />
             </div>
 
             <div>
               <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                Contraseña
+                {t("password")}
               </label>
               <input
                 type="password"
@@ -70,7 +83,7 @@ const AdminSignin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="••••••••"
+                placeholder={t("password_placeholder")}
                 className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all text-sm"
               />
             </div>
@@ -79,7 +92,7 @@ const AdminSignin = () => {
               <Turnstile
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={(token) => setCaptchaToken(token)}
-                options={{ theme: 'dark' }}
+                options={{ theme: "dark" }}
               />
             </div>
 
@@ -90,17 +103,24 @@ const AdminSignin = () => {
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Ingresando...
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  <span>{t("submitting")}</span>
                 </>
               ) : (
-                "Ingresar al Panel"
+                <span>{t("submit")}</span>
               )}
             </button>
           </form>
+
+          <div className="mt-6 pt-5 border-t border-white/5 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors"
+            >
+              <IconArrowLeft className="w-3.5 h-3.5" />
+              <span>{t("back_to_shop")}</span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

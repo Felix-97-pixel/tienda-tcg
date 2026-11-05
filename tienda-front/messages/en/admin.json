@@ -24,6 +24,20 @@
       "wishlistDesc": "Descubre qué productos interesan más a tus clientes para tomar decisiones de inventario.",
       "settings": "Configuración",
       "settingsDesc": "Define las categorías de destino para cada juego y gestiona los ajustes globales del panel."
+    },
+    "guideButtons": {
+      "sync": "Sync Catalog",
+      "settings": "Settings"
+    },
+    "links": {
+      "brands": "Brands",
+      "categories": "Categories",
+      "products": "Products",
+      "sync": "Sync",
+      "sales": "Sales Analytics",
+      "orders": "Orders",
+      "statistics": "Statistics",
+      "wishlist": "Wishlist Demand"
     }
   },
   "products": {
@@ -369,8 +383,109 @@
       "magic": "Destino Magic: The Gathering",
       "pokemon": "Destino Pokémon TCG",
       "riftbound": "Destino Riftbound",
-      "save": "Guardar Configuración",
-      "success": "Configuración guardada correctamente"
+      "save": "Save Settings",
+      "success": "Settings saved successfully"
     }
+  },
+  "sidebar": {
+    "sections": {
+      "cashier_ops": "Cashier Operations",
+      "cashier_catalog": "Catalog (Lookup)",
+      "branch_ops": "Branch Operations",
+      "branch_inventory": "Branch Inventory",
+      "branch_metrics": "Branch Metrics",
+      "branch_staff": "Branch Staff",
+      "branch_config": "Branch Settings",
+      "company_ops": "Operations",
+      "company_catalog": "Catalog & Stock",
+      "company_metrics": "Metrics & Finance",
+      "company_management": "Company Management",
+      "company_config": "Store Settings"
+    },
+    "items": {
+      "pos": "Point of Sale (POS)",
+      "cash_shifts": "Cash Register & Shifts",
+      "orders_pickup": "In-Store Pickup",
+      "store_credit_redeem": "Customer Credit Redeem",
+      "singles_inquiry": "Singles Lookup",
+      "sealed_inquiry": "Sealed Lookup",
+      "buylist_reception": "Buylist Intake",
+      "registers_and_shifts": "Registers & Shifts",
+      "orders_dispatch": "Dispatch & Orders",
+      "store_credit": "Store Credit",
+      "singles": "Singles",
+      "sealed": "Sealed",
+      "buylist_branch": "Branch Buylist",
+      "price_sync": "Price Synchronization",
+      "wishlist": "Wishlist",
+      "reports_sales": "Reports & Sales",
+      "team_branch": "Branch Team",
+      "shipping_methods": "Shipping & Pickup",
+      "orders_shipping": "Shipping & Orders",
+      "buylist_engine": "Buylist Engine",
+      "metrics_sales": "Metrics & Sales",
+      "wallet_payouts": "Wallet & Settlements",
+      "team_colleagues": "Staff & Team",
+      "coupons": "Coupons",
+      "currencies": "Currencies & Rates",
+      "games_config": "Supported Games",
+      "store_settings": "Store Settings",
+      "back_to_hub": "Back to Hub",
+      "back_to_shop": "Back to Store",
+      "logout": "Log Out"
+    },
+    "roles": {
+      "company_owner": "Company Owner",
+      "branch_manager": "Branch Manager",
+      "cashier": "Cashier"
+    }
+  },
+  "superadmin": {
+    "sections": {
+      "commercial": "Commercial Management",
+      "master_catalog": "Master Catalog",
+      "tcg_sync": "TCG Synchronization",
+      "system_config": "System Configuration"
+    },
+    "items": {
+      "companies_branches": "Companies & Branches",
+      "payouts": "Payouts (Settlements)",
+      "accounting_sii": "Accounting & Taxes",
+      "global_products": "Global Products",
+      "categories": "Categories",
+      "brands": "Brands",
+      "sync_magic": "Magic: The Gathering",
+      "sync_pokemon": "Pokémon TCG",
+      "sync_riftbound": "Riftbound TCG",
+      "sync_backups": "CSV Backups",
+      "config_plans": "Subscription Plans (SaaS)",
+      "config_expansions": "Expansions Mapping",
+      "config_sync": "Sync Destinations",
+      "config_games": "Supported Games",
+      "config_currencies": "Currencies & Rates",
+      "config_locations": "Regions and Communes",
+      "back_to_shop": "Back to Store",
+      "logout": "Log Out",
+      "badge": "Global SuperAdmin"
+    }
+  },
+  "hub": {
+    "back_to_shop": "Back to Shop",
+    "badge": "TapTrade Store Admin",
+    "title": "Control Center",
+    "subtitle": "Welcome to your administration panel. Select a module to manage your catalog, sales, or configuration.",
+    "enter_module": "Enter Module",
+    "catalog_title": "Catalog Module",
+    "catalog_desc": "Manage your singles and sealed inventory, set prices, review your buylist, and synchronize your TCG cards.",
+    "catalog_tag": "Cards & Stock",
+    "sales_title": "Transactions & Sales",
+    "sales_desc": "Track sales, card purchases (Cash and Store Credit), register closings, shipments, and business analytics.",
+    "sales_tag": "Cash & Finances",
+    "settings_title": "Settings Module",
+    "settings_desc": "Customize your store profile, shipping methods, checkout currencies, coupons, and card condition rules.",
+    "settings_tag": "Settings & Shipping",
+    "pos_title": "Point of Sale (POS)",
+    "pos_desc": "Counter register for your physical store, barcode scanning, buying and selling singles, and cash balance.",
+    "pos_tag": "Counter Sales"
   }
 }

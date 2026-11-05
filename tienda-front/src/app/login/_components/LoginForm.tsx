@@ -12,6 +12,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import { IconShieldCheck, IconZap, IconSparkles } from "@/components/ui/Icons";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 
 export default function LoginForm() {
   const t = useTranslations("login");
@@ -200,6 +201,11 @@ export default function LoginForm() {
       <div className="w-full lg:w-1/2 xl:w-[48%] flex items-center justify-center p-6 sm:p-12 xl:p-16 relative">
         {/* Glow de fondo decorativo */}
         <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
+
+        {/* Language selector in top right */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+          <LanguageSelector />
+        </div>
 
         <div className="w-full max-w-[440px] relative z-10">
           {/* Logo móvil (solo visible si no está la columna izquierda) */}

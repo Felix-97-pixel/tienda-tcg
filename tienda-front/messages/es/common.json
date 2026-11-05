@@ -34,5 +34,13 @@
   "general": "General",
   "uploading": "Subiendo...",
   "noImage": "Sin imagen",
-  "refresh": "Refrescar"
+  "refresh": "Refrescar",
+  "mail_success": {
+    "title": "¡Envío Exitoso!",
+    "subtitle": "Tu mensaje fue enviado con éxito",
+    "desc": "Muchas gracias por comunicarte. Revisamos los mensajes frecuentemente y te responderemos a la brevedad.",
+    "back_to_home": "Volver al Inicio",
+    "breadcrumb_title": "Mensaje Enviado",
+    "breadcrumb_page": "Éxito"
+  }
 }

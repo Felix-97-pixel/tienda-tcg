@@ -3,12 +3,13 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
+import { useTranslations } from "next-intl";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { addItemToCart } from "@/redux/features/cart-slice";
 import { useToast } from "@/hooks/useToast";
 import { formatPrice } from "@/utils/currency";
 import { calculateItemPriceCLP, parseConditionCode, getConditionBadgeClass } from "@/utils/tcgPrices";
-import { IconSparkles } from "@/components/ui/Icons";
+import { IconSparkles, IconBox, IconCart, IconCheck, IconX } from "@/components/ui/Icons";
 
 interface TcgStoreVariantModalProps {
   product: any;
@@ -25,6 +26,7 @@ export default function TcgStoreVariantModal({
   globalRates = [],
   onClose,
 }: TcgStoreVariantModalProps) {
+  const t = useTranslations("shop");
   const dispatch = useDispatch<AppDispatch>();
   const currency = useAppSelector((state: any) => state.currencyReducer);
   const cartItems = useAppSelector((state: any) => state.cartReducer.items || []);
@@ -246,13 +248,13 @@ export default function TcgStoreVariantModal({
           <div className="pb-4 mb-4 border-b border-white/10 flex items-baseline justify-between">
             <div>
               <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
-                <span>Variantes en Vitrina</span>
+                <span>{t("store_variants_title", { store: storeName })}</span>
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  {storeVariants.length} disp.
+                  {t("available_count", { count: storeVariants.length })}
                 </span>
               </h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                Selecciona la condición, acabado y cantidad disponible de esta tienda:
+                {t("store_variants_subtitle")}
               </p>
             </div>
           </div>
@@ -261,10 +263,10 @@ export default function TcgStoreVariantModal({
           <div className="flex-1 overflow-y-auto space-y-3 pr-1.5 custom-scrollbar">
             {storeVariants.length === 0 ? (
               <div className="text-center py-12 px-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
-                <span className="text-3xl block">📦</span>
-                <h4 className="text-sm font-bold text-white">Sin stock disponible en esta tienda</h4>
+                <IconBox className="w-8 h-8 text-gray-500 mx-auto" />
+                <h4 className="text-sm font-bold text-white">{t("no_stock_in_store")}</h4>
                 <p className="text-xs text-gray-400 max-w-xs mx-auto">
-                  {storeName} no tiene unidades activas de esta carta en este momento.
+                  {t("no_stock_in_store_desc", { store: storeName })}
                 </p>
               </div>
             ) : (
@@ -305,11 +307,11 @@ export default function TcgStoreVariantModal({
                         {variant.isFoil ? (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400/20 via-pink-400/20 to-cyan-400/20 border border-amber-300/40 text-amber-200 flex items-center gap-1 shadow-sm">
                             <IconSparkles className="w-3 h-3 text-amber-300 animate-spin-slow" />
-                            Foil
+                            {t("finish_foil")}
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/5 border border-white/10 text-gray-400">
-                            Normal
+                            {t("finish_normal")}
                           </span>
                         )}
                       </div>
@@ -317,20 +319,20 @@ export default function TcgStoreVariantModal({
                       {/* Stock Info */}
                       <div className="text-xs text-gray-400 flex items-center gap-2">
                         {isOutOfStock ? (
-                          <span className="text-red-400 font-bold">Agotado</span>
+                          <span className="text-red-400 font-bold">{t("outOfStock")}</span>
                         ) : variant.stock <= 3 ? (
                           <span className="text-amber-400 font-semibold text-[11px]">
-                            ¡Solo {variant.stock} disponible{variant.stock > 1 ? "s" : ""}!
+                            {t("only_stock_left", { count: variant.stock })}
                           </span>
                         ) : (
                           <span className="text-emerald-400 font-medium text-[11px]">
-                            ✓ {variant.stock} disponibles
+                            ✓ {t("available_count", { count: variant.stock })}
                           </span>
                         )}
 
                         {currentCartQty > 0 && (
                           <span className="text-[10px] text-gray-500 font-mono">
-                            ({currentCartQty} en carrito)
+                            {t("in_cart_badge", { count: currentCartQty })}
                           </span>
                         )}
                       </div>
@@ -343,7 +345,7 @@ export default function TcgStoreVariantModal({
                         <span className="text-base sm:text-lg font-black font-mono text-white block">
                           {formatPrice(variant.priceCLP, currency)}
                         </span>
-                        <span className="text-[10px] text-gray-500 block">precio tienda</span>
+                        <span className="text-[10px] text-gray-500 block">{t("store_price")}</span>
                       </div>
 
                       {/* Selector de Cantidad */}
@@ -386,17 +388,17 @@ export default function TcgStoreVariantModal({
                       >
                         {isThisAdding ? (
                           <>
-                            <span>✓</span>
-                            <span>Listo</span>
+                            <IconCheck className="w-3.5 h-3.5 text-white" />
+                            <span>{t("done")}</span>
                           </>
                         ) : isMaxReached ? (
-                          <span>Máximo</span>
+                          <span>{t("max")}</span>
                         ) : isOutOfStock ? (
-                          <span>Sin Stock</span>
+                          <span>{t("outOfStock")}</span>
                         ) : (
                           <>
-                            <span>🛒</span>
-                            <span>Añadir</span>
+                            <IconCart className="w-3.5 h-3.5 text-white" />
+                            <span>{t("addToCart")}</span>
                           </>
                         )}
                       </button>
@@ -411,14 +413,14 @@ export default function TcgStoreVariantModal({
           <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between text-xs text-gray-400">
             <div className="flex items-center gap-1.5">
               <span className="text-emerald-400">✓</span>
-              <span>Envíos combinados con Starken / Chilexpress</span>
+              <span>{t("combined_shipping_note")}</span>
             </div>
             <button
               type="button"
               onClick={onClose}
               className="text-gray-300 hover:text-white underline underline-offset-2 cursor-pointer font-medium"
             >
-              Seguir explorando tienda
+              {t("continue_browsing_store")}
             </button>
           </div>
         </div>

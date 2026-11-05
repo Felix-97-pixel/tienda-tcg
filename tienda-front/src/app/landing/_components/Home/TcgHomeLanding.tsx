@@ -18,91 +18,11 @@ import {
   IconClock,
   IconFlame,
   IconEye,
-  IconGlobe,
+  IconCard,
+  IconBox,
 } from "@/components/ui/Icons";
 import { getBestAvailableVariant } from "@/utils/tcgPrices";
-
-// Official TCG Games Grid Data
-const TCG_GAMES = [
-  {
-    id: "riftbound",
-    name: "Singles Riftbound",
-    displayName: "Riftbound TCG",
-    tagline: "El nuevo fenómeno competitivo",
-    categoryQuery: "Singles Riftbound",
-    accentColor: "from-amber-500/20 to-red-500/10",
-    borderHover: "hover:border-red-500/50",
-    badge: "🔥 Tendencia",
-    badgeClass: "bg-red-500/20 text-red-400 border-red-500/30",
-    icon: "⚔️",
-    cardCount: "Singles & Foils",
-  },
-  {
-    id: "pokemon",
-    name: "Singles Pokemon",
-    displayName: "Pokémon TCG",
-    tagline: "Scarlet & Violet, 151 y Colecciones Raras",
-    categoryQuery: "Singles Pokemon",
-    accentColor: "from-yellow-500/20 to-amber-500/10",
-    borderHover: "hover:border-yellow-500/50",
-    badge: "⭐ Popular",
-    badgeClass: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    icon: "⚡",
-    cardCount: "Singles & Boosters",
-  },
-  {
-    id: "magic",
-    name: "Singles Magic The Gathering",
-    displayName: "Magic: The Gathering",
-    tagline: "Commander, Modern, Standard y Collector Boosters",
-    categoryQuery: "Singles Magic The Gathering",
-    accentColor: "from-purple-500/20 to-indigo-500/10",
-    borderHover: "hover:border-purple-500/50",
-    badge: "🏛️ Clásico",
-    badgeClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    icon: "🔮",
-    cardCount: "Singles de Edición",
-  },
-  {
-    id: "onepiece",
-    name: "One Piece Card Game",
-    displayName: "One Piece TCG",
-    tagline: "Luffy, Shanks, OP-07 y cartas Manga Raras",
-    categoryQuery: "Singles One Piece",
-    accentColor: "from-blue-500/20 to-cyan-500/10",
-    borderHover: "hover:border-blue-500/50",
-    badge: "🌊 Alta Demanda",
-    badgeClass: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    icon: "☠️",
-    cardCount: "Líderes & Singles",
-  },
-  {
-    id: "yugioh",
-    name: "Yu-Gi-Oh!",
-    displayName: "Yu-Gi-Oh! TCG",
-    tagline: "Quarter Century Secret Rares y Sobres Sellados",
-    categoryQuery: "Singles Yu-Gi-Oh",
-    accentColor: "from-orange-500/20 to-yellow-500/10",
-    borderHover: "hover:border-orange-500/50",
-    badge: "👁️ Aniversario",
-    badgeClass: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    icon: "👁️",
-    cardCount: "Singles & Estructura",
-  },
-  {
-    id: "accesorios",
-    name: "Accesorios",
-    displayName: "Accesorios & Sellado",
-    tagline: "Fundas Dragon Shield, Carpetas 9-pocket y Dados",
-    categoryQuery: "Accesorios",
-    accentColor: "from-emerald-500/20 to-teal-500/10",
-    borderHover: "hover:border-emerald-500/50",
-    badge: "🛡️ Protección",
-    badgeClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    icon: "🛡️",
-    cardCount: "Fundas & Carpetas",
-  },
-];
+import { useTranslations } from "next-intl";
 
 // Verified Stores in Chile (con configuración real sincronizada con la base de datos)
 const FEATURED_STORES = [
@@ -143,12 +63,94 @@ const FEATURED_STORES = [
 ];
 
 export default function TcgHomeLanding() {
+  const t = useTranslations("home");
   const router = useRouter();
   const [heroSearch, setHeroSearch] = useState("");
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [featuredStores, setFeaturedStores] = useState<any[]>(FEATURED_STORES);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"all" | "foil" | "riftbound" | "magic">("all");
+
+  const TCG_GAMES = [
+    {
+      id: "riftbound",
+      name: "Singles Riftbound",
+      displayName: "Riftbound TCG",
+      tagline: t("games_grid.games.riftbound_tag"),
+      categoryQuery: "Singles Riftbound",
+      accentColor: "from-amber-500/20 to-red-500/10",
+      borderHover: "hover:border-red-500/50",
+      badge: t("games_grid.games.riftbound_badge"),
+      badgeClass: "bg-red-500/20 text-red-400 border-red-500/30",
+      icon: <IconFlame className="w-6 h-6 text-red-400" />,
+      cardCount: t("games_grid.games.riftbound_count"),
+    },
+    {
+      id: "pokemon",
+      name: "Singles Pokemon",
+      displayName: "Pokémon TCG",
+      tagline: t("games_grid.games.pokemon_tag"),
+      categoryQuery: "Singles Pokemon",
+      accentColor: "from-yellow-500/20 to-amber-500/10",
+      borderHover: "hover:border-yellow-500/50",
+      badge: t("games_grid.games.pokemon_badge"),
+      badgeClass: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+      icon: <IconSparkles className="w-6 h-6 text-yellow-400" />,
+      cardCount: t("games_grid.games.pokemon_count"),
+    },
+    {
+      id: "magic",
+      name: "Singles Magic The Gathering",
+      displayName: "Magic: The Gathering",
+      tagline: t("games_grid.games.magic_tag"),
+      categoryQuery: "Singles Magic The Gathering",
+      accentColor: "from-purple-500/20 to-indigo-500/10",
+      borderHover: "hover:border-purple-500/50",
+      badge: t("games_grid.games.magic_badge"),
+      badgeClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+      icon: <IconCard className="w-6 h-6 text-purple-400" />,
+      cardCount: t("games_grid.games.magic_count"),
+    },
+    {
+      id: "onepiece",
+      name: "One Piece Card Game",
+      displayName: "One Piece TCG",
+      tagline: t("games_grid.games.onepiece_tag"),
+      categoryQuery: "Singles One Piece",
+      accentColor: "from-blue-500/20 to-cyan-500/10",
+      borderHover: "hover:border-blue-500/50",
+      badge: t("games_grid.games.onepiece_badge"),
+      badgeClass: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      icon: <IconZap className="w-6 h-6 text-blue-400" />,
+      cardCount: t("games_grid.games.onepiece_count"),
+    },
+    {
+      id: "yugioh",
+      name: "Yu-Gi-Oh!",
+      displayName: "Yu-Gi-Oh! TCG",
+      tagline: t("games_grid.games.yugioh_tag"),
+      categoryQuery: "Singles Yu-Gi-Oh",
+      accentColor: "from-orange-500/20 to-yellow-500/10",
+      borderHover: "hover:border-orange-500/50",
+      badge: t("games_grid.games.yugioh_badge"),
+      badgeClass: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+      icon: <IconEye className="w-6 h-6 text-orange-400" />,
+      cardCount: t("games_grid.games.yugioh_count"),
+    },
+    {
+      id: "accesorios",
+      name: "Accesorios",
+      displayName: "Accesorios & Sellado",
+      tagline: t("games_grid.games.accesorios_tag"),
+      categoryQuery: "Accesorios",
+      accentColor: "from-emerald-500/20 to-teal-500/10",
+      borderHover: "hover:border-emerald-500/50",
+      badge: t("games_grid.games.accesorios_badge"),
+      badgeClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+      icon: <IconBox className="w-6 h-6 text-emerald-400" />,
+      cardCount: t("games_grid.games.accesorios_count"),
+    },
+  ];
 
   // Fetch live stores from API to reflect real-time shipping/pickup settings
   useEffect(() => {
@@ -166,7 +168,7 @@ export default function TcgHomeLanding() {
               subdomain: dbStore.subdomain,
               city: dbStore.originCommune?.name
                 ? `${dbStore.originCommune.name}, ${dbStore.originRegion?.name || "Chile"}`
-                : (matchingFeatured?.city || "Santiago, Chile"),
+                : matchingFeatured?.city || "Santiago, Chile",
               address: dbStore.pickupAddress || dbStore.address || matchingFeatured?.address || "Dirección en tienda",
               hours: dbStore.pickupSchedule || matchingFeatured?.hours || "Lun - Sáb: 11:00 - 19:30 hrs",
               pickupEnabled: dbStore.pickupEnabled,
@@ -180,7 +182,7 @@ export default function TcgHomeLanding() {
           setFeaturedStores(mapped);
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   // Fetch currencies for exchange rates
@@ -258,7 +260,12 @@ export default function TcgHomeLanding() {
       return card.category?.name?.includes("Riftbound") || card.title?.includes("Riftbound");
     }
     if (activeTab === "magic") {
-      return card.category?.name?.includes("Magic") || card.title?.includes("Magic") || card.title?.includes("Knight") || card.title?.includes("Lotus");
+      return (
+        card.category?.name?.includes("Magic") ||
+        card.title?.includes("Magic") ||
+        card.title?.includes("Knight") ||
+        card.title?.includes("Lotus")
+      );
     }
     return true;
   });
@@ -280,13 +287,13 @@ export default function TcgHomeLanding() {
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                 <span className="w-2 h-2 rounded-full bg-red-500 -ml-4"></span>
                 <span className="text-xs font-semibold tracking-wider uppercase text-gray-300">
-                  El Mercado Oficial de Cartas TCG en Chile
+                  {t("hero.badge")}
                 </span>
               </div>
 
               {/* Main Headline */}
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-                Compra y Vende <br />
+                {t("hero.title_line1")} <br />
                 <span
                   className="inline-block pb-1 font-black"
                   style={{
@@ -295,14 +302,19 @@ export default function TcgHomeLanding() {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  Singles TCG & Sellado
-                </span> <br />
-                con Despacho en Vivo.
+                  {t("hero.title_highlight")}
+                </span>{" "}
+                <br />
+                {t("hero.title_line2")}
               </h1>
 
               {/* Subtitle */}
               <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-                Conecta directamente con tiendas especializadas y coleccionistas verificados de todo Chile. Protección antifraude <strong className="text-white">TapTrade Shield</strong>, envíos oficiales con <strong className="text-white">Chilexpress</strong> y <strong className="text-white">Starken</strong>, o <strong className="text-emerald-400">Retiro en Tienda $0</strong>.
+                {t("hero.subtitle_prefix")}{" "}
+                <strong className="text-white">TapTrade Shield</strong>, {t("hero.subtitle_middle")}{" "}
+                <strong className="text-white">Chilexpress</strong> y{" "}
+                <strong className="text-white">Starken</strong>,{" "}
+                <strong className="text-emerald-400">{t("hero.subtitle_suffix")}</strong>
               </p>
 
               {/* Hero Search Box */}
@@ -318,31 +330,43 @@ export default function TcgHomeLanding() {
                     type="text"
                     value={heroSearch}
                     onChange={(e) => setHeroSearch(e.target.value)}
-                    placeholder="Busca por carta, expansión o juego (ej. Ezreal, Lotus, 151)..."
+                    placeholder={t("hero.search_placeholder")}
                     className="w-full bg-transparent border-none text-white placeholder-gray-500 text-sm sm:text-base px-3 py-2.5 focus:outline-none"
                   />
                   <button
                     type="submit"
                     className="px-5 py-3 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 transition-all shrink-0 active:scale-95"
                   >
-                    Buscar Cartas
+                    {t("hero.search_btn")}
                   </button>
                 </div>
               </form>
 
               {/* Trending Tags */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs text-gray-400">
-                <span className="font-semibold text-gray-500">Tendencias:</span>
-                <Link href="/shop?category=Singles+Riftbound" className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors">
+                <span className="font-semibold text-gray-500">{t("hero.trending")}</span>
+                <Link
+                  href="/shop?category=Singles+Riftbound"
+                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                >
                   #Riftbound
                 </Link>
-                <Link href="/shop?search=Ezreal" className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors">
+                <Link
+                  href="/shop?search=Ezreal"
+                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                >
                   #Ezreal Showcase
                 </Link>
-                <Link href="/shop?category=Singles+Magic+The+Gathering" className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors">
+                <Link
+                  href="/shop?category=Singles+Magic+The+Gathering"
+                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                >
                   #MagicMTG
                 </Link>
-                <Link href="/shop?category=Singles+Pokemon" className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors">
+                <Link
+                  href="/shop?category=Singles+Pokemon"
+                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                >
                   #PokemonTCG
                 </Link>
               </div>
@@ -351,21 +375,18 @@ export default function TcgHomeLanding() {
             {/* Right Column: Holographic 3D Floating Showcase Card */}
             <div className="lg:col-span-5 flex justify-center">
               <div className="relative w-full max-w-sm">
-                {/* Background Card Aura */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-red-600/30 to-amber-500/20 rounded-3xl blur-2xl transform scale-95 opacity-80"></div>
 
-                {/* Vault Featured Card */}
                 <div className="relative rounded-3xl bg-[#0D111A] border border-white/15 p-6 shadow-2xl backdrop-blur-xl group">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/25 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1.5">
-                      <IconSparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Showcase Foil
+                      <IconSparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t("hero.showcase_badge")}
                     </span>
                     <span className="text-xs text-emerald-400 font-mono font-bold bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded">
                       NM • EN
                     </span>
                   </div>
 
-                  {/* High-res Artwork Container with Foil Effect */}
                   <div className="relative aspect-[2.5/3.5] w-full rounded-2xl overflow-hidden bg-black/60 border border-white/10 mb-4 shadow-inner">
                     <Image
                       src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/83da64e39d838d2fee68c319c03fbff0d4c7035f-744x1039.png"
@@ -375,11 +396,9 @@ export default function TcgHomeLanding() {
                       className="object-contain p-1 group-hover:scale-105 transition-transform duration-500"
                       priority
                     />
-                    {/* Iridescent Shader */}
                     <div className="card-foil-overlay"></div>
                   </div>
 
-                  {/* Card Meta */}
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div>
                       <span className="text-xs text-gray-400 block font-mono">Singles Riftbound • Spiritforged</span>
@@ -388,12 +407,11 @@ export default function TcgHomeLanding() {
                       </h3>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-gray-400 block">Mejor precio</span>
+                      <span className="text-xs text-gray-400 block">{t("hero.best_price")}</span>
                       <span className="text-2xl font-black text-white font-mono">$500 CLP</span>
                     </div>
                   </div>
 
-                  {/* Action Bar */}
                   <div className="flex items-center gap-3 pt-3 border-t border-white/10">
                     <div className="flex items-center gap-1.5 flex-1">
                       <ShippingBadge name="retiro_tienda" size="sm" />
@@ -403,7 +421,7 @@ export default function TcgHomeLanding() {
                       href="/shop-details/ezreal-dashing-alternate-art-666446"
                       className="px-4 py-2 rounded-xl bg-white/10 hover:bg-red-600 text-white font-bold text-xs transition-all shadow"
                     >
-                      Ver Opciones ↗
+                      {t("hero.view_options")} ↗
                     </Link>
                   </div>
                 </div>
@@ -418,8 +436,8 @@ export default function TcgHomeLanding() {
                 <IconStore className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">Retiro en Tienda $0</span>
-                <span className="text-[11px] text-gray-400">Sin costo de despacho</span>
+                <span className="text-xs font-bold text-white block">{t("trust_bar.pickup_title")}</span>
+                <span className="text-[11px] text-gray-400">{t("trust_bar.pickup_desc")}</span>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
@@ -427,8 +445,8 @@ export default function TcgHomeLanding() {
                 <IconZap className="w-5 h-5 text-amber-400" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">Chilexpress & Starken</span>
-                <span className="text-[11px] text-gray-400">Cotización en vivo 24-48h</span>
+                <span className="text-xs font-bold text-white block">{t("trust_bar.shipping_title")}</span>
+                <span className="text-[11px] text-gray-400">{t("trust_bar.shipping_desc")}</span>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
@@ -436,8 +454,8 @@ export default function TcgHomeLanding() {
                 <IconShieldCheck className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">100% Tiendas TCG</span>
-                <span className="text-[11px] text-gray-400">Verificadas y evaluadas</span>
+                <span className="text-xs font-bold text-white block">{t("trust_bar.stores_title")}</span>
+                <span className="text-[11px] text-gray-400">{t("trust_bar.stores_desc")}</span>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
@@ -445,8 +463,8 @@ export default function TcgHomeLanding() {
                 <IconCreditCard className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">Webpay & Mercado Pago</span>
-                <span className="text-[11px] text-gray-400">Transacción protegida</span>
+                <span className="text-xs font-bold text-white block">{t("trust_bar.payments_title")}</span>
+                <span className="text-[11px] text-gray-400">{t("trust_bar.payments_desc")}</span>
               </div>
             </div>
           </div>
@@ -459,17 +477,17 @@ export default function TcgHomeLanding() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-red-500 mb-1 block">
-                Directorio Especializado
+                {t("games_grid.badge")}
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Explora por Juego TCG
+                {t("games_grid.title")}
               </h2>
             </div>
             <Link
               href="/shop"
               className="text-xs font-bold text-gray-400 hover:text-white transition-colors flex items-center gap-1.5"
             >
-              Ver todas las categorías <span>→</span>
+              {t("games_grid.view_all")} <span>→</span>
             </Link>
           </div>
 
@@ -480,15 +498,18 @@ export default function TcgHomeLanding() {
                 href={`/shop?category=${encodeURIComponent(game.categoryQuery)}`}
                 className={`group relative p-6 rounded-2xl bg-[#0E121B] border border-white/10 ${game.borderHover} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden`}
               >
-                {/* Subtle Gradient Backlight */}
-                <div className={`absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br ${game.accentColor} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`}></div>
+                <div
+                  className={`absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br ${game.accentColor} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`}
+                ></div>
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-3xl p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
                       {game.icon}
                     </span>
-                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${game.badgeClass}`}>
+                    <span
+                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${game.badgeClass}`}
+                    >
                       {game.badge}
                     </span>
                   </div>
@@ -496,14 +517,12 @@ export default function TcgHomeLanding() {
                   <h3 className="text-lg font-black text-white group-hover:text-red-400 transition-colors mb-1">
                     {game.displayName}
                   </h3>
-                  <p className="text-xs text-gray-400 mb-4 line-clamp-2">
-                    {game.tagline}
-                  </p>
+                  <p className="text-xs text-gray-400 mb-4 line-clamp-2">{game.tagline}</p>
 
                   <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
                     <span className="font-mono text-gray-500">{game.cardCount}</span>
                     <span className="font-bold text-red-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                      Explorar ↗
+                      {t("games_grid.explore_cta")} ↗
                     </span>
                   </div>
                 </div>
@@ -519,10 +538,10 @@ export default function TcgHomeLanding() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-red-500 mb-1 block">
-                Inventario en Vivo de Chile
+                {t("featured_singles.badge")}
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Singles & Novedades TCG
+                {t("featured_singles.title")}
               </h2>
             </div>
 
@@ -531,34 +550,38 @@ export default function TcgHomeLanding() {
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "all" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "all" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                }`}
               >
-                Todas
+                {t("featured_singles.tab_all")}
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("foil")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "foil" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "foil" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                }`}
               >
-                Foils
+                {t("featured_singles.tab_foil")}
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("riftbound")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "riftbound" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "riftbound" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                }`}
               >
-                Riftbound
+                {t("featured_singles.tab_riftbound")}
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("magic")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === "magic" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "magic" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                }`}
               >
-                Magic MTG
+                {t("featured_singles.tab_magic")}
               </button>
             </div>
           </div>
@@ -572,7 +595,7 @@ export default function TcgHomeLanding() {
             </div>
           ) : filteredCards.length === 0 ? (
             <div className="text-center py-12 rounded-2xl bg-[#0E121B] border border-white/5 text-gray-400 text-sm">
-              No hay cartas disponibles en esta categoría.
+              {t("featured_singles.no_cards")}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -588,7 +611,7 @@ export default function TcgHomeLanding() {
               href="/shop"
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-bold text-sm tracking-wide transition-all hover:scale-105"
             >
-              Explorar Catálogo Completo (28+ cartas) →
+              {t("featured_singles.view_catalog")} →
             </Link>
           </div>
         </div>
@@ -599,13 +622,13 @@ export default function TcgHomeLanding() {
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 mb-1 block">
-              Comercio Oficial Verificado
+              {t("verified_stores.badge")}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
-              Tiendas Especializadas en TapTrade
+              {t("verified_stores.title")}
             </h2>
             <p className="text-sm text-gray-400">
-              Compra con total confianza a tiendas con local físico y trayectoria en la comunidad de cartas coleccionables.
+              {t("verified_stores.subtitle")}
             </p>
           </div>
 
@@ -625,7 +648,7 @@ export default function TcgHomeLanding() {
                         <div className="flex items-center gap-2">
                           <h3 className="text-base font-bold text-white">{store.name}</h3>
                           <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded">
-                            ✓ Verificado
+                            ✓ {t("verified_stores.verified")}
                           </span>
                         </div>
                         <span className="text-xs text-gray-400 block">{store.city}</span>
@@ -634,10 +657,14 @@ export default function TcgHomeLanding() {
                   </div>
 
                   <p className="text-xs text-gray-300 mb-2 font-mono">
-                    <span className="inline-flex items-center gap-1.5"><IconMapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.address}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <IconMapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.address}
+                    </span>
                   </p>
                   <p className="text-[11px] text-gray-400 mb-4 font-mono">
-                    <span className="inline-flex items-center gap-1.5"><IconClock className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.hours}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <IconClock className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.hours}
+                    </span>
                   </p>
 
                   <div className="mb-5">
@@ -646,14 +673,12 @@ export default function TcgHomeLanding() {
                 </div>
 
                 <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 font-medium">
-                    {store.specialty}
-                  </span>
+                  <span className="text-xs text-gray-400 font-medium">{store.specialty}</span>
                   <Link
                     href={`/shop/store/${store.subdomain}`}
                     className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all shadow-md shadow-red-600/20"
                   >
-                    Ver Inventario ↗
+                    {t("verified_stores.view_inventory")} ↗
                   </Link>
                 </div>
               </div>
@@ -668,13 +693,13 @@ export default function TcgHomeLanding() {
           <div className="rounded-3xl bg-gradient-to-r from-red-950/40 via-[#111522] to-[#0A0D14] border border-red-500/30 p-8 sm:p-12 lg:p-16 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="max-w-2xl text-center lg:text-left">
               <span className="inline-block text-xs font-mono font-bold uppercase tracking-wider text-red-400 bg-red-500/15 border border-red-500/30 px-3 py-1 rounded-full mb-4">
-                Programa de Tiendas TapTrade
+                {t("seller_cta.badge")}
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
-                ¿Tienes una Tienda TCG o una Colección Valiosa?
+                {t("seller_cta.title")}
               </h2>
               <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                Vende tus singles y sellado a coleccionistas de todo Chile. Terminal POS mostrador con modo desconectado, escudo antifraude TapTrade Shield, cuadratura tributaria para tu F29 y arquitectura multi-sucursal.
+                {t("seller_cta.desc")}
               </p>
             </div>
 
@@ -683,13 +708,13 @@ export default function TcgHomeLanding() {
                 href="/signup"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-xl shadow-[#E10E0E]/30 transition-all text-center block"
               >
-                Crear Mi Tienda TCG
+                {t("seller_cta.create_store_btn")}
               </Link>
               <Link
                 href="/contact"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-bold text-sm tracking-wide transition-all text-center"
               >
-                Hablar con Soporte
+                {t("seller_cta.contact_support_btn")}
               </Link>
             </div>
           </div>

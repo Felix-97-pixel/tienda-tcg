@@ -22,7 +22,12 @@
     "filter_by_language": "Filter by language...",
     "filter_by_condition": "Filter by condition...",
     "order_by": "Sort by...",
-    "active_filters": "Active filters:"
+    "active_filters": "Active filters:",
+    "no_store_found": "No store found",
+    "no_game_found": "No game found",
+    "no_language_found": "No language found",
+    "no_condition_found": "No condition found",
+    "no_option_found": "No option found"
   },
   "item_card": {
     "view_store_buylist": "View store buylist →",
@@ -75,5 +80,20 @@
     "table_status": "Status",
     "table_actions": "Actions",
     "close_button": "CLOSE"
+  },
+  "b2b_banner": {
+    "badge": "For TCG Stores and Card Shops",
+    "title_prefix": "Do you run a TCG card shop? ",
+    "title_highlight": "Join TapTrade and scale your sales",
+    "description": "Launch your own automated Buylist Engine to buy singles from players for cash or store credit, sync complete catalogs in 1 click, and sell on your branded online storefront with 0% transaction commission.",
+    "feature_commission_title": "0% Commission",
+    "feature_commission_desc": "Your sales are 100% yours under a predictable monthly subscription.",
+    "feature_buylist_title": "Smart Buylist Engine",
+    "feature_buylist_desc": "Automated condition and language devaluation calculated in real time.",
+    "feature_storefront_title": "Exclusive Storefront",
+    "feature_storefront_desc": "Branded custom subdomain for your shop + national catalog visibility.",
+    "cta_plans": "View Plans & Join TapTrade",
+    "cta_already_seller": "Already registered? Go to Buylist panel",
+    "reassurance": "Predictable monthly SaaS • 0% sales commission • Integrated shipping & payouts"
   }
 }

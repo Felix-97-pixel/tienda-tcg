@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import TcgFilterSidebar from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgFilterSidebar";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
@@ -10,12 +11,23 @@ import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import { useProductCart } from "@/hooks/useProductCart";
 import { matchesCondition, matchesFinish, matchesLanguage } from "@/utils/tcgFilters";
-import { IconSparkles, IconCard, IconZap } from "@/components/ui/Icons";
+import {
+  IconSparkles,
+  IconCard,
+  IconZap,
+  IconSearch,
+  IconFilter,
+  IconChevronDown,
+  IconX,
+  IconGrid,
+  IconList,
+} from "@/components/ui/Icons";
 
 import { getBestAvailableVariant } from "@/utils/tcgPrices";
 import { useTcgMetadata } from "@/hooks/useTcgMetadata";
 
 function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?: any[] }) {
+  const t = useTranslations("shop");
   const currency = useAppSelector((state: any) => state.currencyReducer);
 
   // Find best available variant (cheapest in-stock card with exchange rates applied)
@@ -123,7 +135,7 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
           {formatPrice(price, currency)}
         </div>
         <span className={`text-[10px] font-mono block ${stock > 0 ? "text-gray-400" : "text-red-400"}`}>
-          {stock > 0 ? `${stock} disp.` : "Agotado"}
+          {stock > 0 ? t("available_count", { count: stock }) : t("outOfStock")}
         </span>
       </div>
 
@@ -161,7 +173,7 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
               : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 active:scale-95"
           }`}
         >
-          {isAdding ? "✓ Listo" : "Comprar"}
+          {isAdding ? `✓ ${t("done")}` : t("buy")}
         </button>
       </div>
     </div>
@@ -169,6 +181,7 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
 }
 
 export default function TcgMarketplaceCatalog() {
+  const t = useTranslations("shop");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -457,21 +470,10 @@ export default function TcgMarketplaceCatalog() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar por carta, set, juego o vendedor..."
+              placeholder={t("search_placeholder")}
               className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#111522] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-red-500/60 focus:ring-1 focus:ring-red-500/40 transition-all"
             />
-            <svg
-              className="absolute left-3.5 top-3.5 text-gray-500"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <IconSearch className="absolute left-3.5 top-3.5 text-gray-500 w-4 h-4 pointer-events-none" />
             {searchTerm && (
               <button
                 type="button"
@@ -484,9 +486,9 @@ export default function TcgMarketplaceCatalog() {
                   router.replace(`/shop${qs ? `?${qs}` : ""}`);
                 }}
                 className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
-                title="Borrar búsqueda"
+                title={t("clear_search")}
               >
-                ✕
+                <IconX className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -499,10 +501,8 @@ export default function TcgMarketplaceCatalog() {
               onClick={() => setMobileDrawerOpen(true)}
               className="lg:hidden flex items-center gap-2 px-3.5 h-11 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-bold hover:bg-white/5 transition-all"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-              </svg>
-              Filtros
+              <IconFilter className="w-3.5 h-3.5" />
+              {t("filters")}
               {activeFiltersCount > 0 && (
                 <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFiltersCount}
@@ -517,22 +517,12 @@ export default function TcgMarketplaceCatalog() {
                 onChange={(e) => setSortOption(e.target.value)}
                 className="h-11 px-3.5 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-red-500 cursor-pointer appearance-none pr-8"
               >
-                <option value="latest">Más recientes</option>
-                <option value="price-asc">Menor precio</option>
-                <option value="price-desc">Mayor precio</option>
-                <option value="name-asc">Nombre (A-Z)</option>
+                <option value="latest">{t("sort.latest")}</option>
+                <option value="price-asc">{t("sort.price_asc")}</option>
+                <option value="price-desc">{t("sort.price_desc")}</option>
+                <option value="name-asc">{t("sort.name_asc")}</option>
               </select>
-              <svg
-                className="absolute right-3 top-4 pointer-events-none text-gray-400"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+              <IconChevronDown className="absolute right-3 top-4 pointer-events-none text-gray-400 w-3 h-3" />
             </div>
 
             {/* Dual View Toggle */}
@@ -545,14 +535,9 @@ export default function TcgMarketplaceCatalog() {
                     ? "bg-red-600 text-white shadow-sm"
                     : "text-gray-400 hover:text-white"
                 }`}
-                title="Vista de Cuadrícula (Vault Cards)"
+                title={t("view_grid_title")}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="14" width="7" height="7"></rect>
-                  <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
+                <IconGrid className="w-4 h-4" />
               </button>
               <button
                 type="button"
@@ -562,16 +547,9 @@ export default function TcgMarketplaceCatalog() {
                     ? "bg-red-600 text-white shadow-sm"
                     : "text-gray-400 hover:text-white"
                 }`}
-                title="Vista Deckbuilder (Lista rápida para armar mazos)"
+                title={t("view_deckbuilder_title")}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="8" y1="6" x2="21" y2="6"></line>
-                  <line x1="8" y1="12" x2="21" y2="12"></line>
-                  <line x1="8" y1="18" x2="21" y2="18"></line>
-                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                  <line x1="3" y1="12" x2="3.01" y2="6"></line>
-                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                </svg>
+                <IconList className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -580,7 +558,7 @@ export default function TcgMarketplaceCatalog() {
         {/* Active Filter Chips */}
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-            <span className="text-xs text-gray-400 font-medium mr-1">Filtros activos:</span>
+            <span className="text-xs text-gray-400 font-medium mr-1">{t("active_filters")}</span>
 
             {selectedCategory && (
               <button
@@ -595,7 +573,7 @@ export default function TcgMarketplaceCatalog() {
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red/15 text-red-light border border-red/30 hover:bg-red/25 transition-all"
               >
                 {selectedCategory}
-                <span>✕</span>
+                <IconX className="w-3 h-3" />
               </button>
             )}
 
@@ -612,7 +590,7 @@ export default function TcgMarketplaceCatalog() {
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all"
               >
                 {selectedExpansion}
-                <span>✕</span>
+                <IconX className="w-3 h-3" />
               </button>
             )}
 
@@ -622,8 +600,8 @@ export default function TcgMarketplaceCatalog() {
                 onClick={() => setSelectedCondition(null)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
               >
-                Condición: {conditionsData.find(c => c.name === selectedCondition || c.id === selectedCondition)?.displayName || selectedCondition}
-                <span>✕</span>
+                {t("condition_prefix", { value: conditionsData.find(c => c.name === selectedCondition || c.id === selectedCondition)?.displayName || selectedCondition })}
+                <IconX className="w-3 h-3" />
               </button>
             )}
 
@@ -636,12 +614,12 @@ export default function TcgMarketplaceCatalog() {
                 {selectedFinish === "foil" ? (
                   <span className="inline-flex items-center gap-1">
                     <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                    Foil / Holo
+                    {t("finish_foil")}
                   </span>
                 ) : (
-                  "Normal"
+                  t("finish_normal")
                 )}
-                <span>✕</span>
+                <IconX className="w-3 h-3" />
               </button>
             )}
 
@@ -651,8 +629,8 @@ export default function TcgMarketplaceCatalog() {
                 onClick={() => setSelectedLanguage(null)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all"
               >
-                Idioma: {languagesData.find(l => l.code === selectedLanguage || l.id === selectedLanguage || l.name === selectedLanguage)?.name || selectedLanguage}
-                <span>✕</span>
+                {t("language_prefix", { value: languagesData.find(l => l.code === selectedLanguage || l.id === selectedLanguage || l.name === selectedLanguage)?.name || selectedLanguage })}
+                <IconX className="w-3 h-3" />
               </button>
             )}
 
@@ -662,8 +640,8 @@ export default function TcgMarketplaceCatalog() {
                 onClick={() => handleToggleInStockOnly(true)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
               >
-                Vista: Catálogo Completo (Singles + Wishlist)
-                <span>✕</span>
+                {t("all_catalog_view")}
+                <IconX className="w-3 h-3" />
               </button>
             )}
 
@@ -672,7 +650,7 @@ export default function TcgMarketplaceCatalog() {
               onClick={handleClearAll}
               className="text-xs text-gray-400 hover:text-white underline underline-offset-2 ml-auto"
             >
-              Limpiar todos
+              {t("clear_all_filters")}
             </button>
           </div>
         )}
@@ -717,13 +695,13 @@ export default function TcgMarketplaceCatalog() {
               ></div>
               <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[#0E121B] border-l border-white/10 p-6 overflow-y-auto shadow-2xl">
                 <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
-                  <span className="font-bold text-white text-base">Filtros TCG</span>
+                  <span className="font-bold text-white text-base">{t("filters")}</span>
                   <button
                     type="button"
                     onClick={() => setMobileDrawerOpen(false)}
                     className="p-1 rounded-lg text-gray-400 hover:text-white"
                   >
-                    ✕
+                    <IconX className="w-5 h-5" />
                   </button>
                 </div>
                 <TcgFilterSidebar
@@ -783,17 +761,17 @@ export default function TcgMarketplaceCatalog() {
                   <IconCard className="w-8 h-8 opacity-80" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">
-                  No encontramos cartas con estos filtros
+                  {t("no_cards_found")}
                 </h3>
                 <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
-                  Intenta buscar con otros términos, seleccionar otra expansión o limpiar los filtros activos para ver todo el inventario de TapTrade.
+                  {t("no_cards_found_desc")}
                 </p>
                 <button
                   type="button"
                   onClick={handleClearAll}
                   className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition-all shadow-lg shadow-red-600/20"
                 >
-                  Restablecer todos los filtros
+                  {t("reset_filters")}
                 </button>
               </div>
             ) : viewMode === "grid" ? (
@@ -819,10 +797,10 @@ export default function TcgMarketplaceCatalog() {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111522] border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all"
                 >
-                  ← Anterior
+                  {t("prev_page")}
                 </button>
                 <span className="text-xs font-mono font-medium text-gray-400 px-3">
-                  Página <strong className="text-white">{currentPage}</strong> de {totalPages}
+                  {t("page_info", { current: currentPage, total: totalPages })}
                 </span>
                 <button
                   type="button"
@@ -830,7 +808,7 @@ export default function TcgMarketplaceCatalog() {
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111522] border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all"
                 >
-                  Siguiente →
+                  {t("next_page")}
                 </button>
               </div>
             )}

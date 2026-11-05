@@ -1,8 +1,11 @@
 import React from "react";
 import Link from "next/link";
 import { IconShieldCheck, IconTruck, IconCreditCard } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 const Footer = () => {
+  const t = useTranslations("landing.footer");
+
   return (
     <footer className="bg-[#07090E] border-t border-white/[0.08] text-white pt-16 pb-12 relative overflow-hidden">
       {/* Glow orb */}
@@ -16,8 +19,8 @@ const Footer = () => {
               <IconShieldCheck className="w-5 h-5 text-[#E10E0E]" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">100% Tiendas Verificadas</h4>
-              <p className="text-xs text-gray-400">Comercios formales en Chile con inventario verificado.</p>
+              <h4 className="text-sm font-bold text-white">{t("verified_stores_title")}</h4>
+              <p className="text-xs text-gray-400">{t("verified_stores_desc")}</p>
             </div>
           </div>
 
@@ -26,8 +29,8 @@ const Footer = () => {
               <IconTruck className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Logística Oficial Integrada</h4>
-              <p className="text-xs text-gray-400">Chilexpress, Starken y Retiro en Tienda $0 en todo Chile.</p>
+              <h4 className="text-sm font-bold text-white">{t("logistics_title")}</h4>
+              <p className="text-xs text-gray-400">{t("logistics_desc")}</p>
             </div>
           </div>
 
@@ -36,8 +39,8 @@ const Footer = () => {
               <IconCreditCard className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Pagos Seguros & Custodia</h4>
-              <p className="text-xs text-gray-400">Recaudación protegida y depósitos a la cuenta de tu empresa.</p>
+              <h4 className="text-sm font-bold text-white">{t("secure_payments_title")}</h4>
+              <p className="text-xs text-gray-400">{t("secure_payments_desc")}</p>
             </div>
           </div>
         </div>
@@ -54,7 +57,7 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-gray-400 text-sm max-w-sm leading-relaxed mb-4">
-              La plataforma SaaS y marketplace líder para Trading Card Games en Chile. Centralizamos inventarios, automatizamos buylists y conectamos a tiendas y coleccionistas.
+              {t("tagline")}
             </p>
             <div className="text-xs text-gray-500 font-mono space-y-1">
               <p className="text-gray-400 font-semibold">TAPTRADE SpA</p>
@@ -64,44 +67,44 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Marketplace</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("marketplace_title")}</h3>
             <ul className="space-y-2.5 text-sm text-gray-400">
-              <li><Link href="/shop" className="hover:text-white transition-colors">Catálogo de Singles</Link></li>
+              <li><Link href="/shop" className="hover:text-white transition-colors">{t("catalog_singles")}</Link></li>
               <li><Link href="/shop?category=Singles%20Magic%20The%20Gathering" className="hover:text-white transition-colors">Magic: The Gathering</Link></li>
               <li><Link href="/shop?category=Singles%20Pokemon" className="hover:text-white transition-colors">Pokémon TCG</Link></li>
               <li><Link href="/shop?category=Singles%20Riftbound" className="hover:text-white transition-colors">Riftbound TCG</Link></li>
-              <li><Link href="/cart" className="hover:text-white transition-colors">Carrito Unificado</Link></li>
+              <li><Link href="/cart" className="hover:text-white transition-colors">{t("unified_cart")}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Para Tiendas</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("for_stores_title")}</h3>
             <ul className="space-y-2.5 text-sm text-gray-400">
-              <li><Link href="/admin/login" className="hover:text-white transition-colors">Portal de Tiendas</Link></li>
-              <li><Link href="/admin/buylist" className="hover:text-white transition-colors">Motor de Buylist</Link></li>
-              <li><Link href="#pricing" className="hover:text-white transition-colors">Planes y Suscripción SaaS</Link></li>
-              <li><Link href="#features" className="hover:text-white transition-colors">Sincronización Scryfall</Link></li>
-              <li><Link href="mailto:contacto@taptrade.cl" className="hover:text-white transition-colors">Contacto Ventas</Link></li>
+              <li><Link href="/admin/login" className="hover:text-white transition-colors">{t("store_portal")}</Link></li>
+              <li><Link href="/admin/buylist" className="hover:text-white transition-colors">{t("buylist_engine")}</Link></li>
+              <li><Link href="#pricing" className="hover:text-white transition-colors">{t("plans_saas")}</Link></li>
+              <li><Link href="#features" className="hover:text-white transition-colors">{t("scryfall_sync")}</Link></li>
+              <li><Link href="mailto:contacto@taptrade.cl" className="hover:text-white transition-colors">{t("sales_contact")}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Legal & Soporte</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("legal_support_title")}</h3>
             <ul className="space-y-2.5 text-sm text-gray-400">
-              <li><Link href="/politica-de-privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
-              <li><Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">Términos y Condiciones</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Centro de Ayuda</Link></li>
-              <li><Link href="https://wa.me/56950223095" target="_blank" className="hover:text-white transition-colors">WhatsApp Soporte</Link></li>
+              <li><Link href="/politica-de-privacidad" className="hover:text-white transition-colors">{t("privacy_policy")}</Link></li>
+              <li><Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">{t("terms_conditions")}</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">{t("help_center")}</Link></li>
+              <li><Link href="https://wa.me/56950223095" target="_blank" className="hover:text-white transition-colors">{t("whatsapp_support")}</Link></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Logistics and Copyright */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} TAPTRADE SpA. Todos los derechos reservados. Desarrollado para coleccionistas.</p>
+          <p>{t("copyright", { year: new Date().getFullYear().toString() })}</p>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-[11px] text-gray-400 font-medium">Logística y Pagos Oficiales:</span>
-            <span className="px-2 py-0.5 rounded bg-black/60 border border-white/10 font-mono text-white text-[10px]">RETIRO $0</span>
+            <span className="text-[11px] text-gray-400 font-medium">{t("official_logistics_title")}</span>
+            <span className="px-2 py-0.5 rounded bg-black/60 border border-white/10 font-mono text-white text-[10px]">{t("free_pickup")}</span>
             <span className="px-2 py-0.5 rounded bg-[#f6b400]/20 border border-[#f6b400]/40 text-[#f6b400] font-bold text-[10px]">chilexpress</span>
             <span className="px-2 py-0.5 rounded bg-[#009b3a]/20 border border-[#009b3a]/40 text-[#00b040] font-bold text-[10px]">starken</span>
             <span className="px-2 py-0.5 rounded bg-blue-500/20 border border-blue-400/30 text-blue-300 font-bold text-[10px]">Mercado Pago</span>

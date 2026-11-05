@@ -24,6 +24,20 @@
       "wishlistDesc": "Descubre qué productos interesan más a tus clientes para tomar decisiones de inventario.",
       "settings": "Configuración",
       "settingsDesc": "Define las categorías de destino para cada juego y gestiona los ajustes globales del panel."
+    },
+    "guideButtons": {
+      "sync": "Sincronizar Catálogo",
+      "settings": "Configurações"
+    },
+    "links": {
+      "brands": "Marcas",
+      "categories": "Categorias",
+      "products": "Produtos",
+      "sync": "Sincronização",
+      "sales": "Análise de Vendas",
+      "orders": "Pedidos",
+      "statistics": "Estatísticas",
+      "wishlist": "Demanda de Wishlist"
     }
   },
   "products": {
@@ -369,8 +383,109 @@
       "magic": "Destino Magic: The Gathering",
       "pokemon": "Destino Pokémon TCG",
       "riftbound": "Destino Riftbound",
-      "save": "Guardar Configuración",
-      "success": "Configuración guardada correctamente"
+      "save": "Salvar Configurações",
+      "success": "Configurações salvas com sucesso"
     }
+  },
+  "sidebar": {
+    "sections": {
+      "cashier_ops": "Operações de Caixa",
+      "cashier_catalog": "Catálogo (Consulta)",
+      "branch_ops": "Operações Locais",
+      "branch_inventory": "Estoque Local",
+      "branch_metrics": "Métricas da Filial",
+      "branch_staff": "Equipe da Loja",
+      "branch_config": "Configuração Local",
+      "company_ops": "Operações",
+      "company_catalog": "Catálogo & Estoque",
+      "company_metrics": "Métricas & Finanças",
+      "company_management": "Gestão da Empresa",
+      "company_config": "Configurações da Loja"
+    },
+    "items": {
+      "pos": "Ponto de Venda (PDV)",
+      "cash_shifts": "Turno & Fechamento de Caixa",
+      "orders_pickup": "Retirada na Loja",
+      "store_credit_redeem": "Resgate de Saldo do Cliente",
+      "singles_inquiry": "Consulta Singles",
+      "sealed_inquiry": "Consulta Selados",
+      "buylist_reception": "Recepção Buylist",
+      "registers_and_shifts": "Caixas & Turnos",
+      "orders_dispatch": "Despachos & Pedidos",
+      "store_credit": "Crédito na Loja",
+      "singles": "Singles",
+      "sealed": "Selados",
+      "buylist_branch": "Buylist da Filial",
+      "price_sync": "Sincronizar Preços",
+      "wishlist": "Lista de Desejos",
+      "reports_sales": "Relatórios & Vendas",
+      "team_branch": "Equipe da Filial",
+      "shipping_methods": "Envios & Retiradas",
+      "orders_shipping": "Envios & Pedidos",
+      "buylist_engine": "Motor de Buylist",
+      "metrics_sales": "Métricas & Vendas",
+      "wallet_payouts": "Carteira & Repasses",
+      "team_colleagues": "Colaboradores",
+      "coupons": "Cupons",
+      "currencies": "Moedas & Câmbio",
+      "games_config": "Configurar Jogos",
+      "store_settings": "Configurações da Loja",
+      "back_to_hub": "Voltar ao Hub",
+      "back_to_shop": "Voltar para a Loja",
+      "logout": "Sair da Conta"
+    },
+    "roles": {
+      "company_owner": "Proprietário da Empresa",
+      "branch_manager": "Gerente da Filial",
+      "cashier": "Caixa"
+    }
+  },
+  "superadmin": {
+    "sections": {
+      "commercial": "Gestão Comercial",
+      "master_catalog": "Catálogo Mestre",
+      "tcg_sync": "Sincronização TCG",
+      "system_config": "Configuração do Sistema"
+    },
+    "items": {
+      "companies_branches": "Empresas & Filiais",
+      "payouts": "Payouts (Repasses)",
+      "accounting_sii": "Contabilidade & Tributos",
+      "global_products": "Produtos Globais",
+      "categories": "Categorias",
+      "brands": "Marcas",
+      "sync_magic": "Magic: The Gathering",
+      "sync_pokemon": "Pokémon TCG",
+      "sync_riftbound": "Riftbound TCG",
+      "sync_backups": "Backups CSV",
+      "config_plans": "Planos de Assinatura (SaaS)",
+      "config_expansions": "Mapeamento de Coleções",
+      "config_sync": "Destinos de Sincronização",
+      "config_games": "Jogos Suportados",
+      "config_currencies": "Moedas & Câmbio",
+      "config_locations": "Regiões e Cidades",
+      "back_to_shop": "Voltar para a Loja",
+      "logout": "Sair da Conta",
+      "badge": "SuperAdmin Global"
+    }
+  },
+  "hub": {
+    "back_to_shop": "Voltar para a Loja",
+    "badge": "TapTrade Store Admin",
+    "title": "Central de Controle",
+    "subtitle": "Bem-vindo ao seu painel de administração. Selecione um módulo para gerenciar seu catálogo, vendas ou configurações.",
+    "enter_module": "Acessar Módulo",
+    "catalog_title": "Módulo de Catálogo",
+    "catalog_desc": "Gerencie seu estoque de singles e selados, defina preços, revise sua buylist e sincronize cartas TCG.",
+    "catalog_tag": "Cartas & Estoque",
+    "sales_title": "Transações & Vendas",
+    "sales_desc": "Acompanhe vendas, compras de cartas (Dinheiro e Crédito), fechamentos de caixa, despachos e indicadores de negócio.",
+    "sales_tag": "Caixa & Finanças",
+    "settings_title": "Módulo de Configurações",
+    "settings_desc": "Personalize o perfil da sua loja, métodos de frete, moedas de cobrança, cupons e regras de estado de conservação.",
+    "settings_tag": "Ajustes & Envios",
+    "pos_title": "Ponto de Venda (PDV)",
+    "pos_desc": "Caixa registradora para sua loja física, leitor de código de barras, compra/venda de singles e fechamento de caixa.",
+    "pos_tag": "Venda no Balcão"
   }
 }

@@ -30,20 +30,499 @@
     },
     "pricing": {
       "badge": "Investimento Inteligente",
-      "title": "Planos Transparentes sem Taxas Ocultas",
-      "description": "Escolha a capacidade exata de SKUs de que sua loja precisa. Todos os planos incluem sincronização global, PDV ilimitado e buylist.",
-      "sku_label": "Capacidade:",
-      "unlimited": "Ilimitado",
-      "cta_subscribe": "Começar com este Plano",
-      "included_features_title": "Módulos incluídos em todos os planos",
-      "custom_quote": "Precisa de uma solução corporativa para redes de lojas ou franquias?",
-      "contact_sales": "Falar com Suporte Especializado"
+      "pill_saas": "SaaS Puro: 0% Comissão por Venda",
+      "pill_tools": "100% Ferramentas Incluídas",
+      "pill_support": "Mesmo Suporte Para Todos",
+      "eyebrow": "Assinatura Simples • Escale Apenas pela Capacidade de Catálogo",
+      "title": "Um único sistema, todas as ferramentas",
+      "description": "Escolha seu plano de acordo com o volume total do seu catálogo (singles, produtos selados e acessórios). Todos os planos contam com a mesma infraestrutura tecnológica, 1 Matriz base, suporte técnico total e 0% de comissão por venda.",
+      "popular_badge": "Mais Popular",
+      "per_month": "/mês",
+      "plus_vat": "+ 19% IVA mensal",
+      "catalog_capacity": "Capacidade de Catálogo",
+      "cta_plan": "Começar com {name}",
+      "plans": {
+        "starter": {
+          "name": "Plano Starter",
+          "desc": "Para lojas emergentes e colecionadores que iniciam seu catálogo digital online.",
+          "price": "1.5",
+          "limit1": "Até 1.500",
+          "limit2": "SKUs"
+        },
+        "store": {
+          "name": "Plano Store",
+          "desc": "O padrão para lojas estabelecidas com giro ativo de cartas e produtos.",
+          "price": "3.5",
+          "limit1": "Até 6.000",
+          "limit2": "SKUs"
+        },
+        "mega_store": {
+          "name": "Plano Mega Store",
+          "desc": "Para lojas consolidadas com alto volume de inventário e múltiplas linhas TCG.",
+          "price": "6.5",
+          "limit1": "Até 18.000",
+          "limit2": "SKUs"
+        },
+        "enterprise": {
+          "name": "Plano Enterprise",
+          "desc": "Operação corporativa irrestrita para holdings, distribuidoras e grandes redes.",
+          "price": "11.5",
+          "limit1": "SKUs Ilimitados",
+          "limit2": ""
+        }
+      },
+      "saas_block": {
+        "eyebrow": "Modelo SaaS Puro • 100% Para Sua Loja",
+        "badge": "0% Comissão por Transação",
+        "title": "Suas vendas são 100% suas: sem cobranças percentuais ou taxas ocultas",
+        "desc": "Ao contrário dos marketplaces tradicionais que descontam entre 8% e 15% de cada pedido, no TapTrade você só paga sua mensalidade fixa em UF. O valor total arrecadado online e no balcão entra integralmente na conta da sua empresa.",
+        "tag": "100% Margem Para Você"
+      },
+      "branch_block": {
+        "eyebrow": "Holding & Rede de Lojas",
+        "badge": "+2.50 UF / mês (+ IVA) por filial adicional",
+        "title": "Sua empresa opera mais de uma loja física ou depósito?",
+        "desc": "Qualquer que seja seu plano contratado, inclui 1 Matriz base. Você pode adicionar quantas filiais precisar por +2.50 UF/mês (+ IVA) cada, com estoque, fechamento de PDV, caixas, subdomínio e retirada grátis ($0) independentes.",
+        "cta": "Consultar Multi-Filiais"
+      },
+      "support_block": {
+        "eyebrow": "Suporte Técnico Direto • Todos Têm o Mesmo Respaldo",
+        "badge": "Sem Níveis Artificiais",
+        "title": "Mesmo atendimento técnico imediato para qualquer loja",
+        "desc": "No TapTrade não discriminamos nenhuma loja por porte nem cobramos por \"suporte prioritário\". Se precisar de ajuda com estoque, PDV ou emissão fiscal, nossa equipe técnica atende com prioridade máxima e agilidade, no Plano Starter ou no Enterprise.",
+        "cta": "Falar com Suporte"
+      },
+      "staff_pricing": {
+        "badge": "Alocação Flexível por Assentos (Seat-Based)",
+        "title": "Tabela de Equipe & Funções de Usuário",
+        "desc": "Cada plano inclui sua equipe base para operar a 100% (1 Proprietário, 1 Contador, 1 Gerente e 1 Caixa por filial). Se sua operação crescer, adicione usuários conforme necessário:",
+        "vat_note": "✓ Faturamento mensal unificado + 19% IVA",
+        "level_branch": "Nível Filial",
+        "level_holding": "Nível Holding",
+        "base_included": "1 base incluído",
+        "owner_base": "1 Proprietário base",
+        "first_free": "1º Grátis",
+        "roles": {
+          "cashier": {
+            "title": "Caixa de Balcão",
+            "desc": "Terminal PDV adicional, fechamento de caixa individual, vendas em balcão ou torneios presenciais.",
+            "price": "+0.35"
+          },
+          "manager": {
+            "title": "Gerente de Filial",
+            "desc": "Supervisor de turno, líder de compras na Buylist ou encarregado de estoque local.",
+            "price": "+0.60"
+          },
+          "admin": {
+            "title": "Admin Corporativo",
+            "desc": "Sócio comercial, gerente de operações ou diretor de e-commerce da holding.",
+            "price": "+0.85"
+          },
+          "accountant": {
+            "title": "Contador Adicional",
+            "desc": "Escritório contábil externo ou segundo auditor para conciliações fiscais mensais.",
+            "price": "+0.30"
+          }
+        }
+      },
+      "billing": {
+        "eyebrow": "Faturamento Mensal Transparente & Conformidade Fiscal",
+        "badge": "100% Crédito Fiscal F29",
+        "title": "Como é calculada sua fatura mensal ao fim do mês?",
+        "desc": "Ao final de cada ciclo mensal, sua fatura é apurada com base nos recursos ativos:",
+        "formula": "Total Líquido (UF) = [Plano Base] + [Filiais Extra × 2.50 UF] + [Caixas Extra × 0.35 UF] + [Gerentes Extra × 0.60 UF] + [Admins Extra × 0.85 UF]",
+        "official_conversion": "Conversão Oficial:",
+        "conversion_val": "Valor da UF no dia da emissão",
+        "tax_applicable": "Imposto Aplicável:",
+        "tax_val": "+ 19% IVA (Nota Fiscal Eletrônica)",
+        "tax_treatment": "Tratamento Tributário:",
+        "tax_treatment_val": "Crédito Fiscal Dedutível em F29"
+      },
+      "modules": {
+        "eyebrow": "Suíte Completa Sem Custos Ocultos",
+        "title": "Todos estes módulos já estão incluídos na sua assinatura",
+        "desc": "Esqueça pagar adicionais por cada ferramenta. Cada loja conta com a infraestrutura tecnológica mais avançada do mercado TCG.",
+        "included_badge": "Incluído",
+        "custom_holding": "Tem mais de 18.000 cartas ou uma rede de lojas? Temos planos corporativos personalizados.",
+        "talk_advisor": "Falar com um consultor técnico",
+        "items": {
+          "pos": {
+            "title": "Ponto de Venda PDV Balcão",
+            "desc": "Cobre em velocidade recorde em sua loja física. Funciona offline, lê código de barras e imprime recibos térmicos."
+          },
+          "buylist": {
+            "title": "Motor de Buylist Automatizado",
+            "desc": "Compre cartas dos jogadores diretamente na sua vitrine com cálculo automático de desvalorização por estado."
+          },
+          "wishlist": {
+            "title": "Radar de Demanda (Wishlists)",
+            "desc": "Descubra quais cartas os jogadores estão buscando para calibrar seus preços de compra e girar seu estoque."
+          },
+          "wallet": {
+            "title": "Crédito na Loja & Fidelização",
+            "desc": "Carteira digital própria para reter saldo e premiar torneios sem pagar taxas a intermediadores de pagamento."
+          },
+          "tax": {
+            "title": "Conciliação Tributária F29",
+            "desc": "Demonstrativo automático de vendas brutas, débito fiscal e fatura de comissão como crédito para seu contador."
+          },
+          "shield": {
+            "title": "TapTrade Shield Antifraude",
+            "desc": "Registro de 3 fotos de embalagem e validação em tempo real com transportadoras para liberar valores com risco zero."
+          }
+        }
+      }
     },
     "faq": {
       "badge": "Dúvidas Frequentes",
       "title": "Tudo o que você precisa saber sobre o TapTrade",
       "view_all": "Ver todas as perguntas",
       "view_less": "Mostrar menos"
+    },
+    "footer": {
+      "verified_stores_title": "100% Lojas Verificadas",
+      "verified_stores_desc": "Empresas formais no Chile com inventário verificado.",
+      "logistics_title": "Logística Oficial Integrada",
+      "logistics_desc": "Chilexpress, Starken e Retirada na Loja $0 em todo o Chile.",
+      "secure_payments_title": "Pagamentos Seguros & Custódia",
+      "secure_payments_desc": "Arrecadação protegida e repasses automáticos para sua conta jurídica.",
+      "tagline": "A plataforma SaaS e marketplace líder para Trading Card Games no Chile. Centralizamos estoques, automatizamos buylists e conectamos lojas e colecionadores.",
+      "marketplace_title": "Marketplace",
+      "catalog_singles": "Catálogo de Singles",
+      "unified_cart": "Carrinho Unificado",
+      "for_stores_title": "Para Lojas",
+      "store_portal": "Portal de Lojas",
+      "buylist_engine": "Motor de Buylist",
+      "plans_saas": "Planos e Assinatura SaaS",
+      "scryfall_sync": "Sincronização Scryfall",
+      "sales_contact": "Contato Comercial",
+      "legal_support_title": "Legal & Suporte",
+      "privacy_policy": "Política de Privacidade",
+      "terms_conditions": "Termos e Condições",
+      "help_center": "Central de Ajuda",
+      "whatsapp_support": "WhatsApp Suporte",
+      "copyright": "© {year} TAPTRADE SpA. Todos os direitos reservados. Feito para colecionadores.",
+      "official_logistics_title": "Logística e Pagamentos Oficiais:",
+      "free_pickup": "RETIRADA $0"
+    },
+    "showcase": {
+      "badge_demo": "Demonstração Interativa ao Vivo",
+      "title_prefix": "Projetado exclusivamente para a rotina real de uma ",
+      "title_highlight": "loja de TCG",
+      "subtitle": "Esqueça ter de adaptar plataformas genéricas. O TapTrade reúne em uma única interface PDV para balcão, sincronização com bases de dados mundiais, catálogo web e buylist automatizado.",
+      "real_admin_view": "Visão do Administrador Real",
+      "cta_try_panel": "Testar Painel de Lojista",
+      "cta_schedule_demo": "Agendar Demonstração Técnica",
+      "tabs": {
+        "inventory": {
+          "title": "Inventário Inteligente TCG",
+          "shortLabel": "Inventário & Catálogo",
+          "badge": "Sincronização Scryfall",
+          "headline": "Cadastre milhares de cartas em minutos sem digitar dados ou fotos manualmente",
+          "desc": "Conexão direta aos bancos de dados oficiais de Magic, Pokémon e Riftbound. Importe coleções inteiras, gerencie acabamentos Foil, idiomas, estado de conservação e aplique multiplicadores cambiais em um clique.",
+          "f1_title": "Importação em Massa em 1 Clique",
+          "f1_desc": "Busque cartas por nome ou expansão e importe artes em alta resolução e regras oficiais.",
+          "f2_title": "Multi-Variantes & Foils",
+          "f2_desc": "Diferenciação automática de impressões normais, Foil, idiomas e raridades.",
+          "f3_title": "Controle de Estoque Unificado",
+          "f3_desc": "O estoque da sua loja física e da vitrine virtual sincronizam instantaneamente a cada venda.",
+          "m1_val": "< 2s",
+          "m1_lbl": "Tempo de importação por carta",
+          "m2_val": "100%",
+          "m2_lbl": "Imagens oficiais em alta resolução",
+          "m3_val": "0 Erros",
+          "m3_lbl": "Sincronização de estoque em tempo real"
+        },
+        "pos": {
+          "title": "Ponto de Venda Físico (PDV)",
+          "shortLabel": "PDV Balcão",
+          "badge": "100% Offline-First",
+          "headline": "Atenda em velocidade máxima no balcão, mesmo se a internet cair",
+          "desc": "Terminal de caixa otimizado para lojas de cartas. Compatível com leitores de código de barras USB, atalhos [F2]/[F10], controle de turnos, sangria/suprimento e impressão de cupons térmicos sem taxas extras.",
+          "f1_title": "Zero Quedas com IndexedDB",
+          "f1_desc": "Continue cobrando em torneios ou apagões; tudo sincroniza sozinho quando a internet volta.",
+          "f2_title": "Leitores de Código de Barras",
+          "f2_desc": "Escaneie shields, pastas ou singles etiquetados com leitor USB padrão em milissegundos.",
+          "f3_title": "Fechamento de Turno & Fundo de Caixa",
+          "f3_desc": "Abertura com troco inicial, sangria, contagem cega e relatórios automáticos X e Z.",
+          "m1_val": "0%",
+          "m1_lbl": "Taxa extra por venda presencial",
+          "m2_val": "< 5ms",
+          "m2_lbl": "Resposta tátil e busca instantânea",
+          "m3_val": "80/58mm",
+          "m3_lbl": "Compatibilidade com impressoras térmicas"
+        },
+        "buylist": {
+          "title": "Motor de Buylist Inteligente",
+          "shortLabel": "Motor de Buylist",
+          "badge": "Compra Automatizada",
+          "headline": "Compre cartas dos seus jogadores com desvalorização dinâmica por estado",
+          "desc": "Permita que seus clientes vendam cartas diretamente na sua vitrine. Defina porcentagens de compra por raridade e estado (NM a Damaged) e liquide em dinheiro ou crédito em loja.",
+          "f1_title": "Desvalorização Dinâmica Graduada",
+          "f1_desc": "Ajuste automático de preços conforme condição (NM, LP, MP, HP, Damaged) e idioma da carta.",
+          "f2_title": "Carteira Digital de Crédito",
+          "f2_desc": "Incentive seus clientes a aceitarem crédito na loja com bonificações extras.",
+          "f3_title": "Conferência Rápida no Balcão",
+          "f3_desc": "Avalie lotes entregues pelos jogadores no balcão e aprove propostas em 1 clique.",
+          "m1_val": "+35%",
+          "m1_lbl": "Aumento no giro de estoque",
+          "m2_val": "100%",
+          "m2_lbl": "Controle sobre margens de compra",
+          "m3_val": "Direto",
+          "m3_lbl": "Crédito digital imediato"
+        },
+        "dashboard": {
+          "title": "Métricas & Análise em Tempo Real",
+          "shortLabel": "Métricas & KPIs",
+          "badge": "Análise Avançada",
+          "headline": "KPIs de estoque ativo, giro, dead stock e evolução do faturamento",
+          "desc": "Painel de controle para acompanhar o desempenho do seu catálogo. Gráficos de receita mensal, alertas de estoque baixo, top 10 cartas mais vendidas e rastreabilidade multi-filial.",
+          "f1_title": "KPIs de Estoque & Dead Stock",
+          "f1_desc": "Valoração do estoque ativo e alertas de cartas estagnadas para disparar promoções.",
+          "f2_title": "Top Produtos & Alertas de Estoque",
+          "f2_desc": "Ranking das cartas mais procuradas e avisos quando staples estiverem acabando.",
+          "f3_title": "Arquitetura Multi-Filiais",
+          "f3_desc": "Gestão independente de Matriz e filiais com caixas e estoques separados.",
+          "m1_val": "Ao Vivo",
+          "m1_lbl": "Atualização de KPIs e alertas",
+          "m2_val": "Top 10",
+          "m2_lbl": "Ranking dos produtos mais vendidos",
+          "m3_val": "100%",
+          "m3_lbl": "Rastreabilidade multi-filial"
+        },
+        "shield": {
+          "title": "TapTrade Shield & Envios Seguros",
+          "shortLabel": "TapTrade Shield",
+          "badge": "Antifraude & Custódia",
+          "headline": "Proteção total em cada envio e liberação de valores sob custódia",
+          "desc": "O protocolo que elimina golpes de cartas trocadas ou caixas vazias. Registro de 3 fotos de embalagem com compressão WebP, rastreamento oficial integrado e exigência de vídeo de unboxing contínuo para itens valiosos.",
+          "f1_title": "Comprovação com 3 Fotos de Embalagem",
+          "f1_desc": "Cartas sobre a comanda, proteção rígida e pacote lacrado com a etiqueta sobre a dobra.",
+          "f2_title": "Custódia Segura de Pagamentos",
+          "f2_desc": "Os valores do comprador ficam retidos com segurança e são liberados com a postagem confirmada.",
+          "f3_title": "Linha do Tempo com Rastreio em Tempo Real",
+          "f3_desc": "Acompanhamento detalhado das transportadoras dentro da tela de pedidos.",
+          "m1_val": "3 Fotos",
+          "m1_lbl": "Protocolo obrigatório em pedidos de valor",
+          "m2_val": "100%",
+          "m2_lbl": "Validação oficial de rastreamento",
+          "m3_val": "0 Risco",
+          "m3_lbl": "Blindagem antifraude comprovada"
+        },
+        "accounting": {
+          "title": "Conciliação Fiscal F29 & Contabilidade",
+          "shortLabel": "Contabilidade Fiscal",
+          "badge": "Conciliação Fiscal",
+          "headline": "Números consolidados prontos para a declaração fiscal do seu contador",
+          "desc": "Conciliação automática das vendas para emissão fiscal. Apuração de faturamento bruto, débitos fiscais, nota de comissão emitida pelo TapTrade (crédito fiscal) e repasses bancários diretos para sua conta jurídica.",
+          "f1_title": "Fechamento Fiscal Consolidado",
+          "f1_desc": "Total de vendas brutas e tributos do mês sem precisar somar comprovante por comprovante.",
+          "f2_title": "Nota Fiscal de Comissão Transparente",
+          "f2_desc": "O TapTrade não bitributa suas cartas; fatura apenas sua mensalidade de software como despesa dedutível.",
+          "f3_title": "Repasses Eletrônicos em Conta Jurídica",
+          "f3_desc": "Transferência bancária direta dos seus recebíveis para a conta da sua empresa sem taxas ocultas.",
+          "m1_val": "19% IVA",
+          "m1_lbl": "Desdobramento claro sem bitributação",
+          "m2_val": "1 Clique",
+          "m2_lbl": "Relatório mensal para seu contador",
+          "m3_val": "TED / PIX",
+          "m3_lbl": "Depósitos na conta da sua empresa"
+        }
+      }
+    },
+    "faqs": [
+      {
+        "q": "Como funciona comprar cartas de diferentes lojas em um único carrinho?",
+        "a": "O TapTrade conta com um sistema inteligente de checkout multi-loja. Você pode adicionar singles de qualquer loja verificada do Chile em um único carrinho. No pagamento, realiza uma única transação segura; os valores entram na conta de custódia do TapTrade e são repassados diretamente à conta bancária de cada empresa, gerando etiquetas de frete individuais com Chilexpress ou Starken."
+      },
+      {
+        "q": "O que é o Motor de Buylist e como ele ajuda a minha loja?",
+        "a": "A Buylist permite que seus clientes vendam cartas diretamente na sua vitrine virtual. O sistema calcula em tempo real os valores de compra aplicando desvalorização automática por estado de conservação (Near Mint, Lightly Played, etc.) e idioma. Você pode pagar em dinheiro ou emitir saldo digital (Crédito em Loja) com bônus para compras futuras."
+      },
+      {
+        "q": "Como funciona a cobrança e quais comissões o TapTrade cobra?",
+        "a": "No TapTrade cobramos 0% de comissão por venda (zero take-rate). Não descontamos porcentagens das suas transações: 100% do que você vende é seu. Operamos sob modelo SaaS de assinatura mensal fixa proporcional à capacidade de catálogo da sua loja."
+      },
+      {
+        "q": "Como é garantido o estado e autenticidade das cartas?",
+        "a": "Todas as lojas e dealers passam por verificação legal com dados cadastrais e fiscais no Chile. Além disso, exigimos o padrão internacional de graduação TCG (Mint, Near Mint, Excellent, Lightly Played, Good, Moderately Played, Heavily Played e Damaged). Se uma carta recebida não coincidir com o estado anunciado, o comprador conta com garantia e estorno."
+      },
+      {
+        "q": "Como o catálogo de cartas é sincronizado com a minha loja?",
+        "a": "Esqueça cadastrar fotos, descrições em múltiplos idiomas e textos de regras manualmente. O TapTrade é integrado diretamente ao Scryfall, PokémonTCG e Riftcodex. Basta buscar o nome da carta ou coleção e importar em 1 clique todos os metadados com artes em alta resolução."
+      },
+      {
+        "q": "O Ponto de Venda (PDV) tem custo adicional ou funciona se a internet cair?",
+        "a": "O Ponto de Venda (PDV) está 100% incluído para todas as lojas e planos sem nenhum custo adicional ou comissão. Conta com arquitetura Offline-First no navegador com IndexedDB. Se a loja ficar sem internet durante um torneio, os caixas continuam buscando cartas, bipando códigos de barras e emitindo recibos normalmente. Quando a conexão retorna, tudo sincroniza automaticamente sem perda de dados."
+      },
+      {
+        "q": "Como envio os pedidos vendidos na minha loja?",
+        "a": "Diretamente no seu painel de lojista você terá o botão 'Gerar Etiqueta'. O sistema calcula as dimensões do pacote, gera o código de rastreamento oficial da Chilexpress ou Starken e entrega a etiqueta pronta para impressão e postagem na agência mais próxima."
+      },
+      {
+        "q": "Como funciona o TapTrade Shield e como ele protege minha loja contra golpes?",
+        "a": "Para compras a partir de $20.000 CLP, a loja registra 3 fotos obrigatórias de embalagem: cartas sobre a comanda, proteção rígida e envelope lacrado com a etiqueta sobre a dobra. Do comprador é exigido vídeo contínuo de unboxing sem cortes para abrir qualquer contestação. Esse protocolo bilateral elimina reclamações falsas de pacotes vazios ou cartas trocadas, liberando seus valores em custódia na validação da postagem."
+      },
+      {
+        "q": "Como é faturada a assinatura SaaS e como impacta na minha contabilidade?",
+        "a": "Ao fim do mês, o TapTrade apura sua fatura somando seu Plano Base em UF, filiais extras (+2.50 UF/mês cada) e usuários adicionais ativos. O total líquido em UF é convertido pelo valor diário oficial e gera Nota Fiscal Eletrônica com 19% de IVA. Esse valor de IVA é 100% Crédito Fiscal dedutível para sua empresa no fechamento fiscal mensal do Formulário 29 (F29)."
+      },
+      {
+        "q": "Posso operar várias filiais físicas e adicionar mais contas de funcionários?",
+        "a": "Sim. Todos os planos incluem 1 Matriz base com equipe completa para operar (1 Proprietário, 1 Contador, 1 Gerente e 1 Caixa). Você pode adicionar filiais por +2.50 UF/mês (+ IVA) cada (com estoque e equipe independentes), e contas de funcionários avulsas conforme sua escala (Caixas a +0.35 UF, Gerentes a +0.60 UF, Admins a +0.85 UF e Contadores a +0.30 UF/mês + IVA)."
+      }
+    ],
+    "page": {
+      "hero": {
+        "badge": "A Plataforma Integral de TCG no Chile",
+        "title_prefix": "O ecossistema definitivo para ",
+        "title_highlight1": "comprar, vender",
+        "title_middle": " e crescer em ",
+        "title_highlight2": "Trading Cards.",
+        "subtitle": "Centralizamos o estoque das principais lojas e dealers. Ponto de Venda (PDV) para balcão com modo offline, sincronização oficial de catálogos (Scryfall, Pokémon e Riftbound), motor inteligente de Buylist, proteção antifraude TapTrade Shield, conciliação tributária F29, checkout unificado e frete integrado.",
+        "cta_explore": "Explorar Catálogo de Singles",
+        "cta_create_store": "Criar Minha Loja / Acesso LGS"
+      },
+      "vault": {
+        "title": "Mercado TCG em Tempo Real (Singles Reais de Lojas)",
+        "subtitle": "Cartas autenticadas com estoque físico sincronizado ao vivo",
+        "cat_featured": "Destaques",
+        "cat_magic": "Magic",
+        "cat_riftbound": "Riftbound",
+        "badge_foil": "FOIL",
+        "badge_normal": "Normal",
+        "best_price": "Melhor preço",
+        "info_title": "Cartas 100% autênticas com estoque real",
+        "info_desc": "Preços locais, retirada imediata no balcão ou envio expresso em 24-48h",
+        "cta_catalog": "Ver catálogo completo →",
+        "stat_expansions": "Coleções Sincronizadas",
+        "stat_stores": "Lojas Verificadas com Registro",
+        "stat_shield": "Proteção Antifraude 3x",
+        "stat_pickup": "Retirada Grátis na Loja ($0)"
+      },
+      "games": {
+        "badge": "Compatibilidade Universal",
+        "title": "Suporte nativo aos Trading Card Games mais populares",
+        "subtitle": "Catálogos sincronizados diretamente com as APIs globais garantindo dados precisos de cartas, coleções e raridades."
+      },
+      "audience": {
+        "badge": "Sob Medida Para Você",
+        "title": "Uma solução feita para cada participante do TCG",
+        "tab_players": "Para Jogadores & Colecionadores",
+        "tab_stores": "Para Lojas & Dealers (SaaS)",
+        "players": {
+          "cart_title": "Carrinho Único Multi-Lojas",
+          "cart_desc": "Precisa de cartas de 3 lojas diferentes? Adicione tudo a um único pedido. Pague uma única vez e o sistema gera os despachos individuais.",
+          "cart_footer": "✓ Checkout consolidado • Sem transferências manuais",
+          "deck_title": "Busca Rápida de Deckbuilder",
+          "deck_desc": "Cole sua lista completa ou filtre por edição, acabamento Foil e idioma. Compare preços e compre os melhores singles em segundos.",
+          "deck_footer": "✓ Filtros por Foil, Idioma e Estado NM a DMG",
+          "shield_title": "TapTrade Shield: Envio Blindado",
+          "shield_desc": "A loja fotografa os itens e a embalagem lacrada antes do envio. Com o vídeo contínuo de unboxing, você tem garantia total contra danos ou divergências.",
+          "shield_footer": "✓ Comprovação fotográfica • Envio Seguro",
+          "pickup_title": "Retirada Grátis $0 Multi-Lojas",
+          "pickup_desc": "Compre online e retire grátis no balcão da sua loja favorita sem custos de frete nem atrasos de entrega.",
+          "pickup_footer": "✓ Retirada presencial imediata • Custo $0"
+        },
+        "stores": {
+          "pos_badge": "100% Incluído",
+          "pos_title": "Ponto de Venda (PDV) Balcão",
+          "pos_desc": "Atenda seus clientes presenciais com agilidade máxima. Busca instantânea de cartas, leitor de código de barras USB, fechamento de caixa e recibo térmico.",
+          "pos_footer": "✓ Modo Offline • Sincronização Automática",
+          "sync_title": "Sincronização Scryfall & Pokémon",
+          "sync_desc": "Zero digitação manual. Sincronize coleções inteiras com arte oficial, cotações de referência, textos de regras e numeração oficial com 1 clique.",
+          "sync_footer": "✓ Catálogos atualizados automaticamente",
+          "buylist_title": "Motor de Buylist Automatizado",
+          "buylist_desc": "Permita que seus clientes vendam cartas para sua loja. O sistema calcula a desvalorização por estado e idioma, pagando em dinheiro ou crédito em loja.",
+          "buylist_footer": "✓ Desvalorização dinâmica configurável",
+          "shield_title": "TapTrade Shield Antifraude",
+          "shield_desc": "Proteção contra golpes de cartas trocadas ou caixas vazias. Registre 3 fotos de embalagem, cole a etiqueta sobre o lacre e libere os valores na postagem.",
+          "shield_footer": "✓ 3 Fotos de Embalagem • Custódia Escrow",
+          "f29_title": "Conciliação Tributária & F29",
+          "f29_desc": "Sem complicações com seu contador. Demonstrativo mensal de vendas brutas para apuração fiscal, nota fiscal dedutível de comissão e repasses automáticos em conta.",
+          "f29_footer": "✓ Apuração Fiscal de Loja • Repasses Diretos",
+          "holding_title": "Multi-Filiais & Redes de Lojas",
+          "holding_desc": "Todos os planos incluem 1 Matriz base. Adicione filiais por +2.5 UF/mês cada com estoques individuais, caixas PDV, subdomínio próprio e retirada grátis.",
+          "holding_footer": "✓ Controle Multi-Unidades • Permissões PBAC"
+        }
+      },
+      "features": {
+        "badge": "Arquitetura Corporativa",
+        "title": "Tudo o que sua loja precisa para operar no mercado TCG",
+        "subtitle": "Construído em tecnologia moderna para que seu sistema nunca trave durante os maiores lançamentos de coleções.",
+        "pos_badge_counter": "Terminal Balcão • Offline-First",
+        "pos_badge_included": "Incluído em Todos os Planos (0% Taxa Extra)",
+        "pos_title": "Ponto de Venda (PDV) Balcão: Venda com ou sem Internet",
+        "pos_desc": "O primeiro terminal de caixa desenvolvido exclusivamente para lojas de cartas colecionáveis. Busque entre milhares de singles, escaneie códigos de barras USB e receba em dinheiro, cartão ou crédito em loja. Se a internet cair, continue vendendo offline sem interrupções.",
+        "f_search": "Busca & Leitores de Código de Barras USB",
+        "f_search_desc": "Encontre cartas por nome, edição ou código de barras com atalhos rápidos de teclado [F2] e [F10].",
+        "f_offline": "Zero Quedas Offline",
+        "f_offline_desc": "IndexedDB local armazena seu catálogo e fila de vendas para operar sem conexão.",
+        "f_cash": "Controle de Caixa & Fechamento de Turno",
+        "f_cash_desc": "Fundo de troco, sangria, contagem cega e relatórios diários de fechamento X e Z.",
+        "f_stock": "Estoque Físico e Virtual Unificado",
+        "f_stock_desc": "Ao cobrar no balcão físico, o estoque é atualizado instantaneamente na sua vitrine online.",
+        "pos_footer": "✓ Compatível com impressoras térmicas de 80mm / 58mm e gavetas de dinheiro",
+        "pos_no_cost": "100% Sem Custos Adicionais em Todos os Planos",
+        "mock_title": "PDV Balcão",
+        "mock_status": "ONLINE • IDB PRONTO",
+        "mock_f2": "[F2] Buscar",
+        "mock_f10": "[F10] Cobrar",
+        "mock_hw": "Sem hardware proprietário. Funciona em Windows, Mac, Linux, iPad ou Android.",
+        "bento_shield_badge": "Protocolo Antifraude TapTrade Shield",
+        "bento_shield_title": "Envios Protegidos & Custódia Escrow",
+        "bento_shield_desc": "Blindagem contra contestações de cartas trocadas ou envelopes vazios. Em pedidos de maior valor, são registradas 3 fotos de embalagem. O comprador grava unboxing contínuo e seus valores são liberados no envio.",
+        "bento_shield_p1": "✓ 3 Fotos de embalagem",
+        "bento_shield_p2": "✓ Vídeo de unboxing contínuo obrigatório",
+        "bento_shield_p3": "✓ Custódia Escrow atômica",
+        "bento_f29_badge": "Fechamento Fiscal",
+        "bento_f29_title": "Relatórios de Vendas para seu Contador",
+        "bento_f29_desc": "Total de vendas brutas e tributos apurados para a declaração fiscal mensal. O TapTrade fatura sua mensalidade como despesa dedutível e faz repasses bancários diretos.",
+        "bento_f29_p": "✓ Apuração Fiscal • Repasses Eletrônicos",
+        "bento_branch_badge": "Rede Multi-Lojas",
+        "bento_branch_title": "Gestão Multi-Filiais (Holding)",
+        "bento_branch_desc": "1 Matriz base incluída em todos os planos (+2.5 UF/mês por filial extra). Estoques independentes, caixas PDV próprios, subdomínio por loja e retirada grátis.",
+        "bento_branch_p": "✓ Gestão de Filiais • Permissões PBAC",
+        "bento_domain_badge": "Multi-Tenant SaaS",
+        "bento_domain_title": "Vitrine Digital com Subdomínio Próprio",
+        "bento_domain_desc": "Tenha sua própria loja virtual com logotipo, links de redes sociais, horários de atendimento presencial e catálogo exclusivo, além da vitrine no marketplace.",
+        "bento_domain_p": "Responsive Dark Vault • Otimizado para dispositivos móveis",
+        "bento_radar_badge": "Inteligência de Mercado",
+        "bento_radar_title": "Radar de Preços de Mercado",
+        "bento_radar_desc": "Acompanhe o histórico e as cotações em tempo real para precificar seu estoque com margem protegida.",
+        "bento_radar_p": "✓ Comparações com Scryfall & TCGPlayer",
+        "bento_credit_badge": "Fidelização Ativa",
+        "bento_credit_title": "Carteira Digital de Crédito em Loja",
+        "bento_credit_desc": "Mantenha o capital girando na sua loja. Ofereça bônus de 20% a 30% em crédito aos clientes que venderem singles na Buylist para reinvestirem no seu catálogo.",
+        "bento_credit_p": "✓ Saldo digital associado à conta do cliente"
+      },
+      "how_it_works": {
+        "badge": "Fluxo Sem Fricção",
+        "title": "Como o TapTrade funciona?",
+        "step1_num": "01",
+        "step1_title": "Conecte sua Loja ou Busque Cartas",
+        "step1_desc": "Lojas cadastram estoque em segundos por CSV ou sincronização Scryfall. Jogadores exploram milhares de cartas com filtros por edição, estado e idioma.",
+        "step2_num": "02",
+        "step2_title": "Pagamento Protegido & Repasse Seguro",
+        "step2_desc": "O comprador paga com cartão ou saldo digital. O valor entra na conta de custódia e é transferido diretamente para a conta da sua empresa.",
+        "step3_num": "03",
+        "step3_title": "Envio Expresso ou Retirada $0",
+        "step3_desc": "A loja gera etiquetas de frete em 1 clique. O comprador acompanha o rastreio em tempo real ou retira no local sem taxa de entrega."
+      },
+      "faq_section": {
+        "badge": "Tire Suas Dúvidas",
+        "title": "Perguntas Frequentes",
+        "subtitle": "Tudo o que você precisa saber antes de comprar ou vender na plataforma.",
+        "btn_more": "Ver mais perguntas ({count} adicionais)",
+        "btn_less": "Ver menos perguntas"
+      },
+      "cta_banner": {
+        "badge": "O Futuro do TCG Começa Aqui",
+        "title": "Pronto para levar sua coleção ou sua loja para o próximo nível?",
+        "subtitle": "Junte-se à comunidade de lojas especializadas e colecionadores que já operam com a tecnologia do TapTrade.",
+        "btn_explore": "Explorar Singles ao Vivo",
+        "btn_store": "Entrar como Lojista"
+      }
     }
   }
 }

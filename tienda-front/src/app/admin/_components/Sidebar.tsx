@@ -51,6 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const tc = useTranslations("common");
+  const ta = useTranslations("admin.sidebar");
   const { user } = useAppSelector((state) => state.adminAuthReducer);
 
   const sessionType = user?.sessionType || "COMPANY_OWNER";
@@ -71,20 +72,20 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     if (sessionType === "CASHIER") {
       return [
         {
-          title: "Operaciones de Caja",
+          title: ta("sections.cashier_ops"),
           items: [
-            { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
-            { href: "/admin/transactions", label: "Turno & Arqueo de Caja", icon: <IconReceipt className="w-4 h-4" /> },
-            { href: "/admin/orders", label: "Retiro en Tienda", icon: <IconOrders className="w-4 h-4" /> },
-            { href: "/admin/store-credit", label: "Canje Saldo Cliente", icon: <IconCreditCard className="w-4 h-4" /> },
+            { href: "/admin/pos", label: ta("items.pos"), icon: <IconPos className="w-4 h-4" /> },
+            { href: "/admin/transactions", label: ta("items.cash_shifts"), icon: <IconReceipt className="w-4 h-4" /> },
+            { href: "/admin/orders", label: ta("items.orders_pickup"), icon: <IconOrders className="w-4 h-4" /> },
+            { href: "/admin/store-credit", label: ta("items.store_credit_redeem"), icon: <IconCreditCard className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Catálogo (Consulta)",
+          title: ta("sections.cashier_catalog"),
           items: [
-            { href: "/admin/products", label: "Consulta Singles", icon: <IconCard className="w-4 h-4" /> },
-            { href: "/admin/sealed", label: "Consulta Sellado", icon: <IconBox className="w-4 h-4" /> },
-            { href: "/admin/buylist", label: "Recepción Buylist", icon: <IconRepeat className="w-4 h-4" /> },
+            { href: "/admin/products", label: ta("items.singles_inquiry"), icon: <IconCard className="w-4 h-4" /> },
+            { href: "/admin/sealed", label: ta("items.sealed_inquiry"), icon: <IconBox className="w-4 h-4" /> },
+            { href: "/admin/buylist", label: ta("items.buylist_reception"), icon: <IconRepeat className="w-4 h-4" /> },
           ],
         },
       ];
@@ -94,39 +95,39 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     if (sessionType === "BRANCH_MANAGER") {
       return [
         {
-          title: "Operaciones Locales",
+          title: ta("sections.branch_ops"),
           items: [
-            { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
-            { href: "/admin/transactions", label: "Cajas & Turnos", icon: <IconReceipt className="w-4 h-4" /> },
-            { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
-            { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
+            { href: "/admin/pos", label: ta("items.pos"), icon: <IconPos className="w-4 h-4" /> },
+            { href: "/admin/transactions", label: ta("items.registers_and_shifts"), icon: <IconReceipt className="w-4 h-4" /> },
+            { href: "/admin/orders", label: ta("items.orders_dispatch"), icon: <IconOrders className="w-4 h-4" /> },
+            { href: "/admin/store-credit", label: ta("items.store_credit"), icon: <IconCreditCard className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Inventario Local",
+          title: ta("sections.branch_inventory"),
           items: [
-            { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
-            { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
-            { href: "/admin/buylist", label: "Buylist Sucursal", icon: <IconRepeat className="w-4 h-4" /> },
-            { href: "/admin/price-sync", label: "Sincronizar Precios", icon: <IconRefresh className="w-4 h-4" /> },
-            { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
+            { href: "/admin/products", label: ta("items.singles"), icon: <IconCard className="w-4 h-4" /> },
+            { href: "/admin/sealed", label: ta("items.sealed"), icon: <IconBox className="w-4 h-4" /> },
+            { href: "/admin/buylist", label: ta("items.buylist_branch"), icon: <IconRepeat className="w-4 h-4" /> },
+            { href: "/admin/price-sync", label: ta("items.price_sync"), icon: <IconRefresh className="w-4 h-4" /> },
+            { href: "/admin/wishlist", label: ta("items.wishlist"), icon: <IconHeart className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Métricas de Sucursal",
+          title: ta("sections.branch_metrics"),
           items: [
-            { href: "/admin/sales", label: "Reportes & Ventas", icon: <IconPieChart className="w-4 h-4" /> },
+            { href: "/admin/sales", label: ta("items.reports_sales"), icon: <IconPieChart className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Administración Local",
+          title: ta("sections.branch_config"),
           items: [
-            { href: "/admin/team", label: "Cajeros del Local", icon: <IconUsers className="w-4 h-4" /> },
-            { href: "/admin/profile", label: "Datos de Sucursal", icon: <IconStore className="w-4 h-4" /> },
-            { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
-            { href: "/admin/currencies", label: "Tasas de Cambio", icon: <IconCoins className="w-4 h-4" /> },
-            { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
-            { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
+            { href: "/admin/team", label: ta("items.team_branch"), icon: <IconUsers className="w-4 h-4" /> },
+            { href: "/admin/profile", label: ta("items.store_settings"), icon: <IconStore className="w-4 h-4" /> },
+            { href: "/admin/shipping", label: ta("items.shipping_methods"), icon: <IconTruck className="w-4 h-4" /> },
+            { href: "/admin/currencies", label: ta("items.currencies"), icon: <IconCoins className="w-4 h-4" /> },
+            { href: "/admin/games", label: ta("items.games_config"), icon: <IconGamepad className="w-4 h-4" /> },
+            { href: "/admin/devaluations", label: ta("items.buylist_engine"), icon: <IconSliders className="w-4 h-4" /> },
           ],
         },
       ];
@@ -136,35 +137,35 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     if (sessionType === "COMPANY_ADMIN") {
       return [
         {
-          title: "Operaciones",
+          title: ta("sections.company_ops"),
           items: [
-            { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
-            { href: "/admin/transactions", label: "Transacciones & Caja", icon: <IconReceipt className="w-4 h-4" /> },
-            { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
-            { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
+            { href: "/admin/pos", label: ta("items.pos"), icon: <IconPos className="w-4 h-4" /> },
+            { href: "/admin/transactions", label: ta("items.registers_and_shifts"), icon: <IconReceipt className="w-4 h-4" /> },
+            { href: "/admin/orders", label: ta("items.orders_dispatch"), icon: <IconOrders className="w-4 h-4" /> },
+            { href: "/admin/store-credit", label: ta("items.store_credit"), icon: <IconCreditCard className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Catálogo Holding",
+          title: ta("sections.company_catalog"),
           items: [
-            { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
-            { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
-            { href: "/admin/buylist", label: "Buylist", icon: <IconRepeat className="w-4 h-4" /> },
-            { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
+            { href: "/admin/products", label: ta("items.singles"), icon: <IconCard className="w-4 h-4" /> },
+            { href: "/admin/sealed", label: ta("items.sealed"), icon: <IconBox className="w-4 h-4" /> },
+            { href: "/admin/buylist", label: ta("items.buylist_branch"), icon: <IconRepeat className="w-4 h-4" /> },
+            { href: "/admin/wishlist", label: ta("items.wishlist"), icon: <IconHeart className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Métricas & Finanzas",
+          title: ta("sections.company_metrics"),
           items: [
-            { href: "/admin/sales", label: "Reportes Consolidados", icon: <IconPieChart className="w-4 h-4" /> },
-            { href: "/admin/wallet", label: "Billetera Matriz & Retiros", icon: <IconWallet className="w-4 h-4" /> },
+            { href: "/admin/sales", label: ta("items.reports_sales"), icon: <IconPieChart className="w-4 h-4" /> },
+            { href: "/admin/wallet", label: ta("items.wallet_payouts"), icon: <IconWallet className="w-4 h-4" /> },
           ],
         },
         {
-          title: "Configuración",
+          title: ta("sections.company_config"),
           items: [
-            { href: "/admin/profile", label: "Información de Empresa", icon: <IconStore className="w-4 h-4" /> },
-            { href: "/admin/currencies", label: "Tasas de Cambio", icon: <IconCoins className="w-4 h-4" /> },
+            { href: "/admin/profile", label: ta("items.store_settings"), icon: <IconStore className="w-4 h-4" /> },
+            { href: "/admin/currencies", label: ta("items.currencies"), icon: <IconCoins className="w-4 h-4" /> },
           ],
         },
       ];
@@ -173,41 +174,41 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     // 4. COMPANY_OWNER (Por defecto): Acceso total a nivel de holding y sucursales
     return [
       {
-        title: "Operaciones",
+        title: ta("sections.company_ops"),
         items: [
-          { href: "/admin/pos", label: "Punto de Venta (POS)", icon: <IconPos className="w-4 h-4" /> },
-          { href: "/admin/transactions", label: "Transacciones & Caja", icon: <IconReceipt className="w-4 h-4" /> },
-          { href: "/admin/orders", label: "Despachos & Pedidos", icon: <IconOrders className="w-4 h-4" /> },
-          { href: "/admin/store-credit", label: "Crédito de Tienda", icon: <IconCreditCard className="w-4 h-4" /> },
+          { href: "/admin/pos", label: ta("items.pos"), icon: <IconPos className="w-4 h-4" /> },
+          { href: "/admin/transactions", label: ta("items.registers_and_shifts"), icon: <IconReceipt className="w-4 h-4" /> },
+          { href: "/admin/orders", label: ta("items.orders_dispatch"), icon: <IconOrders className="w-4 h-4" /> },
+          { href: "/admin/store-credit", label: ta("items.store_credit"), icon: <IconCreditCard className="w-4 h-4" /> },
         ],
       },
       {
-        title: "Catálogo",
+        title: ta("sections.company_catalog"),
         items: [
-          { href: "/admin/products", label: "Singles", icon: <IconCard className="w-4 h-4" /> },
-          { href: "/admin/sealed", label: "Sellado", icon: <IconBox className="w-4 h-4" /> },
-          { href: "/admin/buylist", label: "Buylist", icon: <IconRepeat className="w-4 h-4" /> },
-          { href: "/admin/price-sync", label: "Sincronizar Precios", icon: <IconRefresh className="w-4 h-4" /> },
-          { href: "/admin/wishlist", label: "Lista de Deseos", icon: <IconHeart className="w-4 h-4" /> },
+          { href: "/admin/products", label: ta("items.singles"), icon: <IconCard className="w-4 h-4" /> },
+          { href: "/admin/sealed", label: ta("items.sealed"), icon: <IconBox className="w-4 h-4" /> },
+          { href: "/admin/buylist", label: ta("items.buylist_branch"), icon: <IconRepeat className="w-4 h-4" /> },
+          { href: "/admin/price-sync", label: ta("items.price_sync"), icon: <IconRefresh className="w-4 h-4" /> },
+          { href: "/admin/wishlist", label: ta("items.wishlist"), icon: <IconHeart className="w-4 h-4" /> },
         ],
       },
       {
-        title: "Métricas & Finanzas",
+        title: ta("sections.company_metrics"),
         items: [
-          { href: "/admin/sales", label: "Reportes & Analítica", icon: <IconPieChart className="w-4 h-4" /> },
-          { href: "/admin/wallet", label: "Billetera Matriz & Retiros", icon: <IconWallet className="w-4 h-4" /> },
+          { href: "/admin/sales", label: ta("items.metrics_sales"), icon: <IconPieChart className="w-4 h-4" /> },
+          { href: "/admin/wallet", label: ta("items.wallet_payouts"), icon: <IconWallet className="w-4 h-4" /> },
         ],
       },
       {
-        title: "Configuración & Equipo",
+        title: ta("sections.company_management"),
         items: [
-          { href: "/admin/team", label: "Personal & Sucursales", icon: <IconUsers className="w-4 h-4" /> },
-          { href: "/admin/profile", label: "Empresa & Sucursales", icon: <IconStore className="w-4 h-4" /> },
-          { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
-          { href: "/admin/coupons", label: "Cupones de Descuento", icon: <IconTicket className="w-4 h-4" /> },
-          { href: "/admin/currencies", label: "Tasas de Cambio", icon: <IconCoins className="w-4 h-4" /> },
-          { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
-          { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
+          { href: "/admin/team", label: ta("items.team_colleagues"), icon: <IconUsers className="w-4 h-4" /> },
+          { href: "/admin/profile", label: ta("items.store_settings"), icon: <IconStore className="w-4 h-4" /> },
+          { href: "/admin/shipping", label: ta("items.shipping_methods"), icon: <IconTruck className="w-4 h-4" /> },
+          { href: "/admin/coupons", label: ta("items.coupons"), icon: <IconTicket className="w-4 h-4" /> },
+          { href: "/admin/currencies", label: ta("items.currencies"), icon: <IconCoins className="w-4 h-4" /> },
+          { href: "/admin/games", label: ta("items.games_config"), icon: <IconGamepad className="w-4 h-4" /> },
+          { href: "/admin/devaluations", label: ta("items.buylist_engine"), icon: <IconSliders className="w-4 h-4" /> },
         ],
       },
     ];
@@ -219,13 +220,13 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const getRoleTag = () => {
     switch (sessionType) {
       case "COMPANY_OWNER":
-        return { tag: "OWN", label: "Dueño Holding", color: "from-red-dark to-red text-white" };
+        return { tag: "OWN", label: ta("roles.company_owner"), color: "from-red-dark to-red text-white" };
       case "COMPANY_ADMIN":
-        return { tag: "ADM", label: "Admin Corporativo", color: "from-blue-600 to-indigo-600 text-white" };
+        return { tag: "ADM", label: ta("roles.company_owner"), color: "from-blue-600 to-indigo-600 text-white" };
       case "BRANCH_MANAGER":
-        return { tag: "MGR", label: "Encargado Sucursal", color: "from-amber-600 to-orange-600 text-white" };
+        return { tag: "MGR", label: ta("roles.branch_manager"), color: "from-amber-600 to-orange-600 text-white" };
       case "CASHIER":
-        return { tag: "POS", label: "Cajero de Turno", color: "from-emerald-600 to-teal-600 text-white" };
+        return { tag: "POS", label: ta("roles.cashier"), color: "from-emerald-600 to-teal-600 text-white" };
       default:
         return { tag: "USR", label: "Usuario", color: "from-gray-700 to-gray-800 text-white" };
     }
@@ -277,7 +278,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                 className="group relative flex items-center gap-3 rounded-xl py-2 px-3 font-bold text-xs text-white/70 bg-white/[0.03] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
               >
                 <IconArrowLeft className="w-4 h-4 text-white/60 group-hover:text-red transition-colors" />
-                <span>Volver al Hub</span>
+                <span>{ta("items.back_to_hub")}</span>
               </Link>
             </div>
           )}
@@ -328,7 +329,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
             className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-red hover:bg-red/10 hover:border-red/30 transition-all border border-white/10"
           >
             <IconLogout className="w-4 h-4" />
-            <span>CERRAR SESIÓN</span>
+            <span>{ta("items.logout")}</span>
           </button>
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
             <div className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${roleInfo.color} flex items-center justify-center text-[10px] font-black shadow-md`}>

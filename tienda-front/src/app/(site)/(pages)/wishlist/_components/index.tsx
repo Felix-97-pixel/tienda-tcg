@@ -9,9 +9,11 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 import SingleItem from "./SingleItem";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 import { IconHeart, IconTrash, IconCart, IconCard, IconSparkles } from "@/components/ui/Icons";
 
 export const Wishlist = () => {
+  const t = useTranslations("wishlist");
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const reduxWishlistItems = useAppSelector((state) => state.wishlistReducer.items);
@@ -84,10 +86,10 @@ export const Wishlist = () => {
   );
 
   const handleClearWishlist = async () => {
-    if (window.confirm("¿Seguro que deseas vaciar tu lista de deseos?")) {
+    if (window.confirm(t("clear_confirm"))) {
       dispatch(removeAllItemsFromWishlist());
       setDbItems([]);
-      showToast("Se vació tu lista de deseos", "warning");
+      showToast(t("clear_toast"), "warning");
 
       if (isAuthenticated) {
         try {
@@ -106,7 +108,7 @@ export const Wishlist = () => {
 
   const handleAddAllInStockToCart = () => {
     if (inStockItems.length === 0) {
-      showToast("No hay cartas con stock disponible para agregar", "warning");
+      showToast(t("no_stock_toast"), "warning");
       return;
     }
 
@@ -140,12 +142,7 @@ export const Wishlist = () => {
       dispatch(addItemToCart(cartItem));
     });
 
-    showToast(
-      `¡Se agregaron ${inStockItems.length} ${
-        inStockItems.length === 1 ? "carta disponible" : "cartas disponibles"
-      } a tu carrito!`,
-      "success"
-    );
+    showToast(t("added_all_toast", { count: inStockItems.length }), "success");
   };
 
   return (
@@ -160,10 +157,10 @@ export const Wishlist = () => {
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
           <Link href="/shop" className="hover:text-white transition-colors flex items-center gap-1">
             <span>←</span>
-            <span>Catálogo Marketplace</span>
+            <span>{t("breadcrumb_catalog")}</span>
           </Link>
           <span>/</span>
-          <span className="text-white font-semibold">Lista de Deseos</span>
+          <span className="text-white font-semibold">{t("breadcrumb_wishlist")}</span>
         </div>
 
         {wishlistItems.length > 0 ? (
@@ -173,15 +170,13 @@ export const Wishlist = () => {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
                   <IconHeart className="w-3.5 h-3.5 text-red-400 fill-red-500/30 shrink-0" />
-                  <span>
-                    {totalItemsCount} {totalItemsCount === 1 ? "carta guardada" : "cartas guardadas"}
-                  </span>
+                  <span>{t("cards_saved", { count: totalItemsCount })}</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Tu Lista de Deseos (Wishlist)
+                  {t("title")}
                 </h1>
                 <p className="text-sm text-gray-400 mt-1 max-w-2xl leading-relaxed">
-                  Monitorea disponibilidad de stock y cotizaciones de tus cartas favoritas. Agrégalas directamente a tu carro en un solo clic.
+                  {t("desc")}
                 </p>
               </div>
 
@@ -198,7 +193,7 @@ export const Wishlist = () => {
                   }`}
                 >
                   <IconCart className="w-4 h-4" />
-                  <span>Mover Disponibles al Carro ({inStockCount})</span>
+                  <span>{t("move_available_btn", { count: inStockCount })}</span>
                 </button>
 
                 <button
@@ -207,7 +202,7 @@ export const Wishlist = () => {
                   className="px-3.5 py-2.5 rounded-xl text-xs text-gray-400 hover:text-red-400 transition-colors flex items-center gap-1.5 border border-white/5 hover:border-red-500/20 bg-white/[0.02]"
                 >
                   <IconTrash className="w-4 h-4" />
-                  <span>Vaciar Lista</span>
+                  <span>{t("clear_list_btn")}</span>
                 </button>
               </div>
             </div>
@@ -219,7 +214,7 @@ export const Wishlist = () => {
                   <IconCard className="w-5 h-5 text-gray-300" />
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-medium">Total de Cartas</div>
+                  <div className="text-xs text-gray-400 font-medium">{t("metric_total")}</div>
                   <div className="text-lg font-black text-white">{totalItemsCount}</div>
                 </div>
               </div>
@@ -229,8 +224,10 @@ export const Wishlist = () => {
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-medium">Disponibles en Stock</div>
-                  <div className="text-lg font-black text-emerald-400">{inStockCount} cartas</div>
+                  <div className="text-xs text-gray-400 font-medium">{t("metric_in_stock")}</div>
+                  <div className="text-lg font-black text-emerald-400">
+                    {t("metric_in_stock_val", { count: inStockCount })}
+                  </div>
                 </div>
               </div>
 
@@ -239,7 +236,7 @@ export const Wishlist = () => {
                   <IconSparkles className="w-5 h-5 text-red-400" />
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-medium">Valor Estimado</div>
+                  <div className="text-xs text-gray-400 font-medium">{t("metric_estimated_val")}</div>
                   <div className="text-lg font-mono font-bold text-white">
                     ${Math.round(totalEstimatedValue).toLocaleString("es-CL")}{" "}
                     <span className="text-xs text-gray-400 font-normal">CLP</span>
@@ -252,11 +249,11 @@ export const Wishlist = () => {
             <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden mb-8">
               {/* Desktop Column Headers */}
               <div className="hidden sm:grid grid-cols-12 gap-4 py-4 px-6 border-b border-white/10 bg-white/[0.02] text-xs font-bold uppercase tracking-wider text-gray-400">
-                <div className="col-span-5">Carta / Edición</div>
-                <div className="col-span-2 text-center">Juego</div>
-                <div className="col-span-2 text-center">Precio Unitario</div>
-                <div className="col-span-2 text-center">Disponibilidad</div>
-                <div className="col-span-1 text-right">Acción</div>
+                <div className="col-span-5">{t("th_card")}</div>
+                <div className="col-span-2 text-center">{t("th_game")}</div>
+                <div className="col-span-2 text-center">{t("th_unit_price")}</div>
+                <div className="col-span-2 text-center">{t("th_stock")}</div>
+                <div className="col-span-1 text-right">{t("th_action")}</div>
               </div>
 
               {/* Items Rows */}
@@ -280,23 +277,23 @@ export const Wishlist = () => {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
-              Tu Lista de Deseos está Vacía
+              {t("empty_title")}
             </h2>
             <p className="text-sm text-gray-400 max-w-lg mb-8 leading-relaxed">
-              Aún no has agregado cartas a tu wishlist. Explora nuestro catálogo de singles de Magic, Pokémon, One Piece y Yu-Gi-Oh! de tiendas de todo Chile y haz clic en el corazón para monitorearlas.
+              {t("empty_desc")}
             </p>
 
             <Link
               href="/shop"
               className="px-8 py-3.5 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 transition-all active:scale-95 flex items-center gap-2 mb-10"
             >
-              <span>Explorar Catálogo TCG</span>
+              <span>{t("explore_catalog")}</span>
               <span>→</span>
             </Link>
 
             {/* Quick Category Chips */}
             <div className="flex flex-wrap items-center justify-center gap-2.5 pt-6 border-t border-white/5 max-w-xl w-full">
-              <span className="text-xs text-gray-500 mr-2">Explorar por juego:</span>
+              <span className="text-xs text-gray-500 mr-2">{t("explore_by_game")}</span>
               <Link
                 href="/shop?category=magic"
                 className="text-xs text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg transition-colors"

@@ -8,6 +8,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import { IconShieldCheck, IconTrendingUp, IconZap } from "@/components/ui/Icons";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 
 export default function SignupForm() {
   const t = useTranslations("register");
@@ -175,6 +176,11 @@ export default function SignupForm() {
         {/* Glow de fondo decorativo */}
         <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
 
+        {/* Language selector in top right */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+          <LanguageSelector />
+        </div>
+
         <div className="w-full max-w-[460px] relative z-10">
           {/* Logo móvil */}
           <div className="lg:hidden flex items-center justify-between mb-8">
@@ -191,7 +197,7 @@ export default function SignupForm() {
               href="/"
               className="text-xs font-medium text-white/70 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10"
             >
-              ← Volver
+              {t("back_short")}
             </Link>
           </div>
 

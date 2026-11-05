@@ -15,52 +15,48 @@ export const metadata = {
 };
 
 export default async function AdminHub() {
-  const t = await getTranslations("dashboard");
+  const t = await getTranslations("admin.hub");
 
   const modules = [
     {
       href: "/admin/products",
-      title: "Módulo de Catálogo",
-      description:
-        "Administra tu inventario de singles y sellado, define precios, revisa tu buylist y sincroniza tus cartas TCG.",
+      title: t("catalog_title"),
+      description: t("catalog_desc"),
       icon: <IconBox className="w-8 h-8" size={32} />,
       color: "from-red-600 to-rose-700",
       shadow: "shadow-red/30",
       accentText: "text-red-light",
-      tag: "Cartas & Stock",
+      tag: t("catalog_tag"),
     },
     {
       href: "/admin/transactions",
-      title: "Transacciones & Ventas",
-      description:
-        "Monitorea tus ventas, compras de cartas (Cash y Crédito), cierres de caja, despachos y analítica del negocio.",
+      title: t("sales_title"),
+      description: t("sales_desc"),
       icon: <IconBarChart className="w-8 h-8" size={32} />,
       color: "from-emerald-600 to-teal-700",
       shadow: "shadow-emerald-900/30",
       accentText: "text-emerald-400",
-      tag: "Caja & Finanzas",
+      tag: t("sales_tag"),
     },
     {
       href: "/admin/profile",
-      title: "Módulo de Configuración",
-      description:
-        "Personaliza el perfil de tu tienda, métodos de envío, divisas de cobro, cupones y reglas de estado de cartas.",
+      title: t("settings_title"),
+      description: t("settings_desc"),
       icon: <IconSettings className="w-8 h-8" size={32} />,
       color: "from-amber-500 to-orange-600",
       shadow: "shadow-amber-900/30",
       accentText: "text-amber-400",
-      tag: "Ajustes & Envíos",
+      tag: t("settings_tag"),
     },
     {
       href: "/admin/pos",
-      title: "Punto de Venta (POS)",
-      description:
-        "Caja registradora para tu local físico, escáner de códigos de barra, compra/venta de cartas singles y cuadratura.",
+      title: t("pos_title"),
+      description: t("pos_desc"),
       icon: <IconPos className="w-8 h-8" size={32} />,
       color: "from-blue-600 to-indigo-700",
       shadow: "shadow-blue-900/30",
       accentText: "text-blue-400",
-      tag: "Venta en Mostrador",
+      tag: t("pos_tag"),
     },
   ];
 
@@ -72,19 +68,19 @@ export default async function AdminHub() {
           className="group flex items-center gap-2 rounded-xl py-2 px-4 font-bold text-xs text-white/70 bg-white/[0.04] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
         >
           <IconArrowLeft className="w-4 h-4 text-white/50 group-hover:text-red transition-colors" />
-          Volver a la Tienda
+          {t("back_to_shop")}
         </Link>
       </div>
 
       <div className="text-center mb-12 max-w-2xl mt-12">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red/10 border border-red/20 text-red text-xs font-black tracking-widest uppercase mb-4 shadow-sm">
-          <span>TapTrade Store Admin</span>
+          <span>{t("badge")}</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
-          Centro de Control
+          {t("title")}
         </h1>
         <p className="text-base md:text-lg text-white/60 leading-relaxed">
-          Bienvenido a tu panel de administración. Selecciona un módulo para gestionar tu catálogo, ventas o configuración.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -121,7 +117,7 @@ export default async function AdminHub() {
 
             <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-xs font-black text-white uppercase tracking-wider">
               <span className={`group-hover:${mod.accentText} transition-colors`}>
-                Ingresar al Módulo
+                {t("enter_module")}
               </span>
               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-red group-hover:border-red text-white transition-all duration-300 group-hover:translate-x-1">
                 <IconArrowLeft className="w-4 h-4 rotate-180" />

@@ -36,6 +36,7 @@ export default function TcgProductCard({
   const isAuthenticated = useAppSelector((state: any) => state.authReducer?.isAuthenticated);
   const { showToast } = useToast();
   const tw = useTranslations("wishlist");
+  const t = useTranslations("shop");
 
   const [isAdding, setIsAdding] = useState(false);
 
@@ -235,7 +236,7 @@ export default function TcgProductCard({
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/art:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-10">
             <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E10E0E] text-white shadow-lg tracking-wide flex items-center gap-1.5">
               <IconStore className="w-3.5 h-3.5 text-white shrink-0" />
-              <span>Ver Tiendas</span>
+              <span>{t("view_stores")}</span>
             </span>
           </div>
 
@@ -243,7 +244,7 @@ export default function TcgProductCard({
             <div className="absolute top-2 left-2 z-20">
               <span className="px-2 py-0.5 rounded-md bg-black/85 backdrop-blur-md border border-white/20 text-gray-200 font-bold text-[10px] tracking-wider uppercase shadow-lg flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                Agotado
+                {t("outOfStock")}
               </span>
             </div>
           )}
@@ -255,7 +256,7 @@ export default function TcgProductCard({
         <div>
           {/* Expansion / Set Name */}
           <p className="text-[11px] font-medium text-gray-400 truncate mb-0.5">
-            {item.cardDetail?.expansionName || item.category?.name || "Colección TCG"}
+            {item.cardDetail?.expansionName || item.category?.name || t("tcg_collection")}
           </p>
 
           {/* Card Name */}
@@ -287,28 +288,29 @@ export default function TcgProductCard({
                 formatPrice(price, currency)
               ) : item.marketPrices?.[0]?.price ? (
                 <span className="text-xs text-gray-400 font-normal">
-                  Ref: <span className="text-gray-200 font-bold font-mono">{formatPrice(Number(item.marketPrices[0].price), currency)}</span>
+                  {t("price_ref")}{" "}
+                  <span className="text-gray-200 font-bold font-mono">{formatPrice(Number(item.marketPrices[0].price), currency)}</span>
                 </span>
               ) : (
-                <span className="text-xs text-gray-400 font-normal">Sin stock</span>
+                <span className="text-xs text-gray-400 font-normal">{t("outOfStock")}</span>
               )}
             </div>
             {!storeId && storeCount > 1 ? (
-              <span className="text-[10px] font-medium text-emerald-400 flex items-center gap-1 mt-0.5 truncate" title={`Disponible en ${storeCount} tiendas`}>
+              <span className="text-[10px] font-medium text-emerald-400 flex items-center gap-1 mt-0.5 truncate" title={t("stores_available", { count: storeCount })}>
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                {storeCount} tiendas disp.
+                {t("stores_available", { count: storeCount })}
               </span>
             ) : !storeId && storeCount === 1 && storeName ? (
-              <span className="text-[10px] text-gray-400 truncate block mt-0.5" title={`Vendido por ${storeName}`}>
+              <span className="text-[10px] text-gray-400 truncate block mt-0.5" title={t("sold_by", { name: storeName })}>
                 {storeName}
               </span>
             ) : stock > 0 && stock <= 3 ? (
               <span className="text-[10px] font-medium text-amber-400/90 flex items-center gap-1 mt-0.5">
-                ¡Solo {stock} disp.!
+                {t("only_stock_left", { count: stock })}
               </span>
             ) : isOutOfStock ? (
               <span className="text-[10px] font-medium text-gray-400 block mt-0.5">
-                Agotado en tiendas
+                {t("out_of_stock_stores")}
               </span>
             ) : null}
           </div>
@@ -319,8 +321,8 @@ export default function TcgProductCard({
               <button
                 type="button"
                 onClick={handleToggleWishlist}
-                aria-label={isWishlisted ? "Quitar de la lista de deseos" : "Agregar a la lista de deseos"}
-                title={isWishlisted ? "En tu lista de deseos" : "Guardar en lista de deseos"}
+                aria-label={isWishlisted ? t("remove_from_wishlist") : t("add_to_wishlist")}
+                title={isWishlisted ? t("in_wishlist") : t("add_to_wishlist")}
                 className={`h-8 px-2.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 border ${
                   isWishlisted
                     ? "bg-red-500/15 border-red-500/40 text-red-400 shadow-sm shadow-red-500/20 active:scale-95"
@@ -332,7 +334,7 @@ export default function TcgProductCard({
                     isWishlisted ? "fill-current text-red-500 scale-110" : ""
                   }`}
                 />
-                <span className="text-[11px] font-bold">{isWishlisted ? "En Wishlist" : "Wishlist"}</span>
+                <span className="text-[11px] font-bold">{isWishlisted ? t("in_wishlist") : "Wishlist"}</span>
               </button>
             ) : (
               <>
@@ -340,8 +342,8 @@ export default function TcgProductCard({
                 <button
                   type="button"
                   onClick={handleToggleWishlist}
-                  aria-label={isWishlisted ? "Quitar de la lista de deseos" : "Agregar a la lista de deseos"}
-                  title={isWishlisted ? "En tu lista de deseos" : "Guardar en lista de deseos"}
+                  aria-label={isWishlisted ? t("remove_from_wishlist") : t("add_to_wishlist")}
+                  title={isWishlisted ? t("in_wishlist") : t("add_to_wishlist")}
                   className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 border ${
                     isWishlisted
                       ? "bg-red-500/15 border-red-500/40 text-red-500 shadow-sm shadow-red-500/20 active:scale-95"
@@ -360,8 +362,8 @@ export default function TcgProductCard({
                   type="button"
                   onClick={handleAdd}
                   disabled={isAdding}
-                  aria-label={`Añadir ${item.title || item.name} al carrito`}
-                  title={isAdding ? "¡Agregado al carrito!" : "Añadir al carrito"}
+                  aria-label={t("add_to_cart_aria", { title: item.title || item.name })}
+                  title={isAdding ? t("added_to_cart") : t("addToCart")}
                   className={`w-8 h-8 rounded-lg font-bold transition-all duration-200 flex items-center justify-center ${
                     isAdding
                       ? "bg-[#059669] text-white scale-95 shadow-md shadow-[#059669]/25"

@@ -34,5 +34,13 @@
   "refresh": "Refresh",
   "back": "Back",
   "seeMore": "See more",
-  "currency": "CLP"
+  "currency": "CLP",
+  "mail_success": {
+    "title": "Successful!",
+    "subtitle": "Your message was sent successfully",
+    "desc": "Thank you so much for your message. We check inquiries frequently and will reply as soon as possible.",
+    "back_to_home": "Back to Home",
+    "breadcrumb_title": "Message Sent",
+    "breadcrumb_page": "Success"
+  }
 }

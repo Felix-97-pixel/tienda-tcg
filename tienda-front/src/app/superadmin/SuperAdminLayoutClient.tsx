@@ -10,6 +10,7 @@ import SuperAdminGuard from "@/app/superadmin/_components/SuperAdminGuard";
 import { ReduxProvider } from "@/redux/provider";
 import ToastContainer from "@/components/layout/ToastContainer";
 import { useAppSelector } from "@/redux/store";
+import { useTranslations } from "next-intl";
 import LanguageSelector from "@/components/ui/LanguageSelector";
 import {
   IconStore,
@@ -58,43 +59,44 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
     router.push("/admin/login");
   };
 
+  const ts = useTranslations("superadmin");
   const { user } = useAppSelector((state) => state.adminAuthReducer) || { user: null };
 
   const sections: NavSection[] = [
     {
-      title: "Gestión Comercial",
+      title: ts("sections.commercial"),
       items: [
-        { path: "/superadmin/stores", label: "Empresas & Sucursales", icon: <IconStore className="w-4 h-4" /> },
-        { path: "/superadmin/payouts", label: "Payouts (Liquidaciones)", icon: <IconWallet className="w-4 h-4" /> },
-        { path: "/superadmin/accounting", label: "Contabilidad & SII", icon: <IconCoins className="w-4 h-4" /> },
+        { path: "/superadmin/stores", label: ts("items.companies_branches"), icon: <IconStore className="w-4 h-4" /> },
+        { path: "/superadmin/payouts", label: ts("items.payouts"), icon: <IconWallet className="w-4 h-4" /> },
+        { path: "/superadmin/accounting", label: ts("items.accounting_sii"), icon: <IconCoins className="w-4 h-4" /> },
       ],
     },
     {
-      title: "Catálogo Maestro",
+      title: ts("sections.master_catalog"),
       items: [
-        { path: "/superadmin/products", label: "Productos Globales", icon: <IconCard className="w-4 h-4" /> },
-        { path: "/superadmin/categories", label: "Categorías", icon: <IconTag className="w-4 h-4" /> },
-        { path: "/superadmin/brands", label: "Marcas", icon: <IconSliders className="w-4 h-4" /> },
+        { path: "/superadmin/products", label: ts("items.global_products"), icon: <IconCard className="w-4 h-4" /> },
+        { path: "/superadmin/categories", label: ts("items.categories"), icon: <IconTag className="w-4 h-4" /> },
+        { path: "/superadmin/brands", label: ts("items.brands"), icon: <IconSliders className="w-4 h-4" /> },
       ],
     },
     {
-      title: "Sincronización TCG",
+      title: ts("sections.tcg_sync"),
       items: [
-        { path: "/superadmin/sync/magic", label: "Magic: The Gathering", icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/pokemon", label: "Pokémon TCG", icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/riftbound", label: "Riftbound TCG", icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/backups", label: "Backups CSV", icon: <IconDownload className="w-4 h-4" /> },
+        { path: "/superadmin/sync/magic", label: ts("items.sync_magic"), icon: <IconZap className="w-4 h-4" /> },
+        { path: "/superadmin/sync/pokemon", label: ts("items.sync_pokemon"), icon: <IconZap className="w-4 h-4" /> },
+        { path: "/superadmin/sync/riftbound", label: ts("items.sync_riftbound"), icon: <IconZap className="w-4 h-4" /> },
+        { path: "/superadmin/sync/backups", label: ts("items.sync_backups"), icon: <IconDownload className="w-4 h-4" /> },
       ],
     },
     {
-      title: "Configuración Sistema",
+      title: ts("sections.system_config"),
       items: [
-        { path: "/superadmin/config/plans", label: "Planes de Suscripción (SaaS)", icon: <IconTicket className="w-4 h-4" /> },
-        { path: "/superadmin/config/expansions", label: "Mapeo de Expansiones", icon: <IconSliders className="w-4 h-4" /> },
-        { path: "/superadmin/config/sync", label: "Destinos de Sincronización", icon: <IconSliders className="w-4 h-4" /> },
-        { path: "/superadmin/config/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
-        { path: "/superadmin/config/currencies", label: "Divisas & Tasas", icon: <IconCoins className="w-4 h-4" /> },
-        { path: "/superadmin/config/locations", label: "Regiones y Comunas", icon: <IconMapPin className="w-4 h-4" /> },
+        { path: "/superadmin/config/plans", label: ts("items.config_plans"), icon: <IconTicket className="w-4 h-4" /> },
+        { path: "/superadmin/config/expansions", label: ts("items.config_expansions"), icon: <IconSliders className="w-4 h-4" /> },
+        { path: "/superadmin/config/sync", label: ts("items.config_sync"), icon: <IconSliders className="w-4 h-4" /> },
+        { path: "/superadmin/config/games", label: ts("items.config_games"), icon: <IconGamepad className="w-4 h-4" /> },
+        { path: "/superadmin/config/currencies", label: ts("items.config_currencies"), icon: <IconCoins className="w-4 h-4" /> },
+        { path: "/superadmin/config/locations", label: ts("items.config_locations"), icon: <IconMapPin className="w-4 h-4" /> },
       ],
     },
   ];
@@ -116,7 +118,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
           />
         )}
 
-        {/* SIDEBAR PARA SUPER ADMIN (Permanente y categorizada) */}
+        {/* SIDEBAR PARA {ts("items.badge")} (Permanente y categorizada) */}
         {!isHub && (
           <aside
             className={`fixed inset-y-0 left-0 z-50 flex h-full w-72 max-w-[85vw] flex-col overflow-y-hidden bg-[#0B0E17] border-r border-white/10 duration-300 ease-in-out lg:static lg:translate-x-0 ${
@@ -141,7 +143,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 lg:hidden transition-colors"
-                aria-label="Cerrar barra lateral"
+                aria-label="Close sidebar"
               >
                 <IconX className="w-5 h-5" />
               </button>
@@ -157,7 +159,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                   className="group relative flex items-center gap-3 rounded-xl py-2 px-3 font-bold text-xs text-white/70 bg-white/[0.03] border border-white/10 hover:border-red/40 hover:bg-red/10 hover:text-white transition-all duration-200 shadow-sm"
                 >
                   <IconArrowLeft className="w-4 h-4 text-white/60 group-hover:text-red transition-colors" />
-                  <span>Volver al Hub</span>
+                  <span>{ts("items.back_to_shop")}</span>
                 </Link>
               </div>
 
@@ -208,7 +210,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                 className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-red hover:bg-red/10 hover:border-red/30 transition-all border border-white/10"
               >
                 <IconLogout className="w-4 h-4" />
-                <span>CERRAR SESIÓN</span>
+                <span>{ts("items.logout")}</span>
               </button>
               <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-red-dark to-red flex items-center justify-center text-[10px] font-black text-white shadow-md shadow-red/20">
@@ -250,7 +252,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                   <div className="text-right hidden sm:block">
                     <span className="block text-xs font-black text-white">{user?.name || "Félix (Super Admin)"}</span>
                     <span className="inline-block text-[9px] font-black text-red uppercase tracking-widest px-2 py-0.5 rounded-full bg-red/10 border border-red/20">
-                      SUPER ADMIN
+                      {ts("items.badge")}
                     </span>
                   </div>
                   <Link
@@ -258,7 +260,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                     className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 hover:border-red/40 hover:bg-red/10 text-xs font-bold text-white/70 hover:text-white transition-all"
                   >
                     <IconArrowLeft className="w-3.5 h-3.5" />
-                    <span>Volver al Menú</span>
+                    <span>{ts("items.back_to_shop")}</span>
                   </Link>
                 </div>
               </div>

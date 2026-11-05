@@ -5,5 +5,10 @@
   "not_found": "The requested resource was not found.",
   "invalid_input": "Please check the entered fields.",
   "buylist_min_price": "You must enter a cash or credit price greater than 0",
-  "buylist_select_required": "You must select at least one language and one condition with checkboxes"
+  "buylist_select_required": "You must select at least one language and one condition with checkboxes",
+  "not_found_title": "Sorry, the page can’t be found",
+  "not_found_desc": "The page you were looking for appears to have been moved, deleted or does not exist.",
+  "back_to_home": "Back to Home",
+  "breadcrumb_title": "404 Error",
+  "breadcrumb_page": "Page Not Found"
 }

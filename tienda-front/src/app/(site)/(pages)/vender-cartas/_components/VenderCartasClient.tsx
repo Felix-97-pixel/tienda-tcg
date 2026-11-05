@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import SearchableSelect from "@/components/ui/SearchableSelect";
-import { IconZap, IconSearch, IconCash, IconGem, IconFilter } from "@/components/ui/Icons";
+import { IconZap, IconSearch, IconCash, IconGem, IconFilter, IconArrowRight, IconStore, IconCoins, IconChevronRight } from "@/components/ui/Icons";
 import { fetchCachedConditions, fetchCachedLanguages } from "@/utils/metadataCache";
 import { useTranslations } from "next-intl";
 
@@ -442,7 +442,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
                   : "!border-white/10 !text-gray-300 hover:!border-white/20"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
-              noResultsText="Tienda no encontrada"
+              noResultsText={t("filters.no_store_found")}
             />
           </div>
 
@@ -458,7 +458,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
                   : "!border-white/10 !text-gray-300 hover:!border-white/20"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
-              noResultsText="Juego no encontrado"
+              noResultsText={t("filters.no_game_found")}
             />
           </div>
 
@@ -474,7 +474,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
                   : "!border-white/10 !text-gray-300 hover:!border-white/20"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
-              noResultsText="Idioma no encontrado"
+              noResultsText={t("filters.no_language_found")}
             />
           </div>
 
@@ -490,7 +490,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
                   : "!border-white/10 !text-gray-300 hover:!border-white/20"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
-              noResultsText="Estado no encontrado"
+              noResultsText={t("filters.no_condition_found")}
             />
           </div>
 
@@ -506,7 +506,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
                   : "!border-white/10 !text-gray-300 hover:!border-white/20"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
-              noResultsText="Opción no encontrada"
+              noResultsText={t("filters.no_option_found")}
             />
           </div>
         </div>
@@ -765,9 +765,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   className="mt-4 w-full h-11 rounded-xl font-black text-xs uppercase tracking-wider bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0A0D14] flex items-center justify-center gap-2 shadow-lg shadow-[#F59E0B]/25 active:scale-[0.98] transition-all border border-amber-300/40 cursor-pointer"
                 >
                   <span>{t("item_card.offer_to", { storeName: item.store.name })}</span>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
+                  <IconChevronRight className="w-3.5 h-3.5 text-current" />
                 </button>
               </div>
             );
@@ -786,58 +784,52 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/30 mb-5">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-red-400">
-              Para Tiendas y Negocios TCG en Chile
+              {t("b2b_banner.badge")}
             </span>
           </div>
 
           {/* Headline */}
           <h3 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4 leading-tight">
-            ¿Tienes una tienda TCG?{" "}
+            {t("b2b_banner.title_prefix")}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-400">
-              Contrata TapTrade y escala tus ventas
+              {t("b2b_banner.title_highlight")}
             </span>
           </h3>
 
           {/* Persuasive Hook Description */}
           <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-8 max-w-2xl mx-auto font-normal">
-            Activa tu propio <strong className="text-white">Motor de Buylist automatizado</strong> para comprar singles a jugadores en efectivo o saldo digital, sincroniza catálogos completos en 1 clic y vende en tu propia vitrina online con <strong className="text-emerald-400">0% de comisión por transacción</strong>.
+            {t("b2b_banner.description")}
           </p>
 
           {/* Value Highlights */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
             <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <IconCoins className="w-4 h-4 text-red-400" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">0% Comisión</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">Tus ventas son 100% tuyas bajo suscripción fija mensual.</p>
+                <h4 className="text-xs font-bold text-white">{t("b2b_banner.feature_commission_title")}</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5">{t("b2b_banner.feature_commission_desc")}</p>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <IconZap className="w-4 h-4 text-amber-400" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">Buylist Inteligente</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">Devaluaciones automáticas por estado e idioma en tiempo real.</p>
+                <h4 className="text-xs font-bold text-white">{t("b2b_banner.feature_buylist_title")}</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5">{t("b2b_banner.feature_buylist_desc")}</p>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+                <IconStore className="w-4 h-4 text-blue-400" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">Vitrina Exclusiva</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">Subdominio propio para tu tienda + presencia en el catálogo global.</p>
+                <h4 className="text-xs font-bold text-white">{t("b2b_banner.feature_storefront_title")}</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5">{t("b2b_banner.feature_storefront_desc")}</p>
               </div>
             </div>
           </div>
@@ -848,23 +840,21 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               href="/landing#for-stores"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-extrabold text-sm shadow-xl shadow-red-600/30 hover:shadow-red-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              <span>Conoce los Planes y Únete a TapTrade</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
+              <span>{t("b2b_banner.cta_plans")}</span>
+              <IconArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
               href="/admin/buylist"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 hover:text-white font-semibold text-xs border border-white/10 hover:border-white/20 transition-all"
             >
-              <span>¿Ya tienes tienda? Ir al panel de Buylist</span>
+              <span>{t("b2b_banner.cta_already_seller")}</span>
             </Link>
           </div>
 
           {/* Reassurance Micro-copy */}
           <p className="text-xs text-gray-400 mt-5 font-mono">
-            Suscripción mensual transparente • Sin comisiones por venta • Pagos y envíos integrados
+            {t("b2b_banner.reassurance")}
           </p>
         </div>
       </div>

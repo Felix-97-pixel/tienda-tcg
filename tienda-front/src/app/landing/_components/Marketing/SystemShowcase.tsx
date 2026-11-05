@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   IconBox,
   IconPosTerminal,
@@ -11,15 +12,10 @@ import {
   IconLock,
   IconZap,
   IconCheckCircle,
-  IconBarcode,
-  IconWifiOff,
-  IconCreditCard,
-  IconSparkles,
-  IconRefresh,
   IconShieldCheck,
   IconStore,
   IconReceipt,
-  IconCamera,
+  IconSparkles,
 } from "@/components/ui/Icons";
 
 interface ShowcaseTab {
@@ -50,289 +46,284 @@ interface ShowcaseTab {
   }[];
 }
 
-const SHOWCASE_TABS: ShowcaseTab[] = [
-  {
-    id: "inventory",
-    title: "Inventario Inteligente TCG",
-    shortLabel: "Inventario & Catálogo",
-    badge: "Sincronización Scryfall",
-    headline: "Publica miles de cartas en minutos sin ingresar fotos ni textos a mano",
-    description:
-      "Conéctate directamente a las bases de datos oficiales de Magic, Pokémon y Riftbound. Importa sets enteros, gestiona variantes Foil, idiomas, condición y aplica multiplicadores de tipo de cambio USD a CLP en un solo clic.",
-    imageSrc: "/images/showcase/showcase-inventory.png",
-    simulatedUrl: "taptrade.cl/admin/products",
-    glowColor: "from-blue-600/20 via-indigo-600/10 to-transparent",
-    accentBadgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    features: [
-      {
-        title: "Importación Masiva en 1 Clic",
-        description: "Busca cartas por nombre o expansión e importa arte oficial en alta resolución y reglas.",
-      },
-      {
-        title: "Multi-Variantes & Foils",
-        description: "Diferencia automáticamente ediciones regulares, acabados Foil, idiomas y rarezas.",
-      },
-      {
-        title: "Control de Stock Unificado",
-        description: "El stock físico de tu tienda y tu vitrina web se actualizan al instante en cada venta.",
-      },
-    ],
-    floatingHighlights: [
-      {
-        top: "16%",
-        left: "24%",
-        label: "Sync Oficial Scryfall",
-        sublabel: "Metadata y arte HD automático",
-      },
-      {
-        top: "44%",
-        right: "8%",
-        label: "Badges de Foil & Idioma",
-        sublabel: "Filtros precisos para coleccionistas",
-      },
-    ],
-    metrics: [
-      { value: "< 2s", label: "Tiempo de importación por carta" },
-      { value: "100%", label: "Imágenes oficiales en alta resolución" },
-      { value: "0 Errores", label: "Sincronización de stock en tiempo real" },
-    ],
-  },
-  {
-    id: "pos",
-    title: "Punto de Venta Físico (POS)",
-    shortLabel: "POS Mostrador",
-    badge: "100% Offline-First",
-    headline: "Atiende a toda velocidad en mostrador, incluso si se corta internet",
-    description:
-      "Terminal de caja optimizado para tiendas TCG. Compatible con lectores de código de barras USB, atajos de teclado [F2]/[F10], control de turnos, arqueo ciego e impresión de tickets térmicos sin comisiones extra.",
-    imageSrc: "/images/showcase/showcase-pos.png",
-    simulatedUrl: "taptrade.cl/admin/pos",
-    glowColor: "from-red-600/20 via-rose-600/10 to-transparent",
-    accentBadgeColor: "bg-red-500/20 text-[#FF5555] border-red-500/30",
-    features: [
-      {
-        title: "Cero Caídas con IndexedDB",
-        description: "Continúa cobrando en torneos o cortes de luz; todo se sincroniza al restablecerse la red.",
-      },
-      {
-        title: "Lectores de Código de Barras",
-        description: "Escanea sleeves, binders o singles etiquetados con pistola USB estándar en milisegundos.",
-      },
-      {
-        title: "Arqueo de Turnos & Caja Chica",
-        description: "Apertura con fondo inicial, retiro de efectivo, conteo ciego y reportes X/Z automáticos.",
-      },
-    ],
-    floatingHighlights: [
-      {
-        top: "22%",
-        left: "30%",
-        label: "IndexedDB Local",
-        sublabel: "Opera sin internet a <5ms",
-      },
-      {
-        top: "52%",
-        right: "12%",
-        label: "Cobro Ultra-Rápido [F10]",
-        sublabel: "Efectivo, Débito o Crédito en Tienda",
-      },
-    ],
-    metrics: [
-      { value: "0%", label: "Comisión extra por venta en local" },
-      { value: "< 5ms", label: "Respuesta táctil y búsqueda local" },
-      { value: "80/58mm", label: "Compatibilidad impresoras térmicas" },
-    ],
-  },
-  {
-    id: "buylist",
-    title: "Motor de Buylist Inteligente",
-    shortLabel: "Motor de Buylist",
-    badge: "Compra Automatizada",
-    headline: "Compra cartas a tus clientes con cálculo de devaluación en vivo",
-    description:
-      "Permite a los jugadores ofrecerte sus cartas a través de tu vitrina. Configura tus porcentajes de compra según rareza y estado (NM a Damaged) y liquida en efectivo o con saldo de crédito en tu tienda.",
-    imageSrc: "/images/showcase/showcase-buylist.png",
-    simulatedUrl: "taptrade.cl/admin/buylist",
-    glowColor: "from-amber-500/20 via-yellow-600/10 to-transparent",
-    accentBadgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-    features: [
-      {
-        title: "Devaluación Graduada Dinámica",
-        description: "Ajuste automático de precios según condición (NM, LP, MP, HP, Damaged) e idioma.",
-      },
-      {
-        title: "Billetera de Crédito en Tienda",
-        description: "Incentiva a los clientes a aceptar saldo digital con bonificaciones de recompensa.",
-      },
-      {
-        title: "Recepción & Verificación Rápida",
-        description: "Revisa los lotes entregados por los clientes en mostrador y aprueba cotizaciones con 1 clic.",
-      },
-    ],
-    floatingHighlights: [
-      {
-        top: "20%",
-        left: "22%",
-        label: "Grading TCG Automático",
-        sublabel: "Multiplicadores por estado NM/LP/MP",
-      },
-      {
-        top: "48%",
-        right: "14%",
-        label: "Store Credit Integrado",
-        sublabel: "Retiene el capital dentro de tu tienda",
-      },
-    ],
-    metrics: [
-      { value: "+35%", label: "Aumento en rotación de inventario" },
-      { value: "100%", label: "Control de márgenes de compra" },
-      { value: "Directo", label: "Acreditación instantánea de saldo" },
-    ],
-  },
-  {
-    id: "dashboard",
-    title: "Métricas & Analítica en Vivo",
-    shortLabel: "Métricas & KPIs",
-    badge: "Analítica Avanzada",
-    headline: "KPIs de inventario activo, rotación, dead stock y evolución de ventas",
-    description:
-      "Panel de control para supervisar el rendimiento de tu catálogo y productos. Gráficos de facturación por mes, alertas automáticas de bajo stock, top 10 cartas más vendidas y soporte multi-sucursal con trazabilidad total.",
-    imageSrc: "/images/showcase/showcase-dashboard.png",
-    simulatedUrl: "taptrade.cl/admin/sales",
-    glowColor: "from-purple-600/20 via-pink-600/10 to-transparent",
-    accentBadgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    features: [
-      {
-        title: "KPIs de Inventario & Dead Stock",
-        description: "Valoración de inventario activo en CLP y alertas de cartas estancadas para activar promociones.",
-      },
-      {
-        title: "Top Productos & Alertas de Stock",
-        description: "Ranking de cartas más demandadas y notificaciones cuando quedan pocas unidades de staples.",
-      },
-      {
-        title: "Soporte Multi-Sucursal",
-        description: "Identificación de Casa Matriz y sucursales con cajas e inventarios independientes.",
-      },
-    ],
-    floatingHighlights: [
-      {
-        top: "22%",
-        left: "26%",
-        label: "Valor de Inventario Activo",
-        sublabel: "Auditoría en tiempo real del stock",
-      },
-      {
-        top: "48%",
-        right: "12%",
-        label: "Evolución de Ingresos",
-        sublabel: "Gráfico histórico de facturación",
-      },
-    ],
-    metrics: [
-      { value: "En Vivo", label: "Actualización de KPIs y alertas" },
-      { value: "Top 10", label: "Ranking de productos más vendidos" },
-      { value: "100%", label: "Trazabilidad multi-sucursal" },
-    ],
-  },
-  {
-    id: "shield",
-    title: "TapTrade Shield & Despachos Inteligentes",
-    shortLabel: "TapTrade Shield",
-    badge: "Antifraude & Custodia",
-    headline: "Protección blindada en cada despacho y fondos en custodia liberados en vivo",
-    description:
-      "El protocolo que elimina estafas de cartas cambiadas o reclamos de paquetes vacíos. Registro de 3 fotos de empaque con compresión WebP, validación en tiempo real con Starken y Chilexpress, y exigencia de video continuo de unboxing para compradores en órdenes de valor.",
-    imageSrc: "/images/showcase/showcase-shield.png",
-    simulatedUrl: "taptrade.cl/admin/orders/dispatch",
-    glowColor: "from-emerald-600/20 via-teal-600/10 to-transparent",
-    accentBadgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    features: [
-      {
-        title: "Evidencia de 3 Fotos en Empaque",
-        description: "Cartas sobre comanda, protección rígida y paquete sellado con la etiqueta de transporte sobre el cierre.",
-      },
-      {
-        title: "Custodia Escrow Inteligente",
-        description: "Los fondos del comprador se retienen de forma segura y se liberan automáticamente al validar el tracking oficial.",
-      },
-      {
-        title: "Línea de Tiempo Courier en Vivo",
-        description: "Seguimiento minuto a minuto de Starken, Chilexpress y Correos de Chile dentro del detalle del pedido.",
-      },
-    ],
-    floatingHighlights: [
-      {
-        top: "20%",
-        left: "22%",
-        label: "Blindaje de Empaque 3x",
-        sublabel: "Cero reclamos por cartas falsas o cambiadas",
-      },
-      {
-        top: "48%",
-        right: "10%",
-        label: "Liberación Atómica de Fondos",
-        sublabel: "Dinero disponible al despachar con guía oficial",
-      },
-    ],
-    metrics: [
-      { value: "3 Fotos", label: "Protocolo obligatorio sobre $20k" },
-      { value: "100%", label: "Validación de tracking oficial" },
-      { value: "0 Riesgo", label: "Blindaje antifraude probado" },
-    ],
-  },
-  {
-    id: "accounting",
-    title: "Liquidaciones F29 & Contabilidad Tributaria",
-    shortLabel: "Contabilidad F29",
-    badge: "Cuadratura SII",
-    headline: "Cifras consolidadas listas para el Formulario F29 de tu contador",
-    description:
-      "Cuadratura automática de ventas de tu tienda para declarar ante el SII. Desglose transparente de tus ventas brutas con débito fiscal, la factura de comisión emitida por TapTrade (crédito fiscal para ti) y retiros bancarios directos por TEF a la cuenta corriente de tu empresa.",
-    imageSrc: "/images/showcase/showcase-accounting.png",
-    simulatedUrl: "taptrade.cl/admin/finances/f29",
-    glowColor: "from-cyan-600/20 via-blue-600/10 to-transparent",
-    accentBadgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-    features: [
-      {
-        title: "Cuadratura F29 Consolidada",
-        description: "Total de ventas brutas e IVA débito fiscal de tu negocio en el mes sin sumar boleta por boleta.",
-      },
-      {
-        title: "Factura Limpia por Comisión",
-        description: "TapTrade no duplica impuestos en tus cartas; factura únicamente su comisión como gasto y crédito fiscal.",
-      },
-      {
-        title: "Retiros TEF a Cuenta Empresa",
-        description: "Transferencia directa de tus fondos disponibles a la cuenta bancaria de tu empresa sin cobros ocultos.",
-      },
-    ],
-    floatingHighlights: [
-      {
-        top: "20%",
-        left: "25%",
-        label: "Débito Fiscal Consolidado",
-        sublabel: "Total listo para el casillero de tu F29",
-      },
-      {
-        top: "48%",
-        right: "12%",
-        label: "Retiro TEF Bancario",
-        sublabel: "Transferencia a cuenta de tu empresa",
-      },
-    ],
-    metrics: [
-      { value: "19% IVA", label: "Desglose claro sin doble tributación" },
-      { value: "1 Clic", label: "Reporte mensual para tu contador" },
-      { value: "TEF Directo", label: "Depósitos a tu cuenta bancaria" },
-    ],
-  }
-];
-
 export default function SystemShowcase() {
+  const t = useTranslations("landing.showcase");
   const [activeTabId, setActiveTabId] = useState<ShowcaseTab["id"]>("inventory");
 
-  const activeTab = SHOWCASE_TABS.find((t) => t.id === activeTabId) || SHOWCASE_TABS[0];
+  const showcaseTabs: ShowcaseTab[] = [
+    {
+      id: "inventory",
+      title: t("tabs.inventory.title"),
+      shortLabel: t("tabs.inventory.shortLabel"),
+      badge: t("tabs.inventory.badge"),
+      headline: t("tabs.inventory.headline"),
+      description: t("tabs.inventory.desc"),
+      imageSrc: "/images/showcase/showcase-inventory.png",
+      simulatedUrl: "taptrade.cl/admin/products",
+      glowColor: "from-blue-600/20 via-indigo-600/10 to-transparent",
+      accentBadgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      features: [
+        {
+          title: t("tabs.inventory.f1_title"),
+          description: t("tabs.inventory.f1_desc"),
+        },
+        {
+          title: t("tabs.inventory.f2_title"),
+          description: t("tabs.inventory.f2_desc"),
+        },
+        {
+          title: t("tabs.inventory.f3_title"),
+          description: t("tabs.inventory.f3_desc"),
+        },
+      ],
+      floatingHighlights: [
+        {
+          top: "16%",
+          left: "24%",
+          label: "Sync Oficial Scryfall",
+          sublabel: "Metadata y arte HD automático",
+        },
+        {
+          top: "44%",
+          right: "8%",
+          label: "Badges de Foil & Idioma",
+          sublabel: "Filtros precisos para coleccionistas",
+        },
+      ],
+      metrics: [
+        { value: t("tabs.inventory.m1_val"), label: t("tabs.inventory.m1_lbl") },
+        { value: t("tabs.inventory.m2_val"), label: t("tabs.inventory.m2_lbl") },
+        { value: t("tabs.inventory.m3_val"), label: t("tabs.inventory.m3_lbl") },
+      ],
+    },
+    {
+      id: "pos",
+      title: t("tabs.pos.title"),
+      shortLabel: t("tabs.pos.shortLabel"),
+      badge: t("tabs.pos.badge"),
+      headline: t("tabs.pos.headline"),
+      description: t("tabs.pos.desc"),
+      imageSrc: "/images/showcase/showcase-pos.png",
+      simulatedUrl: "taptrade.cl/admin/pos",
+      glowColor: "from-red-600/20 via-rose-600/10 to-transparent",
+      accentBadgeColor: "bg-red-500/20 text-[#FF5555] border-red-500/30",
+      features: [
+        {
+          title: t("tabs.pos.f1_title"),
+          description: t("tabs.pos.f1_desc"),
+        },
+        {
+          title: t("tabs.pos.f2_title"),
+          description: t("tabs.pos.f2_desc"),
+        },
+        {
+          title: t("tabs.pos.f3_title"),
+          description: t("tabs.pos.f3_desc"),
+        },
+      ],
+      floatingHighlights: [
+        {
+          top: "22%",
+          left: "30%",
+          label: "IndexedDB Local",
+          sublabel: "Opera sin internet a <5ms",
+        },
+        {
+          top: "52%",
+          right: "12%",
+          label: "Cobro Ultra-Rápido [F10]",
+          sublabel: "Efectivo, Débito o Crédito en Tienda",
+        },
+      ],
+      metrics: [
+        { value: t("tabs.pos.m1_val"), label: t("tabs.pos.m1_lbl") },
+        { value: t("tabs.pos.m2_val"), label: t("tabs.pos.m2_lbl") },
+        { value: t("tabs.pos.m3_val"), label: t("tabs.pos.m3_lbl") },
+      ],
+    },
+    {
+      id: "buylist",
+      title: t("tabs.buylist.title"),
+      shortLabel: t("tabs.buylist.shortLabel"),
+      badge: t("tabs.buylist.badge"),
+      headline: t("tabs.buylist.headline"),
+      description: t("tabs.buylist.desc"),
+      imageSrc: "/images/showcase/showcase-buylist.png",
+      simulatedUrl: "taptrade.cl/admin/buylist",
+      glowColor: "from-amber-500/20 via-yellow-600/10 to-transparent",
+      accentBadgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+      features: [
+        {
+          title: t("tabs.buylist.f1_title"),
+          description: t("tabs.buylist.f1_desc"),
+        },
+        {
+          title: t("tabs.buylist.f2_title"),
+          description: t("tabs.buylist.f2_desc"),
+        },
+        {
+          title: t("tabs.buylist.f3_title"),
+          description: t("tabs.buylist.f3_desc"),
+        },
+      ],
+      floatingHighlights: [
+        {
+          top: "20%",
+          left: "22%",
+          label: "Grading TCG Automático",
+          sublabel: "Multiplicadores por estado NM/LP/MP",
+        },
+        {
+          top: "48%",
+          right: "14%",
+          label: "Store Credit Integrado",
+          sublabel: "Retiene el capital dentro de tu tienda",
+        },
+      ],
+      metrics: [
+        { value: t("tabs.buylist.m1_val"), label: t("tabs.buylist.m1_lbl") },
+        { value: t("tabs.buylist.m2_val"), label: t("tabs.buylist.m2_lbl") },
+        { value: t("tabs.buylist.m3_val"), label: t("tabs.buylist.m3_lbl") },
+      ],
+    },
+    {
+      id: "dashboard",
+      title: t("tabs.dashboard.title"),
+      shortLabel: t("tabs.dashboard.shortLabel"),
+      badge: t("tabs.dashboard.badge"),
+      headline: t("tabs.dashboard.headline"),
+      description: t("tabs.dashboard.desc"),
+      imageSrc: "/images/showcase/showcase-dashboard.png",
+      simulatedUrl: "taptrade.cl/admin/sales",
+      glowColor: "from-purple-600/20 via-pink-600/10 to-transparent",
+      accentBadgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+      features: [
+        {
+          title: t("tabs.dashboard.f1_title"),
+          description: t("tabs.dashboard.f1_desc"),
+        },
+        {
+          title: t("tabs.dashboard.f2_title"),
+          description: t("tabs.dashboard.f2_desc"),
+        },
+        {
+          title: t("tabs.dashboard.f3_title"),
+          description: t("tabs.dashboard.f3_desc"),
+        },
+      ],
+      floatingHighlights: [
+        {
+          top: "22%",
+          left: "26%",
+          label: "Valor de Inventario Activo",
+          sublabel: "Auditoría en tiempo real del stock",
+        },
+        {
+          top: "48%",
+          right: "12%",
+          label: "Evolución de Ingresos",
+          sublabel: "Gráfico histórico de facturación",
+        },
+      ],
+      metrics: [
+        { value: t("tabs.dashboard.m1_val"), label: t("tabs.dashboard.m1_lbl") },
+        { value: t("tabs.dashboard.m2_val"), label: t("tabs.dashboard.m2_lbl") },
+        { value: t("tabs.dashboard.m3_val"), label: t("tabs.dashboard.m3_lbl") },
+      ],
+    },
+    {
+      id: "shield",
+      title: t("tabs.shield.title"),
+      shortLabel: t("tabs.shield.shortLabel"),
+      badge: t("tabs.shield.badge"),
+      headline: t("tabs.shield.headline"),
+      description: t("tabs.shield.desc"),
+      imageSrc: "/images/showcase/showcase-shield.png",
+      simulatedUrl: "taptrade.cl/admin/orders/dispatch",
+      glowColor: "from-emerald-600/20 via-teal-600/10 to-transparent",
+      accentBadgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+      features: [
+        {
+          title: t("tabs.shield.f1_title"),
+          description: t("tabs.shield.f1_desc"),
+        },
+        {
+          title: t("tabs.shield.f2_title"),
+          description: t("tabs.shield.f2_desc"),
+        },
+        {
+          title: t("tabs.shield.f3_title"),
+          description: t("tabs.shield.f3_desc"),
+        },
+      ],
+      floatingHighlights: [
+        {
+          top: "20%",
+          left: "22%",
+          label: "Blindaje de Empaque 3x",
+          sublabel: "Cero reclamos por cartas falsas o cambiadas",
+        },
+        {
+          top: "48%",
+          right: "10%",
+          label: "Liberación Atómica de Fondos",
+          sublabel: "Dinero disponible al despachar con guía oficial",
+        },
+      ],
+      metrics: [
+        { value: t("tabs.shield.m1_val"), label: t("tabs.shield.m1_lbl") },
+        { value: t("tabs.shield.m2_val"), label: t("tabs.shield.m2_lbl") },
+        { value: t("tabs.shield.m3_val"), label: t("tabs.shield.m3_lbl") },
+      ],
+    },
+    {
+      id: "accounting",
+      title: t("tabs.accounting.title"),
+      shortLabel: t("tabs.accounting.shortLabel"),
+      badge: t("tabs.accounting.badge"),
+      headline: t("tabs.accounting.headline"),
+      description: t("tabs.accounting.desc"),
+      imageSrc: "/images/showcase/showcase-accounting.png",
+      simulatedUrl: "taptrade.cl/admin/finances/f29",
+      glowColor: "from-cyan-600/20 via-blue-600/10 to-transparent",
+      accentBadgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+      features: [
+        {
+          title: t("tabs.accounting.f1_title"),
+          description: t("tabs.accounting.f1_desc"),
+        },
+        {
+          title: t("tabs.accounting.f2_title"),
+          description: t("tabs.accounting.f2_desc"),
+        },
+        {
+          title: t("tabs.accounting.f3_title"),
+          description: t("tabs.accounting.f3_desc"),
+        },
+      ],
+      floatingHighlights: [
+        {
+          top: "20%",
+          left: "25%",
+          label: "Débito Fiscal Consolidado",
+          sublabel: "Total listo para el casillero de tu F29",
+        },
+        {
+          top: "48%",
+          right: "12%",
+          label: "Retiro TEF Bancario",
+          sublabel: "Transferencia a cuenta de tu empresa",
+        },
+      ],
+      metrics: [
+        { value: t("tabs.accounting.m1_val"), label: t("tabs.accounting.m1_lbl") },
+        { value: t("tabs.accounting.m2_val"), label: t("tabs.accounting.m2_lbl") },
+        { value: t("tabs.accounting.m3_val"), label: t("tabs.accounting.m3_lbl") },
+      ],
+    },
+  ];
+
+  const activeTab = showcaseTabs.find((tab) => tab.id === activeTabId) || showcaseTabs[0];
 
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
@@ -341,24 +332,24 @@ export default function SystemShowcase() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 mb-4 backdrop-blur-md">
           <IconSparkles className="w-3.5 h-3.5 text-[#E10E0E]" />
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-300">
-            Demostración en Vivo de la Plataforma
+            {t("badge_demo")}
           </span>
         </div>
         <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-          Diseñado exclusivamente para la operativa real de un{" "}
+          {t("title_prefix")}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E10E0E] via-[#F23030] to-amber-400">
-            comercio de TCG
+            {t("title_highlight")}
           </span>
         </h2>
         <p className="text-gray-400 text-sm sm:text-base mt-4 leading-relaxed font-normal">
-          Olvídate de adaptar plataformas genéricas. TapTrade reúne en una sola interfaz el Punto de Venta para mostrador, sincronización con bases de datos mundiales, catálogo web y compra automatizada de cartas.
+          {t("subtitle")}
         </p>
       </div>
 
       {/* Tab Switcher Navigation Bar */}
       <div className="max-w-4xl mx-auto mb-10 px-2 sm:px-0">
         <div className="flex items-center justify-start md:justify-center overflow-x-auto no-scrollbar gap-1.5 p-1.5 rounded-2xl bg-[#090D16]/90 border border-white/10 backdrop-blur-xl shadow-2xl">
-          {SHOWCASE_TABS.map((tab) => {
+          {showcaseTabs.map((tab) => {
             const isActive = tab.id === activeTabId;
             return (
               <button
@@ -467,7 +458,7 @@ export default function SystemShowcase() {
                   >
                     {activeTab.badge}
                   </span>
-                  <span className="text-xs text-gray-400 font-mono">• Vista del Administrador Real</span>
+                  <span className="text-xs text-gray-400 font-mono">• {t("real_admin_view")}</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2 leading-snug">
                   {activeTab.headline}
@@ -516,13 +507,13 @@ export default function SystemShowcase() {
                     className="flex-1 py-3 px-4 rounded-xl text-xs font-extrabold bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-lg shadow-[#E10E0E]/25 hover:shadow-xl hover:shadow-[#E10E0E]/40 transition-all flex items-center justify-center gap-2 active:scale-95"
                   >
                     <IconStore className="w-4 h-4 text-white" />
-                    Probar Panel de Tienda
+                    {t("cta_try_panel")}
                   </Link>
                   <Link
                     href="/contact"
                     className="py-3 px-4 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors text-center"
                   >
-                    Agendar Demo Técnica
+                    {t("cta_schedule_demo")}
                   </Link>
                 </div>
               </div>
@@ -533,4 +524,3 @@ export default function SystemShowcase() {
     </section>
   );
 }
-

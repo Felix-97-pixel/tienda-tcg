@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import {
   IconSparkles,
   IconLanguageFlag,
@@ -69,6 +70,7 @@ export default function TcgFilterSidebar({
   onToggleInStockOnly,
   totalInStockCount,
 }: TcgFilterSidebarProps) {
+  const t = useTranslations("shop");
   const [categorySearch, setCategorySearch] = React.useState("");
   const [categoryTab, setCategoryTab] = React.useState<"all" | "games" | "accessories">("all");
   const [expansionSearch, setExpansionSearch] = React.useState("");
@@ -172,10 +174,10 @@ export default function TcgFilterSidebar({
         <div>
           <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
             <IconFilter className="w-4 h-4 text-red shrink-0" />
-            Filtros TCG
+            {t("filters")}
           </h2>
           <span className="text-xs text-gray-400 font-mono">
-            {totalProductsCount} cartas encontradas
+            {t("cards_found", { count: totalProductsCount })}
           </span>
         </div>
 
@@ -184,7 +186,7 @@ export default function TcgFilterSidebar({
             onClick={onClearAll}
             className="text-xs font-semibold text-red hover:text-red-400 transition-colors flex items-center gap-1 px-2 py-1 rounded-md bg-red/10 border border-red/20"
           >
-            Limpiar ({activeFiltersCount})
+            {t("clearFilters")} ({activeFiltersCount})
           </button>
         )}
       </div>
@@ -212,7 +214,7 @@ export default function TcgFilterSidebar({
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
               >
-                <span>Catálogo Completo</span>
+                <span>{t("filter_tab_all")}</span>
               </button>
               <button
                 type="button"
@@ -222,9 +224,9 @@ export default function TcgFilterSidebar({
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
               >
-                <span>Solo con stock</span>
+                <span>{t("filter_stock_only")}</span>
                 <span className="text-[10px] opacity-75 font-mono">
-                  {totalInStockCount !== undefined ? `${totalInStockCount} cartas` : "En tiendas"}
+                  {totalInStockCount !== undefined ? t("cards_count", { count: totalInStockCount }) : t("in_stores")}
                 </span>
               </button>
             </div>
@@ -236,10 +238,10 @@ export default function TcgFilterSidebar({
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                Juego / Categoría
+                {t("category")}
               </h3>
               <span className="text-[10px] font-mono text-gray-500">
-                {categories.length} disp.
+                {t("available_count", { count: categories.length })}
               </span>
             </div>
 
@@ -251,7 +253,7 @@ export default function TcgFilterSidebar({
                 className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "all" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
                   }`}
               >
-                Todos
+                {t("filter_tab_all")}
               </button>
               <button
                 type="button"
@@ -259,7 +261,7 @@ export default function TcgFilterSidebar({
                 className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "games" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
                   }`}
               >
-                Juegos
+                {t("filter_tab_games")}
               </button>
               <button
                 type="button"
@@ -267,7 +269,7 @@ export default function TcgFilterSidebar({
                 className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "accessories" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
                   }`}
               >
-                Accesorios
+                {t("filter_tab_accessories")}
               </button>
             </div>
 
@@ -278,7 +280,7 @@ export default function TcgFilterSidebar({
                   type="text"
                   value={categorySearch}
                   onChange={(e) => setCategorySearch(e.target.value)}
-                  placeholder="Buscar juego o categoría..."
+                  placeholder={t("filter_search_category")}
                   className="w-full h-8 pl-8 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
                 />
                 <IconSearch className="absolute left-2.5 top-2 text-gray-500 w-3.5 h-3.5 pointer-events-none" />
@@ -298,7 +300,7 @@ export default function TcgFilterSidebar({
             <div className="max-h-48 overflow-y-auto pr-1 space-y-1 custom-scrollbar">
               {filteredCategories.length === 0 ? (
                 <div className="py-3 text-center text-xs text-gray-500">
-                  No coincide ninguna categoría
+                  {t("filter_no_category")}
                 </div>
               ) : (
                 filteredCategories.map((cat: any) => {
@@ -331,10 +333,10 @@ export default function TcgFilterSidebar({
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                Expansión / Edición
+                {t("filter_expansion_title")}
               </h3>
               <span className="text-[10px] font-mono text-gray-500">
-                {filteredExpansions.length} de {expansions.length}
+                {t("of_count", { current: filteredExpansions.length, total: expansions.length })}
               </span>
             </div>
 
@@ -344,7 +346,7 @@ export default function TcgFilterSidebar({
                 type="text"
                 value={expansionSearch}
                 onChange={(e) => setExpansionSearch(e.target.value)}
-                placeholder="Buscar expansión... (ej. Bloomburrow, 151)"
+                placeholder={t("filter_search_expansion")}
                 className="w-full h-8 pl-8 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
               />
               <IconSearch className="absolute left-2.5 top-2 text-gray-500 w-3.5 h-3.5 pointer-events-none" />
@@ -363,7 +365,7 @@ export default function TcgFilterSidebar({
             <div className="max-h-48 overflow-y-auto pr-1 space-y-1 custom-scrollbar">
               {filteredExpansions.length === 0 ? (
                 <div className="py-3 text-center text-xs text-gray-500">
-                  No coincide ninguna expansión
+                  {t("filter_no_expansion")}
                 </div>
               ) : (
                 filteredExpansions.map((exp: any) => {
@@ -392,10 +394,10 @@ export default function TcgFilterSidebar({
         <div>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Estado / Condición
+              {t("filter_condition_title")}
             </h3>
             <span className="text-[10px] font-mono text-gray-500">
-              {formattedConditions.length} disp.
+              {t("available_count", { count: formattedConditions.length })}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-0.5 custom-scrollbar">
@@ -422,7 +424,7 @@ export default function TcgFilterSidebar({
         {/* 4. Acabado (Foil / Normal) */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">
-            Acabado
+            {t("filter_finish_title")}
           </h3>
           <div className="grid grid-cols-2 gap-1.5">
             {FINISHES.map((f) => {
@@ -437,7 +439,7 @@ export default function TcgFilterSidebar({
                     }`}
                 >
                   {f.id === "foil" && <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />}
-                  <span>{f.label}</span>
+                  <span>{f.id === "foil" ? t("finish_foil") : t("finish_normal")}</span>
                 </button>
               );
             })}
@@ -448,10 +450,10 @@ export default function TcgFilterSidebar({
         <div>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Idioma
+              {t("filter_language_title")}
             </h3>
             <span className="text-[10px] font-mono text-gray-500">
-              {dbLanguages.length} disp.
+              {t("available_count", { count: dbLanguages.length })}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-0.5 custom-scrollbar">

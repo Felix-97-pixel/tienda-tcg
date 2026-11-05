@@ -5,18 +5,21 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Breadcrumb from "@/components/layout/Breadcrumb";
 import { API_URL } from "@/utils/api";
+import { useTranslations } from "next-intl";
+import { IconCheckCircle, IconAlertTriangle } from "@/components/ui/Icons";
 
 const VerifyEmailContent = () => {
+  const t = useTranslations("verify_email");
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [message, setMessage] = useState("Verificando tu cuenta...");
+  const [message, setMessage] = useState(t("verifying"));
 
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("Token de activación faltante. Por favor revisa el enlace de tu correo.");
+      setMessage(t("missing_token"));
       return;
     }
 
@@ -26,56 +29,58 @@ const VerifyEmailContent = () => {
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.message || "La verificación falló.");
+          throw new Error(data.message || t("error_msg"));
         }
 
         setStatus("success");
-        setMessage(data.message || "¡Cuenta activada con éxito!");
+        setMessage(data.message || t("success_msg"));
       } catch (err: any) {
         setStatus("error");
-        setMessage(err.message || "Error al verificar la cuenta.");
+        setMessage(err.message || t("error_msg"));
       }
     };
 
     verifyToken();
-  }, [token]);
+  }, [token, t]);
 
   return (
     <div className="max-w-[570px] w-full mx-auto rounded-xl bg-[#1a1d24] shadow-1 p-8 sm:p-12 text-center border-t-4 border-red">
       {status === "loading" && (
         <div className="flex flex-col items-center py-6">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-solid border-red border-t-transparent mb-6"></div>
-          <h2 className="font-bold text-2xl text-white mb-3">Verificando tu correo</h2>
+          <h2 className="font-bold text-2xl text-white mb-3">{t("title_loading")}</h2>
           <p className="text-gray-5 text-custom-sm leading-relaxed">{message}</p>
         </div>
       )}
 
       {status === "success" && (
         <div className="flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red/10 text-red mb-6">
-            <svg className="w-8 h-8 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 mb-6">
+            <IconCheckCircle className="w-8 h-8" />
           </div>
-          <h2 className="font-bold text-2xl text-white mb-4">¡Activación Exitosa!</h2>
+          <h2 className="font-bold text-2xl text-white mb-4">{t("title_success")}</h2>
           <p className="text-gray-6 text-custom-sm leading-relaxed mb-8">{message}</p>
-          <Link href="/login" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
-            Iniciar Sesión
+          <Link
+            href="/login"
+            className="w-full inline-block text-center font-bold text-white bg-red hover:bg-red-dark py-3 px-6 rounded-lg ease-out duration-200"
+          >
+            {t("login_btn")}
           </Link>
         </div>
       )}
 
       {status === "error" && (
         <div className="flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red mb-6">
-            <svg className="w-8 h-8 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red/10 text-red mb-6">
+            <IconAlertTriangle className="w-8 h-8" />
           </div>
-          <h2 className="font-bold text-2xl text-white mb-4">Error de Activación</h2>
+          <h2 className="font-bold text-2xl text-white mb-4">{t("title_error")}</h2>
           <p className="text-gray-6 text-custom-sm leading-relaxed mb-8">{message}</p>
-          <Link href="/login" className="w-full inline-block text-center font-bold text-white bg-dark py-3 px-6 rounded-lg ease-out duration-200 hover:bg-blue">
-            Volver a Iniciar Sesión
+          <Link
+            href="/login"
+            className="w-full inline-block text-center font-bold text-white bg-white/10 hover:bg-white/15 py-3 px-6 rounded-lg ease-out duration-200"
+          >
+            {t("back_login_btn")}
           </Link>
         </div>
       )}
@@ -84,17 +89,21 @@ const VerifyEmailContent = () => {
 };
 
 const VerifyEmailPage = () => {
+  const t = useTranslations("verify_email");
+
   return (
     <>
-      <Breadcrumb title={"Verificación de Correo"} pages={["Verificar Correo"]} />
+      <Breadcrumb title={t("breadcrumb_title")} pages={[t("breadcrumb_page")]} />
       <section className="overflow-hidden py-20 bg-[#222630]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          <Suspense fallback={
-            <div className="max-w-[570px] w-full mx-auto rounded-xl bg-[#1a1d24] shadow-1 p-8 sm:p-12 text-center border-t-4 border-red flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-solid border-red border-t-transparent mb-6"></div>
-              <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
-            </div>
-          }>
+          <Suspense
+            fallback={
+              <div className="max-w-[570px] w-full mx-auto rounded-xl bg-[#1a1d24] shadow-1 p-8 sm:p-12 text-center border-t-4 border-red flex flex-col items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-solid border-red border-t-transparent mb-6"></div>
+                <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />
+              </div>
+            }
+          >
             <VerifyEmailContent />
           </Suspense>
         </div>
