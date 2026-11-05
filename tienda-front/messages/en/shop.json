@@ -1,0 +1,53 @@
+{
+  "shop": {
+    "title": "Explore products",
+    "addToCart": "Add to cart",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "maxReached": "Maximum reached",
+    "rating": "Rating",
+    "reviews": "reviews",
+    "addToWishlist": "Add to wishlist",
+    "filters": "Filters",
+    "clearFilters": "Clear",
+    "search": "Search product",
+    "searchPlaceholder": "Type to search...",
+    "category": "Game / Category",
+    "selectCategory": "Select Category",
+    "expansion": "Expansion",
+    "selectExpansion": "Select Expansion",
+    "selectGameFirst": "Select a game first",
+    "noCards": "No cards found in this set.",
+    "selectExpansionPrompt": "Now select a set or type to view cards.",
+    "sort": {
+      "latest": "Latest products",
+      "bestSelling": "Best sellers",
+      "oldest": "Oldest"
+    },
+    "noPrice": "No price",
+    "priceUnit": "USD · CLP"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty",
+    "emptyDescription": "Add products to get started",
+    "continueShopping": "Continue shopping",
+    "checkout": "Checkout",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "quantity": "Quantity",
+    "remove": "Remove"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "billingDetails": "Billing Details",
+    "shippingMethod": "Shipping Method",
+    "paymentMethod": "Payment Method",
+    "placeOrder": "Place Order"
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "empty": "Your wishlist is empty",
+    "moveToCart": "Move to Cart"
+  }
+}

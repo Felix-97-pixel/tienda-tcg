@@ -5,8 +5,9 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import SearchableSelect from "@/components/ui/SearchableSelect";
-import { IconZap, IconSearch, IconCash, IconGem } from "@/components/ui/Icons";
+import { IconZap, IconSearch, IconCash, IconGem, IconFilter } from "@/components/ui/Icons";
 import { fetchCachedConditions, fetchCachedLanguages } from "@/utils/metadataCache";
+import { useTranslations } from "next-intl";
 
 interface BuylistItem {
   id: string;
@@ -63,6 +64,7 @@ interface VenderCartasClientProps {
 }
 
 export default function VenderCartasClient({ initialItems, initialStores }: VenderCartasClientProps) {
+  const t = useTranslations("buylist");
   const currency = useAppSelector((state: any) => state.currencyReducer);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStoreId, setSelectedStoreId] = useState<string>("ALL");
@@ -106,14 +108,14 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
   }, [initialItems]);
 
   const storeOptions = useMemo(() => [
-    { label: "Todas las tiendas", value: "ALL" },
+    { label: t("filters.all_stores"), value: "ALL" },
     ...initialStores.map((st) => ({ label: st.name, value: st.id })),
-  ], [initialStores]);
+  ], [initialStores, t]);
 
   const gameOptions = useMemo(() => [
-    { label: "Todos los juegos", value: "ALL" },
+    { label: t("filters.all_games"), value: "ALL" },
     ...uniqueGames.map((g) => ({ label: g, value: g })),
-  ], [uniqueGames]);
+  ], [uniqueGames, t]);
 
   // Idiomas dinámicos consultados a la base de datos (con fallback inmediato de initialItems)
   const languageOptions = useMemo(() => {
@@ -128,7 +130,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         return (a.name || "").localeCompare(b.name || "");
       });
       return [
-        { label: "Todos los idiomas", value: "ALL" },
+        { label: t("filters.all_languages"), value: "ALL" },
         ...sorted.map((l) => ({
           label: `${l.name} (${(l.code || l.name).substring(0, 2).toUpperCase()})`,
           value: l.id,
@@ -147,12 +149,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     });
 
     return [
-      { label: "Todos los idiomas", value: "ALL" },
+      { label: t("filters.all_languages"), value: "ALL" },
       ...Array.from(map.values())
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((l) => ({ label: `${l.name} (${l.code})`, value: l.id })),
     ];
-  }, [dbLanguages, initialItems]);
+  }, [dbLanguages, initialItems, t]);
 
   // Estados físicos dinámicos consultados a la base de datos (con fallback inmediato de initialItems)
   const conditionOptions = useMemo(() => {
@@ -169,7 +171,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     if (dbConditions.length > 0) {
       const sorted = [...dbConditions].sort((a, b) => rankCondition(a.name) - rankCondition(b.name));
       return [
-        { label: "Todo estado", value: "ALL" },
+        { label: t("filters.all_conditions"), value: "ALL" },
         ...sorted.map((c) => ({
           label: c.displayName || c.name,
           value: c.id,
@@ -194,19 +196,19 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
     const extracted = Array.from(map.values()).sort((a, b) => rankCondition(a.name) - rankCondition(b.name));
     return [
-      { label: "Todo estado", value: "ALL" },
+      { label: t("filters.all_conditions"), value: "ALL" },
       ...extracted.map((c) => ({
         label: c.displayName || c.name,
         value: c.id,
       })),
     ];
-  }, [dbConditions, initialItems]);
+  }, [dbConditions, initialItems, t]);
 
   const sortOptions = useMemo(() => [
-    { label: "Mayor Crédito", value: "credit-desc" },
-    { label: "Mayor Efectivo", value: "cash-desc" },
-    { label: "Nombre (A-Z)", value: "name-asc" },
-  ], []);
+    { label: t("filters.sort_credit"), value: "credit-desc" },
+    { label: t("filters.sort_cash"), value: "cash-desc" },
+    { label: t("filters.sort_name"), value: "name-asc" },
+  ], [t]);
 
   const filteredItems = useMemo(() => {
     return initialItems
@@ -263,6 +265,26 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         return (a.product?.name || "").localeCompare(b.product?.name || "");
       });
   }, [initialItems, searchTerm, selectedStoreId, selectedGame, selectedLanguage, selectedCondition, sortBy]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      searchTerm.trim() !== "" ||
+      selectedStoreId !== "ALL" ||
+      selectedGame !== "ALL" ||
+      selectedLanguage !== "ALL" ||
+      selectedCondition !== "ALL" ||
+      sortBy !== "credit-desc"
+    );
+  }, [searchTerm, selectedStoreId, selectedGame, selectedLanguage, selectedCondition, sortBy]);
+
+  const handleResetAllFilters = () => {
+    setSearchTerm("");
+    setSelectedStoreId("ALL");
+    setSelectedGame("ALL");
+    setSelectedLanguage("ALL");
+    setSelectedCondition("ALL");
+    setSortBy("credit-desc");
+  };
 
   const getConditionBadge = (condName?: string) => {
     const raw = (condName || "NM").toUpperCase();
@@ -332,16 +354,15 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
       {/* 1. Header & Hero Atmosphere */}
       <div className="text-center max-w-3xl mx-auto mb-12 relative">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black uppercase tracking-wider mb-4">
-          <IconZap className="w-3.5 h-3.5" /> Red de Buylists en Vivo
+          <IconZap className="w-3.5 h-3.5" /> {t("badge_live")}
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-          Vende tus Cartas TCG a <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">Tiendas Oficiales</span>
+          {t("hero_title")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">{t("hero_highlight")}</span>
         </h1>
 
         <p className="mt-4 text-gray-300 text-base sm:text-lg leading-relaxed">
-          Las tiendas verificadas de TapTrade publican diariamente los singles que necesitan para completar sus stocks.
-          Cotiza en tiempo real, elige entre <strong>Efectivo</strong> o <strong>Crédito en Tienda</strong> con bonificación extra.
+          {t("hero_description")}
         </p>
       </div>
 
@@ -355,7 +376,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             Encuentra lo que buscan
           </h3>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Explora las cartas solicitadas por cada tienda, revisando el estado requerido (Near Mint, Lightly Played) y el idioma oficial.
+            Explora las cartas solicitadas por cada tienda, revisando el estado requerido y el idioma oficial.
           </p>
         </div>
 
@@ -367,7 +388,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             Efectivo o Crédito (+25%)
           </h3>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Recibe transferencia bancaria directa a tu cuenta o elige crédito en tienda con hasta un 30% adicional para adquirir nuevos singles o boosters.
+            Recibe transferencia bancaria directa a tu cuenta o elige crédito en tienda con bonificación adicional.
           </p>
         </div>
 
@@ -379,7 +400,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             Entrega Local o Despacho
           </h3>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Acércate al local físico de la tienda en tu ciudad o envía tu paquete con seguimiento oficial a través de Chilexpress o Starken.
+            Acércate al local físico de la tienda en tu ciudad o envía tu paquete con seguimiento oficial.
           </p>
         </div>
       </div>
@@ -392,8 +413,8 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar carta en todas las buylists (ej. Orcish Bowmasters, Charizard, Black Lotus...)"
-            className="w-full h-12 pl-11 pr-10 rounded-xl bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner"
+            placeholder={t("search_placeholder")}
+            className="w-full h-12 pl-11 pr-10 rounded-xl bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner"
           />
           <IconSearch className="w-4 h-4 text-gray-500 absolute left-4 top-4 pointer-events-none" />
           {searchTerm && (
@@ -407,82 +428,194 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           )}
         </div>
 
-        {/* Row 2: Quick Filters Grid & Sort */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-3 border-t border-white/5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 flex-1">
-            {/* Store filter */}
-            <div>
-              <SearchableSelect
-                options={storeOptions}
-                value={selectedStoreId}
-                onChange={(val) => setSelectedStoreId(val || "ALL")}
-                placeholder="Filtrar por tienda..."
-                inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
-                noResultsText="Tienda no encontrada"
-              />
-            </div>
-
-            {/* Game filter */}
-            {uniqueGames.length > 0 && (
-              <div>
-                <SearchableSelect
-                  options={gameOptions}
-                  value={selectedGame}
-                  onChange={(val) => setSelectedGame(val || "ALL")}
-                  placeholder="Filtrar por juego..."
-                  inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
-                  noResultsText="Juego no encontrado"
-                />
-              </div>
-            )}
-
-            {/* Language filter */}
-            {languageOptions.length > 1 && (
-              <div>
-                <SearchableSelect
-                  options={languageOptions}
-                  value={selectedLanguage}
-                  onChange={(val) => setSelectedLanguage(val || "ALL")}
-                  placeholder="Filtrar por idioma..."
-                  inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
-                  noResultsText="Idioma no encontrado"
-                />
-              </div>
-            )}
-
-            {/* Condition filter */}
-            <div>
-              <SearchableSelect
-                options={conditionOptions}
-                value={selectedCondition}
-                onChange={(val) => setSelectedCondition(val || "ALL")}
-                placeholder="Filtrar por estado..."
-                inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
-                noResultsText="Estado no encontrado"
-              />
-            </div>
+        {/* Row 2: Unified 5-Column Filter Toolbar (Equal widths, laser-aligned, no wrapping bugs) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-3 border-t border-white/5">
+          {/* 1. Store filter */}
+          <div className="w-full">
+            <SearchableSelect
+              options={storeOptions}
+              value={selectedStoreId}
+              onChange={(val) => setSelectedStoreId(val || "ALL")}
+              placeholder={t("filters.filter_by_store")}
+              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+                selectedStoreId !== "ALL"
+                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
+                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+              } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
+              noResultsText="Tienda no encontrada"
+            />
           </div>
 
-          {/* Sort order */}
-          <div className="w-full lg:w-48 shrink-0">
+          {/* 2. Game filter */}
+          <div className="w-full">
+            <SearchableSelect
+              options={gameOptions}
+              value={selectedGame}
+              onChange={(val) => setSelectedGame(val || "ALL")}
+              placeholder={t("filters.filter_by_game")}
+              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+                selectedGame !== "ALL"
+                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
+                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+              } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
+              noResultsText="Juego no encontrado"
+            />
+          </div>
+
+          {/* 3. Language filter */}
+          <div className="w-full">
+            <SearchableSelect
+              options={languageOptions}
+              value={selectedLanguage}
+              onChange={(val) => setSelectedLanguage(val || "ALL")}
+              placeholder={t("filters.filter_by_language")}
+              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+                selectedLanguage !== "ALL"
+                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
+                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+              } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
+              noResultsText="Idioma no encontrado"
+            />
+          </div>
+
+          {/* 4. Condition filter */}
+          <div className="w-full">
+            <SearchableSelect
+              options={conditionOptions}
+              value={selectedCondition}
+              onChange={(val) => setSelectedCondition(val || "ALL")}
+              placeholder={t("filters.filter_by_condition")}
+              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+                selectedCondition !== "ALL"
+                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
+                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+              } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
+              noResultsText="Estado no encontrado"
+            />
+          </div>
+
+          {/* 5. Sort order */}
+          <div className="w-full col-span-1 sm:col-span-2 md:col-span-1">
             <SearchableSelect
               options={sortOptions}
               value={sortBy}
               onChange={(val) => setSortBy((val as any) || "credit-desc")}
-              placeholder="Ordenar por..."
-              inputClassName="h-10 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+              placeholder={t("filters.order_by")}
+              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+                sortBy !== "credit-desc"
+                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
+                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+              } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
               noResultsText="Opción no encontrada"
             />
           </div>
         </div>
+
+        {/* Row 3: Active Filters Summary & Instant Reset */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/5 text-xs text-gray-400">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mr-1 flex items-center gap-1">
+                <IconFilter className="w-3 h-3 text-amber-400" />
+                <span>{t("filters.active_filters")}</span>
+              </span>
+
+              {searchTerm.trim() && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-white text-[11px]">
+                  <span>"{searchTerm}"</span>
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {selectedStoreId !== "ALL" && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                  <span>{storeOptions.find((o) => o.value === selectedStoreId)?.label || selectedStoreId}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedStoreId("ALL")}
+                    className="text-amber-400 hover:text-amber-200"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {selectedGame !== "ALL" && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                  <span>{gameOptions.find((o) => o.value === selectedGame)?.label || selectedGame}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGame("ALL")}
+                    className="text-amber-400 hover:text-amber-200"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {selectedLanguage !== "ALL" && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                  <span>{languageOptions.find((o) => o.value === selectedLanguage)?.label || selectedLanguage}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLanguage("ALL")}
+                    className="text-amber-400 hover:text-amber-200"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {selectedCondition !== "ALL" && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                  <span>{conditionOptions.find((o) => o.value === selectedCondition)?.label || selectedCondition}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCondition("ALL")}
+                    className="text-amber-400 hover:text-amber-200"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {sortBy !== "credit-desc" && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-[11px]">
+                  <span>{sortOptions.find((o) => o.value === sortBy)?.label || sortBy}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("credit-desc")}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResetAllFilters}
+              className="text-[11px] font-bold text-gray-400 hover:text-amber-400 underline underline-offset-2 transition-colors ml-auto cursor-pointer"
+            >
+              {t("clear_filters")}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 4. Buylist Cards Grid */}
       <div className="mb-8 flex items-center justify-between">
         <h2 className="text-xl font-black text-white flex items-center gap-2">
-          <span>Cartas Buscadas</span>
+          <span>{t("cards_wanted_title")}</span>
           <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 font-mono">
-            {filteredItems.length} {filteredItems.length === 1 ? "publicación" : "publicaciones"}
+            {t("publications_count", { count: filteredItems.length })}
           </span>
         </h2>
       </div>
@@ -493,10 +626,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             <IconSearch className="w-8 h-8 opacity-60" />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">
-            No se encontraron cartas en la buylist
+            {t("no_results_title")}
           </h3>
           <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
-            Intenta borrar los términos de búsqueda o cambiar los filtros de tienda, juego o idioma para ver más publicaciones.
+            {t("no_results_desc")}
           </p>
           <button
             type="button"
@@ -509,7 +642,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             }}
             className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all"
           >
-            Limpiar filtros
+            {t("clear_filters")}
           </button>
         </div>
       ) : (
@@ -552,7 +685,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                       href={`/shop/store/${item.store.subdomain}?tab=buylist`}
                       className="text-[11px] text-amber-400 hover:underline shrink-0"
                     >
-                      Ver buylist tienda →
+                      {t("item_card.view_store_buylist")}
                     </Link>
                   </div>
 
@@ -580,7 +713,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                           {langCode}
                         </span>
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                          Buscan {item.quantityWanted} {item.quantityWanted === 1 ? "copia" : "copias"}
+                          {t("item_card.looking_for", { count: item.quantityWanted })}
                         </span>
                       </div>
 
@@ -599,7 +732,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                     <div>
                       <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
                         <IconCash className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Efectivo</span>
+                        <span>{t("item_card.cash")}</span>
                       </span>
                       <span className="text-sm font-extrabold text-white">
                         {formatPrice(cash, currency)}
@@ -610,7 +743,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                       <div className="flex items-center gap-1">
                         <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-400 tracking-wider">
                           <IconGem className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Crédito</span>
+                          <span>{t("item_card.credit")}</span>
                         </span>
                         {bonusPercent > 0 && (
                           <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 px-1 rounded">
@@ -631,7 +764,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   onClick={() => handleOpenTrade(item)}
                   className="mt-4 w-full h-11 rounded-xl font-black text-xs uppercase tracking-wider bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0A0D14] flex items-center justify-center gap-2 shadow-lg shadow-[#F59E0B]/25 active:scale-[0.98] transition-all border border-amber-300/40 cursor-pointer"
                 >
-                  <span>Ofrecer a {item.store.name}</span>
+                  <span>{t("item_card.offer_to", { storeName: item.store.name })}</span>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
@@ -755,7 +888,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 </svg>
               </span>
               <h3 className="text-lg font-black text-white">
-                Vender a {activeTradeItem.store.name}
+                {t("trade_modal.title", { storeName: activeTradeItem.store.name })}
               </h3>
             </div>
 
@@ -792,7 +925,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             {/* Quantity Selector */}
             <div className="mb-4">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                Cantidad a vender
+                {t("trade_modal.quantity_to_sell")}
               </label>
               <div className="flex items-center gap-3">
                 <button
@@ -815,7 +948,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   +
                 </button>
                 <span className="text-xs text-gray-400">
-                  (Hasta {activeTradeItem.quantityWanted} unidades solicitadas)
+                  {t("trade_modal.max_requested", { max: activeTradeItem.quantityWanted })}
                 </span>
               </div>
             </div>
@@ -823,7 +956,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             {/* Payout Options */}
             <div className="mb-6">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                Selecciona forma de pago
+                {t("trade_modal.choose_payout")}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -837,17 +970,17 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
-                      Crédito Tienda
+                      {t("trade_modal.store_credit")}
                     </span>
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
-                      +Bono
+                      {t("trade_modal.bonus_badge")}
                     </span>
                   </div>
                   <span className="text-base font-black text-white block mt-1">
                     {formatPrice(Number(activeTradeItem.creditPrice || 0) * tradeQuantity, currency)}
                   </span>
                   <span className="text-[11px] text-gray-400 block mt-0.5">
-                    Saldo digital para gastar en {activeTradeItem.store.name}
+                    {t("trade_modal.credit_desc", { storeName: activeTradeItem.store.name })}
                   </span>
                 </button>
 
@@ -861,13 +994,13 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   }`}
                 >
                   <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider block">
-                    Efectivo
+                    {t("trade_modal.cash")}
                   </span>
                   <span className="text-base font-black text-white block mt-1">
                     {formatPrice(Number(activeTradeItem.cashPrice || 0) * tradeQuantity, currency)}
                   </span>
                   <span className="text-[11px] text-gray-400 block mt-0.5">
-                    Transferencia bancaria directa
+                    {t("trade_modal.cash_desc")}
                   </span>
                 </button>
               </div>
@@ -883,7 +1016,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
                 </svg>
-                Contactar a {activeTradeItem.store.name} por WhatsApp
+                {t("trade_modal.whatsapp_contact", { storeName: activeTradeItem.store.name })}
               </button>
 
               <button
@@ -891,7 +1024,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 onClick={handleCopyOfferDetails}
                 className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
               >
-                {copiedNotification ? "✓ Detalle copiado al portapapeles" : "Copiar detalle de la oferta"}
+                {copiedNotification ? t("trade_modal.copied_success") : t("trade_modal.copy_offer")}
               </button>
             </div>
           </div>

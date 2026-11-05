@@ -137,7 +137,7 @@ export default function SearchableSelect({
           : undefined
       }
       className={`${
-        usePortal ? "fixed" : "absolute w-full"
+        usePortal ? "fixed" : "absolute w-full min-w-full sm:min-w-[200px]"
       } z-50 ${
         !usePortal ? (openUpwards ? "bottom-full mb-1" : "mt-1") : ""
       } max-h-60 overflow-auto rounded-xl border border-white/10 bg-[#0E121B] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200`}

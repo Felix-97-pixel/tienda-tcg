@@ -1,0 +1,60 @@
+{
+  "nav": {
+    "shop": "Loja",
+    "cart": "Carrinho",
+    "wishlist": "Lista de Desejos",
+    "account": "Minha Conta",
+    "logout": "Sair",
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "buy": "Comprar",
+    "find_stores": "Buscar Lojas",
+    "sell_cards": "Vender Cartas",
+    "contact_support": "Contato e Suporte"
+  },
+  "header": {
+    "management": "Painel de Gestão",
+    "summary": "Resumo Geral",
+    "backToStore": "Ir para a Loja",
+    "help": "Ajuda",
+    "wishlist": "Lista de Desejos",
+    "login": "Entrar",
+    "cart": "Carrinho de compras",
+    "search_placeholder": "Buscar cartas, expansões, singles...",
+    "all_categories": "Todas as categorias",
+    "shipping_notice": "Envios 24-48h Express",
+    "pickup_notice": "Retirada na Loja $0",
+    "know_taptrade": "Conheça TapTrade"
+  },
+  "sidebar": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "save": "Salvar alterações",
+    "cancel": "Cancelar",
+    "menu": "Menu Principal",
+    "version": "Painel de Controle v2.0"
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados. Desenvolvido para colecionadores.",
+    "contact": "Contato e Suporte",
+    "shipping_logistics": "Envios e Logística Oficial:",
+    "protected_payments": "Transações protegidas com Mercado Pago & Webpay",
+    "verified_stores": "100% Lojas Verificadas",
+    "tagline": "O marketplace líder de trading card games no Chile. Conectando lojas especializadas e jogadores para comprar e vender singles com frete em tempo real.",
+    "company_rut": "RUT: 78.531.106-K",
+    "company_address": "Padre Mariano 98 Of. 315, Providencia, Santiago",
+    "tcg_games": "Jogos TCG",
+    "marketplace": "Marketplace",
+    "buy_marketplace": "Comprar no Marketplace",
+    "store_directory": "Diretório de Lojas",
+    "sell_cards": "Vender Cartas (Buylist)",
+    "my_account": "Minha Conta de Colecionador",
+    "support_legal": "Suporte e Legal",
+    "help_center": "Central de Ajuda",
+    "terms_conditions": "Termos e Condições",
+    "privacy_policy": "Política de Privacidade",
+    "payment_methods": "Formas de Pagamento:",
+    "payment_debit_credit": "Débito / Crédito",
+    "riot_disclaimer": "TapTrade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."
+  }
+}

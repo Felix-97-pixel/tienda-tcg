@@ -35,3 +35,12 @@
 - **DEDUPLICACIÓN SSR CON `React.cache()`**: En páginas Server Components donde `generateMetadata` y el componente de página requieren los mismos datos, envolver la consulta en `React.cache()` y configurar revalidación ligera (`next: { revalidate: 60 }`).
 - **CODE SPLITTING OBLIGATORIO**: Todo modal complejo (subida de archivos, CSV, formularios grandes) y bibliotecas pesadas (`recharts`, `jspdf`, `leaflet`) deben importarse con `next/dynamic` y `{ ssr: false }`.
 - Consultar las directivas detalladas en [`.agents/rules/frontend-performance.md`](file:///c:/Users/felix/Desktop/e-commerce/.agents/rules/frontend-performance.md).
+
+## 7. Estándar de Internacionalización (i18n Standard - REGLA ESTRICTA)
+- **PROHIBICIÓN DE HARDCODED STRINGS**: Queda estrictamente prohibido escribir texto visible para el usuario (etiquetas, botones, placeholders, títulos, mensajes de error, tooltips, modales) directamente en JSX/HTML o código fuente. Todo texto debe consumirse a través de la función de traducción correspondiente (`t('dominio.clave')`).
+- **INTEGRIDAD Y PARIDAD DE DICCIONARIOS**: Toda nueva clave creada debe agregarse simultáneamente en los tres archivos de idioma: `es` (Español - Base/Referencia), `en` (Inglés) y `pt` (Portugués).
+- **PARÁMETROS E INTERPOLACIÓN FORMAL**: Los valores dinámicos no deben concatenarse manualmente con strings. Utilizar interpolación formal provista por `next-intl` (ej: `t('items_count', { count })`).
+- **RUTAS LIMPIAS SIN PREFIJOS**: La detección y persistencia del idioma se realiza a través de cookies (`NEXT_LOCALE`) y headers; las rutas de la aplicación se mantienen limpias sin alterar subdominios ni URLs (sin `/es/`, `/en/` o `/pt/`).
+- **TIPADO ESTRICTO DE TRADUCCIONES (TYPE-SAFE i18n)**: Todo componente debe compilar sin advertencias de tipado estricto gracias a las definiciones globales de `IntlMessages`.
+- Consultar las directivas detalladas en [`.agents/rules/i18n-standard.md`](file:///c:/Users/felix/Desktop/e-commerce/.agents/rules/i18n-standard.md).
+

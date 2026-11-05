@@ -1,0 +1,60 @@
+{
+  "nav": {
+    "shop": "Shop",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "account": "My Account",
+    "logout": "Log Out",
+    "login": "Log In",
+    "register": "Sign Up",
+    "buy": "Buy",
+    "find_stores": "Find Stores",
+    "sell_cards": "Sell Cards",
+    "contact_support": "Contact & Support"
+  },
+  "header": {
+    "management": "Management Panel",
+    "summary": "General Overview",
+    "backToStore": "Go to Store",
+    "help": "Help",
+    "wishlist": "Wishlist",
+    "login": "Sign In",
+    "cart": "Shopping Cart",
+    "search_placeholder": "Search cards, sets, singles...",
+    "all_categories": "All Categories",
+    "shipping_notice": "Fast 24-48h Shipping Chilexpress & Starken",
+    "pickup_notice": "Free In-Store Pickup $0",
+    "know_taptrade": "About TapTrade"
+  },
+  "sidebar": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "menu": "Main Menu",
+    "version": "Dashboard v2.0"
+  },
+  "footer": {
+    "rights": "All rights reserved. Built for collectors.",
+    "contact": "Contact & Support",
+    "shipping_logistics": "Official Shipping & Logistics:",
+    "protected_payments": "Secure transactions with Mercado Pago & Webpay",
+    "verified_stores": "100% Verified Stores",
+    "tagline": "The leading trading card game marketplace in Chile. Connecting game stores and competitive players to buy and sell singles with live shipping rates.",
+    "company_rut": "Tax ID (RUT): 78.531.106-K",
+    "company_address": "Padre Mariano 98 Of. 315, Providencia, Santiago",
+    "tcg_games": "TCG Games",
+    "marketplace": "Marketplace",
+    "buy_marketplace": "Shop Marketplace",
+    "store_directory": "Store Directory",
+    "sell_cards": "Sell Cards (Buylist)",
+    "my_account": "Collector Account",
+    "support_legal": "Support & Legal",
+    "help_center": "Help Center",
+    "terms_conditions": "Terms and Conditions",
+    "privacy_policy": "Privacy Policy",
+    "payment_methods": "Payment Methods:",
+    "payment_debit_credit": "Debit / Credit",
+    "riot_disclaimer": "TapTrade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."
+  }
+}

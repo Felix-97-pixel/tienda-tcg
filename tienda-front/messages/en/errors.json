@@ -1,0 +1,9 @@
+{
+  "general": "An unexpected error occurred",
+  "network": "Connection error with the server. Please try again.",
+  "unauthorized": "You do not have permission to perform this action.",
+  "not_found": "The requested resource was not found.",
+  "invalid_input": "Please check the entered fields.",
+  "buylist_min_price": "You must enter a cash or credit price greater than 0",
+  "buylist_select_required": "You must select at least one language and one condition with checkboxes"
+}

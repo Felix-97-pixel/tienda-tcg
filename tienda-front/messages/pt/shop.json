@@ -1,0 +1,53 @@
+{
+  "shop": {
+    "title": "Explorar produtos",
+    "addToCart": "Adicionar ao carrinho",
+    "inStock": "Em estoque",
+    "outOfStock": "Sem estoque",
+    "maxReached": "Máximo atingido",
+    "rating": "Avaliação",
+    "reviews": "avaliações",
+    "addToWishlist": "Adicionar à lista de desejos",
+    "filters": "Filtros",
+    "clearFilters": "Limpar",
+    "search": "Buscar produto",
+    "searchPlaceholder": "Digite para pesquisar...",
+    "category": "Jogo / Categoria",
+    "selectCategory": "Selecionar Categoria",
+    "expansion": "Expansão",
+    "selectExpansion": "Selecionar Expansão",
+    "selectGameFirst": "Selecione um jogo primeiro",
+    "noCards": "Nenhuma carta encontrada nesta edição.",
+    "selectExpansionPrompt": "Agora selecione uma edição ou tipo para ver as cartas.",
+    "sort": {
+      "latest": "Produtos mais recentes",
+      "bestSelling": "Mais vendidos",
+      "oldest": "Mais antigos"
+    },
+    "noPrice": "Sem preço",
+    "priceUnit": "USD · CLP"
+  },
+  "cart": {
+    "title": "Seu carrinho",
+    "empty": "Seu carrinho está vazio",
+    "emptyDescription": "Adicione produtos para começar",
+    "continueShopping": "Continuar comprando",
+    "checkout": "Finalizar compra",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "quantity": "Quantidade",
+    "remove": "Remover"
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "billingDetails": "Dados de Faturamento",
+    "shippingMethod": "Método de Envio",
+    "paymentMethod": "Forma de Pagamento",
+    "placeOrder": "Confirmar Pedido"
+  },
+  "wishlist": {
+    "title": "Minha Lista de Desejos",
+    "empty": "Sua lista de desejos está vazia",
+    "moveToCart": "Mover para o Carrinho"
+  }
+}

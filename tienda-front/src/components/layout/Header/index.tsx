@@ -11,9 +11,14 @@ import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/features/auth-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
+import { useTranslations } from "next-intl";
+import LanguageSelector from "@/components/ui/LanguageSelector";
+import { IconSearch, IconSparkles } from "@/components/ui/Icons";
 
 const Header = () => {
   const router = useRouter();
+  const tNav = useTranslations("nav");
+  const tHeader = useTranslations("header");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("Todas las categorías");
   const [navigationOpen, setNavigationOpen] = useState(false);
@@ -37,6 +42,21 @@ const Header = () => {
       if (cat) setSelectedCategory(cat);
     }
   }, []);
+
+  const getMenuTitle = (path: string, fallback: string) => {
+    switch (path) {
+      case "/shop":
+        return tNav("buy");
+      case "/tiendas":
+        return tNav("find_stores");
+      case "/vender-cartas":
+        return tNav("sell_cards");
+      case "/contact":
+        return tNav("contact_support");
+      default:
+        return fallback;
+    }
+  };
 
   const handleOpenCartModal = () => {
     openCartModal();
@@ -132,7 +152,7 @@ const Header = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar cartas, expansiones, singles..."
+                  placeholder={tHeader("search_placeholder")}
                   className="w-full bg-transparent text-white text-xs px-3 py-2.5 outline-none placeholder:text-gray-500 rounded-none"
                 />
                 <button
@@ -140,10 +160,7 @@ const Header = () => {
                   aria-label="Buscar"
                   className="px-3.5 py-2.5 text-gray-400 hover:text-white hover:text-red transition-colors shrink-0 rounded-r-xl"
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
+                  <IconSearch className="w-4 h-4" />
                 </button>
               </div>
             </form>
@@ -155,24 +172,27 @@ const Header = () => {
             <Link
               href="/contact"
               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-              title="Contacto y Soporte 24/7"
+              title={tHeader("help")}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
               </svg>
-              <span>Ayuda</span>
+              <span>{tHeader("help")}</span>
             </Link>
 
             {/* Wishlist */}
             <Link
               href="/wishlist"
               className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-              title="Lista de Favoritos"
+              title={tHeader("wishlist")}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
             </Link>
+
+            {/* Language Selector */}
+            <LanguageSelector />
 
             {/* Account Dropdown or Login Link */}
             {isMounted && isAuthenticated ? (
@@ -182,7 +202,7 @@ const Header = () => {
                 href="/login"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
               >
-                Ingresar
+                {tHeader("login")}
               </Link>
             )}
 
@@ -190,8 +210,8 @@ const Header = () => {
             <button
               type="button"
               onClick={handleOpenCartModal}
-              aria-label="Ver carrito de compras"
-              title="Carrito de compras"
+              aria-label={tHeader("cart")}
+              title={tHeader("cart")}
               className="relative p-2 sm:px-2.5 sm:py-2 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group"
             >
               <div className="relative">
@@ -246,7 +266,7 @@ const Header = () => {
                     rel={item.newTab ? "noopener noreferrer" : undefined}
                     className="text-xs font-semibold text-gray-300 hover:text-red transition-colors flex items-center gap-1"
                   >
-                    <span>{item.title}</span>
+                    <span>{getMenuTitle(item.path, item.title)}</span>
                     {item.newTab && (
                       <span className="text-[10px] text-gray-400 font-mono">↗</span>
                     )}
@@ -261,7 +281,8 @@ const Header = () => {
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red text-white text-xs font-bold hover:bg-red-dark transition-all shadow-md shadow-red/25 border border-red-light/30 active:scale-95 group"
                   title="Conoce la plataforma y cómo funciona TapTrade"
                 >
-                  <span>Conoce TapTrade</span>
+                  <IconSparkles className="w-3.5 h-3.5 text-white/90" />
+                  <span>{tHeader("know_taptrade")}</span>
                 </Link>
               </li>
             </ul>
@@ -269,10 +290,10 @@ const Header = () => {
             <div className="flex items-center gap-4 text-[11px] text-gray-400 font-mono">
               <span className="inline-flex items-center gap-1 text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Envíos 24-48h Chilexpress & Starken
+                {tHeader("shipping_notice")}
               </span>
               <span>•</span>
-              <span className="text-gray-400">Retiro en Tienda $0</span>
+              <span className="text-gray-400">{tHeader("pickup_notice")}</span>
             </div>
           </nav>
         </div>
@@ -288,11 +309,11 @@ const Header = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar cartas..."
+                placeholder={tHeader("search_placeholder")}
                 className="w-full bg-transparent text-white text-xs outline-none"
               />
-              <button type="submit" className="text-gray-400">
-                🔍
+              <button type="submit" className="text-gray-400 hover:text-white" aria-label="Buscar">
+                <IconSearch className="w-3.5 h-3.5" />
               </button>
             </div>
           </form>
@@ -307,8 +328,8 @@ const Header = () => {
                 onClick={() => setNavigationOpen(false)}
                 className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all"
               >
-                <span>{item.title}</span>
-                {item.newTab && <span className="text-xs text-gray-400 font-mono">↗ nueva pestaña</span>}
+                <span>{getMenuTitle(item.path, item.title)}</span>
+                {item.newTab && <span className="text-xs text-gray-400 font-mono">↗</span>}
               </Link>
             ))}
 
@@ -320,13 +341,19 @@ const Header = () => {
                 className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-red text-white text-sm font-bold shadow-md shadow-red/30 hover:bg-red-dark transition-all border border-red-light/30"
               >
                 <div className="flex items-center gap-2">
-                  <span>🚀</span>
-                  <span>Conoce TapTrade</span>
+                  <IconSparkles className="w-4 h-4 text-white" />
+                  <span>{tHeader("know_taptrade")}</span>
                 </div>
                 <span className="bg-black/30 text-white text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase">
                   Landing
                 </span>
               </Link>
+            </div>
+
+            {/* Mobile Language Selector */}
+            <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between px-1">
+              <span className="text-xs text-gray-400 font-medium">Idioma / Language</span>
+              <LanguageSelector />
             </div>
           </nav>
         </div>

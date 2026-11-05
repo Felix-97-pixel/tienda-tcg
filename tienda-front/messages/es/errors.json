@@ -1,0 +1,9 @@
+{
+  "general": "Ha ocurrido un error inesperado",
+  "network": "Error de conexión con el servidor. Intenta de nuevo.",
+  "unauthorized": "No tienes permisos para realizar esta acción.",
+  "not_found": "El recurso solicitado no fue encontrado.",
+  "invalid_input": "Por favor revisa los campos ingresados.",
+  "buylist_min_price": "Debes ingresar un precio en efectivo o crédito mayor a 0",
+  "buylist_select_required": "Debes seleccionar al menos un idioma y un estado físico con los checkboxes"
+}
