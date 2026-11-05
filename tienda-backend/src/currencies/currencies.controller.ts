@@ -49,14 +49,14 @@ export class CurrenciesController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPERADMIN)
-  create(@Body() data: { gameId: string; currencyCode: string; rate: number }) {
+  create(@Body() data: { gameId: string; currencyCode: string; rate: number; buyPercentage?: number; creditPercentage?: number }) {
     return this.currenciesService.create(data);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPERADMIN)
-  update(@Param('id') id: string, @Body() data: { currencyCode?: string; rate?: number }) {
+  update(@Param('id') id: string, @Body() data: { currencyCode?: string; rate?: number; buyPercentage?: number; creditPercentage?: number }) {
     return this.currenciesService.update(id, data);
   }
 

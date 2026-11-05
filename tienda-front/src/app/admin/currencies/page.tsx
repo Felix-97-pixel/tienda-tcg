@@ -54,7 +54,45 @@ export default function AdminCurrencies() {
               ${numRate.toLocaleString("es-CL")} CLP
             </span>
             <span className="block text-[11px] text-gray-400">
-              1 USD = ${numRate.toLocaleString("es-CL")} CLP (PVP final con IVA)
+              1 USD = ${numRate.toLocaleString("es-CL")} CLP (Venta)
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: "buyPercentage",
+      header: "Avalúo Compra (Cash)",
+      render: (rate) => {
+        const numRate = Number(rate.rate);
+        const buyPct = rate.buyPercentage !== undefined && rate.buyPercentage !== null ? Number(rate.buyPercentage) : 50;
+        const cashSample = Math.round(numRate * (buyPct / 100));
+        return (
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+              {buyPct}%
+            </span>
+            <span className="block text-[11px] text-gray-400 mt-0.5">
+              ${cashSample.toLocaleString("es-CL")} CLP / USD
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: "creditPercentage",
+      header: "Crédito de Tienda",
+      render: (rate) => {
+        const numRate = Number(rate.rate);
+        const creditPct = rate.creditPercentage !== undefined && rate.creditPercentage !== null ? Number(rate.creditPercentage) : 70;
+        const creditSample = Math.round(numRate * (creditPct / 100));
+        return (
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
+              {creditPct}%
+            </span>
+            <span className="block text-[11px] text-gray-400 mt-0.5">
+              ${creditSample.toLocaleString("es-CL")} CLP / USD
             </span>
           </div>
         );
@@ -99,7 +137,7 @@ export default function AdminCurrencies() {
             )}
           </div>
           <p className="text-gray-4 text-sm mt-1">
-            Configura el valor de conversión en CLP para cada juego. Este valor fija el Precio Final de Venta al Público (con IVA incluido) en tu tienda.
+            Configura el valor de conversión en CLP para cada juego y los porcentajes de avalúo en Efectivo y Crédito de Tienda para compras automáticas en Trade-in.
           </p>
         </div>
         <Button onClick={() => openModal()}>

@@ -6,6 +6,7 @@ import { LocalProduct } from '../_lib/posDb';
 import { IconSearch, IconGlobe, IconRepeat } from '@/components/ui/Icons';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import SegmentedControl from '@/components/ui/SegmentedControl';
+import { resolveTradeInValuation } from '@/utils/tradeInPricing';
 
 interface PosSearchBarProps {
   searchQuery: string;
@@ -17,6 +18,7 @@ interface PosSearchBarProps {
   inputRef: React.RefObject<HTMLInputElement | null>;
   posMode?: 'SELL' | 'BUY';
   buylistMap?: Map<string, { cashPrice: number; creditPrice: number; conditionId: string; languageId: string }>;
+  exchangeRates?: any[];
   // Filtros avanzados para modo Compra / Trade-in (opcionales para modo Venta)
   buySourceTab?: 'BUYLIST' | 'GLOBAL';
   onSetBuySourceTab?: (tab: 'BUYLIST' | 'GLOBAL') => void;
@@ -48,6 +50,7 @@ export default function PosSearchBar({
   categories = [],
   expansions = [],
   onOpenGlobalCatalogModal,
+  exchangeRates = [],
 }: PosSearchBarProps) {
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -219,15 +222,18 @@ export default function PosSearchBar({
           </div>
         ) : (
           results.map((product) => {
-            const hasBuylist = buylistMap && buylistMap.has(product.id);
-            const buylistInfo = hasBuylist ? buylistMap.get(product.id) : null;
+            const tradeInInfo = resolveTradeInValuation(product, buylistMap, exchangeRates);
+            const isBuylist = tradeInInfo.source === 'BUYLIST';
+            const isAutoRate = tradeInInfo.source === 'AUTO_RATE';
 
             return (
               <div
                 key={product.id}
                 className={`p-3.5 bg-[#0E121B] rounded-2xl border transition-all shadow-md space-y-3 ${
-                  posMode === 'BUY' && hasBuylist
+                  posMode === 'BUY' && isBuylist
                     ? 'border-emerald-500/40 bg-emerald-950/10'
+                    : posMode === 'BUY' && isAutoRate
+                    ? 'border-cyan-500/30 bg-cyan-950/5'
                     : 'border-white/10 hover:border-white/20'
                 }`}
               >
@@ -262,9 +268,14 @@ export default function PosSearchBar({
                       <h3 className="text-sm font-bold text-white truncate">
                         {product.name}
                       </h3>
-                      {hasBuylist && (
+                      {isBuylist && (
                         <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
                           En tu Buylist
+                        </span>
+                      )}
+                      {!isBuylist && isAutoRate && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
+                          Avalúo Auto
                         </span>
                       )}
                       {product.barcode && (
@@ -296,13 +307,25 @@ export default function PosSearchBar({
                   {/* Si estamos en MODO COMPRA: Botón de Compra Directa */}
                   {posMode === 'BUY' && (
                     <div className="flex flex-col items-end gap-1">
-                      {buylistInfo ? (
+                      {isBuylist ? (
                         <div className="text-right text-[10px]">
                           <span className="text-emerald-400 font-mono font-bold block">
-                            Cash: ${buylistInfo.cashPrice.toLocaleString('es-CL')}
+                            Cash: ${tradeInInfo.cashPrice.toLocaleString('es-CL')}
                           </span>
                           <span className="text-cyan-300 font-mono font-bold block">
-                            Crédito: ${buylistInfo.creditPrice.toLocaleString('es-CL')}
+                            Crédito: ${tradeInInfo.creditPrice.toLocaleString('es-CL')}
+                          </span>
+                        </div>
+                      ) : isAutoRate ? (
+                        <div className="text-right text-[10px]">
+                          <span className="text-emerald-400 font-mono font-bold block">
+                            Cash: ${tradeInInfo.cashPrice.toLocaleString('es-CL')}
+                          </span>
+                          <span className="text-cyan-300 font-mono font-bold block">
+                            Crédito: ${tradeInInfo.creditPrice.toLocaleString('es-CL')}
+                          </span>
+                          <span className="text-[9px] text-cyan-400/80 font-mono font-bold block">
+                            (Tasa: {tradeInInfo.buyPercentage}% / {tradeInInfo.creditPercentage}%)
                           </span>
                         </div>
                       ) : (

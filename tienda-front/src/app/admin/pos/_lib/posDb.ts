@@ -19,7 +19,14 @@ export interface LocalProduct {
     rarity?: string | null;
     collectorNum?: string | null;
     gameId?: string | null;
+    gameRel?: { id: string; name: string; slug?: string } | null;
   } | null;
+  marketPrices?: Array<{
+    id?: string;
+    price: number | string;
+    finishId?: string | null;
+    finish?: { id: string; name: string } | null;
+  }> | null;
   isTcg?: boolean;
   exchangeRateApplied?: number;
   items: Array<{

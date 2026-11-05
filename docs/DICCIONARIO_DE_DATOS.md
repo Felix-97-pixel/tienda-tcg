@@ -541,7 +541,15 @@ Monedas del sistema (CLP por defecto, USD de referencia).
 * `code` ("CLP", "USD"), `name`, `symbol`, `exchangeRate`, `isDefault`.
 
 ### `GlobalGameExchangeRate` / `StoreGameExchangeRate`
-Multiplicador para convertir precios de fuentes internacionales (como Scryfall USD) a pesos chilenos (CLP), a nivel global o por tienda/juego.
+Multiplicador para convertir precios de fuentes internacionales (como Scryfall USD) a pesos chilenos (CLP), a nivel global o por tienda/juego, además de configurar las tasas de compra para Trade-in:
+* `id` (`String`, UUID, PK)
+* `storeId` (`String`, FK a `Store` en `StoreGameExchangeRate`): Tienda o sucursal dueña de la tasa personalizada.
+* `gameId` (`String`, FK a `Game`): Juego TCG al que aplica la tasa.
+* `currencyCode` (`String`, en `GlobalGameExchangeRate`): Divisa base (ej: "USD").
+* `rate` (`Decimal(10,2)`): Tasa de conversión a CLP que fija el Precio Final de Venta al Público (con IVA incluido).
+* `buyPercentage` (`Decimal(5,2)`, default: `50.00`): Porcentaje sobre el PVP de venta que se paga al cliente en efectivo/transferencia al recibir cartas de este juego en Trade-in cuando no figuran en la Buylist.
+* `creditPercentage` (`Decimal(5,2)`, default: `70.00`): Porcentaje sobre el PVP de venta que se abona al cliente en Crédito de Tienda (+bono) al recibir cartas de este juego en Trade-in cuando no figuran en la Buylist.
+* `createdAt` / `updatedAt` (`DateTime`).
 
 ### `StoreConditionDevaluation` / `StoreLanguageDevaluation`
 Multiplicadores porcentuales que cada tienda aplica sobre el precio base según la condición (ej: LP = 0.85, HP = 0.60) o el idioma (ej: Español = 0.95, Japonés = 1.10).

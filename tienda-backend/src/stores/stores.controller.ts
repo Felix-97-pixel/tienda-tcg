@@ -71,7 +71,7 @@ export class StoresController {
 
   @UseGuards(JwtAuthGuard)
   @Post('me/exchange-rates')
-  async upsertExchangeRate(@Request() req: any, @Body() data: { gameId: string, rate: number }) {
+  async upsertExchangeRate(@Request() req: any, @Body() data: { gameId: string; rate: number; buyPercentage?: number; creditPercentage?: number }) {
     const requestedStoreId = (req.headers['x-store-id'] as string) || req.user.activeStoreId;
     return this.storesService.upsertExchangeRate(req.user.userId, data, requestedStoreId);
   }

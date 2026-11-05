@@ -124,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
             { href: "/admin/team", label: "Cajeros del Local", icon: <IconUsers className="w-4 h-4" /> },
             { href: "/admin/profile", label: "Datos de Sucursal", icon: <IconStore className="w-4 h-4" /> },
             { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
-            { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
+            { href: "/admin/currencies", label: "Tasas de Cambio", icon: <IconCoins className="w-4 h-4" /> },
             { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
             { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
           ],
@@ -164,7 +164,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           title: "Configuración",
           items: [
             { href: "/admin/profile", label: "Información de Empresa", icon: <IconStore className="w-4 h-4" /> },
-            { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
+            { href: "/admin/currencies", label: "Tasas de Cambio", icon: <IconCoins className="w-4 h-4" /> },
           ],
         },
       ];
@@ -205,7 +205,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           { href: "/admin/profile", label: "Empresa & Sucursales", icon: <IconStore className="w-4 h-4" /> },
           { href: "/admin/shipping", label: "Métodos de Envío", icon: <IconTruck className="w-4 h-4" /> },
           { href: "/admin/coupons", label: "Cupones de Descuento", icon: <IconTicket className="w-4 h-4" /> },
-          { href: "/admin/currencies", label: "Divisas", icon: <IconCoins className="w-4 h-4" /> },
+          { href: "/admin/currencies", label: "Tasas de Cambio", icon: <IconCoins className="w-4 h-4" /> },
           { href: "/admin/games", label: "Juegos Soportados", icon: <IconGamepad className="w-4 h-4" /> },
           { href: "/admin/devaluations", label: "Reglas de Estado", icon: <IconSliders className="w-4 h-4" /> },
         ],

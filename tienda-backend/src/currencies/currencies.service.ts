@@ -57,21 +57,36 @@ export class CurrenciesService {
     return this.findAll();
   }
 
-  async create(data: { gameId: string; currencyCode: string; rate: number }) {
+  async create(data: { gameId: string; currencyCode: string; rate: number; buyPercentage?: number; creditPercentage?: number }) {
     const currency = await this.prisma.currency.findUnique({ where: { code: data.currencyCode } });
     if (!currency) throw new BadRequestException('La divisa seleccionada no existe');
     return this.prisma.globalGameExchangeRate.upsert({
       where: { gameId_currencyCode: { gameId: data.gameId, currencyCode: data.currencyCode } },
-      update: { rate: data.rate },
-      create: { gameId: data.gameId, currencyCode: data.currencyCode, rate: data.rate },
+      update: {
+        rate: data.rate,
+        ...(data.buyPercentage !== undefined ? { buyPercentage: data.buyPercentage } : {}),
+        ...(data.creditPercentage !== undefined ? { creditPercentage: data.creditPercentage } : {}),
+      },
+      create: {
+        gameId: data.gameId,
+        currencyCode: data.currencyCode,
+        rate: data.rate,
+        buyPercentage: data.buyPercentage !== undefined ? data.buyPercentage : 50,
+        creditPercentage: data.creditPercentage !== undefined ? data.creditPercentage : 70,
+      },
       include: { game: true, currency: true },
     });
   }
 
-  async update(id: string, data: { currencyCode?: string; rate?: number }) {
+  async update(id: string, data: { currencyCode?: string; rate?: number; buyPercentage?: number; creditPercentage?: number }) {
     return this.prisma.globalGameExchangeRate.update({
       where: { id },
-      data: { currencyCode: data.currencyCode, rate: data.rate },
+      data: {
+        currencyCode: data.currencyCode,
+        rate: data.rate,
+        ...(data.buyPercentage !== undefined ? { buyPercentage: data.buyPercentage } : {}),
+        ...(data.creditPercentage !== undefined ? { creditPercentage: data.creditPercentage } : {}),
+      },
       include: { game: true, currency: true },
     });
   }

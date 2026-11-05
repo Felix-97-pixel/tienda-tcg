@@ -21,6 +21,12 @@ export interface PosBuyCartItem {
   cashPrice: number;
   creditPrice: number;
   isFromBuylist: boolean;
+  tradeInSource?: 'BUYLIST' | 'AUTO_RATE' | 'MANUAL';
+  valuationDetails?: {
+    rate?: number;
+    buyPercentage?: number;
+    creditPercentage?: number;
+  };
 }
 
 interface PosBuyCartProps {
@@ -124,6 +130,10 @@ export default function PosBuyCart({
                         {item.isFromBuylist ? (
                           <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-black text-emerald-400">
                             En Buylist
+                          </span>
+                        ) : item.tradeInSource === 'AUTO_RATE' ? (
+                          <span className="px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/30 text-[9px] font-bold text-cyan-300">
+                            Auto Tasa ({item.valuationDetails?.buyPercentage ?? 50}% / {item.valuationDetails?.creditPercentage ?? 70}%)
                           </span>
                         ) : (
                           <span className="px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/30 text-[9px] font-bold text-amber-300">

@@ -733,12 +733,14 @@ model StoreCreditTransaction {
 }
 
 model StoreGameExchangeRate {
-  id        String   @id @default(uuid())
-  storeId   String
-  gameId    String
-  rate      Decimal  @db.Decimal(10, 2)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String   @id @default(uuid())
+  storeId          String
+  gameId           String
+  rate             Decimal  @db.Decimal(10, 2)
+  buyPercentage    Decimal  @default(50.00) @db.Decimal(5, 2) // % Pagado en Efectivo / Cash al comprar cartas (Trade-in)
+  creditPercentage Decimal  @default(70.00) @db.Decimal(5, 2) // % Pagado en Crédito de Tienda al comprar cartas (Trade-in)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
   game  Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -747,12 +749,14 @@ model StoreGameExchangeRate {
 }
 
 model GlobalGameExchangeRate {
-  id           String   @id @default(uuid())
-  gameId       String
-  currencyCode String
-  rate         Decimal  @db.Decimal(10, 2)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String   @id @default(uuid())
+  gameId           String
+  currencyCode     String
+  rate             Decimal  @db.Decimal(10, 2)
+  buyPercentage    Decimal  @default(50.00) @db.Decimal(5, 2) // % Global en Efectivo para Trade-in
+  creditPercentage Decimal  @default(70.00) @db.Decimal(5, 2) // % Global en Crédito para Trade-in
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   game     Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   currency Currency @relation(fields: [currencyCode], references: [code], onDelete: Cascade, onUpdate: Cascade)

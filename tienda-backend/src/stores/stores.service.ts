@@ -690,12 +690,22 @@ export class StoresService {
     return this.prisma.storeGameExchangeRate.findMany({ where: { storeId: store.id }, include: { game: true } });
   }
 
-  async upsertExchangeRate(userId: string, data: { gameId: string, rate: number }, requestedStoreId?: string) {
+  async upsertExchangeRate(userId: string, data: { gameId: string, rate: number, buyPercentage?: number, creditPercentage?: number }, requestedStoreId?: string) {
     const store = await this.getStoreByOwner(userId, requestedStoreId);
     return this.prisma.storeGameExchangeRate.upsert({
       where: { storeId_gameId: { storeId: store.id, gameId: data.gameId } },
-      update: { rate: data.rate },
-      create: { storeId: store.id, gameId: data.gameId, rate: data.rate },
+      update: {
+        rate: data.rate,
+        ...(data.buyPercentage !== undefined ? { buyPercentage: data.buyPercentage } : {}),
+        ...(data.creditPercentage !== undefined ? { creditPercentage: data.creditPercentage } : {}),
+      },
+      create: {
+        storeId: store.id,
+        gameId: data.gameId,
+        rate: data.rate,
+        buyPercentage: data.buyPercentage !== undefined ? data.buyPercentage : 50,
+        creditPercentage: data.creditPercentage !== undefined ? data.creditPercentage : 70,
+      },
       include: { game: true }
     });
   }

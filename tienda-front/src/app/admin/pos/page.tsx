@@ -20,6 +20,7 @@ import PosCheckoutModal from './_components/PosCheckoutModal';
 import PosBuyModal from './_components/PosBuyModal';
 import PosShiftModal from './_components/PosShiftModal';
 import PosReceipt, { PosReceiptData } from './_components/PosReceipt';
+import { resolveTradeInValuation } from '@/utils/tradeInPricing';
 
 /**
  * Emite un sonido 'bip' de escáner usando el Web Audio API del navegador (sin archivos externos).
@@ -67,6 +68,7 @@ export default function AdminPosPage() {
 
   // Catálogo completo de la Buylist de la tienda (para autocompletar precios de compra)
   const [buylistMap, setBuylistMap] = useState<Map<string, { cashPrice: number; creditPrice: number; conditionId: string; languageId: string }>>(new Map());
+  const [exchangeRates, setExchangeRates] = useState<any[]>([]);
   const [conditions, setConditions] = useState<Array<{ id: string; name: string; displayName?: string | null }>>([]);
   const [languages, setLanguages] = useState<Array<{ id: string; name: string; code: string }>>([]);
 
@@ -205,13 +207,27 @@ export default function AdminPosPage() {
         }
       };
 
-      await Promise.all([loadCatalog(), loadBuylist()]);
+      const loadExchangeRates = async () => {
+        try {
+          const ratesRes = await adminFetch("/stores/me/exchange-rates", {}, activeBranchId);
+          if (ratesRes.ok) {
+            const ratesData = await ratesRes.json();
+            if (Array.isArray(ratesData)) {
+              setExchangeRates(ratesData);
+            }
+          }
+        } catch {
+          // ignore
+        }
+      };
+
+      await Promise.all([loadCatalog(), loadBuylist(), loadExchangeRates()]);
     } catch {
       setIsBuylistLoading(false);
       setCatalogVersion((v) => v + 1);
     }
     // Solo depende de la conectividad: cambiar de modo (Vender/Comprar) NO debe recargar datos
-  }, [networkStatus.isOnline]);
+  }, [networkStatus.isOnline, activeBranchId]);
 
   // Cargar expansiones dinámicamente según la categoría seleccionada
   useEffect(() => {
@@ -288,6 +304,7 @@ export default function AdminPosPage() {
               category: p.category ? { id: p.category.id, name: p.category.name } : null,
               imageUrl: p.imageUrl || p.cardDetail?.imageUrl,
               cardDetail: p.cardDetail,
+              marketPrices: p.marketPrices || null,
               items: (p.items || []).map((inv: any) => ({
                 id: inv.id,
                 conditionId: inv.conditionId,
@@ -295,6 +312,7 @@ export default function AdminPosPage() {
                 languageId: inv.languageId,
                 language: inv.language,
                 price: Number(inv.price || 0),
+                rawPriceUsd: inv.rawPriceUsd ? Number(inv.rawPriceUsd) : undefined,
                 stock: inv.stock || 0,
                 finish: inv.finish,
               })),
@@ -443,9 +461,6 @@ export default function AdminPosPage() {
 
   // ── ACCIONES DE COMPRA (TRADE-IN) ──
   const handleAddBuyItem = (product: LocalProduct) => {
-    const isBuylist = buylistMap.has(product.id);
-    const buylistInfo = isBuylist ? buylistMap.get(product.id) : null;
-
     // Buscar si ya está en la lista de compra
     const existingIndex = buyCartItems.findIndex((i) => i.productId === product.id);
     if (existingIndex >= 0) {
@@ -458,14 +473,16 @@ export default function AdminPosPage() {
       return;
     }
 
+    const valuation = resolveTradeInValuation(product, buylistMap, exchangeRates);
+    const isBuylist = valuation.source === 'BUYLIST';
+    const isAutoRate = valuation.source === 'AUTO_RATE';
+
     const defaultCondition = conditions.find((c) => c.name === 'near_mint') || conditions[0] || { id: 'nm', name: 'Near Mint', displayName: 'Near Mint' };
     const defaultLanguage = languages.find((l) => l.code === 'es') || languages[0] || { id: 'es', code: 'es', name: 'Spanish' };
-    const defaultCash = buylistInfo ? buylistInfo.cashPrice : 0;
-    const defaultCredit = buylistInfo ? buylistInfo.creditPrice : 0;
 
-    const resolvedCondId = buylistInfo?.conditionId || defaultCondition.id;
+    const resolvedCondId = valuation.conditionId || defaultCondition.id;
     const resolvedCondObj = conditions.find((c) => c.id === resolvedCondId) || defaultCondition;
-    const resolvedLangId = buylistInfo?.languageId || defaultLanguage.id;
+    const resolvedLangId = valuation.languageId || defaultLanguage.id;
     const resolvedLangObj = languages.find((l) => l.id === resolvedLangId) || defaultLanguage;
 
     const newItem: PosBuyCartItem = {
@@ -481,15 +498,23 @@ export default function AdminPosPage() {
       languageId: resolvedLangId,
       languageCode: resolvedLangObj.code?.toUpperCase() || 'ES',
       quantity: 1,
-      cashPrice: defaultCash,
-      creditPrice: defaultCredit,
+      cashPrice: valuation.cashPrice,
+      creditPrice: valuation.creditPrice,
       isFromBuylist: isBuylist,
+      tradeInSource: valuation.source,
+      valuationDetails: isAutoRate ? {
+        rate: valuation.rate,
+        buyPercentage: valuation.buyPercentage,
+        creditPercentage: valuation.creditPercentage,
+      } : undefined,
     };
 
     setBuyCartItems((prev) => [...prev, newItem]);
     playBeepSound();
     if (isBuylist) {
       showToast(`Precios aplicados automáticamente desde Buylist para ${product.name}`, 'success');
+    } else if (isAutoRate) {
+      showToast(`Precios calculados por tasa (${valuation.buyPercentage}% Cash / ${valuation.creditPercentage}% Crédito) para ${product.name}`, 'success');
     }
   };
 
@@ -824,6 +849,7 @@ export default function AdminPosPage() {
             onSelectExpansion={setSelectedExpansion}
             categories={categories}
             expansions={expansions}
+            exchangeRates={exchangeRates}
           />
         </div>
 
