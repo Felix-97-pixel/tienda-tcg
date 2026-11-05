@@ -4,7 +4,7 @@ import { adminFetch } from "@/utils/api";
 import { Category } from "@/types/productCategory";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
 
-export function useProductMetadata(isTcg: boolean, selectedCategory?: string) {
+export function useProductMetadata(isTcg?: boolean, selectedCategory?: string) {
   const { activeBranchId } = useActiveBranch();
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalCategories, setModalCategories] = useState<Category[]>([]);
@@ -12,7 +12,8 @@ export function useProductMetadata(isTcg: boolean, selectedCategory?: string) {
 
   // Fetch Categories
   useEffect(() => {
-    adminFetch(`/products/meta/categories/admin?isTcg=${isTcg}`)
+    const query = isTcg !== undefined ? `?isTcg=${isTcg}` : "";
+    adminFetch(`/products/meta/categories/admin${query}`)
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {

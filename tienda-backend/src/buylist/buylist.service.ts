@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBuylistItemDto } from './dto/create-buylist-item.dto';
 import { UpdateBuylistItemDto } from './dto/update-buylist-item.dto';
+import { BatchCreateBuylistItemsDto } from './dto/batch-create-buylist-items.dto';
 
 @Injectable()
 export class BuylistService {
@@ -128,6 +129,51 @@ export class BuylistService {
         language: true,
       },
     });
+  }
+
+  async batchAddBuylistItems(storeId: string, data: BatchCreateBuylistItemsDto) {
+    const qty = data.quantityWanted && data.quantityWanted > 0 ? data.quantityWanted : 1;
+    const isActive = data.isActive !== undefined ? data.isActive : true;
+    const results = [];
+
+    for (const conditionId of data.conditionIds) {
+      for (const languageId of data.languageIds) {
+        const item = await this.prisma.buyListItem.upsert({
+          where: {
+            storeId_productId_conditionId_languageId: {
+              storeId,
+              productId: data.productId,
+              conditionId,
+              languageId,
+            },
+          },
+          update: {
+            quantityWanted: qty,
+            cashPrice: data.cashPrice,
+            creditPrice: data.creditPrice,
+            isActive,
+          },
+          create: {
+            storeId,
+            productId: data.productId,
+            conditionId,
+            languageId,
+            quantityWanted: qty,
+            cashPrice: data.cashPrice,
+            creditPrice: data.creditPrice,
+            isActive,
+          },
+          include: {
+            product: true,
+            condition: true,
+            language: true,
+          },
+        });
+        results.push(item);
+      }
+    }
+
+    return results;
   }
 
   async updateBuylistItem(storeId: string, id: string, data: UpdateBuylistItemDto) {

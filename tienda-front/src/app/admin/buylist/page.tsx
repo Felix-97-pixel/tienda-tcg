@@ -13,6 +13,12 @@ import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
 import BuylistTable from "@/app/admin/_components/Buylist/BuylistTable";
 import BuylistModal from "@/app/admin/_components/Buylist/BuylistModal";
 import { Button } from "@/components/ui/Button";
+import dynamic from "next/dynamic";
+
+const GlobalCatalogSearchModal = dynamic(
+  () => import("@/app/admin/_components/Products/GlobalCatalogSearchModal"),
+  { ssr: false }
+);
 
 import { useAppSelector } from "@/redux/store";
 
@@ -23,7 +29,7 @@ export default function AdminBuylistPage() {
   const { features } = useAppSelector((state) => state.adminAuthReducer);
 
   // Hook de Datos (Maneja productos, búsqueda, paginación)
-  // isInventoryOnly = false, isTcg = true, isBuylistOnly = false
+  // isInventoryOnly = false, isTcg = undefined (acepta tanto singles como sellado), isBuylistOnly = false
   const {
     products, setProducts, loading, refresh,
     searchTerm, setSearchTerm,
@@ -32,14 +38,21 @@ export default function AdminBuylistPage() {
     buylistState, setBuylistState,
     isBuylistOnly, setIsBuylistOnly,
     page, setPage, totalPages
-  } = useAdminProducts(false, true, false);
+  } = useAdminProducts(false, undefined, false);
 
-  // Metadatos conectados a la sucursal activa
-  const { categories, expansions } = useProductMetadata(true, selectedCategory);
+  // Metadatos conectados a la sucursal activa (isTcg = undefined para cargar todas las categorías: TCG + Sellado)
+  const { categories, expansions } = useProductMetadata(undefined, selectedCategory);
 
   // Estados de Modales
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleSelectProductFromGlobal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsGlobalSearchOpen(false);
+    setIsModalOpen(true);
+  };
 
   // Manejar el cambio de pestaña
   const handleTabChange = (tab: "all" | "active" | "paused") => {
@@ -58,10 +71,10 @@ export default function AdminBuylistPage() {
   return (
     <div className="p-6 space-y-6 pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white">Mi Buylist</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Mi Buylist</h1>
             {activeBranch && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue/10 border border-blue/20 text-xs text-blue">
                 <IconStore className="w-3.5 h-3.5" />
@@ -70,8 +83,19 @@ export default function AdminBuylistPage() {
             )}
           </div>
           <p className="text-gray-4 text-sm mt-1">
-            Busca cartas en el catálogo global y añade solicitudes de compra a tu Buylist.
+            Configura las cartas y productos sellados que tu tienda desea comprar a los clientes y sus precios en efectivo y crédito.
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="success"
+            className="flex items-center gap-2 whitespace-nowrap text-xs font-bold !py-2.5 shadow-lg shadow-emerald-900/30"
+            onClick={() => setIsGlobalSearchOpen(true)}
+          >
+            <span>+</span>
+            <span>Añadir a Buylist</span>
+          </Button>
         </div>
       </div>
 
@@ -104,6 +128,7 @@ export default function AdminBuylistPage() {
             setSelectedProduct(product);
             setIsModalOpen(true);
           }}
+          onOpenGlobalSearch={() => setIsGlobalSearchOpen(true)}
         />
 
         {/* Paginación */}
@@ -143,6 +168,16 @@ export default function AdminBuylistPage() {
             setSelectedProduct(null);
           }}
           onUpdate={refresh}
+        />
+      )}
+
+      {/* Modal de Búsqueda Rápida en Catálogo Global (Modo 'all' para cartas y sellado) */}
+      {isGlobalSearchOpen && (
+        <GlobalCatalogSearchModal
+          isOpen={isGlobalSearchOpen}
+          onClose={() => setIsGlobalSearchOpen(false)}
+          onSelectProduct={handleSelectProductFromGlobal}
+          mode="all"
         />
       )}
     </div>

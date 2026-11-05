@@ -1474,4 +1474,23 @@ export const IconArrowRight: React.FC<IconProps> = ({ className = "w-4 h-4", siz
   </svg>
 );
 
+export const IconHandshake: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
+  <svg
+    width={size || 24}
+    height={size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <path d="m11 17 2 2a1 1 0 0 0 1.42 0l3.8-3.8a3 3 0 0 0 0-4.24l-1.42-1.42a3 3 0 0 0-4.24 0L11 11" />
+    <path d="m16.88 7.12-2.83-2.83a3 3 0 0 0-4.24 0L3.5 10.6a2 2 0 0 0 0 2.83l3.8 3.8a2 2 0 0 0 2.83 0l2.12-2.12" />
+    <path d="m17 11 4.25-4.25a2 2 0 0 0 0-2.83L20 2.67a2 2 0 0 0-2.83 0L14 5.84" />
+  </svg>
+);
+
 

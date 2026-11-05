@@ -9,12 +9,13 @@ export interface BuylistTableProps {
   products: Product[];
   loading: boolean;
   onManage: (product: Product) => void;
+  onOpenGlobalSearch?: () => void;
   page?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
 }
 
-export default function BuylistTable({ products, loading, onManage, page, totalPages, onPageChange }: BuylistTableProps) {
+export default function BuylistTable({ products, loading, onManage, onOpenGlobalSearch, page, totalPages, onPageChange }: BuylistTableProps) {
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -80,19 +81,30 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
       cellClassName: "text-right",
       render: (product) => {
         // Obtenemos cuántas solicitudes de compra hay
-        // TypeScript definition of Product might not have buyListItems explicitly if generated dynamically,
-        // but we know we passed it from backend
         const buyListItemsCount = (product as any).buyListItems?.length || 0;
 
         return (
           <div className="flex items-center justify-end gap-2">
-            <Button 
-              size="sm"
-              onClick={() => onManage(product)}
-              variant={buyListItemsCount > 0 ? "primary" : "secondary"}
-            >
-              GESTIONAR ({buyListItemsCount})
-            </Button>
+            {buyListItemsCount > 0 ? (
+              <Button 
+                size="sm"
+                onClick={() => onManage(product)}
+                variant="primary"
+                className="text-xs font-bold"
+              >
+                En Buylist ({buyListItemsCount})
+              </Button>
+            ) : (
+              <Button 
+                size="sm"
+                onClick={() => onManage(product)}
+                variant="success"
+                className="text-xs font-bold flex items-center gap-1"
+              >
+                <span>+</span>
+                <span>Añadir a Buylist</span>
+              </Button>
+            )}
           </div>
         );
       },
@@ -101,16 +113,26 @@ export default function BuylistTable({ products, loading, onManage, page, totalP
 
   if (products.length === 0 && !loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-white/50">
           <svg className="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
         </div>
         <h3 className="text-xl font-bold text-white mb-2">Sin Resultados</h3>
-        <p className="text-gray-4 max-w-sm">
-          No se encontraron cartas con los filtros aplicados.
+        <p className="text-gray-4 max-w-sm mb-5">
+          No se encontraron cartas con los filtros aplicados. Puedes buscar cartas en el catálogo maestro para añadirlas a tu Buylist.
         </p>
+        {onOpenGlobalSearch && (
+          <Button
+            variant="success"
+            onClick={onOpenGlobalSearch}
+            className="flex items-center gap-1.5 shadow-lg shadow-emerald-900/30"
+          >
+            <span>+</span>
+            <span>Buscar y Añadir Carta a Buylist</span>
+          </Button>
+        )}
       </div>
     );
   }

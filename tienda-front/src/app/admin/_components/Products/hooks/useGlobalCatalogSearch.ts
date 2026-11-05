@@ -8,9 +8,16 @@ export function useGlobalCatalogSearch() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGame, setSelectedGame] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [isTcgFilter, setIsTcgFilter] = useState<boolean | undefined>(undefined);
 
   const searchGlobalCatalog = useCallback(async () => {
-    if (!searchTerm || searchTerm.length < 3) {
+    // Si no hay término de búsqueda (mínimo 2 letras) y tampoco hay categoría ni juego seleccionado, limpiar
+    const hasSearchTerm = searchTerm && searchTerm.trim().length >= 2;
+    const hasCategory = Boolean(selectedCategory);
+    const hasGame = Boolean(selectedGame);
+
+    if (!hasSearchTerm && !hasCategory && !hasGame) {
       setResults([]);
       setLoading(false);
       return;
@@ -19,11 +26,20 @@ export function useGlobalCatalogSearch() {
     setLoading(true);
     try {
       const url = new URL(`${API_URL}/products`);
-      url.searchParams.append("search", searchTerm);
-      url.searchParams.append("limit", "15"); // We only need a few results for the dropdown/modal
+      if (hasSearchTerm) {
+        url.searchParams.append("search", searchTerm.trim());
+      }
+      url.searchParams.append("limit", "20");
       url.searchParams.append("adminCatalog", "true");
+
       if (selectedGame) {
         url.searchParams.append("game", selectedGame);
+      }
+      if (selectedCategory) {
+        url.searchParams.append("category", selectedCategory);
+      }
+      if (isTcgFilter !== undefined) {
+        url.searchParams.append("isTcg", isTcgFilter.toString());
       }
 
       const res = await adminFetch(url.toString());
@@ -35,10 +51,10 @@ export function useGlobalCatalogSearch() {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, selectedGame]);
+  }, [searchTerm, selectedGame, selectedCategory, isTcgFilter]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(searchGlobalCatalog, 400); // 400ms debounce
+    const timeoutId = setTimeout(searchGlobalCatalog, 350); // 350ms debounce
     return () => clearTimeout(timeoutId);
   }, [searchGlobalCatalog]);
 
@@ -47,6 +63,10 @@ export function useGlobalCatalogSearch() {
     setSearchTerm,
     selectedGame,
     setSelectedGame,
+    selectedCategory,
+    setSelectedCategory,
+    isTcgFilter,
+    setIsTcgFilter,
     results,
     loading
   };

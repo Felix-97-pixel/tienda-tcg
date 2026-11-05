@@ -124,6 +124,7 @@ export default function StoreAdminProducts() {
       <GlobalCatalogSearchModal
         isOpen={isGlobalSearchOpen}
         onClose={() => setIsGlobalSearchOpen(false)}
+        mode="sealed"
         onSelectProduct={(product) => {
           setIsGlobalSearchOpen(false);
           setSelectedProduct(product);

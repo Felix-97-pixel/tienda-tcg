@@ -4,6 +4,7 @@ import Image from "next/image";
 import { API_URL } from "@/utils/api";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
+import { IconZap, IconSearch, IconCash, IconGem, IconHandshake, IconMapPin } from "@/components/ui/Icons";
 
 interface BuylistItem {
   id: string;
@@ -57,12 +58,26 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
   const [items, setItems] = useState<BuylistItem[]>(initialItems || []);
   const [loading, setLoading] = useState(!initialItems);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("ALL");
   const [selectedCondition, setSelectedCondition] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<"credit-desc" | "cash-desc" | "name-asc">("credit-desc");
   const [selectedTradeItem, setSelectedTradeItem] = useState<BuylistItem | null>(null);
   const [tradeQuantity, setTradeQuantity] = useState(1);
   const [payoutMethod, setPayoutMethod] = useState<"credit" | "cash">("credit");
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Extract unique languages present in this store's buylist
+  const uniqueLanguages = useMemo(() => {
+    const map = new Map<string, { code: string; name: string }>();
+    items.forEach((item) => {
+      if (item.language) {
+        const code = (item.language.code || item.language.name || "").substring(0, 2).toUpperCase();
+        const name = item.language.name || code;
+        if (!map.has(code)) map.set(code, { code, name });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [items]);
 
   // Normalize settings map for WhatsApp / Address
   const settingsMap = useMemo(() => {
@@ -99,11 +114,17 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
           const expansion = item.product?.cardDetail?.expansion?.toLowerCase() || "";
           if (!cardName.includes(query) && !expansion.includes(query)) return false;
         }
+        if (selectedLanguage !== "ALL") {
+          const itemLangCode = (item.language?.code || item.language?.name || "").substring(0, 2).toUpperCase();
+          if (itemLangCode !== selectedLanguage) return false;
+        }
         if (selectedCondition !== "ALL") {
           const condName = (item.condition?.name || "").toLowerCase();
-          if (selectedCondition === "NM" && !condName.includes("near_mint") && condName !== "nm") return false;
-          if (selectedCondition === "LP" && !condName.includes("light") && condName !== "lp") return false;
-          if (selectedCondition === "MP" && !condName.includes("moderate") && condName !== "mp") return false;
+          if (selectedCondition === "NM" && !condName.includes("near_mint") && !condName.includes("mint") && condName !== "nm") return false;
+          if (selectedCondition === "LP" && !condName.includes("light") && !condName.includes("excel") && condName !== "lp" && condName !== "ex") return false;
+          if (selectedCondition === "MP" && !condName.includes("moderate") && !condName.includes("good") && condName !== "mp" && condName !== "gd") return false;
+          if (selectedCondition === "HP" && !condName.includes("heavy") && condName !== "hp") return false;
+          if (selectedCondition === "DMG" && !condName.includes("damag") && !condName.includes("poor") && condName !== "dmg") return false;
         }
         return true;
       })
@@ -116,20 +137,20 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
         }
         return (a.product?.name || "").localeCompare(b.product?.name || "");
       });
-  }, [items, searchTerm, selectedCondition, sortBy]);
+  }, [items, searchTerm, selectedLanguage, selectedCondition, sortBy]);
 
   const getConditionBadge = (condName?: string) => {
     const raw = (condName || "NM").toUpperCase();
-    if (raw.includes("NEAR") || raw === "NM") {
+    if (raw.includes("NEAR") || raw === "NM" || raw.includes("MINT")) {
       return { label: "NM", className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" };
     }
-    if (raw.includes("LIGHT") || raw === "LP") {
+    if (raw.includes("LIGHT") || raw === "LP" || raw.includes("EXCEL")) {
       return { label: "LP", className: "bg-blue-500/15 text-blue-400 border-blue-500/30" };
     }
-    if (raw.includes("MODERATE") || raw === "MP") {
+    if (raw.includes("MODERATE") || raw === "MP" || raw.includes("GOOD")) {
       return { label: "MP", className: "bg-amber-500/15 text-amber-400 border-amber-500/30" };
     }
-    if (raw.includes("HEAVY") || raw === "HP") {
+    if (raw.includes("HEAVY") || raw === "HP" || raw.includes("PLAYED")) {
       return { label: "HP", className: "bg-orange-500/15 text-orange-400 border-orange-500/30" };
     }
     return { label: "DMG", className: "bg-rose-500/15 text-rose-400 border-rose-500/30" };
@@ -186,7 +207,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
-              <span>⚡</span> Motor Oficial de Buylist
+              <IconZap className="w-3.5 h-3.5" /> Motor Oficial de Buylist
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               ¿Tienes estas cartas? <span className="text-amber-400">{store.name}</span> las está comprando
@@ -250,7 +271,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Condition Pills */}
           <div className="inline-flex rounded-xl bg-[#111522] border border-white/10 p-1">
-            {["ALL", "NM", "LP", "MP"].map((c) => (
+            {["ALL", "NM", "LP", "MP", "HP", "DMG"].map((c) => (
               <button
                 key={c}
                 type="button"
@@ -265,6 +286,35 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               </button>
             ))}
           </div>
+
+          {/* Language selector */}
+          {uniqueLanguages.length > 0 && (
+            <div className="relative">
+              <select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="h-11 px-3.5 pr-8 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
+              >
+                <option value="ALL">Todos los idiomas</option>
+                {uniqueLanguages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.name} ({l.code})
+                  </option>
+                ))}
+              </select>
+              <svg
+                className="absolute right-3 top-4 pointer-events-none text-gray-400"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          )}
 
           {/* Sort selector */}
           <div className="relative">
@@ -301,17 +351,32 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
         </div>
       ) : filteredItems.length === 0 ? (
         <div className="text-center py-16 px-4 rounded-2xl bg-[#111522]/30 border border-dashed border-white/10">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
-            📭
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <IconSearch className="w-8 h-8 opacity-60" />
           </div>
           <h3 className="text-lg font-bold text-white mb-1">
-            {searchTerm ? "No se encontraron cartas en la búsqueda" : "No hay cartas en la buylist por el momento"}
+            {searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL"
+              ? "No se encontraron cartas con los filtros aplicados"
+              : "No hay cartas en la buylist por el momento"}
           </h3>
-          <p className="text-sm text-gray-400 max-w-md mx-auto">
-            {searchTerm
+          <p className="text-sm text-gray-400 max-w-md mx-auto mb-4">
+            {searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL"
               ? "Prueba buscando con otro término o limpia los filtros para ver todas las cartas solicitadas."
               : `${store.name} aún no ha publicado cartas solicitadas en su buylist. Vuelve a consultar pronto.`}
           </p>
+          {(searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCondition("ALL");
+                setSelectedLanguage("ALL");
+              }}
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all"
+            >
+              Limpiar filtros
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -370,8 +435,9 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   <div className="mt-4 grid grid-cols-2 gap-2 bg-[#0A0D14]/70 rounded-xl p-2.5 border border-white/5">
                     {/* Cash */}
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">
-                        💵 Efectivo
+                      <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                        <IconCash className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Efectivo</span>
                       </span>
                       <span className="text-sm font-extrabold text-white">
                         {formatPrice(cash, currency)}
@@ -381,8 +447,9 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                     {/* Credit */}
                     <div className="border-l border-white/10 pl-2.5">
                       <div className="flex items-center gap-1">
-                        <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
-                          💎 Crédito
+                        <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-400 tracking-wider">
+                          <IconGem className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Crédito</span>
                         </span>
                         {bonusPercent > 0 && (
                           <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 px-1 rounded">
@@ -428,7 +495,9 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl">🤝</span>
+              <span className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                <IconHandshake className="w-5 h-5" />
+              </span>
               <h3 className="text-lg font-black text-white">
                 Vender a {store.name}
               </h3>
@@ -573,8 +642,9 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             </div>
 
             {storeAddress && (
-              <p className="text-[11px] text-gray-400 text-center mt-4">
-                📍 Retiro presencial disponible en: {storeAddress}
+              <p className="text-[11px] text-gray-400 text-center mt-4 inline-flex items-center justify-center gap-1.5 w-full">
+                <IconMapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>Retiro presencial disponible en: {storeAddress}</span>
               </p>
             )}
           </div>

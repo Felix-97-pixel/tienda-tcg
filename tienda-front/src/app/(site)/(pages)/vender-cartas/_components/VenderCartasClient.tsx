@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import { IconZap, IconSearch, IconCash, IconGem } from "@/components/ui/Icons";
 
 interface BuylistItem {
   id: string;
@@ -61,6 +62,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStoreId, setSelectedStoreId] = useState<string>("ALL");
   const [selectedGame, setSelectedGame] = useState<string>("ALL");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("ALL");
   const [selectedCondition, setSelectedCondition] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<"credit-desc" | "cash-desc" | "name-asc">("credit-desc");
 
@@ -80,6 +82,19 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     return Array.from(set);
   }, [initialItems]);
 
+  // Extract unique languages
+  const uniqueLanguages = useMemo(() => {
+    const map = new Map<string, { code: string; name: string }>();
+    initialItems.forEach((item) => {
+      if (item.language) {
+        const code = (item.language.code || item.language.name || "").substring(0, 2).toUpperCase();
+        const name = item.language.name || code;
+        if (!map.has(code)) map.set(code, { code, name });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [initialItems]);
+
   const storeOptions = useMemo(() => [
     { label: "Todas las tiendas", value: "ALL" },
     ...initialStores.map((st) => ({ label: st.name, value: st.id })),
@@ -89,6 +104,11 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     { label: "Todos los juegos", value: "ALL" },
     ...uniqueGames.map((g) => ({ label: g, value: g })),
   ], [uniqueGames]);
+
+  const languageOptions = useMemo(() => [
+    { label: "Todos los idiomas", value: "ALL" },
+    ...uniqueLanguages.map((l) => ({ label: `${l.name} (${l.code})`, value: l.code })),
+  ], [uniqueLanguages]);
 
   const filteredItems = useMemo(() => {
     return initialItems
@@ -108,12 +128,20 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         // Game filter
         if (selectedGame !== "ALL" && item.product?.category?.name !== selectedGame) return false;
 
+        // Language filter
+        if (selectedLanguage !== "ALL") {
+          const itemLangCode = (item.language?.code || item.language?.name || "").substring(0, 2).toUpperCase();
+          if (itemLangCode !== selectedLanguage) return false;
+        }
+
         // Condition filter
         if (selectedCondition !== "ALL") {
           const condName = (item.condition?.name || "").toLowerCase();
-          if (selectedCondition === "NM" && !condName.includes("near_mint") && condName !== "nm") return false;
-          if (selectedCondition === "LP" && !condName.includes("light") && condName !== "lp") return false;
-          if (selectedCondition === "MP" && !condName.includes("moderate") && condName !== "mp") return false;
+          if (selectedCondition === "NM" && !condName.includes("near_mint") && !condName.includes("mint") && condName !== "nm") return false;
+          if (selectedCondition === "LP" && !condName.includes("light") && !condName.includes("excel") && condName !== "lp" && condName !== "ex") return false;
+          if (selectedCondition === "MP" && !condName.includes("moderate") && !condName.includes("good") && condName !== "mp" && condName !== "gd") return false;
+          if (selectedCondition === "HP" && !condName.includes("heavy") && condName !== "hp") return false;
+          if (selectedCondition === "DMG" && !condName.includes("damag") && !condName.includes("poor") && condName !== "dmg") return false;
         }
 
         return true;
@@ -127,20 +155,23 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         }
         return (a.product?.name || "").localeCompare(b.product?.name || "");
       });
-  }, [initialItems, searchTerm, selectedStoreId, selectedGame, selectedCondition, sortBy]);
+  }, [initialItems, searchTerm, selectedStoreId, selectedGame, selectedLanguage, selectedCondition, sortBy]);
 
   const getConditionBadge = (condName?: string) => {
     const raw = (condName || "NM").toUpperCase();
-    if (raw.includes("NEAR") || raw === "NM") {
+    if (raw.includes("NEAR") || raw === "NM" || raw.includes("MINT")) {
       return { label: "NM", className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" };
     }
-    if (raw.includes("LIGHT") || raw === "LP") {
+    if (raw.includes("LIGHT") || raw === "LP" || raw.includes("EXCEL")) {
       return { label: "LP", className: "bg-blue-500/15 text-blue-400 border-blue-500/30" };
     }
-    if (raw.includes("MODERATE") || raw === "MP") {
+    if (raw.includes("MODERATE") || raw === "MP" || raw.includes("GOOD")) {
       return { label: "MP", className: "bg-amber-500/15 text-amber-400 border-amber-500/30" };
     }
-    return { label: "HP", className: "bg-orange-500/15 text-orange-400 border-orange-500/30" };
+    if (raw.includes("HEAVY") || raw === "HP" || raw.includes("PLAYED")) {
+      return { label: "HP", className: "bg-orange-500/15 text-orange-400 border-orange-500/30" };
+    }
+    return { label: "DMG", className: "bg-rose-500/15 text-rose-400 border-rose-500/30" };
   };
 
   const handleOpenTrade = (item: BuylistItem) => {
@@ -194,7 +225,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
       {/* 1. Header & Hero Atmosphere */}
       <div className="text-center max-w-3xl mx-auto mb-12 relative">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black uppercase tracking-wider mb-4">
-          <span>⚡</span> Red de Buylists en Vivo
+          <IconZap className="w-3.5 h-3.5" /> Red de Buylists en Vivo
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
@@ -309,6 +340,20 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               </div>
             )}
 
+            {/* Language filter */}
+            {uniqueLanguages.length > 0 && (
+              <div className="w-40 sm:w-48">
+                <SearchableSelect
+                  options={languageOptions}
+                  value={selectedLanguage}
+                  onChange={(val) => setSelectedLanguage(val || "ALL")}
+                  placeholder="Filtrar por idioma..."
+                  inputClassName="h-11 !text-xs !bg-[#0A0D14] focus:!border-amber-500 focus:!ring-amber-500/30 font-semibold"
+                  noResultsText="Idioma no encontrado"
+                />
+              </div>
+            )}
+
             {/* Condition filter */}
             <div className="relative">
               <select
@@ -320,6 +365,8 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 <option value="NM">Near Mint (NM)</option>
                 <option value="LP">Lightly Played (LP)</option>
                 <option value="MP">Moderately Played (MP)</option>
+                <option value="HP">Heavily Played (HP)</option>
+                <option value="DMG">Damaged (DMG)</option>
               </select>
               <svg
                 className="absolute right-3 top-4 pointer-events-none text-gray-400"
@@ -373,14 +420,14 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
       {filteredItems.length === 0 ? (
         <div className="text-center py-20 px-4 rounded-3xl bg-[#111522]/40 border border-dashed border-white/10">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-3xl">
-            📭
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <IconSearch className="w-8 h-8 opacity-60" />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">
             No se encontraron cartas en la buylist
           </h3>
           <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
-            Intenta borrar los términos de búsqueda o cambiar los filtros de tienda y juego para ver más publicaciones.
+            Intenta borrar los términos de búsqueda o cambiar los filtros de tienda, juego o idioma para ver más publicaciones.
           </p>
           <button
             type="button"
@@ -388,6 +435,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               setSearchTerm("");
               setSelectedStoreId("ALL");
               setSelectedGame("ALL");
+              setSelectedLanguage("ALL");
               setSelectedCondition("ALL");
             }}
             className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all"
@@ -480,8 +528,9 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   {/* Dual Price Matrix */}
                   <div className="mt-4 grid grid-cols-2 gap-2 bg-[#0A0D14]/70 rounded-xl p-2.5 border border-white/5">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">
-                        💵 Efectivo
+                      <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                        <IconCash className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Efectivo</span>
                       </span>
                       <span className="text-sm font-extrabold text-white">
                         {formatPrice(cash, currency)}
@@ -490,8 +539,9 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
                     <div className="border-l border-white/10 pl-2.5">
                       <div className="flex items-center gap-1">
-                        <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
-                          💎 Crédito
+                        <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-400 tracking-wider">
+                          <IconGem className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Crédito</span>
                         </span>
                         {bonusPercent > 0 && (
                           <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 px-1 rounded">

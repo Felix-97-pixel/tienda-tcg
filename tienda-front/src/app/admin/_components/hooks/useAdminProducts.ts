@@ -19,14 +19,6 @@ export function useAdminProducts(initialInventoryOnly: boolean = false, isTcg?: 
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchProducts = useCallback(async () => {
-    // No cargar nada si no hay filtros aplicados, excepto si queremos ver el inventario o buylist
-    if (!searchTerm && !selectedCategory && !selectedExpansion && !isInventoryOnly && !isBuylistOnly) {
-      setProducts([]);
-      setTotalPages(1);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     try {
       const url = new URL(`${API_URL}/products`);

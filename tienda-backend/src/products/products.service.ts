@@ -504,6 +504,7 @@ export class ProductsService {
 
     return this.prisma.category.findMany({
       where: whereClause,
+      orderBy: { name: 'asc' },
       select: {
         id: true,
         name: true,

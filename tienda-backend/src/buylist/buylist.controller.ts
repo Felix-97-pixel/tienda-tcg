@@ -7,6 +7,7 @@ import { Role } from '@prisma/client';
 import { StoresService } from '../stores/stores.service';
 import { CreateBuylistItemDto } from './dto/create-buylist-item.dto';
 import { UpdateBuylistItemDto } from './dto/update-buylist-item.dto';
+import { BatchCreateBuylistItemsDto } from './dto/batch-create-buylist-items.dto';
 
 @Controller('buylist')
 export class BuylistController {
@@ -33,7 +34,8 @@ export class BuylistController {
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Get('me')
   async getMyBuylist(@Request() req: any) {
-    const store = await this.storesService.getStoreByOwner(req.user.userId);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
+    const store = await this.storesService.getStoreByOwner(req.user.userId, targetStoreId);
     return this.buylistService.getStoreBuylist(store.id);
   }
 
@@ -41,8 +43,18 @@ export class BuylistController {
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Post('me')
   async addBuylistItem(@Request() req: any, @Body() dto: CreateBuylistItemDto) {
-    const store = await this.storesService.getStoreByOwner(req.user.userId);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
+    const store = await this.storesService.getStoreByOwner(req.user.userId, targetStoreId);
     return this.buylistService.addBuylistItem(store.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Post('me/batch')
+  async batchAddBuylistItems(@Request() req: any, @Body() dto: BatchCreateBuylistItemsDto) {
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
+    const store = await this.storesService.getStoreByOwner(req.user.userId, targetStoreId);
+    return this.buylistService.batchAddBuylistItems(store.id, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -53,7 +65,8 @@ export class BuylistController {
     @Param('id') id: string,
     @Body() dto: UpdateBuylistItemDto,
   ) {
-    const store = await this.storesService.getStoreByOwner(req.user.userId);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
+    const store = await this.storesService.getStoreByOwner(req.user.userId, targetStoreId);
     return this.buylistService.updateBuylistItem(store.id, id, dto);
   }
 
@@ -61,7 +74,8 @@ export class BuylistController {
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Delete('me/:id')
   async deleteBuylistItem(@Request() req: any, @Param('id') id: string) {
-    const store = await this.storesService.getStoreByOwner(req.user.userId);
+    const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
+    const store = await this.storesService.getStoreByOwner(req.user.userId, targetStoreId);
     return this.buylistService.deleteBuylistItem(store.id, id);
   }
 }
