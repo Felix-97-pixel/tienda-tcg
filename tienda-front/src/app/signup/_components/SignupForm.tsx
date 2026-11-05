@@ -3,11 +3,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import { IconShieldCheck, IconTrendingUp, IconZap } from "@/components/ui/Icons";
 
 export default function SignupForm() {
+  const t = useTranslations("register");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,19 +28,19 @@ export default function SignupForm() {
     setError("");
 
     if (password !== rePassword) {
-      return setError("Las contraseñas no coinciden. Por favor verifícalas.");
+      return setError(t("error_password_match"));
     }
 
     if (password.length < 6) {
-      return setError("La contraseña debe tener al menos 6 caracteres.");
+      return setError(t("error_password_length"));
     }
 
     if (!acceptedTerms) {
-      return setError("Debes aceptar los Términos y Condiciones y la Política de Privacidad para continuar.");
+      return setError(t("error_terms_required"));
     }
 
     if (!captchaToken) {
-      return setError("Por favor, completa el CAPTCHA de seguridad.");
+      return setError(t("error_captcha_required"));
     }
 
     setIsLoading(true);
@@ -53,7 +56,7 @@ export default function SignupForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Error al registrar la cuenta.");
+        throw new Error(data.message || t("error_register_failed"));
       }
 
       setIsRegistered(true);
@@ -108,7 +111,7 @@ export default function SignupForm() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            Volver a la tienda
+            {t("back_to_shop" as any) || "Volver a la tienda"}
           </Link>
         </div>
 
@@ -116,44 +119,44 @@ export default function SignupForm() {
         <div className="relative z-10 my-auto max-w-xl py-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red-light text-xs font-semibold mb-6 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-red animate-pulse" />
-            Registro de Coleccionistas y Tiendas
+            {t("badge_register")}
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.15] mb-5">
-            Únete a la mayor red de{" "}
+            {t("hero_join")}{" "}
             <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-red-light via-red to-orange">
-              Coleccionistas TCG
+              {t("hero_community")}
             </span>
           </h1>
 
           <p className="text-white/75 text-base xl:text-lg leading-relaxed mb-8">
-            Crea tu cuenta gratis para comprar con total protección, listar tus cartas al instante, sincronizar inventario de tu tienda y acceder a las mejores ofertas en Chile.
+            {t("hero_desc")}
           </p>
 
           {/* Tarjetas de Beneficios */}
           <div className="grid grid-cols-3 gap-3.5 pt-2">
             <div className="bg-[#0B0E17]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-md hover:border-red/40 transition-all">
               <div className="w-8 h-8 rounded-lg bg-red/15 border border-red/30 flex items-center justify-center text-red-light mb-2.5 font-bold text-sm">
-                🛡️
+                <IconShieldCheck className="w-5 h-5 text-red-light" />
               </div>
-              <h4 className="text-xs font-bold text-white mb-0.5">Protección Total</h4>
-              <p className="text-[11px] text-white/50 leading-tight">Garantía TapTrade en cada compra.</p>
+              <h4 className="text-xs font-bold text-white mb-0.5">{t("benefit_protection_title")}</h4>
+              <p className="text-[11px] text-white/50 leading-tight">{t("benefit_protection_desc")}</p>
             </div>
 
             <div className="bg-[#0B0E17]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-md hover:border-[#F59E0B]/40 transition-all">
               <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 flex items-center justify-center text-[#FCD34D] mb-2.5 font-bold text-sm">
-                📈
+                <IconTrendingUp className="w-5 h-5 text-[#FCD34D]" />
               </div>
-              <h4 className="text-xs font-bold text-white mb-0.5">Precios en Vivo</h4>
-              <p className="text-[11px] text-white/50 leading-tight">Valor de mercado Scryfall & JustTCG.</p>
+              <h4 className="text-xs font-bold text-white mb-0.5">{t("benefit_prices_title")}</h4>
+              <p className="text-[11px] text-white/50 leading-tight">{t("benefit_prices_desc")}</p>
             </div>
 
             <div className="bg-[#0B0E17]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-md hover:border-[#2CD673]/40 transition-all">
               <div className="w-8 h-8 rounded-lg bg-[#22AD5C]/15 border border-[#22AD5C]/30 flex items-center justify-center text-[#2CD673] mb-2.5 font-bold text-sm">
-                ⚡
+                <IconZap className="w-5 h-5 text-[#2CD673]" />
               </div>
-              <h4 className="text-xs font-bold text-white mb-0.5">Venta Inmediata</h4>
-              <p className="text-[11px] text-white/50 leading-tight">Sistema Buylist con crédito en tienda.</p>
+              <h4 className="text-xs font-bold text-white mb-0.5">{t("benefit_sell_title")}</h4>
+              <p className="text-[11px] text-white/50 leading-tight">{t("benefit_sell_desc")}</p>
             </div>
           </div>
         </div>
@@ -161,7 +164,7 @@ export default function SignupForm() {
         {/* Footer Izquierdo */}
         <div className="relative z-10 flex items-center justify-between text-xs text-white/40 pt-4 border-t border-white/10">
           <span>© {new Date().getFullYear()} TapTrade Inc.</span>
-          <span>Cumplimiento Ley de Protección de Datos Personales (Chile)</span>
+          <span>{t("footer_compliance")}</span>
         </div>
       </div>
 
@@ -202,11 +205,11 @@ export default function SignupForm() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
-                ¡Registro casi completado!
+                {t("success_title")}
               </h2>
 
               <p className="text-white/70 text-sm leading-relaxed mb-6">
-                Hemos enviado un enlace de activación seguro a tu correo electrónico:
+                {t("success_desc")}
                 <br />
                 <span className="font-bold text-white text-base mt-1 inline-block bg-white/5 px-3 py-1 rounded-lg border border-white/10">
                   {email}
@@ -218,12 +221,12 @@ export default function SignupForm() {
                   <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
-                  Instrucciones de activación:
+                  {t("instructions_title")}
                 </div>
                 <ol className="list-decimal pl-4.5 space-y-1 text-white/70">
-                  <li>Revisa tu bandeja de entrada o carpeta de Spam / No deseados.</li>
-                  <li>Haz clic en el enlace <strong>"Activar Mi Cuenta"</strong>.</li>
-                  <li>¡Listo! Tu cuenta quedará habilitada para comprar y vender.</li>
+                  <li>{t("instruction_1")}</li>
+                  <li>{t("instruction_2")}</li>
+                  <li>{t("instruction_3")}</li>
                 </ol>
               </div>
 
@@ -232,14 +235,14 @@ export default function SignupForm() {
                   href="/login"
                   className="w-full bg-gradient-to-r from-red-dark via-red to-orange text-white font-bold rounded-xl py-3.5 px-6 hover:brightness-110 active:scale-[0.99] transition-all shadow-lg shadow-red/25 border border-red/30 text-sm uppercase tracking-wider block text-center"
                 >
-                  Ir a Iniciar Sesión
+                  {t("go_to_login")}
                 </Link>
 
                 <Link
                   href="/"
                   className="w-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white font-semibold rounded-xl py-3 px-4 border border-white/10 text-xs transition-all block text-center"
                 >
-                  Volver a la tienda
+                  {t("back_to_shop" as any) || "Volver a la tienda"}
                 </Link>
               </div>
             </div>
@@ -249,10 +252,10 @@ export default function SignupForm() {
               {/* Encabezado del Formulario */}
               <div className="mb-6">
                 <h2 className="text-3xl font-black text-white tracking-tight mb-2">
-                  Crear Cuenta
+                  {t("title")}
                 </h2>
                 <p className="text-white/60 text-sm">
-                  Ingresa tus datos para registrarte en la plataforma TCG de Chile.
+                  {t("subtitle")}
                 </p>
               </div>
 
@@ -265,7 +268,7 @@ export default function SignupForm() {
               <div className="flex items-center gap-3 my-6">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
                 <span className="text-[11px] font-medium tracking-wider uppercase text-white/40 select-none shrink-0">
-                  o regístrate con tu correo
+                  {t("or_email")}
                 </span>
                 <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
               </div>
@@ -286,7 +289,7 @@ export default function SignupForm() {
                 {/* Nombre Completo */}
                 <div>
                   <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                    Nombre Completo
+                    {t("name_label")}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
@@ -302,7 +305,7 @@ export default function SignupForm() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      placeholder="Tu nombre y apellido"
+                      placeholder={t("name_placeholder")}
                       autoComplete="name"
                       className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
                     />
@@ -312,7 +315,7 @@ export default function SignupForm() {
                 {/* Correo Electrónico */}
                 <div>
                   <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                    Correo Electrónico
+                    {t("email_label")}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
@@ -328,7 +331,7 @@ export default function SignupForm() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      placeholder="ejemplo@correo.com"
+                      placeholder={t("email_placeholder")}
                       autoComplete="email"
                       className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
                     />
@@ -338,7 +341,7 @@ export default function SignupForm() {
                 {/* Contraseña */}
                 <div>
                   <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                    Contraseña
+                    {t("password_label")}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
@@ -354,14 +357,14 @@ export default function SignupForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder={t("password_placeholder")}
                       autoComplete="new-password"
                       className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                      aria-label={showPassword ? (t("hide_pwd_aria" as any) || "Ocultar") : (t("show_pwd_aria" as any) || "Ver")}
                       className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
                     >
                       {showPassword ? (
@@ -382,7 +385,7 @@ export default function SignupForm() {
                 {/* Confirmar Contraseña */}
                 <div>
                   <label htmlFor="rePassword" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                    Confirmar Contraseña
+                    {t("confirm_password")}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
@@ -398,14 +401,14 @@ export default function SignupForm() {
                       value={rePassword}
                       onChange={(e) => setRePassword(e.target.value)}
                       required
-                      placeholder="Repite tu contraseña"
+                      placeholder={t("confirm_password_placeholder")}
                       autoComplete="new-password"
                       className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
                     />
                     <button
                       type="button"
                       onClick={() => setShowRePassword(!showRePassword)}
-                      aria-label={showRePassword ? "Ocultar confirmación" : "Ver confirmación"}
+                      aria-label={showRePassword ? (t("hide_pwd_aria" as any) || "Ocultar") : (t("show_pwd_aria" as any) || "Ver")}
                       className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
                     >
                       {showRePassword ? (
@@ -433,23 +436,23 @@ export default function SignupForm() {
                       className="w-4 h-4 rounded bg-[#0E121B] border-white/20 text-red focus:ring-red/30 focus:ring-offset-0 focus:ring-1 accent-[#F23030] cursor-pointer shrink-0 mt-0.5"
                     />
                     <span className="group-hover:text-white transition-colors">
-                      He leído y acepto los{" "}
+                      {t("terms_accept")}{" "}
                       <Link
                         href="/terminos-y-condiciones"
                         target="_blank"
                         className="text-red-light hover:text-white underline font-semibold"
                       >
-                        Términos y Condiciones
+                        {t("terms_link")}
                       </Link>{" "}
-                      y la{" "}
+                      {t("terms_middle")}{" "}
                       <Link
                         href="/politica-de-privacidad"
                         target="_blank"
                         className="text-red-light hover:text-white underline font-semibold"
                       >
-                        Política de Privacidad
+                        {t("privacy_link")}
                       </Link>{" "}
-                      conforme a la Ley de Protección de Datos Personales en Chile.
+                      {t("terms_suffix")}
                     </span>
                   </label>
                 </div>
@@ -475,10 +478,10 @@ export default function SignupForm() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      <span>Creando tu cuenta...</span>
+                      <span>{t("submitting")}</span>
                     </>
                   ) : (
-                    <span>Crear mi Cuenta</span>
+                    <span>{t("submit_btn")}</span>
                   )}
                 </button>
               </form>
@@ -486,12 +489,12 @@ export default function SignupForm() {
               {/* Enlace para Iniciar Sesión */}
               <div className="mt-8 pt-6 border-t border-white/10 text-center">
                 <p className="text-xs text-white/60">
-                  ¿Ya tienes una cuenta registrada?{" "}
+                  {t("have_account_prompt")}{" "}
                   <Link
                     href="/login"
                     className="text-red-light hover:text-white font-bold transition-colors ml-1"
                   >
-                    Iniciar Sesión aquí
+                    {t("login_link_here")}
                   </Link>
                 </p>
               </div>

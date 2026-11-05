@@ -8,14 +8,16 @@ import {
 import { useToast } from "@/hooks/useToast";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const SingleItem = ({ item }: { item: any }) => {
+  const t = useTranslations("cart");
   const dispatch = useDispatch<AppDispatch>();
   const { showToast } = useToast();
 
   const handleRemoveFromCart = () => {
     dispatch(removeItemFromCart(item.id));
-    showToast(`"${item.title}" eliminada del carrito`, "warning");
+    showToast(t("item_removed_toast", { title: item.title || "Carta" }), "warning");
   };
 
   const maxStock = item.stock !== undefined && item.stock !== null ? item.stock : 999;
@@ -24,7 +26,7 @@ const SingleItem = ({ item }: { item: any }) => {
     if (item.quantity < maxStock) {
       dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity + 1 }));
     } else {
-      showToast(`Solo hay ${maxStock} unidades disponibles en stock`, "warning");
+      showToast(t("stock_limit_toast", { max: maxStock }), "warning");
     }
   };
 
@@ -95,7 +97,7 @@ const SingleItem = ({ item }: { item: any }) => {
 
           {/* Store */}
           <div className="text-[11px] text-gray-400 mt-1 truncate">
-            <span className="text-gray-500">Tienda: </span>
+            <span className="text-gray-500">{t("store_label")} </span>
             <span className="text-gray-300 font-medium">{item.storeName || "TapTrade Store"}</span>
           </div>
         </div>
@@ -103,7 +105,7 @@ const SingleItem = ({ item }: { item: any }) => {
 
       {/* Unit Price (Col 2) */}
       <div className="col-span-4 sm:col-span-2 text-left sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden">Precio Unitario:</span>
+        <span className="text-xs text-gray-400 block sm:hidden">{t("table_header_unit_price")}:</span>
         {item.discountAmount > 0 ? (
           <div>
             <span className="text-gray-500 line-through text-[11px] block font-mono">
@@ -150,7 +152,7 @@ const SingleItem = ({ item }: { item: any }) => {
 
       {/* Subtotal (Col 2) */}
       <div className="col-span-3 sm:col-span-2 text-right">
-        <span className="text-xs text-gray-400 block sm:hidden">Subtotal:</span>
+        <span className="text-xs text-gray-400 block sm:hidden">{t("table_header_subtotal")}:</span>
         <span className="text-sm font-black font-mono text-white">
           ${Math.round(lineTotal).toLocaleString("es-CL")}
         </span>
@@ -161,9 +163,9 @@ const SingleItem = ({ item }: { item: any }) => {
       <div className="col-span-1 sm:col-span-1 flex justify-end">
         <button
           onClick={handleRemoveFromCart}
-          aria-label="Eliminar del carrito"
+          aria-label={t("delete_item_aria")}
           className="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/30 text-gray-400 hover:text-red-400 flex items-center justify-center transition-all"
-          title="Eliminar de la lista"
+          title={t("remove")}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="3 6 5 6 21 6"></polyline>

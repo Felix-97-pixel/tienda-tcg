@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
+import { useTranslations } from "next-intl";
 import { removeAllItemsFromCart } from "@/redux/features/cart-slice";
 import { IconBox, IconStore, IconCheck, IconX } from "@/components/ui/Icons";
 
@@ -44,6 +45,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 type Status = "success" | "failed" | "cancelled" | "timeout" | "error" | "loading";
 
 const PaymentResultPage = () => {
+  const t = useTranslations("checkout.result");
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -229,27 +231,27 @@ const PaymentResultPage = () => {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border">
               <span className={isSuccess ? "text-emerald-400" : "text-red-400"}>●</span>
               <span className={isSuccess ? "text-emerald-300" : "text-red-300"}>
-                {isSuccess ? "Pago Aprobado con Éxito" : "Transacción No Completada"}
+                {isSuccess ? t("payment_approved") : t("transaction_failed")}
               </span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
               {isSuccess
-                ? "¡Gracias por tu compra!"
+                ? t("thank_you_title")
                 : status === "cancelled"
-                ? "Pago cancelado por el usuario"
+                ? t("cancelled_title")
                 : status === "timeout"
-                ? "Tiempo de espera agotado en Webpay"
-                : "Tu pago no pudo ser procesado"}
+                ? t("timeout_title")
+                : t("failed_title")}
             </h1>
             <p className="text-gray-400 text-sm max-w-md mx-auto">
               {isSuccess
-                ? "Hemos enviado el comprobante oficial a tu correo. Las tiendas comenzarán a preparar tu pedido."
+                ? t("thank_you_desc")
                 : status === "cancelled"
-                ? "La transacción fue cancelada en la pasarela. Tus cartas siguen guardadas en el carrito."
+                ? t("cancelled_desc")
                 : status === "timeout"
-                ? "La sesión de pago superó el límite de 5 minutos por inactividad en Webpay. No se realizó ningún cargo y tus cartas siguen en el carrito."
-                : "La pasarela de pago no pudo autorizar el cobro. Puedes intentar con otro medio de pago o tarjeta."}
+                ? t("timeout_desc")
+                : t("failed_desc")}
             </p>
           </div>
 
@@ -258,20 +260,20 @@ const PaymentResultPage = () => {
             <div className="p-6 sm:p-8 space-y-6">
               <h2 className="font-bold text-white text-base flex items-center gap-2">
                 <IconBox className="w-4 h-4 text-red-500" />
-                <span>Detalle de la Orden</span>
+                <span>{t("order_detail_title")}</span>
               </h2>
 
               <div className="bg-[#07090E] rounded-2xl p-5 space-y-3 text-xs border border-white/5">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">N° de Orden</span>
+                  <span className="text-gray-400">{t("order_number")}</span>
                   <span className="font-mono font-bold text-white">{order.buyOrder}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Comprador</span>
+                  <span className="text-gray-400">{t("buyer_name")}</span>
                   <span className="font-medium text-white">{order.name}</span>
                 </div>
-                                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Correo Confirmación</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">{t("confirm_email")}</span>
                   <span className="font-medium text-white">{order.email}</span>
                 </div>
                 {order.serviceFeeGross !== undefined && Number(order.serviceFeeGross) > 0 && (
@@ -284,9 +286,9 @@ const PaymentResultPage = () => {
                 )}
                 <div className="flex justify-between items-center pt-2 border-t border-white/5">
                   <div>
-                    <span className="text-gray-300 font-semibold block">Total Cancelado</span>
+                    <span className="text-gray-300 font-semibold block">{t("total_paid")}</span>
                     <span className="text-[10px] text-gray-400 font-mono">
-                      IVA 19% estimado en compra: ${Math.round((parseFloat(order.totalAmount) * 0.19) / 1.19).toLocaleString("es-CL")} CLP
+                      {t("vat_note", { amount: Math.round((parseFloat(order.totalAmount) * 0.19) / 1.19).toLocaleString("es-CL") })}
                     </span>
                   </div>
                   <span className="font-mono font-black text-white text-base">
@@ -295,13 +297,13 @@ const PaymentResultPage = () => {
                 </div>
                 {order.payment?.authCode && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Código de Autorización</span>
+                    <span className="text-gray-400">{t("auth_code")}</span>
                     <span className="font-mono text-gray-300">{order.payment.authCode}</span>
                   </div>
                 )}
                 {order.payment?.cardLast4 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Tarjeta Utilizada</span>
+                    <span className="text-gray-400">{t("card_used")}</span>
                     <span className="font-mono text-gray-300">•••• {order.payment.cardLast4}</span>
                   </div>
                 )}
@@ -310,7 +312,7 @@ const PaymentResultPage = () => {
               {/* Items por Tienda */}
               <div className="space-y-3">
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-gray-400">
-                  Despachos Asociados
+                  {t("associated_shipments")}
                 </h3>
                 {order.vendorOrders?.map((vo) => (
                   <div key={vo.id} className="bg-[#07090E] rounded-xl p-4 border border-white/5 space-y-2">
@@ -320,7 +322,7 @@ const PaymentResultPage = () => {
                         {vo.store.name}
                       </span>
                       <span className="text-emerald-400 text-[10px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
-                        En preparación
+                        {t("in_preparation")}
                       </span>
                     </div>
                     <div className="divide-y divide-white/5 pt-1">
@@ -328,7 +330,7 @@ const PaymentResultPage = () => {
                         <div key={item.id} className="flex justify-between items-center py-2 text-xs">
                           <div>
                             <p className="text-white font-medium">{item.productName}</p>
-                            <p className="text-gray-500 font-mono text-[10px]">Cantidad: {item.quantity}</p>
+                            <p className="text-gray-500 font-mono text-[10px]">{t("quantity_label", { count: item.quantity })}</p>
                           </div>
                           <span className="font-mono text-white">
                             ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")} CLP
@@ -344,7 +346,7 @@ const PaymentResultPage = () => {
 
           {fetchError && orderId && (
             <div className="p-6 text-xs text-gray-400 text-center">
-              Tu transacción fue procesada. Puedes revisar el detalle en tu bandeja de correo o en tu panel.
+              {t("processed_notice")}
             </div>
           )}
 
@@ -354,7 +356,7 @@ const PaymentResultPage = () => {
               href="/shop"
               className="flex-1 h-12 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs tracking-wide flex items-center justify-center gap-2 transition-all"
             >
-              ← Volver al Catálogo TCG
+              {t("back_catalog_btn")}
             </Link>
 
             {isSuccess ? (
@@ -362,7 +364,7 @@ const PaymentResultPage = () => {
                 href="/my-account"
                 className="flex-1 h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-xs tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98"
               >
-                <span>Ver Mis Pedidos</span>
+                <span>{t("view_orders_btn")}</span>
                 <span>→</span>
               </Link>
             ) : (
@@ -370,7 +372,7 @@ const PaymentResultPage = () => {
                 href="/checkout"
                 className="flex-1 h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-xs tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98"
               >
-                <span>Reintentar Pago</span>
+                <span>{t("retry_payment_btn")}</span>
                 <span>→</span>
               </Link>
             )}

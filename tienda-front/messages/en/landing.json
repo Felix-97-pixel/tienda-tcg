@@ -1,0 +1,49 @@
+{
+  "landing": {
+    "nav": {
+      "marketplace": "Marketplace",
+      "platform": "Platform",
+      "pos": "Countertop POS",
+      "for_stores": "For Stores",
+      "plans": "Plans",
+      "faq": "FAQ",
+      "features": "Technical Features",
+      "store_login": "Store Login",
+      "explore_singles": "Explore Singles",
+      "tagline": "Platform & Marketplace",
+      "language_label": "Language"
+    },
+    "hero": {
+      "badge": "#1 TCG Ecosystem in Latin America",
+      "title_main": "The Operating System for Stores and Players of",
+      "title_highlight": "TCG Cards",
+      "description": "Publish inventory synchronized with Scryfall, sell at the counter with offline POS, receive automated buylist offers, and ship nationwide with anti-fraud protection.",
+      "cta_stores": "Launch My TCG Store",
+      "cta_players": "Shop Singles on Marketplace",
+      "stats_cards": "+1.2M Cards Listed",
+      "stats_stores": "+40 Official Stores",
+      "stats_sync": "100% Scryfall Synchronized"
+    },
+    "tabs": {
+      "for_players": "For Players",
+      "for_stores": "For TCG Stores"
+    },
+    "pricing": {
+      "badge": "Smart Investment",
+      "title": "Transparent Plans with Zero Hidden Fees",
+      "description": "Choose the exact SKU capacity your store needs. All plans include global sync, unlimited POS, and automated buylist.",
+      "sku_label": "Capacity:",
+      "unlimited": "Unlimited",
+      "cta_subscribe": "Get Started with this Plan",
+      "included_features_title": "Modules included across all plans",
+      "custom_quote": "Need a tailored enterprise solution for multi-location franchises?",
+      "contact_sales": "Contact Specialized Support"
+    },
+    "faq": {
+      "badge": "Frequently Asked Questions",
+      "title": "Everything you need to know about TapTrade",
+      "view_all": "View all questions",
+      "view_less": "Show less"
+    }
+  }
+}

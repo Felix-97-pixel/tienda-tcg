@@ -1,0 +1,49 @@
+{
+  "landing": {
+    "nav": {
+      "marketplace": "Marketplace",
+      "platform": "Plataforma",
+      "pos": "PDV Balcão",
+      "for_stores": "Para Lojas",
+      "plans": "Planos",
+      "faq": "Perguntas Frequentes",
+      "features": "Recursos Técnicos",
+      "store_login": "Acesso Lojistas",
+      "explore_singles": "Explorar Cartas",
+      "tagline": "Plataforma & Marketplace",
+      "language_label": "Idioma"
+    },
+    "hero": {
+      "badge": "Ecossistema TCG #1 da América Latina",
+      "title_main": "O Sistema Operacional para Lojas e Jogadores de",
+      "title_highlight": "Cartas TCG",
+      "description": "Publique inventário sincronizado com Scryfall, venda no balcão com PDV offline, receba ofertas automatizadas de buylist e envie para todo o país com proteção antifraude.",
+      "cta_stores": "Criar Minha Loja TCG",
+      "cta_players": "Comprar Singles no Marketplace",
+      "stats_cards": "+1.2M Cartas Cadastradas",
+      "stats_stores": "+40 Lojas Oficiais",
+      "stats_sync": "100% Sincronizado Scryfall"
+    },
+    "tabs": {
+      "for_players": "Para Jogadores",
+      "for_stores": "Para Lojas TCG"
+    },
+    "pricing": {
+      "badge": "Investimento Inteligente",
+      "title": "Planos Transparentes sem Taxas Ocultas",
+      "description": "Escolha a capacidade exata de SKUs de que sua loja precisa. Todos os planos incluem sincronização global, PDV ilimitado e buylist.",
+      "sku_label": "Capacidade:",
+      "unlimited": "Ilimitado",
+      "cta_subscribe": "Começar com este Plano",
+      "included_features_title": "Módulos incluídos em todos os planos",
+      "custom_quote": "Precisa de uma solução corporativa para redes de lojas ou franquias?",
+      "contact_sales": "Falar com Suporte Especializado"
+    },
+    "faq": {
+      "badge": "Dúvidas Frequentes",
+      "title": "Tudo o que você precisa saber sobre o TapTrade",
+      "view_all": "Ver todas as perguntas",
+      "view_less": "Mostrar menos"
+    }
+  }
+}

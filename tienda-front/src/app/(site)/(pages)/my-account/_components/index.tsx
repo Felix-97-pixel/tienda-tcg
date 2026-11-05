@@ -36,6 +36,7 @@ import {
   IconChevronUp,
 } from "@/components/ui/Icons";
 import CarrierTimeline from "@/components/ui/CarrierTimeline";
+import { useTranslations } from "next-intl";
 
 type UserProfile = {
   id: string;
@@ -140,6 +141,7 @@ const normalizeTab = (t: string | null): "orders" | "addresses" | "credits" | "a
 };
 
 const MyAccount = () => {
+  const t = useTranslations("account");
   const { user, isAuthenticated } = useSelector((s: RootState) => s.authReducer);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -478,28 +480,28 @@ const MyAccount = () => {
   const tabsConfig = [
     {
       id: "orders" as const,
-      label: "Mis pedidos",
+      label: t("orders"),
       description: "Historial y seguimiento de compras",
       count: orders.length > 0 ? orders.length : undefined,
       icon: <IconBox className="w-5 h-5" />,
     },
     {
       id: "addresses" as const,
-      label: "Direcciones",
+      label: t("addresses"),
       description: "Destinos de entrega oficiales",
       count: addresses.length > 0 ? addresses.length : undefined,
       icon: <IconMapPin className="w-5 h-5" />,
     },
     {
       id: "credits" as const,
-      label: "Crédito en tiendas",
+      label: t("credits"),
       description: "Saldos a favor por tienda",
       count: storeCredits.length > 0 ? storeCredits.length : undefined,
       icon: <IconCoins className="w-5 h-5" />,
     },
     {
       id: "account-details" as const,
-      label: "Datos de cuenta",
+      label: t("details"),
       description: "Perfil, teléfono y seguridad",
       icon: <IconUser className="w-5 h-5" />,
     },
@@ -520,7 +522,7 @@ const MyAccount = () => {
               Inicio
             </Link>
             <span>/</span>
-            <span className="text-white font-semibold">Mi Cuenta</span>
+            <span className="text-white font-semibold">{t("title")}</span>
             <span>/</span>
             <span className="text-red font-semibold capitalize">
               {tabsConfig.find((t) => t.id === activeTab)?.label}
@@ -631,7 +633,7 @@ const MyAccount = () => {
                   <div className="w-7 h-7 rounded-lg bg-red/10 group-hover:bg-red/30 text-red flex items-center justify-center transition-colors">
                     <IconLogout className="w-4 h-4" />
                   </div>
-                  <span>Cerrar sesión</span>
+                  <span>{t("logout")}</span>
                 </button>
               </div>
 

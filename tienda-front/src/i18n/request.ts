@@ -11,6 +11,7 @@ import esBuylist from '../../messages/es/buylist.json';
 import esAdmin from '../../messages/es/admin.json';
 import esLegal from '../../messages/es/legal.json';
 import esErrors from '../../messages/es/errors.json';
+import esLanding from '../../messages/es/landing.json';
 
 import enCommon from '../../messages/en/common.json';
 import enNav from '../../messages/en/nav.json';
@@ -20,6 +21,7 @@ import enBuylist from '../../messages/en/buylist.json';
 import enAdmin from '../../messages/en/admin.json';
 import enLegal from '../../messages/en/legal.json';
 import enErrors from '../../messages/en/errors.json';
+import enLanding from '../../messages/en/landing.json';
 
 import ptCommon from '../../messages/pt/common.json';
 import ptNav from '../../messages/pt/nav.json';
@@ -29,6 +31,7 @@ import ptBuylist from '../../messages/pt/buylist.json';
 import ptAdmin from '../../messages/pt/admin.json';
 import ptLegal from '../../messages/pt/legal.json';
 import ptErrors from '../../messages/pt/errors.json';
+import ptLanding from '../../messages/pt/landing.json';
 
 function deepMerge(target: any, source: any) {
   const output = { ...target };
@@ -63,6 +66,7 @@ const esBase: Record<string, any> = deepMerge(
     ...esAuth,
     ...esAdmin,
     ...esLegal,
+    ...esLanding,
   },
   {}
 );
@@ -77,6 +81,7 @@ const enBase: Record<string, any> = deepMerge(esBase, {
   ...enAuth,
   ...enAdmin,
   ...enLegal,
+  ...enLanding,
 });
 
 // 3. Mensajes en portugués con fallback automático a español
@@ -89,6 +94,7 @@ const ptBase: Record<string, any> = deepMerge(esBase, {
   ...ptAuth,
   ...ptAdmin,
   ...ptLegal,
+  ...ptLanding,
 });
 
 const MESSAGES_BY_LOCALE: Record<string, any> = {

@@ -8,17 +8,19 @@ import { useDispatch } from "react-redux";
 import SingleItem from "./SingleItem";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 import { IconCart, IconCard } from "@/components/ui/Icons";
 
 const Cart = () => {
+  const t = useTranslations("cart");
   const cartItems = useAppSelector(selectCartItemsWithDiscounts);
   const dispatch = useDispatch();
   const { showToast } = useToast();
 
   const handleClearCart = () => {
-    if (window.confirm("¿Seguro que deseas vaciar tu carrito de compras?")) {
+    if (window.confirm(t("clear_cart_confirm"))) {
       dispatch(removeAllItemsFromCart());
-      showToast("Se vació tu carrito de compras", "warning");
+      showToast(t("cart_cleared_toast"), "warning");
     }
   };
 
@@ -33,10 +35,10 @@ const Cart = () => {
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
           <Link href="/shop" className="hover:text-white transition-colors">
-            ← Catálogo Marketplace
+            {t("breadcrumb_catalog")}
           </Link>
           <span>/</span>
-          <span className="text-white font-semibold">Carrito de Compras</span>
+          <span className="text-white font-semibold">{t("breadcrumb_cart")}</span>
         </div>
 
         {cartItems.length > 0 ? (
@@ -46,13 +48,13 @@ const Cart = () => {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
                   <IconCart className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                  <span>{totalCount} {totalCount === 1 ? "carta seleccionada" : "cartas seleccionadas"}</span>
+                  <span>{t("cards_selected", { count: totalCount })}</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Tu Carrito de Compras
+                  {t("title")}
                 </h1>
                 <p className="text-sm text-gray-400 mt-1">
-                  Todas las cartas de distintas tiendas se consolidan con cotización automática de envíos.
+                  {t("cards_consolidated_desc")}
                 </p>
               </div>
 
@@ -65,7 +67,7 @@ const Cart = () => {
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
-                <span>Vaciar Carrito</span>
+                <span>{t("clear_cart")}</span>
               </button>
             </div>
 
@@ -73,11 +75,11 @@ const Cart = () => {
             <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden mb-8">
               {/* Table Column Headers (Desktop) */}
               <div className="hidden sm:grid grid-cols-12 gap-4 py-4 px-6 border-b border-white/10 bg-white/[0.02] text-xs font-bold uppercase tracking-wider text-gray-400">
-                <div className="col-span-5">Carta / Producto</div>
-                <div className="col-span-2 text-center">Precio Unitario</div>
-                <div className="col-span-2 text-center">Cantidad</div>
-                <div className="col-span-2 text-right">Subtotal</div>
-                <div className="col-span-1 text-right">Acción</div>
+                <div className="col-span-5">{t("table_header_product")}</div>
+                <div className="col-span-2 text-center">{t("table_header_unit_price")}</div>
+                <div className="col-span-2 text-center">{t("table_header_quantity")}</div>
+                <div className="col-span-2 text-right">{t("table_header_subtotal")}</div>
+                <div className="col-span-1 text-right">{t("table_header_action")}</div>
               </div>
 
               {/* Items List */}
@@ -100,16 +102,16 @@ const Cart = () => {
               <IconCard className="w-12 h-12 opacity-60" />
             </div>
             <h2 className="text-2xl font-black text-white mb-2 tracking-tight">
-              Tu Carrito está Vacío
+              {t("empty")}
             </h2>
             <p className="text-sm text-gray-400 max-w-md mb-8 leading-relaxed">
-              No tienes cartas agregadas actualmente. Explora nuestro catálogo de singles de Magic, Pokémon, Riftbound y más tiendas de Chile.
+              {t("emptyDescription")}
             </p>
             <Link
               href="/shop"
               className="px-8 py-3.5 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 transition-all active:scale-95 flex items-center gap-2"
             >
-              <span>Explorar Catálogo TCG</span>
+              <span>{t("continueShopping")}</span>
               <span>→</span>
             </Link>
           </div>

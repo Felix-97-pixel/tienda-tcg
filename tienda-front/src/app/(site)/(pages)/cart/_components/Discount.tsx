@@ -10,6 +10,7 @@ import {
 } from "@/redux/features/cart-slice";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 import { IconTag } from "@/components/ui/Icons";
 
 type Feedback = { type: "success" | "error" | "warning"; message: string } | null;
@@ -17,6 +18,7 @@ type Feedback = { type: "success" | "error" | "warning"; message: string } | nul
 const formatCLP = (n: number) => `$${Math.round(n).toLocaleString("es-CL")} CLP`;
 
 const Discount = () => {
+  const t = useTranslations("cart");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -105,7 +107,7 @@ const Discount = () => {
           <div className="border-b border-white/10 py-4 px-6 bg-white/[0.02]">
             <h3 className="font-bold text-white text-base flex items-center gap-2">
               <IconTag className="w-4 h-4 text-[#E10E0E]" />
-              <span>¿Tienes un código de descuento?</span>
+              <span>{t("have_coupon_prompt")}</span>
             </h3>
           </div>
 
@@ -121,7 +123,7 @@ const Discount = () => {
                     setCode(e.target.value.toUpperCase().replace(/\s+/g, ""));
                     setFeedback(null);
                   }}
-                  placeholder="Ej: TAPTRADE10"
+                  placeholder={t("coupon_placeholder")}
                   className="rounded-xl border border-white/10 bg-[#07090E] text-white placeholder-gray-500 w-full py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 text-sm font-mono tracking-wider uppercase transition-all"
                 />
               </div>
@@ -130,9 +132,9 @@ const Discount = () => {
                 type="submit"
                 id="apply-coupon-btn"
                 disabled={loading || !code}
-                className="h-11 px-6 rounded-xl font-bold text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 border border-white/15 text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 active:scale-95"
+                className="h-11 px-6 rounded-xl font-bold text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 border border-white/15 text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 active:scale-95 cursor-pointer"
               >
-                {loading ? "Validando..." : "Aplicar Cupón"}
+                {loading ? t("validating_coupon") : t("apply_coupon_btn")}
               </button>
             </div>
 
@@ -144,7 +146,7 @@ const Discount = () => {
 
             {appliedCoupons.length > 0 && (
               <div className="mt-5 space-y-2">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Cupones activos en tu orden</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{t("active_coupons")}</p>
                 {appliedCoupons.map((c) => (
                   <div
                     key={c.code}
@@ -155,7 +157,7 @@ const Discount = () => {
                         {c.code}
                       </span>
                       <span className="text-xs text-gray-300">
-                        -{c.discountPercent}% · Ahorras{" "}
+                        {t("coupon_savings", { percent: c.discountPercent })}{" "}
                         <strong className="text-emerald-400 font-mono">{formatCLP(savingsFor(c.code))}</strong>
                       </span>
                     </div>
@@ -163,7 +165,7 @@ const Discount = () => {
                       type="button"
                       onClick={() => {
                         dispatch(removeCoupon(c.code));
-                        showToast(`Cupón ${c.code} removido`, "success");
+                        showToast(t("coupon_removed_toast", { code: c.code }), "success");
                       }}
                       className="text-gray-400 hover:text-red-400 transition-colors p-1"
                       aria-label={`Quitar cupón ${c.code}`}

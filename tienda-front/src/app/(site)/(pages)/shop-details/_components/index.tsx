@@ -16,8 +16,10 @@ import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import { IconSparkles, IconBox } from "@/components/ui/Icons";
 import { roundToCLP } from "@/utils/tcgPrices";
+import { useTranslations } from "next-intl";
 
 export default function ShopDetails() {
+  const t = useTranslations("product_details");
   const dispatch = useDispatch();
   const params = useParams();
   const slug = params?.slug as string;
@@ -232,7 +234,7 @@ export default function ShopDetails() {
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
           <Link href="/shop" className="hover:text-white transition-colors">
-            ← Catálogo Marketplace
+            {t("breadcrumb_catalog")}
           </Link>
           <span>/</span>
           <span className="text-gray-300">{gameName}</span>
@@ -265,7 +267,7 @@ export default function ShopDetails() {
               <div className="mt-4 flex items-center justify-between text-xs text-gray-400 border-t border-white/5 pt-3">
                 <span className="flex items-center gap-1.5 font-medium text-amber-200/90">
                   <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                  Efecto Holográfico
+                  {t("holographic_effect")}
                 </span>
                 <button
                   type="button"
@@ -276,7 +278,7 @@ export default function ShopDetails() {
                       : "bg-white/5 text-gray-400 hover:text-white border border-white/10"
                   }`}
                 >
-                  {previewFoil ? "Foil Activado" : "Probar Foil"}
+                  {previewFoil ? t("foil_active") : t("foil_try")}
                 </button>
               </div>
             </div>
@@ -301,34 +303,33 @@ export default function ShopDetails() {
             {/* Rules Text & Lore */}
             <div className="glass-vault rounded-xl p-4 border border-white/10">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                Texto de Reglas / Descripción
+                {t("rules_lore_title")}
               </h3>
               <p className="text-sm text-gray-300 leading-relaxed italic">
-                {product.description ||
-                  "No hay texto descriptivo específico registrado para esta edición."}
+                {product.description || t("no_rules_text")}
               </p>
             </div>
 
             {/* Technical Specs Grid */}
             <div className="glass-vault rounded-xl p-4 border border-white/10">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                Detalles Técnicos TCG
+                {t("tech_specs_title")}
               </h3>
               <dl className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <dt className="text-gray-400">Rareza</dt>
+                  <dt className="text-gray-400">{t("rarity")}</dt>
                   <dd className="font-semibold text-white mt-0.5">{rarity}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-400">Número de Colección</dt>
+                  <dt className="text-gray-400">{t("collector_number")}</dt>
                   <dd className="font-mono font-bold text-white mt-0.5">#{collectorNum}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-400">Juego</dt>
+                  <dt className="text-gray-400">{t("game")}</dt>
                   <dd className="font-semibold text-white mt-0.5">{gameName}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-400">Expansión Oficial</dt>
+                  <dt className="text-gray-400">{t("official_expansion")}</dt>
                   <dd className="font-semibold text-white mt-0.5 truncate">{expansionName}</dd>
                 </div>
               </dl>
@@ -343,7 +344,7 @@ export default function ShopDetails() {
 
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                    ✓ Mejor Precio Disponible
+                    {t("best_price_badge")}
                   </span>
                   <div className="flex items-center gap-1.5">
                     {(() => {
@@ -356,7 +357,7 @@ export default function ShopDetails() {
                     })()}
                     {lowestPriceItem.finish?.name?.toLowerCase().includes("foil") && (
                       <span className="px-2 py-0.5 rounded text-xs font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30">
-                        FOIL
+                        {t("foil_finish")}
                       </span>
                     )}
                   </div>
@@ -364,7 +365,7 @@ export default function ShopDetails() {
 
                 {/* Price Display */}
                 <div className="mb-4">
-                  <span className="text-xs text-gray-400 block">Precio por unidad</span>
+                  <span className="text-xs text-gray-400 block">{t("price_per_unit")}</span>
                   <div className="text-3xl font-black text-white font-mono mt-0.5">
                     ${Math.round(getFinalPrice(lowestPriceItem)).toLocaleString("es-CL")} <span className="text-xs text-gray-400 font-sans font-normal">CLP</span>
                   </div>
@@ -373,7 +374,7 @@ export default function ShopDetails() {
                 {/* Seller Store Info */}
                 <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 mb-5 flex items-center justify-between">
                   <div className="min-w-0">
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Vendido por</span>
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block">{t("sold_by")}</span>
                     <Link
                       href={(lowestPriceItem.store as any)?.subdomain ? `/shop/store/${(lowestPriceItem.store as any).subdomain}` : "#"}
                       className="text-sm font-bold text-red-400 hover:text-red-300 truncate block transition-colors"
@@ -382,14 +383,14 @@ export default function ShopDetails() {
                     </Link>
                   </div>
                   <span className="text-[11px] text-gray-400 font-mono shrink-0">
-                    {lowestPriceItem.stock} en stock
+                    {t("in_stock", { count: lowestPriceItem.stock })}
                   </span>
                 </div>
 
                 {/* Supported Shipping Badges */}
                 <div className="mb-5">
                   <span className="text-[11px] text-gray-400 uppercase tracking-wider block mb-2 font-medium">
-                    Métodos de Entrega
+                    {t("delivery_methods")}
                   </span>
                   <StoreShippingBadges store={lowestPriceItem?.store} size="sm" />
                 </div>
@@ -429,7 +430,7 @@ export default function ShopDetails() {
                   >
                     {addingItemId === lowestPriceItem.id ? (
                       <>
-                        <span>✓</span> ¡Agregado!
+                        <span>✓</span> {t("added_success")}
                       </>
                     ) : (
                       <>
@@ -438,7 +439,7 @@ export default function ShopDetails() {
                           <circle cx="20" cy="21" r="1"></circle>
                           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                         </svg>
-                        Agregar al carrito
+                        {t("add_to_cart")}
                       </>
                     )}
                   </button>
@@ -451,16 +452,16 @@ export default function ShopDetails() {
                     onClick={() => document.getElementById("marketplace-listings")?.scrollIntoView({ behavior: "smooth" })}
                     className="w-full mt-4 text-center text-xs text-gray-400 hover:text-white transition-colors border-t border-white/5 pt-3"
                   >
-                    Ver las otras {items.length - 1} opciones de compra ↓
+                    {t("see_other_options", { count: items.length - 1 })}
                   </button>
                 )}
               </div>
             ) : (
               <div className="rounded-2xl bg-[#111522] border border-white/10 p-8 text-center flex flex-col items-center justify-center">
                 <IconBox className="w-10 h-10 text-gray-500 mb-3" />
-                <h3 className="font-bold text-white text-base mb-1">Sin stock disponible</h3>
+                <h3 className="font-bold text-white text-base mb-1">{t("no_stock_title")}</h3>
                 <p className="text-xs text-gray-400 max-w-xs">
-                  Actualmente ninguna tienda tiene ejemplares disponibles de esta carta. Vuelve a consultar pronto.
+                  {t("no_stock_desc")}
                 </p>
               </div>
             )}
@@ -472,14 +473,14 @@ export default function ShopDetails() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-white/10">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-1">
-                Compara Precios
+                {t("compare_prices_badge")}
               </div>
               <h2 className="text-2xl font-extrabold text-white">
-                Opciones de Compra en Tiendas de Chile ({items.length})
+                {t("buying_options_title", { count: items.length })}
               </h2>
             </div>
             <p className="text-xs text-gray-400">
-              Todas las cartas se consolidan en tu carrito con cotización automática de envíos.
+              {t("cart_consolidation_note")}
             </p>
           </div>
 
@@ -521,7 +522,7 @@ export default function ShopDetails() {
                             </span>
                           )}
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] text-emerald-400 font-medium">✓ Verificado</span>
+                            <span className="text-[10px] text-emerald-400 font-medium">{t("verified_seller")}</span>
                             <span className="text-[10px] text-gray-500">• Chile</span>
                           </div>
                         </div>
@@ -537,11 +538,11 @@ export default function ShopDetails() {
                         </span>
                         {isItemFoil ? (
                           <span className="px-2 py-0.5 rounded text-xs font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30">
-                            FOIL
+                            {t("foil_finish")}
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded text-xs text-gray-400 bg-white/5 border border-white/10">
-                            Normal
+                            {t("normal_finish")}
                           </span>
                         )}
                       </div>
@@ -555,7 +556,7 @@ export default function ShopDetails() {
                           ${itemPrice.toLocaleString("es-CL")}
                         </div>
                         <span className="text-[11px] font-mono text-gray-400 block">
-                          {item.stock} disponibles
+                          {t("available_stock", { count: item.stock })}
                         </span>
                       </div>
 
@@ -565,7 +566,7 @@ export default function ShopDetails() {
                           <select
                             id={`qty-${item.id}`}
                             defaultValue={1}
-                            aria-label="Cantidad a comprar"
+                            aria-label={t("qty_aria")}
                             className="h-10 pl-3 pr-7 rounded-xl bg-[#0D111A] border border-white/15 text-white text-xs font-mono font-bold cursor-pointer focus:outline-none focus:border-red-500 transition-colors appearance-none"
                           >
                             {[...Array(Math.min(10, item.stock))].map((_, i) => (
@@ -592,7 +593,7 @@ export default function ShopDetails() {
                               : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 active:scale-95"
                           }`}
                         >
-                          {addingItemId === item.id ? "✓ Agregado" : "Comprar"}
+                          {addingItemId === item.id ? `✓ ${t("added_success")}` : t("buy_now")}
                         </button>
                       </div>
                     </article>
@@ -601,7 +602,7 @@ export default function ShopDetails() {
             </div>
           ) : (
             <div className="py-12 text-center rounded-2xl bg-[#111522]/50 border border-white/5 text-gray-400">
-              No hay vendedores disponibles para esta carta en este momento.
+              {t("no_sellers_available")}
             </div>
           )}
         </section>

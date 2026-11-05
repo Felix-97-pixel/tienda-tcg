@@ -10,6 +10,7 @@ import SuperAdminGuard from "@/app/superadmin/_components/SuperAdminGuard";
 import { ReduxProvider } from "@/redux/provider";
 import ToastContainer from "@/components/layout/ToastContainer";
 import { useAppSelector } from "@/redux/store";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 import {
   IconStore,
   IconWallet,
@@ -245,6 +246,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
+                  <LanguageSelector />
                   <div className="text-right hidden sm:block">
                     <span className="block text-xs font-black text-white">{user?.name || "Félix (Super Admin)"}</span>
                     <span className="inline-block text-[9px] font-black text-red uppercase tracking-widest px-2 py-0.5 rounded-full bg-red/10 border border-red/20">

@@ -429,9 +429,9 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         </div>
 
         {/* Row 2: Unified 5-Column Filter Toolbar (Equal widths, laser-aligned, no wrapping bugs) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-3 border-t border-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-2.5 pt-3 border-t border-white/5">
           {/* 1. Store filter */}
-          <div className="w-full">
+          <div className="w-full col-span-1 sm:col-span-1 md:col-span-2 lg:col-span-1">
             <SearchableSelect
               options={storeOptions}
               value={selectedStoreId}
@@ -447,7 +447,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           </div>
 
           {/* 2. Game filter */}
-          <div className="w-full">
+          <div className="w-full col-span-1 sm:col-span-1 md:col-span-2 lg:col-span-1">
             <SearchableSelect
               options={gameOptions}
               value={selectedGame}
@@ -463,7 +463,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           </div>
 
           {/* 3. Language filter */}
-          <div className="w-full">
+          <div className="w-full col-span-1 sm:col-span-1 md:col-span-2 lg:col-span-1">
             <SearchableSelect
               options={languageOptions}
               value={selectedLanguage}
@@ -479,7 +479,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           </div>
 
           {/* 4. Condition filter */}
-          <div className="w-full">
+          <div className="w-full col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-1">
             <SearchableSelect
               options={conditionOptions}
               value={selectedCondition}
@@ -495,7 +495,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           </div>
 
           {/* 5. Sort order */}
-          <div className="w-full col-span-1 sm:col-span-2 md:col-span-1">
+          <div className="w-full col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-1">
             <SearchableSelect
               options={sortOptions}
               value={sortBy}

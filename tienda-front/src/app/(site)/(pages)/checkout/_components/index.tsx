@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { selectCartItems, selectTotalPrice } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 import { formatPrice } from "@/utils/currency";
@@ -37,6 +38,7 @@ type BillingData = {
 
 
 const CheckoutWebpay = () => {
+  const t = useTranslations("checkout");
   const cartItems = useSelector(selectCartItems);
   const total = useSelector(selectTotalPrice);
   const { isAuthenticated } = useSelector((s: RootState) => s.authReducer);
@@ -285,16 +287,16 @@ const CheckoutWebpay = () => {
     setError(null);
 
     if (!billing.name || !billing.email) {
-      setError("Por favor completa tu nombre y correo electrónico en los datos de contacto.");
+      setError(t("errorName"));
       return;
     }
     if (cartItems.length === 0) {
-      setError("Tu carrito está vacío.");
+      setError(t("errorEmpty"));
       return;
     }
     const missingShipping = storeIds.find((sId) => !selectedProvidersByStore[sId]);
     if (missingShipping) {
-      setError("Debes seleccionar un método de envío para cada tienda.");
+      setError(t("error_select_shipping"));
       return;
     }
 
@@ -363,16 +365,16 @@ const CheckoutWebpay = () => {
     setError(null);
 
     if (!billing.name || !billing.email) {
-      setError("Por favor completa tu nombre y correo electrónico en los datos de contacto.");
+      setError(t("errorName"));
       return;
     }
     if (cartItems.length === 0) {
-      setError("Tu carrito está vacío.");
+      setError(t("errorEmpty"));
       return;
     }
     const missingShipping = storeIds.find((sId) => !selectedProvidersByStore[sId]);
     if (missingShipping) {
-      setError("Debes seleccionar un método de envío para cada tienda.");
+      setError(t("error_select_shipping"));
       return;
     }
 
@@ -433,16 +435,16 @@ const CheckoutWebpay = () => {
     setError(null);
 
     if (!billing.name || !billing.email) {
-      setError("Por favor completa tu nombre y correo electrónico en los datos de contacto.");
+      setError(t("errorName"));
       return;
     }
     if (cartItems.length === 0) {
-      setError("Tu carrito está vacío.");
+      setError(t("errorEmpty"));
       return;
     }
     const missingShipping = storeIds.find((sId) => !selectedProvidersByStore[sId]);
     if (missingShipping) {
-      setError("Debes seleccionar un método de envío para cada tienda.");
+      setError(t("error_select_shipping"));
       return;
     }
 
@@ -591,16 +593,16 @@ const CheckoutWebpay = () => {
             </div>
 
             <div className="space-y-1">
-              <h4 className="text-lg font-black text-white tracking-tight">Procesando Pago Seguro</h4>
+              <h4 className="text-lg font-black text-white tracking-tight">{t("processing_payment_title")}</h4>
               <p className="text-xs text-gray-400">
                 {selectedGateway === "WEBPAY"
-                  ? "Conectando de forma segura con Transbank..."
-                  : "Autorizando transacción con Mercado Pago..."}
+                  ? t("connecting_transbank")
+                  : t("authorizing_mercado_pago")}
               </p>
             </div>
 
             <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium leading-relaxed">
-              <IconLock className="w-4 h-4 text-emerald-400 inline-block mr-1.5 align-middle" /> Por favor, no recargues ni cierres la página mientras validamos tu compra.
+              <IconLock className="w-4 h-4 text-emerald-400 inline-block mr-1.5 align-middle" /> {t("do_not_close_page")}
             </div>
           </div>
         </div>
@@ -618,26 +620,26 @@ const CheckoutWebpay = () => {
           {/* Breadcrumb de navegación */}
           <div className="flex items-center gap-2 text-xs text-gray-400 mb-4 font-medium">
             <Link href="/cart" className="hover:text-white transition-colors flex items-center gap-1">
-              <span>← Volver al Carrito</span>
+              <span>{t("breadcrumb_back_cart")}</span>
             </Link>
             <span>/</span>
-            <span className="text-white font-semibold">Checkout Seguro</span>
+            <span className="text-white font-semibold">{t("breadcrumb_checkout")}</span>
           </div>
 
           {/* Badge superior */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red/15 text-red-light border border-red/30 mb-3">
             <IconShieldCheck className="w-3.5 h-3.5 text-red" />
-            <span>Pasarela Oficial Cifrada</span>
+            <span>{t("official_gateway_badge")}</span>
           </div>
 
           {/* Título Principal */}
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Finalizar Compra
+            {t("title")}
           </h1>
 
           {/* Bajada explicativa */}
           <p className="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Completa tus datos de despacho y selecciona tu medio de pago protegido por Mercado Pago & Webpay.
+            {t("subtitle")}
           </p>
         </div>
       </div>
@@ -653,7 +655,7 @@ const CheckoutWebpay = () => {
                   1
                 </span>
                 <h2 className="text-lg font-bold text-white tracking-tight">
-                  Datos de Contacto y Despacho
+                  {t("step_contact_shipping")}
                 </h2>
               </div>
 
@@ -663,10 +665,10 @@ const CheckoutWebpay = () => {
                   <div className="flex items-center justify-between">
                     <label htmlFor="address-selector" className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
                       <IconMapPin className="w-4 h-4 text-red-400" />
-                      <span>Dirección de Despacho Guardada</span>
+                      <span>{t("saved_address_label")}</span>
                     </label>
                     <Link href="/my-account?tab=addresses" className="text-[11px] text-gray-400 hover:text-white underline">
-                      Gestionar libreta →
+                      {t("manage_addresses")}
                     </Link>
                   </div>
 
@@ -682,7 +684,7 @@ const CheckoutWebpay = () => {
                       </option>
                     ))}
                     <option value="custom" className="bg-[#0B0E14] text-amber-400 font-bold">
-                      <IconPencil className="w-3.5 h-3.5 inline mr-1.5 text-gray-400" /> Ingresar otra dirección para este pedido
+                      <IconPencil className="w-3.5 h-3.5 inline mr-1.5 text-gray-400" /> {t("custom_address_option")}
                     </option>
                   </select>
 
@@ -701,7 +703,7 @@ const CheckoutWebpay = () => {
                           {billing.address}, {selectedCommuneName} ({selectedRegionCode})
                         </p>
                         <p className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-                          <span className="flex items-center gap-1.5"><IconCheck className="w-4 h-4 text-emerald-400" /> Dirección seleccionada y cotización de envío activada</span>
+                          <span className="flex items-center gap-1.5"><IconCheck className="w-4 h-4 text-emerald-400" /> {t("address_selected_quoted")}</span>
                         </p>
                       </div>
                       <button
@@ -709,7 +711,7 @@ const CheckoutWebpay = () => {
                         onClick={() => setSelectedAddressId("custom")}
                         className="text-[11px] text-gray-400 hover:text-white underline shrink-0 whitespace-nowrap"
                       >
-                        Modificar
+                        {t("modify_address")}
                       </button>
                     </div>
                   )}
@@ -723,7 +725,7 @@ const CheckoutWebpay = () => {
                     {/* Nombre */}
                     <div>
                       <label htmlFor="name" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Nombre completo <span className="text-red-400">*</span>
+                        {t("fullName")} <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="text"
@@ -732,7 +734,7 @@ const CheckoutWebpay = () => {
                         required
                         value={billing.name}
                         onChange={handleChange}
-                        placeholder="Ej: Juan Pérez"
+                        placeholder={t("fullNamePlaceholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
                       />
                     </div>
@@ -740,7 +742,7 @@ const CheckoutWebpay = () => {
                     {/* Email */}
                     <div>
                       <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Correo electrónico <span className="text-red-400">*</span>
+                        {t("email")} <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="email"
@@ -749,7 +751,7 @@ const CheckoutWebpay = () => {
                         required
                         value={billing.email}
                         onChange={handleChange}
-                        placeholder="ejemplo@correo.com"
+                        placeholder={t("emailPlaceholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
                       />
                     </div>
@@ -757,7 +759,7 @@ const CheckoutWebpay = () => {
                     {/* Teléfono */}
                     <div>
                       <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Teléfono de Contacto <span className="text-red-400">*</span>
+                        {t("phone")} <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="text"
@@ -765,7 +767,7 @@ const CheckoutWebpay = () => {
                         name="phone"
                         value={billing.phone}
                         onChange={handleChange}
-                        placeholder="+56 9 1234 5678"
+                        placeholder={t("phonePlaceholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all font-mono"
                       />
                     </div>
@@ -786,7 +788,7 @@ const CheckoutWebpay = () => {
                     {/* Dirección */}
                     <div>
                       <label htmlFor="address" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Dirección de envío
+                        {t("shippingAddress")}
                       </label>
                       <input
                         type="text"
@@ -794,7 +796,7 @@ const CheckoutWebpay = () => {
                         name="address"
                         value={billing.address}
                         onChange={handleChange}
-                        placeholder="Calle, número, departamento o sucursal..."
+                        placeholder={t("addressPlaceholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
                       />
                     </div>
@@ -804,7 +806,7 @@ const CheckoutWebpay = () => {
                     {/* Cuando está seleccionada una dirección guardada */}
                     <div>
                       <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Correo para confirmación de compra <span className="text-red-400">*</span>
+                        {t("email_confirmation")} <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="email"
@@ -813,7 +815,7 @@ const CheckoutWebpay = () => {
                         required
                         value={billing.email}
                         onChange={handleChange}
-                        placeholder="ejemplo@correo.com"
+                        placeholder={t("emailPlaceholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
                       />
                     </div>
@@ -823,7 +825,7 @@ const CheckoutWebpay = () => {
                 {/* Notas */}
                 <div>
                   <label htmlFor="notes" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                    Instrucciones especiales de entrega (opcional)
+                    {t("notes")}
                   </label>
                   <textarea
                     id="notes"
@@ -831,7 +833,7 @@ const CheckoutWebpay = () => {
                     rows={2}
                     value={billing.notes}
                     onChange={handleChange}
-                    placeholder="Dejar en conserjería, timbre 402, etc..."
+                    placeholder={t("notesPlaceholder")}
                     className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm p-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all resize-none"
                   />
                 </div>
@@ -849,10 +851,10 @@ const CheckoutWebpay = () => {
                 </span>
                 <div>
                   <h2 className="text-lg font-bold text-white tracking-tight">
-                    Selecciona tu Medio de Pago
+                    {t("step_payment_method")}
                   </h2>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Elige tu pasarela preferida para desplegar el formulario correspondiente.
+                    {t("step_payment_method_desc")}
                   </p>
                 </div>
               </div>
@@ -875,7 +877,7 @@ const CheckoutWebpay = () => {
                         </div>
                         <div>
                           <h4 className="text-sm font-bold text-white leading-tight">
-                            Webpay Plus
+                            {t("webpay_tab")}
                           </h4>
                           <span className="text-[11px] text-gray-400 block font-medium">
                             Transbank SpA
@@ -894,15 +896,15 @@ const CheckoutWebpay = () => {
                       </div>
                     </div>
                     <p className="text-xs text-gray-400 mb-3">
-                      Débito Redcompra, Prepago y Crédito bancario chileno (Visa, Mastercard, Magna, Diners).
+                      {t("webpay_subtitle")}
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
-                      Recomendado en Chile
+                      {t("tbk_recommended")}
                     </span>
                     <span className="text-xs font-mono font-bold text-gray-300">
-                      Comisión: 3% + IVA
+                      {t("commission_rate")}
                     </span>
                   </div>
                 </div>
@@ -923,10 +925,10 @@ const CheckoutWebpay = () => {
                         </div>
                         <div>
                           <h4 className="text-sm font-bold text-white leading-tight">
-                            Mercado Pago
+                            {t("mercadopago_tab")}
                           </h4>
                           <span className="text-[11px] text-gray-400 block font-medium">
-                            Portal Cifrado
+                            {t("official_gateway_badge")}
                           </span>
                         </div>
                       </div>
@@ -942,15 +944,15 @@ const CheckoutWebpay = () => {
                       </div>
                     </div>
                     <p className="text-xs text-gray-400 mb-3">
-                      Tarjetas de crédito (con o sin cuotas), débito y saldo en cuenta Mercado Pago.
+                      {t("mercadopago_subtitle")}
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-400/10 px-2 py-0.5 rounded border border-sky-400/20">
-                      Hasta 12 cuotas
+                      {t("mp_installments")}
                     </span>
                     <span className="text-xs font-mono font-bold text-gray-300">
-                      Comisión: 3% + IVA
+                      {t("commission_rate")}
                     </span>
                   </div>
                 </div>
@@ -963,19 +965,19 @@ const CheckoutWebpay = () => {
                     <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center shrink-0"><IconCreditCard className="w-5 h-5" /></div>
                     <div>
                       <h4 className="text-sm font-bold text-white">
-                        Pagar con Webpay Plus de Transbank
+                        {t("webpay_btn")}
                       </h4>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        Al pulsar el botón serás redirigido a la plataforma oficial y encriptada de Transbank para ingresar los datos de tu tarjeta con total privacidad.
+                        {t("webpay_redirect_notice")}
                       </p>
                     </div>
                   </div>
 
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-300 flex items-center justify-between">
                     <div>
-                      <span className="text-gray-400 block">Total a autorizar en Transbank:</span>
+                      <span className="text-gray-400 block">{t("total_to_authorize_tbk")}</span>
                       <span className="text-[10px] text-emerald-400 font-medium">
-                        0% sobreprecio de tienda • Comisión TapTrade 3% + IVA
+                        {t("store_surcharge_zero")}
                       </span>
                     </div>
                     <span className="font-mono font-black text-white text-base">
@@ -992,11 +994,11 @@ const CheckoutWebpay = () => {
                     {loading ? (
                       <>
                         <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                        <span>Conectando con Transbank...</span>
+                        <span>{t("connecting_transbank_short")}</span>
                       </>
                     ) : (
                       <>
-                        <span className="flex items-center gap-1.5"><IconLock className="w-4 h-4" /> Pagar con Webpay Plus</span>
+                        <span className="flex items-center gap-1.5"><IconLock className="w-4 h-4" /> {t("webpay_btn")}</span>
                         <span className="font-mono font-bold ml-1">
                           (${Math.round(finalAmount).toLocaleString("es-CL")} CLP)
                         </span>
@@ -1014,19 +1016,19 @@ const CheckoutWebpay = () => {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white">
-                        Pagar con Mercado Pago (Checkout Pro)
+                        {t("mercadopago_btn")}
                       </h4>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        Al pulsar el botón serás redirigido a la plataforma oficial y encriptada de Mercado Pago para pagar con tarjeta de crédito (hasta 12 cuotas), débito o saldo en cuenta.
+                        {t("mercadopago_redirect_notice")}
                       </p>
                     </div>
                   </div>
 
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-300 flex items-center justify-between">
                     <div>
-                      <span className="text-gray-400 block">Total a autorizar en Mercado Pago:</span>
+                      <span className="text-gray-400 block">{t("total_to_authorize_mp")}</span>
                       <span className="text-[10px] text-sky-400 font-medium">
-                        0% sobreprecio de tienda • Comisión TapTrade 3% + IVA
+                        {t("store_surcharge_zero")}
                       </span>
                     </div>
                     <span className="font-mono font-black text-white text-base">
@@ -1043,12 +1045,12 @@ const CheckoutWebpay = () => {
                     {loading ? (
                       <>
                         <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                        <span>Conectando con Mercado Pago...</span>
+                        <span>{t("connecting_mercadopago_short")}</span>
                       </>
                     ) : (
                       <>
                         <IconLock className="w-4 h-4" />
-                        <span>Pagar con Mercado Pago</span>
+                        <span>{t("mercadopago_btn")}</span>
                         <span className="font-mono font-bold ml-1">
                           (${Math.round(finalAmount).toLocaleString("es-CL")} CLP)
                         </span>
@@ -1062,8 +1064,8 @@ const CheckoutWebpay = () => {
                 <IconShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>
                   {selectedGateway === "WEBPAY"
-                    ? "Transacción oficial cifrada con Transbank SpA"
-                    : "Transacción segura y encriptada por Mercado Pago Chile"}
+                    ? t("webpay_official_encrypted")
+                    : t("mercadopago_official_encrypted")}
                 </span>
               </div>
             </div>
@@ -1082,10 +1084,10 @@ const CheckoutWebpay = () => {
             <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden sticky top-32">
               <div className="border-b border-white/10 py-5 px-6 bg-white/[0.02] flex items-center justify-between">
                 <h3 className="font-extrabold text-lg text-white tracking-tight">
-                  Tu Pedido
+                  {t("yourOrder")}
                 </h3>
                 <span className="text-xs font-mono font-medium text-gray-400">
-                  {cartItems.length} {cartItems.length === 1 ? "ítem" : "ítems"}
+                  {t("order_items_count", { count: cartItems.length })}
                 </span>
               </div>
 
@@ -1101,7 +1103,7 @@ const CheckoutWebpay = () => {
                         </span>
                       </div>
                       <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
-                        Verificada
+                        {t("store_verified")}
                       </span>
                     </div>
 
@@ -1136,12 +1138,12 @@ const CheckoutWebpay = () => {
                     <div className="pt-2">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                          Método de Despacho:
+                          {t("shipping_method_label")}
                         </span>
                         {isQuotingShipping && (
                           <span className="text-[10px] text-amber-400 font-bold animate-pulse flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                            Cotizando...
+                            {t("quoting_shipping")}
                           </span>
                         )}
                       </div>
@@ -1149,7 +1151,7 @@ const CheckoutWebpay = () => {
                       {/* Información de cubicaje y origen de la tienda si está cotizada */}
                       {quotedStores[sId] && (
                         <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 text-[11px] text-white/50 flex items-center justify-between">
-                          <span className="flex items-center gap-1"><IconMapPin className="w-3 h-3 text-gray-400 shrink-0" /> Desde: <strong className="text-white/80">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
+                          <span className="flex items-center gap-1"><IconMapPin className="w-3 h-3 text-gray-400 shrink-0" /> {t("shipping_from")} <strong className="text-white/80">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
                           <span className="text-[10px] text-white/40">{quotedStores[sId].packageDescription}</span>
                         </div>
                       )}
@@ -1214,7 +1216,7 @@ const CheckoutWebpay = () => {
                                   </div>
                                   <div className="font-mono font-bold text-xs text-right">
                                     {optPrice === 0 ? (
-                                      <span className="text-emerald-400 font-black">$0 (Gratis)</span>
+                                      <span className="text-emerald-400 font-black">{t("free_shipping")}</span>
                                     ) : (
                                       <span className="text-white">
                                         ${Math.round(optPrice).toLocaleString("es-CL")} CLP
@@ -1242,14 +1244,14 @@ const CheckoutWebpay = () => {
                 {/* Desglose Financiero */}
                 <div className="pt-4 border-t border-white/10 space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Subtotal Productos (IVA incluido)</span>
+                    <span className="text-gray-400">{t("subtotal_vat")}</span>
                     <span className="font-mono font-bold text-white">
                       ${Math.round(total).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Total Envíos Consolidados <span className="text-gray-500 text-xs">(IVA incluido)</span></span>
+                    <span className="text-gray-400">{t("shipping_total_vat")}</span>
                     <span className="font-mono font-bold text-emerald-400">
                       ${Math.round(totalShippingCost).toLocaleString("es-CL")} CLP
                     </span>
@@ -1260,14 +1262,14 @@ const CheckoutWebpay = () => {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-300 font-semibold">
-                          Comisión TapTrade
+                          {t("taptrade_fee")}
                         </span>
                         <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                          3% + IVA
+                          {t("taptrade_fee_badge")}
                         </span>
                       </div>
                       <span className="text-[10px] text-gray-400 block mt-0.5">
-                        Servicio de intermediación tecnológica y protección al comprador TapTrade SpA.
+                        {t("taptrade_fee_desc")}
                       </span>
                     </div>
                     <span className="font-mono font-bold text-white shrink-0 ml-2">
@@ -1280,7 +1282,7 @@ const CheckoutWebpay = () => {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-300 font-semibold">
-                          Costo Pasarela de Pago
+                          {t("gateway_cost")}
                         </span>
                         <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
                           selectedGateway === "WEBPAY"
@@ -1301,9 +1303,9 @@ const CheckoutWebpay = () => {
 
                   <div className="pt-3 border-t border-white/10 flex items-baseline justify-between">
                     <div>
-                      <span className="text-sm font-bold text-white block">Total Final a Pagar</span>
+                      <span className="text-sm font-bold text-white block">{t("final_total")}</span>
                       <span className="text-[10px] text-emerald-400 font-medium">
-                        Precios directos de tienda • Compra 100% protegida
+                        {t("buyer_protection_note")}
                       </span>
                     </div>
                     <div className="text-right">
@@ -1319,11 +1321,11 @@ const CheckoutWebpay = () => {
                 <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-400 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Despacho 24-48h con seguimiento en vivo</span>
+                    <span>{t("badge_dispatch_fast")}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Protección al comprador TapTrade SpA</span>
+                    <span>{t("badge_buyer_protection")}</span>
                   </div>
                 </div>
               </div>

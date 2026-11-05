@@ -2,8 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { IconSparkles, IconStore, IconMenu, IconX } from "@/components/ui/Icons";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
+import { useTranslations } from "next-intl";
 
 const Header = () => {
+  const t = useTranslations("landing.nav");
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -37,7 +40,7 @@ const Header = () => {
               </span>
             </span>
             <span className="text-[10px] text-gray-400 font-medium tracking-wider -mt-1 hidden sm:block whitespace-nowrap">
-              Plataforma & Marketplace
+              {t("tagline")}
             </span>
           </div>
         </Link>
@@ -48,84 +51,92 @@ const Header = () => {
             href="#marketplace"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
           >
-            Marketplace
+            {t("marketplace")}
           </Link>
           <Link
             href="#showcase"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap flex items-center gap-1.5"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#E10E0E] animate-pulse shrink-0"></span>
-            Plataforma
+            {t("platform")}
           </Link>
           <Link
             href="#pos"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
           >
-            POS Mostrador
+            {t("pos")}
           </Link>
           <Link
             href="#for-stores"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
           >
-            Para Tiendas
+            {t("for_stores")}
           </Link>
           <Link
             href="#pricing"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
           >
-            Planes
+            {t("plans")}
           </Link>
           <Link
             href="#faq"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
           >
-            FAQ
+            {t("faq")}
           </Link>
         </nav>
 
         {/* Action Buttons */}
         <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+          <LanguageSelector />
           <Link
             href="/admin/login"
             className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all"
           >
             <IconStore className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span>Acceso Tiendas</span>
+            <span>{t("store_login")}</span>
           </Link>
           <Link
             href="/shop"
             className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#E10E0E] hover:bg-[#F23030] shadow-md shadow-[#E10E0E]/30 hover:shadow-lg hover:shadow-[#E10E0E]/40 active:scale-95 transition-all"
           >
             <IconSparkles className="w-3.5 h-3.5 text-white shrink-0" />
-            <span>Explorar Singles</span>
+            <span>{t("explore_singles")}</span>
           </Link>
         </div>
 
-        {/* Mobile Menu Button (Icon strictly centralized in Icons.tsx) */}
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0"
-          aria-label="Abrir Menú"
-        >
-          {mobileMenuOpen ? (
-            <IconX className="w-5 h-5 text-gray-300" />
-          ) : (
-            <IconMenu className="w-5 h-5 text-gray-300" />
-          )}
-        </button>
+        {/* Mobile Controls (Language + Menu Button) */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <LanguageSelector showLabel={false} />
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0"
+            aria-label="Abrir Menú"
+          >
+            {mobileMenuOpen ? (
+              <IconX className="w-5 h-5 text-gray-300" />
+            ) : (
+              <IconMenu className="w-5 h-5 text-gray-300" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#0E121B] border-b border-white/10 px-6 py-6 mt-3 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl">
+          <div className="py-2 border-b border-white/10 flex items-center justify-between">
+            <span className="text-xs text-gray-400 font-semibold">{t("language_label")}</span>
+            <LanguageSelector />
+          </div>
           <nav className="flex flex-col space-y-3">
             <Link
               href="#marketplace"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
-              Marketplace
+              {t("marketplace")}
             </Link>
             <Link
               href="#showcase"
@@ -133,42 +144,42 @@ const Header = () => {
               className="text-sm font-semibold text-gray-300 hover:text-white py-1 flex items-center gap-2"
             >
               <span className="w-2 h-2 rounded-full bg-[#E10E0E]"></span>
-              Plataforma (Demostración)
+              {t("platform")}
             </Link>
             <Link
               href="#pos"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
-              POS Mostrador (Offline)
+              {t("pos")}
             </Link>
             <Link
               href="#for-stores"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
-              Para Tiendas (SaaS)
+              {t("for_stores")}
             </Link>
             <Link
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
-              Características Técnicas
+              {t("features")}
             </Link>
             <Link
               href="#pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
-              Planes
+              {t("plans")}
             </Link>
             <Link
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-semibold text-gray-300 hover:text-white py-1"
             >
-              FAQ
+              {t("faq")}
             </Link>
           </nav>
           <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
@@ -177,14 +188,14 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full text-center py-2.5 rounded-xl text-xs font-bold text-white bg-white/5 border border-white/10"
             >
-              Acceso Tiendas
+              {t("store_login")}
             </Link>
             <Link
               href="/shop"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full text-center py-2.5 rounded-xl text-xs font-bold text-white bg-[#E10E0E]"
             >
-              Explorar Singles
+              {t("explore_singles")}
             </Link>
           </div>
         </div>

@@ -5,13 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { useTranslations } from "next-intl";
 import { loginSuccess } from "@/redux/features/auth-slice";
 import { adminLoginSuccess } from "@/redux/features/admin-auth-slice";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import { IconShieldCheck, IconZap, IconSparkles } from "@/components/ui/Icons";
 
 export default function LoginForm() {
+  const t = useTranslations("login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
@@ -40,7 +43,7 @@ export default function LoginForm() {
     setError("");
 
     if (!captchaToken) {
-      return setError("Por favor, completa el CAPTCHA de seguridad para continuar.");
+      return setError(t("captcha_error"));
     }
 
     setIsLoading(true);
@@ -56,7 +59,7 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Credenciales inválidas");
+        throw new Error(data.message || t("invalid_credentials"));
       }
 
       // Guardar o borrar email según el checkbox
@@ -134,7 +137,7 @@ export default function LoginForm() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            Volver a la tienda
+            {t("back_to_shop")}
           </Link>
         </div>
 
@@ -142,52 +145,52 @@ export default function LoginForm() {
         <div className="relative z-10 my-auto max-w-xl py-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red-light text-xs font-semibold mb-6 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-red animate-pulse" />
-            El Marketplace TCG de Chile
+            {t("badge_tcg")}
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.15] mb-5">
-            Bienvenido a tu{" "}
+            {t("hero_welcome")}{" "}
             <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-red-light via-red to-orange">
-              Bóveda Coleccionista
+              {t("hero_vault")}
             </span>
           </h1>
 
           <p className="text-white/75 text-base xl:text-lg leading-relaxed mb-8">
-            Compra, vende y gestiona tus cartas de Magic, Pokémon, Riftbound y más. Precios de mercado actualizados en tiempo real y envíos certificados a todo el país.
+            {t("hero_desc")}
           </p>
 
           {/* Tarjetas de Beneficios */}
           <div className="grid grid-cols-3 gap-3.5 pt-2">
             <div className="bg-[#0B0E17]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-md hover:border-red/40 transition-all">
               <div className="w-8 h-8 rounded-lg bg-red/15 border border-red/30 flex items-center justify-center text-red-light mb-2.5 font-bold text-sm">
-                🛡️
+                <IconShieldCheck className="w-5 h-5 text-red-light" />
               </div>
-              <h4 className="text-xs font-bold text-white mb-0.5">Compra Segura</h4>
-              <p className="text-[11px] text-white/50 leading-tight">Fondos protegidos hasta tu entrega conforme.</p>
+              <h4 className="text-xs font-bold text-white mb-0.5">{t("benefit_safe_title")}</h4>
+              <p className="text-[11px] text-white/50 leading-tight">{t("benefit_safe_desc")}</p>
             </div>
 
             <div className="bg-[#0B0E17]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-md hover:border-[#F59E0B]/40 transition-all">
               <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 flex items-center justify-center text-[#FCD34D] mb-2.5 font-bold text-sm">
-                ⚡
+                <IconZap className="w-5 h-5 text-[#FCD34D]" />
               </div>
-              <h4 className="text-xs font-bold text-white mb-0.5">Envíos 24-48h</h4>
-              <p className="text-[11px] text-white/50 leading-tight">Starken y Chilexpress integrados.</p>
+              <h4 className="text-xs font-bold text-white mb-0.5">{t("benefit_shipping_title")}</h4>
+              <p className="text-[11px] text-white/50 leading-tight">{t("benefit_shipping_desc")}</p>
             </div>
 
             <div className="bg-[#0B0E17]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-md hover:border-[#2CD673]/40 transition-all">
               <div className="w-8 h-8 rounded-lg bg-[#22AD5C]/15 border border-[#22AD5C]/30 flex items-center justify-center text-[#2CD673] mb-2.5 font-bold text-sm">
-                🎴
+                <IconSparkles className="w-5 h-5 text-[#2CD673]" />
               </div>
-              <h4 className="text-xs font-bold text-white mb-0.5">+100k Cartas</h4>
-              <p className="text-[11px] text-white/50 leading-tight">Catálogo oficial Scryfall, TCG & Riftcodex.</p>
+              <h4 className="text-xs font-bold text-white mb-0.5">{t("benefit_cards_title")}</h4>
+              <p className="text-[11px] text-white/50 leading-tight">{t("benefit_cards_desc")}</p>
             </div>
           </div>
         </div>
 
         {/* Footer Izquierdo */}
         <div className="relative z-10 flex items-center justify-between text-xs text-white/40 pt-4 border-t border-white/10">
-          <span>© {new Date().getFullYear()} TapTrade Inc.</span>
-          <span>Plataforma oficial para tiendas y jugadores</span>
+          <span>{t("footer_rights", { year: new Date().getFullYear() })}</span>
+          <span>{t("footer_tagline")}</span>
         </div>
       </div>
 
@@ -214,17 +217,17 @@ export default function LoginForm() {
               href="/"
               className="text-xs font-medium text-white/70 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10"
             >
-              ← Volver
+              {t("back_short")}
             </Link>
           </div>
 
           {/* Encabezado del Formulario */}
           <div className="mb-6">
             <h2 className="text-3xl font-black text-white tracking-tight mb-2">
-              Iniciar Sesión
+              {t("title")}
             </h2>
             <p className="text-white/60 text-sm">
-              Ingresa tus credenciales para acceder a tu cuenta y gestionar tus cartas.
+              {t("subtitle")}
             </p>
           </div>
 
@@ -237,7 +240,7 @@ export default function LoginForm() {
           <div className="flex items-center gap-3 my-6">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
             <span className="text-[11px] font-medium tracking-wider uppercase text-white/40 select-none shrink-0">
-              o con tu correo
+              {t("or_email")}
             </span>
             <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
           </div>
@@ -251,11 +254,11 @@ export default function LoginForm() {
                   <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  Cuenta no verificada
+                  {t("unverified_title")}
                 </div>
                 <p className="text-white/80">{error}</p>
                 <p className="text-[11px] text-white/50 mt-1">
-                  Revisa el correo de confirmación de <strong>TapTrade</strong> en tu bandeja de entrada o Spam.
+                  {t("unverified_help")}
                 </p>
               </div>
             ) : (
@@ -273,7 +276,7 @@ export default function LoginForm() {
             {/* Campo Email */}
             <div>
               <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                Correo Electrónico
+                {t("email_label")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
@@ -289,7 +292,7 @@ export default function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="ejemplo@correo.com"
+                  placeholder={t("email_placeholder")}
                   autoComplete="email"
                   className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
                 />
@@ -300,13 +303,13 @@ export default function LoginForm() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70">
-                  Contraseña
+                  {t("password_label")}
                 </label>
                 <Link
                   href="/recuperar-cuenta"
                   className="text-xs text-red-light hover:text-white font-semibold transition-colors"
                 >
-                  ¿Olvidaste tu contraseña?
+                  {t("forgot_password")}
                 </Link>
               </div>
               <div className="relative">
@@ -323,14 +326,14 @@ export default function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  placeholder="••••••••"
+                  placeholder={t("password_placeholder")}
                   autoComplete="current-password"
                   className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                  aria-label={showPassword ? t("hide_pwd_aria") : t("show_pwd_aria")}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
                 >
                   {showPassword ? (
@@ -357,7 +360,7 @@ export default function LoginForm() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded bg-[#0E121B] border-white/20 text-red focus:ring-red/30 focus:ring-offset-0 focus:ring-1 accent-[#F23030] cursor-pointer"
                 />
-                <span className="group-hover:text-white transition-colors">Recordar mi sesión en este dispositivo</span>
+                <span className="group-hover:text-white transition-colors">{t("remember_me")}</span>
               </label>
             </div>
 
@@ -382,10 +385,10 @@ export default function LoginForm() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Ingresando a tu cuenta...</span>
+                  <span>{t("submitting")}</span>
                 </>
               ) : (
-                <span>Ingresar ahora</span>
+                <span>{t("submit_btn")}</span>
               )}
             </button>
           </form>
@@ -393,12 +396,12 @@ export default function LoginForm() {
           {/* Enlace para Crear Cuenta */}
           <div className="mt-8 pt-6 border-t border-white/10 text-center">
             <p className="text-xs text-white/60">
-              ¿Aún no tienes una cuenta de coleccionista o tienda?{" "}
+              {t("no_account_prompt")}{" "}
               <Link
                 href="/signup"
                 className="text-red-light hover:text-white font-bold transition-colors ml-1"
               >
-                Regístrate gratis
+                {t("register_free")}
               </Link>
             </p>
           </div>
@@ -406,13 +409,13 @@ export default function LoginForm() {
           {/* Términos y Condiciones */}
           <div className="mt-6 text-center">
             <p className="text-[11px] text-white/40 leading-relaxed">
-              Al iniciar sesión aceptas nuestros{" "}
+              {t("terms_prefix")}{" "}
               <Link href="/terminos-y-condiciones" className="text-white/60 hover:text-white underline">
-                Términos y Condiciones
+                {t("terms_link")}
               </Link>{" "}
-              y nuestra{" "}
+              {t("terms_middle")}{" "}
               <Link href="/politica-de-privacidad" className="text-white/60 hover:text-white underline">
-                Política de Privacidad
+                {t("privacy_link")}
               </Link>
               .
             </p>
