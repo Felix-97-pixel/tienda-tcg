@@ -332,7 +332,13 @@
     "no_sellers_available": "Não há vendedores disponíveis para esta carta no momento.",
     "card_not_found_title": "Carta não encontrada",
     "card_not_found_desc": "A carta que você procura não existe ou foi removida do catálogo da TapTrade.",
-    "loading_details": "Carregando detalhes da carta..."
+    "loading_details": "Carregando detalhes da carta...",
+    "meta_title": "Detalhes do Produto | TapTrade TCG Marketplace",
+    "meta_description": "Compare preços e condições entre todas as lojas verificadas na TapTrade.",
+    "default_store_name": "Loja TapTrade",
+    "added_to_cart_toast": "{qty}x {name} adicionado ao carrinho",
+    "default_card_name": "Carta TCG",
+    "default_expansion": "Edição Geral"
   },
   "wishlist": {
     "title": "Sua Lista de Desejos (Wishlist)",

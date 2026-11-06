@@ -332,7 +332,13 @@
     "no_sellers_available": "No sellers available for this card at this moment.",
     "card_not_found_title": "Card not found",
     "card_not_found_desc": "The card you are looking for does not exist or was removed from the TapTrade catalog.",
-    "loading_details": "Loading card details..."
+    "loading_details": "Loading card details...",
+    "meta_title": "Product Details | TapTrade TCG Marketplace",
+    "meta_description": "Compare prices and conditions across all verified stores on TapTrade.",
+    "default_store_name": "TapTrade Store",
+    "added_to_cart_toast": "{qty}x {name} added to cart",
+    "default_card_name": "TCG Card",
+    "default_expansion": "General Edition"
   },
   "wishlist": {
     "title": "Your Wishlist",
