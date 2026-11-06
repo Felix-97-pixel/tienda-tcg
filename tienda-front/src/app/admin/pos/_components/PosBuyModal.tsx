@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { adminFetch } from '@/utils/api';
 import { PosBuyCartItem } from './PosBuyCart';
 import { IconCash, IconWallet } from '@/components/ui/Icons';
@@ -26,6 +27,7 @@ export default function PosBuyModal({
   onConfirmPayout,
   isProcessing,
 }: PosBuyModalProps) {
+  const t = useTranslations("admin.pos_page");
   const [payoutMethod, setPayoutMethod] = useState<'STORE_CREDIT' | 'CASH'>('STORE_CREDIT');
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [customerResults, setCustomerResults] = useState<any[]>([]);
@@ -114,7 +116,7 @@ export default function PosBuyModal({
                 }`}
               >
                 <IconWallet className="w-5 h-5 text-cyan-400" />
-                <span className="text-xs font-black uppercase">Crédito de Tienda</span>
+                <span className="text-xs font-black uppercase">{t("store_credit")}</span>
                 <span className="font-mono text-sm font-bold text-cyan-300">
                   ${totalCredit.toLocaleString('es-CL')} CLP
                 </span>

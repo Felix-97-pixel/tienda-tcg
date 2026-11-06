@@ -487,5 +487,65 @@
     "pos_title": "Punto de Venta (POS)",
     "pos_desc": "Caja registradora para tu local físico, escáner de códigos de barra, compra/venta de cartas singles y cuadratura.",
     "pos_tag": "Venta en Mostrador"
+  },
+  "buylist_page": {
+    "title": "Mi Buylist",
+    "subtitle": "Configura las cartas y productos sellados que tu tienda desea comprar a los clientes y sus precios en efectivo y crédito.",
+    "add_to_buylist": "Añadir a Buylist",
+    "tab_all": "Todos",
+    "tab_active": "Activos",
+    "tab_paused": "Pausados"
+  },
+  "coupons_page": {
+    "title": "Cupones de Descuento",
+    "subtitle": "Crea y administra códigos promocionales para tu tienda.",
+    "create_coupon": "Crear Cupón",
+    "code": "Código",
+    "discount": "Descuento",
+    "validity": "Vigencia",
+    "scope": "Alcance",
+    "status": "Estado",
+    "actions": "Acciones",
+    "scope_store_wide": "Toda la tienda",
+    "scope_category_specific": "Por Categorías",
+    "scope_game_specific": "Por Juegos",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "expired": "Expirado"
+  },
+  "currencies_page": {
+    "title": "Tasas de Cambio",
+    "subtitle": "Configura el valor de conversión en CLP para cada juego y los porcentajes de avalúo en Efectivo y Crédito de Tienda para compras automáticas en Trade-in.",
+    "add_rate": "Agregar Tasa",
+    "game": "Juego",
+    "base_currency": "Divisa Base Global",
+    "local_value": "Valor Local (PVP Final)",
+    "branch_label": "Sucursal:",
+    "empty_rates": "No tienes tasas de cambio configuradas aún para esta sucursal. Haz clic en 'Agregar Tasa' para configurar una."
+  },
+  "devaluations_page": {
+    "title": "Reglas de Estado",
+    "badge": "Condiciones & Precios",
+    "subtitle": "Configura los porcentajes de precio automático según la condición (estado físico) de tus cartas.",
+    "base_near_mint": "Near Mint será siempre el 100% (Base)."
+  },
+  "games_page": {
+    "title": "Juegos Soportados",
+    "badge": "Catálogo & TCGs",
+    "subtitle": "Administra qué juegos se encuentran disponibles en el catálogo de tu tienda para que tus clientes puedan comprar y vender cartas."
+  },
+  "pos_page": {
+    "title": "Punto de Venta (POS)",
+    "empty_cart": "El carrito está vacío",
+    "empty_cart_desc": "Agrega cartas o escanea productos para comenzar la venta",
+    "empty_buy_cart": "Lista de compra vacía",
+    "complete_charge": "Completar Cobro",
+    "store_credit": "Crédito de Tienda",
+    "cash_outflow": "Egreso directo de caja",
+    "local_time": "Hora Local (CLST)",
+    "close_shift": "Cerrar Caja (Arqueo)",
+    "open_shift": "Abrir Turno de Caja",
+    "receipt_title": "COMPROBANTE INTERNO DE VENTA",
+    "offline_mode": "[ VENTA MODO SIN CONEXIÓN ]"
   }
 }

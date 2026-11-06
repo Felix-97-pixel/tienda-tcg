@@ -4,7 +4,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import TcgStorefrontView from "./TcgStorefrontView";
 import TcgStoreBuylistView from "./TcgStoreBuylistView";
 import { API_URL } from "@/utils/api";
-import { IconCoins } from "@/components/ui/Icons";
+import { IconCoins, IconCart } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 interface TcgStoreContainerProps {
   store: {
@@ -16,6 +17,7 @@ interface TcgStoreContainerProps {
 }
 
 export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
+  const t = useTranslations("store");
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialTab = searchParams.get("tab") === "buylist" ? "buylist" : "catalog";
@@ -71,12 +73,8 @@ export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
                   : "bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/5"
               }`}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-              </svg>
-              <span>Catálogo en Venta</span>
+              <IconCart className="w-4 h-4 shrink-0" />
+              <span>{t("catalog_tab")}</span>
             </button>
 
             {/* Tab 2: Buylist */}
@@ -90,7 +88,7 @@ export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
               }`}
             >
               <IconCoins className="w-4 h-4 text-amber-950 shrink-0" />
-              <span>Cartas que Compramos (Buylist)</span>
+              <span>{t("buylist_tab")}</span>
               {buylistCount !== null && (
                 <span
                   className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${

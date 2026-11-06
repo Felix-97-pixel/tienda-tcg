@@ -97,7 +97,13 @@
       "name_asc": "Nome (A-Z)"
     },
     "noPrice": "Sem preço",
-    "priceUnit": "USD · CLP"
+    "priceUnit": "USD · CLP",
+    "view_variants": "Ver Variações",
+    "loading_catalog": "Carregando catálogo...",
+    "immediate_stock": "Estoque Imediato",
+    "master_catalog": "Catálogo Mestre",
+    "official_showcase": "Vitrine Oficial",
+    "combination_not_available": "Esta combinação não está disponível."
   },
   "cart": {
     "title": "Seu Carrinho de Compras",
@@ -143,7 +149,9 @@
     "apply_coupon_btn": "Aplicar Cupom",
     "active_coupons": "Cupons ativos no pedido",
     "coupon_savings": "-{percent}% · Economia de",
-    "coupon_removed_toast": "Cupom {code} removido"
+    "coupon_removed_toast": "Cupom {code} removido",
+    "coupon_applied_toast": "Cupom {code} aplicado! {discount}% de desconto em {count, plural, =1 {1 produto} other {# produtos}}.",
+    "coupon_error_toast": "Ocorreu um erro ao validar o cupom."
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -260,7 +268,17 @@
       "processed_notice": "Sua transação foi processada. Você pode consultar os detalhes na sua caixa de entrada ou no seu painel.",
       "back_catalog_btn": "← Voltar ao Catálogo TCG",
       "view_orders_btn": "Ver Meus Pedidos",
-      "retry_payment_btn": "Tentar Novamente"
+      "retry_payment_btn": "Tentar Novamente",
+      "receipt_breadcrumb": "Comprovante de Pagamento",
+      "back_store_breadcrumb": "← Voltar à Loja",
+      "verifying_payment": "Verificando e confirmando seu pagamento seguro...",
+      "service_fee": "Taxa TapTrade (3% + IVA)"
+    },
+    "locations": {
+      "region_label": "Região de Destino",
+      "commune_label": "Comuna de Destino",
+      "region_placeholder": "Selecione sua região...",
+      "commune_placeholder": "Selecione ou busque sua comuna..."
     }
   },
   "product_details": {
@@ -294,7 +312,10 @@
     "available_stock": "{count} disponíveis",
     "buy_now": "Comprar",
     "qty_aria": "Quantidade para comprar",
-    "no_sellers_available": "Não há vendedores disponíveis para esta carta no momento."
+    "no_sellers_available": "Não há vendedores disponíveis para esta carta no momento.",
+    "card_not_found_title": "Carta não encontrada",
+    "card_not_found_desc": "A carta que você procura não existe ou foi removida do catálogo da TapTrade.",
+    "loading_details": "Carregando detalhes da carta..."
   },
   "wishlist": {
     "title": "Sua Lista de Desejos (Wishlist)",
@@ -501,5 +522,34 @@
       "create_store_btn": "Criar Minha Loja TCG",
       "contact_support_btn": "Falar com Suporte"
     }
+  },
+  "store": {
+    "catalog_tab": "Catálogo à Venda",
+    "buylist_tab": "Cartas que Compramos (Buylist)",
+    "official_store_badge": "Loja Oficial TCG",
+    "verified_taptrade": "✓ Verificado TapTrade",
+    "active_cards_count": "{count, plural, =1 {1 carta ativa} other {# cartas ativas}}",
+    "live_commerce_title": "Comércio ativo ao vivo",
+    "default_description": "Inventário oficial ao vivo. Compre singles protegidos, boosters e caixas seladas com envio consolidado ou retirada presencial.",
+    "whatsapp_btn": "WhatsApp da Loja",
+    "send_email_title": "Enviar e-mail para {email}",
+    "pickup_title": "Retirada na Loja",
+    "pickup_free_badge": "GRÁTIS $0",
+    "pickup_coordinated": "Retirada presencial coordenada com o vendedor",
+    "view_map": "Ver mapa no Google Maps",
+    "chilexpress_title": "Chilexpress Courier",
+    "chilexpress_badge": "Cotação ao vivo",
+    "chilexpress_desc": "Envios prioritários para endereço ou agência com rastreamento oficial de 24-48h.",
+    "starken_title": "Starken Envios",
+    "starken_badge": "Todo o Chile",
+    "starken_desc": "Cobertura nacional para cartas protegidas, pastas e caixas seladas.",
+    "buylist_official_engine": "Motor Oficial de Buylist",
+    "buylist_have_cards_title": "Você tem essas cartas? {storeName} está comprando",
+    "buylist_monetize_desc": "Monetize sua pasta de coleção com segurança. Escolha pagamento imediato em Dinheiro via transferência bancária ou Crédito na Loja com saldo bônus para trocar por novos singles e selados.",
+    "secure_payment_badge": "Pagamento Seguro",
+    "digital_credit_badge": "Em Crédito Digital",
+    "direct_store_player_badge": "Loja para Jogador",
+    "search_buylist_placeholder": "Buscar por carta ou coleção na buylist...",
+    "offer_to_store_btn": "Oferecer à loja"
   }
 }

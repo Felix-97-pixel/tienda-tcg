@@ -11,6 +11,7 @@ import {
   IconHome,
   IconShieldCheck,
 } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 export interface CarrierEvent {
   date: string;
@@ -81,6 +82,7 @@ export default function CarrierTimeline({
   className = "",
   defaultTheme = "light",
 }: CarrierTimelineProps) {
+  const t = useTranslations("carrier");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(defaultTheme === "dark");
@@ -132,7 +134,7 @@ export default function CarrierTimeline({
                 }`}
               >
                 <IconShieldCheck className="w-3 h-3 shrink-0" />
-                <span>Orden Registrada</span>
+                <span>{t("order_registered")}</span>
               </span>
             </div>
             <p
@@ -184,11 +186,11 @@ export default function CarrierTimeline({
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="space-y-1">
               <div className="h-1.5 rounded-full bg-emerald-500" />
-              <span className="text-[10px] font-bold text-emerald-400 block">1. Despachado</span>
+              <span className="text-[10px] font-bold text-emerald-400 block">{t("step_dispatched")}</span>
             </div>
             <div className="space-y-1">
               <div className="h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-400 block">2. En Tránsito</span>
+              <span className="text-[10px] font-bold text-emerald-400 block">{t("step_in_transit")}</span>
             </div>
             <div className="space-y-1">
               <div className={`h-1.5 rounded-full ${isDarkMode ? "bg-white/15" : "bg-gray-200"}`} />
@@ -197,7 +199,7 @@ export default function CarrierTimeline({
                   isDarkMode ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                3. Entrega
+                {t("step_delivery")}
               </span>
             </div>
           </div>
@@ -210,9 +212,9 @@ export default function CarrierTimeline({
             >
               <IconTruck className="w-4 h-4 text-emerald-500 shrink-0" />
               <span>
-                Estado:{" "}
+                {t("status_label")}{" "}
                 <strong className={isDarkMode ? "text-white" : "text-black"}>
-                  {status || "En tránsito hacia destino"}
+                  {status || t("in_transit_to_destination")}
                 </strong>
               </span>
             </div>
@@ -224,7 +226,7 @@ export default function CarrierTimeline({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition-all shadow-md cursor-pointer"
               >
-                <span>Consultar en Portal {isStarken ? "Starken" : courierName}</span>
+                <span>{t("consult_portal", { courier: isStarken ? "Starken" : courierName })}</span>
                 <IconExternalLink className="w-3.5 h-3.5" />
               </a>
             )}
@@ -265,7 +267,7 @@ export default function CarrierTimeline({
               }`}
             >
               <IconShieldCheck className="w-3 h-3 shrink-0" />
-              <span>Verificación Oficial en Vivo</span>
+              <span>{t("live_verification")}</span>
             </span>
           </div>
           <p
@@ -273,7 +275,7 @@ export default function CarrierTimeline({
               isDarkMode ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            N° OT:{" "}
+            {t("tracking_number_label")}{" "}
             <span
               className={`font-bold ${isDarkMode ? "text-white" : "text-black"}`}
             >
@@ -299,7 +301,7 @@ export default function CarrierTimeline({
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Destino
+                {t("destination")}
               </span>
               <span
                 className={`text-xs font-bold flex items-center justify-end gap-1 ${
@@ -323,7 +325,7 @@ export default function CarrierTimeline({
                 : "border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            {isDarkMode ? "Ver Blanco Oficial" : "Modo Oscuro"}
+            {isDarkMode ? t("see_official_white") : t("dark_mode")}
           </button>
         </div>
       </div>
@@ -427,7 +429,7 @@ export default function CarrierTimeline({
                           <IconCirclePlus className="w-4 h-4 shrink-0" />
                         )}
                         <span className="underline underline-offset-2">
-                          {isExpanded ? "Ocultar Detalle" : "Detalle"}
+                          {isExpanded ? t("hide_detail") : t("show_detail")}
                         </span>
                       </button>
 
@@ -447,7 +449,7 @@ export default function CarrierTimeline({
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
                                 }`}
                               >
-                                Ubicación / Sucursal:
+                                {t("location_branch")}
                               </span>
                               <span
                                 className={`font-bold ${

@@ -14,8 +14,10 @@ import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
+import { useTranslations } from "next-intl";
 
 const ProductItem = ({ item }: { item: Product }) => {
+  const t = useTranslations("shop");
   const { openModal } = useModalContext();
 
   const dispatch = useDispatch<AppDispatch>();
@@ -66,7 +68,7 @@ const ProductItem = ({ item }: { item: Product }) => {
         {(item.stock === 0 || (item.items && item.items.length > 0 && item.items.every(i => i.stock === 0))) && (
           <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
             <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
-              Sin stock
+              {t("outOfStock")}
             </span>
           </div>
         )}
@@ -180,7 +182,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             )}
           </>
         ) : (
-          <span className="text-gray-4 text-sm italic">Sin precio</span>
+          <span className="text-gray-4 text-sm italic">{t("noPrice")}</span>
         )}
       </span>
     </div>

@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { updateCartItemQuantity } from "@/redux/features/cart-slice";
 import { useToast } from "@/hooks/useToast";
+import { IconTrash } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 interface CartItemProps {
   item: any;
@@ -12,12 +14,13 @@ interface CartItemProps {
 }
 
 const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
+  const t = useTranslations("cart");
   const dispatch = useDispatch<AppDispatch>();
   const { showToast } = useToast();
 
   const handleRemoveFromCart = () => {
     dispatch(removeItemFromCart(item.id));
-    showToast(`"${item.title}" eliminada del carrito`, "warning");
+    showToast(t("item_removed_toast", { title: item.title }), "warning");
   };
 
   const handleIncreaseQuantity = () => {
@@ -81,13 +84,11 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
             </h4>
             <button
               onClick={handleRemoveFromCart}
-              aria-label="Eliminar producto del carrito"
+              aria-label={t("delete_item_aria")}
               className="text-gray-500 hover:text-red-400 transition-colors p-1 rounded hover:bg-white/5 shrink-0"
-              title="Eliminar del carrito"
+              title={t("delete_item_aria")}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
+              <IconTrash className="w-3.5 h-3.5" />
             </button>
           </div>
 

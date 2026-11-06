@@ -5,6 +5,7 @@ import { API_URL } from "@/utils/api";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import { IconZap, IconSearch, IconCash, IconGem, IconHandshake, IconMapPin } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 interface BuylistItem {
   id: string;
@@ -54,6 +55,8 @@ interface TcgStoreBuylistViewProps {
 }
 
 export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuylistViewProps) {
+  const tBuylist = useTranslations("buylist");
+  const tStore = useTranslations("store");
   const currency = useAppSelector((state: any) => state.currencyReducer);
   const [items, setItems] = useState<BuylistItem[]>(initialItems || []);
   const [loading, setLoading] = useState(!initialItems);
@@ -207,29 +210,28 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
-              <IconZap className="w-3.5 h-3.5" /> Motor Oficial de Buylist
+              <IconZap className="w-3.5 h-3.5" /> {tStore("buylist_official_engine")}
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              ¿Tienes estas cartas? <span className="text-amber-400">{store.name}</span> las está comprando
+              {tStore("buylist_have_cards_title", { storeName: store.name })}
             </h2>
             <p className="text-sm text-gray-300 leading-relaxed">
-              Monetiza tu carpeta de colección de forma segura. Elige pago inmediato en <strong>Efectivo</strong> vía
-              transferencia bancaria o <strong>Crédito en Tienda</strong> con saldo adicional para canjear por nuevos singles y sellados.
+              {tStore("buylist_monetize_desc")}
             </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
             <div className="bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
               <span className="text-emerald-400 text-lg font-black block">100%</span>
-              <span className="text-[11px] text-gray-400 font-medium">Pago Seguro</span>
+              <span className="text-[11px] text-gray-400 font-medium">{tStore("secure_payment_badge")}</span>
             </div>
             <div className="bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
               <span className="text-amber-400 text-lg font-black block">+25%</span>
-              <span className="text-[11px] text-gray-400 font-medium">En Crédito Digital</span>
+              <span className="text-[11px] text-gray-400 font-medium">{tStore("digital_credit_badge")}</span>
             </div>
             <div className="col-span-2 sm:col-span-1 bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
               <span className="text-blue-400 text-lg font-black block">Directo</span>
-              <span className="text-[11px] text-gray-400 font-medium">Tienda a Jugador</span>
+              <span className="text-[11px] text-gray-400 font-medium">{tStore("direct_store_player_badge")}</span>
             </div>
           </div>
         </div>
@@ -242,7 +244,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar por carta o expansión en el buylist..."
+            placeholder={tStore("search_buylist_placeholder")}
             className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#111522] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500/60 transition-all"
           />
           <svg
@@ -282,7 +284,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                     : "text-gray-400 hover:text-white"
                 }`}
               >
-                {c === "ALL" ? "Todos" : c}
+                {c === "ALL" ? tBuylist("filters.quick_all") : c}
               </button>
             ))}
           </div>
@@ -295,7 +297,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 className="h-11 px-3.5 pr-8 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
               >
-                <option value="ALL">Todos los idiomas</option>
+                <option value="ALL">{tBuylist("filters.all_languages")}</option>
                 {uniqueLanguages.map((l) => (
                   <option key={l.code} value={l.code}>
                     {l.name} ({l.code})
@@ -323,9 +325,9 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               onChange={(e) => setSortBy(e.target.value as any)}
               className="h-11 px-3.5 pr-8 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
             >
-              <option value="credit-desc">Mayor Crédito</option>
-              <option value="cash-desc">Mayor Efectivo</option>
-              <option value="name-asc">Nombre (A-Z)</option>
+              <option value="credit-desc">{tBuylist("filters.sort_credit")}</option>
+              <option value="cash-desc">{tBuylist("filters.sort_cash")}</option>
+              <option value="name-asc">{tBuylist("filters.sort_name")}</option>
             </select>
             <svg
               className="absolute right-3 top-4 pointer-events-none text-gray-400"
@@ -374,7 +376,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               }}
               className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all"
             >
-              Limpiar filtros
+              {tBuylist("clear_filters")}
             </button>
           )}
         </div>
@@ -417,7 +419,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                           {langCode}
                         </span>
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                          Buscan {item.quantityWanted} {item.quantityWanted === 1 ? "copia" : "copias"}
+                          {tBuylist("item_card.looking_for", { count: item.quantityWanted })}
                         </span>
                       </div>
 
@@ -437,7 +439,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                     <div>
                       <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
                         <IconCash className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Efectivo</span>
+                        <span>{tBuylist("trade_modal.cash")}</span>
                       </span>
                       <span className="text-sm font-extrabold text-white">
                         {formatPrice(cash, currency)}
@@ -449,7 +451,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                       <div className="flex items-center gap-1">
                         <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-400 tracking-wider">
                           <IconGem className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Crédito</span>
+                          <span>{tBuylist("trade_modal.store_credit")}</span>
                         </span>
                         {bonusPercent > 0 && (
                           <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 px-1 rounded">
@@ -470,7 +472,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   onClick={() => openTradeModal(item)}
                   className="mt-4 w-full h-11 rounded-xl font-black text-xs uppercase tracking-wider bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0A0D14] flex items-center justify-center gap-2 shadow-lg shadow-[#F59E0B]/25 active:scale-[0.98] transition-all border border-amber-300/40 cursor-pointer"
                 >
-                  <span>Ofrecer a la tienda</span>
+                  <span>{tStore("offer_to_store_btn")}</span>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
@@ -499,7 +501,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 <IconHandshake className="w-5 h-5" />
               </span>
               <h3 className="text-lg font-black text-white">
-                Vender a {store.name}
+                {tBuylist("trade_modal.title", { storeName: store.name })}
               </h3>
             </div>
 
@@ -536,7 +538,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             {/* Quantity Selector */}
             <div className="mb-4">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                Cantidad a entregar
+                {tBuylist("trade_modal.quantity_to_sell")}
               </label>
               <div className="flex items-center gap-3">
                 <button
@@ -559,7 +561,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   +
                 </button>
                 <span className="text-xs text-gray-400">
-                  (Hasta {selectedTradeItem.quantityWanted} unidades solicitadas)
+                  {tBuylist("trade_modal.max_requested", { max: selectedTradeItem.quantityWanted })}
                 </span>
               </div>
             </div>
@@ -567,7 +569,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             {/* Payout Choice: Cash vs Store Credit */}
             <div className="mb-6">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                Selecciona tu forma de pago
+                {tBuylist("trade_modal.choose_payout")}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {/* Store Credit */}
@@ -582,17 +584,17 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
-                      Crédito Tienda
+                      {tBuylist("trade_modal.store_credit")}
                     </span>
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
-                      Recomendado
+                      {tBuylist("trade_modal.recommended_badge")}
                     </span>
                   </div>
                   <span className="text-base font-black text-white block mt-1">
                     {formatPrice(Number(selectedTradeItem.creditPrice || 0) * tradeQuantity, currency)}
                   </span>
                   <span className="text-[11px] text-gray-400 block mt-0.5">
-                    Saldo digital para gastar en {store.name}
+                    {tBuylist("trade_modal.credit_desc", { storeName: store.name })}
                   </span>
                 </button>
 
@@ -607,13 +609,13 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   }`}
                 >
                   <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider block">
-                    Efectivo
+                    {tBuylist("trade_modal.cash")}
                   </span>
                   <span className="text-base font-black text-white block mt-1">
                     {formatPrice(Number(selectedTradeItem.cashPrice || 0) * tradeQuantity, currency)}
                   </span>
                   <span className="text-[11px] text-gray-400 block mt-0.5">
-                    Transferencia bancaria directa
+                    {tBuylist("trade_modal.cash_desc")}
                   </span>
                 </button>
               </div>
@@ -629,7 +631,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
                 </svg>
-                Contactar a {store.name} por WhatsApp
+                {tBuylist("trade_modal.whatsapp_contact", { storeName: store.name })}
               </button>
 
               <button
@@ -637,14 +639,14 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 onClick={handleCopyMessage}
                 className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
               >
-                {copiedLink ? "✓ Oferta copiada al portapapeles" : "Copiar detalle de la oferta"}
+                {copiedLink ? tBuylist("trade_modal.copied_success") : tBuylist("trade_modal.copy_offer")}
               </button>
             </div>
 
             {storeAddress && (
               <p className="text-[11px] text-gray-400 text-center mt-4 inline-flex items-center justify-center gap-1.5 w-full">
                 <IconMapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>Retiro presencial disponible en: {storeAddress}</span>
+                <span>{tBuylist("trade_modal.pickup_available", { address: storeAddress })}</span>
               </p>
             )}
           </div>

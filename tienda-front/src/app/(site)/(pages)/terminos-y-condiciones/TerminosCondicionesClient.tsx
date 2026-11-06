@@ -12,8 +12,10 @@ import {
   IconZap,
   IconSparkles,
 } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 const TerminosCondicionesClient = () => {
+  const t = useTranslations("legal.terms");
   const [searchTerm, setSearchTerm] = useState("");
 
   const sidebarLinks: LegalLink[] = [
@@ -33,11 +35,11 @@ const TerminosCondicionesClient = () => {
 
   return (
     <LegalPageLayout
-      title="Términos y Condiciones | TapTrade Chile"
-      navTitle="Índice de Cláusulas"
+      title={t("pageTitle")}
+      navTitle={t("navTitle")}
       links={sidebarLinks}
-      lastUpdated="Última actualización: 1 de Noviembre de 2026"
-      backToShopText="Volver al Marketplace"
+      lastUpdated={t("lastUpdated")}
+      backToShopText={t("backToShop")}
     >
       {/* Header Overview Card */}
       <div className="border-b border-white/10 pb-8 mb-10">

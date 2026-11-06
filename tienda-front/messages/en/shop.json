@@ -97,7 +97,13 @@
       "name_asc": "Name (A-Z)"
     },
     "noPrice": "No price",
-    "priceUnit": "USD · CLP"
+    "priceUnit": "USD · CLP",
+    "view_variants": "View Variants",
+    "loading_catalog": "Loading catalog...",
+    "immediate_stock": "Immediate Stock",
+    "master_catalog": "Master Catalog",
+    "official_showcase": "Official Showcase",
+    "combination_not_available": "This combination is not available."
   },
   "cart": {
     "title": "Your Shopping Cart",
@@ -143,7 +149,9 @@
     "apply_coupon_btn": "Apply Coupon",
     "active_coupons": "Active coupons in your order",
     "coupon_savings": "-{percent}% · You save",
-    "coupon_removed_toast": "Coupon {code} removed"
+    "coupon_removed_toast": "Coupon {code} removed",
+    "coupon_applied_toast": "Coupon {code} applied! {discount}% off on {count, plural, =1 {1 product} other {# products}}.",
+    "coupon_error_toast": "An error occurred while validating the coupon."
   },
   "checkout": {
     "title": "Checkout",
@@ -260,7 +268,17 @@
       "processed_notice": "Your transaction was processed. You can review the details in your inbox or user dashboard.",
       "back_catalog_btn": "← Back to TCG Catalog",
       "view_orders_btn": "View My Orders",
-      "retry_payment_btn": "Retry Payment"
+      "retry_payment_btn": "Retry Payment",
+      "receipt_breadcrumb": "Payment Receipt",
+      "back_store_breadcrumb": "← Back to Store",
+      "verifying_payment": "Verifying and confirming your secure payment...",
+      "service_fee": "TapTrade Fee (3% + VAT)"
+    },
+    "locations": {
+      "region_label": "Destination Region",
+      "commune_label": "Destination Commune",
+      "region_placeholder": "Select your region...",
+      "commune_placeholder": "Select or search your commune..."
     }
   },
   "product_details": {
@@ -294,7 +312,10 @@
     "available_stock": "{count} available",
     "buy_now": "Buy Now",
     "qty_aria": "Quantity to buy",
-    "no_sellers_available": "No sellers available for this card at this moment."
+    "no_sellers_available": "No sellers available for this card at this moment.",
+    "card_not_found_title": "Card not found",
+    "card_not_found_desc": "The card you are looking for does not exist or was removed from the TapTrade catalog.",
+    "loading_details": "Loading card details..."
   },
   "wishlist": {
     "title": "Your Wishlist",
@@ -501,5 +522,34 @@
       "create_store_btn": "Create My TCG Store",
       "contact_support_btn": "Contact Support"
     }
+  },
+  "store": {
+    "catalog_tab": "Catalog for Sale",
+    "buylist_tab": "Cards We Buy (Buylist)",
+    "official_store_badge": "Official TCG Store",
+    "verified_taptrade": "✓ TapTrade Verified",
+    "active_cards_count": "{count, plural, =1 {1 active card} other {# active cards}}",
+    "live_commerce_title": "Live active commerce",
+    "default_description": "Live official inventory. Buy protected singles, boosters, and sealed boxes with consolidated shipping or local pickup.",
+    "whatsapp_btn": "Store WhatsApp",
+    "send_email_title": "Send email to {email}",
+    "pickup_title": "Local Pickup",
+    "pickup_free_badge": "FREE $0",
+    "pickup_coordinated": "Local pickup coordinated with the seller",
+    "view_map": "View map on Google Maps",
+    "chilexpress_title": "Chilexpress Courier",
+    "chilexpress_badge": "Live quote",
+    "chilexpress_desc": "Priority shipping to address or branch with official 24-48h tracking.",
+    "starken_title": "Starken Shipping",
+    "starken_badge": "All Chile",
+    "starken_desc": "Nationwide coverage for protected cards, binders, and sealed boxes.",
+    "buylist_official_engine": "Official Buylist Engine",
+    "buylist_have_cards_title": "Have these cards? {storeName} is buying them",
+    "buylist_monetize_desc": "Monetize your collection binder securely. Choose instant Cash payout via bank transfer or Store Credit with bonus balance to redeem for new singles and sealed products.",
+    "secure_payment_badge": "Secure Payment",
+    "digital_credit_badge": "In Store Credit",
+    "direct_store_player_badge": "Store to Player",
+    "search_buylist_placeholder": "Search by card or set in the buylist...",
+    "offer_to_store_btn": "Offer to store"
   }
 }

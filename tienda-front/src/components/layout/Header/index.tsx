@@ -19,8 +19,9 @@ const Header = () => {
   const router = useRouter();
   const tNav = useTranslations("nav");
   const tHeader = useTranslations("header");
+  const allCategoriesLabel = tHeader("all_categories");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("Todas las categorías");
+  const [selectedCategory, setSelectedCategory] = useState<string>(allCategoriesLabel);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
   const { openCartModal } = useCartModalContext();
@@ -91,17 +92,17 @@ const Header = () => {
     fetch(`${API_URL}/products/meta/categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        const categories = [{ name: "Todas las categorías" }, ...(Array.isArray(data) ? data : [])];
+        const categories = [{ name: allCategoriesLabel }, ...(Array.isArray(data) ? data : [])];
         setCategoriesData(categories);
       })
       .catch((err) => console.error("Error fetching categories:", err));
-  }, []);
+  }, [allCategoriesLabel]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (searchQuery.trim()) params.set("search", searchQuery.trim());
-    if (selectedCategory && selectedCategory !== "Todas las categorías") {
+    if (selectedCategory && selectedCategory !== allCategoriesLabel && selectedCategory !== "Todas las categorías") {
       params.set("category", selectedCategory);
     }
     router.push(`/shop?${params.toString()}`);
@@ -145,7 +146,8 @@ const Header = () => {
                   <CustomSelect
                     options={categoriesData}
                     value={selectedCategory}
-                    onChange={(val: any) => setSelectedCategory(val?.name || "Todas las categorías")}
+                    placeholder={allCategoriesLabel}
+                    onChange={(val: any) => setSelectedCategory(val?.name || allCategoriesLabel)}
                   />
                 </div>
                 <input
@@ -157,7 +159,7 @@ const Header = () => {
                 />
                 <button
                   type="submit"
-                  aria-label="Buscar"
+                  aria-label={tNav("account_menu.search_aria")}
                   className="px-3.5 py-2.5 text-gray-400 hover:text-white hover:text-red transition-colors shrink-0 rounded-r-xl"
                 >
                   <IconSearch className="w-4 h-4" />
@@ -237,7 +239,7 @@ const Header = () => {
             {/* Mobile Hamburger Toggle */}
             <button
               type="button"
-              aria-label="Abrir menú"
+              aria-label={tNav("account_menu.open_menu_aria")}
               onClick={() => setNavigationOpen(!navigationOpen)}
               className="md:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-all"
             >
@@ -279,7 +281,7 @@ const Header = () => {
                 <Link
                   href="/landing"
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red text-white text-xs font-bold hover:bg-red-dark transition-all shadow-md shadow-red/25 border border-red-light/30 active:scale-95 group"
-                  title="Conoce la plataforma y cómo funciona TapTrade"
+                  title={tNav("account_menu.know_taptrade_title")}
                 >
                   <IconSparkles className="w-3.5 h-3.5 text-white/90" />
                   <span>{tHeader("know_taptrade")}</span>
@@ -312,7 +314,7 @@ const Header = () => {
                 placeholder={tHeader("search_placeholder")}
                 className="w-full bg-transparent text-white text-xs outline-none"
               />
-              <button type="submit" className="text-gray-400 hover:text-white" aria-label="Buscar">
+              <button type="submit" className="text-gray-400 hover:text-white" aria-label={tNav("account_menu.search_aria")}>
                 <IconSearch className="w-3.5 h-3.5" />
               </button>
             </div>

@@ -1,14 +1,17 @@
 import React, { Suspense } from "react";
 import LoginForm from "./_components/LoginForm";
+import { getTranslations } from "next-intl/server";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("auth.login");
+
   return (
     <Suspense
       fallback={
         <div className="min-h-screen w-full flex items-center justify-center bg-[#07090E] text-white">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-white/50 font-mono tracking-wider">Cargando Bóveda TapTrade...</span>
+            <span className="text-xs text-white/50 font-mono tracking-wider">{t("loading_vault")}</span>
           </div>
         </div>
       }

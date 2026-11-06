@@ -424,13 +424,13 @@ export default function TcgMarketplaceCatalog() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
-                <IconZap className="w-3.5 h-3.5 text-red-400 shrink-0" /> Catálogo Unificado Marketplace
+                <IconZap className="w-3.5 h-3.5 text-red-400 shrink-0" /> {t("marketplace_badge")}
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                Explorar Cartas TCG
+                {t("catalog_title")}
               </h1>
               <p className="text-gray-400 text-sm mt-1 max-w-xl">
-                Encuentra singles, cajas y boosters en vivo de todas las tiendas de Chile con envío consolidado o retiro presencial.
+                {t("catalog_subtitle")}
               </p>
             </div>
 
@@ -438,20 +438,20 @@ export default function TcgMarketplaceCatalog() {
               <div className="glass-vault px-4 py-2.5 rounded-xl border border-white/10 text-right flex items-center gap-4">
                 {inStockOnly ? (
                   <div>
-                    <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">Stock Inmediato</span>
-                    <span className="text-xl font-black text-emerald-400 font-mono">{totalCount.toLocaleString('es-CL')} cartas</span>
+                    <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">{t("immediate_stock")}</span>
+                    <span className="text-xl font-black text-emerald-400 font-mono">{t("cards_count", { count: totalCount.toLocaleString("es-CL") })}</span>
                   </div>
                 ) : (
                   <>
                     {totalInStockCount !== undefined && totalInStockCount > 0 && (
                       <div className="text-right border-r border-white/10 pr-4">
-                        <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">Stock Inmediato</span>
-                        <span className="text-lg font-black text-emerald-400 font-mono">{totalInStockCount.toLocaleString('es-CL')} cartas</span>
+                        <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">{t("immediate_stock")}</span>
+                        <span className="text-lg font-black text-emerald-400 font-mono">{t("cards_count", { count: totalInStockCount.toLocaleString("es-CL") })}</span>
                       </div>
                     )}
                     <div>
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Catálogo Maestro</span>
-                      <span className="text-lg font-black text-white font-mono">{totalCount.toLocaleString('es-CL')} cartas</span>
+                      <span className="text-[10px] text-gray-400 uppercase tracking-wider block">{t("master_catalog")}</span>
+                      <span className="text-lg font-black text-white font-mono">{t("cards_count", { count: totalCount.toLocaleString("es-CL") })}</span>
                     </div>
                   </>
                 )}

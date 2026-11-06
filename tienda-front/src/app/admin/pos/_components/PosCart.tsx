@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 export interface PosCartItem {
   inventoryItemId: string;
@@ -37,6 +38,7 @@ export default function PosCart({
   discountAmount,
   onSetDiscountAmount,
 }: PosCartProps) {
+  const t = useTranslations("admin.pos_page");
   const subtotal = items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
   const total = Math.max(0, subtotal - discountAmount);
   const totalItemsCount = items.reduce((acc, i) => acc + i.quantity, 0);
@@ -89,8 +91,8 @@ export default function PosCart({
             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <p className="text-sm font-medium">El carrito está vacío</p>
-            <p className="text-xs text-white/20">Agrega cartas o escanea productos para comenzar la venta</p>
+            <p className="text-sm font-medium">{t("empty_cart")}</p>
+            <p className="text-xs text-white/20">{t("empty_cart_desc")}</p>
           </div>
         ) : (
           items.map((item) => {

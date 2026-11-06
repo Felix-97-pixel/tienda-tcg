@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/useToast";
 import Loader from "@/components/ui/Loader";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
-import { IconSparkles, IconBox } from "@/components/ui/Icons";
+import { IconSparkles, IconBox, IconCard } from "@/components/ui/Icons";
 import { roundToCLP } from "@/utils/tcgPrices";
 import { useTranslations } from "next-intl";
 
@@ -166,24 +166,24 @@ export default function ShopDetails() {
       return (
         <div className="min-h-screen bg-[#07090E] flex flex-col items-center justify-center text-center px-4 pt-28">
           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl mb-4">
-            🃏
+            <IconCard className="w-8 h-8 text-gray-500" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Carta no encontrada</h2>
+          <h2 className="text-xl font-bold text-white mb-2">{t("card_not_found_title")}</h2>
           <p className="text-sm text-gray-400 mb-6 max-w-sm">
-            La carta que buscas no existe o fue retirada del catálogo de TapTrade.
+            {t("card_not_found_desc")}
           </p>
           <Link
             href="/shop"
             className="px-5 py-2.5 rounded-xl bg-red hover:bg-red-dark text-white text-xs font-bold transition-all shadow-lg"
           >
-            ← Volver al Catálogo
+            {t("breadcrumb_catalog")}
           </Link>
         </div>
       );
     }
     return (
       <div className="min-h-screen bg-[#07090E] flex items-center justify-center pt-28">
-        <Loader text="Cargando detalles de la carta..." className="bg-transparent" />
+        <Loader text={t("loading_details")} className="bg-transparent" />
       </div>
     );
   }

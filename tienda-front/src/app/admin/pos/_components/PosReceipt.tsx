@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { PosCartItem } from './PosCart';
 
 export interface PosReceiptData {
@@ -25,6 +26,7 @@ interface PosReceiptProps {
 }
 
 export default function PosReceipt({ receipt }: PosReceiptProps) {
+  const t = useTranslations("admin.pos_page");
   if (!receipt) return null;
 
   const paymentLabels: Record<string, string> = {
@@ -64,11 +66,11 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
         <h1 className="text-base font-black tracking-tight uppercase">
           {receipt.storeName || 'TAPTRADE TCG STORE'}
         </h1>
-        <p className="text-[10px] text-gray-600">COMPROBANTE INTERNO DE VENTA</p>
+        <p className="text-[10px] text-gray-600">{t("receipt_title")}</p>
         <p className="text-[10px] text-gray-600">{receipt.createdAt}</p>
         <p className="text-xs font-bold pt-1">TICKET #{receipt.orderNumber}</p>
         {receipt.isOffline && (
-          <p className="text-[9px] font-bold uppercase">[ VENTA MODO SIN CONEXIÓN ]</p>
+          <p className="text-[9px] font-bold uppercase">{t("offline_mode")}</p>
         )}
       </div>
 

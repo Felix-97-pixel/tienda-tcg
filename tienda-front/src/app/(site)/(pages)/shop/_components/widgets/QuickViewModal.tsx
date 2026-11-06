@@ -17,6 +17,7 @@ import { Select } from "@/components/ui/Select";
 import { formatPrice } from "@/utils/currency";
 
 const QuickViewModal = () => {
+  const t = useTranslations("shop");
   const { isModalOpen, closeModal } = useModalContext();
   const { openPreviewModal } = usePreviewSlider();
   const [quantity, setQuantity] = useState(1);
@@ -92,7 +93,6 @@ const QuickViewModal = () => {
   const { handleAddToCart: addToCart, isMaxStockReached, availableStock } = useProductCart(product);
   const { showToast } = useToast();
 
-  const t = useTranslations("shop");
   const tw = useTranslations("wishlist");
   const tc = useTranslations("cart");
 
@@ -425,7 +425,7 @@ const QuickViewModal = () => {
                   )}
                   {availableConditions.length > 0 && (
                     <div className="col-span-6 sm:col-span-4 flex flex-col">
-                      <label className="text-sm font-medium mb-2 text-white truncate" title="Condición">Condición</label>
+                      <label className="text-sm font-medium mb-2 text-white truncate" title={t("filter_condition_title")}>{t("filter_condition_title")}</label>
                       <Select
                         value={selectedCondition || ""}
                         onChange={(e) => setSelectedCondition(e.target.value)}
@@ -437,7 +437,7 @@ const QuickViewModal = () => {
               )}
 
               {isTcgProduct && originalProduct?.items?.length > 0 && !selectedItem && (
-                <p className="text-red font-medium mt-4">Esta combinación no está disponible.</p>
+                <p className="text-red font-medium mt-4">{t("combination_not_available")}</p>
               )}
 
               <div className="flex flex-wrap justify-between gap-5 mt-6 mb-7.5">

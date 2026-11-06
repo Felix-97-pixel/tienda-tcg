@@ -12,8 +12,10 @@ import SingleItem from "./SingleItem";
 import Link from "next/link";
 import EmptyCart from "./EmptyCart";
 import { IconTruck } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 const CartSidebarModal = () => {
+  const t = useTranslations("cart");
   const { isCartModalOpen, closeCartModal } = useCartModalContext();
   const cartItems = useAppSelector(selectCartItems);
   const totalPrice = useSelector(selectTotalPrice);
@@ -52,7 +54,7 @@ const CartSidebarModal = () => {
           <div className="px-6 py-5 border-b border-white/10 bg-[#0E121B] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
               <h2 className="font-extrabold text-white text-lg tracking-tight">
-                Tu Carrito TCG
+                {t("title")}
               </h2>
               {cartItems.length > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#E10E0E]/15 text-red-400 border border-[#E10E0E]/30">
@@ -103,10 +105,10 @@ const CartSidebarModal = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-gray-400 uppercase tracking-wider block font-medium">
-                    Subtotal Estimado
+                    {t("subtotal")}
                   </span>
                   <span className="text-[10px] text-gray-500">
-                    Envíos calculados al finalizar compra
+                    {t("quoted_at_checkout")}
                   </span>
                 </div>
                 <div className="text-right">
@@ -124,7 +126,7 @@ const CartSidebarModal = () => {
                   href="/checkout"
                   className="w-full h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98"
                 >
-                  <span>Continuar al Checkout</span>
+                  <span>{t("checkout")}</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
@@ -136,7 +138,7 @@ const CartSidebarModal = () => {
                   href="/cart"
                   className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white font-semibold text-xs flex items-center justify-center transition-all"
                 >
-                  Ver Carrito Detallado
+                  {t("breadcrumb_cart")}
                 </Link>
               </div>
             </div>

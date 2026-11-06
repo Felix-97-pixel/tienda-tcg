@@ -178,7 +178,7 @@ const SingleGridItem = ({ item }: { item: Product }) => {
         {(item.price ?? 0) > 0 ? (
           <span className="text-white">{formatPrice(item.discountedPrice ?? item.price ?? 0, currency)}</span>
         ) : (
-          <span className="text-gray-4 text-sm italic">Sin precio</span>
+          <span className="text-gray-4 text-sm italic">{t("noPrice")}</span>
         )}
       </span>
     </div>

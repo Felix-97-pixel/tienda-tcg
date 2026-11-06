@@ -42,5 +42,32 @@
     "back_to_home": "Back to Home",
     "breadcrumb_title": "Message Sent",
     "breadcrumb_page": "Success"
+  },
+  "carrier": {
+    "order_registered": "Order Registered",
+    "live_verification": "Official Live Verification",
+    "destination": "Destination",
+    "see_official_white": "Official Light Mode",
+    "dark_mode": "Dark Mode",
+    "show_detail": "Details",
+    "hide_detail": "Hide Details",
+    "location_branch": "Location / Branch:",
+    "step_dispatched": "1. Dispatched",
+    "step_in_transit": "2. In Transit",
+    "step_delivery": "3. Delivery",
+    "in_transit_to_destination": "In transit to destination",
+    "consult_portal": "Check on {courier} Portal",
+    "status_label": "Status:",
+    "tracking_number_label": "Tracking No:"
+  },
+  "select_all": "Select all",
+  "upload": {
+    "uploading_to_cloud": "Uploading image to the cloud...",
+    "optimizing_secure": "Optimizing and saving to secure bucket",
+    "click_to_upload": "Click to upload image",
+    "cloud_stored": "Stored in the cloud",
+    "change_image": "Change image",
+    "delete_image": "Delete image",
+    "selected_image": "Selected image"
   }
 }

@@ -12,8 +12,10 @@ import {
   IconZap,
   IconSparkles,
 } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 const PoliticaPrivacidadClient = () => {
+  const t = useTranslations("legal.privacy");
   const [searchTerm, setSearchTerm] = useState("");
 
   const sidebarLinks: LegalLink[] = [
@@ -34,11 +36,11 @@ const PoliticaPrivacidadClient = () => {
 
   return (
     <LegalPageLayout
-      title="Política de Privacidad | TapTrade Chile"
-      navTitle="Índice de Privacidad"
+      title={t("pageTitle")}
+      navTitle={t("navTitle")}
       links={sidebarLinks}
-      lastUpdated="Última actualización: 16 de Octubre de 2026"
-      backToShopText="Volver al Marketplace"
+      lastUpdated={t("lastUpdated")}
+      backToShopText={t("backToShop")}
     >
       {/* Header Overview Card */}
       <div className="border-b border-white/10 pb-8 mb-10">

@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { IconUpload, IconImage, IconTrash, IconLoader, IconRefresh } from "@/components/ui/Icons";
 
@@ -29,6 +30,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   disabled = false,
   className = "",
 }) => {
+  const t = useTranslations("common.upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isUploading, handleUpload, handleRemove } = useImageUpload();
 
@@ -101,10 +103,10 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-white/80 truncate">
-              {value.split("/").pop() || "Imagen seleccionada"}
+              {value.split("/").pop() || t("selected_image")}
             </p>
             <p className="text-[11px] text-white/40 truncate mt-0.5">
-              Almacenado en la nube
+              {t("cloud_stored")}
             </p>
           </div>
 
@@ -114,7 +116,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
               onClick={handleTriggerInput}
               disabled={disabled || isUploading}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all disabled:opacity-50"
-              title="Cambiar imagen"
+              title={t("change_image")}
             >
               <IconRefresh className="w-4 h-4" />
             </button>
@@ -123,7 +125,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
               onClick={handleClear}
               disabled={disabled || isUploading}
               className="p-2 rounded-xl bg-red/10 hover:bg-red/20 text-red hover:text-red-light transition-all disabled:opacity-50"
-              title="Eliminar imagen"
+              title={t("delete_image")}
             >
               <IconTrash className="w-4 h-4" />
             </button>
@@ -143,8 +145,8 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
           {isUploading ? (
             <div className="flex flex-col items-center gap-2 text-center py-2">
               <IconLoader className="w-6 h-6 text-red animate-spin" />
-              <span className="text-xs font-medium text-white/80">Subiendo imagen a la nube...</span>
-              <span className="text-[10px] text-white/40">Optimizando y guardando en bucket seguro</span>
+              <span className="text-xs font-medium text-white/80">{t("uploading_to_cloud")}</span>
+              <span className="text-[10px] text-white/40">{t("optimizing_secure")}</span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 text-center py-1">
@@ -152,7 +154,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
                 <IconUpload className="w-5 h-5" />
               </div>
               <div className="text-xs font-semibold text-white/80">
-                <span>Haz clic para subir imagen</span>
+                <span>{t("click_to_upload")}</span>
               </div>
               {description && (
                 <span className="text-[10px] text-white/40">{description}</span>

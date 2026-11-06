@@ -78,12 +78,16 @@ const Discount = () => {
 
       notify(
         "success",
-        `¡Cupón ${data.code} aplicado! ${data.discountPercent}% de descuento en ${applicable.length} producto${applicable.length !== 1 ? "s" : ""}.`
+        t("coupon_applied_toast", {
+          code: data.code,
+          discount: data.discountPercent,
+          count: applicable.length,
+        })
       );
       setCode("");
     } catch (err) {
       console.error(err);
-      notify("error", "Hubo un error al validar el cupón.");
+      notify("error", t("coupon_error_toast"));
     } finally {
       setLoading(false);
     }

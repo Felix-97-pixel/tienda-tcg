@@ -201,7 +201,7 @@ export default function TcgProductCard({
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/art:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-10">
             <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E10E0E] text-white shadow-lg tracking-wide flex items-center gap-1.5">
               <IconEye className="w-3.5 h-3.5 text-white shrink-0" />
-              <span>Ver Variantes</span>
+              <span>{t("view_variants")}</span>
             </span>
           </div>
 
@@ -209,7 +209,7 @@ export default function TcgProductCard({
             <div className="absolute top-2 left-2 z-20">
               <span className="px-2 py-0.5 rounded-md bg-black/85 backdrop-blur-md border border-white/20 text-gray-200 font-bold text-[10px] tracking-wider uppercase shadow-lg flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                Agotado
+                {t("outOfStock")}
               </span>
             </div>
           )}

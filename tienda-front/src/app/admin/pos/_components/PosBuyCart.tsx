@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { IconCart, IconRepeat, IconCash, IconWallet } from '@/components/ui/Icons';
 
 export interface PosBuyCartItem {
@@ -54,6 +55,7 @@ export default function PosBuyCart({
   conditions,
   languages = [],
 }: PosBuyCartProps) {
+  const t = useTranslations("admin.pos_page");
   const totalCash = items.reduce((acc, i) => acc + i.cashPrice * i.quantity, 0);
   const totalCredit = items.reduce((acc, i) => acc + i.creditPrice * i.quantity, 0);
   const totalItemsCount = items.reduce((acc, i) => acc + i.quantity, 0);
@@ -88,7 +90,7 @@ export default function PosBuyCart({
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6 text-white/30 space-y-2">
             <IconRepeat className="w-12 h-12 text-emerald-500/40" />
-            <p className="text-sm font-medium text-white/60">Lista de compra vacía</p>
+            <p className="text-sm font-medium text-white/60">{t("empty_buy_cart")}</p>
             <p className="text-xs text-white/30 max-w-xs">
               Busca cartas del catálogo para comprarlas al cliente. Si la tienes en Buylist, los precios se aplicarán solos.
             </p>

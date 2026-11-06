@@ -487,5 +487,65 @@
     "pos_title": "Point of Sale (POS)",
     "pos_desc": "Counter register for your physical store, barcode scanning, buying and selling singles, and cash balance.",
     "pos_tag": "Counter Sales"
+  },
+  "buylist_page": {
+    "title": "My Buylist",
+    "subtitle": "Configure the cards and sealed products your store wants to buy from customers and their cash and credit prices.",
+    "add_to_buylist": "Add to Buylist",
+    "tab_all": "All",
+    "tab_active": "Active",
+    "tab_paused": "Paused"
+  },
+  "coupons_page": {
+    "title": "Discount Coupons",
+    "subtitle": "Create and manage promotional codes for your store.",
+    "create_coupon": "Create Coupon",
+    "code": "Code",
+    "discount": "Discount",
+    "validity": "Validity",
+    "scope": "Scope",
+    "status": "Status",
+    "actions": "Actions",
+    "scope_store_wide": "Store wide",
+    "scope_category_specific": "By Categories",
+    "scope_game_specific": "By Games",
+    "active": "Active",
+    "inactive": "Inactive",
+    "expired": "Expired"
+  },
+  "currencies_page": {
+    "title": "Exchange Rates",
+    "subtitle": "Configure the CLP conversion value for each game and the cash and store credit appraisal percentages for automated trade-in purchases.",
+    "add_rate": "Add Rate",
+    "game": "Game",
+    "base_currency": "Global Base Currency",
+    "local_value": "Local Value (Final Retail)",
+    "branch_label": "Branch:",
+    "empty_rates": "You don't have exchange rates configured for this branch yet. Click 'Add Rate' to configure one."
+  },
+  "devaluations_page": {
+    "title": "Condition Rules",
+    "badge": "Conditions & Prices",
+    "subtitle": "Configure automatic price percentages based on card condition (physical grade).",
+    "base_near_mint": "Near Mint will always be 100% (Base)."
+  },
+  "games_page": {
+    "title": "Supported Games",
+    "badge": "Catalog & TCGs",
+    "subtitle": "Manage which games are available in your store catalog so customers can buy and sell cards."
+  },
+  "pos_page": {
+    "title": "Point of Sale (POS)",
+    "empty_cart": "The cart is empty",
+    "empty_cart_desc": "Add cards or scan products to start the sale",
+    "empty_buy_cart": "Buy list is empty",
+    "complete_charge": "Complete Charge",
+    "store_credit": "Store Credit",
+    "cash_outflow": "Direct cash outflow",
+    "local_time": "Local Time (CLST)",
+    "close_shift": "Close Shift (Reconcile)",
+    "open_shift": "Open Cash Shift",
+    "receipt_title": "INTERNAL SALES RECEIPT",
+    "offline_mode": "[ OFFLINE MODE SALE ]"
   }
 }

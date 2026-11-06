@@ -23,7 +23,8 @@ const GlobalCatalogSearchModal = dynamic(
 import { useAppSelector } from "@/redux/store";
 
 export default function AdminBuylistPage() {
-  const t = useTranslations("common");
+  const tCommon = useTranslations("common");
+  const t = useTranslations("admin.buylist_page");
   const { showToast } = useToast();
   const { activeBranch } = useActiveBranch();
   const { features } = useAppSelector((state) => state.adminAuthReducer);
@@ -74,7 +75,7 @@ export default function AdminBuylistPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white tracking-tight">Mi Buylist</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">{t("title")}</h1>
             {activeBranch && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue/10 border border-blue/20 text-xs text-blue">
                 <IconStore className="w-3.5 h-3.5" />
@@ -83,7 +84,7 @@ export default function AdminBuylistPage() {
             )}
           </div>
           <p className="text-gray-4 text-sm mt-1">
-            Configura las cartas y productos sellados que tu tienda desea comprar a los clientes y sus precios en efectivo y crédito.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -94,7 +95,7 @@ export default function AdminBuylistPage() {
             onClick={() => setIsGlobalSearchOpen(true)}
           >
             <span>+</span>
-            <span>Añadir a Buylist</span>
+            <span>{t("add_to_buylist")}</span>
           </Button>
         </div>
       </div>
@@ -135,7 +136,7 @@ export default function AdminBuylistPage() {
         {totalPages > 1 && (
           <div className="p-4 border-t border-white/10 flex items-center justify-between bg-[#090C14]">
             <p className="text-sm text-white/50">
-              Página {page} de {totalPages}
+              {tCommon("page", { current: page, total: totalPages })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -144,7 +145,7 @@ export default function AdminBuylistPage() {
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
               >
-                Anterior
+                {tCommon("previous")}
               </Button>
               <Button
                 variant="secondary"
@@ -152,7 +153,7 @@ export default function AdminBuylistPage() {
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
               >
-                Siguiente
+                {tCommon("next")}
               </Button>
             </div>
           </div>

@@ -2,9 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import { IconCard } from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 const EmptyCart = () => {
   const { closeCartModal } = useCartModalContext();
+  const t = useTranslations("cart");
 
   return (
     <div className="py-16 px-4 text-center flex flex-col items-center justify-center">
@@ -13,10 +15,10 @@ const EmptyCart = () => {
       </div>
 
       <h3 className="text-lg font-bold text-white mb-2">
-        Tu carrito está vacío
+        {t("empty")}
       </h3>
       <p className="text-xs text-gray-400 mb-6 max-w-xs leading-relaxed">
-        Explora las vitrinas de tiendas y coleccionistas verificados para encontrar tus cartas singles y boosters.
+        {t("emptyDescription")}
       </p>
 
       <Link
@@ -24,7 +26,7 @@ const EmptyCart = () => {
         href="/shop"
         className="px-6 py-3 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-xs tracking-wide shadow-lg shadow-[#E10E0E]/25 transition-all active:scale-95"
       >
-        Explorar Catálogo TCG →
+        {t("continueShopping")} →
       </Link>
     </div>
   );

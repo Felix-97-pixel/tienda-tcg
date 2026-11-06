@@ -56,5 +56,23 @@
     "payment_methods": "Formas de Pagamento:",
     "payment_debit_credit": "Débito / Crédito",
     "riot_disclaimer": "TapTrade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."
+  },
+  "account_menu": {
+    "buyer_badge": "Comprador",
+    "orders_title": "Meus Pedidos",
+    "orders_desc": "Histórico e rastreamento de compras",
+    "addresses_title": "Endereços de Envio",
+    "addresses_desc": "Seus destinos de entrega registrados",
+    "credits_title": "Créditos da Loja",
+    "credits_desc": "Saldos disponíveis para compras nas lojas",
+    "details_title": "Dados da Conta",
+    "details_desc": "Informações pessoais e segurança",
+    "wishlist_title": "Favoritos",
+    "wishlist_desc": "Cartas salvas na sua lista",
+    "logout": "Encerrar sessão",
+    "default_user": "Usuário TapTrade",
+    "open_menu_aria": "Abrir menu",
+    "search_aria": "Buscar",
+    "know_taptrade_title": "Conheça a plataforma e como funciona o TapTrade"
   }
 }

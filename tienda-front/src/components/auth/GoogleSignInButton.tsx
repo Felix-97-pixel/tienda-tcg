@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/features/auth-slice";
 import { toast } from "react-hot-toast";
 import { API_URL } from "@/utils/api";
+import { useTranslations } from "next-intl";
 
 declare global {
   interface Window {
@@ -23,6 +24,7 @@ export default function GoogleSignInButton({
   text = "continue_with",
   onError,
 }: GoogleSignInButtonProps) {
+  const t = useTranslations("auth.google");
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
@@ -109,10 +111,10 @@ export default function GoogleSignInButton({
 
   const buttonLabel =
     text === "signup_with"
-      ? "Registrarse con Google"
+      ? t("signup_with")
       : text === "signin_with"
-      ? "Iniciar sesión con Google"
-      : "Continuar con Google";
+      ? t("signin_with")
+      : t("continue_with");
 
   return (
     <div className="relative w-full group overflow-hidden rounded-xl">
@@ -165,7 +167,7 @@ export default function GoogleSignInButton({
       {isLoading && (
         <div className="absolute inset-0 z-20 bg-[#07090E]/90 backdrop-blur-sm rounded-xl flex items-center justify-center gap-2 border border-white/10">
           <div className="w-4 h-4 border-2 border-red border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-semibold text-white">Conectando con Google...</span>
+          <span className="text-xs font-semibold text-white">{t("connecting")}</span>
         </div>
       )}
     </div>

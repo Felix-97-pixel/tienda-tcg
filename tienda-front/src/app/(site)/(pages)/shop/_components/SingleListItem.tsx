@@ -14,8 +14,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useProductCart } from "@/hooks/useProductCart";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
 
 const SingleListItem = ({ item }: { item: Product }) => {
+  const t = useTranslations("shop");
   const { openModal } = useModalContext();
   const dispatch = useDispatch<AppDispatch>();
   const { handleAddToCart, isMaxStockReached } = useProductCart(item);
@@ -74,7 +76,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
           {item.stock === 0 && (
             <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
               <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
-                Sin stock
+                {t("outOfStock")}
               </span>
             </div>
           )}
@@ -85,7 +87,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
             <Link
               href={`/shop-details/${item.slug || item.id}`}
               onClick={() => handleProductDetails()}
-              aria-label="Ver vendedores"
+              aria-label={t("view_stores")}
               className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
             >
               <svg
@@ -149,7 +151,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
                 )}
                 <span className="text-xs font-normal text-gray-4">USD · CK</span></span>
               ) : (
-                <span className="text-gray-4 text-sm italic">Sin precio</span>
+                <span className="text-gray-4 text-sm italic">{t("noPrice")}</span>
               )}
             </span>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import PosNetworkBadge from './PosNetworkBadge';
 import { IconCart, IconRepeat } from '@/components/ui/Icons';
 import SegmentedControl from '@/components/ui/SegmentedControl';
@@ -39,6 +40,7 @@ export default function PosHeader({
   posMode,
   onTogglePosMode,
 }: PosHeaderProps) {
+  const t = useTranslations("admin.pos_page");
   const [currentTime, setCurrentTime] = useState<string>('');
 
   useEffect(() => {
@@ -113,7 +115,7 @@ export default function PosHeader({
           <span className="text-xs font-mono font-bold text-white tracking-widest">
             {currentTime}
           </span>
-          <span className="text-[10px] text-white/40">Hora Local (CLST)</span>
+          <span className="text-[10px] text-white/40">{t("local_time")}</span>
         </div>
 
         <PosNetworkBadge
@@ -135,7 +137,7 @@ export default function PosHeader({
             type="button"
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 transition-all shadow-sm"
           >
-            <span>Cerrar Caja (Arqueo)</span>
+            <span>{t("close_shift")}</span>
           </button>
         ) : (
           <button
@@ -143,7 +145,7 @@ export default function PosHeader({
             type="button"
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 transition-all shadow-sm"
           >
-            <span>Abrir Turno de Caja</span>
+            <span>{t("open_shift")}</span>
           </button>
         )}
 

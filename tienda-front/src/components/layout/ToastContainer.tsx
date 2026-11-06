@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { removeToast, Toast, ToastType } from "@/redux/features/toast-slice";
+import { useTranslations } from "next-intl";
 
 const TOAST_DURATION = 3200;
 
@@ -41,6 +42,7 @@ const borderColors: Record<ToastType, string> = {
 };
 
 const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) => {
+  const t = useTranslations("common");
   const cardRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -101,7 +103,7 @@ const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
         </p>
         <button
           onClick={dismiss}
-          aria-label="Cerrar notificación"
+          aria-label={t("close")}
           style={{
             background: "none",
             border: "none",

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export interface CheckboxListOption {
   label: string;
@@ -66,10 +67,13 @@ export const CheckboxList = ({
   selectedValues = [],
   onChange,
   label,
-  searchPlaceholder = "Buscar...",
-  noResultsText = "Sin resultados",
+  searchPlaceholder,
+  noResultsText,
   maxHeight = "max-h-48",
 }: CheckboxListProps) => {
+  const t = useTranslations("common");
+  const defaultSearchPlaceholder = searchPlaceholder || `${t("search")}...`;
+  const defaultNoResultsText = noResultsText || t("noResults");
   const [search, setSearch] = useState("");
 
   const filtered = options.filter((o) =>
@@ -117,20 +121,20 @@ export const CheckboxList = ({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={searchPlaceholder}
+            placeholder={defaultSearchPlaceholder}
             className="w-full bg-transparent py-2.5 pl-9 pr-4 text-sm text-white outline-none placeholder:text-gray-500"
           />
         </div>
         <div className={`${maxHeight} overflow-y-auto p-1`}>
           {filtered.length === 0 ? (
-            <p className="px-3 py-3 text-sm italic text-gray-500">{noResultsText}</p>
+            <p className="px-3 py-3 text-sm italic text-gray-500">{defaultNoResultsText}</p>
           ) : (
             <>
               <div className="border-b border-white/5 pb-1 mb-1">
                 <CheckboxItem
                   checked={allFilteredSelected}
                   onChange={toggleAll}
-                  label={<span className="font-bold">Seleccionar todos</span>}
+                  label={<span className="font-bold">{t("select_all")}</span>}
                 />
               </div>
               {filtered.map((opt) => (

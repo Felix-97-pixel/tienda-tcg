@@ -487,5 +487,65 @@
     "pos_title": "Ponto de Venda (PDV)",
     "pos_desc": "Caixa registradora para sua loja física, leitor de código de barras, compra/venda de singles e fechamento de caixa.",
     "pos_tag": "Venda no Balcão"
+  },
+  "buylist_page": {
+    "title": "Minha Buylist",
+    "subtitle": "Configure as cartas e produtos selados que sua loja deseja comprar de clientes e seus preços em dinheiro e crédito.",
+    "add_to_buylist": "Adicionar à Buylist",
+    "tab_all": "Todos",
+    "tab_active": "Ativos",
+    "tab_paused": "Pausados"
+  },
+  "coupons_page": {
+    "title": "Cupons de Desconto",
+    "subtitle": "Crie e gerencie códigos promocionais para sua loja.",
+    "create_coupon": "Criar Cupom",
+    "code": "Código",
+    "discount": "Desconto",
+    "validity": "Validade",
+    "scope": "Alcance",
+    "status": "Status",
+    "actions": "Ações",
+    "scope_store_wide": "Toda a loja",
+    "scope_category_specific": "Por Categorias",
+    "scope_game_specific": "Por Jogos",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "expired": "Expirado"
+  },
+  "currencies_page": {
+    "title": "Taxas de Câmbio",
+    "subtitle": "Configure o valor de conversão em CLP para cada jogo e as porcentagens de avaliação em dinheiro e crédito de loja para compras automáticas de trade-in.",
+    "add_rate": "Adicionar Taxa",
+    "game": "Jogo",
+    "base_currency": "Moeda Base Global",
+    "local_value": "Valor Local (Preço Final)",
+    "branch_label": "Filial:",
+    "empty_rates": "Você ainda não possui taxas de câmbio configuradas para esta filial. Clique em 'Adicionar Taxa' para configurar uma."
+  },
+  "devaluations_page": {
+    "title": "Regras de Estado",
+    "badge": "Condições e Preços",
+    "subtitle": "Configure as porcentagens de preço automático de acordo com a condição física de suas cartas.",
+    "base_near_mint": "Near Mint será sempre 100% (Base)."
+  },
+  "games_page": {
+    "title": "Jogos Suportados",
+    "badge": "Catálogo e TCGs",
+    "subtitle": "Gerencie quais jogos estão disponíveis no catálogo de sua loja para que seus clientes possam comprar e vender cartas."
+  },
+  "pos_page": {
+    "title": "Ponto de Venda (POS)",
+    "empty_cart": "O carrinho está vazio",
+    "empty_cart_desc": "Adicione cartas ou escaneie produtos para iniciar a venda",
+    "empty_buy_cart": "Lista de compras vazia",
+    "complete_charge": "Completar Cobrança",
+    "store_credit": "Crédito de Loja",
+    "cash_outflow": "Saída direta de caixa",
+    "local_time": "Horário Local (CLST)",
+    "close_shift": "Fechar Caixa",
+    "open_shift": "Abrir Turno de Caixa",
+    "receipt_title": "COMPROVANTE INTERNO DE VENDA",
+    "offline_mode": "[ VENDA MODO OFFLINE ]"
   }
 }

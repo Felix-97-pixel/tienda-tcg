@@ -1,11 +1,15 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { List, Column } from "@/components/ui/List";
 import { useCoupons } from "@/app/admin/_components/Coupons/hooks/useCoupons";
 import CouponModal from "@/app/admin/_components/Coupons/CouponModal";
+import { IconPencil, IconTrash } from "@/components/ui/Icons";
 
 export default function AdminCoupons() {
+  const t = useTranslations("admin.coupons_page");
+  const tCommon = useTranslations("common");
   const { coupons, loading, refresh, deleteCoupon } = useCoupons();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,21 +23,21 @@ export default function AdminCoupons() {
   const columns: Column<any>[] = [
     {
       key: "code",
-      header: "Código",
+      header: t("code"),
       render: (coupon) => (
         <span className="font-semibold text-white uppercase">{coupon.code}</span>
       ),
     },
     {
       key: "discount",
-      header: "Descuento",
+      header: t("discount"),
       render: (coupon) => (
         <span className="font-semibold text-blue">{coupon.discountPercent}%</span>
       ),
     },
     {
       key: "dates",
-      header: "Vigencia",
+      header: t("validity"),
       render: (coupon) => {
         const from = new Date(coupon.validFrom).toLocaleDateString();
         const to = new Date(coupon.validUntil).toLocaleDateString();
@@ -46,12 +50,12 @@ export default function AdminCoupons() {
     },
     {
       key: "scope",
-      header: "Alcance",
+      header: t("scope"),
       render: (coupon) => {
         const scopeLabels = {
-          STORE_WIDE: "Toda la tienda",
-          CATEGORY_SPECIFIC: "Por Categorías",
-          GAME_SPECIFIC: "Por Juegos",
+          STORE_WIDE: t("scope_store_wide"),
+          CATEGORY_SPECIFIC: t("scope_category_specific"),
+          GAME_SPECIFIC: t("scope_game_specific"),
         };
         return (
           <span className="text-gray-4 text-xs">{scopeLabels[coupon.scope as keyof typeof scopeLabels] || coupon.scope}</span>
@@ -60,20 +64,20 @@ export default function AdminCoupons() {
     },
     {
       key: "status",
-      header: "Estado",
+      header: t("status"),
       render: (coupon) => {
         const isActive = coupon.isActive;
         const isExpired = new Date(coupon.validUntil) < new Date();
         return (
           <span className={`px-2 py-1 rounded text-xs font-medium ${!isActive ? 'bg-red-500/20 text-red-500' : isExpired ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-500'}`}>
-            {!isActive ? 'Inactivo' : isExpired ? 'Expirado' : 'Activo'}
+            {!isActive ? t("inactive") : isExpired ? t("expired") : t("active")}
           </span>
         );
       },
     },
     {
       key: "actions",
-      header: "Acciones",
+      header: t("actions"),
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (coupon) => (
@@ -81,16 +85,16 @@ export default function AdminCoupons() {
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-white hover:text-white transition-colors"
             onClick={() => openModal(coupon)}
-            title="Editar"
+            title={tCommon("edit")}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            <IconPencil className="w-3.5 h-3.5" />
           </button>
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-red-500 hover:text-red-500 transition-colors"
             onClick={() => deleteCoupon(coupon)}
-            title="Eliminar"
+            title={tCommon("delete")}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <IconTrash className="w-3.5 h-3.5" />
           </button>
         </div>
       ),
@@ -101,11 +105,11 @@ export default function AdminCoupons() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Cupones de Descuento</h1>
-          <p className="text-gray-4 text-sm mt-1">Crea y administra códigos promocionales para tu tienda.</p>
+          <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
+          <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
         <Button onClick={() => openModal()}>
-          Crear Cupón
+          {t("create_coupon")}
         </Button>
       </div>
 

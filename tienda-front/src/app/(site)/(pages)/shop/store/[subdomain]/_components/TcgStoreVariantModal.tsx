@@ -9,7 +9,7 @@ import { addItemToCart } from "@/redux/features/cart-slice";
 import { useToast } from "@/hooks/useToast";
 import { formatPrice } from "@/utils/currency";
 import { calculateItemPriceCLP, parseConditionCode, getConditionBadgeClass } from "@/utils/tcgPrices";
-import { IconSparkles, IconBox, IconCart, IconCheck, IconX } from "@/components/ui/Icons";
+import { IconSparkles, IconBox, IconCart, IconCheck, IconX, IconStore } from "@/components/ui/Icons";
 
 interface TcgStoreVariantModalProps {
   product: any;
@@ -196,9 +196,9 @@ export default function TcgStoreVariantModal({
           type="button"
           onClick={onClose}
           className="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer"
-          title="Cerrar vitrina"
+          aria-label={t("close") || "Cerrar"}
         >
-          ✕
+          <IconX className="w-5 h-5 text-white" />
         </button>
 
         {/* ─── Columna Izquierda: Vista y Arte de la Carta ─── */}
@@ -236,8 +236,8 @@ export default function TcgStoreVariantModal({
             </p>
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/[0.04] border border-white/10 text-[11px] text-gray-300">
-              <span className="text-emerald-400">🏪</span>
-              <span>Vitrina Oficial:</span>
+              <IconStore className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>{t("official_showcase")}:</span>
               <strong className="text-white">{storeName}</strong>
             </div>
           </div>
@@ -412,7 +412,7 @@ export default function TcgStoreVariantModal({
           {/* Footer del Modal */}
           <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between text-xs text-gray-400">
             <div className="flex items-center gap-1.5">
-              <span className="text-emerald-400">✓</span>
+              <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>{t("combined_shipping_note")}</span>
             </div>
             <button

@@ -1,17 +1,19 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { IconChevronDown } from "@/components/ui/Icons";
 
 interface CustomSelectProps {
   options: any[];
   value?: string;
+  placeholder?: string;
   onChange?: (option: any) => void;
 }
 
-const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
+const CustomSelect = ({ options, value, placeholder = "Todas las categorías", onChange }: CustomSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const defaultOption = options?.[0] || { name: "Todas las categorías" };
+  const defaultOption = options?.[0] || { name: placeholder };
   const [selectedOption, setSelectedOption] = useState<any>(defaultOption);
 
   useEffect(() => {
@@ -52,37 +54,32 @@ const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
     setIsOpen(false);
   };
 
+  const currentLabel = selectedOption?.name || placeholder;
+
   return (
     <div ref={containerRef} className="relative w-[150px] sm:w-[185px] flex-shrink-0">
       <button
         type="button"
         onClick={toggleDropdown}
         className="flex items-center justify-between gap-1.5 w-full text-left cursor-pointer text-xs font-semibold py-2.5 pl-3 pr-2 text-white hover:text-white transition-colors select-none rounded-l-xl focus:outline-none"
-        title={selectedOption?.name || "Categorías"}
+        title={currentLabel}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <span className="truncate max-w-[125px] sm:max-w-[155px]">
-          {selectedOption?.name || "Todas las categorías"}
+          {currentLabel}
         </span>
-        <svg
+        <IconChevronDown
           className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 ${
             isOpen ? "rotate-180 text-red" : ""
           }`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        />
       </button>
 
       {isOpen && (
         <div className="absolute left-0 top-[calc(100%+6px)] w-[220px] sm:w-[240px] bg-[#0E121B] border border-white/15 rounded-xl shadow-2xl shadow-black/90 py-1.5 z-[100] max-h-72 overflow-y-auto backdrop-blur-xl">
           {options.map((option, idx) => {
-            const isCurrent =
-              (selectedOption?.name || "Todas las categorías") === option.name;
+            const isCurrent = currentLabel === option.name;
             return (
               <button
                 key={option.id || option.name || idx}

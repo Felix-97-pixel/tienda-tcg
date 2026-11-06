@@ -1,6 +1,16 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import {
+  IconStore,
+  IconTruck,
+  IconBox,
+  IconClock,
+  IconMapPin,
+  IconMail,
+  IconCheck,
+} from "@/components/ui/Icons";
+import { useTranslations } from "next-intl";
 
 interface TcgStoreHeroProps {
   store: {
@@ -24,6 +34,8 @@ export default function TcgStoreHero({
   onSearchChange,
   searchValue = "",
 }: TcgStoreHeroProps) {
+  const t = useTranslations("store");
+
   // Normalize settings map
   const s = (store.settings || []).reduce((acc: Record<string, string>, curr) => {
     acc[curr.key] = curr.value;
@@ -48,41 +60,38 @@ export default function TcgStoreHero({
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Subtle radial ambient light */}
         <div className="absolute top-[-20%] left-1/4 w-[550px] h-[350px] bg-red-600/10 blur-[140px] rounded-full"></div>
-        <div className="absolute top-[10%] right-[-10%] w-[450px] h-[400px] bg-emerald-500/5 blur-[150px] rounded-full"></div>
-        {/* Subtle noise grid pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]" 
-          style={{ backgroundImage: `radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px)`, backgroundSize: '24px 24px' }}
-        ></div>
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500 opacity-80"></div>
+        {/* Grid pattern texture */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       </div>
 
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6">
-          {/* Left: Avatar & Store Identity */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
-            {/* Store Avatar Vault Frame */}
+        {/* Top Header Card */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6">
+          {/* Left: Store Identity */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5">
+            {/* Store Avatar Logo */}
             <div className="relative group shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#111522] border-2 border-white/10 p-2 shadow-2xl flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-red-500/50 group-hover:shadow-[0_0_25px_rgba(239,68,68,0.25)]">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/15 p-1 shadow-2xl backdrop-blur-xl overflow-hidden flex items-center justify-center">
                 {store.logoUrl ? (
-                  <img
+                  <Image
                     src={store.logoUrl}
                     alt={store.name}
-                    className="w-full h-full object-contain rounded-xl"
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-xl bg-gradient-to-br from-red-600/30 to-amber-600/20 flex items-center justify-center">
-                    <span className="text-3xl font-black text-white/70 tracking-wider">
-                      {store.name.slice(0, 2).toUpperCase()}
-                    </span>
+                  <div className="w-full h-full rounded-xl bg-gradient-to-tr from-red-600 to-amber-600 flex items-center justify-center text-white text-2xl font-black font-mono">
+                    {store.name.substring(0, 2).toUpperCase()}
                   </div>
                 )}
               </div>
               <span 
                 className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0A0D14] flex items-center justify-center text-white text-[11px] shadow-md"
-                title="Comercio activo en vivo"
+                title={t("live_commerce_title")}
               >
-                ✓
+                <IconCheck className="w-3.5 h-3.5 stroke-[3]" />
               </span>
             </div>
 
@@ -91,14 +100,14 @@ export default function TcgStoreHero({
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-red-500/15 text-red-400 border border-red-500/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                  Tienda Oficial TCG
+                  {t("official_store_badge")}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  ✓ Verificado TapTrade
+                  {t("verified_taptrade")}
                 </span>
                 {totalProducts > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono text-gray-400 bg-white/5 border border-white/10">
-                    {totalProducts} cartas activas
+                    {t("active_cards_count", { count: totalProducts })}
                   </span>
                 )}
               </div>
@@ -108,8 +117,7 @@ export default function TcgStoreHero({
               </h1>
 
               <p className="text-gray-400 text-sm max-w-xl leading-relaxed line-clamp-2">
-                {store.description ||
-                  "Inventario oficial en vivo. Compra singles protegidos, boosters y cajas selladas con despacho consolidado o retiro presencial."}
+                {store.description || t("default_description")}
               </p>
             </div>
           </div>
@@ -126,7 +134,7 @@ export default function TcgStoreHero({
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
                 </svg>
-                WhatsApp Tienda
+                {t("whatsapp_btn")}
               </a>
             )}
 
@@ -150,31 +158,28 @@ export default function TcgStoreHero({
               <a
                 href={`mailto:${email}`}
                 className="p-2 rounded-xl text-gray-400 bg-white/5 border border-white/10 hover:text-white hover:bg-white/10 transition-all"
-                title={`Enviar correo a ${email}`}
+                title={t("send_email_title", { email })}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
+                <IconMail className="w-4 h-4" />
               </a>
             )}
           </div>
         </div>
 
-        {/* Logistics & Store Trust Bar (Refactoring UI / Microinteractions) */}
+        {/* Logistics & Store Trust Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-white/[0.06]">
           {/* 1. Retiro en Tienda ($0) */}
           <div className="glass-vault rounded-xl p-3 flex items-start gap-3 border border-white/5 hover:border-emerald-500/30 transition-all">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 text-sm font-bold">
-              🏪
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+              <IconStore className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  Retiro en Tienda
+                  {t("pickup_title")}
                 </span>
                 <span className="px-1.5 py-0.2 text-[10px] font-extrabold font-mono bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/40">
-                  GRATIS $0
+                  {t("pickup_free_badge")}
                 </span>
               </div>
               <p className="text-[12px] text-gray-400 truncate mt-0.5">
@@ -185,7 +190,7 @@ export default function TcgStoreHero({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-300 hover:text-emerald-400 underline underline-offset-2 transition-colors"
-                      title="Ver mapa en Google Maps"
+                      title={t("view_map")}
                     >
                       {address}
                     </a>
@@ -193,51 +198,52 @@ export default function TcgStoreHero({
                     address
                   )
                 ) : (
-                  "Retiro presencial coordinado con el vendedor"
+                  t("pickup_coordinated")
                 )}
               </p>
-              <span className="text-[11px] text-gray-400 block mt-0.5">
-                ⏰ {openingHours}
+              <span className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
+                <IconClock className="w-3 h-3 text-gray-500 shrink-0" />
+                <span>{openingHours}</span>
               </span>
             </div>
           </div>
 
           {/* 2. Chilexpress Despacho */}
           <div className="glass-vault rounded-xl p-3 flex items-start gap-3 border border-white/5 hover:border-amber-500/30 transition-all">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 text-sm font-bold">
-              🚚
+            <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+              <IconTruck className="w-4 h-4 text-amber-400" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  Chilexpress Courier
+                  {t("chilexpress_title")}
                 </span>
                 <span className="px-1.5 py-0.2 text-[10px] font-bold bg-amber-500/15 text-amber-300 rounded border border-amber-500/30">
-                  Cotización en vivo
+                  {t("chilexpress_badge")}
                 </span>
               </div>
               <p className="text-[12px] text-gray-400 mt-0.5">
-                Envíos prioritarios a domicilio o sucursal con seguimiento oficial 24-48h.
+                {t("chilexpress_desc")}
               </p>
             </div>
           </div>
 
           {/* 3. Starken Envíos */}
           <div className="glass-vault rounded-xl p-3 flex items-start gap-3 border border-white/5 hover:border-blue-500/30 transition-all">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0 text-sm font-bold">
-              📦
+            <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+              <IconBox className="w-4 h-4 text-blue-400" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  Starken Envíos
+                  {t("starken_title")}
                 </span>
                 <span className="px-1.5 py-0.2 text-[10px] font-bold bg-blue-500/15 text-blue-300 rounded border border-blue-500/30">
-                  Todo Chile
+                  {t("starken_badge")}
                 </span>
               </div>
               <p className="text-[12px] text-gray-400 mt-0.5">
-                Cobertura nacional para cartas protegidas, carpetas y cajas selladas.
+                {t("starken_desc")}
               </p>
             </div>
           </div>

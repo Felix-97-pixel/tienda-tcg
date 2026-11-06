@@ -142,6 +142,7 @@ const normalizeTab = (t: string | null): "orders" | "addresses" | "credits" | "a
 
 const MyAccount = () => {
   const t = useTranslations("account");
+  const tCommon = useTranslations("common");
   const { user, isAuthenticated } = useSelector((s: RootState) => s.authReducer);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -427,7 +428,7 @@ const MyAccount = () => {
   };
 
   const handleDeleteAddress = async (addressId: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta dirección de despacho?")) return;
+    if (!confirm(t("confirm_delete_address"))) return;
     try {
       const res = await fetch(`${API_URL}/users/me/addresses/${addressId}`, {
         method: "DELETE",
@@ -532,17 +533,17 @@ const MyAccount = () => {
           {/* Badge superior */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red/15 text-red-light border border-red/30 mb-3">
             <IconShieldCheck className="w-3.5 h-3.5 text-red" />
-            <span>Panel de Control de Comprador</span>
+            <span>{t("control_panel_buyer")}</span>
           </div>
 
           {/* Título Principal */}
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Perfil de Usuario
+            {t("page_title")}
           </h1>
 
           {/* Bajada explicativa */}
           <p className="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Administra tus pedidos, revisa el seguimiento en vivo de tus envíos y gestiona tus direcciones oficiales de despacho para compras en TapTrade.
+            {t("page_subtitle")}
           </p>
         </div>
       </div>
@@ -569,13 +570,13 @@ const MyAccount = () => {
                   </p>
                   <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 text-[10px] font-bold text-red bg-red/10 border border-red/20 rounded-full uppercase tracking-wider">
                     <IconShieldCheck className="w-3 h-3 text-red shrink-0" />
-                    <span>Comprador Verificado</span>
+                    <span>{t("verified_buyer")}</span>
                   </div>
                 </div>
               </div>
 
               {/* Pestañas de Navegación Vertical */}
-              <nav className="space-y-1.5" aria-label="Pestañas de cuenta">
+              <nav className="space-y-1.5" aria-label={t("nav_tabs_aria")}>
                 {tabsConfig.map((tab) => {
                   const isActive = activeTab === tab.id;
                   return (
@@ -648,14 +649,14 @@ const MyAccount = () => {
               <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/10">
                   <div>
-                    <h3 className="text-xl font-black text-white tracking-tight">Mis Pedidos</h3>
+                    <h3 className="text-xl font-black text-white tracking-tight">{t("orders")}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Seguimiento de compras y despachos en tiempo real
+                      {t("orders_subtitle")}
                     </p>
                   </div>
                   {orders.length > 0 && (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-gray-300 font-mono">
-                      {orders.length} {orders.length === 1 ? "pedido" : "pedidos"}
+                      {orders.length} {orders.length === 1 ? t("order_single") : t("order_plural")}
                     </span>
                   )}
                 </div>
@@ -663,7 +664,7 @@ const MyAccount = () => {
                 {loadingOrders ? (
                   <div className="flex flex-col items-center justify-center py-20 space-y-3">
                     <div className="w-8 h-8 rounded-full border-2 border-red border-t-transparent animate-spin" />
-                    <p className="text-xs text-gray-400">Cargando tus pedidos...</p>
+                    <p className="text-xs text-gray-400">{t("loading_orders")}</p>
                   </div>
                 ) : orders.length === 0 ? (
                   <div className="py-16 px-4 text-center space-y-4">
@@ -671,15 +672,15 @@ const MyAccount = () => {
                       <IconBox className="w-8 h-8 text-gray-500" />
                     </div>
                     <div>
-                      <h4 className="text-base font-bold text-white">Aún no tienes compras registradas</h4>
+                      <h4 className="text-base font-bold text-white">{t("no_orders_yet")}</h4>
                       <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
-                        Explora los catálogos de cartas TCG de todas las tiendas de Chile con cotización de envíos oficiales.
+                        {t("no_orders_desc")}
                       </p>
                     </div>
                     <div className="pt-2">
                       <Link href="/shop">
                         <Button variant="primary" size="md">
-                          Ir a la Tienda →
+                          {t("go_to_store")}
                         </Button>
                       </Link>
                     </div>
@@ -742,12 +743,12 @@ const MyAccount = () => {
                                     {vo.deliveryStatus === "DISPATCHED" ? (
                                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                        <span>En camino (Despachado)</span>
+                                        <span>{t("dispatched_status")}</span>
                                       </span>
                                     ) : order.status === "PAID" ? (
                                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
                                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                                        <span>En preparación en tienda</span>
+                                        <span>{t("preparing_status")}</span>
                                       </span>
                                     ) : (
                                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-gray-400">
@@ -817,12 +818,12 @@ const MyAccount = () => {
                                               ) : trackingDataMap[vo.id] ? (
                                                 <>
                                                   <IconChevronUp className="w-3.5 h-3.5" />
-                                                  <span>Ocultar Seguimiento</span>
+                                                  <span>{t("hide_tracking")}</span>
                                                 </>
                                               ) : (
                                                 <>
                                                   <IconClock className="w-3.5 h-3.5 text-emerald-400" />
-                                                  <span>Ver Seguimiento en Vivo</span>
+                                                  <span>{t("view_live_tracking")}</span>
                                                 </>
                                               )}
                                             </button>
@@ -835,7 +836,7 @@ const MyAccount = () => {
                                               rel="noopener noreferrer"
                                               className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-gray-200 border border-white/15 font-semibold text-xs transition-all flex items-center gap-1.5"
                                             >
-                                              <span>Rastrear en Web</span>
+                                              <span>{t("track_on_web")}</span>
                                               <IconExternalLink className="w-3.5 h-3.5 text-gray-400" />
                                             </a>
                                           )}
@@ -922,7 +923,7 @@ const MyAccount = () => {
               <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/10">
                   <div>
-                    <h3 className="text-xl font-black text-white tracking-tight">Direcciones de Despacho</h3>
+                    <h3 className="text-xl font-black text-white tracking-tight">{t("addresses_title")}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">
                       Puedes guardar múltiples direcciones y marcar tu favorita para preseleccionarla automáticamente en el Checkout.
                     </p>
@@ -935,7 +936,7 @@ const MyAccount = () => {
                       onClick={handleOpenCreateAddress}
                       leftIcon={<IconPlus className="w-3.5 h-3.5" />}
                     >
-                      Agregar Dirección
+                      {t("add_address")}
                     </Button>
                   )}
                 </div>
@@ -961,7 +962,7 @@ const MyAccount = () => {
                 {loadingAddresses ? (
                   <div className="flex flex-col items-center justify-center py-20 space-y-3">
                     <div className="w-8 h-8 rounded-full border-2 border-red border-t-transparent animate-spin" />
-                    <p className="text-xs text-gray-400">Cargando tus direcciones...</p>
+                    <p className="text-xs text-gray-400">{t("loading_addresses")}</p>
                   </div>
                 ) : isAddressFormOpen ? (
                   /* ── Formulario de Agregar / Editar Dirección ── */
@@ -979,7 +980,7 @@ const MyAccount = () => {
                         }}
                         className="text-xs text-gray-400 hover:text-white"
                       >
-                        ✕ Cancelar
+                        ✕ {t("cancel")}
                       </button>
                     </div>
 
@@ -1009,7 +1010,7 @@ const MyAccount = () => {
                       {/* Nombre Completo */}
                       <div className="space-y-1.5">
                         <label htmlFor="addr-name" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                          Nombre completo del destinatario <span className="text-red">*</span>
+                          {t("recipient_full_name")} <span className="text-red">*</span>
                         </label>
                         <input
                           type="text"
@@ -1114,7 +1115,7 @@ const MyAccount = () => {
                           setAddressMsg(null);
                         }}
                       >
-                        Cancelar
+                        {t("cancel")}
                       </Button>
 
                       <Button
@@ -1135,7 +1136,7 @@ const MyAccount = () => {
                       <IconMapPin className="w-8 h-8 text-gray-500" />
                     </div>
                     <div>
-                      <h4 className="text-base font-bold text-white">No tienes direcciones guardadas</h4>
+                      <h4 className="text-base font-bold text-white">{t("no_saved_addresses")}</h4>
                       <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
                         Agrega una o más direcciones de entrega para agilizar tus compras en el Checkout.
                       </p>
@@ -1192,22 +1193,22 @@ const MyAccount = () => {
                           {/* Datos de la Dirección */}
                           <div className="space-y-2 text-xs">
                             <div>
-                              <span className="text-gray-500 text-[10px] uppercase font-bold block">Destinatario</span>
+                              <span className="text-gray-500 text-[10px] uppercase font-bold block">{t("recipient")}</span>
                               <span className="text-white font-medium">{addr.name}</span>
                             </div>
 
                             <div>
-                              <span className="text-gray-500 text-[10px] uppercase font-bold block">Teléfono</span>
+                              <span className="text-gray-500 text-[10px] uppercase font-bold block">{t("phone")}</span>
                               <span className="text-gray-300 font-mono">{addr.phone}</span>
                             </div>
 
                             <div>
-                              <span className="text-gray-500 text-[10px] uppercase font-bold block">Comuna y Región</span>
+                              <span className="text-gray-500 text-[10px] uppercase font-bold block">{t("commune_and_region")}</span>
                               <span className="text-gray-300">{addr.city} ({addr.regionCode})</span>
                             </div>
 
                             <div>
-                              <span className="text-gray-500 text-[10px] uppercase font-bold block">Calle y Número</span>
+                              <span className="text-gray-500 text-[10px] uppercase font-bold block">{t("street_and_number")}</span>
                               <span className="text-white font-medium leading-relaxed">{addr.address}</span>
                             </div>
                           </div>
@@ -1222,14 +1223,14 @@ const MyAccount = () => {
                             onClick={() => handleOpenEditAddress(addr)}
                             leftIcon={<IconPencil className="w-3.5 h-3.5" />}
                           >
-                            Editar
+                            {t("edit")}
                           </Button>
 
                           <button
                             type="button"
                             onClick={() => handleDeleteAddress(addr.id)}
                             className="p-2 rounded-xl text-gray-400 hover:text-red hover:bg-red/10 border border-transparent hover:border-red/20 transition-all"
-                            title="Eliminar dirección"
+                            title={t("delete_address_title")}
                           >
                             <IconTrash className="w-4 h-4" />
                           </button>
@@ -1247,7 +1248,7 @@ const MyAccount = () => {
                 <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-white/10">
                     <div>
-                      <h3 className="text-xl font-black text-white tracking-tight">Crédito en Tiendas</h3>
+                      <h3 className="text-xl font-black text-white tracking-tight">{t("credits")}</h3>
                       <p className="text-xs text-gray-400 mt-0.5">
                         Saldos a favor acumulados por devoluciones o acuerdos con cada tienda de TapTrade.
                       </p>
@@ -1258,7 +1259,7 @@ const MyAccount = () => {
                       <div className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
                         <IconCoins className="w-5 h-5 text-amber-400" />
                         <div>
-                          <p className="text-[10px] uppercase font-bold text-gray-400">Total en Tiendas</p>
+                          <p className="text-[10px] uppercase font-bold text-gray-400">{t("total_in_stores")}</p>
                           <p className="text-sm font-black text-amber-400">
                             ${storeCredits.reduce((acc, curr) => acc + Number(curr.balance), 0).toLocaleString("es-CL")} CLP
                           </p>
@@ -1276,7 +1277,7 @@ const MyAccount = () => {
                       <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-gray-400">
                         <IconCoins className="w-6 h-6" />
                       </div>
-                      <h4 className="text-sm font-bold text-white">No tienes crédito disponible</h4>
+                      <h4 className="text-sm font-bold text-white">{t("no_credit_available")}</h4>
                       <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
                         Actualmente no tienes saldos a favor en ninguna tienda. Cuando una tienda te emita crédito por reembolsos o canjes, aparecerán listados aquí y podrás utilizarlos automáticamente en el checkout.
                       </p>
@@ -1309,7 +1310,7 @@ const MyAccount = () => {
 
                           <div className="pt-2 border-t border-white/5 flex items-center justify-between">
                             <div>
-                              <span className="text-[10px] uppercase font-bold text-gray-400">Saldo disponible</span>
+                              <span className="text-[10px] uppercase font-bold text-gray-400">{t("balance")}</span>
                               <p className="text-lg font-black text-emerald-400">
                                 ${Number(item.balance).toLocaleString("es-CL")} CLP
                               </p>
@@ -1319,7 +1320,7 @@ const MyAccount = () => {
                               href={`/shop/store/${item.store.subdomain}`}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-white border border-white/10 transition-colors"
                             >
-                              <span>Ver vitrina</span>
+                              <span>{t("view_storefront")}</span>
                               <span>→</span>
                             </Link>
                           </div>
@@ -1332,17 +1333,17 @@ const MyAccount = () => {
                   {creditTransactions.length > 0 && (
                     <div className="pt-6 border-t border-white/10 space-y-4">
                       <h4 className="text-sm font-bold uppercase tracking-wider text-gray-300">
-                        Historial de Movimientos
+                        {t("movements_history")}
                       </h4>
                       <div className="overflow-x-auto rounded-xl border border-white/10">
                         <table className="w-full text-left text-xs">
                           <thead className="bg-[#0B0E14] text-gray-400 font-bold uppercase border-b border-white/10">
                             <tr>
-                              <th className="py-3 px-4">Fecha</th>
-                              <th className="py-3 px-4">Tienda</th>
-                              <th className="py-3 px-4">Tipo</th>
-                              <th className="py-3 px-4">Monto</th>
-                              <th className="py-3 px-4">Referencia</th>
+                              <th className="py-3 px-4">{tCommon("date")}</th>
+                              <th className="py-3 px-4">{t("store")}</th>
+                              <th className="py-3 px-4">{t("type")}</th>
+                              <th className="py-3 px-4">{tCommon("total")}</th>
+                              <th className="py-3 px-4">{t("reference")}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5 text-gray-300">
@@ -1352,7 +1353,7 @@ const MyAccount = () => {
                                   {new Date(tx.createdAt).toLocaleDateString("es-CL")}
                                 </td>
                                 <td className="py-3 px-4 font-semibold text-white">
-                                  {tx.store?.name || "Tienda"}
+                                  {tx.store?.name || t("store")}
                                 </td>
                                 <td className="py-3 px-4">
                                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
@@ -1387,7 +1388,7 @@ const MyAccount = () => {
 
               <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                 <div className="pb-5 border-b border-white/10">
-                  <h3 className="text-xl font-black text-white tracking-tight">Datos de Cuenta</h3>
+                  <h3 className="text-xl font-black text-white tracking-tight">{t("details")}</h3>
                   <p className="text-xs text-gray-400 mt-0.5">
                     Información personal de tu perfil y contacto.
                   </p>
@@ -1397,7 +1398,7 @@ const MyAccount = () => {
                   {/* Correo Electrónico (Solo Lectura) */}
                   <div className="space-y-1.5">
                     <label htmlFor="profile-email" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                      Correo electrónico
+                      {t("email")}
                     </label>
                     <div className="relative">
                       <input
@@ -1412,14 +1413,14 @@ const MyAccount = () => {
                         <span>Bloqueado</span>
                       </span>
                     </div>
-                    <p className="text-[11px] text-gray-500">El correo electrónico no se puede modificar por motivos de seguridad.</p>
+                    <p className="text-[11px] text-gray-500">{t("email_readonly_note")}</p>
                   </div>
 
                   {/* Nombre y Teléfono en 2 columnas */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label htmlFor="profile-name" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Nombre completo
+                        {t("full_name")}
                       </label>
                       <input
                         type="text"
@@ -1433,7 +1434,7 @@ const MyAccount = () => {
 
                     <div className="space-y-1.5">
                       <label htmlFor="profile-phone" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Teléfono de contacto
+                        {t("phone")}
                       </label>
                       <input
                         type="text"
@@ -1443,7 +1444,7 @@ const MyAccount = () => {
                         placeholder="+56 9 1234 5678"
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600 font-mono"
                       />
-                      <p className="text-[11px] text-gray-500">Número de teléfono para soporte y notificaciones.</p>
+                      <p className="text-[11px] text-gray-500">{t("phone_note")}</p>
                     </div>
                   </div>
 
@@ -1453,7 +1454,7 @@ const MyAccount = () => {
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-white flex items-center gap-2">
                           <IconBox className="w-4 h-4 text-red shrink-0" />
-                          <span>Dirección Predeterminada para Despacho</span>
+                          <span>{t("default_shipping_address")}</span>
                         </span>
                         <p className="text-xs text-gray-400">
                           {addresses.find((a) => a.isDefault) ? (
@@ -1510,7 +1511,7 @@ const MyAccount = () => {
                       isLoading={savingAccount}
                       leftIcon={<IconCheck className="w-4 h-4" />}
                     >
-                      Guardar Cambios
+                      {t("save_changes")}
                     </Button>
                   </div>
                 </form>

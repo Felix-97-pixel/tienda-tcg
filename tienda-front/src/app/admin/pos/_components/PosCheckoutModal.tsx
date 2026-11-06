@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { PosCartItem } from './PosCart';
 import { adminFetch } from '@/utils/api';
 
@@ -32,6 +33,7 @@ export default function PosCheckoutModal({
   onConfirmSale,
   isProcessing,
 }: PosCheckoutModalProps) {
+  const t = useTranslations("admin.pos_page");
   const [selectedMethod, setSelectedMethod] = useState<'CASH' | 'CARD_POS' | 'TRANSFER' | 'STORE_CREDIT'>('CASH');
   const [receivedAmount, setReceivedAmount] = useState<number>(totalAmount);
   const [voucherRef, setVoucherRef] = useState<string>('');
@@ -127,7 +129,7 @@ export default function PosCheckoutModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/[0.02]">
           <div>
-            <h2 className="text-xl font-black text-white">Completar Cobro</h2>
+            <h2 className="text-xl font-black text-white">{t("complete_charge")}</h2>
             <p className="text-xs text-white/50 mt-0.5">
               {items.length} productos • Total: ${totalAmount.toLocaleString('es-CL')} CLP
             </p>

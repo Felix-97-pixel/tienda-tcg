@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { API_URL } from "@/utils/api";
+import { useTranslations } from "next-intl";
 
 export interface RegionOption {
   code: string;
@@ -20,6 +21,7 @@ export default function ChileLocationsSelect({
   onCommuneChange,
   disabled = false,
 }: ChileLocationsSelectProps) {
+  const t = useTranslations("checkout.locations");
   const [regions, setRegions] = useState<RegionOption[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<string>("RM");
   const [loading, setLoading] = useState(true);
@@ -107,13 +109,13 @@ export default function ChileLocationsSelect({
       {/* Selector de Región */}
       <div>
         <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-          Región de Destino <span className="text-red-400">*</span>
+          {t("region_label")} <span className="text-red-400">*</span>
         </label>
         <SearchableSelect
           options={regionOptions}
           value={selectedRegion}
           onChange={handleRegionChange}
-          placeholder="Selecciona tu región..."
+          placeholder={t("region_placeholder")}
           disabled={disabled}
         />
       </div>
@@ -121,13 +123,13 @@ export default function ChileLocationsSelect({
       {/* Selector de Comuna */}
       <div>
         <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-          Comuna de Destino <span className="text-red-400">*</span>
+          {t("commune_label")} <span className="text-red-400">*</span>
         </label>
         <SearchableSelect
           options={communeOptions}
           value={selectedCommune}
           onChange={handleCommuneChange}
-          placeholder="Selecciona o busca tu comuna..."
+          placeholder={t("commune_placeholder")}
           disabled={disabled}
         />
       </div>

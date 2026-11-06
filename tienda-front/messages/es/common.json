@@ -42,5 +42,32 @@
     "back_to_home": "Volver al Inicio",
     "breadcrumb_title": "Mensaje Enviado",
     "breadcrumb_page": "Éxito"
+  },
+  "carrier": {
+    "order_registered": "Orden Registrada",
+    "live_verification": "Verificación Oficial en Vivo",
+    "destination": "Destino",
+    "see_official_white": "Ver Blanco Oficial",
+    "dark_mode": "Modo Oscuro",
+    "show_detail": "Detalle",
+    "hide_detail": "Ocultar Detalle",
+    "location_branch": "Ubicación / Sucursal:",
+    "step_dispatched": "1. Despachado",
+    "step_in_transit": "2. En Tránsito",
+    "step_delivery": "3. Entrega",
+    "in_transit_to_destination": "En tránsito hacia destino",
+    "consult_portal": "Consultar en Portal {courier}",
+    "status_label": "Estado:",
+    "tracking_number_label": "N° OT:"
+  },
+  "select_all": "Seleccionar todos",
+  "upload": {
+    "uploading_to_cloud": "Subiendo imagen a la nube...",
+    "optimizing_secure": "Optimizando y guardando en bucket seguro",
+    "click_to_upload": "Haz clic para subir imagen",
+    "cloud_stored": "Almacenado en la nube",
+    "change_image": "Cambiar imagen",
+    "delete_image": "Eliminar imagen",
+    "selected_image": "Imagen seleccionada"
   }
 }

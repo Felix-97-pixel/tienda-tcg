@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { List, Column } from "@/components/ui/List";
 import { useCurrencies } from "@/app/admin/_components/Currencies/hooks/useCurrencies";
@@ -7,6 +8,8 @@ import CurrencyModal from "@/app/admin/_components/Currencies/CurrencyModal";
 import { IconPencil, IconTrash } from "@/components/ui/Icons";
 
 export default function AdminCurrencies() {
+  const t = useTranslations("admin.currencies_page");
+  const tCommon = useTranslations("common");
   const { exchangeRates, globalCurrencies, games, loading, branchName, refresh, deleteExchangeRate } = useCurrencies();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +23,7 @@ export default function AdminCurrencies() {
   const columns: Column<any>[] = [
     {
       key: "game",
-      header: "Juego",
+      header: t("game"),
       render: (rate) => (
         <div className="flex items-center gap-2">
           <span className="font-semibold text-white">{rate.game?.name || "-"}</span>
@@ -32,7 +35,7 @@ export default function AdminCurrencies() {
     },
     {
       key: "currency",
-      header: "Divisa Base Global",
+      header: t("base_currency"),
       render: (rate) => {
         const globalRate = globalCurrencies.find((g: any) => g.gameId === rate.gameId);
         const code = (globalRate?.currency?.code && globalRate.currency.code !== "CLP") 
@@ -45,7 +48,7 @@ export default function AdminCurrencies() {
     },
     {
       key: "rate",
-      header: "Valor Local (PVP Final)",
+      header: t("local_value"),
       render: (rate) => {
         const numRate = Number(rate.rate);
         return (
@@ -100,7 +103,7 @@ export default function AdminCurrencies() {
     },
     {
       key: "actions",
-      header: "Acciones",
+      header: tCommon("actions"),
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (rate) => (
@@ -108,14 +111,14 @@ export default function AdminCurrencies() {
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-white hover:text-white transition-colors"
             onClick={() => openModal(rate)}
-            title="Editar Tasa"
+            title={tCommon("edit")}
           >
             <IconPencil className="w-3.5 h-3.5" />
           </button>
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-red hover:text-red transition-colors"
             onClick={() => deleteExchangeRate(rate)}
-            title="Eliminar Tasa"
+            title={tCommon("delete")}
           >
             <IconTrash className="w-3.5 h-3.5" />
           </button>
@@ -129,19 +132,19 @@ export default function AdminCurrencies() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white tracking-tight">Tasas de Cambio</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">{t("title")}</h1>
             {branchName && (
               <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-white/70 font-medium">
-                Sucursal: <strong className="text-white">{branchName}</strong>
+                {t("branch_label")} <strong className="text-white">{branchName}</strong>
               </span>
             )}
           </div>
           <p className="text-gray-4 text-sm mt-1">
-            Configura el valor de conversión en CLP para cada juego y los porcentajes de avalúo en Efectivo y Crédito de Tienda para compras automáticas en Trade-in.
+            {t("subtitle")}
           </p>
         </div>
         <Button onClick={() => openModal()}>
-          Agregar Tasa
+          {t("add_rate")}
         </Button>
       </div>
 
@@ -149,7 +152,7 @@ export default function AdminCurrencies() {
         columns={columns}
         data={exchangeRates}
         loading={loading}
-        emptyMessage="No tienes tasas de cambio configuradas aún para esta sucursal. Haz clic en 'Agregar Tasa' para configurar una."
+        emptyMessage={t("empty_rates")}
         keyExtractor={(rate) => rate.id}
       />
 
