@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 import { Button } from "@/components/ui/Button";
 import SearchableSelect from "@/components/ui/SearchableSelect";
@@ -52,6 +53,7 @@ interface Branch {
 }
 
 export default function AdminTeamPage() {
+  const t = useTranslations("admin.team_page");
   const { user } = useAppSelector((state) => state.adminAuthReducer);
   const canManageCorporate = usePermission("TEAM_CORPORATE_MANAGE");
   const canManageLocal = usePermission("TEAM_LOCAL_MANAGE");
@@ -326,12 +328,10 @@ export default function AdminTeamPage() {
             </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white">
-            {canManageCorporate ? "Gestión de Equipo & Personal" : "Personal de Sucursal"}
+            {t("title")}
           </h1>
           <p className="text-white/40 text-xs mt-0.5">
-            {canManageCorporate
-              ? "Administra los cajeros y encargados de tus sucursales, así como los copropietarios o contadores del holding."
-              : `Administra los cajeros autorizados para operar en ${currentBranch?.name || "tu sucursal"}.`}
+            {t("subtitle")}
           </p>
         </div>
 
@@ -347,7 +347,7 @@ export default function AdminTeamPage() {
               }`}
             >
               <IconStore className="w-4 h-4" />
-              <span>Personal de Sucursales</span>
+              <span>{t("tab_branches")}</span>
             </button>
             <button
               onClick={() => setActiveTab("company")}
@@ -358,7 +358,7 @@ export default function AdminTeamPage() {
               }`}
             >
               <IconShield className="w-4 h-4" />
-              <span>Accesos Corporativos</span>
+              <span>{t("tab_company")}</span>
             </button>
           </div>
         )}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import DatePicker from "@/components/ui/DatePicker";
 import { API_URL, getAdminAuthHeaders } from "@/utils/api";
@@ -110,6 +111,8 @@ interface AccountingKPIs {
 }
 
 export default function SuperAdminAccountingPage() {
+  const t = useTranslations("accounting_page");
+  const tCommon = useTranslations("common");
   // Estados de Filtros
   const [startDate, setStartDate] = useState<string>(() => {
     const d = new Date();
@@ -260,7 +263,7 @@ export default function SuperAdminAccountingPage() {
   // Opciones para SearchableSelect
   const storeOptions = useMemo(() => {
     return [
-      { value: "ALL", label: "Todas las Tiendas" },
+      { value: "ALL", label: t("all_stores") },
       ...stores.map((s) => ({
         value: s.id,
         label: `${s.name} (${s.subdomain})`,
@@ -270,10 +273,10 @@ export default function SuperAdminAccountingPage() {
 
   const statusOptions = useMemo(() => {
     return [
-      { value: "PAID", label: "Pagadas (PAID)" },
-      { value: "ALL", label: "Todos los Estados" },
-      { value: "PENDING", label: "Pendientes (PENDING)" },
-      { value: "CANCELLED", label: "Canceladas (CANCELLED)" },
+      { value: "PAID", label: t("status_paid") },
+      { value: "ALL", label: t("status_all") },
+      { value: "PENDING", label: t("status_pending") },
+      { value: "CANCELLED", label: t("status_cancelled") },
     ];
   }, []);
 
@@ -292,13 +295,13 @@ export default function SuperAdminAccountingPage() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red/10 border border-red/20 text-red text-xs font-black tracking-widest uppercase mb-2">
             <IconShieldCheck className="w-3.5 h-3.5" />
-            <span>Módulo Contable & Tributario (SII)</span>
+            <span>{t("badge")}</span>
           </div>
           <h1 className="text-3xl font-black tracking-tight text-white">
-            Consolidado Financiero & Cuadratura F29
+            {t("title")}
           </h1>
           <p className="text-sm text-white/60 mt-1 max-w-3xl">
-            Control de intermediación mercantil: Separa de forma estricta los ingresos propios de la plataforma (comisión afecta a IVA) de los fondos transitorios en custodia que corresponden a las tiendas asociadas.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -309,7 +312,7 @@ export default function SuperAdminAccountingPage() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 text-sm font-bold transition-all disabled:opacity-50"
           >
             <IconRefresh className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            <span>Actualizar</span>
+            <span>{t("refresh_btn")}</span>
           </button>
 
           <button
@@ -318,7 +321,7 @@ export default function SuperAdminAccountingPage() {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-900/30 transition-all disabled:opacity-50"
           >
             <IconDownload className="w-4 h-4" />
-            <span>{isExporting ? "Generando..." : "Descargar Excel (CSV Contable)"}</span>
+            <span>{isExporting ? t("exporting") : t("export_btn")}</span>
           </button>
         </div>
       </div>
@@ -328,7 +331,7 @@ export default function SuperAdminAccountingPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-4">
           <div className="flex items-center gap-2 text-xs font-bold text-white/50 uppercase tracking-wider">
             <IconFilter className="w-4 h-4 text-red" />
-            <span>Atajos de Período Tributario:</span>
+            <span>{t("period_shortcuts")}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -361,33 +364,33 @@ export default function SuperAdminAccountingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div>
             <DatePicker
-              label="Fecha Desde"
+              label={t("date_from")}
               value={startDate}
               onChange={(val) => {
                 setStartDate(val);
                 setPage(1);
               }}
-              placeholder="Desde..."
+              placeholder={t("placeholder_from")}
               usePortal={true}
             />
           </div>
 
           <div>
             <DatePicker
-              label="Fecha Hasta"
+              label={t("date_to")}
               value={endDate}
               onChange={(val) => {
                 setEndDate(val);
                 setPage(1);
               }}
-              placeholder="Hasta..."
+              placeholder={t("placeholder_to")}
               usePortal={true}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5">
-              Filtrar por Tienda
+              {t("filter_store")}
             </label>
             <SearchableSelect
               options={storeOptions}
@@ -396,7 +399,7 @@ export default function SuperAdminAccountingPage() {
                 setStoreId(val || "ALL");
                 setPage(1);
               }}
-              placeholder="Buscar o seleccionar tienda..."
+              placeholder={t("search_store_placeholder")}
               className="w-full"
               inputClassName="h-[38px] bg-[#141A26] border border-white/10 rounded-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-red transition-colors"
               usePortal={true}
@@ -405,7 +408,7 @@ export default function SuperAdminAccountingPage() {
 
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5">
-              Estado de Orden
+              {t("order_status")}
             </label>
             <SearchableSelect
               options={statusOptions}
@@ -414,7 +417,7 @@ export default function SuperAdminAccountingPage() {
                 setStatus(val || "PAID");
                 setPage(1);
               }}
-              placeholder="Seleccionar estado..."
+              placeholder={t("select_status_placeholder")}
               className="w-full"
               inputClassName="h-[38px] bg-[#141A26] border border-white/10 rounded-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-red transition-colors"
               usePortal={true}
@@ -431,7 +434,7 @@ export default function SuperAdminAccountingPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-black uppercase tracking-wider text-red">
-                Facturación TapTrade (F29)
+                {t("card_taptrade_billing")}
               </span>
               <div className="w-9 h-9 rounded-xl bg-red/10 border border-red/30 flex items-center justify-center text-red">
                 <IconReceipt className="w-5 h-5" />
@@ -441,26 +444,26 @@ export default function SuperAdminAccountingPage() {
               {formatCLP(kpis?.platform.serviceFeeGross || 0)}
             </div>
             <p className="text-xs text-white/50 mt-1">
-              Comisión de plataforma total bruta
+              {t("card_taptrade_billing_desc")}
             </p>
           </div>
 
           <div className="mt-5 pt-4 border-t border-white/10 space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-white/60">Base Neta Imponible (3%):</span>
+              <span className="text-white/60">{t("card_net_taxable_base")}</span>
               <span className="font-bold text-white font-mono">
                 {formatCLP(kpis?.platform.serviceFeeNet || 0)}
               </span>
             </div>
             <div className="flex justify-between items-center text-red-light">
-              <span className="font-medium">IVA Débito Fiscal (19%):</span>
+              <span className="font-medium">{t("card_vat_debit")}</span>
               <span className="font-bold font-mono">
                 {formatCLP(kpis?.platform.vatDebit || 0)}
               </span>
             </div>
             <div className="p-2 rounded-lg bg-red/5 border border-red/20 text-[11px] text-white/70 flex items-start gap-1.5 mt-2">
               <IconInfo className="w-3.5 h-3.5 text-red shrink-0 mt-0.5" />
-              <span>Base para la emisión de facturas electrónicas de comisión TapTrade.</span>
+              <span>{t("electronic_invoicing_base")}</span>
             </div>
           </div>
         </div>
@@ -471,7 +474,7 @@ export default function SuperAdminAccountingPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-black uppercase tracking-wider text-blue-400">
-                Fondos de Tiendas (Custodia)
+                {t("store_funds_custody")}
               </span>
               <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
                 <IconWallet className="w-5 h-5" />
@@ -481,26 +484,26 @@ export default function SuperAdminAccountingPage() {
               {formatCLP(kpis?.thirdPartyFunds || 0)}
             </div>
             <p className="text-xs text-white/50 mt-1">
-              Abono 100% a tiendas (Productos + Envíos)
+              {t("store_funds_custody_desc")}
             </p>
           </div>
 
           <div className="mt-5 pt-4 border-t border-white/10 space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-white/60">Retenido en Escrow:</span>
+              <span className="text-white/60">{t("escrow_held")}</span>
               <span className="font-bold text-amber-400 font-mono">
                 {formatCLP(kpis?.escrow.held || 0)}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-white/60">Disponible para Retiro:</span>
+              <span className="text-white/60">{t("escrow_available")}</span>
               <span className="font-bold text-emerald-400 font-mono">
                 {formatCLP(kpis?.escrow.available || 0)}
               </span>
             </div>
             <div className="p-2 rounded-lg bg-blue-500/5 border border-blue-500/20 text-[11px] text-white/70 flex items-start gap-1.5 mt-2">
               <IconShieldCheck className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
-              <span>Mandato Mercantil: Fondos ajenos exentos de tributación propia de TapTrade.</span>
+              <span>{t("mandate_mercantile_note")}</span>
             </div>
           </div>
         </div>
@@ -511,7 +514,7 @@ export default function SuperAdminAccountingPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-black uppercase tracking-wider text-amber-400">
-                Pasarela & Margen Real
+                {t("platform_margin_real")}
               </span>
               <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
                 <IconCreditCard className="w-5 h-5" />
@@ -521,26 +524,26 @@ export default function SuperAdminAccountingPage() {
               {formatCLP(kpis?.platform.netPlatformMargin || 0)}
             </div>
             <p className="text-xs text-white/50 mt-1">
-              Margen operativo neto para TapTrade
+              {t("platform_margin_net")}
             </p>
           </div>
 
           <div className="mt-5 pt-4 border-t border-white/10 space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-white/60">Comisión Pasarela Estimada:</span>
+              <span className="text-white/60">{t("est_gateway_commission")}</span>
               <span className="font-bold text-rose-400 font-mono">
                 {formatCLP(kpis?.platform.transbankFeeEstimate || 0)}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-white/60">IVA Crédito Fiscal Pasarela:</span>
+              <span className="text-white/60">{t("vat_credit_gateway")}</span>
               <span className="font-bold text-emerald-400 font-mono">
                 {formatCLP(kpis?.platform.transbankVatCreditEstimate || 0)}
               </span>
             </div>
             <div className="p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[11px] text-white/70 flex items-start gap-1.5 mt-2">
               <IconCoins className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-              <span>Gross-up aplicado en checkout cubre el costo de procesamiento financiero.</span>
+              <span>{t("gross_up_note")}</span>
             </div>
           </div>
         </div>
@@ -551,7 +554,7 @@ export default function SuperAdminAccountingPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-                Recaudación Bancaria Global
+                {t("global_bank_collection")}
               </span>
               <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                 <IconCoins className="w-5 h-5" />
@@ -561,19 +564,19 @@ export default function SuperAdminAccountingPage() {
               {formatCLP(kpis?.totalCollected || 0)}
             </div>
             <p className="text-xs text-white/50 mt-1">
-              Monto total que ingresó al banco vía Webpay / MP
+              {t("global_bank_collection_desc")}
             </p>
           </div>
 
           <div className="mt-5 pt-4 border-t border-white/10 space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-white/60">Órdenes Procesadas:</span>
+              <span className="text-white/60">{t("card_orders_processed")}</span>
               <span className="font-bold text-white font-mono">
-                {kpis?.totalOrdersCount || 0} pedidos
+                {t("orders_units", { count: kpis?.totalOrdersCount || 0 })}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-white/60">Ticket Promedio Bruto:</span>
+              <span className="text-white/60">{t("card_avg_ticket_gross")}</span>
               <span className="font-bold text-white font-mono">
                 {formatCLP(
                   kpis?.totalOrdersCount
@@ -584,7 +587,7 @@ export default function SuperAdminAccountingPage() {
             </div>
             <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-[11px] text-white/70 flex items-start gap-1.5 mt-2">
               <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-              <span>Cuadra exactamente con la cartola de la cuenta corriente de la empresa.</span>
+              <span>{t("reconciliation_exact")}</span>
             </div>
           </div>
         </div>
@@ -602,11 +605,11 @@ export default function SuperAdminAccountingPage() {
             <div className="flex items-center gap-2 mb-1">
               <span className="w-2.5 h-2.5 rounded-full bg-red shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
               <h2 className="text-base font-black text-white uppercase tracking-wider">
-                Liquidación Tributaria Proyectada • Formulario F29 (TapTrade SpA)
+                {t("f29_title")}
               </h2>
             </div>
             <p className="text-xs text-white/50">
-              Consolida todas las ventas propias afectas a IVA del período: <strong>Comisiones Marketplace</strong> (boletas a compradores) y <strong>Suscripciones SaaS de Software</strong> (facturas a tiendas).
+              {t("f29_description")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -614,7 +617,7 @@ export default function SuperAdminAccountingPage() {
               RUT: 78.531.106-K
             </span>
             <span className="px-3 py-1 rounded-lg text-xs font-bold bg-red/10 text-red border border-red/30">
-              Régimen Pro-Pyme (PPM 0.25%)
+              {t("f29_regime")}
             </span>
           </div>
         </div>
@@ -623,67 +626,67 @@ export default function SuperAdminAccountingPage() {
           {/* Columna 1: Ventas Propias Netas */}
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
             <span className="text-xs font-bold text-white/60 uppercase tracking-wider block">
-              1. Ventas Propias Netas (Base Imponible)
+              {t("f29_col1_title")}
             </span>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between items-center">
-                <span className="text-white/60">Comisiones Marketplace (3% neto):</span>
+                <span className="text-white/60">{t("f29_col1_commissions")}</span>
                 <span className="font-mono font-bold text-white">
                   {formatCLP(kpis?.f29?.marketplaceNet || 0)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/60">
-                  Suscripciones SaaS ({kpis?.saas?.activeCompaniesCount || 0} emp. / {kpis?.saas?.totalUf || 0} UF):
+                  {t("f29_col1_saas", { count: kpis?.saas?.activeCompaniesCount || 0, uf: kpis?.saas?.totalUf || 0 })}
                 </span>
                 <span className="font-mono font-bold text-white">
                   {formatCLP(kpis?.f29?.saasNet || 0)}
                 </span>
               </div>
               <div className="pt-2 border-t border-white/10 flex justify-between items-center text-sm font-black text-white">
-                <span>Total Ventas Netas TapTrade:</span>
+                <span>{t("f29_col1_total")}</span>
                 <span className="font-mono text-emerald-400">
                   {formatCLP(kpis?.f29?.totalNetSales || 0)}
                 </span>
               </div>
             </div>
             <p className="text-[10px] text-white/40 leading-relaxed pt-1">
-              Valor UF referencial: {formatCLP(kpis?.saas?.ufValueClp || 38500)} CLP. Suma base imponible sobre la cual se calcula el PPM.
+              {t("f29_col1_note", { value: formatCLP(kpis?.saas?.ufValueClp || 38500) })}
             </p>
           </div>
 
           {/* Columna 2: Cuadratura de IVA */}
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
             <span className="text-xs font-bold text-white/60 uppercase tracking-wider block">
-              2. IVA Débito vs Crédito Fiscal
+              {t("f29_col2_title")}
             </span>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between items-center">
-                <span className="text-white/60">(+) IVA Débito Comisiones:</span>
+                <span className="text-white/60">{t("f29_col2_vat_commissions")}</span>
                 <span className="font-mono text-white/80">
                   {formatCLP(kpis?.f29?.marketplaceVatDebit || 0)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-white/60">(+) IVA Débito Suscripciones SaaS:</span>
+                <span className="text-white/60">{t("f29_col2_vat_saas")}</span>
                 <span className="font-mono text-white/80">
                   {formatCLP(kpis?.f29?.saasVatDebit || 0)}
                 </span>
               </div>
               <div className="flex justify-between items-center text-amber-400 font-bold">
-                <span>(=) IVA Débito Bruto Total (Código 538):</span>
+                <span>{t("f29_col2_vat_gross_total")}</span>
                 <span className="font-mono">
                   {formatCLP(kpis?.f29?.totalVatDebit || 0)}
                 </span>
               </div>
               <div className="flex justify-between items-center text-emerald-400">
-                <span>(-) IVA Crédito Pasarelas (Transbank/MP):</span>
+                <span>{t("f29_col2_vat_credit")}</span>
                 <span className="font-mono">
                   -{formatCLP(kpis?.f29?.transbankVatCredit || 0)}
                 </span>
               </div>
               <div className="pt-2 border-t border-white/10 flex justify-between items-center font-bold text-white">
-                <span>(=) IVA Neto a Pagar al Fisco:</span>
+                <span>{t("f29_col2_vat_net_to_pay")}</span>
                 <span className="font-mono text-amber-400">
                   {formatCLP(kpis?.f29?.netVatToPay || 0)}
                 </span>
@@ -695,17 +698,17 @@ export default function SuperAdminAccountingPage() {
           <div className="p-4 rounded-xl bg-gradient-to-br from-red/10 to-red/5 border border-red/40 flex flex-col justify-between">
             <div>
               <span className="text-xs font-black text-red uppercase tracking-wider block mb-2">
-                3. Total a Pagar en Formulario F29
+                {t("f29_col3_title")}
               </span>
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between items-center text-white/70">
-                  <span>IVA Neto Liquidado:</span>
+                  <span>{t("f29_col3_net_vat")}</span>
                   <span className="font-mono font-bold text-white">
                     {formatCLP(kpis?.f29?.netVatToPay || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-white/70">
-                  <span>PPM Anticipo Renta (0.25% - Cód 115):</span>
+                  <span>{t("f29_col3_ppm")}</span>
                   <span className="font-mono font-bold text-white">
                     {formatCLP(kpis?.f29?.ppmAmount || 0)}
                   </span>
@@ -715,13 +718,13 @@ export default function SuperAdminAccountingPage() {
 
             <div className="pt-4 border-t border-white/10 mt-3">
               <span className="text-[11px] font-bold text-white/50 uppercase block">
-                Monto Final a Pagar al SII (TGR):
+                {t("f29_col3_final_title")}
               </span>
               <div className="text-3xl font-black text-white font-mono tracking-tight text-emerald-400 mt-1">
                 {formatCLP(kpis?.f29?.totalF29ToPay || 0)}
               </div>
               <span className="text-[10px] text-white/40 block mt-1">
-                Vence el día 20 del mes siguiente. Los fondos de custodia de las tiendas están 100% exentos de este pago.
+                {t("f29_col3_due_note")}
               </span>
             </div>
           </div>
@@ -733,14 +736,14 @@ export default function SuperAdminAccountingPage() {
         <div className="p-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-white">
-              Libro Diario de Transacciones
+              {t("ledger_title")}
             </h2>
             <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/70">
-              {totalItems} transacciones
+              {t("transactions_count", { count: totalItems })}
             </span>
           </div>
           <span className="text-xs text-white/50">
-            Página {page} de {totalPages}
+            {t("showing_page", { page, total: totalPages })}
           </span>
         </div>
 
@@ -748,17 +751,17 @@ export default function SuperAdminAccountingPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.02] text-white/50 font-bold uppercase tracking-wider">
-                <th className="py-3 px-4">Fecha / N° Orden</th>
-                <th className="py-3 px-4">Tienda Vendedora</th>
-                <th className="py-3 px-4">Cliente</th>
-                <th className="py-3 px-4 text-right">Bruto Tienda</th>
-                <th className="py-3 px-4 text-right">Comisión TapTrade (Neto)</th>
-                <th className="py-3 px-4 text-right">IVA Débito (19%)</th>
-                <th className="py-3 px-4 text-right">Comisión Total</th>
-                <th className="py-3 px-4 text-right">Pasarela (Est.)</th>
-                <th className="py-3 px-4 text-right">Total Webpay</th>
-                <th className="py-3 px-4 text-center">Estado</th>
-                <th className="py-3 px-4 text-center">Detalle</th>
+                <th className="py-3 px-4">{t("th_date_order")}</th>
+                <th className="py-3 px-4">{t("th_store")}</th>
+                <th className="py-3 px-4">{t("th_client")}</th>
+                <th className="py-3 px-4 text-right">{t("th_gross_store")}</th>
+                <th className="py-3 px-4 text-right">{t("th_fee_net")}</th>
+                <th className="py-3 px-4 text-right">{t("th_vat_debit")}</th>
+                <th className="py-3 px-4 text-right">{t("th_total_fee")}</th>
+                <th className="py-3 px-4 text-right">{t("th_gateway_est")}</th>
+                <th className="py-3 px-4 text-right">{t("th_total_webpay")}</th>
+                <th className="py-3 px-4 text-center">{t("th_status")}</th>
+                <th className="py-3 px-4 text-center">{t("th_detail")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -767,7 +770,7 @@ export default function SuperAdminAccountingPage() {
                   <td colSpan={11} className="py-12 text-center text-white/40">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <IconRefresh className="w-6 h-6 animate-spin text-red" />
-                      <span>Cargando transacciones contables...</span>
+                      <span>{t("loading_transactions")}</span>
                     </div>
                   </td>
                 </tr>
@@ -776,7 +779,7 @@ export default function SuperAdminAccountingPage() {
                   <td colSpan={11} className="py-12 text-center text-white/40">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <IconInfo className="w-6 h-6 text-white/30" />
-                      <p>No se encontraron transacciones en el rango seleccionado.</p>
+                      <p>{t("no_transactions")}</p>
                     </div>
                   </td>
                 </tr>
@@ -880,10 +883,10 @@ export default function SuperAdminAccountingPage() {
                               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                                 <div className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-2">
                                   <IconStore className="w-4 h-4 text-blue-400" />
-                                  <span>Desglose Tributario de Tiendas Involucradas ({o.vendors.length})</span>
+                                  <span>{t("vendors_breakdown_title", { count: o.vendors.length })}</span>
                                 </div>
                                 <div className="text-xs text-white/50 font-mono">
-                                  Pasarela: {o.paymentMethod} | Token: {o.paymentToken}
+                                  {t("gateway_token_info", { method: o.paymentMethod, token: o.paymentToken })}
                                 </div>
                               </div>
 
@@ -899,10 +902,10 @@ export default function SuperAdminAccountingPage() {
                                           {v.storeName}
                                         </div>
                                         <div className="text-white/50 text-[11px]">
-                                          Razón Social: {v.sellerLegalName || "No registrada"}
+                                          {t("legal_name_label", { name: v.sellerLegalName || "-" })}
                                         </div>
                                         <div className="text-white/50 text-[11px] font-mono">
-                                          RUT Emisor DTE: {v.sellerRut || "Sin RUT"}
+                                          {t("rut_label", { rut: v.sellerRut || "-" })}
                                         </div>
                                       </div>
                                       <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold">
@@ -912,19 +915,19 @@ export default function SuperAdminAccountingPage() {
 
                                     <div className="pt-2 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
                                       <div className="p-1.5 rounded bg-white/5">
-                                        <div className="text-[10px] text-white/40">Subtotal Prod.</div>
+                                        <div className="text-[10px] text-white/40">{t("subtotal_prod")}</div>
                                         <div className="font-mono font-bold text-white">
                                           {formatCLP(v.subtotal)}
                                         </div>
                                       </div>
                                       <div className="p-1.5 rounded bg-white/5">
-                                        <div className="text-[10px] text-white/40">Costo Envío</div>
+                                        <div className="text-[10px] text-white/40">{t("shipping_cost")}</div>
                                         <div className="font-mono font-bold text-white">
                                           {formatCLP(v.shippingCost)}
                                         </div>
                                       </div>
                                       <div className="p-1.5 rounded bg-emerald-500/10 border border-emerald-500/20">
-                                        <div className="text-[10px] text-emerald-400">Abono Tienda (100%)</div>
+                                        <div className="text-[10px] text-emerald-400">{t("store_payout_100")}</div>
                                         <div className="font-mono font-bold text-emerald-400">
                                           {formatCLP(v.totalPayout)}
                                         </div>
@@ -932,8 +935,8 @@ export default function SuperAdminAccountingPage() {
                                     </div>
 
                                     <div className="text-[11px] text-white/50 flex items-center justify-between pt-1">
-                                      <span>Base Imponible Estimada Tienda: {formatCLP(v.taxableNet)}</span>
-                                      <span>IVA 19% Tienda: {formatCLP(v.vatAmount)}</span>
+                                      <span>{t("taxable_base_est", { amount: formatCLP(v.taxableNet) })}</span>
+                                      <span>{t("vat_19_store", { amount: formatCLP(v.vatAmount) })}</span>
                                     </div>
                                   </div>
                                 ))}
@@ -963,7 +966,7 @@ export default function SuperAdminAccountingPage() {
         {totalPages > 1 && (
           <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs">
             <span className="text-white/50">
-              Mostrando página {page} de {totalPages} ({totalItems} pedidos totales)
+              {t("showing_page_info", { page, total: totalPages, count: totalItems })}
             </span>
             <div className="flex items-center gap-2">
               <button

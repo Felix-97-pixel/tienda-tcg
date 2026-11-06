@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/Button";
 import { List, Column } from "@/components/ui/List";
 import { useCurrencies } from "@/app/superadmin/_components/Currencies/hooks/useCurrencies";
 import CurrencyModal from "@/app/superadmin/_components/Currencies/CurrencyModal";
+import { useTranslations } from "next-intl";
+import { IconPencil, IconTrash } from "@/components/ui/Icons";
 
 export default function AdminCurrencies() {
+  const t = useTranslations("currencies_page");
+  const tCommon = useTranslations("common");
   const { exchangeRates, globalCurrencies, games, loading, refresh, deleteExchangeRate } = useCurrencies();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,28 +23,28 @@ export default function AdminCurrencies() {
   const columns: Column<any>[] = [
     {
       key: "game",
-      header: "Juego",
+      header: t("game"),
       render: (rate) => (
         <span className="font-semibold text-white">{rate.game?.name || "-"}</span>
       ),
     },
     {
       key: "currency",
-      header: "Divisa Base",
+      header: t("base_currency"),
       render: (rate) => (
         <span className="text-gray-4">{rate.currency?.code} ({rate.currency?.symbol})</span>
       ),
     },
     {
       key: "rate",
-      header: "Valor Local",
+      header: t("local_value"),
       render: (rate) => (
         <span className="text-gray-4">{rate.rate} CLP</span>
       ),
     },
     {
       key: "actions",
-      header: "Acciones",
+      header: tCommon("actions"),
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (rate) => (
@@ -48,16 +52,16 @@ export default function AdminCurrencies() {
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-white hover:text-white transition-colors"
             onClick={() => openModal(rate)}
-            title="Editar"
+            title={tCommon("edit")}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            <IconPencil className="w-3.5 h-3.5" />
           </button>
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-red-500 hover:text-red-500 transition-colors"
             onClick={() => deleteExchangeRate(rate)}
-            title="Eliminar"
+            title={tCommon("delete")}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <IconTrash className="w-3.5 h-3.5" />
           </button>
         </div>
       ),
@@ -68,11 +72,11 @@ export default function AdminCurrencies() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Tasas de Cambio Globales</h1>
-          <p className="text-gray-4 text-sm mt-1">Configura cuánto vale el dólar (u otras divisas) para cada juego a nivel global (las tiendas la usan por defecto si no tienen una propia).</p>
+          <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
+          <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
         <Button onClick={() => openModal()}>
-          Agregar Tasa
+          {t("add_rate")}
         </Button>
       </div>
 

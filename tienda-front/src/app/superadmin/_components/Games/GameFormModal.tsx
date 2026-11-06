@@ -1,9 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { FileInput } from "@/components/ui/FileInput";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { IconX, IconCheck } from "@/components/ui/Icons";
 
 interface Game {
   id: string;
@@ -19,6 +21,7 @@ interface GameFormModalProps {
 }
 
 export default function GameFormModal({ game, onClose, onSave }: GameFormModalProps) {
+  const t = useTranslations("games_page");
   const { isUploading, handleUpload, handleRemove } = useImageUpload();
   const [formData, setFormData] = useState({
     name: "",
@@ -73,26 +76,26 @@ export default function GameFormModal({ game, onClose, onSave }: GameFormModalPr
       <div className="bg-[#111318] border border-stroke rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-stroke flex items-center justify-between">
           <h2 className="text-xl font-black text-white tracking-tight">
-            {game ? "Editar Juego" : "Nuevo Juego"}
+            {game ? t("modal_edit_title") : t("modal_new_title")}
           </h2>
           <button onClick={onClose} className="text-gray-5 hover:text-white transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <IconX className="w-6 h-6" />
           </button>
         </div>
 
         <div className="p-6 overflow-y-auto no-scrollbar flex-1">
           <form id="game-form" onSubmit={handleSubmit} className="space-y-6">
             <Input
-              label="Nombre del Juego"
+              label={t("field_name")}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Ej. Magic: The Gathering"
+              placeholder="Magic: The Gathering"
               required
             />
 
             <div>
               <label className="block text-sm font-bold text-gray-3 mb-2 uppercase tracking-wide">
-                Logo del Juego
+                {t("field_logo")}
               </label>
               <div className="flex items-center gap-4">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[#111318] border border-stroke flex items-center justify-center">
@@ -105,11 +108,11 @@ export default function GameFormModal({ game, onClose, onSave }: GameFormModalPr
                         onClick={handleRemoveImage}
                         className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
                       >
-                        ✕
+                        <IconX className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ) : (
-                    <span className="text-[10px] text-gray-4 font-bold text-center">Sin Logo</span>
+                    <span className="text-[10px] text-gray-4 font-bold text-center">{t("no_logo")}</span>
                   )}
                 </div>
                 <div className="flex-1">
@@ -118,7 +121,7 @@ export default function GameFormModal({ game, onClose, onSave }: GameFormModalPr
                     disabled={isUploading}
                     accept="image/*"
                   />
-                  {isUploading && <p className="text-xs text-blue mt-2 animate-pulse">Subiendo imagen...</p>}
+                  {isUploading && <p className="text-xs text-blue mt-2 animate-pulse">{t("uploading_image")}</p>}
                 </div>
               </div>
             </div>
@@ -132,12 +135,12 @@ export default function GameFormModal({ game, onClose, onSave }: GameFormModalPr
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                 />
                 <div className="w-5 h-5 rounded border border-gray-5 bg-[#0f1115] peer-checked:bg-green-500 peer-checked:border-green-500 transition-colors flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                  <IconCheck className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                 </div>
               </div>
               <div>
-                <span className="block text-sm font-bold text-white uppercase">Estado Activo</span>
-                <span className="block text-xs text-gray-4 mt-0.5">Si se desmarca, este juego no estará disponible para nuevas suscripciones.</span>
+                <span className="block text-sm font-bold text-white uppercase">{t("active_status_label")}</span>
+                <span className="block text-xs text-gray-4 mt-0.5">{t("active_status_desc")}</span>
               </div>
             </label>
           </form>
@@ -145,10 +148,10 @@ export default function GameFormModal({ game, onClose, onSave }: GameFormModalPr
 
         <div className="p-6 border-t border-stroke bg-[#0f1115] flex justify-end gap-3">
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button type="submit" form="game-form" isLoading={saving} className="bg-blue hover:bg-blue-dark text-white">
-            {game ? "Guardar Cambios" : "Crear Juego"}
+            {game ? t("btn_save_changes") : t("btn_create_game")}
           </Button>
         </div>
       </div>

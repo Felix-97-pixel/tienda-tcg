@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +20,7 @@ interface CurrencyModalProps {
 }
 
 export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCurrencies, games, onSuccess }: CurrencyModalProps) {
+  const t = useTranslations("currencies_page");
   const { showToast } = useToast();
   const { activeBranchId } = useActiveBranch();
 
@@ -45,17 +47,6 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!gameId || !rate || Number(rate) <= 0) {
-      showToast("Ingresa un valor de tasa válido mayor a 0", "error");
-      return;
-    }
-
-    if (buyPercentage === "" || Number(buyPercentage) <= 0 || Number(buyPercentage) > 100) {
-      showToast("El porcentaje de avalúo efectivo debe estar entre 1% y 100%", "error");
-      return;
-    }
-
-    if (creditPercentage === "" || Number(creditPercentage) <= 0 || Number(creditPercentage) > 100) {
-      showToast("El porcentaje de crédito de tienda debe estar entre 1% y 100%", "error");
       return;
     }
 
@@ -76,15 +67,15 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
       }, activeBranchId);
 
       if (res.ok) {
-        showToast("Tasa de cambio y avalúos guardados correctamente", "success");
+        showToast("OK", "success");
         onSuccess();
         onClose();
       } else {
         const errData = await res.json().catch(() => ({}));
-        showToast(errData.message || "Error al guardar tasa", "error");
+        showToast(errData.message || "Error", "error");
       }
     } catch (error) {
-      showToast("Error de red al guardar tasa", "error");
+      showToast("Error", "error");
     } finally {
       setSaving(false);
     }
@@ -105,12 +96,12 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={exchangeRate ? "Editar Tasa de Cambio y Avalúos" : "Agregar Tasa de Cambio y Avalúos"}
+      title={exchangeRate ? t("modal_edit_val_title") : t("modal_add_val_title")}
       maxWidth="lg"
     >
       <form onSubmit={handleSave} className="space-y-4">
         <div>
-          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Juego *</label>
+          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">{t("field_game")}</label>
           <select 
             value={gameId}
             onChange={(e) => setGameId(e.target.value)}
@@ -126,7 +117,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
 
         <div>
           <Input
-            label="Valor Local en CLP (PVP Venta con IVA) *"
+            label={t("field_local_val_pvp")}
             type="number"
             required
             step="1"
@@ -139,7 +130,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
 
         <div className="space-y-3">
           <PercentageSlider
-            label="Avalúo Compra Efectivo (Cash)"
+            label={t("cash_valuation_label")}
             value={Number(buyPercentage) || 0}
             onChange={(val) => setBuyPercentage(val)}
             min={1}
@@ -148,34 +139,34 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             variant="emerald"
             badgeLabel={`${Number(buyPercentage) || 0}% Cash`}
             suggestedValue={50}
-            suggestedLabel="Sugerido (50%)"
-            minLabel="1% Mínimo"
-            maxLabel="100% Máximo"
-            description="Porcentaje del valor de venta que pagas en efectivo o transferencia por cartas de este juego."
+            suggestedLabel={t("suggested_50")}
+            minLabel={t("min_1")}
+            maxLabel={t("max_100")}
+            description={t("cash_valuation_desc")}
             icon={<IconCash className="w-4 h-4 text-emerald-400" />}
           />
 
           <PercentageSlider
-            label="Pago Crédito de Tienda (Store Credit)"
+            label={t("credit_valuation_label")}
             value={Number(creditPercentage) || 0}
             onChange={(val) => setCreditPercentage(val)}
             min={1}
             max={100}
             step={1}
             variant="cyan"
-            badgeLabel={`${Number(creditPercentage) || 0}% Crédito`}
+            badgeLabel={`${Number(creditPercentage) || 0}% Store Credit`}
             suggestedValue={70}
-            suggestedLabel="Sugerido (70%)"
-            minLabel="1% Mínimo"
-            maxLabel="100% Máximo"
-            description="Porcentaje del valor de venta que abonas en saldo de tienda para compras en tu local."
+            suggestedLabel={t("suggested_70")}
+            minLabel={t("min_1")}
+            maxLabel={t("max_100")}
+            description={t("credit_valuation_desc")}
             icon={<IconWallet className="w-4 h-4 text-cyan-400" />}
           />
         </div>
 
         <div className="bg-[#111318] border border-white/10 rounded-xl p-3.5 text-xs text-gray-4 space-y-2">
           <div className="flex items-center justify-between text-white font-medium">
-            <span>Conversión Venta (1 {baseCurrency}):</span>
+            <span>{t("sale_conversion", { currency: baseCurrency })}</span>
             <span className="text-emerald-400 font-bold font-mono">
               {numRate > 0 ? `$${numRate.toLocaleString("es-CL")} CLP` : "$X CLP"}
             </span>
@@ -187,19 +178,19 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
               <span className="font-mono text-white text-xs font-bold block mt-0.5">
                 {numRate > 0 ? `$${sampleCashCLP.toLocaleString("es-CL")} CLP` : "$0 CLP"}
               </span>
-              <span className="text-[10px] text-white/40">por cada 1 {baseCurrency}</span>
+              <span className="text-[10px] text-white/40">{t("per_each_unit", { currency: baseCurrency })}</span>
             </div>
             <div className="bg-white/[0.02] p-2 rounded-lg border border-white/5">
-              <span className="text-[11px] text-cyan-400 font-bold block">Trade-in Crédito ({numCreditPct}%)</span>
+              <span className="text-[11px] text-cyan-400 font-bold block">Trade-in Store Credit ({numCreditPct}%)</span>
               <span className="font-mono text-white text-xs font-bold block mt-0.5">
                 {numRate > 0 ? `$${sampleCreditCLP.toLocaleString("es-CL")} CLP` : "$0 CLP"}
               </span>
-              <span className="text-[10px] text-white/40">por cada 1 {baseCurrency}</span>
+              <span className="text-[10px] text-white/40">{t("per_each_unit", { currency: baseCurrency })}</span>
             </div>
           </div>
 
           <p className="text-[11px] text-gray-400 pt-0.5">
-            Al cotizar compras en el POS, si la carta no está en tu Buylist, se aplicarán automáticamente estos porcentajes sobre el precio de mercado.
+            {t("pos_auto_note")}
           </p>
         </div>
 
@@ -210,10 +201,10 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             onClick={onClose}
             disabled={saving}
           >
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button type="submit" isLoading={saving}>
-            Guardar
+            {t("btn_save")}
           </Button>
         </div>
       </form>

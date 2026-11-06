@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import SearchableSelect from "@/components/ui/SearchableSelect";
@@ -27,6 +28,7 @@ interface RegionData {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 export default function AdminShipping() {
+  const t = useTranslations("admin.shipping_page");
   const { activeBranch, activeBranchId } = useActiveBranch();
   const { showToast } = useToast();
   const { providers, loading: loadingProviders, refresh } = useShippingProviders();
@@ -130,7 +132,7 @@ export default function AdminShipping() {
         throw new Error("No se pudo guardar la configuración.");
       }
 
-      showToast("Configuración de despacho guardada exitosamente", "success");
+      showToast(t("saved_success"), "success");
     } catch (err: any) {
       showToast(err.message || "Error al guardar", "error");
     } finally {
@@ -156,12 +158,12 @@ export default function AdminShipping() {
         <div className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
           <span className="text-[10px] font-black uppercase tracking-widest text-red">
-            Logística & Despachos
+            {t("badge")}
           </span>
         </div>
-        <h1 className="text-2xl font-black text-white tracking-tight">Métodos de Envío</h1>
+        <h1 className="text-2xl font-black text-white tracking-tight">{t("title")}</h1>
         <p className="text-xs text-white/40 mt-0.5">
-          Configura tus puntos de retiro físico, tu comuna de despacho para cotización automática y las tarifas planas de respaldo.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -174,9 +176,9 @@ export default function AdminShipping() {
                 <IconStore className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white tracking-tight">Retiro en Tienda Física (Pick-up)</h3>
+                <h3 className="text-base font-bold text-white tracking-tight">{t("pickup_title")}</h3>
                 <p className="text-xs text-white/40">
-                  Permite a tus clientes recoger sus cartas en tu local sin costo de envío ($0 CLP).
+                  {t("pickup_desc")}
                 </p>
               </div>
             </div>
@@ -373,7 +375,7 @@ export default function AdminShipping() {
         {/* Botón de Guardado General */}
         <div className="flex justify-end">
           <Button variant="primary" size="lg" type="submit" isLoading={saving}>
-            Guardar Configuración de Despacho
+            {t("save_btn")}
           </Button>
         </div>
       </form>

@@ -4,8 +4,11 @@ import React from "react";
 import Image from "next/image";
 import GameFormModal from "@/app/superadmin/_components/Games/GameFormModal";
 import { useSuperAdminGames } from "@/app/superadmin/_components/Config/hooks/useSuperAdminGames";
+import { useTranslations } from "next-intl";
+import { IconPlus, IconPencil } from "@/components/ui/Icons";
 
 export default function GamesConfigPage() {
+  const t = useTranslations("games_page");
   const {
     games,
     loading,
@@ -15,7 +18,7 @@ export default function GamesConfigPage() {
     handleToggleStatus,
     openModalForNew,
     openModalForEdit,
-    closeModal
+    closeModal,
   } = useSuperAdminGames();
 
   return (
@@ -23,36 +26,36 @@ export default function GamesConfigPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-white tracking-tight uppercase">
-            Juegos Soportados
+            {t("title")}
           </h1>
           <p className="text-sm text-gray-4 mt-2">
-            Administra el catálogo de juegos disponibles para las tiendas.
+            {t("subtitle")}
           </p>
         </div>
         <button
           onClick={openModalForNew}
           className="bg-gradient-to-r from-red-dark to-red hover:from-red hover:to-red-light text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-md shadow-red/25 ring-1 ring-white/10"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-          Nuevo Juego
+          <IconPlus className="w-5 h-5" />
+          <span>{t("btn_new_game")}</span>
         </button>
       </div>
 
       <div className="bg-[#0E121B] border border-white/10 rounded-2xl overflow-hidden shadow-xl">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32">
-            <Loader text="Cargando juegos..." className="min-h-[40vh] bg-transparent py-10" />
+            <Loader text={t("loading")} className="min-h-[40vh] bg-transparent py-10" />
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-stroke bg-[#0f1115]">
-                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider">Juego</th>
-                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-center">Tiendas</th>
-                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-center">Cartas</th>
-                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-center">Estado</th>
-                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-right">Acciones</th>
+                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider">{t("col_game")}</th>
+                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-center">{t("col_stores")}</th>
+                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-center">{t("col_cards")}</th>
+                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-center">{t("col_status")}</th>
+                  <th className="py-4 px-6 text-xs font-black text-gray-5 uppercase tracking-wider text-right">{t("col_actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stroke">
@@ -81,20 +84,22 @@ export default function GamesConfigPage() {
                     <td className="py-4 px-6 text-center">
                       <div className="flex flex-col items-center">
                         <span className="text-sm font-bold text-gray-3">{game._count?.cardDetails || 0}</span>
-                        <span className="text-[10px] text-gray-5 uppercase tracking-wider">en {game._count?.expansions || 0} exp</span>
+                        <span className="text-[10px] text-gray-5 uppercase tracking-wider">
+                          {t("in_expansions", { count: game._count?.expansions || 0 })}
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-6 text-center">
                       <button
                         onClick={() => handleToggleStatus(game)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${
-                          game.isActive 
-                            ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20" 
+                          game.isActive
+                            ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
                             : "bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20"
                         }`}
                       >
                         <span className={`w-1.5 h-1.5 rounded-full ${game.isActive ? "bg-green-400" : "bg-red-400"}`}></span>
-                        {game.isActive ? "ACTIVO" : "INACTIVO"}
+                        {game.isActive ? t("active") : t("inactive")}
                       </button>
                     </td>
                     <td className="py-4 px-6 text-right">
@@ -102,9 +107,9 @@ export default function GamesConfigPage() {
                         <button
                           onClick={() => openModalForEdit(game)}
                           className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-white hover:text-white transition-colors"
-                          title="Editar Juego"
+                          title={t("btn_edit")}
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          <IconPencil className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
@@ -113,7 +118,7 @@ export default function GamesConfigPage() {
                 {games.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-gray-4">
-                      No hay juegos registrados. Crea uno nuevo para comenzar.
+                      {t("loading")}
                     </td>
                   </tr>
                 )}
@@ -124,11 +129,7 @@ export default function GamesConfigPage() {
       </div>
 
       {isModalOpen && (
-        <GameFormModal
-          game={selectedGame}
-          onClose={closeModal}
-          onSave={handleSaveGame}
-        />
+        <GameFormModal game={selectedGame} onClose={closeModal} onSave={handleSaveGame} />
       )}
     </div>
   );

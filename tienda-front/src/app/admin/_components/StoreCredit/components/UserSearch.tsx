@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import type { StoreCreditUser } from "../types/store-credit.types";
 
 interface UserSearchProps {
@@ -26,12 +27,14 @@ export default function UserSearch({
   onSelectUser,
   onClearUser,
 }: UserSearchProps) {
+  const t = useTranslations("store_credit_page");
+
   if (selectedUser) {
     return (
       <div className="flex items-center justify-between bg-[#0f1115] p-4 rounded-xl border border-white/10">
         <div>
-          <p className="text-xs text-gray-4 font-bold uppercase mb-1">Cliente Seleccionado</p>
-          <p className="text-sm font-bold text-white">{selectedUser.name || "Sin Nombre"}</p>
+          <p className="text-xs text-gray-4 font-bold uppercase mb-1">{t("selected_client")}</p>
+          <p className="text-sm font-bold text-white">{selectedUser.name || "-"}</p>
           <p className="text-xs text-blue">{selectedUser.email}</p>
         </div>
         {!preselectedUser && (
@@ -40,7 +43,7 @@ export default function UserSearch({
             onClick={onClearUser}
             className="text-gray-4 hover:text-white text-xs underline"
           >
-            Cambiar
+            {t("btn_change")}
           </button>
         )}
       </div>
@@ -50,16 +53,16 @@ export default function UserSearch({
   return (
     <div className="space-y-2">
       <label className="text-xs font-bold text-gray-4 uppercase">
-        Buscar Cliente en TapTrade (Nombre o Email)
+        {t("search_client_label")}
       </label>
       <input
         type="text"
-        placeholder="Escribe el nombre o email del usuario..."
+        placeholder={t("search_client_placeholder")}
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none"
       />
-      {searching && <p className="text-xs text-blue">Buscando...</p>}
+      {searching && <p className="text-xs text-blue">{t("searching")}</p>}
       {searchResults.length > 0 && (
         <div className="bg-[#0f1115] border border-white/10 rounded-xl max-h-48 overflow-y-auto mt-2 p-2 space-y-1">
           {searchResults.map((u) => (
@@ -68,7 +71,7 @@ export default function UserSearch({
               onClick={() => onSelectUser(u)}
               className="p-3 hover:bg-white/5 rounded-lg cursor-pointer"
             >
-              <p className="text-sm font-bold text-white">{u.name || "Sin Nombre"}</p>
+              <p className="text-sm font-bold text-white">{u.name || "-"}</p>
               <p className="text-xs text-gray-4">{u.email}</p>
             </div>
           ))}

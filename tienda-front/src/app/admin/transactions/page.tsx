@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { adminFetch } from "@/utils/api";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
 import {
@@ -54,6 +55,7 @@ interface LedgerData {
 }
 
 export default function AdminTransactionsPage() {
+  const t = useTranslations("admin.transactions_page");
   const { activeBranch, activeBranchId } = useActiveBranch();
   const [data, setData] = useState<LedgerData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -344,13 +346,13 @@ export default function AdminTransactionsPage() {
         <div>
           <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-red mb-1">
             <IconReceipt className="w-3.5 h-3.5" />
-            <span>Libro Mayor & Control de Caja</span>
+            <span>{t("badge")}</span>
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">
-            Transacciones & Arqueos de Caja
+            {t("title")}
           </h1>
           <p className="text-white/50 text-xs mt-1">
-            Supervisa todas las ventas, adquisiciones de cartas (Efectivo y Crédito de Tienda) y cierres de turno en un solo lugar.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -358,10 +360,10 @@ export default function AdminTransactionsPage() {
           {/* Selector de Rango de Fecha */}
           <div className="flex bg-[#0E121B] p-1 rounded-xl border border-white/10">
             {[
-              { id: "TODAY", label: "Hoy" },
-              { id: "WEEK", label: "7 Días" },
-              { id: "MONTH", label: "Este Mes" },
-              { id: "ALL", label: "Todo" },
+              { id: "TODAY", label: t("filter_today") },
+              { id: "WEEK", label: t("filter_week") },
+              { id: "MONTH", label: t("filter_month") },
+              { id: "ALL", label: t("filter_all_time") },
             ].map((opt) => (
               <button
                 key={opt.id}

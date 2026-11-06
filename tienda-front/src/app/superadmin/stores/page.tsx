@@ -8,8 +8,10 @@ import CreateBranchModal from "@/app/superadmin/_components/Stores/CreateBranchM
 import CompanyUsersModal from "@/app/superadmin/_components/Stores/CompanyUsersModal";
 import StoreUsersModal from "@/app/superadmin/_components/Stores/StoreUsersModal";
 import EditUserCredentialsModal from "@/app/superadmin/_components/Stores/EditUserCredentialsModal";
+import { useTranslations } from "next-intl";
 
 export default function StoresPage() {
+  const t = useTranslations("stores_page");
   const {
     companies,
     availablePlans,
@@ -53,20 +55,20 @@ export default function StoresPage() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white tracking-tight">
-            Empresas & Sucursales
+            {t("title")}
           </h2>
           <p className="text-xs text-white/50 mt-1">
-            Administra las cuentas de empresa (Holdings), asigna planes SaaS corporativos y supervisa sus sucursales físicas.
+            {t("subtitle")}
           </p>
         </div>
         <Button onClick={openCreateModal}>
-          + Registrar Empresa
+          {t("btn_register_company")}
         </Button>
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-[#0E121B] shadow-2xl p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-base font-bold text-white">Directorio de Empresas</h3>
+          <h3 className="text-base font-bold text-white">{t("directory_title")}</h3>
         </div>
 
         {/* Tabla Jerárquica de Empresas y Sucursales con Plan SaaS */}

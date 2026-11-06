@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { API_URL, adminFetch } from "@/utils/api";
@@ -104,6 +105,7 @@ export default function DispatchModal({
   orderBuyOrder,
   onSuccess,
 }: DispatchModalProps) {
+  const t = useTranslations("orders");
   const [trackingNumber, setTrackingNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -399,8 +401,8 @@ export default function DispatchModal({
       zIndex="z-[10010]"
       title={
         isLocalPickup
-          ? `Confirmar Entrega en Local #${orderBuyOrder}`
-          : `Despachar Pedido #${orderBuyOrder}`
+          ? t("dispatch_confirm_pickup", { order: orderBuyOrder })
+          : t("dispatch_order_title", { order: orderBuyOrder })
       }
       maxWidth={validation?.events && validation.events.length > 0 ? "lg" : "md"}
     >
@@ -409,29 +411,27 @@ export default function DispatchModal({
         <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 space-y-1">
           <p className="font-bold flex items-center gap-1.5">
             <IconShieldCheck className="w-4 h-4 text-blue shrink-0" />
-            <span>Protección al Comprador & Liberación de Fondos</span>
+            <span>{t("buyer_protection_title")}</span>
           </p>
           <p className="text-[11px] text-blue-300/80 leading-relaxed">
-            {isLocalPickup
-              ? "Al confirmar la entrega del pedido en tu local, la venta se completará de forma segura y el saldo retenido se liberará automáticamente a tu saldo disponible para retiro TEF."
-              : "Validamos automáticamente la orden de transporte con los servidores oficiales del courier para proteger a ambas partes y liberar tus fondos con total seguridad."}
+            {courierMeta.helperText}
           </p>
         </div>
 
         {/* Resumen de Tienda y Artículos */}
         <div className="p-3 rounded-xl bg-[#111318] border border-white/5 space-y-1.5 text-xs">
           <div className="flex justify-between items-center text-gray-400">
-            <span>Tienda:</span>
+            <span>{t("store_label")}</span>
             <span className="font-bold text-white">{vendorOrder.store?.name}</span>
           </div>
           <div className="flex justify-between items-center text-gray-400">
-            <span>Artículos a entregar:</span>
+            <span>{t("items_to_deliver")}</span>
             <span className="font-bold text-white">
-              {vendorOrder.items?.reduce((sum, i) => sum + i.quantity, 0)} cartas
+              {vendorOrder.items?.reduce((sum, i) => sum + i.quantity, 0)}
             </span>
           </div>
           <div className="flex justify-between items-center text-gray-400 pt-1 border-t border-white/5">
-            <span>Total Paquete:</span>
+            <span>{t("total_package")}</span>
             <span className="font-bold text-emerald-400">
               ${totalOrderGross.toLocaleString("es-CL")} CLP
             </span>
@@ -442,11 +442,11 @@ export default function DispatchModal({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-              Método de Envío del Pedido
+              {t("shipping_method_order")}
             </label>
             <span className="flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
               <IconLock className="w-3 h-3 shrink-0" />
-              <span>Elegido por el comprador</span>
+              <span>{t("chosen_by_buyer")}</span>
             </span>
           </div>
 
@@ -461,17 +461,13 @@ export default function DispatchModal({
               </div>
               <div className="text-right shrink-0">
                 <span className="text-[10px] text-gray-400 uppercase tracking-wider block">
-                  Envío pagado
+                  {t("paid_shipping")}
                 </span>
                 <span className="font-black text-emerald-400 text-sm">
                   {shippingCostFormatted}
                 </span>
               </div>
             </div>
-
-            <p className="text-[10px] text-gray-500 border-t border-white/5 pt-2">
-              El cliente seleccionó y pagó por este courier al finalizar la compra. Por política de protección y transparencia de TapTrade, la tienda debe despachar mediante el método acordado.
-            </p>
           </div>
         </div>
 
@@ -482,23 +478,19 @@ export default function DispatchModal({
               <div className="flex items-center gap-2">
                 <IconCamera className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span className="text-xs font-black uppercase tracking-wider text-white">
-                  TapTrade Shield • Respaldo de Empaque
+                  {t("shield_title")}
                 </span>
               </div>
               {isShieldRequired ? (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  Obligatorio (≥ $20.000 CLP)
+                  {t("shield_mandatory")}
                 </span>
               ) : (
                 <span className="text-[10px] font-medium text-white/40">
-                  Opcional recomendado
+                  {t("shield_optional")}
                 </span>
               )}
             </div>
-
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Toma o sube 3 fotografías antes de entregar el paquete. Si un comprador alega que la carta no llegó o fue cambiada, este respaldo libera tus fondos automáticamente y desestima el reclamo.
-            </p>
 
             {photoError && (
               <div className="p-2.5 rounded-xl bg-red/10 border border-red/30 text-red text-xs flex items-center gap-2">
@@ -518,13 +510,13 @@ export default function DispatchModal({
                 }`}
               >
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">
-                  1. Cartas + Comanda
+                  {t("slot1_title")}
                 </span>
                 {contentPhotoUrl ? (
                   <div className="space-y-2 w-full">
                     <img
                       src={contentPhotoUrl}
-                      alt="Cartas"
+                      alt={t("slot1_title")}
                       className="w-full h-24 object-cover rounded-lg border border-white/10"
                     />
                     <button
@@ -532,7 +524,7 @@ export default function DispatchModal({
                       onClick={() => setContentPhotoUrl("")}
                       className="text-[10px] text-red hover:underline block mx-auto cursor-pointer"
                     >
-                      Cambiar foto
+                      {t("change_photo")}
                     </button>
                   </div>
                 ) : (
@@ -552,12 +544,11 @@ export default function DispatchModal({
                     ) : (
                       <>
                         <IconUpload className="w-5 h-5 text-white/40 mb-1" />
-                        <span className="text-[10px] text-white/60 font-semibold">Subir Foto</span>
+                        <span className="text-[10px] text-white/60 font-semibold">{t("upload_photo")}</span>
                       </>
                     )}
                   </label>
                 )}
-                <span className="text-[9px] text-white/40 mt-1">Cartas junto al Nº de orden</span>
               </div>
 
               {/* Casilla 2: Toploader / Protección */}
@@ -569,13 +560,13 @@ export default function DispatchModal({
                 }`}
               >
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">
-                  2. Protección Rígida
+                  {t("slot2_title")}
                 </span>
                 {packagingPhotoUrl ? (
                   <div className="space-y-2 w-full">
                     <img
                       src={packagingPhotoUrl}
-                      alt="Embalaje"
+                      alt={t("slot2_title")}
                       className="w-full h-24 object-cover rounded-lg border border-white/10"
                     />
                     <button
@@ -583,7 +574,7 @@ export default function DispatchModal({
                       onClick={() => setPackagingPhotoUrl("")}
                       className="text-[10px] text-red hover:underline block mx-auto cursor-pointer"
                     >
-                      Cambiar foto
+                      {t("change_photo")}
                     </button>
                   </div>
                 ) : (
@@ -603,12 +594,11 @@ export default function DispatchModal({
                     ) : (
                       <>
                         <IconUpload className="w-5 h-5 text-white/40 mb-1" />
-                        <span className="text-[10px] text-white/60 font-semibold">Subir Foto</span>
+                        <span className="text-[10px] text-white/60 font-semibold">{t("upload_photo")}</span>
                       </>
                     )}
                   </label>
                 )}
-                <span className="text-[9px] text-white/40 mt-1">Toploaders o cartón rígido</span>
               </div>
 
               {/* Casilla 3: Paquete sellado con etiqueta sobre el cierre */}
@@ -620,13 +610,13 @@ export default function DispatchModal({
                 }`}
               >
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">
-                  3. Paquete Sellado
+                  {t("slot3_title")}
                 </span>
                 {packagePhotoUrl ? (
                   <div className="space-y-2 w-full">
                     <img
                       src={packagePhotoUrl}
-                      alt="Paquete sellado"
+                      alt={t("slot3_title")}
                       className="w-full h-24 object-cover rounded-lg border border-white/10"
                     />
                     <button
@@ -634,7 +624,7 @@ export default function DispatchModal({
                       onClick={() => setPackagePhotoUrl("")}
                       className="text-[10px] text-red hover:underline block mx-auto cursor-pointer"
                     >
-                      Cambiar foto
+                      {t("change_photo")}
                     </button>
                   </div>
                 ) : (
@@ -654,20 +644,12 @@ export default function DispatchModal({
                     ) : (
                       <>
                         <IconUpload className="w-5 h-5 text-white/40 mb-1" />
-                        <span className="text-[10px] text-white/60 font-semibold">Subir Foto</span>
+                        <span className="text-[10px] text-white/60 font-semibold">{t("upload_photo")}</span>
                       </>
                     )}
                   </label>
                 )}
-                <span className="text-[9px] text-white/40 mt-1">Etiqueta sobre la solapa/cierre</span>
               </div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 flex items-start gap-2">
-              <IconShieldCheck className="w-3.5 h-3.5 text-blue shrink-0 mt-0.5" />
-              <span>
-                <strong>Técnica de Cierre Seguro:</strong> Pega la etiqueta oficial de {courierMeta.name} cruzando la solapa de apertura del sobre. De este modo, nadie puede abrir el paquete sin destruir el código de barras oficial.
-              </span>
             </div>
           </div>
         )}
@@ -679,15 +661,8 @@ export default function DispatchModal({
               htmlFor="trackingNumber"
               className="block text-xs font-bold uppercase tracking-wider text-gray-300"
             >
-              {isLocalPickup
-                ? "Comprobante o Código de Retiro en Local (Opcional)"
-                : `N° de Orden de Transporte / Seguimiento ${courierMeta.name}`}
+              {courierMeta.name}
             </label>
-            {!isLocalPickup && (
-              <span className="text-[10px] text-gray-400 font-medium">
-                Validación en vivo con API oficial
-              </span>
-            )}
           </div>
 
           <div className="relative flex items-center">
@@ -716,28 +691,14 @@ export default function DispatchModal({
                   className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 disabled:opacity-40 text-xs font-semibold text-gray-200 transition-colors flex items-center gap-1 border border-white/10 cursor-pointer"
                 >
                   {validating ? (
-                    <>
-                      <IconLoader className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Validando</span>
-                    </>
+                    <IconLoader className="w-3.5 h-3.5 text-blue-400" />
                   ) : (
-                    <>
-                      <IconSearch className="w-3.5 h-3.5 text-gray-400" />
-                      <span>Verificar</span>
-                    </>
+                    <IconSearch className="w-3.5 h-3.5 text-gray-400" />
                   )}
                 </button>
               </div>
             )}
           </div>
-
-          {/* Feedback de validación en tiempo real */}
-          {validating && (
-            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center gap-2.5 text-xs text-blue-300 animate-pulse">
-              <IconLoader className="w-4 h-4 shrink-0 text-blue-400" />
-              <span>Consultando registros oficiales en los servidores de {courierMeta.name}...</span>
-            </div>
-          )}
 
           {!validating && validation && validation.valid && (
             validation.events && validation.events.length > 0 ? (
@@ -755,38 +716,18 @@ export default function DispatchModal({
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-bold text-emerald-400 flex items-center gap-1.5">
                     <IconCheckCircle className="w-4 h-4 shrink-0 text-emerald-400" />
-                    <span>Orden de Transporte Confirmada en {courierMeta.name}</span>
+                    <span>{courierMeta.name}</span>
                   </span>
-                  {validation.liveConfirmed && (
-                    <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      En Línea
-                    </span>
-                  )}
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1 border-t border-emerald-500/15">
-                  <div>
-                    <span className="text-gray-400 block">Estado actual:</span>
-                    <span className="font-semibold text-white">{validation.status}</span>
-                  </div>
-                  {validation.destination && (
-                    <div>
-                      <span className="text-gray-400 block">Destino / Cobertura:</span>
-                      <span className="font-semibold text-white">{validation.destination}</span>
-                    </div>
-                  )}
-                </div>
-
                 {validation.trackingUrl && (
                   <div className="pt-1 flex items-center justify-between text-[11px]">
-                    <span className="text-gray-400">Verificación de trayecto:</span>
                     <a
                       href={validation.trackingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold underline transition-colors"
                     >
-                      <span>Rastrear en {courierMeta.name}</span>
+                      <span>{courierMeta.name}</span>
                       <IconExternalLink className="w-3 h-3 shrink-0" />
                     </a>
                   </div>
@@ -799,22 +740,10 @@ export default function DispatchModal({
             <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 space-y-1.5 text-xs text-red-300">
               <div className="font-bold flex items-center gap-1.5 text-red-400">
                 <IconAlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
-                <span>Orden de Transporte No Válida</span>
+                <span>{validation.message}</span>
               </div>
-              <p className="text-[11px] text-red-300/90 leading-relaxed">
-                {validation.message}
-              </p>
-              <p className="text-[10px] text-gray-400 pt-1 border-t border-red-500/20">
-                Para prevenir fraudes o errores de digitación, debes ingresar un número de seguimiento real emitido por el courier acordado.
-              </p>
             </div>
           )}
-
-          <p className="text-[10px] text-gray-500">
-            {isLocalPickup
-              ? "Si el cliente retiró presencialmente, puedes dejarlo vacío (se registrará RETIRO-LOCAL) o ingresar el número de boleta/comprobante."
-              : `Este número se validará automáticamente y se vinculará directamente a la página oficial de rastreo de ${courierMeta.name}.`}
-          </p>
         </div>
 
         {/* Error general del submit */}
@@ -833,7 +762,7 @@ export default function DispatchModal({
             onClick={onClose}
             disabled={loading}
           >
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button
             type="submit"
@@ -848,7 +777,7 @@ export default function DispatchModal({
             {isLocalPickup ? (
               <>
                 <IconCheckCircle className="w-4 h-4 shrink-0" />
-                <span>{loading ? "Confirmando..." : "Confirmar Entrega en Local & Liberar Fondos"}</span>
+                <span>{t("btn_confirm_pickup")}</span>
               </>
             ) : (
               <>
@@ -857,17 +786,7 @@ export default function DispatchModal({
                 ) : (
                   <IconBox className="w-4 h-4 shrink-0" />
                 )}
-                <span>
-                  {loading
-                    ? "Procesando..."
-                    : validating
-                    ? "Validando OT..."
-                    : uploadingSlot !== null
-                    ? "Subiendo fotos..."
-                    : isShieldRequired && !isPhotosComplete
-                    ? "Faltan fotos de respaldo (3)"
-                    : "Confirmar Despacho & Liberar Fondos"}
-                </span>
+                <span>{t("btn_confirm_dispatch")}</span>
               </>
             )}
           </Button>

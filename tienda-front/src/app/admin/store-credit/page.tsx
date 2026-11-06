@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,7 @@ import type {
 } from "@/app/admin/_components/StoreCredit/types/store-credit.types";
 
 export default function AdminStoreCreditPage() {
+  const t = useTranslations("admin.store_credit_page");
   const { showToast } = useToast();
   const [credits, setCredits] = useState<StoreCredit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,11 +62,11 @@ export default function AdminStoreCreditPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-red">Fidelización & Trade-in</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-red">{t("badge")}</span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white">Créditos de Tienda</h1>
+          <h1 className="text-2xl font-black tracking-tight text-white">{t("title")}</h1>
           <p className="text-white/40 text-xs mt-0.5">
-            Gestiona los saldos a favor (Store Credit) de tus clientes para canjes o compras.
+            {t("subtitle")}
           </p>
         </div>
         
@@ -80,9 +82,9 @@ export default function AdminStoreCreditPage() {
             <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-white/40">
               <IconWallet className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Sin Créditos</h3>
+            <h3 className="text-lg font-bold text-white mb-2">{t("no_credits")}</h3>
             <p className="text-white/40 max-w-sm text-xs">
-              Aún no hay clientes con saldo a favor registrado en tu tienda.
+              {t("no_credits_desc")}
             </p>
           </div>
         ) : (

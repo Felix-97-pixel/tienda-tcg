@@ -1,4 +1,6 @@
 import React from "react";
+import { useTranslations } from "next-intl";
+import { IconTrash } from "@/components/ui/Icons";
 import type { TradeInCard, MetaOption } from "../types/store-credit.types";
 
 interface TradeInCardListProps {
@@ -22,6 +24,8 @@ export default function TradeInCardList({
   onUpdateCard,
   onRemoveCard,
 }: TradeInCardListProps) {
+  const t = useTranslations("store_credit_page");
+  const tInv = useTranslations("products.inventory");
   if (cards.length === 0) return null;
 
   return (
@@ -51,19 +55,19 @@ export default function TradeInCardList({
             {/* Attribute Selectors */}
             <div className="flex flex-wrap gap-2 mt-2">
               <AttributeSelect
-                label="Condición"
+                label={tInv("condition")}
                 options={conditions}
                 value={card.condition}
                 onChange={(v) => onUpdateCard(index, "condition", v)}
               />
               <AttributeSelect
-                label="Idioma"
+                label={tInv("language")}
                 options={languages}
                 value={card.language}
                 onChange={(v) => onUpdateCard(index, "language", v)}
               />
               <AttributeSelect
-                label="Acabado"
+                label="Finish"
                 options={finishes}
                 value={card.finish}
                 onChange={(v) => onUpdateCard(index, "finish", v)}
@@ -73,7 +77,7 @@ export default function TradeInCardList({
             {/* Quantity & Price */}
             <div className="flex gap-2 mt-2">
               <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-4">Cant:</span>
+                <span className="text-xs text-gray-4">{t("qty_short")}</span>
                 <input
                   type="number"
                   min="1"
@@ -83,7 +87,7 @@ export default function TradeInCardList({
                 />
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-4">Precio SC:</span>
+                <span className="text-xs text-gray-4">{t("price_sc_short")}</span>
                 <input
                   type="number"
                   min="0"
@@ -101,14 +105,7 @@ export default function TradeInCardList({
             onClick={() => onRemoveCard(index)}
             className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
+            <IconTrash className="w-4 h-4" />
           </button>
         </div>
       ))}

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
+import { IconWrench, IconX } from "@/components/ui/Icons";
 
 interface AutoMapModalProps {
   onClose: () => void;
@@ -9,6 +11,7 @@ interface AutoMapModalProps {
 }
 
 export default function AutoMapModal({ onClose, onSuccess }: AutoMapModalProps) {
+  const t = useTranslations("expansions_page");
   const { showToast } = useToast();
   const [selectedGame, setSelectedGame] = useState("Magic");
   const [loading, setLoading] = useState(false);
@@ -44,24 +47,22 @@ export default function AutoMapModal({ onClose, onSuccess }: AutoMapModalProps) 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#0f1115]">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-            Auto-Mapear Juego
+            <IconWrench className="w-5 h-5 text-purple-500" />
+            {t("automap_title")}
           </h3>
           <button onClick={onClose} className="text-gray-4 hover:text-white transition-colors">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <IconX className="w-6 h-6" />
           </button>
         </div>
 
         {/* Body */}
         <div className="p-6">
           <p className="text-sm text-gray-3 mb-6">
-            Esta herramienta buscará automáticamente todas las expansiones locales que estén <strong className="text-white">Sin Vincular</strong> y usará un algoritmo inteligente para cruzarlas con la base de datos oficial.
+            {t("automap_desc")}
           </p>
 
           <label className="block text-sm font-medium text-gray-3 mb-2">
-            Selecciona el Juego a Procesar
+            {t("select_game_process")}
           </label>
           <select 
             value={selectedGame}
@@ -77,7 +78,7 @@ export default function AutoMapModal({ onClose, onSuccess }: AutoMapModalProps) 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-white/10 bg-[#0f1115]">
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button 
             variant="primary" 
@@ -88,9 +89,9 @@ export default function AutoMapModal({ onClose, onSuccess }: AutoMapModalProps) 
             {loading ? (
               <span className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Procesando Catálogo...
+                {t("processing_catalog")}
               </span>
-            ) : "Comenzar Auto-Mapeo"}
+            ) : t("start_automap")}
           </Button>
         </div>
       </div>

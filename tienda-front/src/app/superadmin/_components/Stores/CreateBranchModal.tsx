@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { ImageUploadField } from "@/components/ui/ImageUploadField";
 import { IconMapPin, IconPlus, IconX, IconLoader } from "@/components/ui/Icons";
@@ -23,6 +24,7 @@ export default function CreateBranchModal({
   onSubmit,
   isSubmitting,
 }: CreateBranchModalProps) {
+  const t = useTranslations("stores_page");
   const [formData, setFormData] = useState({
     name: "",
     subdomain: "",
@@ -58,10 +60,10 @@ export default function CreateBranchModal({
             </div>
             <div>
               <h3 className="text-base font-black text-white uppercase tracking-tight">
-                Nueva Sucursal Física
+                {t("new_branch_title")}
               </h3>
               <p className="text-xs text-white/50">
-                Empresa: <span className="text-white font-semibold">{company.name}</span>
+                {t("company_label")} <span className="text-white font-semibold">{company.name}</span>
               </p>
             </div>
           </div>
@@ -74,24 +76,11 @@ export default function CreateBranchModal({
           </button>
         </div>
 
-        {/* Resumen Informativo */}
-        <div className="px-6 py-3.5 bg-gradient-to-r from-purple-950/30 via-red/10 to-transparent border-b border-white/5 flex-shrink-0">
-          <p className="text-xs text-white/70 leading-relaxed">
-            Esta sucursal pertenecerá al Holding de <strong className="text-white">{company.name}</strong>,
-            compartiendo la billetera matriz y el plan SaaS corporativo (
-            <span className="text-purple-300 font-semibold">{company.plan?.name || "Sin Plan"}</span>
-            ).
-          </p>
-          <p className="text-[11px] text-purple-300 font-mono mt-1">
-            Tarifa adicional: <strong>+2.50 UF/mes (+ IVA)</strong> en la facturación de fin de mes. Incluye dotación base para operar (1 Encargado + 1 Cajero POS).
-          </p>
-        </div>
-
         {/* Formulario con Scroll */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-              Nombre de la Sucursal *
+              {t("branch_name_label")}
             </label>
             <input
               required
@@ -100,13 +89,13 @@ export default function CreateBranchModal({
               value={formData.name}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Ej: Sucursal Viña del Mar Centro"
+              placeholder="Sucursal Viña del Mar Centro"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-              Subdominio Único (URL Web) *
+              {t("subdomain_label")}
             </label>
             <div className="flex items-center rounded-xl bg-[#080B12] border border-white/10 focus-within:border-red focus-within:ring-1 focus-within:ring-red/30 transition-all overflow-hidden px-4 py-2.5">
               <span className="text-xs text-white/40 select-none font-mono pr-1">taptrade.cl/shop/store/</span>
@@ -121,24 +110,24 @@ export default function CreateBranchModal({
               />
             </div>
             <p className="text-[11px] text-white/40 mt-1">
-              Permite letras, números, guiones y guiones bajos (ej: bloodmoon_vina).
+              {t("subdomain_hint")}
             </p>
           </div>
 
           <div>
             <ImageUploadField
-              label="Logo de la Sucursal (Opcional)"
+              label={t("branch_logo_label")}
               value={formData.logoUrl}
               onChange={(url) => setFormData((prev) => ({ ...prev, logoUrl: url }))}
               companyId={company.id}
               type="logo"
-              description="Opcional. Si no se sube, hereda automáticamente el logo corporativo del Holding."
+              description={t("branch_logo_desc")}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-              Dirección Física (Retiro en Tienda)
+              {t("physical_address_label")}
             </label>
             <input
               type="text"
@@ -146,13 +135,13 @@ export default function CreateBranchModal({
               value={formData.address}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Ej: Calle Valparaíso 542, Viña del Mar"
+              placeholder="Calle Valparaíso 542, Viña del Mar"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-              Horario de Retiro / Atención
+              {t("pickup_schedule_label")}
             </label>
             <input
               type="text"
@@ -160,7 +149,7 @@ export default function CreateBranchModal({
               value={formData.pickupSchedule}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Ej: Lun a Vie 11:00 a 19:30, Sáb 11:00 a 16:00"
+              placeholder="11:00 - 19:30"
             />
           </div>
 
@@ -172,7 +161,7 @@ export default function CreateBranchModal({
               onClick={onClose}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button
               type="submit"
@@ -182,12 +171,12 @@ export default function CreateBranchModal({
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
                   <IconLoader className="w-4 h-4 animate-spin" />
-                  Registrando...
+                  {t("btn_registering")}
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5">
                   <IconPlus className="w-4 h-4" />
-                  Agregar Sucursal
+                  {t("add_branch_btn")}
                 </span>
               )}
             </Button>

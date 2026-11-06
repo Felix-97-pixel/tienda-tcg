@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import Loader from "@/components/ui/Loader";
@@ -44,10 +45,11 @@ export default function StoreTable({
   onManageStoreUsers,
   onEditCredentials,
 }: StoreTableProps) {
+  const t = useTranslations("stores_page");
   const [expandedCompanyIds, setExpandedCompanyIds] = useState<Record<string, boolean>>({});
 
   const planOptions = [
-    { label: "Sin Plan Asignado", value: "" },
+    { label: t("no_plan_assigned"), value: "" },
     ...availablePlans.map((p) => ({
       label: `${p.name} (${Number(p.price).toLocaleString("es-CL")} UF)`,
       value: p.id,
@@ -64,7 +66,7 @@ export default function StoreTable({
   };
 
   if (loading) {
-    return <Loader text="Cargando empresas y sucursales..." className="min-h-[40vh] bg-transparent py-10" />;
+    return <Loader text={t("loading_companies")} className="min-h-[40vh] bg-transparent py-10" />;
   }
 
   return (
@@ -72,13 +74,13 @@ export default function StoreTable({
       <table className="w-full text-left text-sm text-gray-300">
         <thead className="bg-[#0a0a0a] text-gray-400">
           <tr>
-            <th className="px-4 py-3 rounded-tl-lg">Empresa (Holding)</th>
-            <th className="px-4 py-3">RUT / ID</th>
-            <th className="px-4 py-3">Dueño / Contacto</th>
-            <th className="px-4 py-3">Plan SaaS Contratado</th>
-            <th className="px-4 py-3">Sucursales</th>
-            <th className="px-4 py-3">Billetera Matriz</th>
-            <th className="px-4 py-3 rounded-tr-lg text-right">Detalle</th>
+            <th className="px-4 py-3 rounded-tl-lg">{t("col_company")}</th>
+            <th className="px-4 py-3">{t("col_rut")}</th>
+            <th className="px-4 py-3">{t("col_owner")}</th>
+            <th className="px-4 py-3">{t("col_plan")}</th>
+            <th className="px-4 py-3">{t("col_branches")}</th>
+            <th className="px-4 py-3">{t("col_wallet")}</th>
+            <th className="px-4 py-3 rounded-tr-lg text-right">{t("col_detail")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
@@ -104,13 +106,13 @@ export default function StoreTable({
                       <div>
                         <p className="font-bold text-white text-base leading-tight">{company.name}</p>
                         <p className="text-[10px] text-white/40 font-mono mt-0.5">
-                          {branchCount} {branchCount === 1 ? "sucursal" : "sucursales"} registradas
+                          {branchCount} {t("col_branches").toLowerCase()}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4 text-xs font-mono text-white/70">
-                    {company.rut || <span className="text-white/30 italic">Sin RUT asignado</span>}
+                    {company.rut || <span className="text-white/30 italic">{t("no_rut_assigned")}</span>}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-between gap-2">
@@ -134,7 +136,7 @@ export default function StoreTable({
                               role: "OWNER",
                             })
                           }
-                          title="Editar credenciales del Dueño Titular"
+                          title={t("edit_credentials_title")}
                         >
                           <IconLock className="w-3.5 h-3.5" />
                         </Button>
@@ -146,8 +148,8 @@ export default function StoreTable({
                       options={planOptions}
                       value={company.planId || ""}
                       onChange={(val) => onAssignPlan(company.id, val || null)}
-                      placeholder="Buscar y asignar plan..."
-                      noResultsText="No se encontraron planes"
+                      placeholder={t("search_assign_plan")}
+                      noResultsText={t("no_plans_found")}
                       inputClassName="!py-1.5 !text-xs !bg-[#141A26] !border-white/10 hover:!border-red/40"
                       usePortal={true}
                       direction="auto"
@@ -167,27 +169,27 @@ export default function StoreTable({
                       return (
                         <div className="mt-2 p-2.5 rounded-xl bg-black/40 border border-white/10 space-y-1 text-[11px] font-mono shadow-inner">
                           <div className="flex items-center justify-between text-white/60">
-                            <span>Plan Base ({company.plan.name}):</span>
+                            <span>{t("base_plan_label", { name: company.plan.name })}</span>
                             <span className="text-white font-bold">{planPrice.toFixed(2)} UF</span>
                           </div>
                           {extraBranches > 0 && (
                             <div className="flex items-center justify-between text-purple-300">
-                              <span>{extraBranches} {extraBranches === 1 ? "sucursal extra" : "sucursales extra"}:</span>
+                              <span>+{extraBranches}:</span>
                               <span className="font-bold">+{branchesCost.toFixed(2)} UF</span>
                             </div>
                           )}
                           {extraCashiers > 0 && (
                             <div className="flex items-center justify-between text-amber-300">
-                              <span>{extraCashiers} {extraCashiers === 1 ? "cajero extra" : "cajeros extra"}:</span>
+                              <span>+{extraCashiers} POS:</span>
                               <span className="font-bold">+{cashiersCost.toFixed(2)} UF</span>
                             </div>
                           )}
                           <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
-                            <span className="text-white/70 font-semibold">Total Neto:</span>
+                            <span className="text-white/70 font-semibold">{t("total_net")}</span>
                             <span className="text-white font-extrabold">{totalNetUF.toFixed(2)} UF <span className="text-emerald-400 font-semibold">+ IVA</span></span>
                           </div>
                           <div className="flex items-center justify-between text-[10px] text-emerald-400 font-bold">
-                            <span>Total Bruto (19% IVA):</span>
+                            <span>{t("total_gross_vat")}</span>
                             <span>{totalGrossUF.toFixed(2)} UF/mes</span>
                           </div>
                         </div>
@@ -210,7 +212,7 @@ export default function StoreTable({
                         variant="secondary"
                         className="!p-2 text-xs hover:border-red/40 hover:text-white"
                         onClick={() => onManageCompanyUsers(company)}
-                        title="Administrar usuarios y accesos corporativos"
+                        title={t("corp_access_title")}
                       >
                         <IconUsers className="w-4 h-4 text-red" />
                       </Button>
@@ -219,7 +221,6 @@ export default function StoreTable({
                         variant="secondary"
                         className="!px-2.5 !py-2 text-xs gap-1 hover:border-purple-500/40"
                         onClick={() => toggleExpand(company.id)}
-                        title={isExpanded ? "Ocultar sucursales" : "Ver sucursales"}
                       >
                         <IconStore className="w-4 h-4 text-purple-400" />
                         {isExpanded ? <IconChevronUp className="w-3.5 h-3.5" /> : <IconChevronDown className="w-3.5 h-3.5" />}
@@ -237,46 +238,15 @@ export default function StoreTable({
                           <div className="flex items-center gap-3">
                             <h4 className="text-xs font-bold text-white/90 uppercase tracking-wider flex items-center gap-2">
                               <IconMapPin className="w-3.5 h-3.5 text-red" />
-                              Sucursales de {company.name}
+                              {t("branches_of", { name: company.name })}
                             </h4>
                             <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono">
                               <span className="text-white/60">
-                                Plan: <strong className="text-white">{company.plan?.name || "Sin Plan"} ({Number(company.plan?.price || 0).toFixed(2)} UF)</strong>
+                                <strong className="text-white">{company.plan?.name || t("no_plan_assigned")} ({Number(company.plan?.price || 0).toFixed(2)} UF)</strong>
                               </span>
                               <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                                1 Casa Matriz incluida ($0 extra)
+                                {t("hq_included_badge")}
                               </span>
-                              {branchCount > 1 && (
-                                <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold">
-                                  {branchCount - 1} extra (+{((branchCount - 1) * 2.5).toFixed(2)} UF/mes + IVA)
-                                </span>
-                              )}
-                              {(() => {
-                                const extraCashiers = company.stores?.reduce((acc, s) => {
-                                  const cashiers = s.members?.filter((m) => m.role === "CASHIER")?.length || 0;
-                                  return acc + Math.max(0, cashiers - 1);
-                                }, 0) || 0;
-                                if (extraCashiers > 0) {
-                                  return (
-                                    <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-bold">
-                                      {extraCashiers} cajero(s) extra (+{(extraCashiers * 0.35).toFixed(2)} UF/mes + IVA)
-                                    </span>
-                                  );
-                                }
-                                return null;
-                              })()}
-                              {company.plan && (
-                                <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20 font-bold">
-                                  Total a Facturar: {(
-                                    (Number(company.plan.price || 0) +
-                                    Math.max(0, branchCount - 1) * 2.5 +
-                                    (company.stores?.reduce((acc, s) => {
-                                      const cashiers = s.members?.filter((m) => m.role === "CASHIER")?.length || 0;
-                                      return acc + Math.max(0, cashiers - 1);
-                                    }, 0) || 0) * 0.35) * 1.19
-                                  ).toFixed(2)} UF con IVA
-                                </span>
-                              )}
                             </div>
                           </div>
                           <Button
@@ -286,7 +256,7 @@ export default function StoreTable({
                             onClick={() => onAddBranch(company)}
                           >
                             <IconPlus className="w-3.5 h-3.5" />
-                            <span>Agregar Sucursal</span>
+                            <span>{t("add_branch_btn")}</span>
                           </Button>
                         </div>
 
@@ -314,11 +284,11 @@ export default function StoreTable({
                                       <span className="font-bold text-white text-xs truncate">{branch.name}</span>
                                       {branch.isMainBranch ? (
                                         <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold uppercase">
-                                          Casa Matriz (Incluida)
+                                          {t("hq_badge")}
                                         </span>
                                       ) : (
                                         <span className="text-[8px] font-mono px-2 py-0.5 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold uppercase">
-                                          Sucursal Extra (+2.5 UF)
+                                          {t("extra_branch_badge")}
                                         </span>
                                       )}
                                     </div>
@@ -337,7 +307,6 @@ export default function StoreTable({
                                     variant="secondary"
                                     className="!p-2 hover:border-red/40 hover:text-red text-xs"
                                     onClick={() => onManageStoreUsers(branch)}
-                                    title="Gestionar personal y cajeros de esta sucursal"
                                   >
                                     <IconUser className="w-4 h-4 text-red" />
                                   </Button>
@@ -345,13 +314,12 @@ export default function StoreTable({
                                     href={getStoreUrl(branch.subdomain)}
                                     target="_blank"
                                     rel="noreferrer"
-                                    title="Ver tienda pública"
                                   >
                                     <Button size="sm" variant="primary" className="!px-2.5 !py-1.5">
                                       <IconExternalLink className="w-3.5 h-3.5" />
                                     </Button>
                                   </a>
-                                  <Link href={`/superadmin/stores/${branch.id}/edit`} title="Editar sucursal">
+                                  <Link href={`/superadmin/stores/${branch.id}/edit`}>
                                     <Button
                                       size="sm"
                                       variant="secondary"
@@ -366,7 +334,6 @@ export default function StoreTable({
                                       variant="danger"
                                       className="!px-2.5 !py-1.5"
                                       onClick={() => onDelete(branch.id)}
-                                      title="Eliminar sucursal"
                                     >
                                       <IconTrash className="w-3.5 h-3.5" />
                                     </Button>
@@ -376,7 +343,7 @@ export default function StoreTable({
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs text-white/40 italic py-2">Sin sucursales registradas.</p>
+                          <p className="text-xs text-white/40 italic py-2">{t("no_branches")}</p>
                         )}
                       </div>
                     </td>
@@ -389,7 +356,7 @@ export default function StoreTable({
           {companies.length === 0 && (
             <tr>
               <td colSpan={7} className="text-center py-8 text-gray-500">
-                No hay empresas ni tiendas registradas en el sistema.
+                {t("no_companies")}
               </td>
             </tr>
           )}

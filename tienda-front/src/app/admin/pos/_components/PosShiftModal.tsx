@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { IconX } from '@/components/ui/Icons';
 
 interface PosShiftModalProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ export default function PosShiftModal({
   currentShift,
   isProcessing,
 }: PosShiftModalProps) {
+  const t = useTranslations("pos_page");
   const [cashierName, setCashierName] = useState<string>('');
   const [initialCash, setInitialCash] = useState<number>(30000); // 30.000 fondo típico
   const [actualCash, setActualCash] = useState<number>(0);
@@ -32,7 +35,7 @@ export default function PosShiftModal({
 
   const handleOpenSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmitOpen(cashierName.trim() || 'Cajero Principal', initialCash);
+    await onSubmitOpen(cashierName.trim() || 'POS', initialCash);
   };
 
   const handleCloseSubmit = async (e: React.FormEvent) => {
@@ -45,7 +48,7 @@ export default function PosShiftModal({
       <div className="relative w-full max-w-md bg-[#0E121B] rounded-3xl border border-white/10 shadow-2xl overflow-hidden p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h2 className="text-lg font-black text-white">
-            {mode === 'OPEN' ? 'Abrir Turno de Caja' : 'Cierre de Caja y Arqueo'}
+            {mode === 'OPEN' ? t("open_shift") : t("shift_close_title")}
           </h2>
           <button
             onClick={onClose}
@@ -53,7 +56,7 @@ export default function PosShiftModal({
             type="button"
             className="text-white/40 hover:text-white"
           >
-            ✕
+            <IconX className="w-5 h-5" />
           </button>
         </div>
 
@@ -61,20 +64,20 @@ export default function PosShiftModal({
           <form onSubmit={handleOpenSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-white/70 mb-1.5">
-                Nombre del Cajero / Responsable:
+                {t("cashier_name_label")}
               </label>
               <input
                 type="text"
                 value={cashierName}
                 onChange={(e) => setCashierName(e.target.value)}
-                placeholder="Ej: Juan Pérez"
+                placeholder={t("cashier_name_label")}
                 className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-red"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-white/70 mb-1.5">
-                Fondo Inicial en Efectivo (para dar vuelto):
+                {t("initial_cash_label")}
               </label>
               <input
                 type="number"
@@ -90,7 +93,7 @@ export default function PosShiftModal({
               disabled={isProcessing}
               className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg"
             >
-              {isProcessing ? 'Abriendo caja...' : 'Confirmar Apertura de Caja'}
+              {isProcessing ? t("opening_register") : t("confirm_open_register")}
             </button>
           </form>
         ) : (
@@ -98,33 +101,33 @@ export default function PosShiftModal({
             {/* Resumen del Sistema */}
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 space-y-2 text-xs">
               <div className="flex justify-between text-white/60">
-                <span>Fondo Inicial:</span>
+                <span>{t("initial_float")}</span>
                 <span className="font-mono font-bold text-white">
                   ${Number(currentShift?.initialCash || 0).toLocaleString('es-CL')}
                 </span>
               </div>
               {Number(currentShift?.cashOutTotal || 0) > 0 && (
                 <div className="flex justify-between text-white/60">
-                  <span>Egresos Compra de Cartas (Cash):</span>
+                  <span>{t("cash_out_card_buys")}</span>
                   <span className="font-mono font-bold text-red">
                     -${Number(currentShift?.cashOutTotal || 0).toLocaleString('es-CL')}
                   </span>
                 </div>
               )}
               <div className="flex justify-between text-white/60 border-t border-white/5 pt-1.5">
-                <span className="font-bold text-white/80">Efectivo Esperado en Caja:</span>
+                <span className="font-bold text-white/80">{t("expected_cash")}</span>
                 <span className="font-mono font-bold text-emerald-400">
                   ${expectedCash.toLocaleString('es-CL')}
                 </span>
               </div>
               <div className="flex justify-between text-white/60">
-                <span>Ventas Maquinita (Tarjetas):</span>
+                <span>{t("card_pos_sales")}</span>
                 <span className="font-mono font-bold text-blue-400">
                   ${Number(currentShift?.cardTotal || 0).toLocaleString('es-CL')}
                 </span>
               </div>
               <div className="flex justify-between text-white/60">
-                <span>Ventas Transferencia:</span>
+                <span>{t("transfer_sales")}</span>
                 <span className="font-mono font-bold text-purple-400">
                   ${Number(currentShift?.transferTotal || 0).toLocaleString('es-CL')}
                 </span>
@@ -134,21 +137,21 @@ export default function PosShiftModal({
             {/* Dinero Físico Contado */}
             <div>
               <label className="block text-xs font-bold text-white/70 mb-1.5">
-                Efectivo Físico Contado en el Cajón:
+                {t("counted_physical_cash")}
               </label>
               <input
                 type="number"
                 min={0}
                 value={actualCash || ''}
                 onChange={(e) => setActualCash(Number(e.target.value) || 0)}
-                placeholder="Contar y escribir total en efectivo..."
+                placeholder="0"
                 className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white font-mono text-lg font-black focus:outline-none focus:border-red"
               />
             </div>
 
             {/* Descuadre */}
             <div className="p-3.5 rounded-xl bg-[#07090E] border border-white/10 flex items-center justify-between text-xs">
-              <span className="font-bold text-white/70">Diferencia / Cuadratura:</span>
+              <span className="font-bold text-white/70">{t("difference_balance")}</span>
               <span
                 className={`font-mono text-base font-bold ${
                   difference === 0
@@ -159,20 +162,20 @@ export default function PosShiftModal({
                 }`}
               >
                 {difference === 0
-                  ? 'Exacta ($0)'
+                  ? t("exact_zero")
                   : `${difference > 0 ? '+' : ''}$${difference.toLocaleString('es-CL')}`}
               </span>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-white/70 mb-1.5">
-                Observaciones del Arqueo (Opcional):
+                {t("shift_notes_label")}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
-                placeholder="Ej: Turno cerrado conforme, sin faltantes."
+                placeholder={t("shift_notes_label")}
                 className="w-full px-3 py-2 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-red resize-none"
               />
             </div>
@@ -182,7 +185,7 @@ export default function PosShiftModal({
               disabled={isProcessing}
               className="w-full py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg"
             >
-              {isProcessing ? 'Cerrando turno...' : 'Confirmar Cierre de Caja (Arqueo)'}
+              {isProcessing ? t("closing_shift") : t("confirm_close_shift")}
             </button>
           </form>
         )}

@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
+import { IconBox } from "@/components/ui/Icons";
 import { Product } from "@/types/product";
 
 export interface BuylistTableProps {
@@ -16,6 +18,7 @@ export interface BuylistTableProps {
 }
 
 export default function BuylistTable({ products, loading, onManage, onOpenGlobalSearch, page, totalPages, onPageChange }: BuylistTableProps) {
+  const t = useTranslations("buylist_page");
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -26,7 +29,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
   const columns: Column<Product>[] = [
     {
       key: "product",
-      header: "PRODUCTO",
+      header: t("col_product"),
       render: (product) => (
         <div className="flex items-center gap-3">
           <div 
@@ -52,7 +55,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
                   }}
                 />
               )
-              : <span className="text-[10px] text-white/40 flex h-full items-center justify-center font-bold uppercase">Sin Imagen</span>
+              : <span className="text-[10px] text-white/40 flex h-full items-center justify-center font-bold uppercase">{t("no_image")}</span>
             }
           </div>
           <div>
@@ -64,7 +67,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
     },
     {
       key: "expansion",
-      header: "EXPANSIÓN",
+      header: t("col_expansion"),
       headerClassName: "hidden md:table-cell",
       cellClassName: "hidden md:table-cell",
       render: (product) => (
@@ -76,7 +79,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
     },
     {
       key: "actions",
-      header: "ACCIONES",
+      header: t("col_actions"),
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (product) => {
@@ -92,7 +95,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
                 variant="primary"
                 className="text-xs font-bold"
               >
-                En Buylist ({buyListItemsCount})
+                {t("in_buylist_count", { count: buyListItemsCount })}
               </Button>
             ) : (
               <Button 
@@ -102,7 +105,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
                 className="text-xs font-bold flex items-center gap-1"
               >
                 <span>+</span>
-                <span>Añadir a Buylist</span>
+                <span>{t("add_to_buylist")}</span>
               </Button>
             )}
           </div>
@@ -115,13 +118,11 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-white/50">
-          <svg className="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-          </svg>
+          <IconBox className="w-8 h-8 text-white/50" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Sin Resultados</h3>
+        <h3 className="text-xl font-bold text-white mb-2">{t("no_results_title")}</h3>
         <p className="text-gray-4 max-w-sm mb-5">
-          No se encontraron cartas con los filtros aplicados. Puedes buscar cartas en el catálogo maestro para añadirlas a tu Buylist.
+          {t("no_results_desc")}
         </p>
         {onOpenGlobalSearch && (
           <Button
@@ -130,7 +131,7 @@ export default function BuylistTable({ products, loading, onManage, onOpenGlobal
             className="flex items-center gap-1.5 shadow-lg shadow-emerald-900/30"
           >
             <span>+</span>
-            <span>Buscar y Añadir Carta a Buylist</span>
+            <span>{t("search_add_card")}</span>
           </Button>
         )}
       </div>

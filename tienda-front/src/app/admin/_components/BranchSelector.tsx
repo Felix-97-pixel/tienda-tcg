@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "@/redux/store";
 import { setActiveStore, BranchItem } from "@/redux/features/admin-auth-slice";
@@ -7,6 +8,7 @@ import { IconMapPin, IconStore, IconChevronDown } from "@/components/ui/Icons";
 import { adminFetch } from "@/utils/api";
 
 export default function BranchSelector() {
+  const t = useTranslations("store_profile_form");
   const dispatch = useDispatch();
   const { user } = useAppSelector((state) => state.adminAuthReducer);
   const [branches, setBranches] = useState<BranchItem[]>([]);
@@ -103,11 +105,11 @@ export default function BranchSelector() {
           <span className="font-bold text-white max-w-[140px] truncate">{activeBranch.name}</span>
           {activeBranch.isMainBranch ? (
             <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-white/50 uppercase shrink-0">
-              Casa Matriz
+              {t("hq_full")}
             </span>
           ) : (
             <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase shrink-0">
-              Sucursal
+              {t("branch_badge")}
             </span>
           )}
         </div>
@@ -123,7 +125,7 @@ export default function BranchSelector() {
         className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/15 hover:border-red/40 hover:bg-white/[0.08] text-xs font-semibold text-white transition-all shadow-sm"
       >
         <IconMapPin className="w-3.5 h-3.5 text-red shrink-0" />
-        <span className="max-w-[130px] truncate">{activeBranch?.name || "Seleccionar Sucursal"}</span>
+        <span className="max-w-[130px] truncate">{activeBranch?.name || t("select_branch")}</span>
         <IconChevronDown
           className={`w-3.5 h-3.5 text-white/60 transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
@@ -133,7 +135,7 @@ export default function BranchSelector() {
         <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-[#0E121B] border border-white/15 shadow-2xl p-2 z-99999 animate-in fade-in zoom-in-95">
           <div className="px-3 py-2 border-b border-white/10 mb-1">
             <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/40">
-              Sucursales de la Empresa
+              {t("company_branches")}
             </p>
           </div>
           <div className="space-y-1">
@@ -153,7 +155,7 @@ export default function BranchSelector() {
                 </div>
                 {b.isMainBranch && (
                   <span className="shrink-0 text-[8px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-white/60 uppercase">
-                    Matriz
+                    {t("main_branch_badge")}
                   </span>
                 )}
               </button>

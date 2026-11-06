@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import Loader from "@/components/ui/Loader";
 import { adminFetch } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
@@ -37,6 +38,8 @@ interface TaxSummaryData {
 }
 
 export default function StoreWalletPage() {
+  const t = useTranslations("admin.wallet_page");
+  const tCommon = useTranslations("common");
   const [history, setHistory] = useState<any>({ transactions: [], withdrawals: [], balance: 0 });
   const [loading, setLoading] = useState(true);
   const [requestAmount, setRequestAmount] = useState("");
@@ -153,7 +156,7 @@ export default function StoreWalletPage() {
     }
   };
 
-  if (loading) return <Loader text="Cargando..." className="min-h-[40vh] bg-transparent py-10" />;
+  if (loading) return <Loader text={tCommon("loading")} className="min-h-[40vh] bg-transparent py-10" />;
 
   return (
     <div className="space-y-6 pb-24 text-white">
@@ -162,10 +165,10 @@ export default function StoreWalletPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-red">Finanzas & Liquidaciones</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-red">{t("badge")}</span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white">Billetera & Contabilidad de la Tienda</h1>
-          <p className="text-white/40 text-xs mt-0.5">Administra tus fondos, retiros de ventas y resumen contable mensual para el Formulario 29 del SII.</p>
+          <h1 className="text-2xl font-black tracking-tight text-white">{t("title")}</h1>
+          <p className="text-white/40 text-xs mt-0.5">{t("subtitle")}</p>
         </div>
       </div>
 

@@ -6,6 +6,8 @@ import { Modal } from "@/components/ui/Modal";
 import { List, Column } from "@/components/ui/List";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
+import { useTranslations } from "next-intl";
+import { IconPencil, IconTrash } from "@/components/ui/Icons";
 
 interface Currency {
   id: string;
@@ -15,6 +17,8 @@ interface Currency {
 }
 
 export default function SupportedCurrenciesPage() {
+  const t = useTranslations("supported_currencies_page");
+  const tCommon = useTranslations("common");
   const { showToast } = useToast();
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +37,9 @@ export default function SupportedCurrenciesPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const openModal = (c?: Currency) => {
     setEditing(c || null);
@@ -52,39 +58,39 @@ export default function SupportedCurrenciesPage() {
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        showToast(editing ? "Divisa actualizada" : "Divisa creada", "success");
+        showToast(editing ? t("toast_saved") : t("toast_saved"), "success");
         setIsOpen(false);
         fetchData();
       } else {
         const err = await res.json();
-        showToast(err.message || "Error al guardar", "error");
+        showToast(err.message || t("toast_saved"), "error");
       }
     } catch {
-      showToast("Error de red", "error");
+      showToast(tCommon("network_error") || "Error", "error");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (c: Currency) => {
-    if (!confirm(`¿Eliminar la divisa ${c.code}?`)) return;
+    if (!confirm(t("confirm_delete", { code: c.code }))) return;
     const res = await fetch(`${API_URL}/currencies/supported/${c.id}`, { method: "DELETE", credentials: "include" });
     if (res.ok) {
-      showToast("Divisa eliminada", "success");
+      showToast(t("toast_deleted"), "success");
       fetchData();
     } else {
       const err = await res.json();
-      showToast(err.message || "Error al eliminar", "error");
+      showToast(err.message || t("toast_deleted"), "error");
     }
   };
 
   const columns: Column<Currency>[] = [
-    { key: "code", header: "Código", render: (c) => <span className="font-semibold text-white">{c.code}</span> },
-    { key: "name", header: "Nombre", render: (c) => <span className="text-gray-4">{c.name}</span> },
-    { key: "symbol", header: "Símbolo", render: (c) => <span className="text-gray-4">{c.symbol}</span> },
+    { key: "code", header: t("col_code"), render: (c) => <span className="font-semibold text-white">{c.code}</span> },
+    { key: "name", header: t("col_name"), render: (c) => <span className="text-gray-4">{c.name}</span> },
+    { key: "symbol", header: t("col_symbol"), render: (c) => <span className="text-gray-4">{c.symbol}</span> },
     {
       key: "actions",
-      header: "Acciones",
+      header: t("col_actions"),
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (c) => (
@@ -92,16 +98,16 @@ export default function SupportedCurrenciesPage() {
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-white hover:text-white transition-colors"
             onClick={() => openModal(c)}
-            title="Editar"
+            title={tCommon("edit")}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            <IconPencil className="w-3.5 h-3.5" />
           </button>
           <button
             className="w-10 h-7 rounded-full border border-stroke flex items-center justify-center text-gray-4 hover:border-red-500 hover:text-red-500 transition-colors"
             onClick={() => handleDelete(c)}
-            title="Eliminar"
+            title={tCommon("delete")}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <IconTrash className="w-3.5 h-3.5" />
           </button>
         </div>
       ),
@@ -112,25 +118,53 @@ export default function SupportedCurrenciesPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Divisas Soportadas</h1>
-          <p className="text-gray-4 text-sm mt-1">Define las divisas base (USD, EUR...) que luego podrás asociar a cada juego.</p>
+          <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
+          <p className="text-gray-4 text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <Button id="add-supported-currency" onClick={() => openModal()}>Agregar Divisa</Button>
+        <Button id="add-supported-currency" onClick={() => openModal()}>
+          {t("btn_new_currency")}
+        </Button>
       </div>
 
       <List columns={columns} data={currencies} loading={loading} keyExtractor={(c) => c.id} />
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={editing ? "Editar Divisa" : "Agregar Divisa"} maxWidth="md">
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title={editing ? t("modal_edit_title") : t("modal_add_title")}
+        maxWidth="md"
+      >
         <form onSubmit={handleSave} className="space-y-5">
-          <Input label="Código *" required maxLength={5} value={form.code} placeholder="USD"
-            onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />
-          <Input label="Nombre *" required value={form.name} placeholder="Dólar estadounidense"
-            onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <Input label="Símbolo *" required maxLength={4} value={form.symbol} placeholder="$"
-            onChange={(e) => setForm({ ...form, symbol: e.target.value })} />
+          <Input
+            label={t("field_code")}
+            required
+            maxLength={5}
+            value={form.code}
+            placeholder={t("placeholder_code")}
+            onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
+          />
+          <Input
+            label={t("field_name")}
+            required
+            value={form.name}
+            placeholder={t("placeholder_name")}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+          <Input
+            label={t("field_symbol")}
+            required
+            maxLength={4}
+            value={form.symbol}
+            placeholder={t("placeholder_symbol")}
+            onChange={(e) => setForm({ ...form, symbol: e.target.value })}
+          />
           <div className="flex justify-end gap-3 pt-6 border-t border-stroke mt-6">
-            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} disabled={saving}>Cancelar</Button>
-            <Button type="submit" isLoading={saving}>Guardar</Button>
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)} disabled={saving}>
+              {t("btn_cancel")}
+            </Button>
+            <Button type="submit" isLoading={saving}>
+              {t("btn_save")}
+            </Button>
           </div>
         </form>
       </Modal>

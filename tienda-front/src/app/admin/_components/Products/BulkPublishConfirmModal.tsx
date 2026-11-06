@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { adminFetch } from "@/utils/api";
@@ -18,6 +19,7 @@ export default function BulkPublishConfirmModal({
   onClose,
   onSuccess,
 }: BulkPublishConfirmModalProps) {
+  const t = useTranslations("buylist_page");
   const { showToast } = useToast();
   const { activeBranch } = useActiveBranch();
   const [isPublishing, setIsPublishing] = useState(false);
@@ -29,43 +31,43 @@ export default function BulkPublishConfirmModal({
         method: "PATCH",
       });
       if (res.ok) {
-        showToast("Inventario publicado correctamente para la sucursal", "success");
+        showToast(t("bulk_publish_title"), "success");
         onSuccess();
         onClose();
       } else {
-        showToast("Error al publicar el inventario", "error");
+        showToast("Error", "error");
       }
     } catch (e) {
-      showToast("Error de conexión al intentar publicar", "error");
+      showToast("Error", "error");
     } finally {
       setIsPublishing(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Confirmar Publicación Masiva">
+    <Modal isOpen={isOpen} onClose={onClose} title={t("bulk_publish_title")}>
       <div className="p-6">
         <div className="flex flex-col items-center text-center space-y-4">
           <div className="w-16 h-16 bg-blue/10 border border-blue/20 rounded-full flex items-center justify-center text-blue">
             <IconSparkles className="w-8 h-8" />
           </div>
-          <h3 className="text-xl font-bold text-white">¿Estás seguro?</h3>
+          <h3 className="text-xl font-bold text-white">{t("are_you_sure")}</h3>
           {activeBranch && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/80">
               <IconStore className="w-3.5 h-3.5 text-blue" />
-              <span>Sucursal activa: <strong className="text-white">{activeBranch.name}</strong></span>
+              <span>{t("active_branch_label")} <strong className="text-white">{activeBranch.name}</strong></span>
             </div>
           )}
           <p className="text-gray-4 text-sm leading-relaxed">
-            Estás a punto de publicar <strong>todo</strong> el inventario pausado de esta sucursal de manera simultánea. Estas cartas estarán disponibles para que tus clientes las compren de inmediato.
+            {t("bulk_publish_desc")}
           </p>
         </div>
         <div className="flex gap-3 mt-8">
           <Button variant="secondary" className="flex-1" onClick={onClose} disabled={isPublishing}>
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button variant="success" className="flex-1" onClick={handleBulkPublish} isLoading={isPublishing}>
-            {isPublishing ? "Publicando..." : "Sí, publicar todo"}
+            {isPublishing ? t("btn_publishing") : t("btn_yes_publish_all")}
           </Button>
         </div>
       </div>

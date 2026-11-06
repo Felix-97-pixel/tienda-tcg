@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import {
   IconLock,
   IconX,
   IconEye,
   IconShieldCheck,
-  IconPencil,
   IconSparkles,
 } from "@/components/ui/Icons";
 import SearchableSelect from "@/components/ui/SearchableSelect";
@@ -38,6 +38,7 @@ export default function EditUserCredentialsModal({
   targetUser,
   onSuccess,
 }: EditUserCredentialsModalProps) {
+  const t = useTranslations("stores_page");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,24 +68,13 @@ export default function EditUserCredentialsModal({
     setPassword(gen);
     setShowPassword(true);
     navigator.clipboard?.writeText(gen);
-    toast.success("Contraseña generada y copiada al portapapeles");
+    toast.success("OK");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      toast.error("El nombre es requerido");
-      return;
-    }
-
-    if (!email.trim()) {
-      toast.error("El correo electrónico es requerido");
-      return;
-    }
-
-    if (password && password.length < 6) {
-      toast.error("La contraseña debe tener al menos 6 caracteres");
+    if (!name.trim() || !email.trim()) {
       return;
     }
 
@@ -118,29 +108,29 @@ export default function EditUserCredentialsModal({
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Error al actualizar credenciales");
+        throw new Error(err.message || "Error");
       }
 
-      toast.success("Credenciales actualizadas exitosamente");
+      toast.success("OK");
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "No se pudieron actualizar las credenciales");
+      toast.error(err.message || "Error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const companyRoleOptions = [
-    { label: "Administrador Holding (Gestión Total)", value: "ADMIN" },
-    { label: "Contador (Métricas y Liquidaciones)", value: "ACCOUNTANT" },
-    { label: "Dueño Copropietario", value: "OWNER" },
+    { label: "ADMIN", value: "ADMIN" },
+    { label: "ACCOUNTANT", value: "ACCOUNTANT" },
+    { label: "OWNER", value: "OWNER" },
   ];
 
   const storeRoleOptions = [
-    { label: "Encargado de Sucursal (Manager)", value: "BRANCH_MANAGER" },
-    { label: "Cajero de Punto de Venta (POS)", value: "CASHIER" },
+    { label: "BRANCH_MANAGER", value: "BRANCH_MANAGER" },
+    { label: "CASHIER", value: "CASHIER" },
   ];
 
   return (
@@ -154,10 +144,10 @@ export default function EditUserCredentialsModal({
             </div>
             <div>
               <h3 className="text-sm font-bold text-white leading-tight">
-                Editar Credenciales de Acceso
+                {t("edit_credentials_title")}
               </h3>
               <p className="text-[11px] text-white/50">
-                Superadministrador: Modificar datos y contraseña
+                {t("edit_credentials_sub")}
               </p>
             </div>
           </div>
@@ -173,28 +163,26 @@ export default function EditUserCredentialsModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-semibold text-white/80 mb-1.5">
-              Nombre Completo *
+              {t("field_full_name")}
             </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Rodrigo Dueño Demo"
               className="w-full bg-[#141A26] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red transition-colors"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-white/80 mb-1.5">
-              Correo Electrónico (Login) *
+              {t("field_email")}
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ejemplo@taptrade.cl"
               className="w-full bg-[#141A26] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red transition-colors"
             />
           </div>
@@ -202,7 +190,7 @@ export default function EditUserCredentialsModal({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-xs font-semibold text-white/80">
-                Nueva Contraseña
+                {t("new_password_label")}
               </label>
               <button
                 type="button"
@@ -210,7 +198,7 @@ export default function EditUserCredentialsModal({
                 className="text-[11px] text-red hover:text-red-light font-bold flex items-center gap-1 transition-colors"
               >
                 <IconSparkles className="w-3 h-3" />
-                <span>Generar Segura</span>
+                <span>{t("generate_secure")}</span>
               </button>
             </div>
             <div className="relative">
@@ -218,7 +206,7 @@ export default function EditUserCredentialsModal({
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Dejar en blanco para no cambiarla"
+                placeholder={t("leave_blank_pass")}
                 className="w-full bg-[#141A26] border border-white/10 rounded-xl px-3.5 py-2 pr-10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-red transition-colors"
               />
               <button
@@ -229,17 +217,12 @@ export default function EditUserCredentialsModal({
                 <IconEye className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-[10px] text-white/40 mt-1">
-              {password
-                ? "Se asignará esta nueva contraseña al usuario."
-                : "Si no deseas cambiar la contraseña actual, deja este campo vacío."}
-            </p>
           </div>
 
           {targetUser.roleType && !targetUser.isOwner && (
             <div>
               <label className="block text-xs font-semibold text-white/80 mb-1.5">
-                Rol Asignado
+                {t("assigned_role_label")}
               </label>
               <SearchableSelect
                 options={
@@ -249,7 +232,7 @@ export default function EditUserCredentialsModal({
                 }
                 value={role}
                 onChange={(val) => setRole(val)}
-                placeholder="Seleccionar rol..."
+                placeholder={t("assigned_role_label")}
                 inputClassName="!py-2 !text-xs !bg-[#141A26] !border-white/10 hover:!border-red/40"
                 usePortal={true}
               />
@@ -264,7 +247,7 @@ export default function EditUserCredentialsModal({
               onClick={onClose}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button
               type="submit"
@@ -274,7 +257,7 @@ export default function EditUserCredentialsModal({
               className="gap-1.5"
             >
               <IconShieldCheck className="w-4 h-4" />
-              <span>{isSubmitting ? "Guardando..." : "Guardar Credenciales"}</span>
+              <span>{t("btn_save_credentials")}</span>
             </Button>
           </div>
         </form>

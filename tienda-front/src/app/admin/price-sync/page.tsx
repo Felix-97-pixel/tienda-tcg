@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import SearchableSelect from "@/components/ui/SearchableSelect";
@@ -59,6 +60,7 @@ interface PreviewResponse {
 }
 
 export default function AdminPriceSyncPage() {
+  const t = useTranslations("admin.price_sync_page");
   const { showToast } = useToast();
 
   // Metadatos de Juegos y Expansiones
@@ -231,13 +233,13 @@ export default function AdminPriceSyncPage() {
         <div>
           <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-red mb-1">
             <IconRefresh className="w-3.5 h-3.5" />
-            <span>Automatización de Catálogo TCG</span>
+            <span>{t("badge")}</span>
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">
-            Sincronización Inteligente de Precios
+            {t("title")}
           </h1>
           <p className="text-white/50 text-xs mt-1">
-            Actualiza tus precios en USD según el catálogo oficial filtrando por juego, expansión y tus reglas de estado e idioma.
+            {t("subtitle")}
           </p>
         </div>
 

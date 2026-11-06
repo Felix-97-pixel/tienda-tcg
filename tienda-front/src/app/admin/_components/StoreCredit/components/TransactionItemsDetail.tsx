@@ -1,4 +1,6 @@
 import React from "react";
+import { useTranslations } from "next-intl";
+import { IconX } from "@/components/ui/Icons";
 import type { TransactionItemData } from "../types/store-credit.types";
 
 interface TransactionItemsDetailProps {
@@ -17,17 +19,19 @@ export default function TransactionItemsDetail({
   items,
   onClose,
 }: TransactionItemsDetailProps) {
+  const t = useTranslations("store_credit_page");
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4">
       <div className="bg-[#111318] border border-white/10 rounded-2xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="p-4 border-b border-white/5 flex justify-between items-center bg-[#1a1d24] rounded-t-2xl">
-          <h3 className="font-bold text-white">Detalle de Productos</h3>
+          <h3 className="font-bold text-white">{t("products_detail_title")}</h3>
           <button
             onClick={onClose}
-            className="text-gray-4 hover:text-white text-xl leading-none"
+            className="text-gray-4 hover:text-white leading-none"
           >
-            ✕
+            <IconX className="w-5 h-5" />
           </button>
         </div>
 
@@ -35,7 +39,7 @@ export default function TransactionItemsDetail({
         <div className="p-4 overflow-y-auto space-y-3">
           {items.map((item, i) => {
             const rawItem = item as any;
-            const productName = item.product?.name || rawItem.name || "Producto";
+            const productName = item.product?.name || rawItem.name || "-";
             const imageUrl = item.product?.imageUrl || rawItem.imageUrl;
             const rawPrice = item.price ?? rawItem.creditPrice ?? rawItem.cashPrice ?? 0;
             const parsedPrice = Number(rawPrice);
@@ -57,7 +61,7 @@ export default function TransactionItemsDetail({
                     />
                   ) : (
                     <div className="text-[10px] text-white/30 text-center font-bold px-1">
-                      Sin foto
+                      {t("no_photo")}
                     </div>
                   )}
                 </div>
@@ -78,7 +82,7 @@ export default function TransactionItemsDetail({
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-xs text-gray-4">
-                      Cant: <b className="text-white">{item.quantity}</b>
+                      {t("qty_short")} <b className="text-white">{item.quantity}</b>
                     </span>
                     <span className="text-xs font-bold text-blue">
                       ${displayPrice}

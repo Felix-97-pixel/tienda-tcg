@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { ShippingProvider } from "@/types/shippingProvider";
@@ -18,6 +18,7 @@ interface ShippingProviderModalProps {
 }
 
 export default function ShippingProviderModal({ isOpen, onClose, provider, onSuccess }: ShippingProviderModalProps) {
+  const t = useTranslations("shipping_page");
   const { showToast } = useToast();
 
   const [price, setPrice] = useState<number | "">("");
@@ -53,15 +54,15 @@ export default function ShippingProviderModal({ isOpen, onClose, provider, onSuc
       });
 
       if (res.ok) {
-        showToast("Tarifa de respaldo guardada correctamente", "success");
+        showToast(t("saved_success"), "success");
         onSuccess();
         onClose();
       } else {
         const errData = await res.json();
-        showToast(errData.message || "Error al guardar tarifa de envío", "error");
+        showToast(errData.message || "Error", "error");
       }
     } catch (error) {
-      showToast("Error de conexión", "error");
+      showToast("Error", "error");
     } finally {
       setSaving(false);
     }
@@ -71,7 +72,7 @@ export default function ShippingProviderModal({ isOpen, onClose, provider, onSuc
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={provider ? `Configurar Tarifa: ${provider.name.toUpperCase()}` : "Configurar Método de Envío"}
+      title={provider ? t("modal_configure_rate", { name: provider.name.toUpperCase() }) : t("modal_configure_method")}
       maxWidth="md"
     >
       {provider && (
@@ -83,7 +84,7 @@ export default function ShippingProviderModal({ isOpen, onClose, provider, onSuc
 
           <div className="space-y-1.5">
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70">
-              Tarifa Plana de Respaldo (CLP) <span className="text-red">*</span>
+              {t("fallback_flat_rate")} <span className="text-red">*</span>
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-bold">$</span>
@@ -94,25 +95,25 @@ export default function ShippingProviderModal({ isOpen, onClose, provider, onSuc
                 step="1"
                 value={price}
                 onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : "")}
-                placeholder="Ej: 6990"
+                placeholder="6990"
                 className="w-full bg-[#080B12] border border-white/10 rounded-xl pl-8 pr-16 py-2.5 text-sm text-white font-mono font-bold placeholder-white/20 focus:border-red focus:ring-1 focus:ring-red/30 outline-none transition"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs font-bold">CLP</span>
             </div>
             <p className="text-xs text-white/40 font-medium ml-1 mt-1">
-              Este valor se utilizará por defecto o como respaldo de emergencia si la cotización en vivo con el transportista no responde.
+              {t("fallback_flat_desc")}
             </p>
           </div>
 
           <div className="pt-2">
             <Switch
-              label="Habilitar este Courier en Checkout"
+              label={t("enable_courier_checkout")}
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
               wrapperClassName="bg-[#080B12] border-white/10"
             />
             <p className="text-xs text-white/40 font-medium ml-2 mt-2">
-              Si se desactiva, este proveedor no aparecerá como opción de envío para los compradores.
+              {t("enable_courier_desc")}
             </p>
           </div>
 
@@ -123,10 +124,10 @@ export default function ShippingProviderModal({ isOpen, onClose, provider, onSuc
               onClick={onClose}
               disabled={saving}
             >
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button variant="primary" type="submit" isLoading={saving} className="px-6">
-              Guardar Tarifa
+              {t("btn_save_rate")}
             </Button>
           </div>
         </form>

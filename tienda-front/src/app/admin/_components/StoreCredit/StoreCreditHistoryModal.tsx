@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
+import { IconEye } from "@/components/ui/Icons";
 import TransactionItemsDetail from "./components/TransactionItemsDetail";
 import type {
   StoreCreditTransaction,
@@ -23,6 +25,7 @@ export default function StoreCreditHistoryModal({
   userName,
   onClose,
 }: StoreCreditHistoryModalProps) {
+  const t = useTranslations("store_credit_page");
   const { showToast } = useToast();
   const [transactions, setTransactions] = useState<StoreCreditTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,18 +39,18 @@ export default function StoreCreditHistoryModal({
           `${API_URL}/store-credit/user/${userId}/transactions`,
           { credentials: "include" }
         );
-        if (!res.ok) throw new Error("Error al obtener historial");
+        if (!res.ok) throw new Error("Error");
         const data: StoreCreditTransaction[] = await res.json();
         setTransactions(data);
       } catch {
-        showToast("Error cargando el historial", "error");
+        showToast(t("history_title"), "error");
       } finally {
         setLoading(false);
       }
     };
 
     fetchHistory();
-  }, [userId, showToast]);
+  }, [userId, showToast, t]);
 
   return (
     <div className="p-6 max-h-[85vh] overflow-y-auto">
@@ -55,10 +58,10 @@ export default function StoreCreditHistoryModal({
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-bold text-white">
-            Historial de Store Credit
+            {t("history_title")}
           </h2>
           <p className="text-sm text-gray-4 mt-1">
-            Transacciones de{" "}
+            {t("transactions_of")}{" "}
             <span className="text-white font-bold">{userName}</span>
           </p>
         </div>
@@ -72,25 +75,25 @@ export default function StoreCreditHistoryModal({
           </div>
         ) : transactions.length === 0 ? (
           <div className="py-10 text-center text-gray-5">
-            No hay transacciones registradas para este usuario.
+            {t("no_tx_for_user")}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm whitespace-nowrap">
               <thead>
                 <tr className="bg-[#1a1d24] border-b border-white/5 text-xs uppercase tracking-wider text-gray-5 font-bold">
-                  <th className="px-4 py-3">Fecha</th>
-                  <th className="px-4 py-3">Tipo</th>
-                  <th className="px-4 py-3">Monto</th>
-                  <th className="px-4 py-3">Referencia</th>
-                  <th className="px-4 py-3 text-center">Detalle</th>
+                  <th className="px-4 py-3">{t("col_date")}</th>
+                  <th className="px-4 py-3">{t("col_type")}</th>
+                  <th className="px-4 py-3">{t("col_amount")}</th>
+                  <th className="px-4 py-3">{t("col_reference")}</th>
+                  <th className="px-4 py-3 text-center">{t("col_detail")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {transactions.map((t) => (
-                  <tr key={t.id} className="hover:bg-white/[0.02]">
+                {transactions.map((tx) => (
+                  <tr key={tx.id} className="hover:bg-white/[0.02]">
                     <td className="px-4 py-3 text-gray-3">
-                      {new Date(t.createdAt).toLocaleString("es-CL", {
+                      {new Date(tx.createdAt).toLocaleString("es-CL", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
@@ -101,54 +104,36 @@ export default function StoreCreditHistoryModal({
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                          t.amount > 0
+                          tx.amount > 0
                             ? "bg-green-500/10 text-green-400"
                             : "bg-red-500/10 text-red-400"
                         }`}
                       >
-                        {t.amount > 0 ? "Abono" : "Descuento"}
+                        {tx.amount > 0 ? t("type_credit") : t("type_debit")}
                       </span>
                     </td>
                     <td
                       className={`px-4 py-3 font-bold ${
-                        t.amount > 0 ? "text-green-400" : "text-red-400"
+                        tx.amount > 0 ? "text-green-400" : "text-red-400"
                       }`}
                     >
-                      {t.amount > 0 ? "+" : ""}
-                      {Number(t.amount).toLocaleString("es-CL")}
+                      {tx.amount > 0 ? "+" : ""}
+                      {Number(tx.amount).toLocaleString("es-CL")}
                     </td>
                     <td
                       className="px-4 py-3 text-gray-4 text-xs max-w-[200px] truncate"
-                      title={t.reference || undefined}
+                      title={tx.reference || undefined}
                     >
-                      {t.reference || "-"}
+                      {tx.reference || "-"}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      {t.itemsData && t.itemsData.length > 0 && (
+                      {tx.itemsData && tx.itemsData.length > 0 && (
                         <button
-                          onClick={() => setViewingItems(t.itemsData)}
+                          onClick={() => setViewingItems(tx.itemsData)}
                           className="inline-flex items-center justify-center gap-1.5 text-blue hover:text-white transition-colors bg-blue/10 hover:bg-blue/30 px-3 py-1.5 rounded-lg text-xs font-bold uppercase"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-4 h-4"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                            />
-                          </svg>
-                          Ver Cartas
+                          <IconEye className="w-4 h-4" />
+                          {t("view_cards")}
                         </button>
                       )}
                     </td>
@@ -166,7 +151,7 @@ export default function StoreCreditHistoryModal({
           onClick={onClose}
           className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all text-sm"
         >
-          Cerrar
+          {t("btn_close")}
         </button>
       </div>
 

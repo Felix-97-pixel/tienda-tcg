@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import { IconBox, IconCart } from "@/components/ui/Icons";
 import { useStoreCreditForm } from "./hooks/useStoreCreditForm";
 import UserSearch from "./components/UserSearch";
 import TradeInCardList from "./components/TradeInCardList";
@@ -26,12 +28,13 @@ export default function StoreCreditModal({
   onClose,
   onSuccess,
 }: StoreCreditModalProps) {
+  const t = useTranslations("store_credit_page");
   const form = useStoreCreditForm({ preselectedUser, defaultType, onSuccess });
 
   return (
     <div className="p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
       <h2 className="text-xl font-bold text-white mb-6">
-        Ajustar Saldo (Store Credit)
+        {t("adjust_balance_title")}
       </h2>
 
       <form onSubmit={form.handleSubmit} className="space-y-6">
@@ -51,7 +54,7 @@ export default function StoreCreditModal({
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-4 uppercase">
-              Monto Total ($ SC)
+              {t("total_amount_sc")}
             </label>
             <input
               type="number"
@@ -67,7 +70,7 @@ export default function StoreCreditModal({
                     ? "text-green-400 focus:border-blue"
                     : "text-red-400 focus:border-blue"
               }`}
-              placeholder="Ej: 5000"
+              placeholder="5000"
             />
           </div>
         </div>
@@ -76,18 +79,14 @@ export default function StoreCreditModal({
         <div className="space-y-4 border-t border-white/10 pt-4">
           <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
             {form.type === "MANUAL_ADD" ? (
-              <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
+              <IconBox className="w-4 h-4 text-emerald-400" />
             ) : (
-              <svg className="w-4 h-4 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+              <IconCart className="w-4 h-4 text-red" />
             )}
             {form.type === "MANUAL_ADD"
-              ? "Productos Recibidos (Trade-in)"
-              : "Productos Comprados por el Cliente"}
-            <span className="text-white/40 text-xs font-normal normal-case">(Opcional)</span>
+              ? t("products_received_tradein")
+              : t("products_purchased_client")}
+            <span className="text-white/40 text-xs font-normal normal-case">{t("optional_tag")}</span>
           </h3>
 
           {/* Product Search Filters */}
@@ -97,8 +96,8 @@ export default function StoreCreditModal({
                 type="text"
                 placeholder={
                   form.type === "MANUAL_ADD"
-                    ? "Buscar en catálogo global..."
-                    : "Buscar en tu inventario..."
+                    ? t("search_global_catalog")
+                    : t("search_your_inventory")
                 }
                 value={form.cardSearchTerm}
                 onChange={(e) => form.setCardSearchTerm(e.target.value)}
@@ -106,19 +105,19 @@ export default function StoreCreditModal({
               />
               <SearchableSelect
                 options={[
-                  { label: "Todas las Categorías", value: "" },
+                  { label: t("all_categories"), value: "" },
                   ...form.categories.map((c) => ({ label: c.name, value: c.name })),
                 ]}
                 value={form.selectedCategory}
                 onChange={form.setSelectedCategory}
-                placeholder="Categorías"
+                placeholder={t("all_categories")}
               />
               <SearchableSelect
                 options={[
                   {
                     label: !form.selectedCategory
-                      ? "Elige Categoría..."
-                      : "Todas las Expansiones",
+                      ? t("choose_category")
+                      : t("all_expansions"),
                     value: "",
                   },
                   ...form.expansions.map((e) => ({ label: e.name, value: e.name })),
@@ -126,13 +125,13 @@ export default function StoreCreditModal({
                 value={form.selectedExpansion}
                 onChange={form.setSelectedExpansion}
                 placeholder={
-                  !form.selectedCategory ? "Elige Categoría..." : "Buscar expansión..."
+                  !form.selectedCategory ? t("choose_category") : t("all_expansions")
                 }
                 disabled={!form.selectedCategory}
               />
             </div>
 
-            {form.searchingCards && <p className="text-xs text-blue">Buscando...</p>}
+            {form.searchingCards && <p className="text-xs text-blue">{t("searching")}</p>}
 
             {/* Search Results Dropdown */}
             {form.cardSearchResults.length > 0 && (
@@ -174,20 +173,14 @@ export default function StoreCreditModal({
         {/* ── Reference ── */}
         <div className="space-y-2 border-t border-white/10 pt-4">
           <label className="text-xs font-bold text-gray-4 uppercase">
-            Notas / Referencia Adicional
+            {t("notes_reference")}
           </label>
           <input
             type="text"
             value={form.reference}
             onChange={(e) => form.setReference(e.target.value)}
             className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none"
-            placeholder={
-              form.tradeInCards.length > 0
-                ? form.type === "MANUAL_ADD"
-                  ? "Ej: Cartas recibidas en evento"
-                  : "Ej: Compra presencial en tienda"
-                : "Ej: Ajuste manual por error"
-            }
+            placeholder={t("notes_reference")}
             required={form.tradeInCards.length === 0}
           />
         </div>
@@ -195,14 +188,14 @@ export default function StoreCreditModal({
         {/* ── Actions ── */}
         <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
           <Button variant="secondary" onClick={onClose} type="button">
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button
             variant="primary"
             type="submit"
             disabled={form.loading || !form.selectedUser || (!form.amount && form.amount !== 0)}
           >
-            {form.loading ? "Procesando..." : "Confirmar Transacción"}
+            {form.loading ? t("btn_processing") : t("btn_confirm_tx")}
           </Button>
         </div>
       </form>

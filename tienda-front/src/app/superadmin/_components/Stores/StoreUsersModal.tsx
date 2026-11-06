@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { IconUser, IconUserPlus, IconTrash, IconX, IconStore, IconLock, IconUsers } from "@/components/ui/Icons";
 import { TargetUserToEdit } from "./EditUserCredentialsModal";
@@ -37,6 +38,7 @@ export default function StoreUsersModal({
   onRefresh,
   onEditCredentials,
 }: StoreUsersModalProps) {
+  const t = useTranslations("stores_page");
   const [members, setMembers] = useState<StoreMember[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -161,13 +163,13 @@ export default function StoreUsersModal({
       case "BRANCH_MANAGER":
         return (
           <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-            Encargado de Sucursal
+            MANAGER
           </span>
         );
       case "CASHIER":
         return (
           <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-sky-500/15 text-sky-300 border border-sky-500/30">
-            Cajero POS
+            CASHIER
           </span>
         );
       default:
@@ -191,15 +193,15 @@ export default function StoreUsersModal({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-white leading-tight">
-                  Personal &bull; {branch.name}
+                  {branch.name}
                 </h3>
                 {branch.isMainBranch ? (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold uppercase">
-                    Casa Matriz
+                    {t("hq_badge")}
                   </span>
                 ) : (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold uppercase">
-                    Sucursal Física
+                    {t("extra_branch_badge")}
                   </span>
                 )}
               </div>
@@ -223,26 +225,26 @@ export default function StoreUsersModal({
             <div className="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-xs flex items-start gap-2.5 mb-3">
               <IconUsers className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-white text-[11px]">Dotación Operativa por Sucursal</p>
+                <p className="font-bold text-white text-[11px]">{t("branch_staff_title")}</p>
                 <p className="text-gray-400 text-[10px] leading-relaxed">
-                  Cada sucursal incluye 1 Encargado y 1 Cajero POS base para operar. Cada cajero adicional activo en mesón suma <strong>+0.35 UF/mes (+ 19% IVA)</strong> en la facturación mensual del holding.
+                  {t("branch_staff_desc")}
                 </p>
               </div>
             </div>
 
             <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <IconUserPlus className="w-4 h-4 text-red" />
-              Asignar Personal / Cajero a esta Sucursal
+              {t("assign_branch_staff")}
             </h4>
             <form onSubmit={handleAddUser} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Nombre Completo *
+                  {t("field_full_name")}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Rodrigo Tapia"
+                  placeholder="Rodrigo Tapia"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -251,7 +253,7 @@ export default function StoreUsersModal({
 
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Correo Electrónico *
+                  {t("field_email")}
                 </label>
                 <input
                   type="email"
@@ -265,11 +267,11 @@ export default function StoreUsersModal({
 
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Contraseña (Opcional)
+                  {t("field_temp_pass")}
                 </label>
                 <input
                   type="password"
-                  placeholder="Por defecto: TapTrade2026!"
+                  placeholder="TapTrade2026!"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -278,12 +280,12 @@ export default function StoreUsersModal({
 
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Rol en la Sucursal
+                  {t("field_branch_role")}
                 </label>
                 <SearchableSelect
                   options={[
-                    { label: "Cajero POS (+0.35 UF/mes + IVA — 1ro incluido por sucursal)", value: "CASHIER" },
-                    { label: "Encargado Local (+0.60 UF/mes + IVA — 1ro incluido por sucursal)", value: "BRANCH_MANAGER" },
+                    { label: "CASHIER (+0.35 UF/mes + IVA)", value: "CASHIER" },
+                    { label: "BRANCH_MANAGER (+0.60 UF/mes + IVA)", value: "BRANCH_MANAGER" },
                   ]}
                   value={formData.role}
                   onChange={(val) =>
@@ -292,8 +294,7 @@ export default function StoreUsersModal({
                       role: val as "BRANCH_MANAGER" | "CASHIER",
                     })
                   }
-                  placeholder="Seleccionar rol en la sucursal..."
-                  noResultsText="No se encontraron roles"
+                  placeholder={t("field_branch_role")}
                   inputClassName="!py-2 !text-xs !bg-[#080B12] !border-white/10 hover:!border-red/40"
                   usePortal={true}
                   direction="auto"
@@ -309,7 +310,7 @@ export default function StoreUsersModal({
                   className="!px-4 !py-2 text-xs gap-1.5"
                 >
                   <IconUser className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? "Asignando..." : "Asignar a Sucursal"}</span>
+                  <span>{isSubmitting ? t("btn_assigning") : t("btn_assign_branch")}</span>
                 </Button>
               </div>
             </form>
@@ -318,14 +319,14 @@ export default function StoreUsersModal({
           {/* Listado de Personal */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center justify-between">
-              <span>Personal con Acceso a esta Sucursal ({members.length})</span>
+              <span>{t("current_branch_staff", { count: members.length })}</span>
             </h4>
 
             {loading ? (
-              <div className="py-8 text-center text-xs text-white/40">Cargando personal...</div>
+              <div className="py-8 text-center text-xs text-white/40">{t("loading_members")}</div>
             ) : members.length === 0 ? (
               <div className="py-6 text-center text-xs text-white/40">
-                No hay personal asignado directamente a esta sucursal.
+                {t("no_branch_staff")}
               </div>
             ) : (
               <div className="divide-y divide-white/5 border border-white/10 rounded-xl overflow-hidden bg-[#090C12]">
@@ -368,7 +369,7 @@ export default function StoreUsersModal({
                               isOwner: false,
                             })
                           }
-                          title="Editar credenciales y contraseña"
+                          title={t("edit_credentials_title")}
                         >
                           <IconLock className="w-3.5 h-3.5" />
                         </Button>
@@ -379,7 +380,6 @@ export default function StoreUsersModal({
                         className="!p-1.5"
                         disabled={removingId === member.userId}
                         onClick={() => handleRemoveUser(member.userId, member.user.name)}
-                        title="Desvincular de sucursal"
                       >
                         <IconTrash className="w-3.5 h-3.5" />
                       </Button>
@@ -394,7 +394,7 @@ export default function StoreUsersModal({
         {/* Footer */}
         <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02] flex justify-end">
           <Button variant="secondary" size="sm" onClick={onClose} className="!px-4">
-            Cerrar
+            {t("btn_close")}
           </Button>
         </div>
       </div>

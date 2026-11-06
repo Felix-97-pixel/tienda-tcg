@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { ImageUploadField } from "@/components/ui/ImageUploadField";
 import { IconX, IconStore, IconShield, IconMapPin, IconLoader } from "@/components/ui/Icons";
@@ -34,6 +35,7 @@ export default function CreateStoreModal({
   handleInputChange,
   isSubmitting,
 }: CreateStoreModalProps) {
+  const t = useTranslations("stores_page");
   if (!isOpen) return null;
 
   return (
@@ -47,10 +49,10 @@ export default function CreateStoreModal({
             </div>
             <div>
               <h3 className="text-base font-black text-white uppercase tracking-tight">
-                Registrar Empresa &bull; Casa Matriz
+                {t("register_company_title")}
               </h3>
               <p className="text-xs text-white/50">
-                Crea una cuenta corporativa y su primera tienda física
+                {t("register_company_sub")}
               </p>
             </div>
           </div>
@@ -69,13 +71,13 @@ export default function CreateStoreModal({
           <div className="space-y-4">
             <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
               <IconStore className="w-4 h-4 text-red" />
-              Datos de la Empresa (Holding)
+              {t("company_data_section")}
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Nombre de la Empresa (Holding) *
+                  {t("company_name_label")}
                 </label>
                 <input
                   required
@@ -84,13 +86,13 @@ export default function CreateStoreModal({
                   value={formData.companyName}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Ej: Blood Moon Gaming Corp"
+                  placeholder="Blood Moon Gaming Corp"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  RUT Corporativo
+                  {t("company_rut_label")}
                 </label>
                 <input
                   type="text"
@@ -98,18 +100,17 @@ export default function CreateStoreModal({
                   value={formData.companyRut}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all font-mono"
-                  placeholder="Ej: 77.890.123-K"
+                  placeholder="77.890.123-K"
                 />
               </div>
 
               <div className="sm:col-span-2">
                 <ImageUploadField
-                  label="Logo Corporativo (Holding)"
+                  label={t("company_logo_label")}
                   value={formData.companyLogoUrl}
                   onChange={(url) => setFormData((prev: any) => ({ ...prev, companyLogoUrl: url }))}
                   folder="companies"
                   type="logo"
-                  description="Logo principal de la empresa matriz o marca global. PNG, JPG, WEBP (Máx. 5MB)."
                 />
               </div>
             </div>
@@ -119,13 +120,13 @@ export default function CreateStoreModal({
           <div className="pt-4 border-t border-white/10 space-y-4">
             <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
               <IconMapPin className="w-4 h-4 text-emerald-400" />
-              Casa Matriz (Primera Sucursal Física)
+              {t("hq_section")}
             </h4>
 
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Nombre de la Sucursal *
+                  {t("branch_name_label")}
                 </label>
                 <input
                   required
@@ -134,13 +135,13 @@ export default function CreateStoreModal({
                   value={formData.storeName}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Ej: Blood Moon Santiago Centro"
+                  placeholder="Blood Moon Santiago Centro"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Subdominio Único de la Sucursal *
+                  {t("subdomain_label")}
                 </label>
                 <div className="flex items-center rounded-xl bg-[#080B12] border border-white/10 focus-within:border-red focus-within:ring-1 focus-within:ring-red/30 transition-all overflow-hidden px-4 py-2.5">
                   <span className="text-xs text-white/40 select-none font-mono pr-1">taptrade.cl/shop/store/</span>
@@ -155,13 +156,13 @@ export default function CreateStoreModal({
                   />
                 </div>
                 <p className="text-[11px] text-white/40 mt-1">
-                  Permite letras, números, guiones y guiones bajos (ej: bloodmoon_santiago).
+                  {t("subdomain_hint")}
                 </p>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Dirección Física (Retiro en Tienda)
+                  {t("physical_address_label")}
                 </label>
                 <input
                   type="text"
@@ -169,18 +170,18 @@ export default function CreateStoreModal({
                   value={formData.address}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Ej: Av. Providencia 2124, Local 4B"
+                  placeholder="Av. Providencia 2124, Local 4B"
                 />
               </div>
 
               <div>
                 <ImageUploadField
-                  label="Logo de la Sucursal (Opcional)"
+                  label={t("branch_logo_label")}
                   value={formData.logoUrl}
                   onChange={(url) => setFormData((prev: any) => ({ ...prev, logoUrl: url }))}
                   folder="stores"
                   type="logo"
-                  description="Si se omite, la sucursal heredará automáticamente el logo corporativo."
+                  description={t("branch_logo_desc")}
                 />
               </div>
             </div>
@@ -190,13 +191,13 @@ export default function CreateStoreModal({
           <div className="pt-4 border-t border-white/10 space-y-4">
             <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
               <IconShield className="w-4 h-4 text-purple-400" />
-              Dueño de Empresa (Super Usuario Holding)
+              {t("owner_section")}
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Nombre Completo del Dueño *
+                  {t("owner_name_label")}
                 </label>
                 <input
                   required
@@ -205,13 +206,13 @@ export default function CreateStoreModal({
                   value={formData.ownerName}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Ej: Rodrigo Valenzuela"
+                  placeholder="Rodrigo Valenzuela"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Correo Electrónico *
+                  {t("field_email")}
                 </label>
                 <input
                   required
@@ -226,7 +227,7 @@ export default function CreateStoreModal({
 
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5 uppercase tracking-wider">
-                  Contraseña de Acceso *
+                  {t("owner_password_label")}
                 </label>
                 <input
                   required
@@ -249,7 +250,7 @@ export default function CreateStoreModal({
               onClick={onClose}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button
               type="submit"
@@ -259,10 +260,10 @@ export default function CreateStoreModal({
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
                   <IconLoader className="w-4 h-4 animate-spin" />
-                  Registrando...
+                  {t("btn_registering")}
                 </span>
               ) : (
-                "Registrar Empresa"
+                t("btn_register_company_submit")
               )}
             </Button>
           </div>

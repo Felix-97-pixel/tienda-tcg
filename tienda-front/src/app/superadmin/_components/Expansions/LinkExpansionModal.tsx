@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
+import { IconX } from "@/components/ui/Icons";
 
 interface LinkExpansionModalProps {
   expansion: any;
@@ -10,6 +12,7 @@ interface LinkExpansionModalProps {
 }
 
 export default function LinkExpansionModal({ expansion, onClose, onSuccess }: LinkExpansionModalProps) {
+  const t = useTranslations("expansions_page");
   const { showToast } = useToast();
   const [remoteSets, setRemoteSets] = useState<any[]>([]);
   const [loadingSets, setLoadingSets] = useState(false);
@@ -87,12 +90,10 @@ export default function LinkExpansionModal({ expansion, onClose, onSuccess }: Li
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#0f1115]">
           <h3 className="text-xl font-bold text-white">
-            Vincular Expansión
+            {t("link_modal_title")}
           </h3>
           <button onClick={onClose} className="text-gray-4 hover:text-white transition-colors">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <IconX className="w-6 h-6" />
           </button>
         </div>
 
@@ -100,21 +101,21 @@ export default function LinkExpansionModal({ expansion, onClose, onSuccess }: Li
         <div className="p-6 overflow-y-auto flex-1">
           <div className="bg-blue/10 border border-blue/20 rounded-xl p-4 mb-6">
             <p className="text-sm text-blue">
-              Estás vinculando la expansión local <strong className="text-white">{expansion.name}</strong> del juego <strong className="text-white">{expansion.game}</strong>.
+              {t("link_modal_info", { name: expansion.name, game: expansion.game })}
             </p>
             <p className="text-xs text-blue/80 mt-1">
-              Selecciona el set oficial de la API para que el importador de precios sepa exactamente qué datos descargar.
+              {t("link_modal_sub")}
             </p>
           </div>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-3 mb-1.5">
-                Buscar en API Oficial
+                {t("search_official_api")}
               </label>
               <input 
                 type="text"
-                placeholder="Buscar por nombre o ID oficial..."
+                placeholder={t("search_official_placeholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-red/50 mb-3"
@@ -143,13 +144,13 @@ export default function LinkExpansionModal({ expansion, onClose, onSuccess }: Li
                       />
                       <div>
                         <div className="text-sm font-semibold text-white">{set.name}</div>
-                        <div className="text-xs font-mono text-gray-4 mt-0.5">ID: {set.id} {set.releaseDate && `• Lanzamiento: ${set.releaseDate}`}</div>
+                        <div className="text-xs font-mono text-gray-4 mt-0.5">ID: {set.id} {set.releaseDate && `• ${set.releaseDate}`}</div>
                       </div>
                     </label>
                   ))
                 ) : (
                   <div className="p-4 text-center text-gray-4 text-sm">
-                    No se encontraron sets que coincidan con la búsqueda.
+                    {t("no_sets_match")}
                   </div>
                 )}
               </div>
@@ -160,10 +161,10 @@ export default function LinkExpansionModal({ expansion, onClose, onSuccess }: Li
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-white/10 bg-[#0f1115]">
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={saving || !selectedSetId || loadingSets}>
-            {saving ? "Guardando..." : "Guardar Vinculación"}
+            {saving ? t("saving_link") : t("save_link")}
           </Button>
         </div>
       </div>

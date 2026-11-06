@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import { useStoreProfile } from "../../_components/hooks/useStoreProfile";
 import { Button } from "@/components/ui/Button";
 
@@ -8,6 +9,7 @@ interface StoreGamesFormProps {
 }
 
 export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
+  const t = useTranslations("games_page");
   const {
     loading,
     saving,
@@ -28,7 +30,7 @@ export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
   return (
     <div className="w-full space-y-6">
       <div className="bg-[#0E121B] p-8 rounded-2xl border border-white/10 shadow-xl">
-        <h3 className="text-sm font-bold text-white mb-4">Selecciona los Juegos Habilitados</h3>
+        <h3 className="text-sm font-bold text-white mb-4">{t("select_enabled_games")}</h3>
         <div className="flex flex-wrap gap-3">
           {availableGames?.length > 0 ? (
             availableGames.map(game => {
@@ -54,7 +56,7 @@ export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
               );
             })
           ) : (
-            <p className="text-sm text-white/40">No hay juegos disponibles en la plataforma.</p>
+            <p className="text-sm text-white/40">{t("no_games_available")}</p>
           )}
         </div>
       </div>
@@ -65,7 +67,7 @@ export default function StoreGamesForm({ storeId }: StoreGamesFormProps) {
           onClick={() => saveProfile(storeId)}
           isLoading={saving}
         >
-          Guardar Cambios
+          {t("btn_save_changes")}
         </Button>
       </div>
     </div>

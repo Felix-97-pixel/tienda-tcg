@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 
 interface ExpansionTableProps {
@@ -8,6 +9,7 @@ interface ExpansionTableProps {
 }
 
 export default function ExpansionTable({ expansions, loading, onLink }: ExpansionTableProps) {
+  const t = useTranslations("expansions_page");
   if (loading) {
     return (
       <div className="bg-[#0E121B] border border-white/10 rounded-2xl overflow-hidden shadow-xl p-8">
@@ -21,8 +23,8 @@ export default function ExpansionTable({ expansions, loading, onLink }: Expansio
   if (expansions.length === 0) {
     return (
       <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-16 text-center">
-        <h3 className="text-xl font-bold text-white mb-2">No se encontraron expansiones</h3>
-        <p className="text-white/40 text-xs">Intenta cambiar los filtros o los términos de búsqueda.</p>
+        <h3 className="text-xl font-bold text-white mb-2">{t("no_expansions_found")}</h3>
+        <p className="text-white/40 text-xs">{t("no_expansions_hint")}</p>
       </div>
     );
   }
@@ -32,12 +34,12 @@ export default function ExpansionTable({ expansions, loading, onLink }: Expansio
       <table className="w-full text-left whitespace-nowrap">
         <thead className="bg-[#0f1115]/50 border-b border-white/5 uppercase text-xs tracking-wider text-gray-4 font-semibold">
           <tr>
-            <th className="px-6 py-4">Expansión</th>
-            <th className="px-6 py-4">Juego</th>
-            <th className="px-6 py-4">Cartas Asignadas</th>
-            <th className="px-6 py-4">ID Oficial</th>
-            <th className="px-6 py-4 text-center">Estado</th>
-            <th className="px-6 py-4 text-right">Acciones</th>
+            <th className="px-6 py-4">{t("col_expansion")}</th>
+            <th className="px-6 py-4">{t("col_game")}</th>
+            <th className="px-6 py-4">{t("col_cards")}</th>
+            <th className="px-6 py-4">{t("col_official_id")}</th>
+            <th className="px-6 py-4 text-center">{t("col_status")}</th>
+            <th className="px-6 py-4 text-right">{t("col_actions")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5 text-sm text-gray-2">
@@ -67,12 +69,12 @@ export default function ExpansionTable({ expansions, loading, onLink }: Expansio
                 {exp.externalId ? (
                   <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-semibold">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    Vinculado
+                    {t("status_linked")}
                   </div>
                 ) : (
                   <div className="inline-flex items-center gap-1.5 bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1 rounded-full text-xs font-semibold">
                     <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                    Sin Vincular
+                    {t("status_unlinked")}
                   </div>
                 )}
               </td>
@@ -82,7 +84,7 @@ export default function ExpansionTable({ expansions, loading, onLink }: Expansio
                   className="px-3 py-1.5 text-xs h-auto"
                   onClick={() => onLink(exp)}
                 >
-                  {exp.externalId ? "Cambiar Vínculo" : "Vincular a API"}
+                  {exp.externalId ? t("btn_change_link") : t("btn_link_api")}
                 </Button>
               </td>
             </tr>

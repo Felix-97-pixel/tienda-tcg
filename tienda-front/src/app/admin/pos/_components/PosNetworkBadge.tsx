@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 interface PosNetworkBadgeProps {
   isOnline: boolean;
@@ -20,6 +21,8 @@ export default function PosNetworkBadge({
   onToggleSimulation,
   onManualSync,
 }: PosNetworkBadgeProps) {
+  const t = useTranslations("pos_page");
+
   return (
     <div className="flex items-center gap-2">
       {/* Indicador de estado */}
@@ -43,19 +46,18 @@ export default function PosNetworkBadge({
         />
         <span>
           {isSyncing
-            ? 'Sincronizando...'
+            ? t("syncing")
             : isOnline
-            ? 'En Línea'
-            : 'Modo Sin Conexión'}
+            ? t("online")
+            : t("offline")}
         </span>
 
         {pendingCount > 0 && (
           <button
             onClick={onManualSync}
-            title="Ventas guardadas localmente. Haz clic para forzar sincronización"
             className="ml-1 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] hover:bg-amber-500/30 transition-colors"
           >
-            {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
+            {pendingCount}
           </button>
         )}
       </div>
@@ -64,14 +66,13 @@ export default function PosNetworkBadge({
       <button
         onClick={onToggleSimulation}
         type="button"
-        title="Simulador de desarrollo para probar ventas sin internet"
         className={`text-[11px] font-bold px-2.5 py-1.5 rounded-xl border transition-all ${
           isSimulatedOffline
             ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
             : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'
         }`}
       >
-        {isSimulatedOffline ? 'Reanudar Red' : 'Simular Corte'}
+        {isSimulatedOffline ? t("resume_net") : t("simulate_outage")}
       </button>
 
       {/* Feedback flotante breve */}

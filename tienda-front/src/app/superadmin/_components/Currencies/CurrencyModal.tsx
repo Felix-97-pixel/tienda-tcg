@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -16,6 +17,7 @@ interface CurrencyModalProps {
 }
 
 export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCurrencies, games, onSuccess }: CurrencyModalProps) {
+  const t = useTranslations("currencies_page");
   const { showToast } = useToast();
 
   const [gameId, setGameId] = useState("");
@@ -74,12 +76,12 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={exchangeRate ? "Editar Tasa de Cambio" : "Agregar Tasa de Cambio"}
+      title={exchangeRate ? t("modal_edit_title") : t("modal_add_title")}
       maxWidth="md"
     >
       <form onSubmit={handleSave} className="space-y-5">
         <div>
-          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Juego *</label>
+          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">{t("field_game")}</label>
           <select 
             value={gameId}
             onChange={(e) => setGameId(e.target.value)}
@@ -94,14 +96,14 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Divisa Base *</label>
+          <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">{t("field_base_currency")}</label>
           <select 
             value={currencyCode}
             onChange={(e) => setCurrencyId(e.target.value)}
             className="w-full bg-[#111318] border border-stroke rounded-xl px-4 py-3 text-sm text-white focus:border-blue outline-none transition-colors"
             required
           >
-            {globalCurrencies.length === 0 && <option value="">Primero crea divisas en "Divisas Soportadas"</option>}
+            {globalCurrencies.length === 0 && <option value="">{t("create_currencies_first")}</option>}
             {globalCurrencies.map(curr => (
               <option key={curr.id} value={curr.code}>{curr.name} ({curr.code})</option>
             ))}
@@ -110,7 +112,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
 
         <div>
           <Input
-            label="Valor Local *"
+            label={t("field_local_val")}
             type="number"
             required
             step="0.01"
@@ -120,7 +122,7 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             placeholder="950"
           />
           <p className="text-xs text-gray-4 mt-1.5 ml-1">
-            Valor de 1 unidad de esta divisa en CLP. {selectedCurrency ? `Ej: 1 ${selectedCurrency.code} = ${rate || 'X'} CLP` : ''}
+            {t("unit_val_desc")} {selectedCurrency ? `1 ${selectedCurrency.code} = ${rate || 'X'} CLP` : ''}
           </p>
         </div>
 
@@ -131,10 +133,10 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
             onClick={onClose}
             disabled={saving}
           >
-            Cancelar
+            {t("btn_cancel")}
           </Button>
           <Button type="submit" isLoading={saving}>
-            Guardar
+            {t("btn_save")}
           </Button>
         </div>
       </form>

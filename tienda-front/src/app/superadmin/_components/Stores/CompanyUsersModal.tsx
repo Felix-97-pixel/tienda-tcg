@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { IconUsers, IconUserPlus, IconTrash, IconX, IconShield, IconLock } from "@/components/ui/Icons";
 import { TargetUserToEdit } from "./EditUserCredentialsModal";
@@ -37,6 +38,7 @@ export default function CompanyUsersModal({
   onRefresh,
   onEditCredentials,
 }: CompanyUsersModalProps) {
+  const t = useTranslations("stores_page");
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -166,19 +168,19 @@ export default function CompanyUsersModal({
       case "OWNER":
         return (
           <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-red/15 text-red-light border border-red/30">
-            Dueño Titular (Super Usuario)
+            OWNER
           </span>
         );
       case "ADMIN":
         return (
           <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-purple-500/15 text-purple-300 border border-purple-500/30">
-            Administrador Holding
+            ADMIN
           </span>
         );
       case "ACCOUNTANT":
         return (
           <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-500/15 text-amber-300 border border-amber-500/30">
-            Contador
+            ACCOUNTANT
           </span>
         );
       default:
@@ -201,10 +203,10 @@ export default function CompanyUsersModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-white leading-tight">
-                Accesos Corporativos &bull; {company.name}
+                {t("corp_access_title")} &bull; {company.name}
               </h3>
               <p className="text-xs text-white/50 mt-0.5">
-                Super usuarios con visibilidad consolidada sobre todas las sucursales
+                {t("corp_access_subtitle")}
               </p>
             </div>
           </div>
@@ -223,26 +225,26 @@ export default function CompanyUsersModal({
             <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 text-xs flex items-start gap-2.5 mb-3">
               <IconShield className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-white text-[11px]">Tarifario de Personal Holding (Empresa)</p>
+                <p className="font-bold text-white text-[11px]">{t("holding_staff_rates_title")}</p>
                 <p className="text-gray-400 text-[10px] leading-relaxed">
-                  Cada comercio incluye su Dueño Titular y 1er Contador gratis. Administradores adicionales se tarifican a <strong>+0.85 UF/mes (+ IVA)</strong> y Contadores extra a <strong>+0.30 UF/mes (+ IVA)</strong>.
+                  {t("holding_staff_rates_desc")}
                 </p>
               </div>
             </div>
 
             <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <IconUserPlus className="w-4 h-4 text-red" />
-              Asignar Nuevo Usuario Corporativo
+              {t("assign_corp_user")}
             </h4>
             <form onSubmit={handleAddUser} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Nombre Completo *
+                  {t("field_full_name")}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Carlos Silva"
+                  placeholder="Carlos Silva"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -251,7 +253,7 @@ export default function CompanyUsersModal({
 
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Correo Electrónico *
+                  {t("field_email")}
                 </label>
                 <input
                   type="email"
@@ -265,11 +267,11 @@ export default function CompanyUsersModal({
 
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Contraseña Temporal (Opcional)
+                  {t("field_temp_pass")}
                 </label>
                 <input
                   type="password"
-                  placeholder="Por defecto: TapTrade2026!"
+                  placeholder="TapTrade2026!"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -278,13 +280,13 @@ export default function CompanyUsersModal({
 
               <div>
                 <label className="block text-[11px] font-semibold text-white/70 mb-1">
-                  Rol Corporativo
+                  {t("field_corp_role")}
                 </label>
                 <SearchableSelect
                   options={[
-                    { label: "Administrador Holding (+0.85 UF/mes + IVA)", value: "ADMIN" },
-                    { label: "Contador (+0.30 UF/mes + IVA — 1ro gratis)", value: "ACCOUNTANT" },
-                    { label: "Dueño Copropietario (Incluido en Plan)", value: "OWNER" },
+                    { label: "ADMIN (+0.85 UF/mes + IVA)", value: "ADMIN" },
+                    { label: "ACCOUNTANT (+0.30 UF/mes + IVA)", value: "ACCOUNTANT" },
+                    { label: "OWNER", value: "OWNER" },
                   ]}
                   value={formData.role}
                   onChange={(val) =>
@@ -293,8 +295,7 @@ export default function CompanyUsersModal({
                       role: val as "OWNER" | "ADMIN" | "ACCOUNTANT",
                     })
                   }
-                  placeholder="Seleccionar rol corporativo..."
-                  noResultsText="No se encontraron roles"
+                  placeholder={t("field_corp_role")}
                   inputClassName="!py-2 !text-xs !bg-[#080B12] !border-white/10 hover:!border-red/40"
                   usePortal={true}
                   direction="auto"
@@ -310,7 +311,7 @@ export default function CompanyUsersModal({
                   className="!px-4 !py-2 text-xs gap-1.5"
                 >
                   <IconShield className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? "Asignando..." : "Vincular a Empresa"}</span>
+                  <span>{isSubmitting ? t("btn_assigning") : t("btn_link_company")}</span>
                 </Button>
               </div>
             </form>
@@ -319,14 +320,14 @@ export default function CompanyUsersModal({
           {/* Listado de Miembros */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center justify-between">
-              <span>Miembros Actuales de la Empresa ({members.length})</span>
+              <span>{t("current_company_members", { count: members.length })}</span>
             </h4>
 
             {loading ? (
-              <div className="py-8 text-center text-xs text-white/40">Cargando miembros...</div>
+              <div className="py-8 text-center text-xs text-white/40">{t("loading_members")}</div>
             ) : members.length === 0 ? (
               <div className="py-6 text-center text-xs text-white/40">
-                No hay usuarios vinculados a esta empresa.
+                {t("no_company_members")}
               </div>
             ) : (
               <div className="divide-y divide-white/5 border border-white/10 rounded-xl overflow-hidden bg-[#090C12]">
@@ -372,14 +373,14 @@ export default function CompanyUsersModal({
                                 isOwner,
                               })
                             }
-                            title="Editar credenciales y contraseña"
+                            title={t("edit_credentials_title")}
                           >
                             <IconLock className="w-3.5 h-3.5" />
                           </Button>
                         )}
                         {isOwner ? (
                           <span className="text-[10px] text-white/40 font-mono px-2 py-1">
-                            Titular
+                            {t("owner_badge")}
                           </span>
                         ) : (
                           <Button
@@ -388,7 +389,6 @@ export default function CompanyUsersModal({
                             className="!p-1.5"
                             disabled={removingId === member.userId}
                             onClick={() => handleRemoveUser(member.userId, member.user.name)}
-                            title="Quitar acceso corporativo"
                           >
                             <IconTrash className="w-3.5 h-3.5" />
                           </Button>
@@ -405,7 +405,7 @@ export default function CompanyUsersModal({
         {/* Footer */}
         <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02] flex justify-end">
           <Button variant="secondary" size="sm" onClick={onClose} className="!px-4">
-            Cerrar
+            {t("btn_close")}
           </Button>
         </div>
       </div>

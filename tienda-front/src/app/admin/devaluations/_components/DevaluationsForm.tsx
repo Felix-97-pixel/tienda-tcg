@@ -1,12 +1,15 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import Loader from "@/components/ui/Loader";
 import { Button } from "@/components/ui/Button";
+import { IconCoins, IconGlobe } from "@/components/ui/Icons";
 import { useStoreProfile } from "@/app/admin/_components/hooks/useStoreProfile";
 import { PenaltySlider } from "@/components/ui/PenaltySlider";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 
 export default function DevaluationsForm() {
+  const t = useTranslations("devaluations_page");
   const { loading, saving, formData, setFormData, saveProfile } = useStoreProfile("me");
   const [selectedGameId, setSelectedGameId] = React.useState<string | null>(null);
 
@@ -26,7 +29,7 @@ export default function DevaluationsForm() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Loader text="Cargando reglas..." className="min-h-[40vh] bg-transparent py-10" />
+        <Loader text={t("loading_rules")} className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }
@@ -37,7 +40,7 @@ export default function DevaluationsForm() {
       <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide">
         {formData.supportedGames?.length === 0 ? (
           <div className="text-red-400 text-sm py-2 px-4 bg-red-400/10 rounded-full border border-red-500/20">
-            Debes configurar al menos un juego en el perfil de tu tienda.
+            {t("configure_one_game")}
           </div>
         ) : (
           <SegmentedControl
@@ -59,13 +62,13 @@ export default function DevaluationsForm() {
             
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 rounded-2xl bg-red/10 border border-red/20 flex items-center justify-center shadow-inner">
-                <svg className="w-6 h-6 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <IconCoins className="w-6 h-6 text-red" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">Reglas de Estado</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">{t("title")}</h2>
                 <p className="text-xs text-white/40 font-medium mt-1">
-                  Define el porcentaje del valor base de una carta según su estado físico. 
-                  <strong className="text-white ml-1">Near Mint será siempre el 100% (Base).</strong>
+                  {t("subtitle")} 
+                  <strong className="text-white ml-1">{t("base_near_mint")}</strong>
                 </p>
               </div>
             </div>
@@ -92,19 +95,19 @@ export default function DevaluationsForm() {
               })}
 
               {(!formData.devaluations?.length || !selectedGameId) && (
-                <div className="text-white/40 text-sm text-center py-6">No se encontraron condiciones configurables para este juego.</div>
+                <div className="text-white/40 text-sm text-center py-6">{t("no_conditions")}</div>
               )}
             </div>
 
             <div className="flex items-center gap-4 mb-6 mt-8">
               <div className="w-12 h-12 rounded-2xl bg-red/10 border border-red/20 flex items-center justify-center shadow-inner text-red">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
+                <IconGlobe className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">Reglas de Idioma</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">{t("language_rules_title")}</h2>
                 <p className="text-xs text-white/40 font-medium mt-1">
-                  Define el porcentaje del valor base según el idioma. Si un idioma es más cotizado, puedes asignarle más de 100% (ej: 110%).
-                  <strong className="text-white ml-1">Inglés será siempre el 100% (Base).</strong>
+                  {t("language_rules_desc")}
+                  <strong className="text-white ml-1">{t("base_english")}</strong>
                 </p>
               </div>
             </div>
@@ -131,7 +134,7 @@ export default function DevaluationsForm() {
               })}
 
               {(!formData.languageDevaluations?.length || !selectedGameId) && (
-                <div className="text-white/40 text-sm text-center py-6">No se encontraron idiomas configurables para este juego.</div>
+                <div className="text-white/40 text-sm text-center py-6">{t("no_languages")}</div>
               )}
             </div>
 
@@ -143,7 +146,7 @@ export default function DevaluationsForm() {
                 isLoading={saving}
                 className="min-w-[170px]"
               >
-                Guardar Reglas
+                {t("save_rules_btn")}
               </Button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 import Loader from "@/components/ui/Loader";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ImageUploadField } from "@/components/ui/ImageUploadField";
@@ -25,6 +26,7 @@ interface StoreProfileFormProps {
 }
 
 export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
+  const t = useTranslations("store_profile_form");
   const {
     loading,
     saving,
@@ -59,7 +61,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Loader text="Cargando perfil de la sucursal..." className="min-h-[40vh] bg-transparent py-10" />
+        <Loader text={t("loading")} className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }
@@ -74,8 +76,8 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               <IconMapPin className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white uppercase tracking-wider">Sucursal en Edición</p>
-              <p className="text-xs text-white/50">Selecciona qué tienda física deseas configurar:</p>
+              <p className="text-xs font-bold text-white uppercase tracking-wider">{t("active_branch_title")}</p>
+              <p className="text-xs text-white/50">{t("active_branch_desc")}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -93,7 +95,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 <span>{b.name}</span>
                 {b.isMainBranch && (
                   <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/30 text-white/80 uppercase font-mono">
-                    Matriz
+                    {t("main_branch_badge")}
                   </span>
                 )}
               </button>
@@ -111,14 +113,14 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 <IconStore className="w-6 h-6 text-red" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">Información de la Sucursal</h2>
-                <p className="text-xs text-white/50">Datos públicos, subdominio web y logotipo específico de esta tienda física.</p>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">{t("branch_info_title")}</h2>
+                <p className="text-xs text-white/50">{t("branch_info_sub")}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
               <Input
-                label="Nombre de la Sucursal"
+                label={t("store_name")}
                 type="text"
                 required
                 value={formData.name}
@@ -129,12 +131,12 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-white/50">
-                    Subdominio de la Sucursal (URL Pública)
+                    {t("subdomain_public_url")}
                   </label>
                   {storeId === "me" && (
                     <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-400/90 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
                       <IconLock className="w-3 h-3 text-amber-400" />
-                      Solo modificable por SuperAdmin
+                      {t("only_superadmin")}
                     </span>
                   )}
                 </div>
@@ -143,7 +145,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                   <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/10 px-4 py-2.5 text-sm font-mono text-white/80">
                     <span className="truncate">
                       <span className="text-white/40">https://taptrade.cl/shop/store/</span>
-                      <strong className="text-white font-bold">{formData.subdomain || "sin-subdominio"}</strong>
+                      <strong className="text-white font-bold">{formData.subdomain || "-"}</strong>
                     </span>
                     {formData.subdomain && (
                       <a
@@ -151,7 +153,6 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                         target="_blank"
                         rel="noreferrer"
                         className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all ml-2 shrink-0"
-                        title="Abrir tienda pública"
                       >
                         <IconExternalLink className="w-4 h-4" />
                       </a>
@@ -177,7 +178,6 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                         target="_blank"
                         rel="noreferrer"
                         className="ml-2 text-white/40 hover:text-white transition-colors"
-                        title="Abrir tienda pública"
                       >
                         <IconExternalLink className="w-4 h-4" />
                       </a>
@@ -187,29 +187,29 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
 
                 <p className="text-[11px] text-white/40 mt-1.5">
                   {storeId === "me"
-                    ? "El subdominio oficial solo puede ser configurado por la administración de la plataforma. Para solicitar cambios, comunícate con soporte."
-                    : "Como SuperAdmin, puedes modificar libremente el subdominio de esta sucursal (permite [a-z0-9_-])."}
+                    ? t("subdomain_owner_note")
+                    : t("subdomain_superadmin_note")}
                 </p>
               </div>
 
               {/* Logo con subida a Bucket Cloudinary */}
               <ImageUploadField
-                label="Logo de la Sucursal"
+                label={t("logo_label")}
                 value={formData.logoUrl}
                 onChange={(url) => setFormData({ ...formData, logoUrl: url })}
                 folder="stores"
                 storeId={storeId === "me" ? activeBranchId || undefined : storeId}
                 type="logo"
-                description="Logo visible en el storefront público y en los recibos de esta sucursal. PNG, JPG, WEBP (Máx. 5MB)."
+                description={t("logo_desc")}
               />
 
               <div>
                 <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50">
-                  Descripción de la Sucursal
+                  {t("branch_desc_label")}
                 </label>
                 <textarea
                   className="w-full rounded-xl border border-white/10 bg-[#080B12] px-4 py-3 text-white focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all placeholder:text-white/30 text-sm min-h-[100px]"
-                  placeholder="Cuenta a tus clientes sobre esta sucursal física..."
+                  placeholder={t("branch_desc_placeholder")}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
@@ -221,20 +221,20 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 <IconShare className="w-6 h-6 text-white/70" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">Contacto y Redes Sociales</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-tight">{t("contact_social_title")}</h2>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label="Email de Contacto"
+                label={t("email")}
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="contacto@mitienda.com"
               />
               <div className="md:col-span-2 mt-4">
-                <label className="block text-sm font-semibold text-white mb-2">Ubicación Física</label>
+                <label className="block text-sm font-semibold text-white mb-2">{t("physical_location")}</label>
                 <LocationPicker
                   initialAddress={formData.address}
                   initialLat={formData.latitude}
@@ -250,7 +250,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 />
               </div>
               <Input
-                label="Página Web (URL)"
+                label={t("website_url")}
                 type="url"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
@@ -278,7 +278,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 placeholder="https://twitch.tv/mitienda"
               />
               <Input
-                label="WhatsApp (Número)"
+                label="WhatsApp"
                 type="text"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
@@ -301,25 +301,25 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                     <IconCreditCard className="w-6 h-6 text-sky-400" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Pagos y Cobros</h2>
+                    <h2 className="text-lg font-black text-white uppercase tracking-tight">{t("payments_title")}</h2>
                     <p className="text-xs text-white/40 font-medium mt-1">
-                      Opcional: Si deseas vincular tu cuenta de Mercado Pago para cobros directos.
+                      {t("payments_sub")}
                     </p>
                   </div>
                 </div>
 
                 <div className="bg-[#080B12] border border-white/10 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
                   <div>
-                    <h4 className="text-white font-bold mb-1">Cuenta de Mercado Pago</h4>
+                    <h4 className="text-white font-bold mb-1">{t("mp_account_title")}</h4>
                     {mpStatus?.linked ? (
                       <p className="text-sm text-emerald-400 font-medium flex items-center gap-2">
                         <IconCheck className="w-4 h-4 text-emerald-400" />
-                        Vinculada y activa para recibir pagos
+                        {t("mp_linked_active")}
                       </p>
                     ) : (
                       <p className="text-sm text-gray-400 font-medium flex items-center gap-2">
                         <IconAlertTriangle className="w-4 h-4 text-amber-400" />
-                        No vinculada (Opcional). Las ventas se liquidan mediante la cuenta central de TapTrade.
+                        {t("mp_not_linked_desc")}
                       </p>
                     )}
                   </div>
@@ -330,7 +330,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                       window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/payments/mp/connect`;
                     }}
                   >
-                    {mpStatus?.linked ? "Actualizar Vinculación" : "Vincular con Mercado Pago"}
+                    {mpStatus?.linked ? t("mp_update_link") : t("mp_link_btn")}
                   </Button>
                 </div>
               </>
@@ -339,7 +339,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             <div className="mt-10 pt-6 border-t border-white/10 flex justify-end">
               <div className="w-full md:w-1/3">
                 <Button type="submit" isLoading={saving} fullWidth>
-                  Guardar Cambios
+                  {t("save_changes_btn")}
                 </Button>
               </div>
             </div>
@@ -352,23 +352,23 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
             <div className="absolute -right-4 -top-4 w-28 h-28 bg-red/10 rounded-full blur-2xl group-hover:bg-red/20 transition-all duration-500"></div>
             <h3 className="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
               <span className="w-2 h-2 bg-red rounded-full shadow-[0_0_8px_rgba(225,14,14,0.8)]"></span>
-              Perfil Público de Sucursal
+              {t("public_profile_title")}
             </h3>
             <p className="text-xs text-white/50 leading-relaxed font-medium mb-6">
-              Toda la información ingresada aquí será visible en el catálogo online de esta sucursal en TapTrade.
+              {t("public_profile_desc")}
             </p>
             <div className="p-4 rounded-2xl bg-[#080B12] border border-white/10 space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold text-white/80">
                 <IconCheck className="w-4 h-4 text-emerald-400" />
-                Actualización instantánea
+                {t("instant_update")}
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-white/80">
                 <IconCheck className="w-4 h-4 text-emerald-400" />
-                Subdominio independiente por sucursal
+                {t("independent_subdomain")}
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-white/80">
                 <IconCheck className="w-4 h-4 text-emerald-400" />
-                Logos y direcciones por tienda física
+                {t("logos_per_store")}
               </div>
             </div>
           </div>

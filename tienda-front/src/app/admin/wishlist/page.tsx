@@ -1,11 +1,13 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { IconFlame } from "@/components/ui/Icons";
 
 export default function AdminWishlist() {
+  const t = useTranslations("admin.wishlist");
   const { features } = useAppSelector((state) => state.adminAuthReducer);
   const { loading, filter, setFilter, kpis, filteredProducts } = useWishlist();
 
@@ -18,9 +20,9 @@ export default function AdminWishlist() {
           <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
           <span className="text-[10px] font-black uppercase tracking-widest text-red">Radar de Demanda</span>
         </div>
-        <h1 className="text-2xl font-black text-white tracking-tight">Productos Deseados</h1>
+        <h1 className="text-2xl font-black text-white tracking-tight">{t("adminTitle")}</h1>
         <p className="text-white/40 text-xs max-w-2xl">
-          Descubre cuáles son las cartas y productos más guardados en las listas de deseos de los clientes. Utiliza esta información para saber qué inventario reponer o qué cartas están en tendencia.
+          {t("subtitle")}
         </p>
       </div>
 

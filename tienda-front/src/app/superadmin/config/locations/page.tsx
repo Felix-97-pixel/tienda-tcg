@@ -1,5 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { IconPencil, IconTrash } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -41,6 +43,8 @@ interface Commune {
 }
 
 export default function LocationsAdminPage() {
+  const t = useTranslations("locations_page");
+  const tCommon = useTranslations("common");
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"regions" | "communes" | "zones">("regions");
@@ -457,7 +461,7 @@ export default function LocationsAdminPage() {
   // Zone Columns
   const zoneColumns: Column<LogisticZone>[] = [
     {
-      header: "Código",
+      header: t("col_code"),
       key: "code",
       render: (z) => (
         <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-red/10 text-red border border-red/20">
@@ -490,7 +494,7 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Estado",
+      header: t("col_status"),
       key: "isActive",
       render: (z) => (
         <div className="flex items-center gap-2">
@@ -500,13 +504,13 @@ export default function LocationsAdminPage() {
             wrapperClassName="scale-90"
           />
           <span className={`text-xs font-bold ${z.isActive ? "text-emerald-400" : "text-white/30"}`}>
-            {z.isActive ? "Activa" : "Inactiva"}
+            {z.isActive ? t("active") : t("inactive")}
           </span>
         </div>
       ),
     },
     {
-      header: "Acciones",
+      header: t("col_actions"),
       key: "actions",
       render: (z) => (
         <div className="flex items-center gap-2">
@@ -515,22 +519,18 @@ export default function LocationsAdminPage() {
             variant="secondary"
             className="px-3 bg-blue/10 text-blue hover:bg-blue hover:text-white"
             onClick={() => handleOpenZoneModal(z)}
-            title="Editar zona"
+            title={t("btn_edit_zone")}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <IconPencil className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
             variant="danger"
             className="px-3"
             onClick={() => handleDeleteZone(z)}
-            title="Eliminar zona"
+            title={t("btn_delete_zone")}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
+            <IconTrash className="w-4 h-4" />
           </Button>
         </div>
       ),
@@ -540,7 +540,7 @@ export default function LocationsAdminPage() {
   // Region Columns
   const regionColumns: Column<Region>[] = [
     {
-      header: "Orden",
+      header: t("col_order"),
       key: "ordinal",
       render: (r) => <span className="font-mono text-xs text-white/40">#{r.ordinal}</span>,
     },
@@ -607,22 +607,18 @@ export default function LocationsAdminPage() {
             variant="secondary"
             className="px-3 bg-blue/10 text-blue hover:bg-blue hover:text-white"
             onClick={() => handleOpenRegionModal(r)}
-            title="Editar región"
+            title={t("btn_edit_region")}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <IconPencil className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
             variant="danger"
             className="px-3"
             onClick={() => handleDeleteRegion(r)}
-            title="Eliminar región"
+            title={t("btn_delete_region")}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
+            <IconTrash className="w-4 h-4" />
           </Button>
         </div>
       ),
@@ -632,7 +628,7 @@ export default function LocationsAdminPage() {
   // Commune Columns
   const communeColumns: Column<Commune>[] = [
     {
-      header: "Código Logístico",
+      header: t("col_code"),
       key: "code",
       render: (c) => (
         <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white/5 text-white/90 border border-white/10">
@@ -646,7 +642,7 @@ export default function LocationsAdminPage() {
       render: (c) => <span className="font-bold text-sm text-white">{c.name}</span>,
     },
     {
-      header: "Región",
+      header: t("col_region"),
       key: "region",
       render: (c) => (
         <span className="text-xs text-white/70">
@@ -655,7 +651,7 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Zona Tarifaria",
+      header: t("col_zone"),
       key: "zone",
       render: (c) => (
         <span className="text-[11px] font-bold px-2.5 py-1 rounded-full border bg-blue/10 text-blue border-blue/25">
@@ -664,7 +660,7 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Despachos",
+      header: t("col_dispatches"),
       key: "isActive",
       render: (c) => (
         <div className="flex items-center gap-2">
@@ -674,7 +670,7 @@ export default function LocationsAdminPage() {
             wrapperClassName="scale-90"
           />
           <span className={`text-xs font-bold ${c.isActive ? "text-emerald-400" : "text-white/30"}`}>
-            {c.isActive ? "Operativa" : "Suspendida"}
+            {c.isActive ? t("operational") : t("suspended")}
           </span>
         </div>
       ),
@@ -689,22 +685,18 @@ export default function LocationsAdminPage() {
             variant="secondary"
             className="px-3 bg-blue/10 text-blue hover:bg-blue hover:text-white"
             onClick={() => handleOpenCommuneModal(c)}
-            title="Editar comuna"
+            title={t("btn_edit_commune")}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <IconPencil className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
             variant="danger"
             className="px-3"
             onClick={() => handleDeleteCommune(c)}
-            title="Eliminar comuna"
+            title={t("btn_delete_commune")}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
+            <IconTrash className="w-4 h-4" />
           </Button>
         </div>
       ),
@@ -718,31 +710,31 @@ export default function LocationsAdminPage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-black tracking-tight text-white">
-              Gestión de Regiones, Comunas & Zonas
+              {t("title")}
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              PostgreSQL Relacional
+              {t("badge")}
             </span>
           </div>
           <p className="text-sm text-white/60 mt-1">
-            Mantenedor integral de la división política y zonas logísticas tarifarias para Starken y Chilexpress.
+            {t("subtitle")}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {activeTab === "regions" && (
             <Button variant="primary" onClick={() => handleOpenRegionModal()}>
-              + Nueva Región
+              {t("btn_new_region")}
             </Button>
           )}
           {activeTab === "communes" && (
             <Button variant="primary" onClick={() => handleOpenCommuneModal()}>
-              + Nueva Comuna
+              {t("btn_new_commune")}
             </Button>
           )}
           {activeTab === "zones" && (
             <Button variant="primary" onClick={() => handleOpenZoneModal()}>
-              + Nueva Zona Logística
+              {t("btn_new_logistic_zone")}
             </Button>
           )}
         </div>
@@ -751,30 +743,30 @@ export default function LocationsAdminPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-5">
-          <p className="text-xs uppercase font-bold tracking-wider text-white/40">Total Regiones</p>
+          <p className="text-xs uppercase font-bold tracking-wider text-white/40">{t("total_regions")}</p>
           <p className="text-2xl font-black text-white mt-1 font-mono">{regions.length}</p>
-          <span className="text-[10px] font-bold text-emerald-400 mt-1 inline-block">16 Oficiales SUBDERE</span>
+          <span className="text-[10px] font-bold text-emerald-400 mt-1 inline-block">{t("official_subdere")}</span>
         </div>
 
         <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-5">
-          <p className="text-xs uppercase font-bold tracking-wider text-white/40">Total Comunas</p>
+          <p className="text-xs uppercase font-bold tracking-wider text-white/40">{t("total_communes")}</p>
           <p className="text-2xl font-black text-white mt-1 font-mono">{totalCommunesCount || communes.length}</p>
-          <span className="text-[10px] font-bold text-blue mt-1 inline-block">346 Cobertura Nacional</span>
+          <span className="text-[10px] font-bold text-blue mt-1 inline-block">{t("national_coverage")}</span>
         </div>
 
         <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-5">
-          <p className="text-xs uppercase font-bold tracking-wider text-white/40">Zonas Logísticas BD</p>
+          <p className="text-xs uppercase font-bold tracking-wider text-white/40">{t("logistic_zones_db")}</p>
           <p className="text-2xl font-black text-white mt-1 font-mono">{zones.length}</p>
-          <span className="text-[10px] font-bold text-purple-400 mt-1 inline-block">Tarifas y Recargos</span>
+          <span className="text-[10px] font-bold text-purple-400 mt-1 inline-block">{t("rates_surcharges")}</span>
         </div>
 
         <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-5">
-          <p className="text-xs uppercase font-bold tracking-wider text-white/40">Integridad Relacional</p>
+          <p className="text-xs uppercase font-bold tracking-wider text-white/40">{t("relational_integrity")}</p>
           <p className="text-base font-black text-emerald-400 mt-2 font-mono flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            1 a Muchos + FK Store
+            {t("one_to_many")}
           </p>
-          <span className="text-[10px] text-white/40 mt-1 inline-block">ACID / Cero datos huérfanos</span>
+          <span className="text-[10px] text-white/40 mt-1 inline-block">{t("acid_note")}</span>
         </div>
       </div>
 
@@ -786,7 +778,7 @@ export default function LocationsAdminPage() {
             activeTab === "regions" ? "text-white" : "text-white/40 hover:text-white/70"
           }`}
         >
-          <span>Regiones de Chile ({regions.length})</span>
+          <span>{t("tab_regions_count", { count: regions.length })}</span>
           {activeTab === "regions" && (
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
           )}
@@ -798,7 +790,7 @@ export default function LocationsAdminPage() {
             activeTab === "communes" ? "text-white" : "text-white/40 hover:text-white/70"
           }`}
         >
-          <span>Comunas de Chile ({communes.length})</span>
+          <span>{t("tab_communes_count", { count: communes.length })}</span>
           {activeTab === "communes" && (
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
           )}
@@ -810,7 +802,7 @@ export default function LocationsAdminPage() {
             activeTab === "zones" ? "text-white" : "text-white/40 hover:text-white/70"
           }`}
         >
-          <span>Zonas Logísticas ({zones.length})</span>
+          <span>{t("tab_zones_count", { count: zones.length })}</span>
           {activeTab === "zones" && (
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
           )}
@@ -824,7 +816,7 @@ export default function LocationsAdminPage() {
             data={regions}
             columns={regionColumns}
             loading={loading}
-            emptyMessage="No hay regiones registradas en la base de datos."
+            emptyMessage={t("empty_regions")}
             keyExtractor={(item) => item.id}
           />
         </div>
@@ -837,14 +829,14 @@ export default function LocationsAdminPage() {
           <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4">
             <div className="w-full sm:w-72">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">
-                Filtrar por Región
+                {t("filter_by_region")}
               </label>
               <select
                 value={selectedRegionFilter}
                 onChange={(e) => setSelectedRegionFilter(e.target.value)}
                 className="w-full bg-[#07090E] border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-white focus:border-red focus:ring-1 focus:ring-red outline-none"
               >
-                <option value="all">Todas las Regiones ({regions.length})</option>
+                <option value="all">{t("all_regions_count", { count: regions.length })}</option>
                 {regions.map((r) => (
                   <option key={r.id} value={r.id}>
                     [{r.code}] {r.name}
@@ -855,13 +847,13 @@ export default function LocationsAdminPage() {
 
             <div className="w-full flex-1">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">
-                Buscar Comuna
+                {t("search_communes")}
               </label>
               <input
                 type="text"
                 value={communeSearch}
                 onChange={(e) => setCommuneSearch(e.target.value)}
-                placeholder="Escribe el nombre o código de la comuna..."
+                placeholder={t("search_communes")}
                 className="w-full bg-[#07090E] border border-white/10 rounded-xl px-4 py-2 text-xs font-bold text-white placeholder-white/20 focus:border-red focus:ring-1 focus:ring-red outline-none"
               />
             </div>
@@ -876,7 +868,7 @@ export default function LocationsAdminPage() {
                     setCommuneSearch("");
                   }}
                 >
-                  Limpiar Filtros
+                  {tCommon("clear") || "Limpiar"}
                 </Button>
               </div>
             )}
@@ -886,7 +878,7 @@ export default function LocationsAdminPage() {
             data={communes}
             columns={communeColumns}
             loading={loading}
-            emptyMessage="No se encontraron comunas con los filtros seleccionados."
+            emptyMessage={t("empty_communes")}
             keyExtractor={(item) => item.id}
           />
         </div>
@@ -899,7 +891,7 @@ export default function LocationsAdminPage() {
             data={zones}
             columns={zoneColumns}
             loading={loading}
-            emptyMessage="No hay zonas logísticas registradas."
+            emptyMessage={t("empty_zones")}
             keyExtractor={(item) => item.id}
           />
         </div>
@@ -909,48 +901,48 @@ export default function LocationsAdminPage() {
       <Modal
         isOpen={isZoneModalOpen}
         onClose={() => setIsZoneModalOpen(false)}
-        title={editingZone ? `Editar Zona: ${editingZone.name}` : "Nueva Zona Logística"}
+        title={editingZone ? t("modal_edit_zone", { name: editingZone.name }) : t("modal_new_zone")}
         maxWidth="md"
       >
         <form onSubmit={handleSaveZone} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Código Único de Zona <span className="text-red">*</span>
+              {t("zone_code")} <span className="text-red">*</span>
             </label>
             <Input
               required
               value={zoneForm.code}
               onChange={(e) => setZoneForm({ ...zoneForm, code: e.target.value.toUpperCase().replace(/\s+/g, "_") })}
-              placeholder="Ej: RM, NORTE_GRANDE, INSULAR..."
+              placeholder="RM, NORTE_GRANDE..."
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Nombre de la Zona Logística <span className="text-red">*</span>
+              {t("zone_name")} <span className="text-red">*</span>
             </label>
             <Input
               required
               value={zoneForm.name}
               onChange={(e) => setZoneForm({ ...zoneForm, name: e.target.value })}
-              placeholder="Ej: Zona Insular Especial"
+              placeholder={t("zone_name")}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Descripción / Política de Recargo
+              {t("zone_desc")}
             </label>
             <Input
               value={zoneForm.description}
               onChange={(e) => setZoneForm({ ...zoneForm, description: e.target.value })}
-              placeholder="Ej: Aplica recargo aéreo para Isla de Pascua"
+              placeholder={t("zone_desc")}
             />
           </div>
 
           <div className="pt-2">
             <Switch
-              label="Zona Activa en el Sistema"
+              label={t("zone_active")}
               checked={zoneForm.isActive}
               onChange={(e) => setZoneForm({ ...zoneForm, isActive: e.target.checked })}
               wrapperClassName="bg-[#080B12] border-white/10"
@@ -959,10 +951,10 @@ export default function LocationsAdminPage() {
 
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-6">
             <Button type="button" variant="secondary" onClick={() => setIsZoneModalOpen(false)}>
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button variant="primary" type="submit" isLoading={saving}>
-              Guardar Zona
+              {t("btn_save_zone")}
             </Button>
           </div>
         </form>
@@ -972,49 +964,49 @@ export default function LocationsAdminPage() {
       <Modal
         isOpen={isRegionModalOpen}
         onClose={() => setIsRegionModalOpen(false)}
-        title={editingRegion ? `Editar Región: ${editingRegion.name}` : "Nueva Región de Chile"}
+        title={editingRegion ? t("modal_edit_region", { name: editingRegion.name }) : t("modal_new_region")}
         maxWidth="md"
       >
         <form onSubmit={handleSaveRegion} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Código Oficial <span className="text-red">*</span>
+              {t("region_code")} <span className="text-red">*</span>
             </label>
             <Input
               required
               value={regionForm.code}
               onChange={(e) => setRegionForm({ ...regionForm, code: e.target.value.toUpperCase() })}
-              placeholder="Ej: RM, V, VIII, XV..."
+              placeholder="RM, V, VIII..."
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Nombre Completo de la Región <span className="text-red">*</span>
+              {t("region_name")} <span className="text-red">*</span>
             </label>
             <Input
               required
               value={regionForm.name}
               onChange={(e) => setRegionForm({ ...regionForm, name: e.target.value })}
-              placeholder="Ej: Región de Valparaíso"
+              placeholder={t("region_name")}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Nombre Corto / Alias (Opcional)
+              {t("region_short")}
             </label>
             <Input
               value={regionForm.shortName}
               onChange={(e) => setRegionForm({ ...regionForm, shortName: e.target.value })}
-              placeholder="Ej: Valparaíso"
+              placeholder={t("region_short")}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-                Zona Logística Base <span className="text-red">*</span>
+                {t("region_zone")} <span className="text-red">*</span>
               </label>
               <select
                 value={regionForm.zoneId}
@@ -1031,7 +1023,7 @@ export default function LocationsAdminPage() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-                Orden Geográfico (#)
+                {t("region_ordinal")}
               </label>
               <Input
                 type="number"
@@ -1045,7 +1037,7 @@ export default function LocationsAdminPage() {
 
           <div className="pt-2">
             <Switch
-              label="Habilitar Región en Despachos"
+              label={t("region_active")}
               checked={regionForm.isActive}
               onChange={(e) => setRegionForm({ ...regionForm, isActive: e.target.checked })}
               wrapperClassName="bg-[#080B12] border-white/10"
@@ -1054,10 +1046,10 @@ export default function LocationsAdminPage() {
 
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-6">
             <Button type="button" variant="secondary" onClick={() => setIsRegionModalOpen(false)}>
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button variant="primary" type="submit" isLoading={saving}>
-              Guardar Región
+              {t("btn_save_region")}
             </Button>
           </div>
         </form>
@@ -1067,38 +1059,37 @@ export default function LocationsAdminPage() {
       <Modal
         isOpen={isCommuneModalOpen}
         onClose={() => setIsCommuneModalOpen(false)}
-        title={editingCommune ? `Editar Comuna: ${editingCommune.name}` : "Nueva Comuna"}
+        title={editingCommune ? t("modal_edit_commune", { name: editingCommune.name }) : t("modal_new_commune")}
         maxWidth="md"
       >
         <form onSubmit={handleSaveCommune} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Código Logístico Único <span className="text-red">*</span>
+              {t("commune_code")} <span className="text-red">*</span>
             </label>
             <Input
               required
               value={communeForm.code}
               onChange={(e) => setCommuneForm({ ...communeForm, code: e.target.value.toUpperCase().replace(/\s+/g, "_") })}
-              placeholder="Ej: PROVIDENCIA, LAS_CONDES, VINA_DEL_MAR"
+              placeholder="PROVIDENCIA, LAS_CONDES..."
             />
-            <p className="text-[11px] text-white/40 mt-1">Formato sin espacios en mayúsculas (ej: CONCEPCION).</p>
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Nombre de la Comuna <span className="text-red">*</span>
+              {t("commune_name")} <span className="text-red">*</span>
             </label>
             <Input
               required
               value={communeForm.name}
               onChange={(e) => setCommuneForm({ ...communeForm, name: e.target.value })}
-              placeholder="Ej: Providencia"
+              placeholder={t("commune_name")}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Región Perteneciente <span className="text-red">*</span>
+              {t("commune_region")} <span className="text-red">*</span>
             </label>
             <select
               required
@@ -1113,7 +1104,7 @@ export default function LocationsAdminPage() {
               }}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:border-red focus:ring-1 focus:ring-red outline-none"
             >
-              <option value="">Selecciona una región...</option>
+              <option value="">{t("filter_all_regions")}</option>
               {regions.map((r) => (
                 <option key={r.id} value={r.id}>
                   [{r.code}] {r.name}
@@ -1124,7 +1115,7 @@ export default function LocationsAdminPage() {
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1">
-              Zona Logística Tarifaria <span className="text-red">*</span>
+              {t("commune_zone")} <span className="text-red">*</span>
             </label>
             <select
               value={communeForm.zoneId}
@@ -1137,14 +1128,11 @@ export default function LocationsAdminPage() {
                 </option>
               ))}
             </select>
-            <p className="text-[11px] text-white/40 mt-1">
-              Determina la matriz tarifaria relacional calculada para Starken y Chilexpress en el checkout.
-            </p>
           </div>
 
           <div className="pt-2">
             <Switch
-              label="Habilitar Despachos hacia esta Comuna"
+              label={t("commune_active")}
               checked={communeForm.isActive}
               onChange={(e) => setCommuneForm({ ...communeForm, isActive: e.target.checked })}
               wrapperClassName="bg-[#080B12] border-white/10"
@@ -1153,10 +1141,10 @@ export default function LocationsAdminPage() {
 
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-6">
             <Button type="button" variant="secondary" onClick={() => setIsCommuneModalOpen(false)}>
-              Cancelar
+              {t("btn_cancel")}
             </Button>
             <Button variant="primary" type="submit" isLoading={saving}>
-              Guardar Comuna
+              {t("btn_save_commune")}
             </Button>
           </div>
         </form>

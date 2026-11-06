@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -23,6 +24,8 @@ export default function GlobalCatalogSearchModal({
   onSelectProduct,
   mode = "all",
 }: GlobalCatalogSearchModalProps) {
+  const t = useTranslations("buylist_page");
+  const tFilter = useTranslations("products.filters");
   const {
     searchTerm,
     setSearchTerm,
@@ -109,25 +112,9 @@ export default function GlobalCatalogSearchModal({
   if (!isOpen) return null;
 
   const getModalTitle = () => {
-    if (mode === "sealed") return "Buscar Productos Sellados y Accesorios";
-    if (mode === "singles") return "Buscar Cartas Singles en Catálogo Global";
-    return "Buscar en el Catálogo Global (Buylist / Inventario)";
-  };
-
-  const getPlaceholder = () => {
-    if (activeTab === "sealed") return "Ej: Booster Box, Fundas Katana, Deckbox, Dados...";
-    if (activeTab === "singles") return "Ej: Black Lotus, Charizard, Lightning Bolt...";
-    return "Ej: Charizard, Booster Box, Fundas, Black Lotus...";
-  };
-
-  const getDescription = () => {
-    if (activeTab === "sealed") {
-      return "Busca productos sellados, cajas, fundas y accesorios en el catálogo maestro para agregarlos.";
-    }
-    if (activeTab === "singles") {
-      return "Busca en la base de datos maestra para agregar cartas individuales TCG.";
-    }
-    return "Busca cartas singles, productos sellados o accesorios para agregar a tu Buylist o catálogo.";
+    if (mode === "sealed") return t("global_title_sealed");
+    if (mode === "singles") return t("global_title_singles");
+    return t("global_title_all");
   };
 
   return (
@@ -147,9 +134,9 @@ export default function GlobalCatalogSearchModal({
               value={activeTab}
               onChange={(val) => handleTabChange(val as "all" | "singles" | "sealed")}
               options={[
-                { value: "all", label: "Todos los Productos", icon: <IconGlobe className="w-3.5 h-3.5" />, variant: "default" },
-                { value: "singles", label: "Singles TCG", icon: <IconCard className="w-3.5 h-3.5" />, variant: "blue" },
-                { value: "sealed", label: "Sellado & Accesorios", icon: <IconBox className="w-3.5 h-3.5" />, variant: "success" },
+                { value: "all", label: t("tab_all_products"), icon: <IconGlobe className="w-3.5 h-3.5" />, variant: "default" },
+                { value: "singles", label: t("tab_singles_tcg"), icon: <IconCard className="w-3.5 h-3.5" />, variant: "blue" },
+                { value: "sealed", label: t("tab_sealed_acc"), icon: <IconBox className="w-3.5 h-3.5" />, variant: "success" },
               ]}
             />
           </div>
@@ -160,15 +147,15 @@ export default function GlobalCatalogSearchModal({
           {/* Si estamos en Singles TCG: Dropdown de Juegos TCG */}
           {activeTab === "singles" && (
             <div className="md:col-span-1">
-              <label className="mb-1.5 block text-xs font-medium text-white/70">Filtrar por Juego</label>
+              <label className="mb-1.5 block text-xs font-medium text-white/70">{t("filter_by_game")}</label>
               <SearchableSelect
                 options={[
-                  { label: "Todos los juegos", value: "" },
+                  { label: t("tab_all"), value: "" },
                   ...games.map((g) => ({ label: g.name, value: g.id })),
                 ]}
                 value={selectedGame}
                 onChange={setSelectedGame}
-                placeholder="Todos los juegos"
+                placeholder={t("filter_by_game")}
               />
             </div>
           )}
@@ -176,15 +163,15 @@ export default function GlobalCatalogSearchModal({
           {/* Si estamos en Sellado & Accesorios: Dropdown exclusivo de categorías NO-TCG */}
           {activeTab === "sealed" && (
             <div className="md:col-span-1">
-              <label className="mb-1.5 block text-xs font-medium text-white/70">Categoría Sellado</label>
+              <label className="mb-1.5 block text-xs font-medium text-white/70">{t("sealed_category")}</label>
               <SearchableSelect
                 options={[
-                  { label: "Todas las categorías sellado", value: "" },
+                  { label: tFilter("allCategories"), value: "" },
                   ...sealedCategories.map((c) => ({ label: c.name, value: c.name })),
                 ]}
                 value={selectedCategory}
                 onChange={setSelectedCategory}
-                placeholder="Todas las categorías sellado"
+                placeholder={tFilter("allCategories")}
               />
             </div>
           )}
@@ -192,15 +179,15 @@ export default function GlobalCatalogSearchModal({
           {/* Si estamos en Todos: Dropdown de todas las categorías */}
           {activeTab === "all" && (
             <div className="md:col-span-1">
-              <label className="mb-1.5 block text-xs font-medium text-white/70">Categoría</label>
+              <label className="mb-1.5 block text-xs font-medium text-white/70">{tFilter("category")}</label>
               <SearchableSelect
                 options={[
-                  { label: "Todas las categorías", value: "" },
+                  { label: tFilter("allCategories"), value: "" },
                   ...allCategories.map((c) => ({ label: c.name, value: c.name })),
                 ]}
                 value={selectedCategory}
                 onChange={setSelectedCategory}
-                placeholder="Todas las categorías"
+                placeholder={tFilter("allCategories")}
               />
             </div>
           )}
@@ -208,8 +195,8 @@ export default function GlobalCatalogSearchModal({
           {/* Input de Búsqueda por Nombre */}
           <div className="md:col-span-2">
             <Input
-              label="Buscar por nombre"
-              placeholder={getPlaceholder()}
+              label={t("search_by_name")}
+              placeholder={tFilter("searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               autoFocus
@@ -218,7 +205,7 @@ export default function GlobalCatalogSearchModal({
         </div>
 
         <p className="text-xs text-gray-4 font-medium">
-          {getDescription()} Escribe al menos 2 caracteres o selecciona una categoría.
+          {t("start_typing_search")}
         </p>
 
         {/* Lista de Resultados */}
@@ -234,7 +221,7 @@ export default function GlobalCatalogSearchModal({
             <div className="space-y-2">
               {results.map((product) => {
                 const isTcgProduct = Boolean(product.cardDetail);
-                const categoryName = product.category?.name || (isTcgProduct ? "Singles TCG" : "Sellado");
+                const categoryName = product.category?.name || (isTcgProduct ? t("tab_singles_tcg") : t("tab_sealed_acc"));
 
                 return (
                   <button
@@ -262,7 +249,7 @@ export default function GlobalCatalogSearchModal({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs text-gray-5">
-                          Sin img
+                          {t("no_image")}
                         </div>
                       )}
                     </div>
@@ -275,7 +262,7 @@ export default function GlobalCatalogSearchModal({
                         {isTcgProduct ? (
                           <>
                             {product.cardDetail?.gameRel?.name ? `${product.cardDetail.gameRel.name} • ` : ""}
-                            {categoryName} • {product.cardDetail?.expansion || "Sin Expansión"}
+                            {categoryName} • {product.cardDetail?.expansion || "-"}
                           </>
                         ) : (
                           <>
@@ -306,7 +293,7 @@ export default function GlobalCatalogSearchModal({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs font-bold text-red group-hover:underline">Seleccionar</span>
+                      <span className="text-xs font-bold text-red group-hover:underline">{t("select_btn")}</span>
                     </div>
                   </button>
                 );
@@ -315,12 +302,12 @@ export default function GlobalCatalogSearchModal({
           ) : searchTerm || selectedCategory || selectedGame ? (
             <div className="flex flex-col items-center justify-center h-full py-12 text-center text-gray-4">
               <IconSearch className="w-12 h-12 stroke-current mb-3 opacity-20" />
-              <p className="text-sm">No se encontraron productos que coincidan con la búsqueda.</p>
+              <p className="text-sm">{t("no_products_match")}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full py-16 text-center text-gray-5">
               <IconSearch className="w-12 h-12 stroke-current mb-2 opacity-20" />
-              <p className="text-sm">Comienza a escribir o selecciona una categoría para buscar.</p>
+              <p className="text-sm">{t("start_typing_search")}</p>
             </div>
           )}
         </div>

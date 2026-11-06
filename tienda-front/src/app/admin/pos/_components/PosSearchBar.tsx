@@ -1,9 +1,10 @@
 "use client";
 import React, { useRef, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { LocalProduct } from '../_lib/posDb';
-import { IconSearch, IconGlobe, IconRepeat } from '@/components/ui/Icons';
+import { IconSearch, IconGlobe, IconRepeat, IconX } from '@/components/ui/Icons';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { resolveTradeInValuation } from '@/utils/tradeInPricing';
@@ -52,6 +53,8 @@ export default function PosSearchBar({
   onOpenGlobalCatalogModal,
   exchangeRates = [],
 }: PosSearchBarProps) {
+  const t = useTranslations("pos_page");
+  const tFilter = useTranslations("products.filters");
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isMounted, setIsMounted] = useState(false);
@@ -99,13 +102,13 @@ export default function PosSearchBar({
             options={[
               {
                 value: 'BUYLIST',
-                label: 'Cartas en mi Buylist',
+                label: t("cards_in_buylist"),
                 icon: <IconRepeat className="w-3.5 h-3.5" />,
                 variant: 'success',
               },
               {
                 value: 'GLOBAL',
-                label: 'Colección Maestra Global',
+                label: t("global_master_collection"),
                 icon: <IconGlobe className="w-3.5 h-3.5" />,
                 variant: 'blue',
               },
@@ -118,7 +121,7 @@ export default function PosSearchBar({
               onClick={onOpenGlobalCatalogModal}
               className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <span>+ Buscar en SuperAdmin</span>
+              <span>{t("search_in_superadmin")}</span>
             </button>
           )}
         </div>
@@ -128,27 +131,25 @@ export default function PosSearchBar({
       {posMode === 'BUY' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <SearchableSelect
-            placeholder="Todos los juegos (Magic, Pokémon, etc.)"
+            placeholder={tFilter("allCategories")}
             options={[
-              { label: "Todos los juegos (Magic, Pokémon, etc.)", value: "" },
+              { label: tFilter("allCategories"), value: "" },
               ...categories.map((c) => ({ label: c.name, value: c.name })),
             ]}
             value={selectedCategory}
             onChange={(val) => onSelectCategory && onSelectCategory(val)}
-            noResultsText="No se encontraron juegos"
             inputClassName="!py-2 !text-xs !bg-[#0E121B] !rounded-xl !border-white/10 focus:!border-emerald-500"
           />
 
           <SearchableSelect
-            placeholder="Todas las expansiones"
+            placeholder={tFilter("allExpansions")}
             disabled={!selectedCategory && expansions.length === 0}
             options={[
-              { label: "Todas las expansiones", value: "" },
+              { label: tFilter("allExpansions"), value: "" },
               ...expansions.map((exp) => ({ label: exp.name, value: exp.name })),
             ]}
             value={selectedExpansion}
             onChange={(val) => onSelectExpansion && onSelectExpansion(val)}
-            noResultsText="No se encontraron expansiones"
             inputClassName="!py-2 !text-xs !bg-[#0E121B] !rounded-xl !border-white/10 focus:!border-emerald-500 disabled:opacity-40"
           />
         </div>
@@ -165,13 +166,7 @@ export default function PosSearchBar({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={
-            posMode === 'BUY'
-              ? buySourceTab === 'BUYLIST'
-                ? "Buscar entre las cartas de tu Buylist (F2)..."
-                : "Buscar en todo el catálogo maestro global (F2)..."
-              : "Escanear código de barras o escribir carta para VENDER (F2)..."
-          }
+          placeholder={t("type_card_to_search")}
           className={`w-full pl-11 pr-28 py-3.5 bg-[#0E121B] border rounded-2xl text-white placeholder-white/40 text-sm font-medium focus:outline-none transition-all shadow-inner ${
             posMode === 'BUY'
               ? 'border-emerald-500/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
@@ -186,7 +181,7 @@ export default function PosSearchBar({
               type="button"
               className="p-1 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
             >
-              ✕
+              <IconX className="w-4 h-4" />
             </button>
           )}
           <span className="hidden sm:inline-block px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-mono text-white/40">
@@ -202,7 +197,7 @@ export default function PosSearchBar({
             <div className={`w-6 h-6 border-2 border-t-transparent rounded-full animate-spin ${
               posMode === 'BUY' ? 'border-emerald-500' : 'border-red'
             }`} />
-            <span className="text-xs">Buscando cartas...</span>
+            <span className="text-xs">{t("searching_cards")}</span>
           </div>
         ) : results.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 p-6 text-center bg-[#0E121B]/50 rounded-2xl border border-white/5">
@@ -210,14 +205,7 @@ export default function PosSearchBar({
               <IconSearch className="w-6 h-6" />
             </div>
             <p className="text-sm font-bold text-white/70">
-              {searchQuery ? 'No se encontraron cartas con ese término' : 'Escribe el nombre de la carta para buscar'}
-            </p>
-            <p className="text-xs text-white/40 mt-1 max-w-xs">
-              {posMode === 'BUY'
-                ? buySourceTab === 'BUYLIST'
-                  ? 'Mostrando cartas configuradas en tu Buylist. Cambia a "Colección Maestra Global" para buscar cualquier carta de Magic/Pokémon.'
-                  : 'Busca entre miles de cartas del catálogo maestro para asignarle precio y comprarla.'
-                : 'Busca cartas con stock en tu tienda para agregar al ticket de venta.'}
+              {searchQuery ? t("no_cards_found") : t("type_card_to_search")}
             </p>
           </div>
         ) : (
@@ -270,12 +258,12 @@ export default function PosSearchBar({
                       </h3>
                       {isBuylist && (
                         <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
-                          En tu Buylist
+                          {t("in_your_buylist")}
                         </span>
                       )}
                       {!isBuylist && isAutoRate && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
-                          Avalúo Auto
+                          {t("auto_valuation")}
                         </span>
                       )}
                       {product.barcode && (
@@ -313,7 +301,7 @@ export default function PosSearchBar({
                             Cash: ${tradeInInfo.cashPrice.toLocaleString('es-CL')}
                           </span>
                           <span className="text-cyan-300 font-mono font-bold block">
-                            Crédito: ${tradeInInfo.creditPrice.toLocaleString('es-CL')}
+                            SC: ${tradeInInfo.creditPrice.toLocaleString('es-CL')}
                           </span>
                         </div>
                       ) : isAutoRate ? (
@@ -322,15 +310,15 @@ export default function PosSearchBar({
                             Cash: ${tradeInInfo.cashPrice.toLocaleString('es-CL')}
                           </span>
                           <span className="text-cyan-300 font-mono font-bold block">
-                            Crédito: ${tradeInInfo.creditPrice.toLocaleString('es-CL')}
+                            SC: ${tradeInInfo.creditPrice.toLocaleString('es-CL')}
                           </span>
                           <span className="text-[9px] text-cyan-400/80 font-mono font-bold block">
-                            (Tasa: {tradeInInfo.buyPercentage}% / {tradeInInfo.creditPercentage}%)
+                            ({tradeInInfo.buyPercentage}% / {tradeInInfo.creditPercentage}%)
                           </span>
                         </div>
                       ) : (
                         <span className="text-[10px] text-white/40 block">
-                          Precio manual en ticket
+                          {t("manual_price_ticket")}
                         </span>
                       )}
                       <button
@@ -338,7 +326,7 @@ export default function PosSearchBar({
                         type="button"
                         className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1"
                       >
-                        <span>+ Comprar</span>
+                        <span>{t("btn_buy")}</span>
                       </button>
                     </div>
                   )}
@@ -351,10 +339,10 @@ export default function PosSearchBar({
                       <div className="flex items-center justify-between p-2.5 rounded-xl bg-red/5 border border-red/20 text-xs">
                         <span className="text-red font-bold flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-red" />
-                          Sin unidades disponibles en tienda (Agotado)
+                          {t("out_of_stock_store")}
                         </span>
                         <span className="text-white/40 text-[11px] font-mono">
-                          0 en stock
+                          {t("zero_in_stock")}
                         </span>
                       </div>
                     ) : (
@@ -392,7 +380,7 @@ export default function PosSearchBar({
                                       ${priceNum.toLocaleString('es-CL')} CLP
                                     </span>
                                     <span className="text-[10px] text-white/40">
-                                      ({item.stock} disp.)
+                                      ({item.stock})
                                     </span>
                                   </div>
                                 </div>
@@ -403,7 +391,7 @@ export default function PosSearchBar({
                                   className="px-3 py-1.5 rounded-xl bg-red hover:bg-red-light text-white text-xs font-bold transition-all shadow-sm active:scale-95 flex items-center gap-1"
                                 >
                                   <span>+</span>
-                                  <span>Agregar</span>
+                                  <span>{t("btn_add")}</span>
                                 </button>
                               </div>
                             );
