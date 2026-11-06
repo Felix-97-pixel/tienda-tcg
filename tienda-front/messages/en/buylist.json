@@ -52,7 +52,12 @@
     "whatsapp_contact": "Contact {storeName} via WhatsApp",
     "copy_offer": "Copy offer details",
     "copied_success": "✓ Offer details copied to clipboard",
-    "pickup_available": "Store pickup available at: {address}"
+    "pickup_available": "Store pickup available at: {address}",
+    "cash_transfer": "Cash (Bank Transfer)",
+    "whatsapp_message": "Hi {storeName}! I saw on the TapTrade Buylist that you are buying \"{cardName}\" ({cond} - {lang}).\nI have {qty} copy(ies) available to sell for ${total} CLP in {method}.\nHow can we coordinate drop-off or shipping?",
+    "copy_offer_text": "Buylist Offer for {storeName}:\nCard: {cardName} ({cond} - {lang})\nQuantity: {qty}\nPayout: {method} (${total} CLP)",
+    "official_edition": "Official Edition",
+    "max_copies": "Max: {count} copies"
   },
   "admin_modal": {
     "title": "Manage Buylist",
@@ -96,5 +101,15 @@
     "cta_plans": "View Plans & Join TapTrade",
     "cta_already_seller": "Already registered? Go to Buylist panel",
     "reassurance": "Predictable monthly SaaS • 0% sales commission • Integrated shipping & payouts"
+  },
+  "meta_title": "Sell TCG Cards | TapTrade Official Buylist Engine",
+  "meta_description": "Sell your Magic: The Gathering, Pokémon, and TCG singles to official stores. Check live Buylists and get paid in cash or store credit with an extra bonus.",
+  "steps": {
+    "step1_title": "Find What Stores Need",
+    "step1_desc": "Explore the singles requested by each store, checking the required condition and official language.",
+    "step2_title": "Cash or Credit (+25%)",
+    "step2_desc": "Receive a direct bank transfer to your account or choose store credit with an additional bonus.",
+    "step3_title": "Local Drop-Off or Shipping",
+    "step3_desc": "Visit the physical store location in your city or ship your package with official tracking."
   }
 }

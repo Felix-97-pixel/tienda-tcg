@@ -52,7 +52,12 @@
     "whatsapp_contact": "Contatar {storeName} via WhatsApp",
     "copy_offer": "Copiar detalhes da oferta",
     "copied_success": "✓ Detalhes copiados para a área de transferência",
-    "pickup_available": "Retirada presencial disponível em: {address}"
+    "pickup_available": "Retirada presencial disponível em: {address}",
+    "cash_transfer": "Dinheiro (Transferência)",
+    "whatsapp_message": "Olá {storeName}! Vi na Buylist da TapTrade que vocês estão comprando \"{cardName}\" ({cond} - {lang}).\nTenho {qty} cópia(s) disponíveis para vender por ${total} CLP em {method}.\nComo podemos combinar a entrega ou envio?",
+    "copy_offer_text": "Oferta Buylist para {storeName}:\nCarta: {cardName} ({cond} - {lang})\nQuantidade: {qty}\nPagamento: {method} (${total} CLP)",
+    "official_edition": "Edição Oficial",
+    "max_copies": "Máx: {count} cópias"
   },
   "admin_modal": {
     "title": "Gerenciar Buylist",
@@ -96,5 +101,15 @@
     "cta_plans": "Conheça os Planos e Junte-se ao TapTrade",
     "cta_already_seller": "Já tem loja? Ir para o painel de Buylist",
     "reassurance": "Assinatura mensal transparente • Sem comissões por venda • Pagamentos e envíos integrados"
+  },
+  "meta_title": "Vender Cartas TCG | Motor de Buylist Oficial TapTrade",
+  "meta_description": "Venda seus cards Magic: The Gathering, Pokémon e TCGs para lojas oficiais. Confira as Buylists ao vivo e receba em dinheiro ou crédito na loja com bônus adicional.",
+  "steps": {
+    "step1_title": "Encontre o que Procuram",
+    "step1_desc": "Explore os cards solicitados por cada loja, verificando o estado exigido e o idioma oficial.",
+    "step2_title": "Dinheiro ou Crédito (+25%)",
+    "step2_desc": "Receba transferência bancária direta na sua conta ou escolha crédito na loja com bônus adicional.",
+    "step3_title": "Entrega Local ou Envio",
+    "step3_desc": "Vá até a loja física na sua cidade ou envie seu pacote com rastreamento oficial."
   }
 }

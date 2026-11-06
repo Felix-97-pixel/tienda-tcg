@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import SearchableSelect from "@/components/ui/SearchableSelect";
-import { IconZap, IconSearch, IconCash, IconGem, IconFilter, IconArrowRight, IconStore, IconCoins, IconChevronRight } from "@/components/ui/Icons";
+import { IconZap, IconSearch, IconCash, IconGem, IconFilter, IconArrowRight, IconStore, IconCoins, IconChevronRight, IconRefresh, IconWhatsApp } from "@/components/ui/Icons";
 import { fetchCachedConditions, fetchCachedLanguages } from "@/utils/metadataCache";
 import { useTranslations } from "next-intl";
 
@@ -323,9 +323,17 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     const lang = item.language?.name || "English";
     const chosenPrice = payoutMethod === "credit" ? Number(item.creditPrice || 0) : Number(item.cashPrice || 0);
     const total = chosenPrice * tradeQuantity;
-    const methodStr = payoutMethod === "credit" ? "Crédito en Tienda" : "Efectivo (Transferencia)";
+    const methodStr = payoutMethod === "credit" ? t("trade_modal.store_credit") : t("trade_modal.cash_transfer");
 
-    const message = `¡Hola ${item.store.name}! Vi en la Buylist de TapTrade que están comprando "${item.product.name}" (${cond} - ${lang}).\nTengo ${tradeQuantity} copia(s) disponibles para venderles por $${total.toLocaleString("es-CL")} CLP en ${methodStr}.\n¿Cómo coordinamos la entrega o envío?`;
+    const message = t("trade_modal.whatsapp_message", {
+      storeName: item.store.name,
+      cardName: item.product.name,
+      cond,
+      lang,
+      qty: tradeQuantity,
+      total: total.toLocaleString("es-CL"),
+      method: methodStr,
+    });
 
     const url = phone
       ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
@@ -341,9 +349,17 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
     const lang = item.language?.name || "English";
     const chosenPrice = payoutMethod === "credit" ? Number(item.creditPrice || 0) : Number(item.cashPrice || 0);
     const total = chosenPrice * tradeQuantity;
-    const methodStr = payoutMethod === "credit" ? "Crédito en Tienda" : "Efectivo";
+    const methodStr = payoutMethod === "credit" ? t("trade_modal.store_credit") : t("trade_modal.cash");
 
-    const text = `Oferta Buylist para ${item.store.name}:\nCarta: ${item.product.name} (${cond} - ${lang})\nCantidad: ${tradeQuantity}\nPago: ${methodStr} ($${total.toLocaleString("es-CL")} CLP)`;
+    const text = t("trade_modal.copy_offer_text", {
+      storeName: item.store.name,
+      cardName: item.product.name,
+      cond,
+      lang,
+      qty: tradeQuantity,
+      method: methodStr,
+      total: total.toLocaleString("es-CL"),
+    });
     navigator.clipboard.writeText(text);
     setCopiedNotification(true);
     setTimeout(() => setCopiedNotification(false), 2500);
@@ -373,10 +389,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             1
           </div>
           <h3 className="text-base font-bold text-white mb-1">
-            Encuentra lo que buscan
+            {t("steps.step1_title")}
           </h3>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Explora las cartas solicitadas por cada tienda, revisando el estado requerido y el idioma oficial.
+            {t("steps.step1_desc")}
           </p>
         </div>
 
@@ -385,10 +401,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             2
           </div>
           <h3 className="text-base font-bold text-white mb-1">
-            Efectivo o Crédito (+25%)
+            {t("steps.step2_title")}
           </h3>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Recibe transferencia bancaria directa a tu cuenta o elige crédito en tienda con bonificación adicional.
+            {t("steps.step2_desc")}
           </p>
         </div>
 
@@ -397,10 +413,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             3
           </div>
           <h3 className="text-base font-bold text-white mb-1">
-            Entrega Local o Despacho
+            {t("steps.step3_title")}
           </h3>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Acércate al local físico de la tienda en tu ciudad o envía tu paquete con seguimiento oficial.
+            {t("steps.step3_desc")}
           </p>
         </div>
       </div>
@@ -873,9 +889,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
             <div className="flex items-center gap-2.5 mb-4">
               <span className="w-8 h-8 rounded-xl bg-red-600/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
+                <IconRefresh className="w-4 h-4" />
               </span>
               <h3 className="text-lg font-black text-white">
                 {t("trade_modal.title", { storeName: activeTradeItem.store.name })}
@@ -899,14 +913,14 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   {activeTradeItem.product?.name}
                 </h4>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {activeTradeItem.product?.cardDetail?.expansion || "Edición oficial"}
+                  {activeTradeItem.product?.cardDetail?.expansion || t("trade_modal.official_edition")}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
                     {activeTradeItem.condition?.displayName || "Near Mint"}
                   </span>
                   <span className="text-xs text-gray-400">
-                    Máx: {activeTradeItem.quantityWanted} copias
+                    {t("trade_modal.max_copies", { count: activeTradeItem.quantityWanted })}
                   </span>
                 </div>
               </div>
@@ -1003,9 +1017,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 onClick={handleWhatsAppContact}
                 className="w-full h-11 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20 transition-all active:scale-[0.98]"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
-                </svg>
+                <IconWhatsApp className="w-4 h-4" />
                 {t("trade_modal.whatsapp_contact", { storeName: activeTradeItem.store.name })}
               </button>
 
