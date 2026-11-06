@@ -10,5 +10,7 @@
   "not_found_desc": "A página que você procura parece ter sido movida, excluída ou não existe na TapTrade.",
   "back_to_home": "Voltar ao Início",
   "breadcrumb_title": "Erro 404",
-  "breadcrumb_page": "Página não encontrada"
+  "breadcrumb_page": "Página não encontrada",
+  "meta_title": "Página Não Encontrada (404) | TapTrade TCG Marketplace",
+  "meta_description": "A página que você procura não existe ou foi movida na TapTrade."
 }

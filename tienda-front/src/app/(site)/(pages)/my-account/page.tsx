@@ -1,11 +1,15 @@
 import MyAccount from "@/app/(site)/(pages)/my-account/_components";
 import React, { Suspense } from "react";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Mi Cuenta | TapTrade",
-  description: "Gestiona tus pedidos, direcciones y datos de cuenta",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("account");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 const MyAccountPage = () => {
   return (

@@ -1,11 +1,15 @@
 import React from "react";
 import { Metadata } from "next";
 import PoliticaPrivacidadClient from "./PoliticaPrivacidadClient";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Política de Privacidad | TapTrade",
-  description: "Detalles y políticas de privacidad oficiales sobre el tratamiento de tus datos personales en TapTrade.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("privacy");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 const PoliticaPrivacidadPage = () => {
   return <PoliticaPrivacidadClient />;

@@ -626,7 +626,9 @@
     "in_stock_count": "In Stock ({count})",
     "out_of_stock_badge": "Out of Stock",
     "your_price_label": "Your Price",
-    "market_price_label": "Market"
+    "market_price_label": "Market",
+    "meta_title": "My Wishlist | TapTrade TCG Marketplace",
+    "meta_description": "Save, organize, and track Magic: The Gathering, Pokémon, One Piece, and Yu-Gi-Oh! cards in your TapTrade Wishlist."
   },
   "settings": {
     "title": "Settings",
@@ -754,7 +756,9 @@
     "settings_tag": "Settings & Shipping",
     "pos_title": "Point of Sale (POS)",
     "pos_desc": "Counter register for your physical store, barcode scanning, buying and selling singles, and cash balance.",
-    "pos_tag": "Counter Sales"
+    "pos_tag": "Counter Sales",
+    "meta_title": "Select Module | TapTrade Admin",
+    "meta_description": "Select the administration module"
   },
   "buylist_page": {
     "title": "My Buylist",
@@ -866,7 +870,9 @@
     "language_rules_desc": "Set the base value percentage by language. If a language is more sought-after, you can assign over 100% (e.g. 110%).",
     "base_english": "English will always be 100% (Base).",
     "no_languages": "No configurable languages found for this game.",
-    "save_rules_btn": "Save Rules"
+    "save_rules_btn": "Save Rules",
+    "meta_title": "Devaluation Rules | TapTrade",
+    "meta_description": "Configure the devaluation percentage based on physical card condition."
   },
   "games_page": {
     "title": "Supported Games",

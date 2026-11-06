@@ -1,11 +1,15 @@
 import React from "react";
 import DevaluationsForm from "./_components/DevaluationsForm";
+import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-export const metadata = {
-  title: "Reglas de Degradación | TapTrade",
-  description: "Configura el porcentaje de devaluación según el estado físico de la carta.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("admin.devaluations_page");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 export default async function DevaluationsPage() {
   const t = await getTranslations("admin.devaluations_page");

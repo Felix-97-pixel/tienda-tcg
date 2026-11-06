@@ -114,7 +114,13 @@
     "finish_label": "Acabado",
     "finish_title": "Acabado (Foil / Normal)",
     "sale_20_off": "OFERTA 20% DCTO",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "meta_site_title": "TapTrade | Compra y Venta de Cartas TCG",
+    "meta_site_desc": "Tu tienda especializada en cartas Magic, Pokémon, Yu-Gi-Oh y más.",
+    "meta_home_title": "TapTrade Chile | El Marketplace Oficial de Cartas TCG (Magic, Pokémon, Riftbound)",
+    "meta_home_desc": "Compra y vende singles, cajas y boosters en vivo de tiendas verificadas de Chile. Despacho oficial con Chilexpress, Starken y Retiro en Tienda $0.",
+    "meta_catalog_title": "Catálogo de Cartas TCG | Singles y Sellado | TapTrade Chile",
+    "meta_catalog_desc": "Explora el marketplace oficial de cartas TCG de Chile. Singles de Pokémon, Magic, Yu-Gi-Oh!, One Piece y Riftbound de tiendas verificadas con despacho o retiro presencial."
   },
   "cart": {
     "title": "Tu Carrito de Compras",
@@ -168,7 +174,9 @@
     "close_cart_aria": "Cerrar carrito",
     "official_shipping_prefix": "Envíos oficiales",
     "pickup_free_badge": "Retiro $0",
-    "max_stock_toast": "Solo hay {max} unidades disponibles en stock"
+    "max_stock_toast": "Solo hay {max} unidades disponibles en stock",
+    "meta_title": "Carrito de Compras | TapTrade TCG Marketplace",
+    "meta_description": "Revisa tus cartas coleccionables, calcula envíos de tiendas de Chile y finaliza tu compra segura en TapTrade."
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -296,7 +304,11 @@
       "commune_label": "Comuna de Destino",
       "region_placeholder": "Selecciona tu región...",
       "commune_placeholder": "Selecciona o busca tu comuna..."
-    }
+    },
+    "meta_title": "Checkout | TapTrade TCG",
+    "meta_description": "Completa tu compra de forma segura con Webpay Plus",
+    "meta_result_title": "Resultado del pago | TapTrade TCG",
+    "meta_result_description": "Estado de tu transacción Webpay"
   },
   "product_details": {
     "breadcrumb_catalog": "← Catálogo Marketplace",
@@ -368,7 +380,9 @@
     "empty_title": "Tu Lista de Deseos está Vacía",
     "empty_desc": "Aún no has agregado cartas a tu wishlist. Explora nuestro catálogo de singles de Magic, Pokémon, One Piece y Yu-Gi-Oh! de tiendas de todo Chile y haz clic en el corazón para monitorearlas.",
     "explore_catalog": "Explorar Catálogo TCG",
-    "explore_by_game": "Explorar por juego:"
+    "explore_by_game": "Explorar por juego:",
+    "meta_title": "Mi Lista de Deseos (Wishlist) | TapTrade TCG Marketplace",
+    "meta_description": "Guarda, organiza y monitorea cartas de Magic: The Gathering, Pokémon, One Piece y Yu-Gi-Oh! en tu Wishlist de TapTrade."
   },
   "stores_directory": {
     "badge": "Directorio Oficial de Comercios TCG",
@@ -467,7 +481,9 @@
       "a3": "Todas las tiendas de TapTrade están obligadas a clasificar según el estándar oficial (NM, LP, MP, HP, DMG). Si recibes algo distinto, abre un ticket de mediación desde tu panel o escríbenos a soporte@taptrade.cl para reemplazo o reembolso.",
       "q4": "¿Cómo puedo abrir una tienda y vender en TapTrade?",
       "a4": "Ofrecemos un modelo SaaS con 0% comisión sobre el valor de tus cartas. Solo necesitas registrarte como tienda, configurar tus datos de transferencia y sincronizar tu inventario."
-    }
+    },
+    "meta_title": "Contacto y Soporte Oficial | TapTrade TCG Chile",
+    "meta_description": "Comunícate con el equipo de soporte de TapTrade SpA. Resolvemos dudas sobre compras, envíos, apertura de tiendas TCG y transacciones seguras en Chile."
   },
   "home": {
     "hero": {
@@ -580,7 +596,10 @@
     "no_cards_filtered_desc": "Prueba buscando con otro término o limpia los filtros para ver todas las cartas solicitadas.",
     "no_cards_empty_desc": "{storeName} aún no ha publicado cartas solicitadas en su buylist. Vuelve a consultar pronto.",
     "official_edition": "Edición oficial",
-    "max_copies": "Máx: {count} copias"
+    "max_copies": "Máx: {count} copias",
+    "meta_not_found": "Tienda no encontrada",
+    "meta_title": "{name} | Vitrina TCG TapTrade",
+    "meta_desc": "Explora el catálogo oficial de {name} en TapTrade. Cartas singles, sellados y accesorios con envíos a todo Chile."
   },
   "account": {
     "status_pending": "Pendiente",
@@ -639,7 +658,9 @@
     "details_subtitle": "Información personal de tu perfil y contacto.",
     "locked_badge": "Bloqueado",
     "no_checkout_address_yet": "No has configurado tu dirección para el Checkout aún.",
-    "manage_in_addresses_btn": "Gestionar {count} en Direcciones"
+    "manage_in_addresses_btn": "Gestionar {count} en Direcciones",
+    "meta_title": "Mi Cuenta | TapTrade",
+    "meta_description": "Gestiona tus pedidos, direcciones y datos de cuenta"
   },
   "carrier_timeline": {
     "toggle_theme_title": "Alternar entre tema original Chilexpress y modo oscuro",
@@ -762,5 +783,11 @@
   "language_label": "Idioma",
   "finish_label": "Acabado",
   "finish_title": "Acabado (Foil / Normal)",
-  "sale_20_off": "OFERTA 20% DCTO"
+  "sale_20_off": "OFERTA 20% DCTO",
+  "meta_site_title": "TapTrade | Compra y Venta de Cartas TCG",
+  "meta_site_desc": "Tu tienda especializada en cartas Magic, Pokémon, Yu-Gi-Oh y más.",
+  "meta_home_title": "TapTrade Chile | El Marketplace Oficial de Cartas TCG (Magic, Pokémon, Riftbound)",
+  "meta_home_desc": "Compra y vende singles, cajas y boosters en vivo de tiendas verificadas de Chile. Despacho oficial con Chilexpress, Starken y Retiro en Tienda $0.",
+  "meta_catalog_title": "Catálogo de Cartas TCG | Singles y Sellado | TapTrade Chile",
+  "meta_catalog_desc": "Explora el marketplace oficial de cartas TCG de Chile. Singles de Pokémon, Magic, Yu-Gi-Oh!, One Piece y Riftbound de tiendas verificadas con despacho o retiro presencial."
 }

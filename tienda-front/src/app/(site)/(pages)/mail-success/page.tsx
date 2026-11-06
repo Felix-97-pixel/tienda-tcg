@@ -2,10 +2,15 @@ import React from "react";
 import MailSuccess from "@/app/(site)/(pages)/mail-success/_components";
 
 import { Metadata } from "next";
-export const metadata: Metadata = {
-  title: "Mensaje Enviado con Éxito | TapTrade TCG Marketplace",
-  description: "Tu solicitud ha sido recibida correctamente por el equipo de TapTrade.",
-};
+import { getTranslations } from "next-intl/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("mail_success");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 const MailSuccessPage = () => {
   return (

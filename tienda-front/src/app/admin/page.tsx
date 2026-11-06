@@ -9,10 +9,15 @@ import {
   IconArrowLeft,
 } from "@/components/ui/Icons";
 
-export const metadata = {
-  title: "Seleccionar Módulo | TapTrade Admin",
-  description: "Selecciona el módulo de administración",
-};
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("admin.hub");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 export default async function AdminHub() {
   const t = await getTranslations("admin.hub");

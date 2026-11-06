@@ -274,7 +274,9 @@
       "cta_title": "Legal or Regulatory Inquiries?",
       "cta_desc": "Our legal and tax team will respond promptly.",
       "cta_btn": "Contact legal@taptrade.cl"
-    }
+    },
+    "meta_title": "Terms and Conditions | TapTrade Chile",
+    "meta_description": "Official legal terms and conditions for the TapTrade SpA TCG SaaS & Marketplace platform (RUT 78.531.106-K) in Chile."
   },
   "privacy": {
     "pageTitle": "Privacy Policy",
@@ -492,6 +494,8 @@
       "title": "Use of Cookies and Similar Technologies",
       "p1": "TapTrade uses essential technical cookies to keep your session active, remember cards added to your shopping cart, and protect the site against malicious access.",
       "p2": "You can configure or disable cookies at any time in your web browser preferences. However, please note that disabling essential technical cookies may prevent the shopping cart and account login from functioning properly."
-    }
+    },
+    "meta_title": "Privacy Policy | TapTrade",
+    "meta_description": "Official privacy policy and details regarding the processing of your personal data on TapTrade."
   }
 }

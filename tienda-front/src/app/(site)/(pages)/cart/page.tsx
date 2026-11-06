@@ -2,10 +2,15 @@ import React from "react";
 import Cart from "@/app/(site)/(pages)/cart/_components";
 
 import { Metadata } from "next";
-export const metadata: Metadata = {
-  title: "Carrito de Compras | TapTrade TCG Marketplace",
-  description: "Revisa tus cartas coleccionables, calcula envíos de tiendas de Chile y finaliza tu compra segura en TapTrade.",
-};
+import { getTranslations } from "next-intl/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("cart");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 const CartPage = () => {
   return (

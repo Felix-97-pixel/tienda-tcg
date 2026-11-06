@@ -626,7 +626,9 @@
     "in_stock_count": "Em Estoque ({count})",
     "out_of_stock_badge": "Esgotado",
     "your_price_label": "Seu Preço",
-    "market_price_label": "Mercado"
+    "market_price_label": "Mercado",
+    "meta_title": "Minha Lista de Desejos (Wishlist) | TapTrade TCG Marketplace",
+    "meta_description": "Salve, organize e monitore cartas de Magic: The Gathering, Pokémon, One Piece e Yu-Gi-Oh! na sua Wishlist da TapTrade."
   },
   "settings": {
     "title": "Configurações",
@@ -754,7 +756,9 @@
     "settings_tag": "Ajustes & Envios",
     "pos_title": "Ponto de Venda (PDV)",
     "pos_desc": "Caixa registradora para sua loja física, leitor de código de barras, compra/venda de singles e fechamento de caixa.",
-    "pos_tag": "Venda no Balcão"
+    "pos_tag": "Venda no Balcão",
+    "meta_title": "Selecionar Módulo | TapTrade Admin",
+    "meta_description": "Selecione o módulo de administração"
   },
   "buylist_page": {
     "title": "Minha Buylist",
@@ -866,7 +870,9 @@
     "language_rules_desc": "Defina a porcentagem do valor base por idioma. Se um idioma for mais valorizado, você pode atribuir mais de 100% (ex: 110%).",
     "base_english": "Inglês será sempre 100% (Base).",
     "no_languages": "Nenhum idioma configurável encontrado para este jogo.",
-    "save_rules_btn": "Salvar Regras"
+    "save_rules_btn": "Salvar Regras",
+    "meta_title": "Regras de Desvalorização | TapTrade",
+    "meta_description": "Configure a porcentagem de desvalorização segundo o estado físico da carta."
   },
   "games_page": {
     "title": "Jogos Suportados",

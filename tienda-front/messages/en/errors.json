@@ -10,5 +10,7 @@
   "not_found_desc": "The page you were looking for appears to have been moved, deleted or does not exist.",
   "back_to_home": "Back to Home",
   "breadcrumb_title": "404 Error",
-  "breadcrumb_page": "Page Not Found"
+  "breadcrumb_page": "Page Not Found",
+  "meta_title": "Page Not Found (404) | TapTrade TCG Marketplace",
+  "meta_description": "The page you are looking for does not exist or has been moved on TapTrade."
 }

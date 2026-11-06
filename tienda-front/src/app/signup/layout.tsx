@@ -1,24 +1,27 @@
 import { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getLocale } from "next-intl/server";
+import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import { ReduxProvider } from "@/redux/provider";
 import ToastContainer from "@/components/layout/ToastContainer";
 import "../css/euclid-circular-a-font.css";
 import "../css/store-style.css";
 
-export const metadata: Metadata = {
-  title: "Crear Cuenta | TapTrade TCG Marketplace",
-  description: "Crea tu cuenta gratis en TapTrade. Compra y vende cartas coleccionables, sincroniza tu inventario y únete a la comunidad de TCG más grande de Chile.",
-  icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/icon.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.ico" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: "/apple-icon.png",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("register");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+    icons: {
+      icon: [
+        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/icon.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon.ico" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: "/apple-icon.png",
+    },
+  };
+}
 
 export default async function SignupLayout({
   children,

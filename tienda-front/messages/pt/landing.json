@@ -531,6 +531,8 @@
     "features": {
       "mock_item3_sub": "Acessório • 100 Sleeves",
       "mock_items_count": "Itens ({count})"
-    }
+    },
+    "meta_title": "TapTrade | A Plataforma de E-commerce para TCG",
+    "meta_description": "Crie sua loja de cards em minutos. Gestão de estoque sincronizado, catálogo global e múltiplas opções de envio."
   }
 }

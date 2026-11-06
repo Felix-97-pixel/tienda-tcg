@@ -1,15 +1,18 @@
 import { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getLocale } from "next-intl/server";
+import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import { ReduxProvider } from "@/redux/provider";
 import ToastContainer from "@/components/layout/ToastContainer";
 import "../css/euclid-circular-a-font.css";
 import "../css/store-style.css";
 
-export const metadata: Metadata = {
-  title: "Restablecer Contraseña | TapTrade TCG Marketplace",
-  description: "Crea una nueva contraseña segura para tu cuenta de TapTrade.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("reset_password");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 export default async function RestablecerContrasenaLayout({
   children,

@@ -1,11 +1,15 @@
 import React from "react";
 import { Wishlist } from "@/app/(site)/(pages)/wishlist/_components";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Mi Lista de Deseos (Wishlist) | TapTrade TCG Marketplace",
-  description: "Guarda, organiza y monitorea cartas de Magic: The Gathering, Pokémon, One Piece y Yu-Gi-Oh! en tu Wishlist de TapTrade.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("wishlist");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 const WishlistPage = () => {
   return (

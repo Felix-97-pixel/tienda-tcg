@@ -41,7 +41,9 @@
     "desc": "Muchas gracias por comunicarte. Revisamos los mensajes frecuentemente y te responderemos a la brevedad.",
     "back_to_home": "Volver al Inicio",
     "breadcrumb_title": "Mensaje Enviado",
-    "breadcrumb_page": "Éxito"
+    "breadcrumb_page": "Éxito",
+    "meta_title": "Mensaje Enviado con Éxito | TapTrade TCG Marketplace",
+    "meta_description": "Tu solicitud ha sido recibida correctamente por el equipo de TapTrade."
   },
   "carrier": {
     "order_registered": "Orden Registrada",

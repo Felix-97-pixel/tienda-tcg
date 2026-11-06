@@ -1,15 +1,18 @@
 import { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getLocale } from "next-intl/server";
+import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import Header from "@/app/landing/_components/Marketing/Header";
 import Footer from "@/app/landing/_components/Marketing/Footer";
 import "../css/euclid-circular-a-font.css";
 import "../css/store-style.css"; // Reusing Tailwind setup
 
-export const metadata: Metadata = {
-  title: "TapTrade | La Plataforma de E-commerce para TCG",
-  description: "Crea tu tienda de cartas en minutos. Gestión de inventario sincronizado, catálogo global y múltiples opciones de envío.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing");
+  return {
+    title: t("meta_title"),
+    description: t("meta_description"),
+  };
+}
 
 export default async function MarketingLayout({
   children,
