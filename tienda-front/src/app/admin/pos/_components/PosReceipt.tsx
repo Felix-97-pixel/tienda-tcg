@@ -30,11 +30,11 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
   if (!receipt) return null;
 
   const paymentLabels: Record<string, string> = {
-    CASH: 'EFECTIVO',
-    CARD_POS: 'TARJETA (MAQUINITA)',
-    TRANSFER: 'TRANSFERENCIA BANCARIA',
-    STORE_CREDIT: 'CRÉDITO EN TIENDA',
-    MIXED: 'PAGO MIXTO',
+    CASH: t('receipt_pay_cash'),
+    CARD_POS: t('receipt_pay_card'),
+    TRANSFER: t('receipt_pay_transfer'),
+    STORE_CREDIT: t('receipt_pay_credit'),
+    MIXED: t('receipt_pay_mixed'),
   };
 
   return (
@@ -68,7 +68,7 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
         </h1>
         <p className="text-[10px] text-gray-600">{t("receipt_title")}</p>
         <p className="text-[10px] text-gray-600">{receipt.createdAt}</p>
-        <p className="text-xs font-bold pt-1">TICKET #{receipt.orderNumber}</p>
+        <p className="text-xs font-bold pt-1">{t("receipt_ticket_num", { num: receipt.orderNumber })}</p>
         {receipt.isOffline && (
           <p className="text-[9px] font-bold uppercase">{t("offline_mode")}</p>
         )}
@@ -77,18 +77,18 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
       {/* Info Venta */}
       <div className="py-2 text-[10px] space-y-0.5 border-b border-dashed border-gray-400">
         <div className="flex justify-between">
-          <span>Atendido por:</span>
+          <span>{t("receipt_served_by")}</span>
           <span className="font-bold">{receipt.cashierName}</span>
         </div>
         {receipt.customerName && (
           <div className="flex justify-between">
-            <span>Cliente:</span>
+            <span>{t("receipt_customer")}</span>
             <span>{receipt.customerName}</span>
           </div>
         )}
         {receipt.customerRut && (
           <div className="flex justify-between">
-            <span>RUT:</span>
+            <span>{t("receipt_rut")}</span>
             <span>{receipt.customerRut}</span>
           </div>
         )}
@@ -97,8 +97,8 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
       {/* Detalle de Productos */}
       <div className="py-2 border-b border-dashed border-gray-400 space-y-1.5">
         <div className="flex justify-between font-bold text-[10px] border-b border-gray-300 pb-1">
-          <span>DESCRIPCIÓN</span>
-          <span>TOTAL</span>
+          <span>{t("receipt_col_desc")}</span>
+          <span>{t("receipt_col_total")}</span>
         </div>
         {receipt.items.map((item) => (
           <div key={item.inventoryItemId} className="space-y-0.5">
@@ -121,17 +121,17 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
       {/* Totales */}
       <div className="py-2 space-y-1 border-b border-dashed border-gray-400">
         <div className="flex justify-between text-xs">
-          <span>Subtotal:</span>
+          <span>{t("receipt_subtotal")}</span>
           <span>${receipt.subtotal.toLocaleString('es-CL')}</span>
         </div>
         {receipt.discountAmount > 0 && (
           <div className="flex justify-between text-xs text-gray-700">
-            <span>Descuento:</span>
+            <span>{t("receipt_discount")}</span>
             <span>-${receipt.discountAmount.toLocaleString('es-CL')}</span>
           </div>
         )}
         <div className="flex justify-between text-sm font-black pt-1 border-t border-gray-400">
-          <span>TOTAL:</span>
+          <span>{t("receipt_total")}</span>
           <span>${receipt.total.toLocaleString('es-CL')} CLP</span>
         </div>
       </div>
@@ -139,26 +139,26 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
       {/* Forma de Pago */}
       <div className="py-2 text-[10px] space-y-0.5 border-b border-dashed border-gray-400">
         <div className="flex justify-between">
-          <span>Forma de Pago:</span>
+          <span>{t("receipt_payment_method")}</span>
           <span className="font-bold">
             {paymentLabels[receipt.paymentMethod] || receipt.paymentMethod}
           </span>
         </div>
         {receipt.receivedAmount !== undefined && receipt.receivedAmount > 0 && (
           <div className="flex justify-between">
-            <span>Pagó con:</span>
+            <span>{t("receipt_paid_with")}</span>
             <span>${receipt.receivedAmount.toLocaleString('es-CL')}</span>
           </div>
         )}
         {receipt.changeAmount !== undefined && receipt.changeAmount > 0 && (
           <div className="flex justify-between font-bold">
-            <span>Vuelto:</span>
+            <span>{t("receipt_change")}</span>
             <span>${receipt.changeAmount.toLocaleString('es-CL')}</span>
           </div>
         )}
         {receipt.voucherRef && (
           <div className="flex justify-between">
-            <span>Voucher / Ref:</span>
+            <span>{t("receipt_voucher_ref")}</span>
             <span>{receipt.voucherRef}</span>
           </div>
         )}
@@ -166,11 +166,11 @@ export default function PosReceipt({ receipt }: PosReceiptProps) {
 
       {/* Pie Legal */}
       <div className="text-center pt-3 text-[9px] text-gray-500 space-y-1">
-        <p>¡Gracias por tu compra!</p>
+        <p>{t("receipt_thanks")}</p>
         <p className="leading-tight">
-          En compras con tarjeta (maquinita), su voucher es su boleta oficial conforme a resolución del SII.
+          {t("receipt_sii_legal")}
         </p>
-        <p className="pt-1 text-[8px] text-gray-400">Powered by TapTrade POS</p>
+        <p className="pt-1 text-[8px] text-gray-400">{t("receipt_powered_by")}</p>
       </div>
     </div>
   );

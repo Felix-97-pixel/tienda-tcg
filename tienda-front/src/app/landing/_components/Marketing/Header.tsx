@@ -112,7 +112,7 @@ const Header = () => {
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0"
-            aria-label="Abrir Menú"
+            aria-label={t("open_menu_aria")}
           >
             {mobileMenuOpen ? (
               <IconX className="w-5 h-5 text-gray-300" />

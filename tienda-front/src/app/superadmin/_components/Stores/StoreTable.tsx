@@ -186,11 +186,11 @@ export default function StoreTable({
                           )}
                           <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
                             <span className="text-white/70 font-semibold">{t("total_net")}</span>
-                            <span className="text-white font-extrabold">{totalNetUF.toFixed(2)} UF <span className="text-emerald-400 font-semibold">+ IVA</span></span>
+                            <span className="text-white font-extrabold">{totalNetUF.toFixed(2)} UF <span className="text-emerald-400 font-semibold">{t("plus_vat")}</span></span>
                           </div>
                           <div className="flex items-center justify-between text-[10px] text-emerald-400 font-bold">
                             <span>{t("total_gross_vat")}</span>
-                            <span>{totalGrossUF.toFixed(2)} UF/mes</span>
+                            <span>{totalGrossUF.toFixed(2)} {t("per_month_uf")}</span>
                           </div>
                         </div>
                       );

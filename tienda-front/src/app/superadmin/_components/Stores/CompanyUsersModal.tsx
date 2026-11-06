@@ -76,14 +76,14 @@ export default function CompanyUsersModal({
         const data = await res.json();
         setMembers(data);
       } else {
-        toast.error("Error al cargar los miembros de la empresa.");
+        toast.error(t("err_load_members"));
       }
     } catch {
-      toast.error("Error de conexión al cargar miembros.");
+      toast.error(t("err_conn_members"));
     } finally {
       setLoading(false);
     }
-  }, [company]);
+  }, [company, t]);
 
   useEffect(() => {
     if (isOpen && company) {
@@ -96,7 +96,7 @@ export default function CompanyUsersModal({
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email) {
-      toast.error("Nombre y correo son requeridos.");
+      toast.error(t("err_name_email_req"));
       return;
     }
 
@@ -116,15 +116,15 @@ export default function CompanyUsersModal({
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al agregar usuario");
+        throw new Error(errData.message || t("err_add_user"));
       }
 
-      toast.success("Usuario corporativo asignado con éxito");
+      toast.success(t("toast_corp_user_added"));
       setFormData({ name: "", email: "", password: "", role: "ADMIN" });
       fetchMembers();
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo agregar el usuario");
+      toast.error(err.message || t("err_add_user"));
     } finally {
       setIsSubmitting(false);
     }
@@ -132,11 +132,11 @@ export default function CompanyUsersModal({
 
   const handleRemoveUser = async (userId: string, userName: string) => {
     if (userId === company.owner?.id) {
-      toast.error("No es posible desvincular al dueño titular de la empresa.");
+      toast.error(t("err_unlink_owner"));
       return;
     }
 
-    if (!confirm(`¿Estás seguro de quitar el acceso corporativo a ${userName}?`)) {
+    if (!confirm(t("confirm_remove_corp_user", { name: userName }))) {
       return;
     }
 
@@ -150,14 +150,14 @@ export default function CompanyUsersModal({
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al quitar acceso");
+        throw new Error(errData.message || t("err_remove_access"));
       }
 
-      toast.success("Acceso revocado correctamente");
+      toast.success(t("toast_access_revoked"));
       fetchMembers();
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo quitar el acceso");
+      toast.error(err.message || t("err_remove_access"));
     } finally {
       setRemovingId(null);
     }
@@ -244,7 +244,7 @@ export default function CompanyUsersModal({
                 <input
                   type="text"
                   required
-                  placeholder="Carlos Silva"
+                  placeholder={t("ph_corp_user_name")}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -258,7 +258,7 @@ export default function CompanyUsersModal({
                 <input
                   type="email"
                   required
-                  placeholder="carlos@empresa.cl"
+                  placeholder={t("ph_corp_user_email")}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -271,7 +271,7 @@ export default function CompanyUsersModal({
                 </label>
                 <input
                   type="password"
-                  placeholder="TapTrade2026!"
+                  placeholder={t("ph_temp_pass")}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"

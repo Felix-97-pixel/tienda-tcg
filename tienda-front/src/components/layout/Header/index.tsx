@@ -19,6 +19,7 @@ const Header = () => {
   const router = useRouter();
   const tNav = useTranslations("nav");
   const tHeader = useTranslations("header");
+  const tCommon = useTranslations("common");
   const allCategoriesLabel = tHeader("all_categories");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>(allCategoriesLabel);
@@ -354,7 +355,7 @@ const Header = () => {
 
             {/* Mobile Language Selector */}
             <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between px-1">
-              <span className="text-xs text-gray-400 font-medium">Idioma / Language</span>
+              <span className="text-xs text-gray-400 font-medium">{tCommon("language_dual_label")}</span>
               <LanguageSelector />
             </div>
           </nav>

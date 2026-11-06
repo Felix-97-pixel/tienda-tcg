@@ -4,34 +4,21 @@ import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@/redux/store";
 import { removeToast, Toast, ToastType } from "@/redux/features/toast-slice";
 import { useTranslations } from "next-intl";
+import {
+  IconCheckCircle,
+  IconXCircle,
+  IconAlertTriangle,
+  IconInfo,
+  IconX,
+} from "@/components/ui/Icons";
 
 const TOAST_DURATION = 3200;
 
 const icons: Record<ToastType, React.ReactNode> = {
-  success: (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="9.4375" fill="#22AD5C" />
-      <path d="M6 10.5L8.5 13L14 7.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  error: (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="9.4375" fill="#DC3545" />
-      <path d="M7 7L13 13M13 7L7 13" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  ),
-  warning: (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="9.4375" fill="#F59E0B" />
-      <path d="M10 6V10.5M10 13.5V14" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  ),
-  info: (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="9.4375" fill="#3C50E0" />
-      <path d="M10 9V14M10 6.5V7" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  ),
+  success: <IconCheckCircle className="w-[18px] h-[18px] text-[#22AD5C]" />,
+  error: <IconXCircle className="w-[18px] h-[18px] text-[#DC3545]" />,
+  warning: <IconAlertTriangle className="w-[18px] h-[18px] text-[#F59E0B]" />,
+  info: <IconInfo className="w-[18px] h-[18px] text-[#3C50E0]" />,
 };
 
 const borderColors: Record<ToastType, string> = {
@@ -116,9 +103,7 @@ const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
             borderRadius: "4px",
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
+          <IconX className="w-3 h-3" />
         </button>
       </div>
 
@@ -137,6 +122,7 @@ const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
 };
 
 const ToastContainer = () => {
+  const t = useTranslations("common");
   const dispatch = useDispatch<AppDispatch>();
   const toasts = useAppSelector((state: any) => state.toastReducer.toasts);
   const [isMounted, setIsMounted] = useState(false);
@@ -153,7 +139,7 @@ const ToastContainer = () => {
 
   return (
     <div
-      aria-label="Notificaciones"
+      aria-label={t("notifications_aria")}
       style={{
         position: "fixed",
         top: "90px",

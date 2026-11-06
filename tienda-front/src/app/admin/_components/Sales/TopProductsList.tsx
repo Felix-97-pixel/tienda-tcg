@@ -93,7 +93,7 @@ export default function TopProductsList({ products: initialProducts }: TopProduc
         const barWidth = maxUnits > 0 ? (product.totalUnits / maxUnits) * 100 : 0;
         return (
           <div className="flex flex-col items-end gap-1.5 w-full">
-            <p className="text-sm font-black text-blue">{product.totalUnits} UDS</p>
+            <p className="text-sm font-black text-blue">{t("units_short", { count: product.totalUnits })}</p>
             <div className="h-1.5 bg-[#111318] rounded-full overflow-hidden w-full max-w-[80px]">
               <div className="h-full rounded-full bg-blue transition-all" style={{ width: `${barWidth}%` }} />
             </div>
@@ -111,7 +111,7 @@ export default function TopProductsList({ products: initialProducts }: TopProduc
             <IconTrophy className="w-4 h-4 text-amber-400" />
             {t("charts.topProductsTitle")}
           </h2>
-          <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title="Descargar Top 10 en CSV">
+          <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title={t("download_top10_csv")}>
             <IconDownload className="w-4 h-4" />
           </button>
         </div>
@@ -134,7 +134,7 @@ export default function TopProductsList({ products: initialProducts }: TopProduc
             />
           </div>
           <button onClick={fetchFilteredProducts} className="bg-gradient-to-r from-red-dark to-red hover:from-red hover:to-red-light text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-red/25 ring-1 ring-white/10 shrink-0">
-            Filtrar
+            {t("filter_btn")}
           </button>
         </div>
       </div>

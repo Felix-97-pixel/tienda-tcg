@@ -158,7 +158,7 @@ const CouponModal: React.FC<CouponModalProps> = ({ isOpen, onClose, coupon, onSu
             name="code"
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase().replace(/\s+/g, '') })}
-            placeholder="VERANO20"
+            placeholder={t("ph_promo_code")}
             required
           />
         </div>

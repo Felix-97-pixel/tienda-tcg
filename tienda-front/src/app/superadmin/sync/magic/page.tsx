@@ -19,8 +19,8 @@ export default function MagicSyncPage() {
       {sync.loading && <PreLoader message={tCommon("loading")} />}
 
       <div>
-        <h1 className="text-2xl font-bold text-white">Sincronización de Magic: The Gathering</h1>
-        <p className="text-gray-4 text-sm mt-1">Importa y actualiza el catálogo y precios específicamente para Magic.</p>
+        <h1 className="text-2xl font-bold text-white">{t("magic_title")}</h1>
+        <p className="text-gray-4 text-sm mt-1">{t("magic_subtitle")}</p>
       </div>
 
       <div className="flex flex-col xl:flex-row gap-8 max-w-6xl">
@@ -39,7 +39,7 @@ export default function MagicSyncPage() {
 
             <SearchableSelect
               options={[
-                { label: "⭐ TODAS LAS EDICIONES (Masivo)", value: "ALL" },
+                { label: t("all_editions_massive"), value: "ALL" },
                 ...sync.sets.map(s => ({
                   label: `${s.name} (${s.id.toUpperCase()})`,
                   value: s.id

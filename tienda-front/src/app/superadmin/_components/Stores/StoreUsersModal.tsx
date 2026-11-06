@@ -76,14 +76,14 @@ export default function StoreUsersModal({
         const data = await res.json();
         setMembers(data);
       } else {
-        toast.error("Error al cargar el personal de la sucursal.");
+        toast.error(t("err_load_staff"));
       }
     } catch {
-      toast.error("Error de conexión al cargar personal.");
+      toast.error(t("err_conn_staff"));
     } finally {
       setLoading(false);
     }
-  }, [branch]);
+  }, [branch, t]);
 
   useEffect(() => {
     if (isOpen && branch) {
@@ -96,7 +96,7 @@ export default function StoreUsersModal({
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email) {
-      toast.error("Nombre y correo son requeridos.");
+      toast.error(t("err_name_email_req"));
       return;
     }
 
@@ -116,22 +116,22 @@ export default function StoreUsersModal({
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al agregar personal");
+        throw new Error(errData.message || t("err_add_staff"));
       }
 
-      toast.success("Personal asignado a la sucursal con éxito");
+      toast.success(t("toast_staff_added"));
       setFormData({ name: "", email: "", password: "", role: "CASHIER" });
       fetchMembers();
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo agregar al personal");
+      toast.error(err.message || t("err_add_staff"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleRemoveUser = async (userId: string, userName: string) => {
-    if (!confirm(`¿Estás seguro de desvincular a ${userName} de esta sucursal?`)) {
+    if (!confirm(t("confirm_remove_staff", { name: userName }))) {
       return;
     }
 
@@ -145,14 +145,14 @@ export default function StoreUsersModal({
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al quitar acceso");
+        throw new Error(errData.message || t("err_remove_staff"));
       }
 
-      toast.success("Personal desvinculado correctamente");
+      toast.success(t("toast_staff_removed"));
       fetchMembers();
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo desvincular");
+      toast.error(err.message || t("err_remove_staff"));
     } finally {
       setRemovingId(null);
     }
@@ -244,7 +244,7 @@ export default function StoreUsersModal({
                 <input
                   type="text"
                   required
-                  placeholder="Rodrigo Tapia"
+                  placeholder={t("ph_staff_name")}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -258,7 +258,7 @@ export default function StoreUsersModal({
                 <input
                   type="email"
                   required
-                  placeholder="cajero1@tienda.cl"
+                  placeholder={t("ph_staff_email")}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"
@@ -271,7 +271,7 @@ export default function StoreUsersModal({
                 </label>
                 <input
                   type="password"
-                  placeholder="TapTrade2026!"
+                  placeholder={t("ph_temp_pass")}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full bg-[#080B12] border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/30 focus:border-red focus:outline-none"

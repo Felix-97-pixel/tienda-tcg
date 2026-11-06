@@ -12,6 +12,7 @@ import SuperAdminInventoryModal from "@/app/admin/_components/Products/SuperAdmi
 import BulkUploadModal from "@/app/admin/_components/Products/BulkUploadModal";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { IconSearch, IconAlertTriangle } from "@/components/ui/Icons";
 
 export default function AdminProducts() {
   const t = useTranslations("products");
@@ -68,13 +69,11 @@ export default function AdminProducts() {
       {!searchTerm && !selectedCategory && !selectedExpansion ? (
         <div className="flex flex-col items-center justify-center p-16 bg-[#0E121B] border border-white/10 rounded-3xl text-center shadow-2xl">
           <div className="w-20 h-20 bg-red/10 border border-red/20 rounded-full flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <IconSearch className="w-10 h-10 text-red" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-3">Usa los filtros para buscar productos</h3>
+          <h3 className="text-xl font-bold text-white mb-3">{t("use_filters_title")}</h3>
           <p className="text-sm text-gray-4 max-w-md mx-auto font-medium">
-            Por favor, ingresa el nombre de una carta o selecciona una categoría / expansión para comenzar a cargar el catálogo.
+            {t("use_filters_desc")}
           </p>
         </div>
       ) : (
@@ -123,24 +122,23 @@ export default function AdminProducts() {
         isGlobal={true}
       />
 
-      <Modal isOpen={!!productToDelete} onClose={cancelDelete} title="Confirmar Eliminación">
+      <Modal isOpen={!!productToDelete} onClose={cancelDelete} title={t("confirm_delete_title")}>
         <div className="p-6">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center text-red">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <IconAlertTriangle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white">¿Eliminar permanentemente?</h3>
+            <h3 className="text-xl font-bold text-white">{t("delete_permanently_q")}</h3>
             <p className="text-gray-4">
-              ¿Estás seguro que deseas eliminar el producto <span className="text-white font-bold">{productToDelete?.name}</span>?
-              Esta acción lo ocultará de los inventarios activos.
+              {t("delete_confirm_desc", { name: productToDelete?.name || "" })}
             </p>
           </div>
           <div className="flex gap-3 mt-8">
             <Button variant="secondary" className="flex-1" onClick={cancelDelete}>
-              Cancelar
+              {t("cancel_btn")}
             </Button>
             <Button variant="danger" className="flex-1" onClick={handleDelete}>
-              Sí, eliminar
+              {t("yes_delete_btn")}
             </Button>
           </div>
         </div>

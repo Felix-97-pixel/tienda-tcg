@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/redux/store";
 import { useWishlist } from "@/app/admin/_components/Wishlist/hooks/useWishlist";
 import SegmentedControl from "@/components/ui/SegmentedControl";
-import { IconFlame } from "@/components/ui/Icons";
+import { IconFlame, IconHeart } from "@/components/ui/Icons";
 
 export default function AdminWishlist() {
   const t = useTranslations("admin.wishlist");
@@ -18,7 +18,7 @@ export default function AdminWishlist() {
       <div className="flex flex-col gap-2 pb-2 border-b border-white/5">
         <div className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-red">Radar de Demanda</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-red">{t("demand_radar_badge")}</span>
         </div>
         <h1 className="text-2xl font-black text-white tracking-tight">{t("adminTitle")}</h1>
         <p className="text-white/40 text-xs max-w-2xl">
@@ -30,20 +30,20 @@ export default function AdminWishlist() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
         <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
           <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all duration-500"></div>
-          <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Potencial de Ventas</p>
+          <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">{t("sales_potential_title")}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-3xl font-black text-white">${totalSalesPotential.toLocaleString('es-CL')}</h3>
           </div>
-          <p className="text-xs text-white/40 mt-2">Suma de productos guardados</p>
+          <p className="text-xs text-white/40 mt-2">{t("sales_potential_desc")}</p>
         </div>
 
         <div className="bg-[#0E121B] border border-red/20 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
           <div className="absolute -right-6 -top-6 w-32 h-32 bg-red/10 rounded-full blur-2xl group-hover:bg-red/20 transition-all duration-500"></div>
-          <p className="text-xs font-bold uppercase tracking-wider mb-2 text-red">Oportunidades Perdidas</p>
+          <p className="text-xs font-bold uppercase tracking-wider mb-2 text-red">{t("missed_opportunities_title")}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-3xl font-black text-white">${missedOpportunities.toLocaleString('es-CL')}</h3>
           </div>
-          <p className="text-xs text-red/60 mt-2">Productos agotados en wishlist</p>
+          <p className="text-xs text-red/60 mt-2">{t("missed_opportunities_desc")}</p>
         </div>
 
         <div className="bg-[#0E121B] border border-amber-500/20 rounded-2xl p-6 shadow-xl relative overflow-hidden flex items-center justify-between group">
@@ -51,15 +51,15 @@ export default function AdminWishlist() {
           <div>
             <p className="text-xs font-bold uppercase tracking-wider mb-2 text-amber-400 flex items-center gap-1.5">
               <IconFlame className="w-4 h-4 text-amber-400" />
-              <span>En Tendencia</span>
+              <span>{t("trending_badge")}</span>
             </p>
             {trendingProduct ? (
               <div>
                 <h3 className="text-base font-black text-white truncate max-w-[150px]">{trendingProduct.name}</h3>
-                <p className="text-xs text-amber-400/80 mt-1 font-medium">{trendingProduct.wishlistCount} usuarios lo desean</p>
+                <p className="text-xs text-amber-400/80 mt-1 font-medium">{t("users_want_it", { count: trendingProduct.wishlistCount })}</p>
               </div>
             ) : (
-              <h3 className="text-sm font-bold text-white/40">Sin datos</h3>
+              <h3 className="text-sm font-bold text-white/40">{t("no_data")}</h3>
             )}
           </div>
           {trendingProduct?.imageUrl && (
@@ -71,8 +71,8 @@ export default function AdminWishlist() {
       <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden mt-6">
         <div className="px-6 py-5 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between bg-[#090C14] gap-4">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <svg className="w-5 h-5 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-            Ranking de Wishlist
+            <IconHeart className="w-5 h-5 text-red" />
+            {t("ranking_title")}
           </h2>
           
           <SegmentedControl
@@ -81,9 +81,9 @@ export default function AdminWishlist() {
             value={filter}
             onChange={(val) => setFilter(val as 'ALL' | 'INSTOCK' | 'OUTOFSTOCK')}
             options={[
-              { value: 'ALL', label: 'Todos', variant: 'default' },
-              { value: 'INSTOCK', label: 'En Stock', variant: 'success' },
-              { value: 'OUTOFSTOCK', label: 'Agotados', variant: 'warning' },
+              { value: 'ALL', label: t("filter_all"), variant: 'default' },
+              { value: 'INSTOCK', label: t("filter_in_stock"), variant: 'success' },
+              { value: 'OUTOFSTOCK', label: t("filter_out_of_stock"), variant: 'warning' },
             ]}
           />
         </div>
@@ -92,11 +92,11 @@ export default function AdminWishlist() {
           <table className="w-full text-left text-sm text-white">
             <thead className="bg-[#090C14] border-b border-white/10 text-[11px] uppercase font-black tracking-wider text-white/50">
               <tr>
-                <th className="px-6 py-4 font-bold">Producto</th>
-                <th className="px-6 py-4 font-bold">Categoría</th>
-                <th className="px-6 py-4 font-bold text-center">Estado</th>
-                <th className="px-6 py-4 font-bold text-right">Precio Ref.</th>
-                <th className="px-6 py-4 font-bold text-center">Veces Guardado</th>
+                <th className="px-6 py-4 font-bold">{t("col_product")}</th>
+                <th className="px-6 py-4 font-bold">{t("col_category")}</th>
+                <th className="px-6 py-4 font-bold text-center">{t("col_status")}</th>
+                <th className="px-6 py-4 font-bold text-right">{t("col_ref_price")}</th>
+                <th className="px-6 py-4 font-bold text-center">{t("col_times_saved")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -104,13 +104,13 @@ export default function AdminWishlist() {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-white/40">
                     <div className="w-8 h-8 border-4 border-red border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                    Cargando ranking...
+                    {t("loading_ranking")}
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-white/40 text-xs">
-                    No se encontraron productos para el filtro seleccionado.
+                    {t("no_products_found")}
                   </td>
                 </tr>
               ) : (
@@ -122,7 +122,7 @@ export default function AdminWishlist() {
                           {product.imageUrl ? (
                             <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[10px] text-white/30 font-bold">Sin Img</div>
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-white/30 font-bold">{t("no_img")}</div>
                           )}
                           {index < 3 && filter === 'ALL' && (
                             <div className="absolute top-0 right-0 bg-red text-white text-[9px] font-black px-1.5 py-0.5 rounded-bl">
@@ -144,11 +144,11 @@ export default function AdminWishlist() {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       {product.inStock ? (
                         <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold text-[10px] uppercase">
-                          En Stock ({product.stockCount})
+                          {t("in_stock_count", { count: product.stockCount })}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 bg-red/10 text-red border border-red/30 px-2.5 py-1 rounded-full font-bold text-[10px] uppercase">
-                          Agotado
+                          {t("out_of_stock_badge")}
                         </span>
                       )}
                     </td>
@@ -156,18 +156,18 @@ export default function AdminWishlist() {
                       {product.inStock ? (
                         <div>
                           <div className="font-bold text-white">${(product.storePrice || 0).toLocaleString('es-CL')}</div>
-                          <div className="text-[10px] text-white/40">Tu Precio</div>
+                          <div className="text-[10px] text-white/40">{t("your_price_label")}</div>
                         </div>
                       ) : (
                         <div>
                           <div className="font-bold text-white/60">${(product.marketPrice || 0).toLocaleString('es-CL')}</div>
-                          <div className="text-[10px] text-white/40">Mercado</div>
+                          <div className="text-[10px] text-white/40">{t("market_price_label")}</div>
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="inline-flex items-center gap-1.5 bg-red/10 text-red border border-red/30 px-3 py-1.5 rounded-full font-black text-xs">
-                        <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>
+                        <IconHeart className="w-3.5 h-3.5 fill-current" />
                         {product.wishlistCount}
                       </div>
                     </td>

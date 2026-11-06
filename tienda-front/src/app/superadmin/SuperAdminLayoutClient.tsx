@@ -28,6 +28,7 @@ import {
   IconLogout,
   IconX,
   IconSettings,
+  IconMenu,
 } from "@/components/ui/Icons";
 
 interface NavItem {
@@ -136,14 +137,14 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                     Tap<span className="text-red">Master</span>
                   </h1>
                   <span className="text-[9px] font-black uppercase tracking-widest text-white/40 block mt-1">
-                    SuperAdmin Vault
+                    {ts("vault_subtitle")}
                   </span>
                 </div>
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 lg:hidden transition-colors"
-                aria-label="Close sidebar"
+                aria-label={ts("close_sidebar_aria")}
               >
                 <IconX className="w-5 h-5" />
               </button>
@@ -217,8 +218,8 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                   SA
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <p className="text-xs font-bold text-white truncate uppercase tracking-tight">Super Admin</p>
-                  <p className="text-[9px] text-white/40 truncate font-medium">TapMaster HQ</p>
+                  <p className="text-xs font-bold text-white truncate uppercase tracking-tight">{ts("role_super_admin")}</p>
+                  <p className="text-[9px] text-white/40 truncate font-medium">{ts("hq_subtitle")}</p>
                 </div>
               </div>
             </div>
@@ -236,21 +237,19 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
                     onClick={() => setSidebarOpen(!sidebarOpen)}
                     className="block rounded-xl border border-white/10 bg-white/5 p-2 shadow-sm text-white/80 hover:text-white"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
+                    <IconMenu className="w-5 h-5" />
                   </button>
                 </div>
                 <div className="hidden lg:block">
                   <p className="text-xs font-bold text-white/50 uppercase tracking-[0.1em]">
-                    ADMINISTRACIÓN GLOBAL <span className="text-red mx-1.5 font-black">/</span>{" "}
-                    <span className="text-white">RESUMEN GENERAL</span>
+                    {ts("header_global_admin")} <span className="text-red mx-1.5 font-black">/</span>{" "}
+                    <span className="text-white">{ts("header_general_summary")}</span>
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <LanguageSelector />
                   <div className="text-right hidden sm:block">
-                    <span className="block text-xs font-black text-white">{user?.name || "Félix (Super Admin)"}</span>
+                    <span className="block text-xs font-black text-white">{user?.name || ts("role_super_admin")}</span>
                     <span className="inline-block text-[9px] font-black text-red uppercase tracking-widest px-2 py-0.5 rounded-full bg-red/10 border border-red/20">
                       {ts("items.badge")}
                     </span>

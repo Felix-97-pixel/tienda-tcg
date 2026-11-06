@@ -50,23 +50,23 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
 
           if (categoryName.includes("riftbound")) {
             if (headers.includes("Scryfall ID")) {
-              showToast("Archivo incorrecto: Estás intentando subir un archivo de Magic en Riftbound.", "error");
+              showToast(t("err_magic_in_riftbound"), "error");
               setIsUploading(false);
               return;
             }
             if (!headers.includes("Card Name") && !headers.includes("Name")) {
-              showToast("Estructura inválida. El CSV debe contener la columna 'Card Name' o 'Name'.", "error");
+              showToast(t("err_invalid_csv_cardname"), "error");
               setIsUploading(false);
               return;
             }
           } else if (categoryName.includes("magic")) {
             if (headers.includes("Variant Number") || headers.includes("Card Name")) {
-              showToast("Archivo incorrecto: Estás intentando subir un archivo de Riftbound en Magic.", "error");
+              showToast(t("err_riftbound_in_magic"), "error");
               setIsUploading(false);
               return;
             }
             if (!headers.includes("Scryfall ID") && !headers.includes("Name")) {
-              showToast("Estructura inválida. El CSV debe contener la columna 'Scryfall ID' o 'Name'.", "error");
+              showToast(t("err_invalid_csv_scryfall"), "error");
               setIsUploading(false);
               return;
             }
@@ -139,7 +139,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                 errors: data.errors?.length || 0
               });
               successMsg = data.devaluedCount > 0
-                ? `${baseMsg} (${data.devaluedCount} con reglas de devaluación aplicadas)`
+                ? `${baseMsg} ${t("devalued_count_suffix", { count: data.devaluedCount })}`
                 : baseMsg;
             }
             showToast(successMsg, "success");
@@ -197,19 +197,19 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
     <Modal 
       isOpen={isOpen} 
       onClose={onClose} 
-      title={isGlobal ? "Subida Masiva de Productos (Global)" : t("bulk.title")}
+      title={isGlobal ? t("bulk_global_title") : t("bulk.title")}
       maxWidth="md"
     >
       <div className="space-y-4">
         {!isGlobal && activeBranch && (
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue/10 border border-blue/20 text-xs text-blue">
             <IconStore className="w-4 h-4 shrink-0 text-blue" />
-            <span>Sucursal destino: <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
+            <span>{t("target_branch_label")} <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
           </div>
         )}
 
         <p className="mb-6 text-sm font-medium leading-relaxed text-gray-4">
-          {isGlobal ? "Sube múltiples productos al catálogo global mediante un archivo CSV." : t("bulk.subtitle")}
+          {isGlobal ? t("bulk_global_subtitle") : t("bulk.subtitle")}
         </p>
         
         <div className="space-y-4">
@@ -231,7 +231,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                 onClick={handleDownloadTemplate}
                 className="text-xs text-blue hover:text-blue-dark underline underline-offset-2 transition-colors font-medium"
               >
-                Descargar Plantilla de CSV
+                {t("download_csv_template")}
               </button>
             </div>
           )}
@@ -242,7 +242,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
               <div className="group relative flex cursor-help items-center text-gray-400 hover:text-white">
                 <IconInfo className="w-4 h-4" />
                 <div className="absolute bottom-full left-1/2 mb-2 hidden w-64 -translate-x-1/2 rounded border border-gray-700 bg-[#1C1E26] p-3 text-xs leading-relaxed text-gray-300 shadow-xl group-hover:block z-50">
-                  Asegúrate de exportar tu inventario en CSV directamente desde <strong className="text-white">Manabox</strong> (para Magic) o <strong className="text-white">Riftscan</strong> (para Riftbound).
+                  {t("csv_export_hint")}
                 </div>
               </div>
             </div>
@@ -261,10 +261,10 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                   </div>
                   <div>
                     <p className="text-xs font-bold text-white uppercase tracking-wide">
-                      Aplicar Reglas de Devaluación (Estado e Idioma)
+                      {t("apply_devaluation_rules_title")}
                     </p>
                     <p className="text-[11px] text-white/45 mt-1 leading-relaxed">
-                      Calcula automáticamente el descuento o bonificación según el estado físico (LP, MP, HP, DMG) y el idioma de cada carta configurados por tu sucursal.
+                      {t("apply_devaluation_rules_desc")}
                     </p>
                   </div>
                 </div>

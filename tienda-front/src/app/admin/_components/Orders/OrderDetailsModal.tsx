@@ -121,7 +121,7 @@ export default function OrderDetailsModal({
             </div>
             {order?.email && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-4 font-medium">Email</span>
+                <span className="text-gray-4 font-medium">{t("email_label")}</span>
                 <span className="font-bold text-white">{order.email}</span>
               </div>
             )}
@@ -142,14 +142,14 @@ export default function OrderDetailsModal({
             {order.vendorOrders && order.vendorOrders.length === 1 && (
               <>
                 <div className="flex justify-between items-center text-xs text-gray-400">
-                  <span>Subtotal Productos</span>
+                  <span>{t("subtotal_products")}</span>
                   <span className="font-bold text-white">
                     ${storeSubtotal.toLocaleString("es-CL")}
                   </span>
                 </div>
                 {storeShipping > 0 && (
                   <div className="flex justify-between items-center text-xs text-gray-400">
-                    <span>Envío</span>
+                    <span>{t("shipping_label")}</span>
                     <span className="font-bold text-white">
                       ${storeShipping.toLocaleString("es-CL")}
                     </span>
@@ -160,7 +160,7 @@ export default function OrderDetailsModal({
 
             <div className="flex justify-between items-center">
               <span className="text-gray-4 font-medium">
-                {order.vendorOrders && order.vendorOrders.length === 1 ? "Total Tienda" : tc("total")}
+                {order.vendorOrders && order.vendorOrders.length === 1 ? t("total_store") : tc("total")}
               </span>
               <span className="font-black text-blue text-lg">
                 ${(storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)).toLocaleString("es-CL")}
@@ -172,7 +172,7 @@ export default function OrderDetailsModal({
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                   <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>Abono Tienda: 100% Íntegro ($0 Comisión)</span>
+                  <span>{t("store_payout_full")}</span>
                 </span>
                 <span className="font-mono font-bold text-emerald-400">
                   ${(storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)).toLocaleString("es-CL")} CLP
@@ -180,13 +180,13 @@ export default function OrderDetailsModal({
               </div>
               <div className="pt-2 border-t border-white/5 grid grid-cols-2 gap-2 text-[11px] text-white/60">
                 <div>
-                  <span className="block text-white/40 text-[10px]">Venta Neta Tienda:</span>
+                  <span className="block text-white/40 text-[10px]">{t("net_store_sale")}</span>
                   <span className="font-mono font-medium text-white">
                     ${Math.round((storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)) / 1.19).toLocaleString("es-CL")}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-white/40 text-[10px]">IVA Débito (19% para tu F29):</span>
+                  <span className="block text-white/40 text-[10px]">{t("vat_debit_f29")}</span>
                   <span className="font-mono font-medium text-amber-400">
                     ${((storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)) - Math.round((storeTotal > 0 ? storeTotal : parseFloat(order.totalAmount)) / 1.19)).toLocaleString("es-CL")}
                   </span>
@@ -211,7 +211,7 @@ export default function OrderDetailsModal({
             )}
             {order.payment?.cardLast4 && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-4 font-medium">Tarjeta</span>
+                <span className="text-gray-4 font-medium">{t("card_label")}</span>
                 <span className="font-mono font-bold text-gray-300">•••• {order.payment.cardLast4}</span>
               </div>
             )}
@@ -225,7 +225,7 @@ export default function OrderDetailsModal({
               </h3>
               <span className="text-[11px] text-gray-400 font-normal flex items-center gap-1.5">
                 <IconInfo className="w-3.5 h-3.5 text-blue shrink-0" />
-                <span>Pasa el cursor o haz clic para ver la guía visual</span>
+                <span>{t("hover_click_visual_guide")}</span>
               </span>
             </div>
 
@@ -234,17 +234,17 @@ export default function OrderDetailsModal({
                 <div key={vo.id} className="bg-[#111318] p-4 rounded-xl border border-white/5 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2">
                     <p className="text-gray-4 text-xs font-bold uppercase tracking-widest">
-                      Tienda: {vo.store.name}
+                      {t("store_prefix", { name: vo.store.name })}
                     </p>
                     {vo.deliveryStatus === "DISPATCHED" ? (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
                         <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        <span>Despachado</span>
+                        <span>{t("status_dispatched")}</span>
                       </span>
                     ) : order.status === "PAID" ? (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
                         <IconClock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span>Por Despachar (Custodia)</span>
+                        <span>{t("status_to_dispatch_custody")}</span>
                       </span>
                     ) : null}
                   </div>
@@ -274,21 +274,22 @@ export default function OrderDetailsModal({
                             <ShippingBadge name={badgeName} size="sm" />
                             <span className="font-bold text-white flex items-center gap-1.5">
                               <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              <span>{isPickup ? "Entrega en Local Realizada" : `Despachado vía ${vo.shippingCourier || "Courier"}`}</span>
+                              <span>{isPickup ? t("pickup_completed") : t("dispatched_via", { courier: vo.shippingCourier || "Courier" })}</span>
                             </span>
                           </div>
                           <p className="text-gray-300 font-mono text-[11px]">
-                            {isPickup ? "Comprobante / Código: " : "N° Guía / Seguimiento: "}
+                            {isPickup ? t("receipt_code_prefix") : t("tracking_guide_prefix")}
                             <strong className="text-emerald-400">{vo.trackingNumber}</strong>
                           </p>
                           {vo.dispatchedAt && (
                             <p className="text-[10px] text-gray-500">
-                              Completado el{" "}
-                              {new Date(vo.dispatchedAt).toLocaleDateString("es-CL", {
-                                day: "2-digit",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
+                              {t("completed_on", {
+                                date: new Date(vo.dispatchedAt).toLocaleDateString("es-CL", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }),
                               })}
                             </p>
                           )}
@@ -310,17 +311,17 @@ export default function OrderDetailsModal({
                               {loadingTrackingId === vo.id ? (
                                 <>
                                   <IconLoader className="w-3.5 h-3.5 text-blue-400" />
-                                  <span>Cargando...</span>
+                                  <span>{t("loading_btn")}</span>
                                 </>
                               ) : trackingDataMap[vo.id] ? (
                                 <>
                                   <IconChevronUp className="w-3.5 h-3.5" />
-                                  <span>Ocultar Línea de Tiempo</span>
+                                  <span>{t("hide_timeline")}</span>
                                 </>
                               ) : (
                                 <>
                                   <IconTruck className="w-3.5 h-3.5 text-emerald-400" />
-                                  <span>Ver Línea de Tiempo en Vivo</span>
+                                  <span>{t("view_live_timeline")}</span>
                                 </>
                               )}
                             </button>
@@ -333,7 +334,7 @@ export default function OrderDetailsModal({
                               rel="noopener noreferrer"
                               className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm"
                             >
-                              <span>Rastrear en Web</span>
+                              <span>{t("track_on_web")}</span>
                               <IconExternalLink className="w-3 h-3 shrink-0" />
                             </a>
                           )}
@@ -344,7 +345,7 @@ export default function OrderDetailsModal({
                           <div className="w-full mt-3 pt-3 border-t border-emerald-500/20">
                             <p className="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5 mb-2">
                               <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                              <span>Respaldo TapTrade Shield (Fotos de Empaque)</span>
+                              <span>{t("shield_evidence_title")}</span>
                             </p>
                             <div className="grid grid-cols-3 gap-2">
                               {vo.evidence.contentPhotoUrl && (
@@ -356,11 +357,11 @@ export default function OrderDetailsModal({
                                 >
                                   <img
                                     src={vo.evidence.contentPhotoUrl}
-                                    alt="Contenido"
+                                    alt={t("photo_content")}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                   />
                                   <span className="absolute bottom-0 inset-x-0 bg-black/70 py-0.5 text-[9px] text-center text-gray-300 font-semibold">
-                                    Contenido
+                                    {t("photo_content")}
                                   </span>
                                 </a>
                               )}
@@ -373,11 +374,11 @@ export default function OrderDetailsModal({
                                 >
                                   <img
                                     src={vo.evidence.packagingPhotoUrl}
-                                    alt="Protección"
+                                    alt={t("photo_protection")}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                   />
                                   <span className="absolute bottom-0 inset-x-0 bg-black/70 py-0.5 text-[9px] text-center text-gray-300 font-semibold">
-                                    Protección
+                                    {t("photo_protection")}
                                   </span>
                                 </a>
                               )}
@@ -390,11 +391,11 @@ export default function OrderDetailsModal({
                                 >
                                   <img
                                     src={vo.evidence.packagePhotoUrl}
-                                    alt="Paquete Sellado"
+                                    alt={t("photo_sealed_package")}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                   />
                                   <span className="absolute bottom-0 inset-x-0 bg-black/70 py-0.5 text-[9px] text-center text-gray-300 font-semibold">
-                                    Paquete Sellado
+                                    {t("photo_sealed_package")}
                                   </span>
                                 </a>
                               )}
@@ -422,13 +423,13 @@ export default function OrderDetailsModal({
                           <div className="flex items-center gap-2">
                             <ShippingBadge name={badgeName} size="sm" />
                             <span className="font-bold text-amber-400">
-                              {isPickup ? "Retiro en Tienda Acordado" : `Envío Pagado vía ${carrierRaw.includes("CHILE") ? "Chilexpress" : carrierRaw.includes("BLUE") ? "Blue Express" : carrierRaw.includes("CORREO") ? "Correos de Chile" : "Starken"}`}
+                              {isPickup ? t("pickup_agreed") : t("paid_shipping_via", { courier: carrierRaw.includes("CHILE") ? "Chilexpress" : carrierRaw.includes("BLUE") ? "Blue Express" : carrierRaw.includes("CORREO") ? "Correos de Chile" : "Starken" })}
                             </span>
                           </div>
                           <p className="text-[10px] text-gray-400">
                             {isPickup
-                              ? "El comprador retirará presencialmente en el local. Confirma la entrega para liberar los fondos retenidos a tu billetera."
-                              : "Ingresa el número de seguimiento oficial para que el cliente rastree su paquete y se libere el dinero a tu billetera."}
+                              ? t("pickup_instructions")
+                              : t("shipping_instructions")}
                           </p>
                         </div>
                         <Button
@@ -445,12 +446,12 @@ export default function OrderDetailsModal({
                           {isPickup ? (
                             <>
                               <IconCheckCircle className="w-3.5 h-3.5" />
-                              <span>Confirmar Entrega</span>
+                              <span>{t("confirm_delivery_btn")}</span>
                             </>
                           ) : (
                             <>
                               <IconBox className="w-3.5 h-3.5" />
-                              <span>Despachar Pedido</span>
+                              <span>{t("dispatch_order_btn")}</span>
                             </>
                           )}
                         </Button>
@@ -494,7 +495,7 @@ export default function OrderDetailsModal({
                               </p>
                               <span className="text-[10px] text-gray-400 border border-white/10 rounded px-1.5 py-0.5 group-hover:border-blue/40 group-hover:text-blue-300 transition-colors inline-flex items-center gap-1">
                                 <IconEye className="w-3 h-3 text-blue shrink-0" />
-                                <span>Guía</span>
+                                <span>{t("guide_badge")}</span>
                               </span>
                             </div>
 
@@ -552,11 +553,11 @@ export default function OrderDetailsModal({
           <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/10 text-[10px] font-bold uppercase tracking-wider text-blue-light">
             <span className="flex items-center gap-1.5">
               <IconEye className="w-3.5 h-3.5 text-blue shrink-0" />
-              <span>Guía de Armado</span>
+              <span>{t("assembly_guide_title")}</span>
             </span>
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-full bg-blue/20 text-white font-mono text-[11px] font-black border border-blue/30">
-                Cant: {activeCard.quantity}
+                {t("qty_short", { count: activeCard.quantity })}
               </span>
               <button
                 type="button"
@@ -565,7 +566,7 @@ export default function OrderDetailsModal({
                   setHoveredCard(null);
                 }}
                 className="text-gray-400 hover:text-white p-0.5 rounded transition-colors"
-                title="Cerrar guía"
+                title={t("close_guide_tooltip")}
               >
                 <IconX className="w-3.5 h-3.5" />
               </button>
@@ -584,7 +585,7 @@ export default function OrderDetailsModal({
           ) : (
             <div className="aspect-[744/1039] w-full rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center bg-white/5 text-gray-500 text-xs p-4 text-center">
               <IconCard className="w-8 h-8 text-gray-600 mb-2" />
-              <span>Sin imagen disponible</span>
+              <span>{t("no_image_available")}</span>
             </div>
           )}
 

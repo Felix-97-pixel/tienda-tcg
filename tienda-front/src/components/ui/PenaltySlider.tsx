@@ -1,4 +1,6 @@
+"use client";
 import React from 'react';
+import { useTranslations } from "next-intl";
 
 interface PenaltySliderProps {
   label: string;
@@ -9,6 +11,7 @@ interface PenaltySliderProps {
 }
 
 export function PenaltySlider({ label, value, disabled = false, onChange, icon }: PenaltySliderProps) {
+  const t = useTranslations("common");
   // Safe bounds between 0 and 200
   const safeVal = Math.max(0, Math.min(200, value));
   
@@ -17,17 +20,17 @@ export function PenaltySlider({ label, value, disabled = false, onChange, icon }
   
   // Color classification based on value relative to 100% base
   let statusBadge = {
-    text: "Base",
+    text: t("slider_base"),
     classes: "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
   };
   if (safeVal < 100) {
     statusBadge = {
-      text: `-${100 - safeVal}% Deval`,
+      text: t("slider_deval_badge", { val: 100 - safeVal }),
       classes: "bg-amber-500/10 text-amber-400 border-amber-500/25"
     };
   } else if (safeVal > 100) {
     statusBadge = {
-      text: `+${safeVal - 100}% Premium`,
+      text: t("slider_premium_badge", { val: safeVal - 100 }),
       classes: "bg-red/10 text-red border-red/25 shadow-[0_0_10px_rgba(225,14,14,0.15)]"
     };
   }
@@ -79,7 +82,7 @@ export function PenaltySlider({ label, value, disabled = false, onChange, icon }
           {/* Center marker (100% Base) */}
           <div 
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-5 bg-white/40 rounded-full z-10 pointer-events-none shadow-[0_0_6px_rgba(255,255,255,0.4)]"
-            title="Base (100%)" 
+            title={t("slider_base_100")} 
           />
           
           <input
@@ -99,15 +102,15 @@ export function PenaltySlider({ label, value, disabled = false, onChange, icon }
         <div className="flex justify-between text-[10px] font-black tracking-wider uppercase">
           <span className="text-amber-400/80 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            Devaluación (&lt;100%)
+            {t("slider_deval_range")}
           </span>
           <span className="text-emerald-400 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" />
-            Base (100%)
+            {t("slider_base_100")}
           </span>
           <span className="text-red flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-red shadow-[0_0_6px_rgba(225,14,14,0.8)]" />
-            Premium (&gt;100%)
+            {t("slider_premium_range")}
           </span>
         </div>
       </div>

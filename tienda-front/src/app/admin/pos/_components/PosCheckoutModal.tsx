@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PosCartItem } from './PosCart';
 import { adminFetch } from '@/utils/api';
+import { IconX, IconCheck, IconAlertTriangle, IconChevronDown } from '@/components/ui/Icons';
 
 interface PosCheckoutModalProps {
   isOpen: boolean;
@@ -131,7 +132,7 @@ export default function PosCheckoutModal({
           <div>
             <h2 className="text-xl font-black text-white">{t("complete_charge")}</h2>
             <p className="text-xs text-white/50 mt-0.5">
-              {items.length} productos • Total: ${totalAmount.toLocaleString('es-CL')} CLP
+              {t("products_total_summary", { count: items.length, total: totalAmount.toLocaleString('es-CL') })}
             </p>
           </div>
 
@@ -141,7 +142,7 @@ export default function PosCheckoutModal({
             type="button"
             className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors"
           >
-            ✕
+            <IconX className="w-4 h-4" />
           </button>
         </div>
 
@@ -149,10 +150,10 @@ export default function PosCheckoutModal({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { id: 'CASH', label: 'Efectivo', tag: 'Caja' },
-              { id: 'CARD_POS', label: 'Maquinita', tag: 'Tarjeta' },
-              { id: 'TRANSFER', label: 'Transferencia', tag: 'Banco' },
-              { id: 'STORE_CREDIT', label: 'Crédito', tag: 'Saldo' },
+              { id: 'CASH', label: t('method_cash'), tag: t('tag_register') },
+              { id: 'CARD_POS', label: t('method_card_pos'), tag: t('tag_card') },
+              { id: 'TRANSFER', label: t('method_transfer'), tag: t('tag_bank') },
+              { id: 'STORE_CREDIT', label: t('method_credit'), tag: t('tag_balance') },
             ].map((method) => {
               const active = selectedMethod === method.id;
               return (
@@ -179,7 +180,7 @@ export default function PosCheckoutModal({
           {selectedMethod === 'CASH' && (
             <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white/70">Monto entregado por cliente:</span>
+                <span className="text-xs font-bold text-white/70">{t("amount_handed_by_customer")}</span>
                 <span className="font-mono text-xl font-black text-white">
                   ${receivedAmount.toLocaleString('es-CL')}
                 </span>
@@ -192,7 +193,7 @@ export default function PosCheckoutModal({
                   onClick={() => setReceivedAmount(totalAmount)}
                   className="py-2 px-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono font-bold text-xs hover:bg-white/10 transition-colors"
                 >
-                  Exacto
+                  {t("exact_btn")}
                 </button>
                 {[1000, 2000, 5000, 10000, 20000].map((bill) => (
                   <button
@@ -212,13 +213,13 @@ export default function PosCheckoutModal({
                 min={0}
                 value={receivedAmount || ''}
                 onChange={(e) => setReceivedAmount(Number(e.target.value) || 0)}
-                placeholder="Digitar monto recibido..."
+                placeholder={t("enter_received_amount")}
                 className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white font-mono text-base font-bold placeholder-white/30 focus:outline-none focus:border-red"
               />
 
               {/* Vuelto calculado */}
               <div className="p-4 rounded-xl bg-[#07090E] border border-white/10 flex items-center justify-between">
-                <span className="text-sm font-bold text-white/70">VUELTO A DEVOLVER:</span>
+                <span className="text-sm font-bold text-white/70">{t("change_to_return")}</span>
                 <span className={`font-mono text-2xl font-black ${change >= 0 ? 'text-emerald-400' : 'text-red'}`}>
                   ${change.toLocaleString('es-CL')}
                 </span>
@@ -229,21 +230,21 @@ export default function PosCheckoutModal({
           {selectedMethod === 'CARD_POS' && (
             <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
               <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs leading-relaxed">
-                <p className="font-bold mb-1">Cobro con Maquinita (Compraquí, Transbank, SumUp, etc.):</p>
-                <p>1. Digita <strong className="font-mono text-white text-sm">${totalAmount.toLocaleString('es-CL')}</strong> en tu terminal física.</p>
-                <p>2. Pasa la tarjeta del cliente (CuentaRUT, Débito o Crédito).</p>
-                <p>3. Ingresa opcionalmente el Nº de Voucher o Código de Aprobación abajo.</p>
+                <p className="font-bold mb-1">{t("card_pos_instructions_title")}</p>
+                <p>{t("card_pos_step_1", { amount: totalAmount.toLocaleString('es-CL') })}</p>
+                <p>{t("card_pos_step_2")}</p>
+                <p>{t("card_pos_step_3")}</p>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5">
-                  Nº de Operación / Voucher (Opcional):
+                  {t("voucher_number_opt")}
                 </label>
                 <input
                   type="text"
                   value={voucherRef}
                   onChange={(e) => setVoucherRef(e.target.value)}
-                  placeholder="Ej: 004128 o AUTH-8931"
+                  placeholder={t("voucher_placeholder")}
                   className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white font-mono text-sm placeholder-white/30 focus:outline-none focus:border-red"
                 />
               </div>
@@ -253,17 +254,17 @@ export default function PosCheckoutModal({
           {selectedMethod === 'TRANSFER' && (
             <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
               <p className="text-xs text-white/60">
-                Verifica el abono de <strong className="text-white font-mono">${totalAmount.toLocaleString('es-CL')}</strong> en la cuenta bancaria de tu tienda antes de continuar.
+                {t("transfer_verify_msg", { amount: totalAmount.toLocaleString('es-CL') })}
               </p>
               <div>
                 <label className="block text-xs font-bold text-white/70 mb-1.5">
-                  Referencia o RUT del emisor (Opcional):
+                  {t("transfer_ref_opt")}
                 </label>
                 <input
                   type="text"
                   value={voucherRef}
                   onChange={(e) => setVoucherRef(e.target.value)}
-                  placeholder="Ej: Transf. Juan Pérez"
+                  placeholder={t("transfer_ref_placeholder")}
                   className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-red"
                 />
               </div>
@@ -274,8 +275,8 @@ export default function PosCheckoutModal({
             <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-white">Pago con Saldo de Tienda (Store Credit)</h3>
-                  <p className="text-xs text-white/50">Debita el total directamente del saldo a favor del jugador.</p>
+                  <h3 className="text-sm font-bold text-white">{t("store_credit_payment_title")}</h3>
+                  <p className="text-xs text-white/50">{t("store_credit_payment_desc")}</p>
                 </div>
                 {isLoadingCredits && (
                   <div className="w-4 h-4 border-2 border-red border-t-transparent rounded-full animate-spin" />
@@ -287,7 +288,7 @@ export default function PosCheckoutModal({
                   <div className="flex items-center justify-between pb-2 border-b border-white/10 text-xs">
                     <div>
                       <span className="text-white font-bold block text-sm">
-                        {selectedCreditCustomer.user?.name || 'Cliente'}
+                        {selectedCreditCustomer.user?.name || t('default_customer')}
                       </span>
                       <span className="text-white/50 text-[11px]">
                         {selectedCreditCustomer.user?.email}
@@ -298,25 +299,25 @@ export default function PosCheckoutModal({
                       onClick={() => setSelectedCreditCustomer(null)}
                       className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-[11px] border border-white/10 transition-colors"
                     >
-                      Cambiar
+                      {t("change_btn")}
                     </button>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
                     <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
-                      <span className="text-[10px] text-white/40 block">Saldo Actual</span>
+                      <span className="text-[10px] text-white/40 block">{t("current_balance")}</span>
                       <span className="font-bold text-white text-xs sm:text-sm">
                         ${creditBalance.toLocaleString('es-CL')}
                       </span>
                     </div>
                     <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
-                      <span className="text-[10px] text-white/40 block">Total Venta</span>
+                      <span className="text-[10px] text-white/40 block">{t("total_sale")}</span>
                       <span className="font-bold text-red text-xs sm:text-sm">
                         -${totalAmount.toLocaleString('es-CL')}
                       </span>
                     </div>
                     <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
-                      <span className="text-[10px] text-white/40 block">Saldo Nuevo</span>
+                      <span className="text-[10px] text-white/40 block">{t("new_balance")}</span>
                       <span className={`font-bold text-xs sm:text-sm ${isCreditSufficient ? 'text-emerald-400' : 'text-red'}`}>
                         ${Math.max(0, creditBalance - totalAmount).toLocaleString('es-CL')}
                       </span>
@@ -325,14 +326,14 @@ export default function PosCheckoutModal({
 
                   {isCreditSufficient ? (
                     <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
-                      <span>✓</span>
-                      <span>Saldo suficiente. Se debitarán ${totalAmount.toLocaleString('es-CL')} CLP.</span>
+                      <IconCheck className="w-4 h-4 shrink-0" />
+                      <span>{t("sufficient_balance_msg", { amount: totalAmount.toLocaleString('es-CL') })}</span>
                     </div>
                   ) : (
                     <div className="p-2.5 rounded-lg bg-red/10 border border-red/20 text-red text-xs flex items-center gap-2">
-                      <span>⚠️</span>
+                      <IconAlertTriangle className="w-4 h-4 shrink-0" />
                       <span>
-                        Saldo insuficiente. Faltan ${(totalAmount - creditBalance).toLocaleString('es-CL')} CLP para cubrir la compra.
+                        {t("insufficient_balance_msg", { amount: (totalAmount - creditBalance).toLocaleString('es-CL') })}
                       </span>
                     </div>
                   )}
@@ -341,7 +342,7 @@ export default function PosCheckoutModal({
                 <div className="space-y-3">
                   <div>
                     <label className="block text-xs font-bold text-white/70 mb-1.5">
-                      Buscar cliente con saldo registrado:
+                      {t("search_registered_credit_customer")}
                     </label>
                     <input
                       type="text"
@@ -350,7 +351,7 @@ export default function PosCheckoutModal({
                         setCreditSearchQuery(e.target.value);
                         setCustomerRut(e.target.value);
                       }}
-                      placeholder="Escribir nombre o correo del jugador (ej: Felix Cabello)..."
+                      placeholder={t("search_credit_customer_placeholder")}
                       className="w-full px-4 py-3 bg-[#07090E] border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-red"
                     />
                   </div>
@@ -359,7 +360,7 @@ export default function PosCheckoutModal({
                   <div className="max-h-48 overflow-y-auto space-y-1.5 rounded-xl border border-white/10 p-2 bg-[#07090E]">
                     {storeCreditsList.length === 0 ? (
                       <p className="text-xs text-white/40 text-center py-3">
-                        {isLoadingCredits ? 'Cargando clientes...' : 'No hay clientes con saldo de Store Credit en esta tienda.'}
+                        {isLoadingCredits ? t('loading_customers') : t('no_credit_customers')}
                       </p>
                     ) : (
                       storeCreditsList
@@ -384,7 +385,7 @@ export default function PosCheckoutModal({
                           >
                             <div className="min-w-0 pr-2">
                               <span className="text-xs font-bold text-white group-hover:text-red transition-colors block truncate">
-                                {c.user?.name || 'Cliente'}
+                                {c.user?.name || t('default_customer')}
                               </span>
                               <span className="text-[11px] text-white/40 truncate block font-mono">
                                 {c.user?.email}
@@ -406,22 +407,22 @@ export default function PosCheckoutModal({
           <div className="pt-2 border-t border-white/10">
             <details className="group">
               <summary className="text-xs font-bold text-white/50 cursor-pointer hover:text-white flex items-center justify-between py-1">
-                <span>Datos del Cliente / Boleta Digital (Opcional)</span>
-                <span className="text-[10px] text-white/30 group-open:rotate-180 transition-transform">▼</span>
+                <span>{t("customer_digital_receipt_opt")}</span>
+                <span className="text-[10px] text-white/30 group-open:rotate-180 transition-transform"><IconChevronDown className="w-3.5 h-3.5" /></span>
               </summary>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                 <input
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Nombre cliente"
+                  placeholder={t("customer_name_placeholder")}
                   className="px-3 py-2 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-red"
                 />
                 <input
                   type="email"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="correo@cliente.cl"
+                  placeholder={t("customer_email_placeholder")}
                   className="px-3 py-2 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-red"
                 />
               </div>
@@ -443,11 +444,11 @@ export default function PosCheckoutModal({
               {isProcessing ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Procesando venta...</span>
+                  <span>{t("processing_sale")}</span>
                 </>
               ) : (
                 <>
-                  <span>Confirmar Venta & Emitir Ticket</span>
+                  <span>{t("confirm_sale_emit_ticket")}</span>
                   <span className="font-mono text-base">• ${totalAmount.toLocaleString('es-CL')} CLP</span>
                 </>
               )}

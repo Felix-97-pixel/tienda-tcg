@@ -272,14 +272,14 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           </div>
         ) : !product ? (
           <div className="py-12 text-center text-gray-4 text-sm font-medium">
-            No se encontró información del producto.
+            {t("product_not_found")}
           </div>
         ) : (
           <>
             {activeBranch && (
               <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <IconStore className="w-3.5 h-3.5 shrink-0" />
-                <span>Gestionando inventario de la sucursal: <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
+                <span>{t("managing_branch_inventory")} <strong className="text-white font-semibold">{activeBranch.name}</strong></span>
               </div>
             )}
 
@@ -289,7 +289,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold text-white">{t("inventory.addVariation")}</h4>
                   <span className="text-[11px] text-gray-400">
-                    {isAddFormOpen ? "(Plegar para enfocar la tabla de cartas)" : "(Desplegar para agregar variantes)"}
+                    {isAddFormOpen ? t("collapse_hint_open") : t("collapse_hint_closed")}
                   </span>
                 </div>
                 <button
@@ -300,12 +300,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                   {isAddFormOpen ? (
                     <>
                       <IconChevronUp className="w-3.5 h-3.5" />
-                      <span>Plegar Formulario</span>
+                      <span>{t("collapse_form_btn")}</span>
                     </>
                   ) : (
                     <>
                       <IconChevronDown className="w-3.5 h-3.5" />
-                      <span>Desplegar Formulario</span>
+                      <span>{t("expand_form_btn")}</span>
                     </>
                   )}
                 </button>
@@ -333,9 +333,9 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">Acabado</label>
+                  <label className="block text-xs font-bold text-gray-4 uppercase tracking-wider mb-2">{t("finish_label")}</label>
                   <SearchableSelect
-                    placeholder="Acabado..."
+                    placeholder={t("finish_placeholder")}
                     options={finishes.map(f => ({ value: f.id, label: f.name }))}
                     value={newVariation.finishId}
                     onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
@@ -343,7 +343,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 </div>
                 <div>
                   <Input
-                    label={`Precio Base (${baseCurrency})`}
+                    label={t("base_price_label", { currency: baseCurrency })}
                     type="number"
                     step="0.01"
                     min="0"
@@ -373,31 +373,31 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
               {/* Tasa y Desglose IVA (Opción A) */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs mb-3 px-2 gap-2">
                 <div className="text-blue-400 font-bold">
-                  Tasa de cambio actual: 1 {baseCurrency} = ${exchangeRate.toLocaleString("es-CL")} CLP
+                  {t("current_exchange_rate", { currency: baseCurrency, rate: exchangeRate.toLocaleString("es-CL") })}
                 </div>
                 <div className="text-gray-400 text-[11px]">
-                  Modelo chileno: PVP final redondeado a la decena con 19% IVA incluido (Neto tienda + Débito Fiscal F29)
+                  {t("chilean_vat_model_hint")}
                 </div>
               </div>
 
               <div className="bg-[#1a1d24] rounded-xl p-4 border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-6 text-sm">
                   <div>
-                    <span className="block text-white/50 text-xs mb-1 font-bold">Precio Neto (CLP)</span>
+                    <span className="block text-white/50 text-xs mb-1 font-bold">{t("net_price_clp")}</span>
                     <span className="text-white font-bold text-lg">${formatPriceVal(netPriceCLP)}</span>
-                    <span className="block text-[10px] text-gray-400 font-medium">100% para tu tienda</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">{t("hundred_percent_store")}</span>
                   </div>
                   <div>
-                    <span className="block text-amber-400 text-xs mb-1 font-bold">IVA (19%)</span>
+                    <span className="block text-amber-400 text-xs mb-1 font-bold">{t("vat_19_label")}</span>
                     <span className="text-amber-400 font-bold text-lg">+${formatPriceVal(vatPriceCLP)}</span>
-                    <span className="block text-[10px] text-gray-400 font-medium">Débito Fiscal F29</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">{t("fiscal_debit_f29")}</span>
                   </div>
                   <div>
-                    <span className="block text-emerald-400 text-xs mb-1 font-bold">Precio Final Tienda</span>
+                    <span className="block text-emerald-400 text-xs mb-1 font-bold">{t("final_store_price")}</span>
                     <span className="text-emerald-400 font-bold text-lg">
                       ${formatPriceVal(finalPriceCLP)}
                     </span>
-                    <span className="block text-[10px] text-emerald-400/80 font-medium">PVP al público con IVA</span>
+                    <span className="block text-[10px] text-emerald-400/80 font-medium">{t("public_pvp_vat")}</span>
                   </div>
                 </div>
                 <div className="w-full md:w-auto min-w-[120px]">
@@ -417,13 +417,13 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                   <tr className="bg-[#111318] border-b border-stroke">
                     <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
                     <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
-                    <th className="p-3 font-bold text-gray-4">Acabado</th>
-                    <th className="p-3 font-bold text-gray-4">Precio ({baseCurrency})</th>
-                    <th className="p-3 font-bold text-gray-4">Precio Neto (CLP)</th>
-                    <th className="p-3 font-bold text-amber-400">IVA (19%)</th>
-                    <th className="p-3 font-bold text-emerald-400">Precio Final Tienda</th>
+                    <th className="p-3 font-bold text-gray-4">{t("finish_label")}</th>
+                    <th className="p-3 font-bold text-gray-4">{t("col_price_currency", { currency: baseCurrency })}</th>
+                    <th className="p-3 font-bold text-gray-4">{t("net_price_clp")}</th>
+                    <th className="p-3 font-bold text-amber-400">{t("vat_19_label")}</th>
+                    <th className="p-3 font-bold text-emerald-400">{t("final_store_price")}</th>
                     <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
-                    <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
+                    <th className="p-3 font-bold text-gray-4 text-center">{t("col_status")}</th>
                     <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
                   </tr>
                 </thead>
@@ -454,15 +454,15 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                         </td>
                         <td className="p-3 text-white font-medium">
                           ${formatPriceVal(itemNetCLP)} CLP
-                          <span className="block text-[10px] text-gray-500 font-normal">100% tienda</span>
+                          <span className="block text-[10px] text-gray-500 font-normal">{t("hundred_percent_store_short")}</span>
                         </td>
                         <td className="p-3 text-amber-400 text-xs font-semibold">
                           +${formatPriceVal(itemVatCLP)} CLP
-                          <span className="block text-[10px] text-amber-400/70 font-normal">Débito F29</span>
+                          <span className="block text-[10px] text-amber-400/70 font-normal">{t("debit_f29_short")}</span>
                         </td>
                         <td className="p-3 text-emerald-400 font-black">
                           ${formatPriceVal(itemFinalCLP)} CLP
-                          <span className="block text-[10px] text-emerald-400/80 font-normal">PVP con IVA</span>
+                          <span className="block text-[10px] text-emerald-400/80 font-normal">{t("pvp_with_vat_short")}</span>
                         </td>
                         <td className="p-3">
                           <input
@@ -477,7 +477,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                             onClick={() => handleUpdateItem(item.id, item.price, item.stock, !item.isPublished)}
                             className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-md transition-all text-white ${item.isPublished ? "bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/40 shadow-emerald-600/30 ring-1 ring-emerald-400/30" : "bg-amber-500 hover:bg-amber-400 border border-amber-300/40 shadow-amber-500/30 ring-1 ring-amber-300/30"}`}
                           >
-                            {item.isPublished ? "Publicado" : "Pausado"}
+                            {item.isPublished ? t("status_published") : t("status_paused")}
                           </button>
                         </td>
                         <td className="p-3 text-center">
@@ -505,23 +505,23 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
       </Modal>
 
       {/* Modal de confirmación de eliminación */}
-      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirmar Eliminación">
+      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title={t("confirm_delete_title")}>
         <div className="p-6">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 bg-red/10 border border-red/20 rounded-full flex items-center justify-center text-red">
               <IconAlertTriangle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white">¿Eliminar variante?</h3>
+            <h3 className="text-xl font-bold text-white">{t("delete_variant_q")}</h3>
             <p className="text-gray-4 text-sm">
-              ¿Estás seguro que deseas eliminar esta variante de precio permanentemente?
+              {t("delete_variant_confirm_desc")}
             </p>
           </div>
           <div className="flex gap-3 mt-8">
             <Button variant="secondary" className="flex-1" onClick={() => setItemToDelete(null)}>
-              Cancelar
+              {t("cancel_btn")}
             </Button>
             <Button variant="danger" className="flex-1" onClick={handleDeleteItem}>
-              Sí, eliminar
+              {t("yes_delete_btn")}
             </Button>
           </div>
         </div>

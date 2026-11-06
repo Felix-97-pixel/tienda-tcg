@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   IconGlobe,
@@ -49,6 +49,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   className = "",
   showLabel = true,
 }) => {
+  const t = useTranslations("common");
   const currentLocale = useLocale() as "es" | "en" | "pt";
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -105,7 +106,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label="Seleccionar idioma"
+        aria-label={t("select_language_aria")}
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-all text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-sm"
       >
         <div className="flex items-center gap-1.5">
@@ -126,12 +127,12 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       {isOpen && (
         <div
           role="listbox"
-          aria-label="Idiomas disponibles"
+          aria-label={t("available_languages_aria")}
           className="absolute right-0 mt-1.5 w-44 rounded-xl bg-[#0D111A] border border-white/15 shadow-2xl backdrop-blur-xl py-1.5 z-[99999] animate-in fade-in zoom-in-95 duration-150"
         >
           <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/[0.06] mb-1 flex items-center gap-1.5">
             <IconGlobe className="w-3 h-3 text-gray-400" />
-            <span>Idioma / Language</span>
+            <span>{t("language_dual_label")}</span>
           </div>
 
           {LANGUAGES.map((lang) => {

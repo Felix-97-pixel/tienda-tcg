@@ -709,7 +709,7 @@ export default function MarketingPage() {
                   <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-[11px]">
                     <div className="min-w-0 pr-2">
                       <div className="text-white font-semibold truncate">Dragon Shield Matte Black</div>
-                      <div className="text-[10px] text-gray-400">Accesorio • 100 Sleeves</div>
+                      <div className="text-[10px] text-gray-400">{t("features.mock_item3_sub")}</div>
                     </div>
                     <span className="text-emerald-400 font-bold whitespace-nowrap">$11.990</span>
                   </div>
@@ -717,7 +717,7 @@ export default function MarketingPage() {
 
                 <div className="p-3 rounded-xl bg-black/60 border border-white/10 mb-3 space-y-1 text-xs">
                   <div className="flex justify-between text-gray-400 text-[11px]">
-                    <span>Items (3)</span>
+                    <span>{t("features.mock_items_count", { count: 3 })}</span>
                     <span>$206.970</span>
                   </div>
                   <div className="flex justify-between text-white font-black text-sm pt-1 border-t border-white/10">

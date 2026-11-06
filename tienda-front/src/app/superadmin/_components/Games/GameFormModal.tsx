@@ -89,7 +89,7 @@ export default function GameFormModal({ game, onClose, onSave }: GameFormModalPr
               label={t("field_name")}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Magic: The Gathering"
+              placeholder={t("ph_game_name")}
               required
             />
 

@@ -104,7 +104,7 @@ export default function StoreWalletPage() {
         params.set("storeId", selectedBranch);
       }
       const res = await adminFetch(`/withdrawals/tax-sales-csv?${params.toString()}`);
-      if (!res.ok) throw new Error("Error al generar archivo CSV");
+      if (!res.ok) throw new Error(t("csv_error"));
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -121,9 +121,9 @@ export default function StoreWalletPage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      showToast("Libro de ventas descargado con éxito", "success");
+      showToast(t("csv_success"), "success");
     } catch (err) {
-      showToast("Error al exportar libro de ventas", "error");
+      showToast(t("csv_export_error"), "error");
     } finally {
       setExportingCsv(false);
     }
@@ -133,7 +133,7 @@ export default function StoreWalletPage() {
     e.preventDefault();
     const amt = Number(requestAmount);
     if (!amt || amt <= 0 || amt > history.balance) {
-      showToast("Monto inválido", "error");
+      showToast(t("invalid_amount"), "error");
       return;
     }
     
@@ -144,15 +144,15 @@ export default function StoreWalletPage() {
         body: JSON.stringify({ amount: amt, bankDetails }),
       });
       if (res.ok) {
-        showToast("Retiro solicitado con éxito", "success");
+        showToast(t("withdrawal_requested_success"), "success");
         setRequestAmount("");
         fetchHistory();
       } else {
         const data = await res.json();
-        showToast(data.message || "Error al solicitar retiro", "error");
+        showToast(data.message || t("withdrawal_request_error"), "error");
       }
     } catch {
-      showToast("Error de conexión", "error");
+      showToast(t("connection_error"), "error");
     }
   };
 
@@ -179,9 +179,9 @@ export default function StoreWalletPage() {
             <IconShieldCheck className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">0% Comisión por Venta • 100% de Abono para tu Tienda</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">{t("zero_commission_title")}</h4>
             <p className="text-[11px] text-white/60 mt-0.5 leading-relaxed">
-              Recibes el valor bruto íntegro de tus cartas y envíos en tu saldo. Conforme a la legislación tributaria chilena (DL 825), tu empresa declara el 19% de IVA de sus ventas en el Formulario 29.
+              {t("zero_commission_desc")}
             </p>
           </div>
         </div>
@@ -197,15 +197,15 @@ export default function StoreWalletPage() {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
               <span className="text-[11px] font-black uppercase tracking-widest text-amber-400">
-                Formulario 29 SII • Contabilidad & Declaración de IVA
+                {t("f29_badge")}
               </span>
             </div>
             <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
               <IconReceipt className="w-5 h-5 text-amber-400 shrink-0" />
-              <span>Resumen Tributario F29 del Mes</span>
+              <span>{t("f29_title")}</span>
             </h2>
             <p className="text-xs text-white/50 leading-relaxed max-w-2xl">
-              Cálculo mensual automático de tu Base Imponible Neta y Débito Fiscal para el contador de tu empresa. Conforme a las normas del SII para comercio electrónico y marketplaces.
+              {t("f29_desc")}
             </p>
           </div>
 
@@ -221,7 +221,7 @@ export default function StoreWalletPage() {
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                Mes Actual
+                {t("period_current_month")}
               </button>
               <button
                 type="button"
@@ -232,7 +232,7 @@ export default function StoreWalletPage() {
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                Mes Anterior
+                {t("period_previous_month")}
               </button>
               <button
                 type="button"
@@ -243,7 +243,7 @@ export default function StoreWalletPage() {
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                Año 2026
+                {t("period_current_year")}
               </button>
             </div>
 
@@ -254,7 +254,7 @@ export default function StoreWalletPage() {
                 onChange={(e) => setSelectedBranch(e.target.value)}
                 className="bg-[#080B12] border border-white/10 text-white rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-red"
               >
-                <option value="ALL">Todas las Sucursales (Holding)</option>
+                <option value="ALL">{t("all_branches_holding")}</option>
                 {taxSummary.availableStores.map((store) => (
                   <option key={store.id} value={store.id}>
                     {store.name}
@@ -271,7 +271,7 @@ export default function StoreWalletPage() {
               className="flex items-center gap-2 border-emerald-500/30 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 cursor-pointer"
             >
               <IconDownload className="w-4 h-4 shrink-0 text-emerald-400" />
-              <span>{exportingCsv ? "Exportando..." : "Descargar Libro de Ventas (CSV)"}</span>
+              <span>{exportingCsv ? t("exporting_csv") : t("download_sales_ledger_csv")}</span>
             </Button>
           </div>
         </div>
@@ -280,9 +280,9 @@ export default function StoreWalletPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-[#121622] p-3 rounded-2xl border border-white/5">
           <div className="flex items-center gap-2 text-white/80">
             <IconStore className="w-4 h-4 text-gray-400 shrink-0" />
-            <span>Empresa / Razón Social:</span>
+            <span>{t("company_legal_name_label")}</span>
             <strong className="text-white">
-              {taxSummary?.company?.legalName || taxSummary?.company?.name || "Mi Tienda"}
+              {taxSummary?.company?.legalName || taxSummary?.company?.name || t("my_store_default")}
             </strong>
             {taxSummary?.company?.rut && (
               <span className="font-mono text-white/60">
@@ -292,12 +292,12 @@ export default function StoreWalletPage() {
           </div>
           <div className="flex items-center gap-2 text-white/80">
             <IconCalendar className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Período Consultado:</span>
+            <span>{t("consulted_period_label")}</span>
             <span className="font-bold text-amber-300 capitalize">
-              {taxSummary?.periodLabel || "Mes Actual"}
+              {taxSummary?.periodLabel || t("period_current_month")}
             </span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white/80">
-              {taxSummary?.orderCount || 0} órdenes
+              {t("orders_count_badge", { count: taxSummary?.orderCount || 0 })}
             </span>
           </div>
         </div>
@@ -307,26 +307,26 @@ export default function StoreWalletPage() {
           {/* KPI 1: Venta Bruta Total (100% Abono Tienda) */}
           <div className="bg-[#11141E] p-4 rounded-2xl border border-white/5 space-y-1 relative overflow-hidden">
             <span className="text-[10px] font-black uppercase tracking-wider text-white/50 block">
-              Venta Bruta Total (100% Abono)
+              {t("kpi_gross_title")}
             </span>
             <p className="text-2xl font-black text-white tracking-tight">
               ${(taxSummary?.totalGross || 0).toLocaleString("es-CL")}
             </p>
             <p className="text-[11px] text-white/40 leading-snug">
-              Total recaudado por cartas y despachos abonado a tu saldo.
+              {t("kpi_gross_desc")}
             </p>
           </div>
 
           {/* KPI 2: Base Imponible Neta Tienda */}
           <div className="bg-[#11141E] p-4 rounded-2xl border border-white/5 space-y-1 relative overflow-hidden">
             <span className="text-[10px] font-black uppercase tracking-wider text-white/50 block">
-              Base Imponible Neta (Sin IVA)
+              {t("kpi_net_title")}
             </span>
             <p className="text-2xl font-black text-cyan-400 tracking-tight">
               ${(taxSummary?.taxableNet || 0).toLocaleString("es-CL")}
             </p>
             <p className="text-[11px] text-white/40 leading-snug">
-              Ingresos netos de tu negocio a registrar en la contabilidad mensual.
+              {t("kpi_net_desc")}
             </p>
           </div>
 
@@ -334,17 +334,17 @@ export default function StoreWalletPage() {
           <div className="bg-[#11141E] p-4 rounded-2xl border border-amber-500/30 bg-amber-500/[0.03] space-y-1 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 block">
-                Débito Fiscal IVA 19%
+                {t("kpi_vat_debit_title")}
               </span>
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
-                F29 Cód. 538
+                {t("f29_code_538")}
               </span>
             </div>
             <p className="text-2xl font-black text-amber-400 tracking-tight">
               ${(taxSummary?.vatDebit || 0).toLocaleString("es-CL")}
             </p>
             <p className="text-[11px] text-amber-300/60 leading-snug">
-              IVA de ventas electrónicas a pagar al SII por tu empresa este mes.
+              {t("kpi_vat_debit_desc")}
             </p>
           </div>
 
@@ -352,17 +352,17 @@ export default function StoreWalletPage() {
           <div className="bg-[#11141E] p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.03] space-y-1 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">
-                Crédito Fiscal Factura TapTrade
+                {t("kpi_vat_credit_title")}
               </span>
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                F29 Cód. 520
+                {t("f29_code_520")}
               </span>
             </div>
             <p className="text-2xl font-black text-emerald-400 tracking-tight">
               ${(taxSummary?.platformFeeVat || 0).toLocaleString("es-CL")}
             </p>
             <p className="text-[11px] text-emerald-300/60 leading-snug">
-              IVA a tu favor por la factura de comisión (3%) emitida por TapTrade SpA.
+              {t("kpi_vat_credit_desc")}
             </p>
           </div>
         </div>
@@ -371,25 +371,25 @@ export default function StoreWalletPage() {
         <div className="p-4 rounded-2xl bg-[#090C14] border border-white/5 space-y-2 text-xs text-white/70">
           <p className="font-bold text-white flex items-center gap-1.5 text-xs">
             <IconInfo className="w-4 h-4 text-blue-400 shrink-0" />
-            <span>Guía Rápida de Declaración F29 para tu Contador</span>
+            <span>{t("accountant_guide_title")}</span>
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] pt-1">
             <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-              <span className="font-bold text-white block">1. Emisión de Boletas</span>
+              <span className="font-bold text-white block">{t("guide_step1_title")}</span>
               <p className="text-white/50 leading-relaxed">
-                Tu tienda emite las boletas electrónicas a los compradores finales por la <strong>Venta Bruta Total</strong> de cada pedido despachado.
+                {t("guide_step1_desc")}
               </p>
             </div>
             <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-              <span className="font-bold text-amber-400 block">2. Código 538 en el F29</span>
+              <span className="font-bold text-amber-400 block">{t("guide_step2_title")}</span>
               <p className="text-white/50 leading-relaxed">
-                El total de ventas con medios de pago electrónicos se declara en el <strong>Código 538</strong> con su respectivo <strong>Débito Fiscal (19%)</strong>.
+                {t("guide_step2_desc")}
               </p>
             </div>
             <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-              <span className="font-bold text-emerald-400 block">3. Descuento de Comisión</span>
+              <span className="font-bold text-emerald-400 block">{t("guide_step3_title")}</span>
               <p className="text-white/50 leading-relaxed">
-                TapTrade te emite Factura Electrónica por su comisión (3% + IVA). Tu contador registra el <strong>IVA Crédito Fiscal (Cód. 520)</strong> para rebajar tu pago.
+                {t("guide_step3_desc")}
               </p>
             </div>
           </div>
@@ -402,14 +402,14 @@ export default function StoreWalletPage() {
         <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-500" />
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-black tracking-widest uppercase text-white/50">Saldo Disponible (Retirable)</h2>
+            <h2 className="text-xs font-black tracking-widest uppercase text-white/50">{t("available_balance_title")}</h2>
             <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
           </div>
           <p className="text-3xl font-black tracking-tight text-emerald-400">
             ${Number(history.balance || 0).toLocaleString("es-CL")} <span className="text-xs text-emerald-400/60 font-normal">CLP</span>
           </p>
           <p className="text-xs text-white/40 mt-3 leading-relaxed">
-            Fondos de ventas despachadas con número de seguimiento ingresado. Listos para transferencia electrónica (TEF).
+            {t("available_balance_desc")}
           </p>
         </div>
 
@@ -417,46 +417,46 @@ export default function StoreWalletPage() {
         <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-500" />
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-black tracking-widest uppercase text-amber-400/80">Saldo en Custodia (Escrow)</h2>
+            <h2 className="text-xs font-black tracking-widest uppercase text-amber-400/80">{t("escrow_balance_title")}</h2>
             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-              Retenido
+              {t("held_badge")}
             </span>
           </div>
           <p className="text-3xl font-black tracking-tight text-amber-400">
             ${Number(history.heldBalance || 0).toLocaleString("es-CL")} <span className="text-xs text-amber-400/60 font-normal">CLP</span>
           </p>
           <p className="text-xs text-white/40 mt-3 leading-relaxed">
-            Ventas pagadas retenidas temporalmente. Se liberan automáticamente al registrar el número de envío en <strong>Despachos & Pedidos</strong>.
+            {t("escrow_balance_desc")}
           </p>
         </div>
 
         {/* Card 3: Formulario Retiro */}
         <div className="bg-[#0E121B] p-6 rounded-2xl border border-white/10 shadow-xl md:col-span-2 lg:col-span-1">
-          <h2 className="text-sm font-bold text-white mb-4">Solicitar Retiro de Fondos</h2>
+          <h2 className="text-sm font-bold text-white mb-4">{t("request_withdrawal_title")}</h2>
           <form onSubmit={handleRequestWithdrawal} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">Monto a Retirar</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">{t("amount_to_withdraw_label")}</label>
               <input 
                 type="number" 
                 value={requestAmount}
                 onChange={(e) => setRequestAmount(e.target.value)}
                 className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 text-sm focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all"
-                placeholder="Ej: 50000"
+                placeholder={t("amount_placeholder")}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">Datos Bancarios (Banco, Tipo, N° Cuenta, RUT)</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">{t("bank_details_label")}</label>
               <input 
                 type="text" 
                 value={bankDetails}
                 onChange={(e) => setBankDetails(e.target.value)}
                 className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 text-sm focus:border-red focus:ring-1 focus:ring-red/30 focus:outline-none transition-all"
-                placeholder="Ej: Banco Estado, Cuenta RUT, 19.xxx.xxx-x"
+                placeholder={t("bank_details_placeholder")}
                 required
               />
             </div>
             <Button type="submit" variant="primary" className="w-full">
-              Enviar Solicitud
+              {t("submit_withdrawal_btn")}
             </Button>
           </form>
         </div>
@@ -465,21 +465,21 @@ export default function StoreWalletPage() {
       {/* Historial de Transacciones */}
       <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-xl overflow-hidden">
         <div className="p-5 border-b border-white/10">
-          <h2 className="text-sm font-bold text-white">Historial de Transacciones</h2>
+          <h2 className="text-sm font-bold text-white">{t("tx_history_title")}</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#090C14] border-b border-white/10 text-white/50 text-[11px] font-black uppercase tracking-wider">
-                <th className="py-3 px-5">Fecha</th>
-                <th className="py-3 px-5">Referencia</th>
-                <th className="py-3 px-5">Método</th>
-                <th className="py-3 px-5 text-right">Monto</th>
+                <th className="py-3 px-5">{t("col_date")}</th>
+                <th className="py-3 px-5">{t("col_reference")}</th>
+                <th className="py-3 px-5">{t("col_method")}</th>
+                <th className="py-3 px-5 text-right">{t("col_amount")}</th>
               </tr>
             </thead>
             <tbody>
               {history.transactions.length === 0 ? (
-                <tr><td colSpan={4} className="py-8 text-center text-white/40 text-sm">No hay transacciones recientes</td></tr>
+                <tr><td colSpan={4} className="py-8 text-center text-white/40 text-sm">{t("no_recent_tx")}</td></tr>
               ) : (
                 history.transactions.map((tx: any) => (
                   <tr key={tx.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -487,7 +487,7 @@ export default function StoreWalletPage() {
                       {new Date(tx.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-5 text-sm text-white font-medium">
-                      {tx.type === "WITHDRAWAL" ? "Retiro de Fondos" : tx.reference}
+                      {tx.type === "WITHDRAWAL" ? t("tx_type_withdrawal") : tx.reference}
                     </td>
                     <td className="py-3 px-5 text-sm">
                       {tx.paymentMethod === "MERCADOPAGO" ? (
@@ -512,21 +512,21 @@ export default function StoreWalletPage() {
       {/* Estado de Retiros */}
       <div className="bg-[#0E121B] rounded-2xl border border-white/10 shadow-xl overflow-hidden mt-6">
         <div className="p-5 border-b border-white/10">
-          <h2 className="text-sm font-bold text-white">Estado de Retiros Solicitados</h2>
+          <h2 className="text-sm font-bold text-white">{t("withdrawals_status_title")}</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#090C14] border-b border-white/10 text-white/50 text-[11px] font-black uppercase tracking-wider">
-                <th className="py-3 px-5">Fecha Solicitud</th>
-                <th className="py-3 px-5">Cuenta Destino</th>
-                <th className="py-3 px-5">Estado</th>
-                <th className="py-3 px-5 text-right">Monto</th>
+                <th className="py-3 px-5">{t("col_request_date")}</th>
+                <th className="py-3 px-5">{t("col_dest_account")}</th>
+                <th className="py-3 px-5">{t("col_status")}</th>
+                <th className="py-3 px-5 text-right">{t("col_amount")}</th>
               </tr>
             </thead>
             <tbody>
               {history.withdrawals.length === 0 ? (
-                <tr><td colSpan={4} className="py-8 text-center text-white/40 text-sm">No has solicitado retiros aún</td></tr>
+                <tr><td colSpan={4} className="py-8 text-center text-white/40 text-sm">{t("no_withdrawals_yet")}</td></tr>
               ) : (
                 history.withdrawals.map((w: any) => (
                   <tr key={w.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -537,9 +537,9 @@ export default function StoreWalletPage() {
                       {w.bankDetails}
                     </td>
                     <td className="py-3 px-5 text-sm">
-                      {w.status === "PENDING" && <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-xs font-bold">En Proceso</span>}
-                      {w.status === "COMPLETED" && <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full text-xs font-bold">Completado</span>}
-                      {w.status === "REJECTED" && <span className="bg-red/10 text-red border border-red/30 px-2.5 py-0.5 rounded-full text-xs font-bold">Rechazado</span>}
+                      {w.status === "PENDING" && <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-xs font-bold">{t("status_in_progress")}</span>}
+                      {w.status === "COMPLETED" && <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full text-xs font-bold">{t("status_completed")}</span>}
+                      {w.status === "REJECTED" && <span className="bg-red/10 text-red border border-red/30 px-2.5 py-0.5 rounded-full text-xs font-bold">{t("status_rejected")}</span>}
                     </td>
                     <td className="py-3 px-5 text-right font-black text-sm text-white">
                       ${Number(w.amount).toLocaleString("es-CL")}

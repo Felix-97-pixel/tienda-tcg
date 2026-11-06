@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   IconCalendar,
   IconChevronLeft,
@@ -29,27 +30,10 @@ interface DropdownCoords {
   width: number;
 }
 
-const MONTH_NAMES = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-
-const WEEKDAY_NAMES = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
-
 export default function DatePicker({
   value,
   onChange,
-  placeholder = "Seleccionar fecha...",
+  placeholder,
   label,
   disabled = false,
   minDate,
@@ -58,6 +42,37 @@ export default function DatePicker({
   inputClassName = "",
   usePortal = true,
 }: DatePickerProps) {
+  const t = useTranslations("common");
+  const resolvedPlaceholder = placeholder || t("select_date_placeholder");
+  const monthNames = useMemo(
+    () => [
+      t("month_0"),
+      t("month_1"),
+      t("month_2"),
+      t("month_3"),
+      t("month_4"),
+      t("month_5"),
+      t("month_6"),
+      t("month_7"),
+      t("month_8"),
+      t("month_9"),
+      t("month_10"),
+      t("month_11"),
+    ],
+    [t]
+  );
+  const weekdayNames = useMemo(
+    () => [
+      t("weekday_0"),
+      t("weekday_1"),
+      t("weekday_2"),
+      t("weekday_3"),
+      t("weekday_4"),
+      t("weekday_5"),
+      t("weekday_6"),
+    ],
+    [t]
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState<DropdownCoords | null>(null);
@@ -243,7 +258,7 @@ export default function DatePicker({
       {/* Header del Calendario: Mes, Año y Controles */}
       <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2.5">
         <div className="text-sm font-bold text-white flex items-center gap-1.5">
-          <span>{MONTH_NAMES[navDate.getMonth()]}</span>
+          <span>{monthNames[navDate.getMonth()]}</span>
           <span className="text-white/40 font-mono text-xs font-normal">
             {navDate.getFullYear()}
           </span>
@@ -254,7 +269,7 @@ export default function DatePicker({
             type="button"
             onClick={handlePrevMonth}
             className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-            title="Mes anterior"
+            title={t("prev_month")}
           >
             <IconChevronLeft className="w-4 h-4" />
           </button>
@@ -262,7 +277,7 @@ export default function DatePicker({
             type="button"
             onClick={handleNextMonth}
             className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-            title="Mes siguiente"
+            title={t("next_month")}
           >
             <IconChevronRight className="w-4 h-4" />
           </button>
@@ -271,8 +286,8 @@ export default function DatePicker({
 
       {/* Días de la semana */}
       <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-white/40 uppercase tracking-wider mb-1.5">
-        {WEEKDAY_NAMES.map((name) => (
-          <div key={name} className="py-1">
+        {weekdayNames.map((name, idx) => (
+          <div key={idx} className="py-1">
             {name}
           </div>
         ))}
@@ -318,7 +333,7 @@ export default function DatePicker({
           onClick={handleSelectToday}
           className="text-red hover:text-red-light font-bold hover:underline transition-colors"
         >
-          Hoy
+          {t("today")}
         </button>
         {value && (
           <button
@@ -326,7 +341,7 @@ export default function DatePicker({
             onClick={handleClear}
             className="text-white/40 hover:text-white transition-colors"
           >
-            Limpiar
+            {t("clear")}
           </button>
         )}
       </div>
@@ -363,7 +378,7 @@ export default function DatePicker({
               displayValue ? "text-white font-medium" : "text-white/30"
             }`}
           >
-            {displayValue || placeholder}
+            {displayValue || resolvedPlaceholder}
           </span>
         </div>
 
@@ -373,7 +388,7 @@ export default function DatePicker({
               type="button"
               onClick={handleClear}
               className="p-1 rounded-md text-white/30 hover:text-white hover:bg-white/10 transition-colors"
-              title="Borrar fecha"
+              title={t("clear_date")}
             >
               <IconX className="w-3.5 h-3.5" />
             </button>

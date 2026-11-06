@@ -25,7 +25,7 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
       document.body.removeChild(link);
     } catch (e) {
       console.error("Error al descargar CSV", e);
-      alert("Error al descargar el reporte de bajo stock");
+      alert(t("err_download_lowstock"));
     }
   };
 
@@ -34,14 +34,14 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
           <IconAlertTriangle className="w-4 h-4 text-amber-400" />
-          Alertas de Bajo Stock
+          {t("low_stock_alerts_title")}
         </h3>
         <div className="flex items-center gap-3">
-          <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title="Descargar reporte completo en CSV">
+          <button onClick={downloadCSV} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title={t("download_full_csv")}>
             <IconDownload className="w-4 h-4" />
           </button>
           <Link href="/admin/products" className="text-[10px] font-black text-red hover:text-red-light uppercase tracking-widest transition-colors flex items-center gap-1">
-            IR A PRODUCTOS <IconChevronRight className="w-3 h-3" />
+            {t("go_to_products")} <IconChevronRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
@@ -50,13 +50,13 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[160px] text-gray-5">
             <IconCheckCircle className="w-10 h-10 mb-2 opacity-20" />
-            <p className="text-sm">No hay productos con bajo stock</p>
+            <p className="text-sm">{t("no_low_stock_products")}</p>
           </div>
         ) : (
           <div className="space-y-0">
             <div className="grid grid-cols-12 gap-4 pb-3 border-b border-white/5 text-xs font-bold text-gray-5 uppercase">
-              <div className="col-span-8">Producto</div>
-              <div className="col-span-4 text-right">Stock</div>
+              <div className="col-span-8">{t("col_product")}</div>
+              <div className="col-span-4 text-right">{t("col_stock")}</div>
             </div>
             {items.map((item: any, i: number) => (
               <div key={item.id} className={`grid grid-cols-12 gap-4 py-3 items-center ${i !== items.length - 1 ? 'border-b border-white/5' : ''}`}>
@@ -71,7 +71,7 @@ export default function LowStockList({ items = [] }: { items: any[] }) {
                 </div>
                 <div className="col-span-4 text-right">
                   <span className={`inline-flex px-2 py-1 rounded text-xs font-bold ${item.stock === 1 ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                    Quedan {item.stock}
+                    {t("remaining_stock", { count: item.stock })}
                   </span>
                 </div>
               </div>

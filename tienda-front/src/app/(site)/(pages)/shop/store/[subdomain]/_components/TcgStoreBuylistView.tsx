@@ -4,7 +4,18 @@ import Image from "next/image";
 import { API_URL } from "@/utils/api";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
-import { IconZap, IconSearch, IconCash, IconGem, IconHandshake, IconMapPin } from "@/components/ui/Icons";
+import {
+  IconZap,
+  IconSearch,
+  IconCash,
+  IconGem,
+  IconHandshake,
+  IconMapPin,
+  IconX,
+  IconChevronDown,
+  IconChevronRight,
+  IconWhatsApp,
+} from "@/components/ui/Icons";
 import { useTranslations } from "next-intl";
 
 interface BuylistItem {
@@ -230,7 +241,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               <span className="text-[11px] text-gray-400 font-medium">{tStore("digital_credit_badge")}</span>
             </div>
             <div className="col-span-2 sm:col-span-1 bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
-              <span className="text-blue-400 text-lg font-black block">Directo</span>
+              <span className="text-blue-400 text-lg font-black block">{tStore("direct_label")}</span>
               <span className="text-[11px] text-gray-400 font-medium">{tStore("direct_store_player_badge")}</span>
             </div>
           </div>
@@ -247,25 +258,14 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             placeholder={tStore("search_buylist_placeholder")}
             className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#111522] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500/60 transition-all"
           />
-          <svg
-            className="absolute left-3.5 top-3.5 text-gray-500"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <IconSearch className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-500" />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
               className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
             >
-              ✕
+              <IconX className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -304,17 +304,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   </option>
                 ))}
               </select>
-              <svg
-                className="absolute right-3 top-4 pointer-events-none text-gray-400"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+              <IconChevronDown className="w-3 h-3 absolute right-3 top-4 pointer-events-none text-gray-400" />
             </div>
           )}
 
@@ -329,17 +319,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               <option value="cash-desc">{tBuylist("filters.sort_cash")}</option>
               <option value="name-asc">{tBuylist("filters.sort_name")}</option>
             </select>
-            <svg
-              className="absolute right-3 top-4 pointer-events-none text-gray-400"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            <IconChevronDown className="w-3 h-3 absolute right-3 top-4 pointer-events-none text-gray-400" />
           </div>
         </div>
       </div>
@@ -358,13 +338,13 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
           </div>
           <h3 className="text-lg font-bold text-white mb-1">
             {searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL"
-              ? "No se encontraron cartas con los filtros aplicados"
-              : "No hay cartas en la buylist por el momento"}
+              ? tStore("no_cards_filtered_title")
+              : tStore("no_cards_empty_title")}
           </h3>
           <p className="text-sm text-gray-400 max-w-md mx-auto mb-4">
             {searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL"
-              ? "Prueba buscando con otro término o limpia los filtros para ver todas las cartas solicitadas."
-              : `${store.name} aún no ha publicado cartas solicitadas en su buylist. Vuelve a consultar pronto.`}
+              ? tStore("no_cards_filtered_desc")
+              : tStore("no_cards_empty_desc", { storeName: store.name })}
           </p>
           {(searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL") && (
             <button
@@ -473,9 +453,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   className="mt-4 w-full h-11 rounded-xl font-black text-xs uppercase tracking-wider bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0A0D14] flex items-center justify-center gap-2 shadow-lg shadow-[#F59E0B]/25 active:scale-[0.98] transition-all border border-amber-300/40 cursor-pointer"
                 >
                   <span>{tStore("offer_to_store_btn")}</span>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
+                  <IconChevronRight className="w-4 h-4 stroke-[3]" />
                 </button>
               </div>
             );
@@ -493,7 +471,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               onClick={() => setSelectedTradeItem(null)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all"
             >
-              ✕
+              <IconX className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
@@ -522,14 +500,14 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   {selectedTradeItem.product?.name}
                 </h4>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {selectedTradeItem.product?.cardDetail?.expansion || "Edición oficial"}
+                  {selectedTradeItem.product?.cardDetail?.expansion || tStore("official_edition")}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
                     {selectedTradeItem.condition?.displayName || "Near Mint"}
                   </span>
                   <span className="text-xs text-gray-400">
-                    Máx: {selectedTradeItem.quantityWanted} copias
+                    {tStore("max_copies", { count: selectedTradeItem.quantityWanted })}
                   </span>
                 </div>
               </div>
@@ -628,9 +606,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 onClick={handleWhatsAppOffer}
                 className="w-full h-11 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20 transition-all active:scale-[0.98]"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z" />
-                </svg>
+                <IconWhatsApp className="w-[18px] h-[18px]" />
                 {tBuylist("trade_modal.whatsapp_contact", { storeName: store.name })}
               </button>
 

@@ -75,7 +75,7 @@ export default function AdminShipping() {
           const storeData = await storeRes.json();
           setPickupEnabled(Boolean(storeData.pickupEnabled));
           setPickupAddress(storeData.pickupAddress || storeData.address || "");
-          setPickupSchedule(storeData.pickupSchedule || "Lunes a Viernes 12:00 a 19:30 hrs");
+          setPickupSchedule(storeData.pickupSchedule || t("default_schedule"));
           if (storeData.originRegion?.code) {
             setOriginRegionCode(storeData.originRegion.code);
           } else if (storeData.originRegionCode) {
@@ -96,7 +96,7 @@ export default function AdminShipping() {
     };
 
     loadData();
-  }, [activeBranchId]);
+  }, [activeBranchId, t]);
 
   const currentRegion = regions.find((r) => r.code === originRegionCode) || regions[0];
   const regionOptions = regions.map((r) => ({ label: r.name, value: r.code }));
@@ -129,12 +129,12 @@ export default function AdminShipping() {
         }) });
 
       if (!res.ok) {
-        throw new Error("No se pudo guardar la configuración.");
+        throw new Error(t("error_save"));
       }
 
       showToast(t("saved_success"), "success");
     } catch (err: any) {
-      showToast(err.message || "Error al guardar", "error");
+      showToast(err.message || t("error_save"), "error");
     } finally {
       setSaving(false);
     }
@@ -185,7 +185,7 @@ export default function AdminShipping() {
 
             <div className="flex items-center gap-3">
               <span className="text-xs font-bold text-white/70">
-                {pickupEnabled ? "Habilitado" : "Deshabilitado"}
+                {pickupEnabled ? t("enabled") : t("disabled")}
               </span>
               <Switch
                 checked={pickupEnabled}
@@ -199,35 +199,35 @@ export default function AdminShipping() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 animate-in fade-in duration-300">
               <div>
                 <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-white/70">
-                  Dirección Física de Retiro <span className="text-red">*</span>
+                  {t("pickup_address_label")} <span className="text-red">*</span>
                 </label>
                 <input
                   type="text"
                   required={pickupEnabled}
                   value={pickupAddress}
                   onChange={(e) => setPickupAddress(e.target.value)}
-                  placeholder="Ej: Av. Providencia 2237, Local 45, Providencia"
+                  placeholder={t("pickup_address_placeholder")}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 focus:border-red focus:ring-1 focus:ring-red/30 outline-none transition"
                 />
                 <span className="text-[10px] text-white/30 mt-1 block">
-                  Esta dirección aparecerá en el resumen del checkout y en el correo de confirmación del cliente.
+                  {t("pickup_address_hint")}
                 </span>
               </div>
 
               <div>
                 <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-white/70">
-                  Horarios de Atención al Cliente <span className="text-red">*</span>
+                  {t("pickup_schedule_label")} <span className="text-red">*</span>
                 </label>
                 <input
                   type="text"
                   required={pickupEnabled}
                   value={pickupSchedule}
                   onChange={(e) => setPickupSchedule(e.target.value)}
-                  placeholder="Ej: Lunes a Viernes 12:00 a 19:30, Sábado 11:00 a 16:00"
+                  placeholder={t("pickup_schedule_placeholder")}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 focus:border-red focus:ring-1 focus:ring-red/30 outline-none transition"
                 />
                 <span className="text-[10px] text-white/30 mt-1 block">
-                  Indica los días y franjas horarias en que tu personal puede entregar pedidos en el mostrador.
+                  {t("pickup_schedule_hint")}
                 </span>
               </div>
             </div>
@@ -241,9 +241,9 @@ export default function AdminShipping() {
               <IconMapPin className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white tracking-tight">Comuna de Origen para Cotizaciones</h3>
+              <h3 className="text-base font-bold text-white tracking-tight">{t("origin_title")}</h3>
               <p className="text-xs text-white/40">
-                Punto geográfico de partida oficial para calcular las tarifas dinámicas de Starken y Chilexpress hacia los compradores.
+                {t("origin_desc")}
               </p>
             </div>
           </div>
@@ -251,25 +251,25 @@ export default function AdminShipping() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-white/70">
-                Región de Origen
+                {t("origin_region_label")}
               </label>
               <SearchableSelect
                 options={regionOptions}
                 value={originRegionCode}
                 onChange={handleRegionChange}
-                placeholder="Selecciona la región..."
+                placeholder={t("origin_region_placeholder")}
               />
             </div>
 
             <div>
               <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-white/70">
-                Comuna de Origen
+                {t("origin_commune_label")}
               </label>
               <SearchableSelect
                 options={communeOptions}
                 value={originCommuneCode}
                 onChange={setOriginCommuneCode}
-                placeholder="Selecciona la comuna..."
+                placeholder={t("origin_commune_placeholder")}
               />
             </div>
           </div>
@@ -282,9 +282,9 @@ export default function AdminShipping() {
               <IconTruck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white tracking-tight">Couriers Oficiales & Tarifas de Respaldo</h3>
+              <h3 className="text-base font-bold text-white tracking-tight">{t("couriers_title")}</h3>
               <p className="text-xs text-white/40">
-                Haz clic en cualquier courier para modificar su <strong>tarifa plana de respaldo</strong> o activarlo/desactivarlo.
+                {t("couriers_desc")}
               </p>
             </div>
           </div>
@@ -300,7 +300,7 @@ export default function AdminShipping() {
                   <div className="flex-shrink-0"><ShippingBadge name="starken" size="md" /></div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-white transition-colors">
-                      Starken Domicilio & Agencia
+                      {t("starken_title")}
                     </h4>
                     <span
                       className={`inline-flex items-center gap-1.5 text-[10px] font-bold mt-0.5 ${starkenProvider?.isActive ? "text-emerald-400" : "text-amber-400"
@@ -312,7 +312,7 @@ export default function AdminShipping() {
                             : "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]"
                           }`}
                       />
-                      {starkenProvider?.isActive ? "Activo en Checkout" : "Pausado"}
+                      {starkenProvider?.isActive ? t("active_in_checkout") : t("paused")}
                     </span>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function AdminShipping() {
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
-                <span className="text-white/40">Tarifa fija de respaldo:</span>
+                <span className="text-white/40">{t("fallback_flat_rate")}</span>
                 <span className="font-mono font-bold text-emerald-400">
                   ${Number(starkenProvider?.price || 6990).toLocaleString("es-CL")} CLP
                 </span>
@@ -340,7 +340,7 @@ export default function AdminShipping() {
                   <div className="flex-shrink-0"><ShippingBadge name="chilexpress" size="md" /></div>
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-white transition-colors">
-                      Chilexpress Express Prioritario
+                      {t("chilexpress_title")}
                     </h4>
                     <span
                       className={`inline-flex items-center gap-1.5 text-[10px] font-bold mt-0.5 ${chilexpressProvider?.isActive ? "text-emerald-400" : "text-amber-400"
@@ -352,7 +352,7 @@ export default function AdminShipping() {
                             : "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]"
                           }`}
                       />
-                      {chilexpressProvider?.isActive ? "Activo en Checkout" : "Pausado"}
+                      {chilexpressProvider?.isActive ? t("active_in_checkout") : t("paused")}
                     </span>
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export default function AdminShipping() {
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
-                <span className="text-white/40">Tarifa fija de respaldo:</span>
+                <span className="text-white/40">{t("fallback_flat_rate")}</span>
                 <span className="font-mono font-bold text-emerald-400">
                   ${Number(chilexpressProvider?.price || 9990).toLocaleString("es-CL")} CLP
                 </span>

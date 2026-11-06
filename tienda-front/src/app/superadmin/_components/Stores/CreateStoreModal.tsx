@@ -86,7 +86,7 @@ export default function CreateStoreModal({
                   value={formData.companyName}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Blood Moon Gaming Corp"
+                  placeholder={t("ph_company_name")}
                 />
               </div>
 
@@ -135,7 +135,7 @@ export default function CreateStoreModal({
                   value={formData.storeName}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Blood Moon Santiago Centro"
+                  placeholder={t("ph_hq_name")}
                 />
               </div>
 
@@ -152,7 +152,7 @@ export default function CreateStoreModal({
                     value={formData.subdomain}
                     onChange={handleInputChange}
                     className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none font-mono"
-                    placeholder="bloodmoon_santiago"
+                    placeholder={t("ph_hq_subdomain")}
                   />
                 </div>
                 <p className="text-[11px] text-white/40 mt-1">
@@ -170,7 +170,7 @@ export default function CreateStoreModal({
                   value={formData.address}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Av. Providencia 2124, Local 4B"
+                  placeholder={t("ph_hq_address")}
                 />
               </div>
 
@@ -206,7 +206,7 @@ export default function CreateStoreModal({
                   value={formData.ownerName}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-                  placeholder="Rodrigo Valenzuela"
+                  placeholder={t("ph_owner_name")}
                 />
               </div>
 
@@ -221,7 +221,7 @@ export default function CreateStoreModal({
                   value={formData.ownerEmail}
                   onChange={handleInputChange}
                   className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all font-mono"
-                  placeholder="dueno@bloodmoon.cl"
+                  placeholder={t("ph_owner_email")}
                 />
               </div>
 

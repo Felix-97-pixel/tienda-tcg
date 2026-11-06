@@ -11,7 +11,8 @@
       "store_login": "Acesso Lojistas",
       "explore_singles": "Explorar Cartas",
       "tagline": "Plataforma & Marketplace",
-      "language_label": "Idioma"
+      "language_label": "Idioma",
+      "open_menu_aria": "Abrir menu"
     },
     "hero": {
       "badge": "Ecossistema TCG #1 da América Latina",
@@ -203,7 +204,8 @@
       "whatsapp_support": "WhatsApp Suporte",
       "copyright": "© {year} TAPTRADE SpA. Todos os direitos reservados. Feito para colecionadores.",
       "official_logistics_title": "Logística e Pagamentos Oficiais:",
-      "free_pickup": "RETIRADA $0"
+      "free_pickup": "RETIRADA $0",
+      "riot_disclaimer": "A TapTrade não é endossada pela Riot Games e não reflete as visões ou opiniões da Riot Games ou de qualquer pessoa oficialmente envolvida na produção ou gestão das propriedades da Riot Games. Riot Games e todas as propriedades associadas são marcas comerciais ou marcas registadas da Riot Games, Inc."
     },
     "showcase": {
       "badge_demo": "Demonstração Interativa ao Vivo",
@@ -523,6 +525,10 @@
         "btn_explore": "Explorar Singles ao Vivo",
         "btn_store": "Entrar como Lojista"
       }
+    },
+    "features": {
+      "mock_item3_sub": "Acessório • 100 Sleeves",
+      "mock_items_count": "Itens ({count})"
     }
   }
 }

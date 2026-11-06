@@ -151,15 +151,15 @@ export default function AdminPriceSyncPage() {
     const base = [
       {
         value: "ALL",
-        label: "Todas las expansiones de este juego",
+        label: t("all_expansions_label"),
       },
     ];
     const mapped = expansions.map((exp) => ({
       value: exp.name,
-      label: `${exp.name} (${exp.products} cartas)`,
+      label: t("expansion_count_label", { name: exp.name, count: exp.products }),
     }));
     return [...base, ...mapped];
-  }, [expansions]);
+  }, [expansions, t]);
 
   // Cantidad de cartas que serán afectadas según el alcance elegido
   const affectedCount = useMemo(() => {
@@ -184,7 +184,7 @@ export default function AdminPriceSyncPage() {
   // Ejecutar sincronización
   const handleSync = async () => {
     if (affectedCount === 0) {
-      showToast("No hay cartas que coincidan con los filtros seleccionados.", "info");
+      showToast(t("toast_no_matching"), "info");
       return;
     }
 
@@ -208,7 +208,7 @@ export default function AdminPriceSyncPage() {
       const data = await res.json();
       if (res.ok) {
         showToast(
-          `Sincronización completada: ${data.updatedCount} precios actualizados.`,
+          t("toast_sync_success", { count: data.updatedCount }),
           "success"
         );
         setLastSyncResult({
@@ -217,10 +217,10 @@ export default function AdminPriceSyncPage() {
         });
         fetchPreview();
       } else {
-        showToast(data.message || "Error al sincronizar precios", "error");
+        showToast(data.message || t("toast_sync_error"), "error");
       }
     } catch (err) {
-      showToast("Error de red al sincronizar precios", "error");
+      showToast(t("toast_network_error"), "error");
     } finally {
       setSyncing(false);
     }
@@ -247,8 +247,10 @@ export default function AdminPriceSyncPage() {
           <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
             <IconCheckCircle className="w-4 h-4 shrink-0 text-emerald-400" />
             <span>
-              Última sincronización ({lastSyncResult.timestamp}):{" "}
-              <strong>{lastSyncResult.updatedCount}</strong> cartas actualizadas
+              {t("last_sync_banner", {
+                time: lastSyncResult.timestamp,
+                count: lastSyncResult.updatedCount,
+              })}
             </span>
           </div>
         )}
@@ -265,10 +267,10 @@ export default function AdminPriceSyncPage() {
               </div>
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-red">
-                  Paso 1
+                  {t("step1_badge")}
                 </span>
                 <h2 className="text-base font-bold text-white">
-                  Selecciona Juego y Expansión
+                  {t("step1_title")}
                 </h2>
               </div>
             </div>
@@ -276,7 +278,7 @@ export default function AdminPriceSyncPage() {
             {/* Selector de Juego */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2.5">
-                Juego TCG a Sincronizar
+                {t("game_label")}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <button
@@ -292,9 +294,9 @@ export default function AdminPriceSyncPage() {
                   }`}
                 >
                   <div>
-                    <div className="text-xs font-black">Todos los Juegos TCG</div>
+                    <div className="text-xs font-black">{t("all_games_title")}</div>
                     <div className="text-[11px] text-white/40 mt-0.5">
-                      Catálogo global completo
+                      {t("all_games_desc")}
                     </div>
                   </div>
                   {selectedCategory === "ALL" && (
@@ -321,7 +323,7 @@ export default function AdminPriceSyncPage() {
                       <div className="min-w-0 pr-2">
                         <div className="text-xs font-black truncate">{cat.name}</div>
                         <div className="text-[11px] text-white/40 mt-0.5">
-                          Permite filtrar por edición
+                          {t("filter_by_edition_hint")}
                         </div>
                       </div>
                       {active && (
@@ -336,14 +338,12 @@ export default function AdminPriceSyncPage() {
             {/* Selector de Expansión */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
-                Expansión / Edición Específica
+                {t("expansion_label")}
               </label>
               {selectedCategory === "ALL" ? (
                 <div className="p-3.5 rounded-xl bg-[#080B12] border border-white/10 text-xs text-white/40 flex items-center gap-2.5">
                   <IconBox className="w-4 h-4 text-white/30 shrink-0" />
-                  <span>
-                    Selecciona un juego específico arriba si deseas elegir una expansión puntual (ej. <em>Modern Horizons 3</em>, <em>Prismatic Evolutions</em>).
-                  </span>
+                  <span>{t("select_game_first_hint")}</span>
                 </div>
               ) : (
                 <SearchableSelect
@@ -352,8 +352,8 @@ export default function AdminPriceSyncPage() {
                   onChange={(val) => setSelectedExpansion(val || "ALL")}
                   placeholder={
                     loadingExpansions
-                      ? "Cargando expansiones del juego..."
-                      : "Busca o selecciona una expansión..."
+                      ? t("loading_expansions_placeholder")
+                      : t("search_expansion_placeholder")
                   }
                   disabled={loadingExpansions}
                 />
@@ -369,10 +369,10 @@ export default function AdminPriceSyncPage() {
               </div>
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
-                  Paso 2 · Protección de Precios Manuales
+                  {t("step2_badge")}
                 </span>
                 <h2 className="text-base font-bold text-white">
-                  ¿Qué cartas quieres actualizar dentro de esta selección?
+                  {t("step2_title")}
                 </h2>
               </div>
             </div>
@@ -381,24 +381,24 @@ export default function AdminPriceSyncPage() {
               {[
                 {
                   id: "ONLY_IN_STOCK" as TargetScope,
-                  title: "Solo con Stock (> 0)",
-                  desc: "Actualiza únicamente las cartas que tienes disponibles en inventario físico.",
+                  title: t("scope_stock_title"),
+                  desc: t("scope_stock_desc"),
                   count: preview?.onlyInStockCount ?? 0,
-                  badge: "Recomendado",
+                  badge: t("scope_stock_badge"),
                 },
                 {
                   id: "ONLY_ZERO_PRICE" as TargetScope,
-                  title: "Solo sin Precio ($0)",
-                  desc: "Asigna precio de mercado solo a cartas en $0 sin tocar tus precios personalizados.",
+                  title: t("scope_zero_title"),
+                  desc: t("scope_zero_desc"),
                   count: preview?.onlyZeroPriceCount ?? 0,
-                  badge: "Modo Seguro",
+                  badge: t("scope_zero_badge"),
                 },
                 {
                   id: "ALL" as TargetScope,
-                  title: "Todo el Catálogo",
-                  desc: "Actualiza todas las variantes (con y sin stock) de la selección.",
+                  title: t("scope_all_title"),
+                  desc: t("scope_all_desc"),
                   count: preview?.totalMatching ?? 0,
-                  badge: "Masivo",
+                  badge: t("scope_all_badge"),
                 },
               ].map((opt) => {
                 const active = targetScope === opt.id;
@@ -419,7 +419,7 @@ export default function AdminPriceSyncPage() {
                           {opt.badge}
                         </span>
                         <span className="font-mono text-xs font-black text-emerald-400">
-                          {opt.count.toLocaleString("es-CL")} cartas
+                          {t("cards_count_unit", { count: opt.count.toLocaleString("es-CL") })}
                         </span>
                       </div>
                       <div className="text-sm font-bold text-white">{opt.title}</div>
@@ -442,22 +442,20 @@ export default function AdminPriceSyncPage() {
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 block">
-                    Paso 3 · Reglas de Estado e Idioma
+                    {t("step3_badge")}
                   </span>
                   <h2 className="text-base font-bold text-white mt-0.5">
-                    Aplicar Reglas de Devaluación (Condición e Idioma)
+                    {t("step3_title")}
                   </h2>
                   <p className="text-xs text-white/50 mt-1 leading-relaxed max-w-xl">
-                    Calcula el precio final tomando en cuenta los porcentajes de descuento por{" "}
-                    <strong className="text-white/80">Condición</strong> (LP, MP, HP, Damaged) e{" "}
-                    <strong className="text-white/80">Idioma</strong> que ya tienes configurados en{" "}
+                    {t("step3_desc_prefix")}{" "}
                     <Link
                       href="/admin/devaluations"
                       className="text-amber-300 underline hover:text-amber-200"
                     >
-                      Reglas de Estado
+                      {t("step3_rules_link")}
                     </Link>{" "}
-                    ({preview?.devaluationRulesCount || 0} reglas activas).
+                    {t("step3_active_rules", { count: preview?.devaluationRulesCount || 0 })}
                   </p>
                 </div>
               </div>
@@ -468,7 +466,7 @@ export default function AdminPriceSyncPage() {
                     applyDevaluations ? "text-emerald-400" : "text-white/40"
                   }`}
                 >
-                  {applyDevaluations ? "Sí, aplicar" : "No"}
+                  {applyDevaluations ? t("yes_apply") : t("no_apply")}
                 </span>
                 <Switch
                   checked={applyDevaluations}
@@ -486,46 +484,46 @@ export default function AdminPriceSyncPage() {
             <div className="flex items-center gap-2.5">
               <IconSparkles className="w-5 h-5 text-red" />
               <h3 className="text-base font-black text-white">
-                Resumen de Sincronización
+                {t("summary_title")}
               </h3>
             </div>
 
             <div className="bg-[#080B12] border border-white/10 rounded-xl p-4 space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Juego seleccionado:</span>
+                <span className="text-white/40">{t("summary_game")}</span>
                 <span className="font-bold text-white text-right truncate max-w-[160px]">
-                  {selectedCategory === "ALL" ? "Todos los Juegos" : selectedCategory}
+                  {selectedCategory === "ALL" ? t("summary_all_games") : selectedCategory}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Expansión:</span>
+                <span className="text-white/40">{t("summary_expansion")}</span>
                 <span className="font-bold text-emerald-400 text-right truncate max-w-[160px]">
-                  {selectedExpansion === "ALL" ? "Todas las ediciones" : selectedExpansion}
+                  {selectedExpansion === "ALL" ? t("summary_all_editions") : selectedExpansion}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Alcance:</span>
+                <span className="text-white/40">{t("summary_scope")}</span>
                 <span className="font-bold text-white">
                   {targetScope === "ONLY_IN_STOCK"
-                    ? "Solo con Stock (> 0)"
+                    ? t("scope_stock_title")
                     : targetScope === "ONLY_ZERO_PRICE"
-                    ? "Solo Precio $0"
-                    : "Todo el Catálogo"}
+                    ? t("summary_scope_zero_short")
+                    : t("scope_all_title")}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Devaluación (Estado/Idioma):</span>
+                <span className="text-white/40">{t("summary_devaluation")}</span>
                 <span
                   className={`font-bold ${
                     applyDevaluations ? "text-emerald-400" : "text-white/50"
                   }`}
                 >
-                  {applyDevaluations ? "Activada" : "Desactivada"}
+                  {applyDevaluations ? t("status_enabled") : t("status_disabled")}
                 </span>
               </div>
               <div className="pt-3 border-t border-white/10 flex items-center justify-between">
                 <span className="text-white/60 font-bold uppercase text-[10px] tracking-wider">
-                  Cartas a actualizar:
+                  {t("cards_to_update")}
                 </span>
                 <span className="text-2xl font-mono font-black text-white">
                   {loadingPreview ? "..." : affectedCount.toLocaleString("es-CL")}
@@ -536,9 +534,7 @@ export default function AdminPriceSyncPage() {
             {targetScope === "ALL" && selectedCategory === "ALL" && (
               <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-[11px] text-amber-200">
                 <IconAlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>
-                  Estás en modo <strong>Catálogo Completo</strong>. Esto sobrescribirá los precios de todos tus juegos y expansiones.
-                </span>
+                <span>{t("full_catalog_warning")}</span>
               </div>
             )}
 
@@ -551,7 +547,7 @@ export default function AdminPriceSyncPage() {
               leftIcon={<IconRefresh className="w-4 h-4" />}
               className="w-full justify-center"
             >
-              Sincronizar {affectedCount.toLocaleString("es-CL")} Cartas Ahora
+              {t("sync_now_btn", { count: affectedCount.toLocaleString("es-CL") })}
             </Button>
           </div>
         </div>
@@ -562,10 +558,10 @@ export default function AdminPriceSyncPage() {
         <div className="px-6 py-4 bg-[#090C14] border-b border-white/10 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-black uppercase tracking-wider text-white">
-              Vista Previa de Simulación en Vivo
+              {t("live_preview_title")}
             </h3>
             <p className="text-xs text-white/40 mt-0.5">
-              Muestra representativa de cómo quedarán los precios base (USD) en tu inventario al aplicar la sincronización.
+              {t("live_preview_subtitle")}
             </p>
           </div>
         </div>
@@ -578,7 +574,7 @@ export default function AdminPriceSyncPage() {
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
             <IconCard className="w-8 h-8 text-white/20 mb-2" />
             <p className="text-xs text-white/50 font-bold">
-              No se encontraron cartas con precio de mercado oficial para este filtro.
+              {t("no_samples_found")}
             </p>
           </div>
         ) : (
@@ -586,12 +582,12 @@ export default function AdminPriceSyncPage() {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#090C14] border-b border-white/10 text-[10px] uppercase tracking-wider text-white/40 font-black">
-                  <th className="px-5 py-3">Carta / Expansión</th>
-                  <th className="px-5 py-3">Variante (Estado e Idioma)</th>
-                  <th className="px-5 py-3 text-center">Stock</th>
-                  <th className="px-5 py-3 text-right">Precio Actual (USD)</th>
-                  <th className="px-5 py-3 text-right">Mercado Base (NM)</th>
-                  <th className="px-5 py-3 text-right">Nuevo Precio Calculado</th>
+                  <th className="px-5 py-3">{t("col_card_expansion")}</th>
+                  <th className="px-5 py-3">{t("col_variant")}</th>
+                  <th className="px-5 py-3 text-center">{t("col_stock")}</th>
+                  <th className="px-5 py-3 text-right">{t("col_current_price")}</th>
+                  <th className="px-5 py-3 text-right">{t("col_market_base")}</th>
+                  <th className="px-5 py-3 text-right">{t("col_simulated_price")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -645,7 +641,7 @@ export default function AdminPriceSyncPage() {
                         </span>
                         {Math.abs(factor - 1) > 0.001 && (
                           <span className="block text-[10px] text-amber-300/80">
-                            ({Math.round(factor * 100)}% por Estado/Idioma)
+                            {t("factor_by_condition_lang", { percent: Math.round(factor * 100) })}
                           </span>
                         )}
                       </td>

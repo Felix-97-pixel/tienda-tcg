@@ -1,7 +1,10 @@
+"use client";
 import Link from "next/link";
 import React from "react";
+import { useTranslations } from "next-intl";
 
 const Breadcrumb = ({ title, pages, hidePadding = false, subtitle }: { title: string, pages: string[], hidePadding?: boolean, subtitle?: React.ReactNode }) => {
+  const t = useTranslations("common");
   return (
     <div className={`overflow-hidden shadow-breadcrumb ${hidePadding ? "pt-0" : "pt-[209px] sm:pt-[155px] lg:pt-[95px] xl:pt-[165px]"}`}>
       <div className="border-t border-white/10">
@@ -16,7 +19,7 @@ const Breadcrumb = ({ title, pages, hidePadding = false, subtitle }: { title: st
 
             <ul className="flex items-center gap-2">
               <li className="text-custom-sm hover:text-blue">
-                <Link href="/">Home /</Link>
+                <Link href="/">{t("home")} /</Link>
               </li>
 
               {pages.length > 0 &&

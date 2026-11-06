@@ -28,7 +28,7 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
     if (item.quantity < maxStock) {
       dispatch(updateCartItemQuantity({ id: item.id, quantity: item.quantity + 1 }));
     } else {
-      showToast(`Solo hay ${maxStock} unidades disponibles en stock`, "warning");
+      showToast(t("max_stock_toast", { max: maxStock }), "warning");
     }
   };
 
@@ -109,7 +109,7 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
 
           {/* Store Name */}
           <div className="flex items-center gap-1 text-[11px] text-gray-400 mb-2 truncate">
-            <span className="text-gray-500">Tienda:</span>
+            <span className="text-gray-500">{t("store_label")}</span>
             <span className="text-gray-300 font-medium truncate">
               {item.storeName || "TapTrade Store"}
             </span>

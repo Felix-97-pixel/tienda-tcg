@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   LineChart,
   Line,
@@ -41,6 +42,7 @@ export default function ChartWidget({
   defaultType = "bar",
   colors = COLORS,
 }: ChartWidgetProps) {
+  const t = useTranslations("sales");
   const [chartType, setChartType] = useState<"line" | "bar" | "pie">(defaultType);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -53,7 +55,7 @@ export default function ChartWidget({
       return <div className="w-full h-[260px]" />;
     }
     if (!data || data.length === 0) {
-      return <div className="flex items-center justify-center h-full text-white/40 text-sm">No hay datos suficientes</div>;
+      return <div className="flex items-center justify-center h-full text-white/40 text-sm">{t("not_enough_data")}</div>;
     }
 
     switch (chartType) {
@@ -150,7 +152,7 @@ export default function ChartWidget({
           <button
             onClick={exportWidgetToPDF}
             className="p-1.5 rounded-lg transition-colors text-white/50 hover:text-white bg-white/5 border border-white/10"
-            title="Descargar este gráfico a PDF"
+            title={t("download_chart_pdf")}
           >
             <IconDownload className="w-4 h-4" />
           </button>
@@ -162,7 +164,7 @@ export default function ChartWidget({
                   ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm"
                   : "text-white/50 hover:text-white"
               }`}
-              title="Barras"
+              title={t("chart_bars")}
             >
               <IconBarChart className="w-4 h-4" />
             </button>
@@ -173,7 +175,7 @@ export default function ChartWidget({
                   ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm"
                   : "text-white/50 hover:text-white"
               }`}
-              title="Líneas"
+              title={t("chart_lines")}
             >
               <IconBarChart className="w-4 h-4" />
             </button>
@@ -184,7 +186,7 @@ export default function ChartWidget({
                   ? "bg-gradient-to-r from-red-dark to-red text-white shadow-sm"
                   : "text-white/50 hover:text-white"
               }`}
-              title="Torta"
+              title={t("chart_pie")}
             >
               <IconPieChart className="w-4 h-4" />
             </button>

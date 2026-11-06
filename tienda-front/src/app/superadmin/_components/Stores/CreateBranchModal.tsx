@@ -89,7 +89,7 @@ export default function CreateBranchModal({
               value={formData.name}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Sucursal Viña del Mar Centro"
+              placeholder={t("ph_branch_name")}
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function CreateBranchModal({
                 value={formData.subdomain}
                 onChange={handleChange}
                 className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none font-mono"
-                placeholder="bloodmoon_vina"
+                placeholder={t("ph_branch_subdomain")}
               />
             </div>
             <p className="text-[11px] text-white/40 mt-1">
@@ -135,7 +135,7 @@ export default function CreateBranchModal({
               value={formData.address}
               onChange={handleChange}
               className="w-full bg-[#080B12] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all"
-              placeholder="Calle Valparaíso 542, Viña del Mar"
+              placeholder={t("ph_branch_address")}
             />
           </div>
 

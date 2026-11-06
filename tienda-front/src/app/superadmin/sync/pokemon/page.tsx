@@ -19,16 +19,16 @@ export default function PokemonSyncPage() {
       {sync.loading && <PreLoader message={tCommon("loading")} />}
 
       <div>
-        <h1 className="text-2xl font-bold text-white">Sincronización de Pokémon TCG</h1>
-        <p className="text-gray-4 text-sm mt-1">Importa y actualiza el catálogo y precios específicamente para Pokémon.</p>
+        <h1 className="text-2xl font-bold text-white">{t("pokemon_title")}</h1>
+        <p className="text-gray-4 text-sm mt-1">{t("pokemon_subtitle")}</p>
       </div>
 
       <div className="flex flex-col xl:flex-row gap-8 max-w-6xl">
         {/* Card de Importación */}
         <div className="flex-1 bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-t-4 border-yellow-500 flex flex-col">
           <div className="flex-1">
-            <h2 className="font-bold text-white mb-1">Importar Expansiones</h2>
-            <p className="text-xs text-gray-4 mb-4">Descarga expansiones completas desde Pokémon TCG API.</p>
+            <h2 className="font-bold text-white mb-1">{t("pokemon_import_title")}</h2>
+            <p className="text-xs text-gray-4 mb-4">{t("pokemon_import_desc")}</p>
 
             <div className="mb-4">
               <label className="mb-1 block text-xs font-medium text-gray-4">{t("configuredDestination")}</label>
@@ -39,7 +39,7 @@ export default function PokemonSyncPage() {
 
             <SearchableSelect
               options={[
-                { label: "⭐ TODAS LAS EDICIONES (Masivo)", value: "ALL" },
+                { label: t("all_editions_massive"), value: "ALL" },
                 ...sync.sets.map(s => ({
                   label: `${s.name} (${s.id.toUpperCase()})`,
                   value: s.id
@@ -47,7 +47,7 @@ export default function PokemonSyncPage() {
               ]}
               value={sync.selectedSetId}
               onChange={sync.setSelectedSetId}
-              placeholder="Seleccionar expansión..."
+              placeholder={t("select_expansion_placeholder")}
             />
           </div>
 
@@ -59,7 +59,7 @@ export default function PokemonSyncPage() {
               fullWidth
               className="bg-yellow-600 hover:bg-yellow-500 text-white"
             >
-              {sync.importProgress.active ? t("inProgress") : "Importar Expansión"}
+              {sync.importProgress.active ? t("inProgress") : t("import_expansion_btn")}
             </Button>
           </div>
 
@@ -72,8 +72,8 @@ export default function PokemonSyncPage() {
         {/* Card de Precios */}
         <div className="flex-1 bg-[#0f1115] rounded-2xl shadow-xl p-6 border border-white/5 border-t-4 border-yellow-500 flex flex-col">
           <div className="flex-1">
-            <h2 className="font-bold text-white mb-1">Actualizar Precios</h2>
-            <p className="text-xs text-gray-4 mb-4">Sincroniza precios de mercado en TCGPlayer.</p>
+            <h2 className="font-bold text-white mb-1">{t("update_prices_title")}</h2>
+            <p className="text-xs text-gray-4 mb-4">{t("pokemon_prices_desc")}</p>
 
             <SearchableSelect
               options={sync.expansionsList.map(e => ({
@@ -82,7 +82,7 @@ export default function PokemonSyncPage() {
               }))}
               value={sync.selectedExpansion}
               onChange={sync.setSelectedExpansion}
-              placeholder="Seleccionar expansión local..."
+              placeholder={t("select_local_expansion_placeholder")}
             />
           </div>
 
@@ -93,7 +93,7 @@ export default function PokemonSyncPage() {
             fullWidth
             className="mt-4 bg-yellow-600 hover:bg-yellow-500 text-white"
           >
-            {sync.priceProgress.active ? t("inProgress") : "Actualizar Precios"}
+            {sync.priceProgress.active ? t("inProgress") : t("update_prices_btn")}
           </Button>
 
           <ProgressDisplay

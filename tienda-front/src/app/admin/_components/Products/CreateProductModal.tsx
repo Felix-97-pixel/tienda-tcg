@@ -11,6 +11,7 @@ import { FileInput } from "@/components/ui/FileInput";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { IconX, IconBox } from "@/components/ui/Icons";
 export interface CreateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -149,7 +150,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
                       onClick={() => { handleRemove(creatingProduct.imageUrl); setCreatingProduct({ ...creatingProduct, imageUrl: "" }); }}
                       className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red text-white shadow-md hover:bg-red-dark transition-all opacity-0 group-hover:opacity-100"
                     >
-                      ✕
+                      <IconX className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
@@ -160,7 +161,7 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
                 accept="image/*"
                 onChange={async (e) => {
                   if (!creatingProduct.categoryId) {
-                    showToast("Por favor, selecciona una categoría primero para organizar la imagen.", "warning");
+                    showToast(t("select_category_first_img"), "warning");
                     e.target.value = "";
                     return;
                   }
@@ -185,42 +186,40 @@ export default function CreateProductModal({ isOpen, onClose, categories, brands
           {creatingProduct.categoryId && !isTcgCategory && (
             <div className="md:col-span-2 rounded-xl border border-white/10 p-5 bg-white/[0.02]">
               <h4 className="mb-4 text-sm font-bold text-white flex items-center gap-2">
-                <svg className="w-4 h-4 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-                Dimensiones para Envío
+                <IconBox className="w-4 h-4 text-red" />
+                {t("shipping_dimensions_title")}
               </h4>
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <Input
-                  label="Peso (Gramos)"
+                  label={t("weight_grams_label")}
                   type="number"
                   value={creatingProduct.weightGram}
                   onChange={(e) => setCreatingProduct({ ...creatingProduct, weightGram: e.target.value })}
-                  placeholder="Ej: 500"
+                  placeholder={t("weight_placeholder")}
                 />
                 <Input
-                  label="Largo (cm)"
+                  label={t("length_cm_label")}
                   type="number"
                   value={creatingProduct.lengthCm}
                   onChange={(e) => setCreatingProduct({ ...creatingProduct, lengthCm: e.target.value })}
-                  placeholder="Ej: 20"
+                  placeholder={t("length_placeholder")}
                 />
                 <Input
-                  label="Ancho (cm)"
+                  label={t("width_cm_label")}
                   type="number"
                   value={creatingProduct.widthCm}
                   onChange={(e) => setCreatingProduct({ ...creatingProduct, widthCm: e.target.value })}
-                  placeholder="Ej: 15"
+                  placeholder={t("width_placeholder")}
                 />
                 <Input
-                  label="Alto (cm)"
+                  label={t("height_cm_label")}
                   type="number"
                   value={creatingProduct.heightCm}
                   onChange={(e) => setCreatingProduct({ ...creatingProduct, heightCm: e.target.value })}
-                  placeholder="Ej: 10"
+                  placeholder={t("height_placeholder")}
                 />
               </div>
-              <p className="mt-3 text-xs text-gray-4">Estas dimensiones son obligatorias para calcular el costo de envío con Starken o Chilexpress.</p>
+              <p className="mt-3 text-xs text-gray-4">{t("shipping_dimensions_hint")}</p>
             </div>
           )}
 

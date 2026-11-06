@@ -142,12 +142,12 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
   // Agregar múltiples variaciones seleccionadas con checkboxes
   const handleAddBatchVariations = async () => {
     if (selectedLanguageIds.length === 0 || selectedConditionIds.length === 0) {
-      showToast("Debes seleccionar al menos un idioma y un estado físico con los checkboxes", "error");
+      showToast(t("buylist_modal.err_select_lang_cond"), "error");
       return;
     }
 
     if (cashPrice <= 0 && creditPrice <= 0) {
-      showToast("Debes ingresar un precio en efectivo o crédito mayor a 0", "warning");
+      showToast(t("buylist_modal.err_price_gt_zero"), "warning");
       return;
     }
 
@@ -174,14 +174,14 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
 
       if (res.ok) {
         showToast(
-          `Se configuraron con éxito ${totalToCreate} solicitudes de compra en tu Buylist`,
+          t("buylist_modal.success_batch_configured", { count: totalToCreate }),
           "success"
         );
         await refreshProduct();
         onUpdate();
       } else {
         const errorData = await res.json();
-        showToast(errorData.message || "Error al agregar solicitudes de compra", "error");
+        showToast(errorData.message || t("buylist_modal.err_adding_requests"), "error");
       }
     } catch (err) {
       showToast(tc("networkError"), "error");
@@ -199,7 +199,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
       );
 
       if (res.ok) {
-        showToast("Solicitud actualizada", "success");
+        showToast(t("buylist_modal.request_updated"), "success");
         await refreshProduct();
         onUpdate();
       } else {
@@ -220,12 +220,12 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
     try {
       const res = await adminFetch(`/buylist/me/${itemToDelete}`, { method: "DELETE" }, activeBranch?.id);
       if (res.ok) {
-        showToast("Solicitud eliminada", "success");
+        showToast(t("buylist_modal.request_deleted"), "success");
         setItemToDelete(null);
         await refreshProduct();
         onUpdate();
       } else {
-        showToast("Error al eliminar", "error");
+        showToast(t("buylist_modal.err_deleting"), "error");
       }
     } catch (err) {
       showToast(tc("networkError"), "error");
@@ -259,7 +259,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
       <Modal
         isOpen={true}
         onClose={onClose}
-        title={<>Gestionar Buylist - <span className="text-blue">{product?.name}</span></>}
+        title={<>{t("buylist_modal.manage_buylist_title")} <span className="text-blue">{product?.name}</span></>}
         maxWidth="4xl"
       >
         {/* Formulario Nueva Solicitud con Checkboxes para Múltiples Idiomas y Estados */}
@@ -268,10 +268,10 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 <IconCoins className="w-4 h-4 text-amber-400" />
-                <span>Añadir Solicitud de Compra (Selección Múltiple)</span>
+                <span>{t("buylist_modal.add_request_multi_title")}</span>
               </h3>
               <p className="text-xs text-gray-4 mt-0.5">
-                Marca los idiomas y estados que estás dispuesto a comprar. Se creará una solicitud por cada combinación elegida.
+                {t("buylist_modal.add_request_multi_desc")}
               </p>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Dropdown con Checkbox para Idiomas */}
             <CheckboxDropdown
-              label={`Idiomas Aceptados (${selectedLanguageIds.length} seleccionados)`}
+              label={t("buylist_modal.accepted_languages_label", { count: selectedLanguageIds.length })}
               options={languages.map((l) => ({
                 label: l.name,
                 value: l.id,
@@ -288,18 +288,18 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
               }))}
               selectedValues={selectedLanguageIds}
               onChange={setSelectedLanguageIds}
-              placeholder="Seleccionar idiomas..."
-              searchPlaceholder="Buscar idioma..."
+              placeholder={t("buylist_modal.select_languages_placeholder")}
+              searchPlaceholder={t("buylist_modal.search_language_placeholder")}
               quickToggles={[
-                { label: "Español e Inglés", onClick: handleSelectCommonLanguages },
-                { label: "Todos", onClick: () => handleToggleAllLanguages(true) },
-                { label: "Ninguno", onClick: () => handleToggleAllLanguages(false) },
+                { label: t("buylist_modal.quick_es_en"), onClick: handleSelectCommonLanguages },
+                { label: t("buylist_modal.quick_all"), onClick: () => handleToggleAllLanguages(true) },
+                { label: t("buylist_modal.quick_none"), onClick: () => handleToggleAllLanguages(false) },
               ]}
             />
 
             {/* Dropdown con Checkbox para Estados / Condiciones */}
             <CheckboxDropdown
-              label={`Estados / Condiciones (${selectedConditionIds.length} seleccionadas)`}
+              label={t("buylist_modal.conditions_label", { count: selectedConditionIds.length })}
               options={conditions.map((c) => ({
                 label: c.displayName || c.name,
                 value: c.id,
@@ -307,12 +307,12 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
               }))}
               selectedValues={selectedConditionIds}
               onChange={setSelectedConditionIds}
-              placeholder="Seleccionar estados..."
-              searchPlaceholder="Buscar estado..."
+              placeholder={t("buylist_modal.select_conditions_placeholder")}
+              searchPlaceholder={t("buylist_modal.search_condition_placeholder")}
               quickToggles={[
-                { label: "Solo NM y LP", onClick: handleSelectTopConditions },
-                { label: "Todas", onClick: () => handleToggleAllConditions(true) },
-                { label: "Limpiar", onClick: () => handleToggleAllConditions(false) },
+                { label: t("buylist_modal.quick_nm_lp"), onClick: handleSelectTopConditions },
+                { label: t("buylist_modal.quick_all_fem"), onClick: () => handleToggleAllConditions(true) },
+                { label: t("buylist_modal.quick_clear"), onClick: () => handleToggleAllConditions(false) },
               ]}
             />
           </div>
@@ -321,7 +321,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-white/5">
             <div>
               <Input
-                label="Cant. Buscada (por variación)"
+                label={t("buylist_modal.qty_wanted_label")}
                 type="number"
                 min={1}
                 value={quantityWanted}
@@ -329,7 +329,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-4">Precio Efectivo / Cash ($ CLP) *</label>
+              <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("buylist_modal.cash_price_clp_label")}</label>
               <input
                 type="number"
                 min={0}
@@ -340,7 +340,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-4">Precio Crédito Tienda ($ CLP) *</label>
+              <label className="mb-1.5 block text-xs font-medium text-gray-4">{t("buylist_modal.credit_price_clp_label")}</label>
               <input
                 type="number"
                 min={0}
@@ -357,11 +357,14 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
             <div className="text-xs text-gray-4">
               {totalCombinations > 0 ? (
                 <span>
-                  Se añadirán o actualizarán <strong className="text-white font-bold">{totalCombinations} solicitudes</strong> (
-                  {selectedLanguageIds.length} idioma{selectedLanguageIds.length !== 1 ? "s" : ""} × {selectedConditionIds.length} estado{selectedConditionIds.length !== 1 ? "s" : ""}) a tu Buylist.
+                  {t("buylist_modal.summary_combinations", {
+                    total: totalCombinations,
+                    langs: selectedLanguageIds.length,
+                    conds: selectedConditionIds.length,
+                  })}
                 </span>
               ) : (
-                <span className="text-amber-400">Marca al menos 1 idioma y 1 estado físico con los checkboxes.</span>
+                <span className="text-amber-400">{t("buylist_modal.summary_empty_warning")}</span>
               )}
             </div>
 
@@ -371,7 +374,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
               disabled={isSubmitting || totalCombinations === 0}
               className="text-xs font-bold !py-2.5 whitespace-nowrap"
             >
-              {isSubmitting ? "Guardando..." : `+ Añadir ${totalCombinations} Solicitudes`}
+              {isSubmitting ? t("buylist_modal.saving_btn") : t("buylist_modal.add_requests_btn", { count: totalCombinations })}
             </Button>
           </div>
         </div>
@@ -380,7 +383,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white/80">
-              Solicitudes Activas en tu Buylist ({buyListItems.length})
+              {t("buylist_modal.active_requests_title", { count: buyListItems.length })}
             </h4>
           </div>
 
@@ -388,12 +391,12 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="bg-[#111522] border-b border-white/10 text-xs">
-                  <th className="p-3 font-bold text-gray-4">Idioma</th>
-                  <th className="p-3 font-bold text-gray-4">Condición</th>
-                  <th className="p-3 font-bold text-gray-4">Buscados</th>
-                  <th className="p-3 font-bold text-gray-4">Cash ($)</th>
-                  <th className="p-3 font-bold text-gray-4">Crédito ($)</th>
-                  <th className="p-3 font-bold text-gray-4 text-center">Estado</th>
+                  <th className="p-3 font-bold text-gray-4">{t("buylist_modal.col_language")}</th>
+                  <th className="p-3 font-bold text-gray-4">{t("buylist_modal.col_condition")}</th>
+                  <th className="p-3 font-bold text-gray-4">{t("buylist_modal.col_wanted")}</th>
+                  <th className="p-3 font-bold text-gray-4">{t("buylist_modal.col_cash")}</th>
+                  <th className="p-3 font-bold text-gray-4">{t("buylist_modal.col_credit")}</th>
+                  <th className="p-3 font-bold text-gray-4 text-center">{t("buylist_modal.col_status")}</th>
                   <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
                 </tr>
               </thead>
@@ -401,7 +404,7 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
                 {buyListItems.length === 0 && (
                   <tr>
                     <td colSpan={7} className="p-8 text-center text-gray-4 text-xs">
-                      No estás comprando ninguna variación de esta carta actualmente.
+                      {t("buylist_modal.empty_buylist_variations")}
                     </td>
                   </tr>
                 )}
@@ -455,14 +458,14 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
                               : "bg-amber-500/15 text-amber-400 border-amber-500/30 hover:bg-amber-500/25"
                           }`}
                         >
-                          {item.isActive ? "Publicado" : "Pausado"}
+                          {item.isActive ? t("buylist_modal.status_published") : t("buylist_modal.status_paused")}
                         </button>
                       </td>
                       <td className="p-3 text-center">
                         <button
                           onClick={() => confirmDelete(item.id)}
                           className="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
-                          title="Eliminar solicitud"
+                          title={t("buylist_modal.delete_request_tooltip")}
                         >
                           <IconTrash className="w-4 h-4" />
                         </button>
@@ -483,23 +486,23 @@ export default function BuylistModal({ product: initialProduct, onClose, onUpdat
       </Modal>
 
       {/* Modal de confirmación de eliminación */}
-      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirmar Eliminación">
+      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title={t("buylist_modal.confirm_delete_title")}>
         <div className="p-6">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center text-red">
               <IconAlertTriangle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white">¿Eliminar solicitud?</h3>
+            <h3 className="text-xl font-bold text-white">{t("buylist_modal.delete_request_q")}</h3>
             <p className="text-gray-4 text-sm">
-              ¿Estás seguro que deseas eliminar esta solicitud de compra permanentemente?
+              {t("buylist_modal.delete_request_confirm_desc")}
             </p>
           </div>
           <div className="flex gap-3 mt-8">
             <Button variant="secondary" className="flex-1" onClick={() => setItemToDelete(null)}>
-              Cancelar
+              {t("buylist_modal.cancel_btn")}
             </Button>
             <Button variant="danger" className="flex-1" onClick={handleDeleteItem}>
-              Sí, eliminar
+              {t("buylist_modal.yes_delete_btn")}
             </Button>
           </div>
         </div>

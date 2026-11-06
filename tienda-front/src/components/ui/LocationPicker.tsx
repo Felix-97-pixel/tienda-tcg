@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -34,6 +35,7 @@ function MapEvents({ setPosition }: { setPosition: any }) {
 }
 
 export default function LocationPicker({ initialLat, initialLng, initialAddress, onLocationChange }: LocationPickerProps) {
+  const t = useTranslations("common");
   const [position, setPosition] = useState<[number, number] | null>(
     initialLat && initialLng ? [initialLat, initialLng] : null
   );
@@ -65,7 +67,7 @@ export default function LocationPicker({ initialLat, initialLng, initialAddress,
           mapRef.current.flyTo([y, x], 15);
         }
       } else {
-        alert("Dirección no encontrada. Intenta ser más específico.");
+        alert(t("location_not_found"));
       }
     } catch (error) {
       console.error("Error buscando dirección:", error);
@@ -81,7 +83,7 @@ export default function LocationPicker({ initialLat, initialLng, initialAddress,
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Busca tu dirección completa (Ej: Providencia 1234, Chile)"
+          placeholder={t("location_search_placeholder")}
           className="flex-1 rounded-xl border border-white/10 bg-[#1a1d24] px-4 py-2 text-white outline-none focus:border-blue"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -96,11 +98,11 @@ export default function LocationPicker({ initialLat, initialLng, initialAddress,
           disabled={isSearching}
           className="rounded-xl bg-blue px-4 py-2 font-bold text-white transition hover:bg-blue/90 disabled:opacity-50"
         >
-          {isSearching ? "Buscando..." : "Buscar"}
+          {isSearching ? t("searching") : t("search_btn")}
         </button>
       </div>
       <p className="text-xs text-gray-400">
-        O haz clic directamente en el mapa para ajustar el pin rojo exactamente donde está la entrada de tu tienda.
+        {t("location_map_hint")}
       </p>
       
       <div className="h-[300px] w-full overflow-hidden rounded-xl border border-white/10 relative z-0">

@@ -38,11 +38,11 @@ export default function AdminStoreCreditPage() {
       setCredits(data);
     } catch (e) {
       console.error(e);
-      showToast("Error al cargar los créditos", "error");
+      showToast(t("error_load"), "error");
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, t]);
 
   useEffect(() => {
     fetchCredits();
@@ -92,17 +92,17 @@ export default function AdminStoreCreditPage() {
             <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
                 <tr className="bg-[#090C14] border-b border-white/10 text-[11px] uppercase tracking-wider text-white/50 font-black">
-                  <th className="px-6 py-4">Cliente</th>
-                  <th className="px-6 py-4">Email</th>
-                  <th className="px-6 py-4 text-right">Saldo Actual</th>
-                  <th className="px-6 py-4 text-right">Acciones</th>
+                  <th className="px-6 py-4">{t("col_client")}</th>
+                  <th className="px-6 py-4">{t("col_email")}</th>
+                  <th className="px-6 py-4 text-right">{t("col_balance")}</th>
+                  <th className="px-6 py-4 text-right">{t("col_actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {credits.map((c) => (
                   <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4 font-bold text-white">
-                      {c.user?.name || "Usuario"}
+                      {c.user?.name || t("default_user")}
                     </td>
                     <td className="px-6 py-4 text-white/50 text-sm">{c.user?.email}</td>
                     <td className="px-6 py-4 text-right font-black text-emerald-400 text-lg">
@@ -120,7 +120,7 @@ export default function AdminStoreCreditPage() {
                         }}
                       >
                         <IconClock className="w-4 h-4 mr-1 inline-block" />
-                        Historial
+                        {t("history_btn")}
                       </Button>
                     </td>
                   </tr>

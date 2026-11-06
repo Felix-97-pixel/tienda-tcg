@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { adminFetch } from '@/utils/api';
 import { PosBuyCartItem } from './PosBuyCart';
-import { IconCash, IconWallet } from '@/components/ui/Icons';
+import { IconCash, IconWallet, IconX } from '@/components/ui/Icons';
 
 interface PosBuyModalProps {
   isOpen: boolean;
@@ -83,10 +83,10 @@ export default function PosBuyModal({
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div>
             <h2 className="text-lg font-black text-white">
-              Confirmar Pago de Compra (Trade-in)
+              {t("confirm_tradein_title")}
             </h2>
             <p className="text-xs text-white/50">
-              {items.length} carta(s) a recibir por la tienda
+              {t("cards_to_receive", { count: items.length })}
             </p>
           </div>
           <button
@@ -95,7 +95,7 @@ export default function PosBuyModal({
             type="button"
             className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10"
           >
-            ✕
+            <IconX className="w-4 h-4" />
           </button>
         </div>
 
@@ -103,7 +103,7 @@ export default function PosBuyModal({
           {/* Selector de Método de Pago al Cliente */}
           <div>
             <label className="text-xs font-bold text-white/60 uppercase block mb-2">
-              ¿Cómo le pagas al cliente?
+              {t("how_to_pay_customer")}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -122,7 +122,7 @@ export default function PosBuyModal({
                 </span>
                 {totalCredit > totalCash && (
                   <span className="text-[10px] text-amber-300 font-bold">
-                    +${(totalCredit - totalCash).toLocaleString('es-CL')} extra
+                    {t("extra_amount", { amount: (totalCredit - totalCash).toLocaleString('es-CL') })}
                   </span>
                 )}
               </button>
@@ -137,11 +137,11 @@ export default function PosBuyModal({
                 }`}
               >
                 <IconCash className="w-5 h-5 text-emerald-400" />
-                <span className="text-xs font-black uppercase">Efectivo / Cash</span>
+                <span className="text-xs font-black uppercase">{t("cash_method_label")}</span>
                 <span className="font-mono text-sm font-bold text-emerald-400">
                   ${totalCash.toLocaleString('es-CL')} CLP
                 </span>
-                <span className="text-[10px] text-white/40">Egreso directo de caja</span>
+                <span className="text-[10px] text-white/40">{t("direct_cash_outflow")}</span>
               </button>
             </div>
           </div>
@@ -150,15 +150,15 @@ export default function PosBuyModal({
           <div className="space-y-3 pt-2 border-t border-white/10">
             <label className="text-xs font-bold text-white/70 uppercase block">
               {payoutMethod === 'STORE_CREDIT'
-                ? 'Cliente a quien abonar el Crédito (Requerido)'
-                : 'Datos del Cliente (Opcional)'}
+                ? t('customer_for_credit_req')
+                : t('customer_data_opt')}
             </label>
 
             {selectedUser ? (
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-cyan-500/30">
                 <div>
                   <p className="text-sm font-bold text-white">
-                    {selectedUser.name || 'Usuario'}
+                    {selectedUser.name || t('default_user')}
                   </p>
                   <p className="text-xs text-cyan-400 font-mono">
                     {selectedUser.email}
@@ -169,7 +169,7 @@ export default function PosBuyModal({
                   onClick={() => setSelectedUser(null)}
                   className="text-xs text-white/40 hover:text-white underline"
                 >
-                  Cambiar
+                  {t("change_btn")}
                 </button>
               </div>
             ) : (
@@ -178,12 +178,12 @@ export default function PosBuyModal({
                   type="text"
                   value={customerSearchTerm}
                   onChange={(e) => setCustomerSearchTerm(e.target.value)}
-                  placeholder="Buscar usuario por nombre o email..."
+                  placeholder={t("search_user_placeholder")}
                   className="w-full px-3 py-2.5 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500"
                 />
 
                 {searchingCustomer && (
-                  <p className="text-[11px] text-white/40">Buscando usuarios...</p>
+                  <p className="text-[11px] text-white/40">{t("searching_users")}</p>
                 )}
 
                 {customerResults.length > 0 && (
@@ -200,10 +200,10 @@ export default function PosBuyModal({
                         className="w-full text-left p-2.5 hover:bg-white/5 flex items-center justify-between"
                       >
                         <div>
-                          <p className="text-xs font-bold text-white">{u.name || 'Usuario'}</p>
+                          <p className="text-xs font-bold text-white">{u.name || t('default_user')}</p>
                           <p className="text-[10px] text-white/40">{u.email}</p>
                         </div>
-                        <span className="text-[10px] text-cyan-400 font-bold">Seleccionar</span>
+                        <span className="text-[10px] text-cyan-400 font-bold">{t("select_btn")}</span>
                       </button>
                     ))}
                   </div>
@@ -214,14 +214,14 @@ export default function PosBuyModal({
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <input
                       type="text"
-                      placeholder="Nombre del cliente"
+                      placeholder={t("customer_name_placeholder")}
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       className="px-3 py-2 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white"
                     />
                     <input
                       type="text"
-                      placeholder="RUT o Teléfono"
+                      placeholder={t("rut_or_phone_placeholder")}
                       value={customerRut}
                       onChange={(e) => setCustomerRut(e.target.value)}
                       className="px-3 py-2 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white"
@@ -235,11 +235,11 @@ export default function PosBuyModal({
           {/* Notas u observaciones */}
           <div>
             <label className="text-xs font-bold text-white/50 uppercase block mb-1">
-              Notas u observaciones (opcional)
+              {t("notes_opt_label")}
             </label>
             <input
               type="text"
-              placeholder="Ej: Cartas de Magic recibidas en buen estado"
+              placeholder={t("notes_opt_placeholder")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full px-3 py-2 bg-[#07090E] border border-white/10 rounded-xl text-xs text-white"
@@ -248,7 +248,7 @@ export default function PosBuyModal({
 
           {/* Resumen Final */}
           <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
-            <span className="text-xs text-white/60">Total a desembolsar / abonar:</span>
+            <span className="text-xs text-white/60">{t("total_to_disburse")}</span>
             <span className="font-mono text-lg font-black text-emerald-400">
               ${selectedAmount.toLocaleString('es-CL')} CLP
             </span>
@@ -261,14 +261,14 @@ export default function PosBuyModal({
               disabled={isProcessing}
               className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white"
             >
-              Cancelar
+              {t("cancel_btn")}
             </button>
             <button
               type="submit"
               disabled={isProcessing || (payoutMethod === 'STORE_CREDIT' && !selectedUser)}
               className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-xs font-black uppercase text-white shadow-lg shadow-emerald-600/30"
             >
-              {isProcessing ? 'Procesando...' : 'Confirmar Compra'}
+              {isProcessing ? t('processing_btn') : t('confirm_purchase_btn')}
             </button>
           </div>
         </form>

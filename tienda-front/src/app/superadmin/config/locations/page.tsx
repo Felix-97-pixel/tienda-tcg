@@ -166,12 +166,12 @@ export default function LocationsAdminPage() {
         body: JSON.stringify({ isActive: newStatus }),
       });
 
-      if (!res.ok) throw new Error("No se pudo actualizar el estado de la zona");
+      if (!res.ok) throw new Error(t("err_status"));
 
-      showToast(newStatus ? `Zona ${zone.name} activada` : `Zona ${zone.name} desactivada`, "success");
+      showToast(newStatus ? t("toast_zone_activated", { name: zone.name }) : t("toast_zone_deactivated", { name: zone.name }), "success");
       fetchZones();
     } catch (error: any) {
-      showToast(error.message || "Error al actualizar estado", "error");
+      showToast(error.message || t("err_status"), "error");
     }
   };
 
@@ -186,12 +186,12 @@ export default function LocationsAdminPage() {
         body: JSON.stringify({ isActive: newStatus }),
       });
 
-      if (!res.ok) throw new Error("No se pudo actualizar el estado de la región");
+      if (!res.ok) throw new Error(t("err_status"));
 
-      showToast(newStatus ? `Región ${region.code} activada` : `Región ${region.code} desactivada`, "success");
+      showToast(newStatus ? t("toast_region_activated", { code: region.code }) : t("toast_region_deactivated", { code: region.code }), "success");
       fetchRegions();
     } catch (error: any) {
-      showToast(error.message || "Error al actualizar estado", "error");
+      showToast(error.message || t("err_status"), "error");
     }
   };
 
@@ -206,12 +206,12 @@ export default function LocationsAdminPage() {
         body: JSON.stringify({ isActive: newStatus }),
       });
 
-      if (!res.ok) throw new Error("No se pudo actualizar el estado de la comuna");
+      if (!res.ok) throw new Error(t("err_status"));
 
-      showToast(newStatus ? `Comuna ${commune.name} activada` : `Comuna ${commune.name} desactivada`, "success");
+      showToast(newStatus ? t("toast_commune_activated", { name: commune.name }) : t("toast_commune_deactivated", { name: commune.name }), "success");
       fetchCommunes();
     } catch (error: any) {
-      showToast(error.message || "Error al actualizar estado", "error");
+      showToast(error.message || t("err_status"), "error");
     }
   };
 
@@ -256,14 +256,14 @@ export default function LocationsAdminPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al guardar la zona logística");
+        throw new Error(data.message || t("err_save"));
       }
 
-      showToast(editingZone ? "Zona logística actualizada" : "Zona logística creada con éxito", "success");
+      showToast(editingZone ? t("toast_zone_updated") : t("toast_zone_created"), "success");
       setIsZoneModalOpen(false);
       fetchZones();
     } catch (error: any) {
-      showToast(error.message || "Error al guardar", "error");
+      showToast(error.message || t("err_save"), "error");
     } finally {
       setSaving(false);
     }
@@ -271,7 +271,7 @@ export default function LocationsAdminPage() {
 
   // Delete Zone
   const handleDeleteZone = async (zone: LogisticZone) => {
-    if (!confirm(`¿Eliminar la zona ${zone.name}? Esta acción no se puede deshacer.`)) return;
+    if (!confirm(t("confirm_delete_zone", { name: zone.name }))) return;
 
     try {
       const res = await fetch(`${API_URL}/locations/admin/zones/${zone.id}`, {
@@ -280,13 +280,13 @@ export default function LocationsAdminPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al eliminar la zona logística");
+        throw new Error(data.message || t("err_delete"));
       }
 
-      showToast("Zona logística eliminada exitosamente", "success");
+      showToast(t("toast_zone_deleted"), "success");
       fetchZones();
     } catch (error: any) {
-      showToast(error.message || "Error al eliminar", "error");
+      showToast(error.message || t("err_delete"), "error");
     }
   };
 
@@ -335,14 +335,14 @@ export default function LocationsAdminPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al guardar la región");
+        throw new Error(data.message || t("err_save"));
       }
 
-      showToast(editingRegion ? "Región actualizada" : "Región creada con éxito", "success");
+      showToast(editingRegion ? t("toast_region_updated") : t("toast_region_created"), "success");
       setIsRegionModalOpen(false);
       fetchRegions();
     } catch (error: any) {
-      showToast(error.message || "Error al guardar", "error");
+      showToast(error.message || t("err_save"), "error");
     } finally {
       setSaving(false);
     }
@@ -350,7 +350,7 @@ export default function LocationsAdminPage() {
 
   // Delete Region
   const handleDeleteRegion = async (region: Region) => {
-    if (!confirm(`¿Eliminar la región ${region.name}? Se eliminarán también todas sus comunas asociadas.`)) {
+    if (!confirm(t("confirm_delete_region", { name: region.name }))) {
       return;
     }
 
@@ -361,14 +361,14 @@ export default function LocationsAdminPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al eliminar la región");
+        throw new Error(data.message || t("err_delete"));
       }
 
-      showToast("Región eliminada", "success");
+      showToast(t("toast_region_deleted"), "success");
       fetchRegions();
       fetchCommunes();
     } catch (error: any) {
-      showToast(error.message || "Error al eliminar", "error");
+      showToast(error.message || t("err_delete"), "error");
     }
   };
 
@@ -417,15 +417,15 @@ export default function LocationsAdminPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al guardar la comuna");
+        throw new Error(data.message || t("err_save"));
       }
 
-      showToast(editingCommune ? "Comuna actualizada" : "Comuna creada con éxito", "success");
+      showToast(editingCommune ? t("toast_commune_updated") : t("toast_commune_created"), "success");
       setIsCommuneModalOpen(false);
       fetchCommunes();
       fetchRegions();
     } catch (error: any) {
-      showToast(error.message || "Error al guardar", "error");
+      showToast(error.message || t("err_save"), "error");
     } finally {
       setSaving(false);
     }
@@ -433,7 +433,7 @@ export default function LocationsAdminPage() {
 
   // Delete Commune
   const handleDeleteCommune = async (commune: Commune) => {
-    if (!confirm(`¿Eliminar la comuna ${commune.name}? Esta acción no se puede deshacer.`)) return;
+    if (!confirm(t("confirm_delete_commune", { name: commune.name }))) return;
 
     try {
       const res = await fetch(`${API_URL}/locations/admin/communes/${commune.id}`, {
@@ -442,14 +442,14 @@ export default function LocationsAdminPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Error al eliminar la comuna");
+        throw new Error(data.message || t("err_delete"));
       }
 
-      showToast("Comuna eliminada", "success");
+      showToast(t("toast_commune_deleted"), "success");
       fetchCommunes();
       fetchRegions();
     } catch (error: any) {
-      showToast(error.message || "Error al eliminar", "error");
+      showToast(error.message || t("err_delete"), "error");
     }
   };
 
@@ -470,7 +470,7 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Nombre de Zona",
+      header: t("col_zone_name"),
       key: "name",
       render: (z) => (
         <div>
@@ -480,15 +480,15 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Cobertura Relacional",
+      header: t("col_coverage"),
       key: "coverage",
       render: (z) => (
         <div className="flex items-center gap-3">
           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-white/5 text-white/80 border border-white/10">
-            {z._count?.regions || 0} Regiones
+            {t("regions_count", { count: z._count?.regions || 0 })}
           </span>
           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-white/5 text-white/80 border border-white/10">
-            {z._count?.communes || 0} Comunas
+            {t("communes_count_badge", { count: z._count?.communes || 0 })}
           </span>
         </div>
       ),
@@ -545,7 +545,7 @@ export default function LocationsAdminPage() {
       render: (r) => <span className="font-mono text-xs text-white/40">#{r.ordinal}</span>,
     },
     {
-      header: "Código",
+      header: t("col_code"),
       key: "code",
       render: (r) => (
         <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-red/10 text-red border border-red/20">
@@ -554,35 +554,35 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Nombre Oficial",
+      header: t("col_official_name"),
       key: "name",
       render: (r) => (
         <div>
           <p className="font-bold text-sm text-white">{r.name}</p>
-          {r.shortName && <p className="text-xs text-white/40">Alias: {r.shortName}</p>}
+          {r.shortName && <p className="text-xs text-white/40">{t("alias_prefix")} {r.shortName}</p>}
         </div>
       ),
     },
     {
-      header: "Zona Logística",
+      header: t("col_zone"),
       key: "zone",
       render: (r) => (
         <span className="text-[11px] font-bold px-2.5 py-1 rounded-full border bg-purple-500/10 text-purple-400 border-purple-500/25">
-          {r.zone?.name || r.zone?.code || "Sin Zona"}
+          {r.zone?.name || r.zone?.code || t("no_zone")}
         </span>
       ),
     },
     {
-      header: "Comunas",
+      header: t("col_communes"),
       key: "communes",
       render: (r) => (
         <span className="text-xs font-semibold px-2 py-0.5 rounded bg-white/5 text-white/80 border border-white/10">
-          {r._count?.communes || 0} comunas
+          {t("communes_lower_count", { count: r._count?.communes || 0 })}
         </span>
       ),
     },
     {
-      header: "Estado",
+      header: t("col_status"),
       key: "isActive",
       render: (r) => (
         <div className="flex items-center gap-2">
@@ -592,13 +592,13 @@ export default function LocationsAdminPage() {
             wrapperClassName="scale-90"
           />
           <span className={`text-xs font-bold ${r.isActive ? "text-emerald-400" : "text-white/30"}`}>
-            {r.isActive ? "Habilitada" : "Deshabilitada"}
+            {r.isActive ? t("enabled_fem") : t("disabled_fem")}
           </span>
         </div>
       ),
     },
     {
-      header: "Acciones",
+      header: t("col_actions"),
       key: "actions",
       render: (r) => (
         <div className="flex items-center gap-2">
@@ -637,7 +637,7 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Comuna",
+      header: t("col_commune"),
       key: "name",
       render: (c) => <span className="font-bold text-sm text-white">{c.name}</span>,
     },
@@ -655,7 +655,7 @@ export default function LocationsAdminPage() {
       key: "zone",
       render: (c) => (
         <span className="text-[11px] font-bold px-2.5 py-1 rounded-full border bg-blue/10 text-blue border-blue/25">
-          {c.zone?.name || c.zone?.code || "Estándar"}
+          {c.zone?.name || c.zone?.code || t("standard_zone")}
         </span>
       ),
     },
@@ -676,7 +676,7 @@ export default function LocationsAdminPage() {
       ),
     },
     {
-      header: "Acciones",
+      header: t("col_actions"),
       key: "actions",
       render: (c) => (
         <div className="flex items-center gap-2">
@@ -913,7 +913,7 @@ export default function LocationsAdminPage() {
               required
               value={zoneForm.code}
               onChange={(e) => setZoneForm({ ...zoneForm, code: e.target.value.toUpperCase().replace(/\s+/g, "_") })}
-              placeholder="RM, NORTE_GRANDE..."
+              placeholder={t("ph_zone_code")}
             />
           </div>
 
@@ -976,7 +976,7 @@ export default function LocationsAdminPage() {
               required
               value={regionForm.code}
               onChange={(e) => setRegionForm({ ...regionForm, code: e.target.value.toUpperCase() })}
-              placeholder="RM, V, VIII..."
+              placeholder={t("ph_region_code")}
             />
           </div>
 
@@ -1071,7 +1071,7 @@ export default function LocationsAdminPage() {
               required
               value={communeForm.code}
               onChange={(e) => setCommuneForm({ ...communeForm, code: e.target.value.toUpperCase().replace(/\s+/g, "_") })}
-              placeholder="PROVIDENCIA, LAS_CONDES..."
+              placeholder={t("ph_commune_code")}
             />
           </div>
 

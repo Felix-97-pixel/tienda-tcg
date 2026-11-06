@@ -167,7 +167,7 @@ export default function CarrierTimeline({
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Destino
+                {t("destination")}
               </span>
               <span
                 className={`text-xs font-bold flex items-center justify-end gap-1 ${
@@ -318,7 +318,7 @@ export default function CarrierTimeline({
           <button
             type="button"
             onClick={() => setIsDarkMode(!isDarkMode)}
-            title="Alternar entre tema original Chilexpress y modo oscuro"
+            title={t("toggle_theme_title")}
             className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
               isDarkMode
                 ? "border-white/15 bg-white/5 text-gray-300 hover:bg-white/10"
@@ -467,7 +467,7 @@ export default function CarrierTimeline({
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
                                 }`}
                               >
-                                Glosa:
+                                {t("glosa_label")}
                               </span>{" "}
                               <span>{event.detail}</span>
                             </p>
@@ -479,7 +479,7 @@ export default function CarrierTimeline({
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
                                 }`}
                               >
-                                Hora registro:
+                                {t("record_time_label")}
                               </span>{" "}
                               <span className="font-mono">{formattedTime}</span>
                             </p>
@@ -508,8 +508,8 @@ export default function CarrierTimeline({
                         />
                         <span>
                           {copied
-                            ? "¡Copiado al portapapeles!"
-                            : "Compartir estado"}
+                            ? t("copied_clipboard")
+                            : t("share_status")}
                         </span>
                       </button>
 
@@ -524,7 +524,7 @@ export default function CarrierTimeline({
                               : "border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-800"
                           }`}
                         >
-                          <span>Rastrear en {courierName}</span>
+                          <span>{t("track_on_courier", { courier: courierName })}</span>
                           <IconExternalLink className="w-3.5 h-3.5 shrink-0" />
                         </a>
                       )}

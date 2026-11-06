@@ -67,7 +67,7 @@ export default function TradeInCardList({
                 onChange={(v) => onUpdateCard(index, "language", v)}
               />
               <AttributeSelect
-                label="Finish"
+                label={tInv("finish")}
                 options={finishes}
                 value={card.finish}
                 onChange={(v) => onUpdateCard(index, "finish", v)}

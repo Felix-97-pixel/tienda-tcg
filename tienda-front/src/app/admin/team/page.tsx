@@ -135,14 +135,14 @@ export default function AdminTeamPage() {
         }
       } catch (err) {
         console.error("Error al inicializar datos de equipo:", err);
-        toast.error("Error al cargar datos del equipo.");
+        toast.error(t("error_load_team"));
       } finally {
         setLoading(false);
       }
     };
 
     initData();
-  }, [user?.activeStore?.id]);
+  }, [user?.activeStore?.id, t]);
 
   // Fetch branch members when selectedBranchId changes
   const fetchBranchMembers = useCallback(async () => {
@@ -155,11 +155,11 @@ export default function AdminTeamPage() {
         setBranchMembers(data);
       }
     } catch {
-      toast.error("Error al cargar personal de la sucursal.");
+      toast.error(t("error_load_branch_staff"));
     } finally {
       setLoadingMembers(false);
     }
-  }, [selectedBranchId]);
+  }, [selectedBranchId, t]);
 
   // Fetch company members when tab is company and companyId is set
   const fetchCompanyMembers = useCallback(async () => {
@@ -172,11 +172,11 @@ export default function AdminTeamPage() {
         setCompanyMembers(data);
       }
     } catch {
-      toast.error("Error al cargar miembros corporativos.");
+      toast.error(t("error_load_corporate_members"));
     } finally {
       setLoadingMembers(false);
     }
-  }, [companyId]);
+  }, [companyId, t]);
 
   useEffect(() => {
     if (activeTab === "branches" && selectedBranchId) {
@@ -190,7 +190,7 @@ export default function AdminTeamPage() {
   const handleAddStoreMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!storeFormData.name || !storeFormData.email) {
-      toast.error("Nombre y correo son requeridos.");
+      toast.error(t("error_name_email_required"));
       return;
     }
 
@@ -209,14 +209,14 @@ export default function AdminTeamPage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al agregar personal");
+        throw new Error(errData.message || t("error_add_staff"));
       }
 
-      toast.success("Personal asignado a la sucursal con éxito.");
+      toast.success(t("success_add_staff"));
       setStoreFormData({ name: "", email: "", password: "", role: "CASHIER" });
       fetchBranchMembers();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo agregar al personal.");
+      toast.error(err.message || t("error_add_staff"));
     } finally {
       setIsSubmitting(false);
     }
@@ -224,7 +224,7 @@ export default function AdminTeamPage() {
 
   // Handle Remove Store Member
   const handleRemoveStoreMember = async (memberUserId: string, memberName: string) => {
-    if (!confirm(`¿Estás seguro de desvincular a ${memberName} de esta sucursal?`)) {
+    if (!confirm(t("confirm_remove_branch", { name: memberName }))) {
       return;
     }
 
@@ -236,13 +236,13 @@ export default function AdminTeamPage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al quitar acceso");
+        throw new Error(errData.message || t("error_remove_access"));
       }
 
-      toast.success("Personal desvinculado de la sucursal.");
+      toast.success(t("success_remove_branch"));
       fetchBranchMembers();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo desvincular.");
+      toast.error(err.message || t("error_remove_access"));
     } finally {
       setRemovingId(null);
     }
@@ -252,7 +252,7 @@ export default function AdminTeamPage() {
   const handleAddCompanyMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyFormData.name || !companyFormData.email) {
-      toast.error("Nombre y correo son requeridos.");
+      toast.error(t("error_name_email_required"));
       return;
     }
 
@@ -271,14 +271,14 @@ export default function AdminTeamPage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al agregar usuario corporativo");
+        throw new Error(errData.message || t("error_add_corporate"));
       }
 
-      toast.success("Usuario vinculado a la empresa con éxito.");
+      toast.success(t("success_add_corporate"));
       setCompanyFormData({ name: "", email: "", password: "", role: "ADMIN" });
       fetchCompanyMembers();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo vincular al usuario.");
+      toast.error(err.message || t("error_add_corporate"));
     } finally {
       setIsSubmitting(false);
     }
@@ -286,7 +286,7 @@ export default function AdminTeamPage() {
 
   // Handle Remove Company Member
   const handleRemoveCompanyMember = async (memberUserId: string, memberName: string) => {
-    if (!confirm(`¿Estás seguro de desvincular a ${memberName} de la empresa?`)) {
+    if (!confirm(t("confirm_remove_company", { name: memberName }))) {
       return;
     }
 
@@ -298,20 +298,20 @@ export default function AdminTeamPage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Error al revocar acceso corporativo");
+        throw new Error(errData.message || t("error_revoke_corporate"));
       }
 
-      toast.success("Acceso corporativo revocado.");
+      toast.success(t("success_revoke_corporate"));
       fetchCompanyMembers();
     } catch (err: any) {
-      toast.error(err.message || "No se pudo revocar acceso.");
+      toast.error(err.message || t("error_revoke_corporate"));
     } finally {
       setRemovingId(null);
     }
   };
 
   if (loading) {
-    return <Loader text="Cargando configuración de personal..." className="min-h-[40vh] bg-transparent py-10" />;
+    return <Loader text={t("loading_staff_config")} className="min-h-[40vh] bg-transparent py-10" />;
   }
 
   const currentBranch = branches.find((b) => b.id === selectedBranchId) || branches[0];
@@ -324,7 +324,7 @@ export default function AdminTeamPage() {
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-red shadow-[0_0_8px_rgba(225,14,14,0.8)]" />
             <span className="text-[10px] font-black uppercase tracking-widest text-red">
-              {companyName || "Gestión de Empresa"}
+              {companyName || t("default_company_badge")}
             </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white">
@@ -372,21 +372,21 @@ export default function AdminTeamPage() {
             <div className="p-4 rounded-2xl bg-[#0B0E17] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-white/40 block">
-                  Sucursal Activa para Gestión de Personal
+                  {t("active_branch_label")}
                 </span>
                 <p className="text-sm font-bold text-white mt-0.5">
-                  Selecciona la tienda para revisar y gestionar sus cajeros y encargados:
+                  {t("active_branch_desc")}
                 </p>
               </div>
               <div className="w-full sm:w-72">
                 <SearchableSelect
                   options={branches.map((b) => ({
                     value: b.id,
-                    label: `${b.name}${b.isMainBranch ? " (Casa Matriz)" : ""}`,
+                    label: `${b.name}${b.isMainBranch ? t("main_branch_suffix") : ""}`,
                   }))}
                   value={selectedBranchId}
                   onChange={(val) => setSelectedBranchId(val)}
-                  placeholder="Seleccionar sucursal..."
+                  placeholder={t("select_branch_placeholder")}
                   direction="auto"
                   usePortal={true}
                 />
@@ -400,11 +400,11 @@ export default function AdminTeamPage() {
               <div className="flex items-center gap-2">
                 <IconUserPlus className="w-4 h-4 text-red" />
                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Asignar Nuevo Empleado a {currentBranch?.name || "la Sucursal"}
+                  {t("assign_new_staff_title", { branch: currentBranch?.name || t("default_branch_name") })}
                 </h2>
               </div>
               <span className="text-[10px] font-mono text-white/40">
-                Acceso exclusivo para esta ubicación física
+                {t("exclusive_location_hint")}
               </span>
             </div>
 
@@ -412,61 +412,61 @@ export default function AdminTeamPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Nombre Completo *
+                    {t("full_name_label")}
                   </label>
                   <input
                     type="text"
                     required
                     value={storeFormData.name}
                     onChange={(e) => setStoreFormData({ ...storeFormData, name: e.target.value })}
-                    placeholder="Ej: Ignacio Cajero"
+                    placeholder={t("cashier_name_placeholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-red transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Correo Electrónico *
+                    {t("email_label")}
                   </label>
                   <input
                     type="email"
                     required
                     value={storeFormData.email}
                     onChange={(e) => setStoreFormData({ ...storeFormData, email: e.target.value })}
-                    placeholder="cajero@tienda.cl"
+                    placeholder={t("cashier_email_placeholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-red transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Contraseña Temporal
+                    {t("temp_password_label")}
                   </label>
                   <input
                     type="text"
                     value={storeFormData.password}
                     onChange={(e) => setStoreFormData({ ...storeFormData, password: e.target.value })}
-                    placeholder="Por defecto: TapTrade2026!"
+                    placeholder={t("temp_password_placeholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-red transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Rol en la Sucursal *
+                    {t("branch_role_label")}
                   </label>
                   <SearchableSelect
                     options={
                       !canManageCorporate
-                        ? [{ value: "CASHIER", label: "Cajero POS (Solo Ventas)" }]
+                        ? [{ value: "CASHIER", label: t("role_cashier_option") }]
                         : [
-                            { value: "CASHIER", label: "Cajero POS (Solo Ventas)" },
-                            { value: "BRANCH_MANAGER", label: "Encargado de Sucursal" },
+                            { value: "CASHIER", label: t("role_cashier_option") },
+                            { value: "BRANCH_MANAGER", label: t("role_manager_option") },
                           ]
                     }
                     value={storeFormData.role}
                     onChange={(val) => setStoreFormData({ ...storeFormData, role: val as any })}
-                    placeholder="Seleccionar rol..."
+                    placeholder={t("select_role_placeholder")}
                     direction="auto"
                     usePortal={true}
                   />
@@ -479,7 +479,7 @@ export default function AdminTeamPage() {
                   disabled={isSubmitting}
                   className="bg-red hover:bg-red-dark text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-red/20 transition-all"
                 >
-                  {isSubmitting ? "Asignando..." : "Asignar a la Sucursal"}
+                  {isSubmitting ? t("assigning_btn") : t("assign_to_branch_btn")}
                 </Button>
               </div>
             </form>
@@ -489,28 +489,28 @@ export default function AdminTeamPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-xs font-bold text-white/70 uppercase tracking-wider">
-                Personal Asignado ({branchMembers.length})
+                {t("assigned_staff_count", { count: branchMembers.length })}
               </h3>
               <button
                 onClick={fetchBranchMembers}
                 className="text-[11px] text-white/40 hover:text-white flex items-center gap-1.5 transition-colors"
               >
                 <IconRefresh className="w-3.5 h-3.5" />
-                <span>Actualizar Lista</span>
+                <span>{t("refresh_list_btn")}</span>
               </button>
             </div>
 
             {loadingMembers ? (
               <div className="p-8 text-center bg-[#0B0E17] rounded-2xl border border-white/10">
                 <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-red border-t-transparent" />
-                <p className="text-xs text-white/50 mt-2">Cargando personal...</p>
+                <p className="text-xs text-white/50 mt-2">{t("loading_staff")}</p>
               </div>
             ) : branchMembers.length === 0 ? (
               <div className="p-8 text-center bg-[#0B0E17] rounded-2xl border border-white/10">
                 <IconUsers className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                <p className="text-sm font-bold text-white/70">No hay empleados registrados en esta sucursal</p>
+                <p className="text-sm font-bold text-white/70">{t("no_branch_staff_title")}</p>
                 <p className="text-xs text-white/40 mt-1">
-                  Utiliza el formulario superior para asignar cajeros o un encargado local.
+                  {t("no_branch_staff_desc")}
                 </p>
               </div>
             ) : (
@@ -537,7 +537,7 @@ export default function AdminTeamPage() {
                           onClick={() => handleRemoveStoreMember(member.user.id, member.user.name)}
                           disabled={removingId === member.user.id}
                           className="p-1.5 rounded-lg text-white/30 hover:text-red hover:bg-red/10 transition-colors"
-                          title="Desvincular de la sucursal"
+                          title={t("unlink_from_branch_title")}
                         >
                           <IconTrash className="w-4 h-4" />
                         </button>
@@ -546,11 +546,11 @@ export default function AdminTeamPage() {
                       <div className="mt-3 flex items-center gap-2">
                         {member.role === "BRANCH_MANAGER" ? (
                           <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase font-bold">
-                            Encargado Sucursal
+                            {t("badge_branch_manager")}
                           </span>
                         ) : (
                           <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase font-bold">
-                            Cajero POS
+                            {t("badge_cashier_pos")}
                           </span>
                         )}
                         <span className="text-[9px] font-mono text-white/30">
@@ -575,11 +575,11 @@ export default function AdminTeamPage() {
               <div className="flex items-center gap-2">
                 <IconShield className="w-4 h-4 text-red" />
                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Vincular Usuario Corporativo al Holding
+                  {t("link_corporate_title")}
                 </h2>
               </div>
               <span className="text-[10px] font-mono text-white/40">
-                Visibilidad consolidada sobre todas las sucursales
+                {t("link_corporate_hint")}
               </span>
             </div>
 
@@ -587,58 +587,58 @@ export default function AdminTeamPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Nombre Completo *
+                    {t("full_name_label")}
                   </label>
                   <input
                     type="text"
                     required
                     value={companyFormData.name}
                     onChange={(e) => setCompanyFormData({ ...companyFormData, name: e.target.value })}
-                    placeholder="Ej: Valentina Contadora"
+                    placeholder={t("accountant_name_placeholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-red transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Correo Electrónico *
+                    {t("email_label")}
                   </label>
                   <input
                     type="email"
                     required
                     value={companyFormData.email}
                     onChange={(e) => setCompanyFormData({ ...companyFormData, email: e.target.value })}
-                    placeholder="contador@empresa.cl"
+                    placeholder={t("accountant_email_placeholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-red transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Contraseña Temporal
+                    {t("temp_password_label")}
                   </label>
                   <input
                     type="text"
                     value={companyFormData.password}
                     onChange={(e) => setCompanyFormData({ ...companyFormData, password: e.target.value })}
-                    placeholder="Por defecto: TapTrade2026!"
+                    placeholder={t("temp_password_placeholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-red transition-colors"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-white/60 mb-1 uppercase tracking-wider">
-                    Rol Corporativo *
+                    {t("corporate_role_label")}
                   </label>
                   <SearchableSelect
                     options={[
-                      { value: "ADMIN", label: "Administrador Holding (Gestión Total)" },
-                      { value: "ACCOUNTANT", label: "Contador (Métricas y Finanzas)" },
-                      { value: "OWNER", label: "Dueño Copropietario" },
+                      { value: "ADMIN", label: t("role_holding_admin") },
+                      { value: "ACCOUNTANT", label: t("role_accountant") },
+                      { value: "OWNER", label: t("role_co_owner") },
                     ]}
                     value={companyFormData.role}
                     onChange={(val) => setCompanyFormData({ ...companyFormData, role: val as any })}
-                    placeholder="Seleccionar rol corporativo..."
+                    placeholder={t("select_corporate_role_placeholder")}
                     direction="auto"
                     usePortal={true}
                   />
@@ -651,7 +651,7 @@ export default function AdminTeamPage() {
                   disabled={isSubmitting}
                   className="bg-red hover:bg-red-dark text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-red/20 transition-all"
                 >
-                  {isSubmitting ? "Vinculando..." : "Vincular a la Empresa"}
+                  {isSubmitting ? t("linking_btn") : t("link_to_company_btn")}
                 </Button>
               </div>
             </form>
@@ -661,28 +661,28 @@ export default function AdminTeamPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-xs font-bold text-white/70 uppercase tracking-wider">
-                Miembros Actuales de la Empresa ({companyMembers.length})
+                {t("current_company_members_count", { count: companyMembers.length })}
               </h3>
               <button
                 onClick={fetchCompanyMembers}
                 className="text-[11px] text-white/40 hover:text-white flex items-center gap-1.5 transition-colors"
               >
                 <IconRefresh className="w-3.5 h-3.5" />
-                <span>Actualizar Lista</span>
+                <span>{t("refresh_list_btn")}</span>
               </button>
             </div>
 
             {loadingMembers ? (
               <div className="p-8 text-center bg-[#0B0E17] rounded-2xl border border-white/10">
                 <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-red border-t-transparent" />
-                <p className="text-xs text-white/50 mt-2">Cargando miembros corporativos...</p>
+                <p className="text-xs text-white/50 mt-2">{t("loading_corporate_members")}</p>
               </div>
             ) : companyMembers.length === 0 ? (
               <div className="p-8 text-center bg-[#0B0E17] rounded-2xl border border-white/10">
                 <IconShield className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                <p className="text-sm font-bold text-white/70">No hay otros miembros corporativos</p>
+                <p className="text-sm font-bold text-white/70">{t("no_corporate_members_title")}</p>
                 <p className="text-xs text-white/40 mt-1">
-                  Puedes registrar administradores de finanzas o socios copropietarios arriba.
+                  {t("no_corporate_members_desc")}
                 </p>
               </div>
             ) : (
@@ -713,7 +713,7 @@ export default function AdminTeamPage() {
                               onClick={() => handleRemoveCompanyMember(member.user.id, member.user.name)}
                               disabled={removingId === member.user.id}
                               className="p-1.5 rounded-lg text-white/30 hover:text-red hover:bg-red/10 transition-colors"
-                              title="Revocar acceso corporativo"
+                              title={t("revoke_corporate_title")}
                             >
                               <IconTrash className="w-4 h-4" />
                             </button>
@@ -723,15 +723,15 @@ export default function AdminTeamPage() {
                         <div className="mt-3 flex items-center gap-2">
                           {isOwner ? (
                             <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-red/15 text-red-light border border-red/30 uppercase font-bold">
-                              Dueño Titular / Copropietario
+                              {t("badge_owner")}
                             </span>
                           ) : member.role === "ACCOUNTANT" ? (
                             <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase font-bold">
-                              Contador (Finanzas)
+                              {t("badge_accountant")}
                             </span>
                           ) : (
                             <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase font-bold">
-                              Admin Holding
+                              {t("badge_admin_holding")}
                             </span>
                           )}
                           <span className="text-[9px] font-mono text-white/30">

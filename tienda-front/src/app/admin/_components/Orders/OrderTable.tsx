@@ -56,7 +56,7 @@ export default function OrderTable({
     },
     {
       key: "shippingMethod",
-      header: "Método de Envío",
+      header: t("col_shipping_method"),
       render: (order) => {
         const vo = order.vendorOrders?.[0];
         const carrierRaw = (
@@ -80,7 +80,7 @@ export default function OrderTable({
             <ShippingBadge name={badgeName} size="sm" />
             <span className="text-xs font-semibold text-gray-300 hidden md:inline">
               {isPickup
-                ? "Retiro en Local"
+                ? t("local_pickup")
                 : carrierRaw.includes("CHILE")
                 ? "Chilexpress"
                 : carrierRaw.includes("BLUE")
@@ -113,7 +113,7 @@ export default function OrderTable({
     },
     {
       key: "deliveryStatus",
-      header: "Estado de Envío",
+      header: t("col_shipping_status"),
       render: (order) => {
         const vo = order.vendorOrders?.[0];
         const isDispatched = vo?.deliveryStatus === "DISPATCHED";
@@ -128,7 +128,7 @@ export default function OrderTable({
           return (
             <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5">
               <IconCheckCircle className="w-3 h-3 text-emerald-400 shrink-0" />
-              <span>{isPickup ? "Entregado" : "Despachado"}</span>
+              <span>{isPickup ? t("status_delivered") : t("status_dispatched")}</span>
             </span>
           );
         }
@@ -136,7 +136,7 @@ export default function OrderTable({
         return (
           <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5">
             <IconClock className="w-3 h-3 text-amber-400 shrink-0" />
-            <span>{isPickup ? "Por Entregar" : "Por Despachar"}</span>
+            <span>{isPickup ? t("status_to_deliver") : t("status_to_dispatch")}</span>
           </span>
         );
       },
@@ -163,9 +163,9 @@ export default function OrderTable({
   const defaultEmptyState = (
     <div className="py-12 flex flex-col items-center justify-center space-y-2 text-center">
       <IconCheckCircle className="w-10 h-10 text-emerald-400/80 mb-1" />
-      <p className="text-white font-bold text-base">¡Todo al día!</p>
+      <p className="text-white font-bold text-base">{t("all_up_to_date")}</p>
       <p className="text-gray-400 text-xs max-w-sm">
-        No hay pedidos pendientes en esta sección.
+        {t("no_pending_orders")}
       </p>
     </div>
   );

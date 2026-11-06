@@ -34,6 +34,7 @@ import {
   IconLoader,
   IconChevronDown,
   IconChevronUp,
+  IconX,
 } from "@/components/ui/Icons";
 import CarrierTimeline from "@/components/ui/CarrierTimeline";
 import { useTranslations } from "next-intl";
@@ -97,12 +98,12 @@ type Order = {
   payment: { status: string; authCode?: string; cardLast4?: string } | null;
 };
 
-const STATUS_MAP: Record<string, { label: string; cls: string; dot: string }> = {
-  PENDING:   { label: "Pendiente",   cls: "bg-amber-500/15 text-amber-400 border border-amber-500/30", dot: "bg-amber-400" },
-  PAID:      { label: "Pagado",      cls: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30", dot: "bg-emerald-400" },
-  FAILED:    { label: "Fallido",     cls: "bg-red/15 text-red border border-red/30", dot: "bg-red" },
-  CANCELLED: { label: "Cancelado",   cls: "bg-white/10 text-gray-400 border border-white/15", dot: "bg-gray-400" },
-  REFUNDED:  { label: "Reembolsado", cls: "bg-purple-500/15 text-purple-400 border border-purple-500/30", dot: "bg-purple-400" },
+const STATUS_MAP_STYLES: Record<string, { key: string; cls: string; dot: string }> = {
+  PENDING:   { key: "status_pending",   cls: "bg-amber-500/15 text-amber-400 border border-amber-500/30", dot: "bg-amber-400" },
+  PAID:      { key: "status_paid",      cls: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30", dot: "bg-emerald-400" },
+  FAILED:    { key: "status_failed",    cls: "bg-red/15 text-red border border-red/30", dot: "bg-red" },
+  CANCELLED: { key: "status_cancelled", cls: "bg-white/10 text-gray-400 border border-white/15", dot: "bg-gray-400" },
+  REFUNDED:  { key: "status_refunded",  cls: "bg-purple-500/15 text-purple-400 border border-purple-500/30", dot: "bg-purple-400" },
 };
 
 type StoreCreditItem = {
@@ -377,7 +378,7 @@ const MyAccount = () => {
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!addressForm.address.trim()) {
-      setAddressMsg({ type: "error", text: "Por favor ingresa tu calle, número y departamento." });
+      setAddressMsg({ type: "error", text: t("err_enter_street") });
       return;
     }
     setSavingAddress(true);
@@ -395,18 +396,18 @@ const MyAccount = () => {
         body: JSON.stringify(addressForm),
       });
 
-      if (!res.ok) throw new Error("Error al guardar la dirección de envío");
+      if (!res.ok) throw new Error(t("err_save_address"));
       await fetchAddresses();
       await fetchProfile();
       setAddressMsg({
         type: "success",
         text: editingAddressId
-          ? "Dirección actualizada correctamente."
-          : "Nueva dirección agregada con éxito.",
+          ? t("msg_address_updated")
+          : t("msg_address_created"),
       });
       setIsAddressFormOpen(false);
     } catch (err: any) {
-      setAddressMsg({ type: "error", text: err.message || "Ocurrió un error al guardar la dirección." });
+      setAddressMsg({ type: "error", text: err.message || t("err_save_address") });
     } finally {
       setSavingAddress(false);
     }
@@ -457,12 +458,12 @@ const MyAccount = () => {
           phone: accountForm.phone,
         }),
       });
-      if (!res.ok) throw new Error("Error al guardar los datos de cuenta");
+      if (!res.ok) throw new Error(t("err_save_account"));
       const updated = await res.json();
       setProfile(updated);
-      setAccountMsg({ type: "success", text: "Tus datos personales se actualizaron correctamente." });
+      setAccountMsg({ type: "success", text: t("msg_account_updated") });
     } catch (err: any) {
-      setAccountMsg({ type: "error", text: err.message || "Ocurrió un error al actualizar los datos." });
+      setAccountMsg({ type: "error", text: err.message || t("err_save_account") });
     } finally {
       setSavingAccount(false);
     }
@@ -474,7 +475,7 @@ const MyAccount = () => {
     setTimeout(() => setCopiedTracking(null), 2500);
   };
 
-  const displayName = profile?.name || user?.name || user?.email?.split("@")[0] || "Usuario";
+  const displayName = profile?.name || user?.name || user?.email?.split("@")[0] || "TapTrade";
   const displayEmail = profile?.email || user?.email || "";
   const initial = displayName.slice(0, 1).toUpperCase();
 
@@ -482,28 +483,28 @@ const MyAccount = () => {
     {
       id: "orders" as const,
       label: t("orders"),
-      description: "Historial y seguimiento de compras",
+      description: t("tab_orders_desc"),
       count: orders.length > 0 ? orders.length : undefined,
       icon: <IconBox className="w-5 h-5" />,
     },
     {
       id: "addresses" as const,
       label: t("addresses"),
-      description: "Destinos de entrega oficiales",
+      description: t("tab_addresses_desc"),
       count: addresses.length > 0 ? addresses.length : undefined,
       icon: <IconMapPin className="w-5 h-5" />,
     },
     {
       id: "credits" as const,
       label: t("credits"),
-      description: "Saldos a favor por tienda",
+      description: t("tab_credits_desc"),
       count: storeCredits.length > 0 ? storeCredits.length : undefined,
       icon: <IconCoins className="w-5 h-5" />,
     },
     {
       id: "account-details" as const,
       label: t("details"),
-      description: "Perfil, teléfono y seguridad",
+      description: t("tab_details_desc"),
       icon: <IconUser className="w-5 h-5" />,
     },
   ];
@@ -520,7 +521,7 @@ const MyAccount = () => {
           {/* Breadcrumb de navegación */}
           <div className="flex items-center gap-2 text-xs text-gray-400 mb-4 font-medium">
             <Link href="/" className="hover:text-white transition-colors">
-              Inicio
+              {t("breadcrumb_home")}
             </Link>
             <span>/</span>
             <span className="text-white font-semibold">{t("title")}</span>
@@ -688,11 +689,14 @@ const MyAccount = () => {
                 ) : (
                   <div className="space-y-5">
                     {orders.map((order) => {
-                      const st = STATUS_MAP[order.status] ?? {
-                        label: order.status,
-                        cls: "bg-white/10 text-gray-400 border border-white/15",
-                        dot: "bg-gray-400",
-                      };
+                      const stStyle = STATUS_MAP_STYLES[order.status];
+                      const st = stStyle
+                        ? { label: t(stStyle.key as any), cls: stStyle.cls, dot: stStyle.dot }
+                        : {
+                            label: order.status,
+                            cls: "bg-white/10 text-gray-400 border border-white/15",
+                            dot: "bg-gray-400",
+                          };
                       return (
                         <div
                           key={order.id}
@@ -702,7 +706,7 @@ const MyAccount = () => {
                           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Orden</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t("order_label")}</span>
                                 <span className="font-mono text-sm font-black text-white">{order.buyOrder}</span>
                               </div>
                               <p className="text-xs text-gray-400 mt-0.5">
@@ -737,7 +741,7 @@ const MyAccount = () => {
                                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
                                     <span className="text-xs font-bold text-white flex items-center gap-2">
                                       <IconStore className="w-4 h-4 text-gray-400 shrink-0" />
-                                      <span>Tienda: {vo.store.name}</span>
+                                      <span>{t("store_prefix", { name: vo.store.name })}</span>
                                     </span>
 
                                     {vo.deliveryStatus === "DISPATCHED" ? (
@@ -764,27 +768,27 @@ const MyAccount = () => {
                                         <div className="space-y-1">
                                           <p className="font-bold text-white flex items-center gap-2">
                                             <IconTruck className="w-4 h-4 text-emerald-400 shrink-0" />
-                                            <span>Transporte: {vo.shippingCourier || "Courier Oficial"}</span>
+                                            <span>{t("courier_prefix", { courier: vo.shippingCourier || t("official_courier") })}</span>
                                           </p>
                                           <div className="flex items-center gap-2">
                                             <p className="text-gray-300 font-mono text-[11px]">
-                                              N° Guía: <strong className="text-emerald-400">{vo.trackingNumber}</strong>
+                                              {t("tracking_num_label")} <strong className="text-emerald-400">{vo.trackingNumber}</strong>
                                             </p>
                                             {vo.trackingNumber && (
                                               <button
                                                 type="button"
                                                 onClick={() => copyToClipboard(vo.trackingNumber!)}
                                                 className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-white transition-colors cursor-pointer font-medium ml-1"
-                                                title="Copiar número de guía"
+                                                title={t("copy_tracking_title")}
                                               >
                                                 <IconCopy className="w-3 h-3" />
-                                                <span>{copiedTracking === vo.trackingNumber ? "Copiado" : "Copiar"}</span>
+                                                <span>{copiedTracking === vo.trackingNumber ? t("copied") : t("copy")}</span>
                                               </button>
                                             )}
                                           </div>
                                           {vo.dispatchedAt && (
                                             <p className="text-[10px] text-gray-400">
-                                              Despachado el{" "}
+                                              {t("dispatched_on")}{" "}
                                               {new Date(vo.dispatchedAt).toLocaleDateString("es-CL", {
                                                 day: "2-digit",
                                                 month: "short",
@@ -813,7 +817,7 @@ const MyAccount = () => {
                                               {loadingTrackingId === vo.id ? (
                                                 <>
                                                   <IconLoader className="w-3.5 h-3.5 text-blue-400" />
-                                                  <span>Consultando...</span>
+                                                  <span>{t("consulting")}</span>
                                                 </>
                                               ) : trackingDataMap[vo.id] ? (
                                                 <>
@@ -865,7 +869,7 @@ const MyAccount = () => {
                                     <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/15 text-xs text-amber-300/80 leading-relaxed flex items-center gap-2.5">
                                       <IconClock className="w-4 h-4 text-amber-400 shrink-0" />
                                       <span>
-                                        La tienda está protegiendo tus cartas en toploaders para entrega segura a la empresa de transporte. Te notificaremos tu número de seguimiento tan pronto sea despachado.
+                                        {t("preparing_toploaders_notice")}
                                       </span>
                                     </div>
                                   )}
@@ -906,8 +910,8 @@ const MyAccount = () => {
                           {order.payment?.cardLast4 && (
                             <div className="pt-2 flex items-center gap-2 text-xs text-gray-400">
                               <IconCreditCard className="w-4 h-4 text-gray-400 shrink-0" />
-                              <span>Tarjeta terminada en •••• {order.payment.cardLast4}</span>
-                              {order.payment.authCode && <span>· Cód. Auth: {order.payment.authCode}</span>}
+                              <span>{t("card_ending_in", { last4: order.payment.cardLast4 })}</span>
+                              {order.payment.authCode && <span>· {t("auth_code_label", { code: order.payment.authCode })}</span>}
                             </div>
                           )}
                         </div>
@@ -925,7 +929,7 @@ const MyAccount = () => {
                   <div>
                     <h3 className="text-xl font-black text-white tracking-tight">{t("addresses_title")}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Puedes guardar múltiples direcciones y marcar tu favorita para preseleccionarla automáticamente en el Checkout.
+                      {t("addresses_subtitle")}
                     </p>
                   </div>
                   {!isAddressFormOpen && (
@@ -970,7 +974,7 @@ const MyAccount = () => {
                     <div className="flex items-center justify-between pb-3 border-b border-white/10">
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
                         <IconMapPin className="w-4 h-4 text-red" />
-                        <span>{editingAddressId ? "Modificar Dirección de Envío" : "Nueva Dirección de Despacho"}</span>
+                        <span>{editingAddressId ? t("edit_shipping_address") : t("new_shipping_address")}</span>
                       </h4>
                       <button
                         type="button"
@@ -978,30 +982,30 @@ const MyAccount = () => {
                           setIsAddressFormOpen(false);
                           setAddressMsg(null);
                         }}
-                        className="text-xs text-gray-400 hover:text-white"
+                        className="text-xs text-gray-400 hover:text-white inline-flex items-center gap-1"
                       >
-                        ✕ {t("cancel")}
+                        <IconX className="w-3.5 h-3.5" /> {t("cancel")}
                       </button>
                     </div>
 
                     <div className="p-3.5 rounded-xl bg-red/10 border border-red/20 text-xs text-red-200/90 leading-relaxed flex items-start gap-3">
                       <IconInfo className="w-4 h-4 text-red shrink-0 mt-0.5" />
                       <span>
-                        Esta dirección se guardará en tu libreta y estará disponible en el selector de despacho al realizar tus compras.
+                        {t("address_book_notice")}
                       </span>
                     </div>
 
                     {/* Alias / Nombre de la Dirección */}
                     <div className="space-y-1.5">
                       <label htmlFor="addr-alias" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Etiqueta / Alias <span className="text-gray-500 font-normal">(Opcional)</span>
+                        {t("alias_label")} <span className="text-gray-500 font-normal">{t("optional_tag")}</span>
                       </label>
                       <input
                         type="text"
                         id="addr-alias"
                         value={addressForm.alias}
                         onChange={(e) => setAddressForm((p) => ({ ...p, alias: e.target.value }))}
-                        placeholder="Ej: Casa, Oficina, Depto Playa, Sucursal Starken..."
+                        placeholder={t("alias_placeholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
                       />
                     </div>
@@ -1018,7 +1022,7 @@ const MyAccount = () => {
                           required
                           value={addressForm.name}
                           onChange={(e) => setAddressForm((p) => ({ ...p, name: e.target.value }))}
-                          placeholder="Ej: Juan Pérez"
+                          placeholder={t("name_placeholder")}
                           className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
                         />
                       </div>
@@ -1026,7 +1030,7 @@ const MyAccount = () => {
                       {/* Teléfono de Contacto */}
                       <div className="space-y-1.5">
                         <label htmlFor="addr-phone" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                          Teléfono de contacto <span className="text-red">*</span>
+                          {t("contact_phone_label")} <span className="text-red">*</span>
                         </label>
                         <input
                           type="text"
@@ -1058,7 +1062,7 @@ const MyAccount = () => {
                     {/* Dirección de Envío */}
                     <div className="space-y-1.5">
                       <label htmlFor="addr-address" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
-                        Dirección de envío (Calle, número y depto) <span className="text-red">*</span>
+                        {t("shipping_street_label")} <span className="text-red">*</span>
                       </label>
                       <input
                         type="text"
@@ -1066,7 +1070,7 @@ const MyAccount = () => {
                         required
                         value={addressForm.address}
                         onChange={(e) => setAddressForm((p) => ({ ...p, address: e.target.value }))}
-                        placeholder="Calle, número, departamento, villa o sucursal de retiro..."
+                        placeholder={t("shipping_street_placeholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
                       />
                     </div>
@@ -1081,7 +1085,7 @@ const MyAccount = () => {
                           className="w-4 h-4 rounded text-red border-white/20 bg-[#07090E] focus:ring-red focus:ring-offset-0 cursor-pointer"
                         />
                         <span className="text-xs font-semibold text-gray-300 group-hover:text-white transition-colors">
-                          Establecer como dirección predeterminada para compras
+                          {t("set_default_checkbox")}
                         </span>
                       </label>
                     </div>
@@ -1125,7 +1129,7 @@ const MyAccount = () => {
                         isLoading={savingAddress}
                         leftIcon={<IconCheck className="w-4 h-4" />}
                       >
-                        {editingAddressId ? "Actualizar Dirección" : "Guardar Dirección"}
+                        {editingAddressId ? t("update_address_btn") : t("save_address_btn")}
                       </Button>
                     </div>
                   </form>
@@ -1138,7 +1142,7 @@ const MyAccount = () => {
                     <div>
                       <h4 className="text-base font-bold text-white">{t("no_saved_addresses")}</h4>
                       <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
-                        Agrega una o más direcciones de entrega para agilizar tus compras en el Checkout.
+                        {t("no_addresses_desc")}
                       </p>
                     </div>
                     <div className="pt-2">
@@ -1148,7 +1152,7 @@ const MyAccount = () => {
                         onClick={handleOpenCreateAddress}
                         leftIcon={<IconPlus className="w-4 h-4" />}
                       >
-                        Agregar mi primera dirección
+                        {t("add_first_address_btn")}
                       </Button>
                     </div>
                   </div>
@@ -1170,14 +1174,14 @@ const MyAccount = () => {
                             <div className="flex items-center gap-2">
                               <IconMapPin className={`w-4 h-4 ${addr.isDefault ? "text-emerald-400" : "text-gray-400"}`} />
                               <span className="font-bold text-white text-sm">
-                                {addr.alias || "Dirección"}
+                                {addr.alias || t("default_address_alias")}
                               </span>
                             </div>
 
                             {addr.isDefault ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                                <span>Predeterminada</span>
+                                <span>{t("default_badge")}</span>
                               </span>
                             ) : (
                               <button
@@ -1185,7 +1189,7 @@ const MyAccount = () => {
                                 onClick={() => handleSetDefault(addr.id)}
                                 className="text-[11px] text-gray-400 hover:text-white underline transition-colors"
                               >
-                                Hacer predeterminada
+                                {t("make_default_btn")}
                               </button>
                             )}
                           </div>
@@ -1250,7 +1254,7 @@ const MyAccount = () => {
                     <div>
                       <h3 className="text-xl font-black text-white tracking-tight">{t("credits")}</h3>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        Saldos a favor acumulados por devoluciones o acuerdos con cada tienda de TapTrade.
+                        {t("credits_subtitle")}
                       </p>
                     </div>
 
@@ -1270,7 +1274,7 @@ const MyAccount = () => {
 
                   {loadingCredits ? (
                     <div className="p-12 text-center text-gray-500 text-sm">
-                      Cargando saldos en tiendas...
+                      {t("loading_credits")}
                     </div>
                   ) : storeCredits.length === 0 ? (
                     <div className="p-10 text-center rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
@@ -1279,7 +1283,7 @@ const MyAccount = () => {
                       </div>
                       <h4 className="text-sm font-bold text-white">{t("no_credit_available")}</h4>
                       <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-                        Actualmente no tienes saldos a favor en ninguna tienda. Cuando una tienda te emita crédito por reembolsos o canjes, aparecerán listados aquí y podrás utilizarlos automáticamente en el checkout.
+                        {t("no_credits_desc")}
                       </p>
                     </div>
                   ) : (
@@ -1304,7 +1308,7 @@ const MyAccount = () => {
                               </div>
                             </div>
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                              Activo
+                              {t("active_badge")}
                             </span>
                           </div>
 
@@ -1370,7 +1374,7 @@ const MyAccount = () => {
                                   {Number(tx.amount) >= 0 ? "+" : ""}${Number(tx.amount).toLocaleString("es-CL")} CLP
                                 </td>
                                 <td className="py-3 px-4 text-gray-400 text-[11px]">
-                                  {tx.reference || "Ajuste de saldo"}
+                                  {tx.reference || t("balance_adjustment")}
                                 </td>
                               </tr>
                             ))}
@@ -1390,7 +1394,7 @@ const MyAccount = () => {
                 <div className="pb-5 border-b border-white/10">
                   <h3 className="text-xl font-black text-white tracking-tight">{t("details")}</h3>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Información personal de tu perfil y contacto.
+                    {t("details_subtitle")}
                   </p>
                 </div>
 
@@ -1410,7 +1414,7 @@ const MyAccount = () => {
                       />
                       <span className="absolute right-3.5 top-3.5 text-xs text-gray-500 inline-flex items-center gap-1.5">
                         <IconLock className="w-3.5 h-3.5 text-gray-500" />
-                        <span>Bloqueado</span>
+                        <span>{t("locked_badge")}</span>
                       </span>
                     </div>
                     <p className="text-[11px] text-gray-500">{t("email_readonly_note")}</p>
@@ -1427,7 +1431,7 @@ const MyAccount = () => {
                         id="profile-name"
                         value={accountForm.name}
                         onChange={(e) => setAccountForm((p) => ({ ...p, name: e.target.value }))}
-                        placeholder="Ej: Juan Pérez"
+                        placeholder={t("name_placeholder")}
                         className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white px-4 py-3 text-sm outline-none focus:border-red focus:ring-1 focus:ring-red/30 transition-all placeholder:text-gray-600"
                       />
                     </div>
@@ -1468,7 +1472,7 @@ const MyAccount = () => {
                               {addresses[0].address}, {addresses[0].city} ({addresses[0].regionCode})
                             </>
                           ) : (
-                            "No has configurado tu dirección para el Checkout aún."
+                            t("no_checkout_address_yet")
                           )}
                         </p>
                       </div>
@@ -1479,7 +1483,7 @@ const MyAccount = () => {
                         size="sm"
                         onClick={() => handleTabChange("addresses")}
                       >
-                        Gestionar {addresses.length > 0 ? `(${addresses.length})` : ""} en Direcciones →
+                        {t("manage_in_addresses_btn", { count: addresses.length > 0 ? `(${addresses.length})` : "" })} →
                       </Button>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { IconTrendingUp, IconDownload } from '@/components/ui/Icons';
 
 export default function MonthlyRevenueList({ revenues = [] }: { revenues: any[] }) {
   const t = useTranslations('sales');
@@ -21,7 +22,7 @@ export default function MonthlyRevenueList({ revenues = [] }: { revenues: any[] 
       document.body.removeChild(link);
     } catch (e) {
       console.error("Error al descargar la imagen", e);
-      alert("Hubo un error al generar la imagen");
+      alert(t("err_generate_image"));
     }
   };
 
@@ -43,19 +44,17 @@ export default function MonthlyRevenueList({ revenues = [] }: { revenues: any[] 
     <div ref={chartRef} className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col h-full group relative min-h-[350px]">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xs font-bold uppercase tracking-widest text-white flex items-center gap-2">
-          <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
-          INGRESOS POR MES ({new Date().getFullYear()})
+          <IconTrendingUp className="w-4 h-4 text-emerald-400" />
+          {t("monthly_revenue_title", { year: new Date().getFullYear() })}
         </h3>
-        <button onClick={downloadImage} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title="Descargar como Imagen (PNG)">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <button onClick={downloadImage} className="text-white/40 hover:text-white p-1.5 bg-[#080B12] border border-white/10 rounded-lg transition-colors" title={t("download_png_tooltip")}>
+          <IconDownload className="w-4 h-4" />
         </button>
       </div>
 
       <div className="flex-1 w-full h-full min-h-[250px]">
         {revenues.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-5 text-sm">No hay datos</div>
+          <div className="flex items-center justify-center h-full text-gray-5 text-sm">{t("no_data")}</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={revenues} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>

@@ -338,25 +338,25 @@ export default function SuperAdminAccountingPage() {
               onClick={() => applyDatePreset("THIS_MONTH")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-all"
             >
-              Mes Actual
+              {t("preset_this_month")}
             </button>
             <button
               onClick={() => applyDatePreset("PREV_MONTH")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-all"
             >
-              Mes Anterior
+              {t("preset_prev_month")}
             </button>
             <button
               onClick={() => applyDatePreset("LAST_30")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-all"
             >
-              Últimos 30 días
+              {t("preset_last_30")}
             </button>
             <button
               onClick={() => applyDatePreset("THIS_YEAR")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-all"
             >
-              Año en Curso
+              {t("preset_this_year")}
             </button>
           </div>
         </div>
@@ -864,7 +864,7 @@ export default function SuperAdminAccountingPage() {
                               setExpandedOrderId(isExpanded ? null : o.id)
                             }
                             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-                            title="Ver desglose tributario"
+                            title={t("view_tax_breakdown_title")}
                           >
                             {isExpanded ? (
                               <IconChevronUp className="w-4 h-4" />
@@ -944,10 +944,10 @@ export default function SuperAdminAccountingPage() {
 
                               <div className="p-3 rounded-lg bg-red/5 border border-red/20 text-xs flex items-center justify-between">
                                 <div className="text-white/80">
-                                  <strong>Costo Financiero Transbank / Pasarela Estimado:</strong> {formatCLP(o.transbankFeeEstimate)} (con gross-up recuperado en checkout)
+                                  <strong>{t("gateway_cost_label")}</strong> {formatCLP(o.transbankFeeEstimate)} {t("gateway_cost_note")}
                                 </div>
                                 <div className="font-mono text-white/60">
-                                  Tasa IVA aplicada: {Math.round(o.vatRate * 100)}%
+                                  {t("applied_vat_rate", { rate: Math.round(o.vatRate * 100) })}
                                 </div>
                               </div>
                             </div>
@@ -974,7 +974,7 @@ export default function SuperAdminAccountingPage() {
                 disabled={page <= 1}
                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
               >
-                Anterior
+                {t("prev_page")}
               </button>
               <div className="px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold">
                 {page}
@@ -984,7 +984,7 @@ export default function SuperAdminAccountingPage() {
                 disabled={page >= totalPages}
                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
               >
-                Siguiente
+                {t("next_page")}
               </button>
             </div>
           </div>

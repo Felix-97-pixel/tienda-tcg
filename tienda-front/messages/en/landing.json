@@ -11,7 +11,8 @@
       "store_login": "Store Login",
       "explore_singles": "Explore Singles",
       "tagline": "Platform & Marketplace",
-      "language_label": "Language"
+      "language_label": "Language",
+      "open_menu_aria": "Open menu"
     },
     "hero": {
       "badge": "#1 TCG Ecosystem in Latin America",
@@ -203,7 +204,8 @@
       "whatsapp_support": "WhatsApp Support",
       "copyright": "© {year} TAPTRADE SpA. All rights reserved. Built for collectors.",
       "official_logistics_title": "Official Logistics & Payments:",
-      "free_pickup": "PICKUP $0"
+      "free_pickup": "PICKUP $0",
+      "riot_disclaimer": "TapTrade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."
     },
     "showcase": {
       "badge_demo": "Live Interactive Platform Demo",
@@ -523,6 +525,10 @@
         "btn_explore": "Explore Singles Live",
         "btn_store": "Sign In as Store"
       }
+    },
+    "features": {
+      "mock_item3_sub": "Accessory • 100 Sleeves",
+      "mock_items_count": "Items ({count})"
     }
   }
 }

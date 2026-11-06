@@ -30,10 +30,10 @@ export default function AutoMapModal({ onClose, onSuccess }: AutoMapModalProps) 
         const data = await res.json();
         onSuccess(data.mapped, data.remaining);
       } else {
-        showToast("Error al auto-mapear las expansiones", "error");
+        showToast(t("err_automap"), "error");
       }
     } catch (err) {
-      showToast("Error de red", "error");
+      showToast(t("err_network"), "error");
     } finally {
       setLoading(false);
     }

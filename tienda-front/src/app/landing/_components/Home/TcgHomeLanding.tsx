@@ -20,6 +20,8 @@ import {
   IconEye,
   IconCard,
   IconBox,
+  IconSearch,
+  IconCheck,
 } from "@/components/ui/Icons";
 import { getBestAvailableVariant } from "@/utils/tcgPrices";
 import { useTranslations } from "next-intl";
@@ -321,10 +323,7 @@ export default function TcgHomeLanding() {
               <form onSubmit={handleHeroSearch} className="max-w-xl mx-auto lg:mx-0 mb-6">
                 <div className="relative flex items-center bg-[#111522] border border-white/15 rounded-2xl p-1.5 shadow-2xl focus-within:border-red-500/80 focus-within:ring-2 focus-within:ring-red-500/20 transition-all">
                   <div className="pl-4 text-gray-400">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+                    <IconSearch className="w-5 h-5" />
                   </div>
                   <input
                     type="text"
@@ -647,8 +646,8 @@ export default function TcgHomeLanding() {
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-base font-bold text-white">{store.name}</h3>
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded">
-                            ✓ {t("verified_stores.verified")}
+                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded inline-flex items-center gap-1">
+                            <IconCheck className="w-3 h-3 text-emerald-400" /> {t("verified_stores.verified")}
                           </span>
                         </div>
                         <span className="text-xs text-gray-400 block">{store.city}</span>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { IconCart, IconRepeat, IconCash, IconWallet } from '@/components/ui/Icons';
+import { IconCart, IconRepeat, IconCash, IconWallet, IconX } from '@/components/ui/Icons';
 
 export interface PosBuyCartItem {
   id: string; // id temporal
@@ -67,10 +67,10 @@ export default function PosBuyCart({
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
           <h2 className="text-sm font-black text-emerald-400 tracking-wide uppercase">
-            Comprar Cartas (Trade-In)
+            {t("buy_cards_title")}
           </h2>
           <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold">
-            {totalItemsCount} {totalItemsCount === 1 ? 'carta' : 'cartas'}
+            {totalItemsCount} {totalItemsCount === 1 ? t('card_singular') : t('card_plural')}
           </span>
         </div>
 
@@ -80,7 +80,7 @@ export default function PosBuyCart({
             type="button"
             className="text-xs text-white/40 hover:text-red transition-colors flex items-center gap-1"
           >
-            <span>Vaciar</span>
+            <span>{t("clear_btn")}</span>
           </button>
         )}
       </div>
@@ -92,7 +92,7 @@ export default function PosBuyCart({
             <IconRepeat className="w-12 h-12 text-emerald-500/40" />
             <p className="text-sm font-medium text-white/60">{t("empty_buy_cart")}</p>
             <p className="text-xs text-white/30 max-w-xs">
-              Busca cartas del catálogo para comprarlas al cliente. Si la tienes en Buylist, los precios se aplicarán solos.
+              {t("empty_buy_cart_desc")}
             </p>
           </div>
         ) : (
@@ -131,15 +131,15 @@ export default function PosBuyCart({
                         </p>
                         {item.isFromBuylist ? (
                           <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-black text-emerald-400">
-                            En Buylist
+                            {t("in_buylist")}
                           </span>
                         ) : item.tradeInSource === 'AUTO_RATE' ? (
                           <span className="px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/30 text-[9px] font-bold text-cyan-300">
-                            Auto Tasa ({item.valuationDetails?.buyPercentage ?? 50}% / {item.valuationDetails?.creditPercentage ?? 70}%)
+                            {t("auto_rate", { buy: item.valuationDetails?.buyPercentage ?? 50, credit: item.valuationDetails?.creditPercentage ?? 70 })}
                           </span>
                         ) : (
                           <span className="px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/30 text-[9px] font-bold text-amber-300">
-                            Manual
+                            {t("manual_rate")}
                           </span>
                         )}
                       </div>
@@ -152,7 +152,7 @@ export default function PosBuyCart({
                             {item.rarity}
                           </span>
                         )}
-                        <span>• Idioma: {item.languageCode}</span>
+                        <span>{t("language_prefix", { code: item.languageCode })}</span>
                       </div>
                     </div>
                   </div>
@@ -161,9 +161,9 @@ export default function PosBuyCart({
                     onClick={() => onRemoveItem(item.id)}
                     type="button"
                     className="text-white/30 hover:text-red p-1 transition-colors"
-                    title="Eliminar de la lista"
+                    title={t("remove_from_list")}
                   >
-                    ✕
+                    <IconX className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -172,7 +172,7 @@ export default function PosBuyCart({
                   {/* Selector de Estado / Condición */}
                   <div>
                     <label className="text-[10px] font-bold text-white/40 block mb-1 uppercase">
-                      Estado
+                      {t("condition_label")}
                     </label>
                     <select
                       value={item.conditionId}
@@ -193,7 +193,7 @@ export default function PosBuyCart({
                   {/* Selector de Idioma */}
                   <div>
                     <label className="text-[10px] font-bold text-white/40 block mb-1 uppercase">
-                      Idioma
+                      {t("language_label")}
                     </label>
                     <select
                       value={item.languageId}
@@ -220,7 +220,7 @@ export default function PosBuyCart({
                   {/* Precio Efectivo (Cash) */}
                   <div>
                     <label className="text-[10px] font-bold text-emerald-400/80 block mb-1 uppercase">
-                      Pagas Cash (CLP)
+                      {t("pay_cash_clp")}
                     </label>
                     <input
                       type="number"
@@ -235,7 +235,7 @@ export default function PosBuyCart({
                   {/* Precio Crédito de Tienda */}
                   <div>
                     <label className="text-[10px] font-bold text-blue-400/80 block mb-1 uppercase">
-                      Pagas Crédito (CLP)
+                      {t("pay_credit_clp")}
                     </label>
                     <input
                       type="number"
@@ -251,7 +251,7 @@ export default function PosBuyCart({
                 {/* Cantidad y subtotal de la línea */}
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-white/50">Cantidad:</span>
+                    <span className="text-[11px] text-white/50">{t("qty_label")}</span>
                     <div className="flex items-center gap-1 bg-[#07090E] rounded-lg border border-white/10 p-0.5">
                       <button
                         onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
@@ -275,10 +275,10 @@ export default function PosBuyCart({
 
                   <div className="flex items-center gap-3 text-right">
                     <div className="text-[11px] font-mono text-emerald-400">
-                      Cash: <span className="font-bold">${lineCash.toLocaleString('es-CL')}</span>
+                      {t("cash_short")} <span className="font-bold">${lineCash.toLocaleString('es-CL')}</span>
                     </div>
                     <div className="text-[11px] font-mono text-cyan-300">
-                      Crédito: <span className="font-bold">${lineCredit.toLocaleString('es-CL')}</span>
+                      {t("credit_short")} <span className="font-bold">${lineCredit.toLocaleString('es-CL')}</span>
                     </div>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ export default function PosBuyCart({
           <div className="flex justify-between items-center text-white/70">
             <span className="flex items-center gap-1.5">
               <IconWallet className="w-3.5 h-3.5 text-cyan-400" />
-              Total en Crédito de Tienda (+bono buylist)
+              {t("total_store_credit_bonus")}
             </span>
             <span className="font-mono text-cyan-400 text-sm font-bold">
               ${totalCredit.toLocaleString('es-CL')} CLP
@@ -304,7 +304,7 @@ export default function PosBuyCart({
           <div className="flex justify-between items-center text-white/70">
             <span className="flex items-center gap-1.5">
               <IconCash className="w-3.5 h-3.5 text-emerald-400" />
-              Total en Efectivo / Cash
+              {t("total_cash_label")}
             </span>
             <span className="font-mono text-emerald-400 text-sm font-bold">
               ${totalCash.toLocaleString('es-CL')} CLP
@@ -312,11 +312,11 @@ export default function PosBuyCart({
           </div>
 
           <div className="pt-2 border-t border-white/10 flex justify-between items-center text-xs text-white/40">
-            <span>Diferencia si recibe efectivo vs. crédito:</span>
+            <span>{t("diff_cash_vs_credit")}</span>
             <span className="font-mono text-amber-300">
               {totalCredit > totalCash
-                ? `+$${(totalCredit - totalCash).toLocaleString('es-CL')} en crédito`
-                : 'Mismo valor'}
+                ? t('extra_in_credit', { amount: (totalCredit - totalCash).toLocaleString('es-CL') })
+                : t('same_value')}
             </span>
           </div>
         </div>
@@ -327,7 +327,7 @@ export default function PosBuyCart({
           type="button"
           className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white text-sm font-black tracking-wider uppercase transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.99] flex items-center justify-center gap-2"
         >
-          <span>Pagar / Abonar al Cliente</span>
+          <span>{t("pay_credit_customer_btn")}</span>
           <span className="font-mono text-base">• ${totalCredit.toLocaleString('es-CL')} SC</span>
         </button>
       </div>

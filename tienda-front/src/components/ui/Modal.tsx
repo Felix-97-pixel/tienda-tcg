@@ -1,4 +1,7 @@
+"use client";
 import React, { useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { IconX } from "@/components/ui/Icons";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -33,6 +36,7 @@ export const Modal: React.FC<ModalProps> = ({
   className = "",
   zIndex = "z-[9999]"
 }) => {
+  const t = useTranslations("common");
   // Evitar scroll en el fondo cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
@@ -66,9 +70,9 @@ export const Modal: React.FC<ModalProps> = ({
                 onClick={onClose} 
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all active:scale-95"
                 type="button"
-                aria-label="Cerrar modal"
+                aria-label={t("close_modal")}
               >
-                ✕
+                <IconX className="w-4 h-4" />
               </button>
             )}
           </div>

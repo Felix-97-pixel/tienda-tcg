@@ -170,7 +170,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                         setFormData({ ...formData, subdomain: clean });
                       }}
                       className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none font-mono"
-                      placeholder="bloodmoon_santiago"
+                      placeholder={t("ph_subdomain")}
                     />
                     {formData.subdomain && (
                       <a
@@ -231,7 +231,7 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="contacto@mitienda.com"
+                placeholder={t("ph_email")}
               />
               <div className="md:col-span-2 mt-4">
                 <label className="block text-sm font-semibold text-white mb-2">{t("physical_location")}</label>
@@ -257,35 +257,35 @@ export default function StoreProfileForm({ storeId }: StoreProfileFormProps) {
                 placeholder="https://mitienda.com"
               />
               <Input
-                label="Facebook (URL)"
+                label={t("facebook_url")}
                 type="url"
                 value={formData.facebook}
                 onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
                 placeholder="https://facebook.com/mitienda"
               />
               <Input
-                label="Instagram (URL)"
+                label={t("instagram_url")}
                 type="url"
                 value={formData.instagram}
                 onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                 placeholder="https://instagram.com/mitienda"
               />
               <Input
-                label="Twitch (URL)"
+                label={t("twitch_url")}
                 type="url"
                 value={formData.twitch}
                 onChange={(e) => setFormData({ ...formData, twitch: e.target.value })}
                 placeholder="https://twitch.tv/mitienda"
               />
               <Input
-                label="WhatsApp"
+                label={t("whatsapp_label")}
                 type="text"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                 placeholder="+56 9 1234 5678"
               />
               <Input
-                label="Twitter/X (URL)"
+                label={t("twitter_url")}
                 type="url"
                 value={formData.twitter}
                 onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}

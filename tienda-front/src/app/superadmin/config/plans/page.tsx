@@ -146,7 +146,7 @@ export default function PlansPage() {
 
                 <div className="text-3xl font-black text-white mb-6">
                   {Number(plan.price).toLocaleString()} <span className="text-base font-bold text-emerald-400">UF</span>{" "}
-                  <span className="text-sm font-medium text-gray-5">/mes</span>
+                  <span className="text-sm font-medium text-gray-5">{t("per_month_suffix")}</span>
                 </div>
 
                 <div className="flex items-center gap-4 mb-3">

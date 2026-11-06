@@ -9,6 +9,7 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
+import { IconAlertTriangle } from "@/components/ui/Icons";
 
 export interface SuperAdminInventoryModalProps {
   isOpen: boolean;
@@ -219,12 +220,12 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-4">Acabado</label>
+            <label className="mb-1 block text-xs font-medium text-gray-4">{t("finish_label")}</label>
             <SearchableSelect
               options={finishes.map(f => ({ label: f.name, value: f.id }))}
               value={newVariation.finishId}
               onChange={(val) => setNewVariation({ ...newVariation, finishId: val })}
-              placeholder="Acabado..."
+              placeholder={t("finish_placeholder")}
             />
           </div>
           <div className="flex flex-col justify-end">
@@ -246,14 +247,14 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
             <tr className="bg-[#111318] border-b border-stroke">
               <th className="p-3 font-bold text-gray-4">{t("inventory.language")}</th>
               <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
-              <th className="p-3 font-bold text-gray-4">Acabado</th>              <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
+              <th className="p-3 font-bold text-gray-4">{t("finish_label")}</th>              <th className="p-3 font-bold text-gray-4">{t("inventory.price")}</th>
             </tr>
           </thead>
           <tbody>
             {product.marketPrices?.map((mp: any) => (
               <tr key={mp.id} className="border-b border-stroke hover:bg-gray-50 transition-colors">
-                <td className="p-3 font-medium text-white">English</td>
-                <td className="p-3 text-white">Near Mint</td>
+                <td className="p-3 font-medium text-white">{mp.language?.name || "English"}</td>
+                <td className="p-3 text-white">{mp.condition?.name || "Near Mint"}</td>
                 <td className="p-3">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mp.finish?.name && mp.finish.name !== 'Normal' ? 'bg-purple-100 text-purple-600' : 'bg-[#111318]00 text-gray-5'}`}>
                     {mp.finish?.name || "-"}
@@ -279,23 +280,23 @@ export default function SuperAdminInventoryModal({ isOpen, onClose, product: ini
     </Modal>
 
       {/* Modal de confirmación de eliminación */}
-      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirmar Eliminación">
+      <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title={t("confirm_delete_title")}>
         <div className="p-6">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 bg-red/10 rounded-full flex items-center justify-center text-red">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <IconAlertTriangle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white">¿Eliminar variante?</h3>
+            <h3 className="text-xl font-bold text-white">{t("delete_variant_q")}</h3>
             <p className="text-gray-4">
-              ¿Estás seguro que deseas eliminar esta variante de precio permanentemente?
+              {t("delete_variant_confirm_desc")}
             </p>
           </div>
           <div className="flex gap-3 mt-8">
             <Button variant="secondary" className="flex-1" onClick={() => setItemToDelete(null)}>
-              Cancelar
+              {t("cancel_btn")}
             </Button>
             <Button variant="danger" className="flex-1" onClick={handleDeleteItem}>
-              Sí, eliminar
+              {t("yes_delete_btn")}
             </Button>
           </div>
         </div>

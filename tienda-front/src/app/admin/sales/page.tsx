@@ -53,7 +53,7 @@ export default function AdminSalesPage() {
   if (loading && loadingStats) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <Loader text="Cargando analítica e indicadores..." className="min-h-[40vh] bg-transparent py-10" />
+        <Loader text={t("loading_analytics")} className="min-h-[40vh] bg-transparent py-10" />
       </div>
     );
   }
@@ -64,8 +64,8 @@ export default function AdminSalesPage() {
         <div className="w-16 h-16 bg-red/10 text-red border border-red/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <IconAlertTriangle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">{t("errorTitle") || "Error"}</h2>
-        <Button onClick={handleRefreshAll} variant="primary">{tc("refresh") || "Reintentar"}</Button>
+        <h2 className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h2>
+        <Button onClick={handleRefreshAll} variant="primary">{tc("refresh")}</Button>
       </div>
     );
   }
@@ -77,9 +77,9 @@ export default function AdminSalesPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Reportes & Analítica</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">{t("header_title")}</h1>
           <p className="text-gray-4 text-sm font-medium mt-1">
-            Rendimiento de inventario, rotación de productos, alertas de stock y métricas históricas
+            {t("header_subtitle")}
           </p>
         </div>
         <div className="flex gap-3">
@@ -88,13 +88,13 @@ export default function AdminSalesPage() {
             onClick={handleRefreshAll}
             leftIcon={<IconRefresh className="w-4 h-4" />}
           >
-            {tc("refresh") || "Actualizar"}
+            {tc("refresh")}
           </Button>
           <Button
             onClick={() => exportToPDF("pdf-report-container", "reporte-ventas.pdf")}
             leftIcon={<IconDownload className="w-4 h-4" />}
           >
-            Exportar a PDF
+            {t("export_pdf_btn")}
           </Button>
         </div>
       </div>
@@ -104,11 +104,11 @@ export default function AdminSalesPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-[#0E121B] border border-white/10 rounded-3xl p-6 shadow-2xl relative group">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-sm text-gray-4 font-bold uppercase tracking-wider">Valor de Inventario Activo</p>
+              <p className="text-sm text-gray-4 font-bold uppercase tracking-wider">{t("kpi_active_inventory")}</p>
               <button
                 onClick={() => handleDownloadCSV("inventory")}
                 className="text-gray-4 hover:text-white p-1.5 bg-[#0f1115] rounded-md transition-colors"
-                title="Descargar CSV de Inventario"
+                title={t("download_inventory_csv_title")}
               >
                 <IconDownload className="w-4 h-4" />
               </button>
@@ -118,11 +118,11 @@ export default function AdminSalesPage() {
 
           <div className="bg-[#0E121B] border border-white/10 rounded-3xl p-6 shadow-2xl relative group">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-sm text-gray-4 font-bold uppercase tracking-wider">Dead Stock (Cartas sin mover)</p>
+              <p className="text-sm text-gray-4 font-bold uppercase tracking-wider">{t("kpi_dead_stock")}</p>
               <button
                 onClick={() => handleDownloadCSV("deadstock")}
                 className="text-gray-4 hover:text-white p-1.5 bg-[#0f1115] rounded-md transition-colors"
-                title="Descargar CSV de Dead Stock"
+                title={t("download_deadstock_csv_title")}
               >
                 <IconDownload className="w-4 h-4" />
               </button>
@@ -132,11 +132,11 @@ export default function AdminSalesPage() {
 
           <div className="bg-[#0E121B] border border-white/10 rounded-3xl p-6 shadow-2xl relative group">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-sm text-gray-4 font-bold uppercase tracking-wider">Exportar Clientes & Ventas</p>
+              <p className="text-sm text-gray-4 font-bold uppercase tracking-wider">{t("kpi_export_clients_sales")}</p>
               <button
                 onClick={() => handleDownloadCSV("transactions")}
                 className="text-gray-4 hover:text-white p-1.5 bg-[#0f1115] rounded-md transition-colors"
-                title="Descargar CSV de Clientes y Transacciones"
+                title={t("download_transactions_csv_title")}
               >
                 <IconDownload className="w-4 h-4" />
               </button>
@@ -164,7 +164,7 @@ export default function AdminSalesPage() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           <ChartWidget
             id="chart-revenue"
-            title="Evolución de Ingresos"
+            title={t("chart_revenue_evolution")}
             data={revenueData}
             dataKeyX="date"
             dataKeyY="amount"
@@ -172,7 +172,7 @@ export default function AdminSalesPage() {
           />
           <ChartWidget
             id="chart-status"
-            title="Tasa de Éxito de Órdenes"
+            title={t("chart_order_success_rate")}
             data={statusData}
             dataKeyX="status"
             dataKeyY="count"
@@ -180,7 +180,7 @@ export default function AdminSalesPage() {
           />
           <ChartWidget
             id="chart-expansion"
-            title="Top Expansiones (Volumen)"
+            title={t("chart_top_expansions")}
             data={expansionData}
             dataKeyX="name"
             dataKeyY="value"
@@ -188,7 +188,7 @@ export default function AdminSalesPage() {
           />
           <ChartWidget
             id="chart-lang"
-            title="Ventas por Idioma"
+            title={t("chart_sales_by_language")}
             data={langData}
             dataKeyX="name"
             dataKeyY="value"
