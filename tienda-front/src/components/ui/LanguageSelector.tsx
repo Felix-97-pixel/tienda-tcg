@@ -8,7 +8,7 @@ import {
   IconChevronDown,
   IconCheck,
   IconFlagES,
-  IconFlagUS,
+  IconFlagUK,
   IconFlagPT,
 } from "@/components/ui/Icons";
 
@@ -30,7 +30,7 @@ const LANGUAGES: LanguageOption[] = [
     code: "en",
     label: "English",
     nativeLabel: "English",
-    flag: <IconFlagUS className="w-4 h-3 rounded-xs shrink-0" />,
+    flag: <IconFlagUK className="w-4 h-3 rounded-xs shrink-0" />,
   },
   {
     code: "pt",
