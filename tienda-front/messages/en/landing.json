@@ -496,7 +496,9 @@
         "bento_credit_badge": "Customer Retention",
         "bento_credit_title": "Store Credit Digital Wallet",
         "bento_credit_desc": "Keep capital inside your business. Offer up to 20% to 30% bonus store credit to players selling singles via Buylist, driving repeat reinvestment.",
-        "bento_credit_p": "✓ Digital balance linked to customer profile"
+        "bento_credit_p": "✓ Digital balance linked to customer profile",
+        "mock_item3_sub": "Accessory • 100 Sleeves",
+        "mock_items_count": "Items ({count})"
       },
       "how_it_works": {
         "badge": "Frictionless Flow",

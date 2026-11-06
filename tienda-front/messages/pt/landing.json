@@ -496,7 +496,9 @@
         "bento_credit_badge": "Fidelização Ativa",
         "bento_credit_title": "Carteira Digital de Crédito em Loja",
         "bento_credit_desc": "Mantenha o capital girando na sua loja. Ofereça bônus de 20% a 30% em crédito aos clientes que venderem singles na Buylist para reinvestirem no seu catálogo.",
-        "bento_credit_p": "✓ Saldo digital associado à conta do cliente"
+        "bento_credit_p": "✓ Saldo digital associado à conta do cliente",
+        "mock_item3_sub": "Acessório • 100 Sleeves",
+        "mock_items_count": "Itens ({count})"
       },
       "how_it_works": {
         "badge": "Fluxo Sem Fricção",

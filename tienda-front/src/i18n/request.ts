@@ -38,12 +38,12 @@ function deepMerge(target: any, source: any) {
   if (isObject(target) && isObject(source)) {
     Object.keys(source).forEach((key) => {
       if (isObject(source[key])) {
-        if (!(key in target)) {
+        if (!isObject(target[key])) {
           Object.assign(output, { [key]: source[key] });
         } else {
           output[key] = deepMerge(target[key], source[key]);
         }
-      } else {
+      } else if (!isObject(target[key])) {
         Object.assign(output, { [key]: source[key] });
       }
     });
@@ -55,50 +55,65 @@ function isObject(item: any) {
   return item && typeof item === 'object' && !Array.isArray(item);
 }
 
+function mergeAll(...objs: any[]) {
+  return objs.reduce((acc, obj) => deepMerge(acc, obj), {});
+}
+
 // 1. Mensajes base en español (garantía de integridad 100%)
-const esBase: Record<string, any> = deepMerge(
+const esBase: Record<string, any> = mergeAll(
   {
     common: esCommon,
     buylist: esBuylist,
     errors: esErrors,
     admin: esAdmin,
-    ...esNav,
-    ...esShop,
-    ...esAuth,
-    ...esAdmin,
-    ...esLegal,
-    ...esLanding,
+    legal: esLegal,
   },
-  {}
+  esCommon,
+  esNav,
+  esShop,
+  esAuth,
+  esAdmin,
+  esLegal,
+  esLanding
 );
 
 // 2. Mensajes en inglés con fallback automático a español
-const enBase: Record<string, any> = deepMerge(esBase, {
-  common: enCommon,
-  buylist: enBuylist,
-  errors: enErrors,
-  admin: enAdmin,
-  ...enNav,
-  ...enShop,
-  ...enAuth,
-  ...enAdmin,
-  ...enLegal,
-  ...enLanding,
-});
+const enBase: Record<string, any> = mergeAll(
+  esBase,
+  {
+    common: enCommon,
+    buylist: enBuylist,
+    errors: enErrors,
+    admin: enAdmin,
+    legal: enLegal,
+  },
+  enCommon,
+  enNav,
+  enShop,
+  enAuth,
+  enAdmin,
+  enLegal,
+  enLanding
+);
 
 // 3. Mensajes en portugués con fallback automático a español
-const ptBase: Record<string, any> = deepMerge(esBase, {
-  common: ptCommon,
-  buylist: ptBuylist,
-  errors: ptErrors,
-  admin: ptAdmin,
-  ...ptNav,
-  ...ptShop,
-  ...ptAuth,
-  ...ptAdmin,
-  ...ptLegal,
-  ...ptLanding,
-});
+const ptBase: Record<string, any> = mergeAll(
+  esBase,
+  {
+    common: ptCommon,
+    buylist: ptBuylist,
+    errors: ptErrors,
+    admin: ptAdmin,
+    legal: ptLegal,
+  },
+  ptCommon,
+  ptNav,
+  ptShop,
+  ptAuth,
+  ptAdmin,
+  ptLegal,
+  ptLanding
+);
 
 const MESSAGES_BY_LOCALE: Record<string, any> = {
   es: esBase,

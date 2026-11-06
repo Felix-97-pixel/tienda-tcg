@@ -496,7 +496,9 @@
         "bento_credit_badge": "Fidelización Activa",
         "bento_credit_title": "Billetera de Crédito en Tienda (Store Credit)",
         "bento_credit_desc": "Retén el capital dentro de tu negocio. Ofrece hasta un 20% o 30% extra en crédito en tienda a los clientes que te vendan singles por Buylist, asegurando que reinviertan su saldo en tus productos.",
-        "bento_credit_p": "✓ Saldo digital asociado a la cuenta del usuario"
+        "bento_credit_p": "✓ Saldo digital asociado a la cuenta del usuario",
+        "mock_item3_sub": "Accesorio • 100 Sleeves",
+        "mock_items_count": "Artículos ({count})"
       },
       "how_it_works": {
         "badge": "Flujo Sin Fricción",

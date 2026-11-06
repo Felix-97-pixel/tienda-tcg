@@ -27,7 +27,8 @@
     "no_game_found": "Juego no encontrado",
     "no_language_found": "Idioma no encontrado",
     "no_condition_found": "Estado no encontrado",
-    "no_option_found": "Opción no encontrada"
+    "no_option_found": "Opción no encontrada",
+    "quick_all": "Todos"
   },
   "item_card": {
     "view_store_buylist": "Ver buylist tienda →",
