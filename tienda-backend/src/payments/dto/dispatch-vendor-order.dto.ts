@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class DispatchVendorOrderDto {
   @IsString()
@@ -25,4 +25,17 @@ export class DispatchVendorOrderDto {
   @IsString()
   @IsOptional()
   packagePhotoUrl?: string;
+
+  // Documento Tributario Electrónico (DTE) emitido por la tienda al comprador final (Opcional al despachar)
+  @IsNumber()
+  @IsOptional()
+  buyerDteType?: number; // 39 (Boleta Afecta), 41 (Boleta Exenta), 33 (Factura Electrónica)
+
+  @IsString()
+  @IsOptional()
+  buyerDteFolio?: string;
+
+  @IsString()
+  @IsOptional()
+  buyerDteUrl?: string;
 }

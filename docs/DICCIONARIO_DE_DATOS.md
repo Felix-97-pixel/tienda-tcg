@@ -64,6 +64,7 @@ Categorías principales de catálogo (Singles TCG, Cajas Selladas, Accesorios, e
 * `slug` (`String`, Unique): Slug SEO.
 * `imageUrl` (`String?`): Imagen representativa.
 * `isTcg` (`Boolean`, default: `false`): Determina si los ítems de esta categoría utilizan cubicaje y lógica TCG.
+* `commissionRate` (`Decimal(5,4)?`): Porcentaje opcional de comisión especial por categoría de producto (ej: `0.0500` = 5%).
 * **Relaciones:** `products`, `coupons`.
 
 ### `Brand`
@@ -177,12 +178,31 @@ Precios de referencia de mercado global y trazabilidad histórica de precios par
 ## 3. Tiendas y Vendedores (Multi-Tenant Marketplace)
 
 ### `Company`
-Entidad jurídica matriz (Empresa) que agrupa una o más sucursales físicas (`Store`). Es la entidad contratante del plan SaaS.
+Entidad jurídica matriz (Empresa) que agrupa una o más sucursales físicas (`Store`). Es la entidad contratante del plan SaaS y el sujeto tributario ante el SII (B2B2C).
 * `id` (`String`, UUID, PK)
-* `name` (`String`): Razón Social o nombre legal de la empresa.
-* `rut` (`String?`): Identificador tributario (RUT de la empresa).
+* `name` (`String`): Razón Social o nombre comercial principal de la empresa.
+* `rut` (`String?`): Identificador tributario chileno (RUT con dígito verificador Módulo 11).
 * `legalName` (`String?`): Razón social legal registrada ante el Servicio de Impuestos Internos (SII).
+* `fantasyName` (`String?`): Nombre de fantasía registrado.
 * `taxActivity` (`String?`): Giro o actividad económica principal registrada ante el SII.
+* `taxAddress` (`String?`): Domicilio tributario de la casa matriz.
+* `taxCommune` (`String?`): Comuna tributaria.
+* `taxRegion` (`String?`): Región tributaria.
+* `taxClassification` (`String`, default: `"PRIMERA_CATEGORIA_AFECTO"`): Régimen tributario (`"PRIMERA_CATEGORIA_AFECTO"` | `"PRIMERA_CATEGORIA_EXENTO"`).
+* `siiActivityStarted` (`Boolean`, default: `true`): Confirmación de Inicio de Actividades vigente en 1ª Categoría ante el SII.
+* `dteEmail` (`String?`): Correo oficial de intercambio de DTEs ante el SII.
+* `verificationStatus` (`String`, default: `"ENABLED"`): Estado administrativo de habilitación (`"PENDING_VERIFICATION"` | `"PENDING_DOCS"` | `"ENABLED"` | `"SUSPENDED"` | `"BLOCKED"`).
+* `verifiedAt` (`DateTime?`) / `verifiedByUserId` (`String?`): Auditoría de verificación por Superadministrador.
+* `mandateAcceptedAt` (`DateTime?`) / `mandateContractUrl` (`String?`): Aceptación y respaldo del Mandato Mercantil de Recaudación.
+* `customCommissionRate` (`Decimal(5,4)?`): Excepción comercial de comisión al vendedor para esta empresa (si es `null`, aplica la tasa del plan o plataforma).
+* `commissionCalcBase` (`String`, default: `"NET"`): Base de cálculo de la comisión al vendedor (`"NET"` | `"GROSS"`).
+* `bankName` (`String?`): Banco comercial de destino para liquidaciones.
+* `bankAccountType` (`String?`): Tipo de cuenta (`"CUENTA_CORRIENTE"` | `"CUENTA_VISTA"` | `"CUENTA_RUT"`).
+* `bankAccountNumber` (`String?`): Número de cuenta bancaria.
+* `bankHolderRut` (`String?`): RUT del titular de la cuenta bancaria.
+* `bankHolderName` (`String?`): Nombre/Razón Social del titular bancario.
+* `bankEmail` (`String?`): Correo de notificación bancaria.
+* `bankUpdatedAt` (`DateTime?`): Fecha de última actualización de datos bancarios para trazabilidad.
 * `logoUrl` (`String?`): Logo corporativo principal del Holding / Empresa.
 * `ownerId` (`String`, FK -> `User`): Usuario administrador principal o representante legal.
 * `planId` (`String?`, FK -> `SubscriptionPlan`): Plan SaaS contratado por la empresa (Starter, Store, Mega Store, Enterprise). Todas las sucursales heredan este plan corporativo.
@@ -371,9 +391,12 @@ Lista de deseos de cartas de los compradores.
 * `totalAmount` (`Decimal(10,2)`): Monto final total cobrado al comprador en el terminal de pago (Productos + Envíos + Comisión TapTrade + Tarifa Pasarela de Pago).
 * `productsTotal` (`Decimal(10,2)`, default: 0): Subtotal bruto consolidado de productos (IVA incluido por las tiendas).
 * `shippingTotal` (`Decimal(10,2)`, default: 0): Subtotal bruto consolidado de envíos (IVA incluido por las tiendas o couriers).
-* `serviceFeeGross` (`Decimal(10,2)`, default: 0): Comisión bruta de TapTrade (3% neto + IVA 19% propio).
-* `serviceFeeNet` (`Decimal(10,2)`, default: 0): Comisión neta de ingresos propios de TapTrade SpA.
-* `serviceFeeVat` (`Decimal(10,2)`, default: 0): IVA débito fiscal propio de TapTrade SpA para declaración en Formulario F29 (Código 538).
+* `serviceFeeGross` (`Decimal(10,2)`, default: 0): Comisión bruta de servicio cobrada al comprador por TapTrade (3% neto + IVA 19% propio).
+* `serviceFeeNet` (`Decimal(10,2)`, default: 0): Comisión neta de servicio al comprador (ingreso propio de TapTrade SpA).
+* `serviceFeeVat` (`Decimal(10,2)`, default: 0): IVA débito fiscal propio de TapTrade SpA sobre el cargo al comprador.
+* `sellerCommissionNet` (`Decimal(10,2)`, default: 0): Suma consolidada de comisiones netas descontadas a los vendedores en la orden.
+* `sellerCommissionVat` (`Decimal(10,2)`, default: 0): Suma consolidada de IVA débito propio de TapTrade sobre las comisiones descontadas a los vendedores.
+* `sellerCommissionGross` (`Decimal(10,2)`, default: 0): Suma consolidada bruta de comisiones descontadas a los vendedores.
 * `transbankFeeEstimate` (`Decimal(10,2)`, default: 0): Costo de procesamiento financiero cobrado de manera transparente al comprador (Webpay Plus o Mercado Pago).
 * `vatRateSnapshot` (`Decimal(5,4)`, default: 0.19): Tasa de IVA vigente al momento de la transacción.
 * `currencyCode` (`String?`, default: "CLP").
@@ -401,6 +424,16 @@ Lista de deseos de cartas de los compradores.
 * `taxableNet` (`Decimal(10,2)`, default: 0): Base neta imponible de la tienda para su propia boleta/factura electrónica ante el SII.
 * `vatAmount` (`Decimal(10,2)`, default: 0): Monto del débito fiscal IVA (19%) correspondiente a la tienda.
 * `vatRate` (`Decimal(5,4)`, default: 0.19): Tasa de IVA aplicada por la tienda.
+* `commissionRateApplied` (`Decimal(5,4)`, default: 0): Tasa de comisión al vendedor aplicada a esta sub-orden según jerarquía comercial.
+* `commissionCalcBase` (`String`, default: `"NET"`): Base de cálculo utilizada (`"NET"` | `"GROSS"`).
+* `sellerCommissionNet` (`Decimal(10,2)`, default: 0): Comisión neta descontada al vendedor (ingreso propio de TapTrade).
+* `sellerCommissionVat` (`Decimal(10,2)`, default: 0): IVA débito sobre la comisión al vendedor.
+* `sellerCommissionGross` (`Decimal(10,2)`, default: 0): Comisión total con IVA retenida al vendedor.
+* `sellerNetPayout` (`Decimal(10,2)`, default: 0): Saldo líquido exacto a transferir a la tienda por esta sub-orden (`subtotal + shippingCost - sellerCommissionGross`).
+* `settlementStatus` (`String`, default: `"HELD_ESCROW"`): Estado financiero de liquidación de la sub-orden (`"HELD_ESCROW"` | `"AVAILABLE"` | `"LOCKED_IN_SETTLEMENT"` | `"SETTLED"` | `"REFUNDED"` | `"DISPUTED"`).
+* `buyerDteType` (`Int?`): Código SII del DTE emitido por la tienda al comprador final (`39` Boleta Afecta, `41` Boleta Exenta, `33` Factura Electrónica).
+* `buyerDteFolio` (`String?`) / `buyerDteUrl` (`String?`): Folio y enlace al DTE emitido por la tienda al comprador.
+* `withdrawalRequestId` (`String?`, FK -> `WithdrawalRequest`): Lote de liquidación formal en el que fue incluida esta sub-orden.
 * `sellerRut` (`String?`): RUT del comercio emisor del DTE.
 * `sellerLegalName` (`String?`): Razón social del comercio emisor.
 * `status` (`OrderStatus`, default: `PENDING`): Estado de pago.
@@ -488,28 +521,55 @@ Métricas de reputación y riesgo automatizadas para compradores y tiendas.
 ## 8. Billetera y Finanzas de Tiendas
 
 ### `WalletTransaction`
-Libro mayor contable (Ledger) de las tiendas para registrar créditos y débitos en su saldo.
+Libro mayor contable inmutable (*Append-Only Financial Ledger*) de las tiendas y de la plataforma para registrar créditos, débitos, custodia, liberaciones, comisiones, liquidaciones, reembolsos y ajustes sin sobrescribir movimientos históricos.
 * `id` (`String`, UUID, PK)
 * `storeId` (`String`, FK -> `Store`)
-* `amount` (`Decimal(10,2)`): Monto (+ positivo para abonos de ventas, - negativo para retiros).
-* `netAmount` (`Decimal(10,2)?`): Monto neto de la transacción (específico para comisiones COMMISSION).
-* `vatAmount` (`Decimal(10,2)?`): IVA asociado a la transacción (específico para comisiones COMMISSION).
-* `type` (`TransactionType`, enum: `SALE`, `COMMISSION`, `WITHDRAWAL`, `REFUND`).
-* `paymentMethod` (`String`, default: "WEBPAY").
+* `orderId` (`String?`, FK -> `Order`): Orden maestra relacionada.
+* `vendorOrderId` (`String?`, FK -> `VendorOrder`): Sub-orden específica relacionada.
+* `withdrawalRequestId` (`String?`, FK -> `WithdrawalRequest`): Liquidación relacionada.
+* `parentTransactionId` (`String?`): Referencia al asiento original cuando se trata de una liberación de custodia, reversa o reembolso.
+* `amount` (`Decimal(10,2)`): Importe del movimiento (+ positivo para abonos, - negativo para cargos/salidas).
+* `netAmount` (`Decimal(10,2)?`): Monto neto tributario asociado al movimiento.
+* `vatAmount` (`Decimal(10,2)?`): IVA asociado al movimiento.
+* `type` (`TransactionType`, enum: `SALE`, `ESCROW_RELEASE`, `COMMISSION`, `WITHDRAWAL`, `WITHDRAWAL_REVERSAL`, `REFUND`, `CHARGEBACK`, `ADJUSTMENT`).
+* `direction` (`String`, default: `"CREDIT"`): Dirección contable (`"CREDIT"` | `"DEBIT"`).
+* `bucket` (`String`, default: `"ESCROW"`): Cuenta/bolsillo afectado (`"ESCROW"` | `"AVAILABLE"` | `"SETTLED"` | `"PLATFORM_REVENUE"` | `"GATEWAY_COST"`).
+* `status` (`String`, default: `"POSTED"`): Estado del asiento (`"POSTED"` | `"REVERSED"`).
+* `balanceAfterEscrow` (`Decimal(10,2)`, default: 0): Saldo en custodia de la tienda inmediatamente después del asiento.
+* `balanceAfterAvailable` (`Decimal(10,2)`, default: 0): Saldo disponible para liquidar de la tienda inmediatamente después del asiento.
+* `paymentMethod` (`String`, default: `"WEBPAY"`).
 * `isWithdrawable` (`Boolean`, default: `true`).
-* `reference` (`String?`): ID de la orden o referencia contable.
+* `reference` (`String?`): Glosa o descripción contable legible.
+* `idempotencyKey` (`String?`, Unique): Clave única de idempotencia para impedir asientos duplicados.
+* `createdByUserId` (`String?`): Usuario o proceso que originó el movimiento.
+* `metadata` (`Json?`): Metadatos estructurados de auditoría.
+* `effectiveAt` (`DateTime`, default: `now()`): Fecha efectiva contable.
 * `createdAt` (`DateTime`, default: `now()`).
-* **Relaciones:** `store`.
+* **Relaciones:** `store`, `order`, `vendorOrder`, `withdrawalRequest`.
 
 ### `WithdrawalRequest`
-Solicitudes de liquidación de saldo de las tiendas hacia sus cuentas bancarias comerciales.
+Liquidaciones formales por lote de sub-órdenes (`Settlements`) hacia las cuentas bancarias verificadas de las tiendas, incluyendo respaldo de Documentos Tributarios Electrónicos (DTE) y comprobantes bancarios.
 * `id` (`String`, UUID, PK)
+* `settlementCode` (`String?`, Unique): Código correlativo legible de la liquidación (ej: `LIQ-202611-0001`).
 * `storeId` (`String`, FK -> `Store`)
-* `amount` (`Decimal(10,2)`): Monto solicitado para transferencia.
-* `status` (`WithdrawalStatus`, enum: `PENDING`, `APPROVED`, `REJECTED`, `COMPLETED`).
-* `bankDetails` (`String?`): Datos bancarios del vendedor (Banco, Tipo de Cuenta, Número, RUT).
+* `grossSalesAmount` (`Decimal(10,2)`, default: 0): Suma bruta de ventas + envíos de las sub-órdenes (`VendorOrder`) incluidas en la liquidación.
+* `sellerCommissionNet` (`Decimal(10,2)`, default: 0): Comisión neta retenida por TapTrade al vendedor en esta liquidación.
+* `sellerCommissionVat` (`Decimal(10,2)`, default: 0): IVA débito sobre la comisión al vendedor.
+* `sellerCommissionGross` (`Decimal(10,2)`, default: 0): Comisión total bruta descontada en la liquidación.
+* `adjustmentsAmount` (`Decimal(10,2)`, default: 0): Ajustes manuales autorizados o descuentos adicionales aplicados.
+* `amount` (`Decimal(10,2)`): **Monto líquido final a transferir** a la cuenta bancaria de la tienda (`grossSalesAmount - sellerCommissionGross + adjustmentsAmount`).
+* `status` (`WithdrawalStatus`, enum: `PENDING`, `APPROVED`, `REJECTED`, `COMPLETED`, `FAILED`).
+* `bankDetails` (`String?`): Resumen textual de la cuenta bancaria de destino.
+* `bankSnapshot` (`Json?`): Snapshot inmutable de los datos bancarios estructurados al momento de solicitar la liquidación.
+* `platformDteType` (`Int?`) / `platformDteFolio` (`String?`) / `platformDteUrl` (`String?`): Tipo DTE (ej: `33` Factura Electrónica), folio y PDF emitido por TapTrade por su comisión.
+* `storeDteType` (`Int?`) / `storeDteFolio` (`String?`) / `storeDteUrl` (`String?`): Tipo DTE o Acta de Rendición de Mandato, folio y archivo PDF de respaldo subido por la tienda.
+* `transferReference` (`String?`): Código o número de operación de la transferencia bancaria ejecutada.
+* `transferReceiptUrl` (`String?`): Comprobante de transferencia bancaria adjuntado por Superadmin.
+* `processedByUserId` (`String?`): ID del Superadministrador que procesó la liquidación.
+* `processedAt` (`DateTime?`): Fecha y hora de ejecución bancaria o cierre.
+* `rejectionReason` (`String?`) / `notes` (`String?`): Observaciones o motivo de rechazo/fallo.
 * `createdAt` / `updatedAt` (`DateTime`).
-* **Relaciones:** `store`.
+* **Relaciones:** `store`, `vendorOrders`, `transactions`.
 
 ---
 

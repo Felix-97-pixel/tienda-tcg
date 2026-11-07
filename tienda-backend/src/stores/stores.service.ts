@@ -120,12 +120,8 @@ export class StoresService {
       where: whereCondition,
       include: {
         company: {
-          select: {
-            id: true,
-            name: true,
-            rut: true,
-            legalName: true,
-            taxActivity: true,
+          include: {
+            plan: true,
           },
         },
         settings: true,
@@ -179,12 +175,8 @@ export class StoresService {
       where: { id },
       include: {
         company: {
-          select: {
-            id: true,
-            name: true,
-            rut: true,
-            legalName: true,
-            taxActivity: true,
+          include: {
+            plan: true,
           },
         },
         settings: true,
@@ -1297,5 +1289,157 @@ export class StoresService {
       message: 'Credenciales actualizadas exitosamente',
       user: updatedUser,
     };
+  }
+
+  /**
+   * Actualiza los antecedentes tributarios SII y la cuenta bancaria corporativa de la empresa
+   * por parte del dueño o administrador del holding (con trazabilidad de cambios bancarios).
+   */
+  async updateCompanyTaxAndBankByOwner(
+    userId: string,
+    data: {
+      rut?: string;
+      legalName?: string;
+      fantasyName?: string;
+      taxActivity?: string;
+      taxAddress?: string;
+      taxCommune?: string;
+      taxRegion?: string;
+      dteEmail?: string;
+      bankName?: string;
+      bankAccountType?: string;
+      bankAccountNumber?: string;
+      bankHolderRut?: string;
+      bankHolderName?: string;
+      bankEmail?: string;
+      acceptMandate?: boolean;
+      mandateContractUrl?: string;
+    },
+  ) {
+    const company = await this.getCompanyByOwner(userId);
+
+    const bankFieldsChanged =
+      data.bankName !== undefined ||
+      data.bankAccountType !== undefined ||
+      data.bankAccountNumber !== undefined ||
+      data.bankHolderRut !== undefined ||
+      data.bankHolderName !== undefined ||
+      data.bankEmail !== undefined;
+
+    const updated = await this.prisma.company.update({
+      where: { id: company.id },
+      data: {
+        ...(data.rut !== undefined ? { rut: data.rut.trim() || null } : {}),
+        ...(data.legalName !== undefined ? { legalName: data.legalName.trim() || null } : {}),
+        ...(data.fantasyName !== undefined ? { fantasyName: data.fantasyName.trim() || null } : {}),
+        ...(data.taxActivity !== undefined ? { taxActivity: data.taxActivity.trim() || null } : {}),
+        ...(data.taxAddress !== undefined ? { taxAddress: data.taxAddress.trim() || null } : {}),
+        ...(data.taxCommune !== undefined ? { taxCommune: data.taxCommune.trim() || null } : {}),
+        ...(data.taxRegion !== undefined ? { taxRegion: data.taxRegion.trim() || null } : {}),
+        ...(data.dteEmail !== undefined ? { dteEmail: data.dteEmail.trim() || null } : {}),
+        ...(data.bankName !== undefined ? { bankName: data.bankName.trim() || null } : {}),
+        ...(data.bankAccountType !== undefined ? { bankAccountType: data.bankAccountType.trim() || null } : {}),
+        ...(data.bankAccountNumber !== undefined ? { bankAccountNumber: data.bankAccountNumber.trim() || null } : {}),
+        ...(data.bankHolderRut !== undefined ? { bankHolderRut: data.bankHolderRut.trim() || null } : {}),
+        ...(data.bankHolderName !== undefined ? { bankHolderName: data.bankHolderName.trim() || null } : {}),
+        ...(data.bankEmail !== undefined ? { bankEmail: data.bankEmail.trim() || null } : {}),
+        ...(bankFieldsChanged ? { bankUpdatedAt: new Date() } : {}),
+        ...(data.acceptMandate ? { mandateAcceptedAt: new Date() } : {}),
+        ...(data.mandateContractUrl !== undefined ? { mandateContractUrl: data.mandateContractUrl || null } : {}),
+      },
+      include: {
+        plan: true,
+        stores: true,
+      },
+    });
+
+    return updated;
+  }
+
+  /**
+   * Actualiza la verificación tributaria SII, estado operativo, cuenta bancaria y comisión
+   * personalizada de una Empresa por parte del Superadministrador.
+   */
+  async updateCompanyComplianceBySuperAdmin(
+    companyId: string,
+    adminUserId: string,
+    data: {
+      rut?: string;
+      legalName?: string;
+      fantasyName?: string;
+      taxActivity?: string;
+      taxAddress?: string;
+      taxCommune?: string;
+      taxRegion?: string;
+      dteEmail?: string;
+      taxClassification?: 'PRIMERA_CATEGORIA_AFECTO' | 'PRIMERA_CATEGORIA_EXENTO';
+      siiActivityStarted?: boolean;
+      verificationStatus?: 'PENDING_VERIFICATION' | 'PENDING_DOCS' | 'ENABLED' | 'SUSPENDED' | 'BLOCKED';
+      customCommissionRate?: number | null;
+      commissionCalcBase?: 'NET' | 'GROSS';
+      bankName?: string;
+      bankAccountType?: string;
+      bankAccountNumber?: string;
+      bankHolderRut?: string;
+      bankHolderName?: string;
+      bankEmail?: string;
+    },
+  ) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
+    if (!company) {
+      throw new NotFoundException('Empresa no encontrada');
+    }
+
+    const isEnabling =
+      data.verificationStatus === 'ENABLED' &&
+      company.verificationStatus !== 'ENABLED';
+
+    const bankFieldsChanged =
+      data.bankName !== undefined ||
+      data.bankAccountType !== undefined ||
+      data.bankAccountNumber !== undefined ||
+      data.bankHolderRut !== undefined ||
+      data.bankHolderName !== undefined;
+
+    return this.prisma.company.update({
+      where: { id: companyId },
+      data: {
+        ...(data.rut !== undefined ? { rut: data.rut.trim() || null } : {}),
+        ...(data.legalName !== undefined ? { legalName: data.legalName.trim() || null } : {}),
+        ...(data.fantasyName !== undefined ? { fantasyName: data.fantasyName.trim() || null } : {}),
+        ...(data.taxActivity !== undefined ? { taxActivity: data.taxActivity.trim() || null } : {}),
+        ...(data.taxAddress !== undefined ? { taxAddress: data.taxAddress.trim() || null } : {}),
+        ...(data.taxCommune !== undefined ? { taxCommune: data.taxCommune.trim() || null } : {}),
+        ...(data.taxRegion !== undefined ? { taxRegion: data.taxRegion.trim() || null } : {}),
+        ...(data.dteEmail !== undefined ? { dteEmail: data.dteEmail.trim() || null } : {}),
+        ...(data.taxClassification !== undefined ? { taxClassification: data.taxClassification } : {}),
+        ...(data.siiActivityStarted !== undefined ? { siiActivityStarted: Boolean(data.siiActivityStarted) } : {}),
+        ...(data.verificationStatus !== undefined ? { verificationStatus: data.verificationStatus } : {}),
+        ...(isEnabling ? { verifiedAt: new Date(), verifiedByUserId: adminUserId } : {}),
+        ...(data.customCommissionRate !== undefined
+          ? {
+              customCommissionRate:
+                data.customCommissionRate === null || data.customCommissionRate === ('' as any)
+                  ? null
+                  : Number(data.customCommissionRate),
+            }
+          : {}),
+        ...(data.commissionCalcBase !== undefined ? { commissionCalcBase: data.commissionCalcBase } : {}),
+        ...(data.bankName !== undefined ? { bankName: data.bankName.trim() || null } : {}),
+        ...(data.bankAccountType !== undefined ? { bankAccountType: data.bankAccountType.trim() || null } : {}),
+        ...(data.bankAccountNumber !== undefined ? { bankAccountNumber: data.bankAccountNumber.trim() || null } : {}),
+        ...(data.bankHolderRut !== undefined ? { bankHolderRut: data.bankHolderRut.trim() || null } : {}),
+        ...(data.bankHolderName !== undefined ? { bankHolderName: data.bankHolderName.trim() || null } : {}),
+        ...(data.bankEmail !== undefined ? { bankEmail: data.bankEmail.trim() || null } : {}),
+        ...(bankFieldsChanged ? { bankUpdatedAt: new Date() } : {}),
+      },
+      include: {
+        owner: { select: { id: true, name: true, email: true } },
+        plan: true,
+        stores: true,
+      },
+    });
   }
 }

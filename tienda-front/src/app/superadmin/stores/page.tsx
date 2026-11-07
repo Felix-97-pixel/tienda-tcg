@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/Button";
 import { useSuperAdminStores } from "@/app/superadmin/_components/Stores/hooks/useSuperAdminStores";
 import StoreTable from "@/app/superadmin/_components/Stores/StoreTable";
@@ -9,6 +10,11 @@ import CompanyUsersModal from "@/app/superadmin/_components/Stores/CompanyUsersM
 import StoreUsersModal from "@/app/superadmin/_components/Stores/StoreUsersModal";
 import EditUserCredentialsModal from "@/app/superadmin/_components/Stores/EditUserCredentialsModal";
 import { useTranslations } from "next-intl";
+
+const CompanyComplianceModal = dynamic(
+  () => import("@/app/superadmin/_components/Stores/CompanyComplianceModal"),
+  { ssr: false }
+);
 
 export default function StoresPage() {
   const t = useTranslations("stores_page");
@@ -48,6 +54,11 @@ export default function StoresPage() {
     targetUserForCredentials,
     openEditCredentialsModal,
     closeEditCredentialsModal,
+    // Cumplimiento Tributario SII & Comisiones
+    isComplianceModalOpen,
+    selectedCompanyForCompliance,
+    openComplianceModal,
+    closeComplianceModal,
   } = useSuperAdminStores();
 
   return (
@@ -82,6 +93,7 @@ export default function StoresPage() {
           onManageCompanyUsers={openCompanyUsersModal}
           onManageStoreUsers={openStoreUsersModal}
           onEditCredentials={openEditCredentialsModal}
+          onManageCompliance={openComplianceModal}
         />
 
         {/* Modal de Creación de Empresa (Holding + Primera Tienda) */}
@@ -127,6 +139,14 @@ export default function StoresPage() {
           isOpen={isEditCredentialsModalOpen}
           onClose={closeEditCredentialsModal}
           targetUser={targetUserForCredentials}
+          onSuccess={refreshCompanies}
+        />
+
+        {/* Modal de Cumplimiento Tributario SII, Comisiones y Banco */}
+        <CompanyComplianceModal
+          isOpen={isComplianceModalOpen}
+          onClose={closeComplianceModal}
+          company={selectedCompanyForCompliance}
           onSuccess={refreshCompanies}
         />
       </div>

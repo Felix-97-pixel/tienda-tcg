@@ -5,6 +5,7 @@ import { MercadoPagoProvider } from '../../providers/mercadopago.provider';
 import { ShippingService } from '../../../shipping/shipping.service';
 import { PricingService } from '../../../tax/pricing.service';
 import { CheckoutPricingService } from '../../../tax/checkout-pricing.service';
+import { FinancialLedgerService } from '../../../tax/financial-ledger.service';
 import { ProcessPaymentCommand } from '../impl/process-payment.command';
 
 @CommandHandler(ProcessPaymentCommand)
@@ -17,6 +18,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     private readonly shippingService: ShippingService,
     private readonly pricingService: PricingService,
     private readonly checkoutPricing: CheckoutPricingService,
+    private readonly financialLedger: FinancialLedgerService,
   ) {}
 
   async execute(command: ProcessPaymentCommand) {
@@ -273,6 +275,9 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         serviceFeeGross: quote.serviceFee.gross,
         serviceFeeNet: quote.serviceFee.net,
         serviceFeeVat: quote.serviceFee.vat,
+        sellerCommissionNet: quote.sellerCommissionTotal.net,
+        sellerCommissionVat: quote.sellerCommissionTotal.vat,
+        sellerCommissionGross: quote.sellerCommissionTotal.gross,
         transbankFeeEstimate: quote.transbankFeeEstimate,
         vatRateSnapshot: quote.vatRate,
         currencyCode,
@@ -281,6 +286,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         vendorOrders: {
           create: vendorOrdersData.map((v) => {
             const vQuote = quote.vendors.find((vq) => vq.storeId === v.storeId);
+            const fallbackGross = Number(v.subtotal || 0) + Number(v.shippingCost || 0);
             return {
               ...v,
               status: statusDb,
@@ -288,6 +294,13 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
               vatRate: quote.vatRate,
               taxableNet: vQuote?.tax.net ?? 0,
               vatAmount: vQuote?.tax.vat ?? 0,
+              commissionRateApplied: vQuote?.commissionRateApplied ?? 0,
+              commissionCalcBase: vQuote?.commissionCalcBase ?? 'NET',
+              sellerCommissionNet: vQuote?.sellerCommission.net ?? 0,
+              sellerCommissionVat: vQuote?.sellerCommission.vat ?? 0,
+              sellerCommissionGross: vQuote?.sellerCommission.gross ?? 0,
+              sellerNetPayout: vQuote?.sellerNetPayout ?? fallbackGross,
+              settlementStatus: 'HELD_ESCROW',
               sellerRut: vQuote?.sellerRut ?? null,
               sellerLegalName: vQuote?.sellerLegalName ?? null,
             };
@@ -308,7 +321,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       },
     });
 
-    // 6. Si fue aprobado, procesar inventario y balances
+    // 6. Si fue aprobado, procesar inventario y registrar en el Libro Mayor Inmutable (Ledger)
     if (isApproved) {
       await this.prisma.$transaction(async (tx) => {
         for (const vendorOrder of order.vendorOrders) {
@@ -328,19 +341,32 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
             }
           }
 
-          // SaaS Model: Registrar en la Billetera con 0% de comisión (tienda recibe el 100% de productos + despacho)
-          const totalAbono = Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
+          const grossSale = Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
+          const sellerCommNet = Number((vendorOrder as any).sellerCommissionNet || 0);
+          const sellerCommVat = Number((vendorOrder as any).sellerCommissionVat || 0);
+          const sellerCommGross = Number((vendorOrder as any).sellerCommissionGross || 0);
+          const sellerNetPayout =
+            Number((vendorOrder as any).sellerNetPayout) > 0
+              ? Number((vendorOrder as any).sellerNetPayout)
+              : Math.max(0, grossSale - sellerCommGross);
 
-          await tx.walletTransaction.create({
-            data: {
+          await this.financialLedger.recordVendorSaleInEscrow(
+            {
               storeId: vendorOrder.storeId,
-              amount: totalAbono,
-              type: 'SALE',
+              orderId: order.id,
+              vendorOrderId: vendorOrder.id,
+              grossSaleAmount: grossSale,
+              taxableNet: Number(vendorOrder.taxableNet || 0),
+              vatAmount: Number(vendorOrder.vatAmount || 0),
+              sellerCommissionNet: sellerCommNet,
+              sellerCommissionVat: sellerCommVat,
+              sellerCommissionGross: sellerCommGross,
+              sellerNetPayout,
               paymentMethod: 'MERCADOPAGO',
-              isWithdrawable: false,
-              reference: `Order: ${vendorOrder.id} (Custodia - Pendiente de Despacho)`,
+              createdByUserId: userId || 'MERCADOPAGO_API',
             },
-          });
+            tx,
+          );
         }
       });
     }

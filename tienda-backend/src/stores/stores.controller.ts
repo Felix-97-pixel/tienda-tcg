@@ -41,6 +41,13 @@ export class StoresController {
     return this.storesService.getCompanyByOwner(req.user.userId);
   }
 
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.WALLET_WITHDRAW)
+  @Patch('me/company-profile')
+  async updateCompanyTaxAndBank(@Request() req: any, @Body() body: any) {
+    return this.storesService.updateCompanyTaxAndBankByOwner(req.user.userId, body);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me/branches')
   async getBranches(@Request() req: any) {
@@ -111,11 +118,26 @@ export class StoresController {
     return this.storesService.findAllCompanies();
   }
 
-    @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Patch('companies/:id/plan')
   updateCompanyPlan(@Param('id') id: string, @Body() data: { planId: string | null }) {
     return this.storesService.updateCompanyPlan(id, data.planId);
+  }
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.ACCOUNTING_READ)
+  @Patch('companies/:id/compliance')
+  updateCompanyCompliance(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    return this.storesService.updateCompanyComplianceBySuperAdmin(
+      id,
+      req.user.userId,
+      data,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

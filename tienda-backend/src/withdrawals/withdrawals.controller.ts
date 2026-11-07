@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Get,
   Body,
   Param,
@@ -11,29 +12,68 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { WithdrawalsService } from './withdrawals.service';
+import {
+  WithdrawalsService,
+  RequestSettlementPayload,
+} from './withdrawals.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { Permission } from '../auth/constants/permissions.enum';
 
 @Controller('withdrawals')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class WithdrawalsController {
   constructor(private readonly withdrawalsService: WithdrawalsService) {}
 
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(Permission.WALLET_WITHDRAW)
   @Post('request')
   async requestWithdrawal(
     @Req() req: any,
-    @Body() body: { amount: number; bankDetails: string },
+    @Body() body: RequestSettlementPayload,
   ) {
-    return this.withdrawalsService.requestWithdrawal(req.user.userId, body.amount, body.bankDetails);
+    return this.withdrawalsService.requestWithdrawal(req.user.userId, body);
   }
 
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.WALLET_WITHDRAW)
+  @Patch(':id/store-dte')
+  async attachStoreSettlementDte(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      storeDteType?: number;
+      storeDteFolio?: string;
+      storeDteUrl?: string;
+      notes?: string;
+    },
+  ) {
+    return this.withdrawalsService.attachStoreSettlementDte(
+      req.user.userId,
+      id,
+      body,
+    );
+  }
+
+  @RequirePermissions(Permission.ORDERS_DISPATCH)
+  @Patch('vendor-orders/:vendorOrderId/buyer-dte')
+  async updateVendorOrderBuyerDte(
+    @Req() req: any,
+    @Param('vendorOrderId') vendorOrderId: string,
+    @Body()
+    body: {
+      buyerDteType: number;
+      buyerDteFolio: string;
+      buyerDteUrl?: string;
+    },
+  ) {
+    return this.withdrawalsService.updateVendorOrderBuyerDte(
+      req.user.userId,
+      vendorOrderId,
+      body,
+    );
+  }
+
   @RequirePermissions(Permission.WALLET_READ)
   @Get('history')
   async getHistory(@Req() req: any) {
@@ -41,9 +81,8 @@ export class WithdrawalsController {
   }
 
   /**
-   * Resumen tributario macro del mes para la Tienda / Formulario 29 SII (Opción A).
+   * Resumen tributario macro del mes para la Tienda / Formulario 29 SII.
    */
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(Permission.WALLET_READ)
   @Get('tax-summary')
   async getTaxSummary(
@@ -64,7 +103,6 @@ export class WithdrawalsController {
   /**
    * Descarga del Libro de Ventas en formato CSV (BOM UTF-8) para el contador de la tienda.
    */
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions(Permission.WALLET_READ)
   @Get('tax-sales-csv')
   async exportTaxSalesCsv(
@@ -75,34 +113,82 @@ export class WithdrawalsController {
     @Query('endDate') endDate?: string,
     @Query('storeId') storeId?: string,
   ) {
-    const { csvContent, filename } = await this.withdrawalsService.generateStoreTaxSalesCsv(
-      req.user.userId,
-      { period, startDate, endDate, storeId },
-    );
+    const { csvContent, filename } =
+      await this.withdrawalsService.generateStoreTaxSalesCsv(req.user.userId, {
+        period,
+        startDate,
+        endDate,
+        storeId,
+      });
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.status(HttpStatus.OK).send(csvContent);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @RequirePermissions(Permission.ACCOUNTING_READ)
   @Get('pending')
-  async getPending() {
-    return this.withdrawalsService.getPendingWithdrawals();
+  async getPending(@Query('status') status?: string) {
+    return this.withdrawalsService.getPendingWithdrawals(status);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @RequirePermissions(Permission.ACCOUNTING_READ)
+  @Post(':id/approve')
+  async approve(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body()
+    body?: {
+      platformDteType?: number;
+      platformDteFolio?: string;
+      platformDteUrl?: string;
+      notes?: string;
+    },
+  ) {
+    return this.withdrawalsService.approveWithdrawal(
+      id,
+      req.user?.userId,
+      body,
+    );
+  }
+
+  @RequirePermissions(Permission.ACCOUNTING_READ)
   @Post(':id/complete')
-  async complete(@Param('id') id: string) {
-    return this.withdrawalsService.completeWithdrawal(id);
+  async complete(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body()
+    body?: {
+      transferReference?: string;
+      transferReceiptUrl?: string;
+      platformDteType?: number;
+      platformDteFolio?: string;
+      platformDteUrl?: string;
+      notes?: string;
+    },
+  ) {
+    return this.withdrawalsService.completeWithdrawal(
+      id,
+      req.user?.userId,
+      body,
+    );
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @RequirePermissions(Permission.ACCOUNTING_READ)
   @Post(':id/reject')
-  async reject(@Param('id') id: string) {
-    return this.withdrawalsService.rejectWithdrawal(id);
+  async reject(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body()
+    body?: {
+      reason?: string;
+      isFailedTransfer?: boolean;
+    },
+  ) {
+    return this.withdrawalsService.rejectWithdrawal(
+      id,
+      req.user?.userId,
+      body,
+    );
   }
 }

@@ -63,6 +63,9 @@ export class AccountingService {
         serviceFeeGross: true,
         serviceFeeNet: true,
         serviceFeeVat: true,
+        sellerCommissionNet: true,
+        sellerCommissionVat: true,
+        sellerCommissionGross: true,
         transbankFeeEstimate: true,
       },
     });
@@ -73,19 +76,34 @@ export class AccountingService {
     const totalCollected = allMatchingOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
     const totalProductsGross = allMatchingOrders.reduce((sum, o) => sum + Number(o.productsTotal || 0), 0);
     const totalShippingGross = allMatchingOrders.reduce((sum, o) => sum + Number(o.shippingTotal || 0), 0);
-    const thirdPartyFunds = totalProductsGross + totalShippingGross;
 
-    // Ingresos Propios TapTrade (Base F29)
-    const platformServiceFeeGross = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeGross || 0), 0);
-    const platformServiceFeeNet = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeNet || 0), 0);
-    const platformVatDebit = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeVat || 0), 0);
+    // Comisiones al Vendedor + Cargo por Servicio al Comprador = Ingresos Propios Marketplace de TapTrade (Base F29)
+    const buyerFeeGross = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeGross || 0), 0);
+    const buyerFeeNet = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeNet || 0), 0);
+    const buyerFeeVat = allMatchingOrders.reduce((sum, o) => sum + Number(o.serviceFeeVat || 0), 0);
+
+    const sellerCommGross = allMatchingOrders.reduce((sum, o) => sum + Number((o as any).sellerCommissionGross || 0), 0);
+    const sellerCommNet = allMatchingOrders.reduce((sum, o) => sum + Number((o as any).sellerCommissionNet || 0), 0);
+    const sellerCommVat = allMatchingOrders.reduce((sum, o) => sum + Number((o as any).sellerCommissionVat || 0), 0);
+
+    const thirdPartyFunds = Math.max(0, totalProductsGross + totalShippingGross - sellerCommGross);
+
+    const platformServiceFeeGross = buyerFeeGross + sellerCommGross;
+    const platformServiceFeeNet = buyerFeeNet + sellerCommNet;
+    const platformVatDebit = buyerFeeVat + sellerCommVat;
     const transbankFeeEstimate = allMatchingOrders.reduce((sum, o) => sum + Number(o.transbankFeeEstimate || 0), 0);
     const transbankVatCreditEstimate = Math.round((transbankFeeEstimate * 0.19) / 1.19);
     const netPlatformMargin = platformServiceFeeNet;
 
-    // 2. Fondos en Custodia de Tiendas (Ledger WalletTransaction)
-    // 2. Facturación SaaS de Suscripciones (Planes, Sucursales y Cajeros contratados por Empresas)
-    const [companiesWithPlan, ufSetting, heldInEscrowSum, availableSum, totalWithdrawnSum] = await Promise.all([
+    // 2. Fondos en Custodia de Tiendas (Ledger WalletTransaction) & Facturación SaaS
+    const [
+      companiesWithPlan,
+      ufSetting,
+      heldSalesSum,
+      releasedEscrowSum,
+      storeBalancesSum,
+      totalWithdrawnSum,
+    ] = await Promise.all([
       this.prisma.company.findMany({
         where: { planId: { not: null } },
         include: {
@@ -107,8 +125,11 @@ export class AccountingService {
         _sum: { amount: true },
       }),
       this.prisma.walletTransaction.aggregate({
-        where: { type: 'SALE', isWithdrawable: true },
+        where: { type: 'ESCROW_RELEASE' as any },
         _sum: { amount: true },
+      }),
+      this.prisma.store.aggregate({
+        _sum: { balance: true },
       }),
       this.prisma.withdrawalRequest.aggregate({
         where: { status: 'COMPLETED' },
@@ -158,8 +179,11 @@ export class AccountingService {
     const ppmAmount = Math.round(totalNetSales * ppmRate);
     const totalF29ToPay = netVatToPay + ppmAmount;
 
-    const escrowHeld = Number(heldInEscrowSum._sum.amount || 0);
-    const escrowAvailable = Number(availableSum._sum.amount || 0);
+    const escrowHeld = Math.max(
+      0,
+      Number(heldSalesSum._sum.amount || 0) - Number(releasedEscrowSum._sum.amount || 0),
+    );
+    const escrowAvailable = Number(storeBalancesSum._sum.balance || 0);
     const totalWithdrawn = Number(totalWithdrawnSum._sum.amount || 0);
 
     // 3. Obtener órdenes paginadas con detalle tributario completo
@@ -258,25 +282,48 @@ export class AccountingService {
           sellerLegalName,
           productsGross: Number(o.productsTotal || 0),
           shippingGross: Number(o.shippingTotal || 0),
-          vendorPayout: Number(o.productsTotal || 0) + Number(o.shippingTotal || 0),
-          serviceFeeNet: Number(o.serviceFeeNet || 0),
-          serviceFeeVat: Number(o.serviceFeeVat || 0),
-          serviceFeeGross: Number(o.serviceFeeGross || 0),
+          vendorPayout: Math.max(
+            0,
+            Number(o.productsTotal || 0) +
+              Number(o.shippingTotal || 0) -
+              Number((o as any).sellerCommissionGross || 0),
+          ),
+          serviceFeeNet:
+            Number(o.serviceFeeNet || 0) + Number((o as any).sellerCommissionNet || 0),
+          serviceFeeVat:
+            Number(o.serviceFeeVat || 0) + Number((o as any).sellerCommissionVat || 0),
+          serviceFeeGross:
+            Number(o.serviceFeeGross || 0) + Number((o as any).sellerCommissionGross || 0),
+          buyerServiceFeeGross: Number(o.serviceFeeGross || 0),
+          sellerCommissionGross: Number((o as any).sellerCommissionGross || 0),
           transbankFeeEstimate: Number(o.transbankFeeEstimate || 0),
           totalAmount: Number(o.totalAmount || 0),
           vatRate: Number(o.vatRateSnapshot || 0.19),
-          vendors: o.vendorOrders.map((vo) => ({
-            storeId: vo.storeId,
-            storeName: vo.store.name,
-            subtotal: Number(vo.subtotal),
-            shippingCost: Number(vo.shippingCost),
-            totalPayout: Number(vo.subtotal) + Number(vo.shippingCost),
-            deliveryStatus: vo.deliveryStatus,
-            taxableNet: Number(vo.taxableNet || 0),
-            vatAmount: Number(vo.vatAmount || 0),
-            sellerRut: vo.sellerRut || vo.store.company?.rut || null,
-            sellerLegalName: vo.sellerLegalName || vo.store.company?.legalName || null,
-          })),
+          vendors: o.vendorOrders.map((vo) => {
+            const voGross = Number(vo.subtotal) + Number(vo.shippingCost);
+            const voCommGross = Number((vo as any).sellerCommissionGross || 0);
+            const voNetPayout =
+              Number((vo as any).sellerNetPayout) > 0
+                ? Number((vo as any).sellerNetPayout)
+                : Math.max(0, voGross - voCommGross);
+            return {
+              storeId: vo.storeId,
+              storeName: vo.store.name,
+              subtotal: Number(vo.subtotal),
+              shippingCost: Number(vo.shippingCost),
+              sellerCommissionNet: Number((vo as any).sellerCommissionNet || 0),
+              sellerCommissionVat: Number((vo as any).sellerCommissionVat || 0),
+              sellerCommissionGross: voCommGross,
+              totalPayout: voNetPayout,
+              deliveryStatus: vo.deliveryStatus,
+              settlementStatus: (vo as any).settlementStatus || 'HELD_ESCROW',
+              buyerDteFolio: (vo as any).buyerDteFolio || null,
+              taxableNet: Number(vo.taxableNet || 0),
+              vatAmount: Number(vo.vatAmount || 0),
+              sellerRut: vo.sellerRut || vo.store.company?.rut || null,
+              sellerLegalName: vo.sellerLegalName || vo.store.company?.legalName || null,
+            };
+          }),
         };
       }),
     };

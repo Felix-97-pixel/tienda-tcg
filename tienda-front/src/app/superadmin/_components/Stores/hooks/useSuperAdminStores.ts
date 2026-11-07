@@ -38,7 +38,24 @@ export interface SubscriptionPlan {
 export interface Company {
   id: string;
   name: string;
+  legalName?: string | null;
+  fantasyName?: string | null;
   rut?: string | null;
+  taxActivity?: string | null;
+  taxAddress?: string | null;
+  taxEmail?: string | null;
+  taxClassification?: string | null;
+  siiActivityStarted?: boolean;
+  verificationStatus?: string;
+  verificationNotes?: string | null;
+  customCommissionRate?: number | string | null;
+  commissionCalcBase?: string | null;
+  bankName?: string | null;
+  bankAccountType?: string | null;
+  bankAccountNumber?: string | null;
+  bankHolderRut?: string | null;
+  bankHolderName?: string | null;
+  bankEmail?: string | null;
   logoUrl?: string | null;
   planId?: string | null;
   plan?: SubscriptionPlan | null;
@@ -93,6 +110,10 @@ export function useSuperAdminStores() {
   // Modal para gestionar personal de Sucursal
   const [isStoreUsersModalOpen, setIsStoreUsersModalOpen] = useState(false);
   const [selectedBranchForUsers, setSelectedBranchForUsers] = useState<Branch | null>(null);
+
+  // Modal para gestionar Cumplimiento Tributario SII, Comisiones y Banco de Empresa
+  const [isComplianceModalOpen, setIsComplianceModalOpen] = useState(false);
+  const [selectedCompanyForCompliance, setSelectedCompanyForCompliance] = useState<Company | null>(null);
 
   const getAuthHeaders = (extraHeaders?: Record<string, string>): Record<string, string> => {
     const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
@@ -350,6 +371,16 @@ export function useSuperAdminStores() {
     setIsStoreUsersModalOpen(false);
   };
 
+  const openComplianceModal = (company: Company) => {
+    setSelectedCompanyForCompliance(company);
+    setIsComplianceModalOpen(true);
+  };
+
+  const closeComplianceModal = () => {
+    setSelectedCompanyForCompliance(null);
+    setIsComplianceModalOpen(false);
+  };
+
   return {
     companies,
     availablePlans,
@@ -385,5 +416,10 @@ export function useSuperAdminStores() {
     targetUserForCredentials,
     openEditCredentialsModal,
     closeEditCredentialsModal,
+    // Cumplimiento Tributario SII & Comisiones
+    isComplianceModalOpen,
+    selectedCompanyForCompliance,
+    openComplianceModal,
+    closeComplianceModal,
   };
 }

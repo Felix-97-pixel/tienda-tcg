@@ -1,449 +1,1108 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TransactionType } from '@prisma/client';
+import { FinancialLedgerService } from '../tax/financial-ledger.service';
+import { validateChileanRut } from '../tax/seller-tax-profile.service';
 
-export interface StoreTaxSummaryFilter {
-  period?: string;
-  startDate?: string;
-  endDate?: string;
-  storeId?: string;
+export interface RequestSettlementPayload {
+  amount?: number;
+  bankDetails?: string;
+  vendorOrderIds?: string[];
+  storeDteType?: number;
+  storeDteFolio?: string;
+  storeDteUrl?: string;
+  notes?: string;
 }
 
 @Injectable()
 export class WithdrawalsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private financialLedger: FinancialLedgerService,
+  ) {}
 
-  async requestWithdrawal(userId: string, amount: number, bankDetails: string) {
-    if (!amount || amount <= 0) {
-      throw new BadRequestException('El monto a retirar debe ser mayor a cero.');
-    }
-
+  /**
+   * Resuelve la tienda principal o activa asociada al usuario autenticado (Dueño, Admin de Empresa o Miembro).
+   */
+  private async resolveUserStoreWithCompany(userId: string) {
     const store = await this.prisma.store.findFirst({
       where: {
         OR: [
           { ownerId: userId },
+          { members: { some: { userId } } },
           { company: { ownerId: userId } },
-          { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN', 'ACCOUNTANT'] } } } } },
+          { company: { members: { some: { userId } } } },
         ],
+      },
+      include: {
+        company: {
+          include: {
+            plan: true,
+          },
+        },
+        subscriptionPlans: true,
       },
       orderBy: { isMainBranch: 'desc' },
     });
-    if (!store) throw new NotFoundException('Store not found');
 
-    if (Number(store.balance) < amount) {
-      throw new BadRequestException('Saldo insuficiente para retirar');
+    if (!store) {
+      throw new NotFoundException('Tienda no encontrada para este usuario');
+    }
+    return store;
+  }
+
+  /**
+   * Genera una solicitud formal de Liquidación (Settlement) agrupando sub-órdenes disponibles
+   * (o monto disponible en caso de saldos legacy), validando requisitos B2B2C y registrando
+   * el asiento inmutable en el Ledger.
+   */
+  async requestWithdrawal(
+    userId: string,
+    amountOrPayload: number | RequestSettlementPayload,
+    legacyBankDetails?: string,
+  ) {
+    const payload: RequestSettlementPayload =
+      typeof amountOrPayload === 'number'
+        ? { amount: amountOrPayload, bankDetails: legacyBankDetails }
+        : amountOrPayload || {};
+
+    const store = await this.resolveUserStoreWithCompany(userId);
+    const company = store.company;
+
+    // 1. Validar estado de habilitación comercial y tributaria B2B2C
+    if (
+      company &&
+      (company.verificationStatus === 'SUSPENDED' ||
+        company.verificationStatus === 'BLOCKED' ||
+        company.verificationStatus === 'PENDING_VERIFICATION' ||
+        company.verificationStatus === 'PENDING_DOCS')
+    ) {
+      throw new BadRequestException(
+        `Tu empresa se encuentra en estado "${company.verificationStatus}". Debes completar la verificación tributaria y bancaria ante TapTrade antes de solicitar liquidaciones.`,
+      );
     }
 
-    // Descontar saldo de forma ATÓMICA y crear petición en PENDING
-    return await this.prisma.$transaction(async (tx) => {
-      // updateMany con condición balance: { gte: amount } previene condiciones de carrera y saldos negativos
-      const updated = await tx.store.updateMany({
-        where: { 
-          id: store.id,
-          balance: { gte: amount },
-        },
-        data: { balance: { decrement: amount } },
-      });
+    if (company && !company.siiActivityStarted) {
+      throw new BadRequestException(
+        'Tu empresa debe contar con Inicio de Actividades vigente en 1ª Categoría ante el SII para solicitar liquidaciones.',
+      );
+    }
 
-      if (updated.count === 0) {
-        throw new BadRequestException('Saldo insuficiente o conflicto por petición simultánea.');
+    // 2. Resolver datos bancarios estructurados (desde Company o desde el formulario)
+    const structuredBankSnapshot = company?.bankName && company?.bankAccountNumber
+      ? {
+          bankName: company.bankName,
+          bankAccountType: company.bankAccountType || 'CUENTA_CORRIENTE',
+          bankAccountNumber: company.bankAccountNumber,
+          bankHolderRut: company.bankHolderRut || company.rut || null,
+          bankHolderName: company.bankHolderName || company.legalName || company.name,
+          bankEmail: company.bankEmail || company.dteEmail || null,
+        }
+      : null;
+
+    const formattedBankDetails =
+      payload.bankDetails?.trim() ||
+      (structuredBankSnapshot
+        ? `${structuredBankSnapshot.bankName} - ${structuredBankSnapshot.bankAccountType} N° ${structuredBankSnapshot.bankAccountNumber} (RUT: ${structuredBankSnapshot.bankHolderRut || 'S/R'} - ${structuredBankSnapshot.bankHolderName})`
+        : '');
+
+    if (!formattedBankDetails) {
+      throw new BadRequestException(
+        'Debes configurar la cuenta bancaria corporativa de la tienda o indicar los datos bancarios para la transferencia.',
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // 3. Reconstruir saldo disponible real desde el Ledger inmutable
+      const balances = await this.financialLedger.reconstructStoreBalances(
+        store.id,
+        tx,
+      );
+
+      // 4. Buscar sub-órdenes disponibles para liquidar (en estado AVAILABLE o despachadas sin liquidación previa)
+      const candidateWhere: any = {
+        storeId: store.id,
+        status: 'PAID',
+        withdrawalRequestId: null,
+        OR: [
+          { settlementStatus: 'AVAILABLE' },
+          {
+            settlementStatus: 'HELD_ESCROW',
+            deliveryStatus: { in: ['DISPATCHED', 'DELIVERED'] },
+          },
+        ],
+      };
+
+      if (payload.vendorOrderIds && payload.vendorOrderIds.length > 0) {
+        candidateWhere.id = { in: payload.vendorOrderIds };
       }
 
-      return await tx.withdrawalRequest.create({
+      const eligibleOrders = await tx.vendorOrder.findMany({
+        where: candidateWhere,
+        orderBy: { createdAt: 'asc' },
+      });
+
+      let grossSalesAmount = 0;
+      let sellerCommissionNet = 0;
+      let sellerCommissionVat = 0;
+      let sellerCommissionGross = 0;
+      let finalNetPayout = 0;
+      const lockedOrderIds: string[] = [];
+
+      if (eligibleOrders.length > 0 && (payload.vendorOrderIds?.length || !payload.amount)) {
+        for (const vo of eligibleOrders) {
+          const orderGross = Number(vo.subtotal) + Number(vo.shippingCost);
+          const commNet = Number(vo.sellerCommissionNet || 0);
+          const commVat = Number(vo.sellerCommissionVat || 0);
+          const commGross = Number(vo.sellerCommissionGross || 0);
+          const netPayout =
+            Number(vo.sellerNetPayout) > 0
+              ? Number(vo.sellerNetPayout)
+              : Math.max(0, orderGross - commGross);
+
+          grossSalesAmount += orderGross;
+          sellerCommissionNet += commNet;
+          sellerCommissionVat += commVat;
+          sellerCommissionGross += commGross;
+          finalNetPayout += netPayout;
+          lockedOrderIds.push(vo.id);
+        }
+      } else {
+        // Modo compatible con retiro por monto (cuando hay saldo histórico o ajuste manual)
+        const requestedAmt = Math.round(Number(payload.amount || 0));
+        if (requestedAmt <= 0) {
+          throw new BadRequestException(
+            'No hay sub-órdenes despachadas disponibles para liquidar ni un monto válido seleccionado.',
+          );
+        }
+        grossSalesAmount = requestedAmt;
+        finalNetPayout = requestedAmt;
+      }
+
+      finalNetPayout = Math.round(finalNetPayout);
+
+      if (finalNetPayout <= 0) {
+        throw new BadRequestException('El monto líquido a liquidar debe ser mayor a $0 CLP.');
+      }
+
+      const effectiveAvailable = Math.max(
+        Number(store.balance || 0),
+        balances.availableBalance,
+      );
+
+      if (finalNetPayout > effectiveAvailable) {
+        throw new BadRequestException(
+          `Fondos disponibles insuficientes para esta liquidación (Disponible: $${effectiveAvailable.toLocaleString('es-CL')} CLP, Solicitado: $${finalNetPayout.toLocaleString('es-CL')} CLP).`,
+        );
+      }
+
+      // 5. Generar código correlativo único de liquidación (LIQ-YYYYMM-XXXX)
+      const now = new Date();
+      const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const countThisMonth = await tx.withdrawalRequest.count();
+      const settlementCode = `LIQ-${ym}-${String(countThisMonth + 1).padStart(4, '0')}`;
+
+      // 6. Crear el registro de Liquidación Formal (WithdrawalRequest)
+      const withdrawal = await tx.withdrawalRequest.create({
         data: {
+          settlementCode,
           storeId: store.id,
-          amount,
-          bankDetails,
+          grossSalesAmount: Math.round(grossSalesAmount),
+          sellerCommissionNet: Math.round(sellerCommissionNet),
+          sellerCommissionVat: Math.round(sellerCommissionVat),
+          sellerCommissionGross: Math.round(sellerCommissionGross),
+          adjustmentsAmount: 0,
+          amount: finalNetPayout,
+          bankDetails: formattedBankDetails,
+          bankSnapshot: structuredBankSnapshot ?? undefined,
+          storeDteType: payload.storeDteType ? Number(payload.storeDteType) : null,
+          storeDteFolio: payload.storeDteFolio?.trim() || null,
+          storeDteUrl: payload.storeDteUrl?.trim() || null,
+          notes: payload.notes?.trim() || null,
           status: 'PENDING',
         },
       });
+
+      // 7. Bloquear las sub-órdenes incluidas para impedir doble liquidación
+      if (lockedOrderIds.length > 0) {
+        await tx.vendorOrder.updateMany({
+          where: { id: { in: lockedOrderIds } },
+          data: {
+            settlementStatus: 'LOCKED_IN_SETTLEMENT',
+            withdrawalRequestId: withdrawal.id,
+          },
+        });
+      }
+
+      const newAvailableBalance = Math.max(0, effectiveAvailable - finalNetPayout);
+
+      // 8. Registrar asiento inmutable en el Ledger (DEBIT en AVAILABLE)
+      await tx.walletTransaction.create({
+        data: {
+          storeId: store.id,
+          withdrawalRequestId: withdrawal.id,
+          amount: -finalNetPayout,
+          netAmount: Math.round(grossSalesAmount - sellerCommissionNet),
+          vatAmount: Math.round(sellerCommissionVat),
+          type: TransactionType.WITHDRAWAL,
+          direction: 'DEBIT',
+          bucket: 'AVAILABLE',
+          status: 'POSTED',
+          balanceAfterEscrow: balances.escrowBalance,
+          balanceAfterAvailable: newAvailableBalance,
+          paymentMethod: 'BANK_TRANSFER',
+          isWithdrawable: true,
+          reference: `Liquidación ${settlementCode} (${lockedOrderIds.length > 0 ? `${lockedOrderIds.length} órdenes` : 'Retiro de fondos'})`,
+          idempotencyKey: `SETTLEMENT_LOCK:${withdrawal.id}`,
+          createdByUserId: userId,
+          metadata: {
+            ledgerVersion: 2,
+            settlementCode,
+            lockedOrderIds,
+            grossSalesAmount: Math.round(grossSalesAmount),
+            sellerCommissionGross: Math.round(sellerCommissionGross),
+            netPayout: finalNetPayout,
+          },
+        },
+      });
+
+      // 9. Sincronizar caché de balance en Store y Company
+      await this.financialLedger.syncStoreBalanceCache(
+        store.id,
+        newAvailableBalance,
+        tx,
+      );
+
+      return withdrawal;
     });
   }
 
-  async getPendingWithdrawals() {
-    return this.prisma.withdrawalRequest.findMany({
-      where: { status: 'PENDING' },
-      include: { store: true }
+  /**
+   * Permite a la tienda adjuntar su Documento Tributario (DTE) o Acta de Rendición de Mandato a una liquidación.
+   */
+  async attachStoreSettlementDte(
+    userId: string,
+    withdrawalId: string,
+    data: {
+      storeDteType?: number;
+      storeDteFolio?: string;
+      storeDteUrl?: string;
+      notes?: string;
+    },
+  ) {
+    const store = await this.resolveUserStoreWithCompany(userId);
+    const withdrawal = await this.prisma.withdrawalRequest.findUnique({
+      where: { id: withdrawalId },
     });
-  }
 
-  async getStoreHistory(userId: string) {
-    const store = await this.prisma.store.findFirst({
-      where: {
-        OR: [
-          { ownerId: userId },
-          { company: { ownerId: userId } },
-          { company: { members: { some: { userId, role: { in: ['OWNER', 'ADMIN', 'ACCOUNTANT'] } } } } },
-        ],
+    if (!withdrawal || withdrawal.storeId !== store.id) {
+      throw new NotFoundException('Liquidación no encontrada para esta tienda');
+    }
+
+    return this.prisma.withdrawalRequest.update({
+      where: { id: withdrawalId },
+      data: {
+        ...(data.storeDteType !== undefined ? { storeDteType: Number(data.storeDteType) } : {}),
+        ...(data.storeDteFolio !== undefined ? { storeDteFolio: data.storeDteFolio.trim() || null } : {}),
+        ...(data.storeDteUrl !== undefined ? { storeDteUrl: data.storeDteUrl.trim() || null } : {}),
+        ...(data.notes !== undefined ? { notes: data.notes.trim() || null } : {}),
       },
-      orderBy: { isMainBranch: 'desc' },
+      include: {
+        vendorOrders: true,
+      },
     });
-    if (!store) throw new NotFoundException('Store not found');
+  }
 
-    const transactions = await this.prisma.walletTransaction.findMany({
-      where: { storeId: store.id },
-      orderBy: { createdAt: 'desc' }
-    });
-    
-    const withdrawals = await this.prisma.withdrawalRequest.findMany({
-      where: { storeId: store.id },
-      orderBy: { createdAt: 'desc' }
+  /**
+   * Permite a la tienda registrar el folio y enlace de la Boleta/Factura emitida al comprador final en una sub-orden.
+   */
+  async updateVendorOrderBuyerDte(
+    userId: string,
+    vendorOrderId: string,
+    data: {
+      buyerDteType: number;
+      buyerDteFolio: string;
+      buyerDteUrl?: string;
+    },
+  ) {
+    const store = await this.resolveUserStoreWithCompany(userId);
+    const vendorOrder = await this.prisma.vendorOrder.findUnique({
+      where: { id: vendorOrderId },
     });
 
-    // Calcular saldo en custodia (ventas pendientes de despacho)
-    const heldBalance = transactions
-      .filter((t) => t.type === 'SALE' && !t.isWithdrawable)
-      .reduce((sum, t) => sum + Number(t.amount), 0);
+    if (!vendorOrder || vendorOrder.storeId !== store.id) {
+      throw new ForbiddenException('No tienes permisos sobre esta sub-orden');
+    }
+
+    return this.prisma.vendorOrder.update({
+      where: { id: vendorOrderId },
+      data: {
+        buyerDteType: Number(data.buyerDteType || 39),
+        buyerDteFolio: data.buyerDteFolio.trim(),
+        buyerDteUrl: data.buyerDteUrl?.trim() || null,
+      },
+    });
+  }
+
+  /**
+   * Obtiene el historial financiero completo de la tienda, saldos reconstruidos desde el Ledger,
+   * sub-órdenes disponibles para liquidar y liquidaciones históricas.
+   */
+  async getStoreHistory(userId: string) {
+    const store = await this.resolveUserStoreWithCompany(userId);
+
+    const [balances, transactions, withdrawals, availableVendorOrders] =
+      await Promise.all([
+        this.financialLedger.reconstructStoreBalances(store.id),
+        this.prisma.walletTransaction.findMany({
+          where: { storeId: store.id },
+          orderBy: { createdAt: 'desc' },
+          take: 100,
+        }),
+        this.prisma.withdrawalRequest.findMany({
+          where: { storeId: store.id },
+          include: {
+            vendorOrders: {
+              select: {
+                id: true,
+                subtotal: true,
+                shippingCost: true,
+                sellerCommissionGross: true,
+                sellerNetPayout: true,
+                trackingNumber: true,
+                shippingCourier: true,
+                dispatchedAt: true,
+                buyerDteType: true,
+                buyerDteFolio: true,
+                order: {
+                  select: {
+                    buyOrder: true,
+                    createdAt: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+        }),
+        this.prisma.vendorOrder.findMany({
+          where: {
+            storeId: store.id,
+            status: 'PAID',
+            withdrawalRequestId: null,
+            OR: [
+              { settlementStatus: 'AVAILABLE' },
+              {
+                settlementStatus: 'HELD_ESCROW',
+                deliveryStatus: { in: ['DISPATCHED', 'DELIVERED'] },
+              },
+            ],
+          },
+          include: {
+            order: {
+              select: {
+                buyOrder: true,
+                createdAt: true,
+                name: true,
+                email: true,
+                origin: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+      ]);
+
+    const company = store.company;
+    const planRate =
+      company?.plan?.commissionRate !== undefined && company?.plan?.commissionRate !== null
+        ? Number(company.plan.commissionRate)
+        : store.subscriptionPlans?.[0]?.commissionRate !== undefined
+          ? Number(store.subscriptionPlans[0].commissionRate)
+          : 0;
+
+    const effectiveCommissionRate =
+      company?.customCommissionRate !== undefined && company?.customCommissionRate !== null
+        ? Number(company.customCommissionRate)
+        : planRate;
 
     return {
+      balance: balances.availableBalance,
+      heldBalance: balances.escrowBalance,
+      settledBalance: balances.settledBalance,
+      totalCommissionRetained: balances.totalCommissionRetained,
+      companyProfile: company
+        ? {
+            id: company.id,
+            name: company.name,
+            rut: company.rut,
+            rutValid: validateChileanRut(company.rut),
+            legalName: company.legalName,
+            fantasyName: company.fantasyName,
+            taxActivity: company.taxActivity,
+            taxAddress: company.taxAddress,
+            taxCommune: company.taxCommune,
+            taxRegion: company.taxRegion,
+            dteEmail: company.dteEmail,
+            taxClassification: company.taxClassification,
+            siiActivityStarted: company.siiActivityStarted,
+            verificationStatus: company.verificationStatus,
+            effectiveCommissionRate,
+            commissionCalcBase: company.commissionCalcBase || 'NET',
+            bankName: company.bankName,
+            bankAccountType: company.bankAccountType,
+            bankAccountNumber: company.bankAccountNumber,
+            bankHolderRut: company.bankHolderRut,
+            bankHolderName: company.bankHolderName,
+            bankEmail: company.bankEmail,
+            mandateAcceptedAt: company.mandateAcceptedAt,
+          }
+        : null,
+      availableOrdersForSettlement: availableVendorOrders
+        .filter((vo) => vo.order?.origin !== 'POS_IN_STORE')
+        .map((vo) => {
+          const gross = Number(vo.subtotal) + Number(vo.shippingCost);
+          const commGross = Number(vo.sellerCommissionGross || 0);
+          const netPayout =
+            Number(vo.sellerNetPayout) > 0
+              ? Number(vo.sellerNetPayout)
+              : Math.max(0, gross - commGross);
+          return {
+            id: vo.id,
+            buyOrder: vo.order?.buyOrder || vo.id.slice(0, 8),
+            buyerName: vo.order?.name || 'Comprador',
+            createdAt: vo.createdAt,
+            dispatchedAt: vo.dispatchedAt,
+            shippingCourier: vo.shippingCourier,
+            trackingNumber: vo.trackingNumber,
+            subtotal: Number(vo.subtotal),
+            shippingCost: Number(vo.shippingCost),
+            grossTotal: gross,
+            taxableNet: Number(vo.taxableNet || 0),
+            vatAmount: Number(vo.vatAmount || 0),
+            commissionRateApplied: Number(vo.commissionRateApplied || 0),
+            sellerCommissionNet: Number(vo.sellerCommissionNet || 0),
+            sellerCommissionVat: Number(vo.sellerCommissionVat || 0),
+            sellerCommissionGross: commGross,
+            sellerNetPayout: netPayout,
+            buyerDteType: vo.buyerDteType,
+            buyerDteFolio: vo.buyerDteFolio,
+            buyerDteUrl: vo.buyerDteUrl,
+          };
+        }),
       transactions,
       withdrawals,
-      balance: store.balance,
-      heldBalance,
     };
   }
 
-  async completeWithdrawal(id: string) {
-    const req = await this.prisma.withdrawalRequest.findUnique({ where: { id } });
-    if (!req) throw new NotFoundException('Request not found');
-    if (req.status !== 'PENDING') throw new BadRequestException('Request is not PENDING');
-
-    return await this.prisma.$transaction(async (tx) => {
-      // Registrar transaccion en el historial de la billetera (retiro consumado)
-      await tx.walletTransaction.create({
-        data: {
-          storeId: req.storeId,
-          amount: req.amount,
-          type: 'WITHDRAWAL',
-          reference: `Withdrawal ID: ${req.id}`,
-        }
-      });
-
-      return await tx.withdrawalRequest.update({
-        where: { id },
-        data: { status: 'COMPLETED' }
-      });
-    });
-  }
-
-  async rejectWithdrawal(id: string) {
-    const req = await this.prisma.withdrawalRequest.findUnique({ where: { id } });
-    if (!req) throw new NotFoundException('Request not found');
-    if (req.status !== 'PENDING') throw new BadRequestException('Request is not PENDING');
-
-    return await this.prisma.$transaction(async (tx) => {
-      // Devolver saldo a la tienda
-      await tx.store.update({
-        where: { id: req.storeId },
-        data: { balance: { increment: req.amount } }
-      });
-
-      return await tx.withdrawalRequest.update({
-        where: { id },
-        data: { status: 'REJECTED' }
-      });
-    });
-  }
-
-  private resolveDateRange(filter: StoreTaxSummaryFilter) {
-    const now = new Date();
-    let start: Date;
-    let end: Date;
-
-    if (filter.startDate && filter.endDate) {
-      start = new Date(filter.startDate);
-      start.setHours(0, 0, 0, 0);
-      end = new Date(filter.endDate);
-      end.setHours(23, 59, 59, 999);
-    } else if (filter.period === 'previous_month') {
-      start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
-      end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
-    } else if (filter.period === 'current_year') {
-      start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
-      end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-    } else {
-      // current_month (default)
-      start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-      end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  /**
+   * Obtiene las liquidaciones para el panel de Superadministrador (filtrables por estado).
+   */
+  async getPendingWithdrawals(statusFilter?: string) {
+    const where: any = {};
+    if (statusFilter && statusFilter !== 'ALL') {
+      where.status = statusFilter;
+    } else if (!statusFilter) {
+      where.status = { in: ['PENDING', 'APPROVED'] };
     }
 
-    return { start, end };
+    return this.prisma.withdrawalRequest.findMany({
+      where,
+      include: {
+        store: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+            owner: { select: { email: true, name: true } },
+            company: {
+              select: {
+                id: true,
+                name: true,
+                rut: true,
+                legalName: true,
+                taxActivity: true,
+                taxClassification: true,
+                siiActivityStarted: true,
+                verificationStatus: true,
+                bankName: true,
+                bankAccountType: true,
+                bankAccountNumber: true,
+                bankHolderRut: true,
+                bankHolderName: true,
+                bankEmail: true,
+              },
+            },
+          },
+        },
+        vendorOrders: {
+          select: {
+            id: true,
+            subtotal: true,
+            shippingCost: true,
+            taxableNet: true,
+            vatAmount: true,
+            sellerCommissionNet: true,
+            sellerCommissionVat: true,
+            sellerCommissionGross: true,
+            sellerNetPayout: true,
+            trackingNumber: true,
+            shippingCourier: true,
+            dispatchedAt: true,
+            buyerDteType: true,
+            buyerDteFolio: true,
+            order: {
+              select: {
+                buyOrder: true,
+                createdAt: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  private async resolveUserStoresAndCompany(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+  /**
+   * Aprueba una liquidación verificada antes de su ejecución bancaria o adjunta la Factura de Comisión de TapTrade (DTE 33).
+   */
+  async approveWithdrawal(
+    withdrawalId: string,
+    adminUserId?: string,
+    payload?: {
+      platformDteType?: number;
+      platformDteFolio?: string;
+      platformDteUrl?: string;
+      notes?: string;
+    },
+  ) {
+    const withdrawal = await this.prisma.withdrawalRequest.findUnique({
+      where: { id: withdrawalId },
+    });
+    if (!withdrawal) throw new NotFoundException('Solicitud de liquidación no encontrada');
+    if (withdrawal.status !== 'PENDING' && withdrawal.status !== 'APPROVED') {
+      throw new BadRequestException('Esta liquidación ya fue procesada o cerrada');
+    }
+
+    return this.prisma.withdrawalRequest.update({
+      where: { id: withdrawalId },
+      data: {
+        status: 'APPROVED',
+        processedByUserId: adminUserId || withdrawal.processedByUserId,
+        ...(payload?.platformDteType !== undefined
+          ? { platformDteType: Number(payload.platformDteType) }
+          : {}),
+        ...(payload?.platformDteFolio !== undefined
+          ? { platformDteFolio: payload.platformDteFolio.trim() || null }
+          : {}),
+        ...(payload?.platformDteUrl !== undefined
+          ? { platformDteUrl: payload.platformDteUrl.trim() || null }
+          : {}),
+        ...(payload?.notes !== undefined ? { notes: payload.notes.trim() || null } : {}),
+      },
+    });
+  }
+
+  /**
+   * Marca una liquidación como COMPLETADA (Transferencia Bancaria ejecutada),
+   * guarda el número de operación/comprobante y marca todas las sub-órdenes del lote como SETTLED.
+   */
+  async completeWithdrawal(
+    withdrawalId: string,
+    adminUserId?: string,
+    payload?: {
+      transferReference?: string;
+      transferReceiptUrl?: string;
+      platformDteType?: number;
+      platformDteFolio?: string;
+      platformDteUrl?: string;
+      notes?: string;
+    },
+  ) {
+    const withdrawal = await this.prisma.withdrawalRequest.findUnique({
+      where: { id: withdrawalId },
+    });
+
+    if (!withdrawal) throw new NotFoundException('Solicitud de liquidación no encontrada');
+    if (withdrawal.status === 'COMPLETED' || withdrawal.status === 'REJECTED') {
+      throw new BadRequestException('Esta solicitud ya fue procesada definitivamente');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.withdrawalRequest.update({
+        where: { id: withdrawalId },
+        data: {
+          status: 'COMPLETED',
+          processedByUserId: adminUserId || 'SUPERADMIN',
+          processedAt: new Date(),
+          ...(payload?.transferReference !== undefined
+            ? { transferReference: payload.transferReference.trim() || null }
+            : {}),
+          ...(payload?.transferReceiptUrl !== undefined
+            ? { transferReceiptUrl: payload.transferReceiptUrl.trim() || null }
+            : {}),
+          ...(payload?.platformDteType !== undefined
+            ? { platformDteType: Number(payload.platformDteType) }
+            : {}),
+          ...(payload?.platformDteFolio !== undefined
+            ? { platformDteFolio: payload.platformDteFolio.trim() || null }
+            : {}),
+          ...(payload?.platformDteUrl !== undefined
+            ? { platformDteUrl: payload.platformDteUrl.trim() || null }
+            : {}),
+          ...(payload?.notes !== undefined
+            ? { notes: payload.notes.trim() || null }
+            : {}),
+        },
+      });
+
+      // Marcar todas las sub-órdenes vinculadas a este lote como liquidadas definitivamente (SETTLED)
+      await tx.vendorOrder.updateMany({
+        where: { withdrawalRequestId: withdrawalId },
+        data: { settlementStatus: 'SETTLED' },
+      });
+
+      return updated;
+    });
+  }
+
+  /**
+   * Rechaza una liquidación o registra transferencia bancaria fallida (FAILED),
+   * insertando un asiento compensatorio inmutable (WITHDRAWAL_REVERSAL) en el Ledger
+   * y liberando las sub-órdenes nuevamente a estado AVAILABLE.
+   */
+  async rejectWithdrawal(
+    withdrawalId: string,
+    adminUserId?: string,
+    payload?: {
+      reason?: string;
+      isFailedTransfer?: boolean;
+    },
+  ) {
+    const withdrawal = await this.prisma.withdrawalRequest.findUnique({
+      where: { id: withdrawalId },
+    });
+
+    if (!withdrawal) throw new NotFoundException('Solicitud de liquidación no encontrada');
+    if (withdrawal.status === 'COMPLETED' || withdrawal.status === 'REJECTED') {
+      throw new BadRequestException('Esta solicitud ya fue procesada definitivamente');
+    }
+
+    const finalStatus = payload?.isFailedTransfer ? 'FAILED' : 'REJECTED';
+    const reasonText =
+      payload?.reason?.trim() ||
+      (payload?.isFailedTransfer
+        ? 'Transferencia bancaria rechazada por el banco receptor'
+        : 'Rechazada por administración');
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.withdrawalRequest.update({
+        where: { id: withdrawalId },
+        data: {
+          status: finalStatus,
+          rejectionReason: reasonText,
+          processedByUserId: adminUserId || 'SUPERADMIN',
+          processedAt: new Date(),
+        },
+      });
+
+      // Desbloquear las sub-órdenes para que vuelvan a estar disponibles (AVAILABLE)
+      await tx.vendorOrder.updateMany({
+        where: { withdrawalRequestId: withdrawalId },
+        data: {
+          settlementStatus: 'AVAILABLE',
+          withdrawalRequestId: null,
+        },
+      });
+
+      // Buscar asiento original de bloqueo de retiro (sin modificarlo ni eliminarlo)
+      const originalLockTx = await tx.walletTransaction.findFirst({
+        where: {
+          storeId: withdrawal.storeId,
+          OR: [
+            { withdrawalRequestId: withdrawalId },
+            { idempotencyKey: `SETTLEMENT_LOCK:${withdrawalId}` },
+          ],
+        },
+      });
+
+      const refundAmount = Math.round(Number(withdrawal.amount));
+      const currentBalances = await this.financialLedger.reconstructStoreBalances(
+        withdrawal.storeId,
+        tx,
+      );
+      const newAvailableBalance = currentBalances.availableBalance + refundAmount;
+
+      // Insertar asiento compensatorio inmutable WITHDRAWAL_REVERSAL
+      await tx.walletTransaction.create({
+        data: {
+          storeId: withdrawal.storeId,
+          withdrawalRequestId: withdrawal.id,
+          parentTransactionId: originalLockTx?.id || null,
+          amount: refundAmount,
+          type: TransactionType.WITHDRAWAL_REVERSAL,
+          direction: 'CREDIT',
+          bucket: 'AVAILABLE',
+          status: 'POSTED',
+          balanceAfterEscrow: currentBalances.escrowBalance,
+          balanceAfterAvailable: newAvailableBalance,
+          paymentMethod: 'REVERSAL',
+          isWithdrawable: true,
+          reference: `Reversa de Liquidación ${withdrawal.settlementCode || withdrawal.id.slice(0, 8)} (${finalStatus}): ${reasonText}`,
+          idempotencyKey: `SETTLEMENT_REV:${withdrawal.id}:${Date.now()}`,
+          createdByUserId: adminUserId || 'SUPERADMIN',
+          metadata: {
+            ledgerVersion: 2,
+            reversedWithdrawalId: withdrawal.id,
+            reason: reasonText,
+            status: finalStatus,
+          },
+        },
+      });
+
+      await this.financialLedger.syncStoreBalanceCache(
+        withdrawal.storeId,
+        newAvailableBalance,
+        tx,
+      );
+
+      return updated;
+    });
+  }
+
+  /**
+   * Calcula el Resumen Tributario Mensual (Formulario 29 SII) para la Tienda o Empresa (Holding).
+   * Separa estrictamente las ventas de la tienda (Boletas DTE 39/41 -> Débito Fiscal Cód. 538)
+   * de las comisiones retenidas por TapTrade (Factura DTE 33 -> Crédito Fiscal Cód. 520).
+   */
+  async getStoreTaxSummary(
+    userId: string,
+    query: {
+      period?: string;
+      startDate?: string;
+      endDate?: string;
+      storeId?: string;
+    },
+  ) {
+    const userStore = await this.prisma.store.findFirst({
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+          { company: { ownerId: userId } },
+          { company: { members: { some: { userId } } } },
+        ],
+      },
       include: {
-        stores: {
-          include: { company: true },
-        },
-        companies: {
-          include: { stores: true },
-        },
-        storeMemberships: {
-          include: { store: { include: { company: true } } },
-        },
-        companyMemberships: {
-          include: { company: { include: { stores: true } } },
+        company: {
+          include: {
+            stores: {
+              select: { id: true, name: true, subdomain: true, isMainBranch: true },
+            },
+            plan: true,
+          },
         },
       },
     });
 
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+    if (!userStore) {
+      throw new NotFoundException('Tienda no encontrada para este usuario');
     }
 
-    const company: any =
-      user.companies?.[0] ||
-      user.companyMemberships?.[0]?.company ||
-      user.stores?.find((s) => s.company)?.company ||
-      user.storeMemberships?.find((m) => m.store?.company)?.store?.company ||
-      null;
+    const companyStores = userStore.company?.stores?.length
+      ? userStore.company.stores
+      : [{ id: userStore.id, name: userStore.name, subdomain: userStore.subdomain, isMainBranch: true }];
 
-    let availableStores: { id: string; name: string }[] = [];
-    if (company) {
-      const companyStores = await this.prisma.store.findMany({
-        where: { companyId: company.id },
-        select: { id: true, name: true },
-        orderBy: { isMainBranch: "desc" },
-      });
-      if (companyStores.length > 0) {
-        availableStores = companyStores;
-      }
-    }
+    const allowedStoreIds = companyStores.map((s) => s.id);
+    const targetStoreIds =
+      query.storeId && query.storeId !== 'ALL' && allowedStoreIds.includes(query.storeId)
+        ? [query.storeId]
+        : allowedStoreIds;
 
-    if (availableStores.length === 0) {
-      const directStores = [
-        ...(user.stores || []),
-        ...(user.storeMemberships?.map((m) => m.store).filter(Boolean) || []),
-      ];
-      const seen = new Set<string>();
-      for (const s of directStores) {
-        if (!seen.has(s.id)) {
-          seen.add(s.id);
-          availableStores.push({ id: s.id, name: s.name });
-        }
-      }
-    }
+    const now = new Date();
+    let start: Date;
+    let end: Date;
+    let periodLabel = '';
 
-    if (availableStores.length === 0) {
-      throw new NotFoundException('No se encontraron tiendas asociadas a tu cuenta');
-    }
-
-    return { company, availableStores };
-  }
-
-  async getStoreTaxSummary(
-    userId: string,
-    filter: StoreTaxSummaryFilter,
-  ) {
-    const { company, availableStores } = await this.resolveUserStoresAndCompany(userId);
-    const { start, end } = this.resolveDateRange(filter);
-
-    const allowedStoreIds = availableStores.map((s) => s.id);
-    let targetStoreIds = allowedStoreIds;
-
-    if (filter.storeId && filter.storeId !== 'ALL') {
-      if (allowedStoreIds.includes(filter.storeId)) {
-        targetStoreIds = [filter.storeId];
-      }
+    if (query.startDate && query.endDate) {
+      start = new Date(`${query.startDate}T00:00:00.000Z`);
+      end = new Date(`${query.endDate}T23:59:59.999Z`);
+      periodLabel = `${query.startDate} al ${query.endDate}`;
+    } else if (query.period === 'previous_month') {
+      start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+      end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      periodLabel = start.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
+    } else if (query.period === 'current_year') {
+      start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+      end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+      periodLabel = `Año Tributario ${now.getFullYear()}`;
+    } else {
+      start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      periodLabel = start.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
     }
 
     const vendorOrders = await this.prisma.vendorOrder.findMany({
       where: {
         storeId: { in: targetStoreIds },
         status: 'PAID',
-        createdAt: {
-          gte: start,
-          lte: end,
-        },
+        createdAt: { gte: start, lte: end },
       },
       include: {
-        order: {
-          select: {
-            buyOrder: true,
-            name: true,
-            email: true,
-            createdAt: true,
-            payment: {
-              select: {
-                paymentType: true,
-              },
-            },
-          },
-        },
         store: {
           select: {
             id: true,
             name: true,
+            company: { select: { rut: true, legalName: true, taxActivity: true } },
           },
         },
+        order: {
+          select: {
+            id: true,
+            buyOrder: true,
+            createdAt: true,
+            name: true,
+            email: true,
+            origin: true,
+            payment: {
+              select: {
+                paymentType: true,
+                authCode: true,
+              },
+            },
+          },
+        },
+        items: true,
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    let totalGross = 0;
-    let taxableNet = 0;
-    let vatDebit = 0;
-    let platformFeeNet = 0;
-    let platformFeeVat = 0;
+    // Excluir ventas de mostrador POS del libro de intermediación marketplace
+    const marketplaceOrders = vendorOrders.filter(
+      (vo) => vo.order?.origin !== 'POS_IN_STORE',
+    );
 
-    const orders = vendorOrders.map((vo) => {
-      const subtotal = Math.round(Number(vo.subtotal || 0));
-      const shipping = Math.round(Number(vo.shippingCost || 0));
-      const gross = subtotal + shipping;
+    let totalProductsGross = 0;
+    let totalShippingGross = 0;
+    let totalGross = 0;
+    let totalTaxableNet = 0;
+    let totalVatDebit = 0;
+    let totalPlatformFeeNet = 0;
+    let totalPlatformFeeVat = 0;
+    let totalPlatformFeeGross = 0;
+    let totalNetPayoutToStore = 0;
+
+    const detailedOrders = marketplaceOrders.map((vo) => {
+      const productsGross = Math.round(Number(vo.subtotal || 0));
+      const shippingGross = Math.round(Number(vo.shippingCost || 0));
+      const orderGross = productsGross + shippingGross;
 
       const net =
         Number(vo.taxableNet) > 0
           ? Math.round(Number(vo.taxableNet))
-          : Math.round(gross / 1.19);
+          : Math.round(orderGross / 1.19);
       const vat =
         Number(vo.vatAmount) > 0
           ? Math.round(Number(vo.vatAmount))
-          : gross - net;
+          : orderGross - net;
 
-      // Comisión 3% + IVA cobrada por TapTrade (IVA Crédito Fiscal para la tienda)
-      const feeNet = Math.round(subtotal * 0.03);
-      const feeVat = Math.round(feeNet * 0.19);
+      // Usar la comisión real descontada al vendedor en el snapshot de la sub-orden
+      const sellerFeeNet = Math.round(Number(vo.sellerCommissionNet || 0));
+      const sellerFeeVat = Math.round(Number(vo.sellerCommissionVat || 0));
+      const sellerFeeGross = Math.round(Number(vo.sellerCommissionGross || 0));
+      const sellerNetPayout =
+        Number(vo.sellerNetPayout) > 0
+          ? Math.round(Number(vo.sellerNetPayout))
+          : Math.max(0, orderGross - sellerFeeGross);
 
-      totalGross += gross;
-      taxableNet += net;
-      vatDebit += vat;
-      platformFeeNet += feeNet;
-      platformFeeVat += feeVat;
+      totalProductsGross += productsGross;
+      totalShippingGross += shippingGross;
+      totalGross += orderGross;
+      totalTaxableNet += net;
+      totalVatDebit += vat;
+      totalPlatformFeeNet += sellerFeeNet;
+      totalPlatformFeeVat += sellerFeeVat;
+      totalPlatformFeeGross += sellerFeeGross;
+      totalNetPayoutToStore += sellerNetPayout;
 
       return {
-        id: vo.id,
-        buyOrder: vo.order.buyOrder,
+        vendorOrderId: vo.id,
+        buyOrder: vo.order?.buyOrder || 'N/A',
         date: vo.createdAt,
-        storeId: vo.storeId,
-        storeName: vo.store.name,
-        customerName: vo.order.name,
-        customerEmail: vo.order.email,
-        subtotal,
-        shippingCost: shipping,
-        grossTotal: gross,
+        storeName: vo.store?.name || userStore.name,
+        sellerRut: vo.sellerRut || vo.store?.company?.rut || userStore.company?.rut || 'Sin RUT',
+        sellerLegalName:
+          vo.sellerLegalName ||
+          vo.store?.company?.legalName ||
+          userStore.company?.legalName ||
+          vo.store?.name ||
+          userStore.name,
+        buyerName: vo.order?.name || 'Cliente',
+        buyerEmail: vo.order?.email || '',
+        paymentMethod: vo.order?.payment?.paymentType || 'WEBPAY',
+        authCode: vo.order?.payment?.authCode || '',
+        deliveryStatus: vo.deliveryStatus || 'PENDING_DISPATCH',
+        settlementStatus: vo.settlementStatus || 'HELD_ESCROW',
+        buyerDteType: vo.buyerDteType,
+        buyerDteFolio: vo.buyerDteFolio,
+        productsGross,
+        shippingGross,
+        totalGross: orderGross,
         taxableNet: net,
-        vatAmount: vat,
-        platformFeeNet: feeNet,
-        platformFeeVat: feeVat,
-        deliveryStatus: vo.deliveryStatus,
-        shippingCourier: vo.shippingCourier,
-        trackingNumber: vo.trackingNumber,
-        paymentMethod: vo.order.payment?.paymentType || 'WEBPAY',
+        vatDebit: vat,
+        platformFeeNet: sellerFeeNet,
+        platformFeeVat: sellerFeeVat,
+        platformFeeGross: sellerFeeGross,
+        sellerNetPayout,
+        itemCount: vo.items.reduce((acc, item) => acc + item.quantity, 0),
       };
     });
 
-    const monthNames = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-    ];
-    const periodLabel = `${monthNames[start.getMonth()]} ${start.getFullYear()}`;
+    const netVatPayableEstimate = Math.max(0, totalVatDebit - totalPlatformFeeVat);
 
     return {
-      period: filter.period || 'current_month',
       periodLabel,
-      startDate: start.toISOString(),
-      endDate: end.toISOString(),
-      company: company
-        ? {
-            id: company.id,
-            name: company.name,
-            legalName: company.legalName || company.name,
-            rut: company.rut,
-          }
-        : null,
-      availableStores,
-      selectedStoreId: filter.storeId || 'ALL',
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+      company: {
+        name: userStore.company?.name || userStore.name,
+        rut: userStore.company?.rut || null,
+        legalName: userStore.company?.legalName || userStore.name,
+        taxActivity: userStore.company?.taxActivity || null,
+        taxClassification: userStore.company?.taxClassification || 'PRIMERA_CATEGORIA_AFECTO',
+        verificationStatus: userStore.company?.verificationStatus || 'ENABLED',
+      },
+      availableStores: companyStores,
+      selectedStoreId: query.storeId || 'ALL',
+      orderCount: detailedOrders.length,
+      productsGross: totalProductsGross,
+      shippingGross: totalShippingGross,
       totalGross,
-      taxableNet,
-      vatDebit, // Código 538 F29
-      platformFeeNet,
-      platformFeeVat, // Código 520 F29 (Crédito Fiscal)
-      orderCount: vendorOrders.length,
-      orders,
+      taxableNet: totalTaxableNet,
+      vatDebit: totalVatDebit,
+      platformFeeNet: totalPlatformFeeNet,
+      platformFeeVat: totalPlatformFeeVat,
+      platformFeeGross: totalPlatformFeeGross,
+      totalNetPayoutToStore,
+      netVatPayableEstimate,
+      orders: detailedOrders,
     };
   }
 
+  /**
+   * Genera el archivo CSV del Libro de Ventas Mensual para el contador de la tienda (Formulario 29 SII).
+   */
   async generateStoreTaxSalesCsv(
     userId: string,
-    filter: StoreTaxSummaryFilter,
-  ) {
-    const summary = await this.getStoreTaxSummary(userId, filter);
+    query: {
+      period?: string;
+      startDate?: string;
+      endDate?: string;
+      storeId?: string;
+    },
+  ): Promise<{ csvContent: string; filename: string }> {
+    const summary = await this.getStoreTaxSummary(userId, query);
 
-    const companyName = summary.company?.legalName || summary.company?.name || 'Mi Tienda';
-    const companyRut = summary.company?.rut || 'Sin RUT registrado';
-
-    const header = [
-      `"LIBRO DE VENTAS ELECTRÓNICAS - FORMULARIO 29 SII"`,
-      `"Empresa / Razón Social: ${companyName}"`,
-      `"RUT: ${companyRut}"`,
-      `"Período: ${summary.periodLabel}"`,
-      `"Venta Bruta Total: $${summary.totalGross.toLocaleString('es-CL')}"`,
-      `"Base Imponible Neta: $${summary.taxableNet.toLocaleString('es-CL')}"`,
-      `"Débito Fiscal IVA 19% (F29 Cód 538): $${summary.vatDebit.toLocaleString('es-CL')}"`,
-      `"Crédito Fiscal IVA Comisión TapTrade (F29 Cód 520): $${summary.platformFeeVat.toLocaleString('es-CL')}"`,
-      '',
-      [
-        '"Fecha"',
-        '"N° Orden (BuyOrder)"',
-        '"Sucursal"',
-        '"Cliente"',
-        '"Subtotal Productos"',
-        '"Costo Envío"',
-        '"Venta Bruta Total"',
-        '"Venta Neta Imponible"',
-        '"IVA Débito Fiscal (19% Cód 538)"',
-        '"Comisión TapTrade Neta"',
-        '"IVA Comisión (Crédito Cód 520)"',
-        '"Método de Pago"',
-        '"Estado Despacho"',
-        '"Courier"',
-        '"N° Seguimiento"',
-      ].join(';'),
+    const headers = [
+      'Fecha Venta',
+      'Hora',
+      'Nro Orden TapTrade',
+      'Sucursal',
+      'RUT Emisor (Tienda)',
+      'Razon Social Emisor',
+      'Cliente Comprador',
+      'Email Cliente',
+      'Medio de Pago',
+      'Cod. Autorizacion',
+      'Estado Despacho',
+      'Estado Liquidacion',
+      'Folio DTE Comprador',
+      'Cant. Items',
+      'Subtotal Productos Bruto (CLP)',
+      'Despacho Bruto (CLP)',
+      'Total Bruto Boleta SII (CLP)',
+      'Base Imponible Neta Tienda (CLP)',
+      'IVA Debito Fiscal 19% F29 Cod.538 (CLP)',
+      'Comision Neta TapTrade (CLP)',
+      'IVA Credito Comision TapTrade F29 Cod.520 (CLP)',
+      'Saldo Liquido Tienda (CLP)',
     ];
 
+    const escapeCsv = (val: any): string => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
     const rows = summary.orders.map((o) => {
-      const dateFormatted = new Date(o.date).toLocaleDateString('es-CL');
+      const d = new Date(o.date);
+      const fecha = d.toLocaleDateString('es-CL');
+      const hora = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+
       return [
-        `"${dateFormatted}"`,
-        `"${o.buyOrder}"`,
-        `"${o.storeName}"`,
-        `"${o.customerName}"`,
-        o.subtotal,
-        o.shippingCost,
-        o.grossTotal,
+        escapeCsv(fecha),
+        escapeCsv(hora),
+        escapeCsv(o.buyOrder),
+        escapeCsv(o.storeName),
+        escapeCsv(o.sellerRut),
+        escapeCsv(o.sellerLegalName),
+        escapeCsv(o.buyerName),
+        escapeCsv(o.buyerEmail),
+        escapeCsv(o.paymentMethod),
+        escapeCsv(o.authCode),
+        escapeCsv(o.deliveryStatus),
+        escapeCsv(o.settlementStatus),
+        escapeCsv(o.buyerDteFolio || 'Pendiente'),
+        o.itemCount,
+        o.productsGross,
+        o.shippingGross,
+        o.totalGross,
         o.taxableNet,
-        o.vatAmount,
+        o.vatDebit,
         o.platformFeeNet,
         o.platformFeeVat,
-        `"${o.paymentMethod}"`,
-        `"${o.deliveryStatus}"`,
-        `"${o.shippingCourier || 'N/A'}"`,
-        `"${o.trackingNumber || 'N/A'}"`,
+        o.sellerNetPayout,
       ].join(';');
     });
 
-    const summaryRow = [
-      '"TOTALES"',
-      '""',
-      '""',
-      `"${summary.orderCount} pedidos"`,
-      summary.orders.reduce((sum, o) => sum + o.subtotal, 0),
-      summary.orders.reduce((sum, o) => sum + o.shippingCost, 0),
+    const totalsRow = [
+      escapeCsv('TOTALES PERIODO F29'),
+      escapeCsv(summary.periodLabel),
+      escapeCsv(`${summary.orderCount} ordenes`),
+      escapeCsv(''),
+      escapeCsv(summary.company.rut || ''),
+      escapeCsv(summary.company.legalName || ''),
+      escapeCsv(''),
+      escapeCsv(''),
+      escapeCsv(''),
+      escapeCsv(''),
+      escapeCsv(''),
+      escapeCsv(''),
+      escapeCsv(''),
+      summary.orders.reduce((s, o) => s + o.itemCount, 0),
+      summary.productsGross,
+      summary.shippingGross,
       summary.totalGross,
       summary.taxableNet,
       summary.vatDebit,
       summary.platformFeeNet,
       summary.platformFeeVat,
-      '""',
-      '""',
-      '""',
-      '""',
+      summary.totalNetPayoutToStore,
     ].join(';');
 
-    const csvContent = '\uFEFF' + [...header, ...rows, '', summaryRow].join('\r\n');
-    const sanitizedName = companyName.toLowerCase().replace(/[^a-z0-9]/g, '_');
-    const filename = `libro_ventas_${sanitizedName}_${summary.periodLabel.toLowerCase().replace(/\s+/g, '_')}.csv`;
+    const BOM = '\uFEFF';
+    const csvContent = BOM + [headers.join(';'), ...rows, '', totalsRow].join('\r\n');
+    const safePeriod = `${summary.startDate}_${summary.endDate}`;
+    const filename = `libro_ventas_f29_${safePeriod}.csv`;
 
     return { csvContent, filename };
   }

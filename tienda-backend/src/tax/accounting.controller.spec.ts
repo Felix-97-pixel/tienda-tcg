@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountingController } from './accounting.controller';
 import { AccountingService } from './accounting.service';
+import { FinancialLedgerService } from './financial-ledger.service';
 
 describe('AccountingController', () => {
   let controller: AccountingController;
@@ -66,6 +67,13 @@ describe('AccountingController', () => {
         {
           provide: AccountingService,
           useValue: mockAccountingService,
+        },
+        {
+          provide: FinancialLedgerService,
+          useValue: {
+            recordOrderRefundOrChargeback: jest.fn(),
+            recordManualAdjustment: jest.fn(),
+          },
         },
       ],
     }).compile();

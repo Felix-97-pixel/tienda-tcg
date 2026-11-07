@@ -27,13 +27,14 @@ model Game {
 }
 
 model Category {
-  id       String    @id @default(uuid())
-  name     String    @unique
-  slug     String    @unique
-  imageUrl String?
-  isTcg    Boolean   @default(false)
-  products Product[]
-  coupons  Coupon[]  @relation("CouponCategories")
+  id             String    @id @default(uuid())
+  name           String    @unique
+  slug           String    @unique
+  imageUrl       String?
+  isTcg          Boolean   @default(false)
+  commissionRate Decimal?  @db.Decimal(5, 4) // Comisión especial por categoría (ej: 0.0500 = 5%), opcional
+  products       Product[]
+  coupons        Coupon[]  @relation("CouponCategories")
 }
 
 model Brand {
@@ -216,7 +217,28 @@ model Company {
   name               String
   rut                String?
   legalName          String?
+  fantasyName        String?
   taxActivity        String?
+  taxAddress         String?
+  taxCommune         String?
+  taxRegion          String?
+  taxClassification  String   @default("PRIMERA_CATEGORIA_AFECTO") // "PRIMERA_CATEGORIA_AFECTO" | "PRIMERA_CATEGORIA_EXENTO"
+  siiActivityStarted Boolean  @default(true)
+  dteEmail           String?
+  verificationStatus String   @default("ENABLED") // "PENDING_VERIFICATION" | "PENDING_DOCS" | "ENABLED" | "SUSPENDED" | "BLOCKED"
+  verifiedAt         DateTime?
+  verifiedByUserId   String?
+  mandateAcceptedAt  DateTime?
+  mandateContractUrl String?
+  customCommissionRate Decimal? @db.Decimal(5, 4) // Excepción comercial de comisión al vendedor (ej: 0.0500 = 5%)
+  commissionCalcBase String   @default("NET") // "NET" | "GROSS"
+  bankName           String?
+  bankAccountType    String?  // "CUENTA_CORRIENTE" | "CUENTA_VISTA" | "CUENTA_RUT"
+  bankAccountNumber  String?
+  bankHolderRut      String?
+  bankHolderName     String?
+  bankEmail          String?
+  bankUpdatedAt      DateTime?
   logoUrl            String?
   ownerId            String
   planId             String?
@@ -225,12 +247,14 @@ model Company {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  owner  User              @relation(fields: [ownerId], references: [id])
-  plan   SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
-  stores Store[]
+  owner   User              @relation(fields: [ownerId], references: [id])
+  plan    SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  stores  Store[]
   members CompanyMember[]
 
   @@index([ownerId])
+  @@index([rut])
+  @@index([verificationStatus])
 }
 
 model CompanyMember {
@@ -397,13 +421,16 @@ model Order {
   notes         String?
   totalAmount   Decimal            @db.Decimal(10, 2)
   // Desglose tributario y comisiones de plataforma (Normativa SII)
-  productsTotal        Decimal           @default(0) @db.Decimal(10, 2)
-  shippingTotal        Decimal           @default(0) @db.Decimal(10, 2)
-  serviceFeeGross      Decimal           @default(0) @db.Decimal(10, 2)
-  serviceFeeNet        Decimal           @default(0) @db.Decimal(10, 2)
-  serviceFeeVat        Decimal           @default(0) @db.Decimal(10, 2)
-  transbankFeeEstimate Decimal           @default(0) @db.Decimal(10, 2)
-  vatRateSnapshot      Decimal           @default(0.19) @db.Decimal(5, 4)
+  productsTotal         Decimal           @default(0) @db.Decimal(10, 2)
+  shippingTotal         Decimal           @default(0) @db.Decimal(10, 2)
+  serviceFeeGross       Decimal           @default(0) @db.Decimal(10, 2)
+  serviceFeeNet         Decimal           @default(0) @db.Decimal(10, 2)
+  serviceFeeVat         Decimal           @default(0) @db.Decimal(10, 2)
+  sellerCommissionNet   Decimal           @default(0) @db.Decimal(10, 2)
+  sellerCommissionVat   Decimal           @default(0) @db.Decimal(10, 2)
+  sellerCommissionGross Decimal           @default(0) @db.Decimal(10, 2)
+  transbankFeeEstimate  Decimal           @default(0) @db.Decimal(10, 2)
+  vatRateSnapshot       Decimal           @default(0.19) @db.Decimal(5, 4)
   currencyCode  String?            @default("CLP")
   exchangeRate  Decimal?           @db.Decimal(10, 2)
   status        OrderStatus        @default(PENDING)
@@ -414,6 +441,7 @@ model Order {
   user          User?              @relation(fields: [userId], references: [id])
   vendorOrders  VendorOrder[]
   reservations  StockReservation[]
+  transactions  WalletTransaction[]
   origin           OrderOrigin       @default(ONLINE_MARKETPLACE)
   posPaymentMethod PosPaymentMethod?
   posVoucherRef    String?
@@ -425,31 +453,47 @@ model Order {
 }
 
 model VendorOrder {
-  id                 String            @id @default(uuid())
-  orderId            String
-  storeId            String
-  shippingProviderId String?
-  shippingCost       Decimal           @default(0) @db.Decimal(10, 2)
-  subtotal           Decimal           @default(0) @db.Decimal(10, 2)
-  // Desglose fiscal por tienda (Normativa SII)
-  vatRate          Decimal           @default(0.19) @db.Decimal(5, 4)
-  taxableNet       Decimal           @default(0) @db.Decimal(10, 2)
-  vatAmount        Decimal           @default(0) @db.Decimal(10, 2)
-  sellerRut        String?
-  sellerLegalName  String?
-  status             OrderStatus       @default(PENDING)
-  deliveryStatus     String?           @default("PENDING_DISPATCH")
-  shippingCourier    String?
-  trackingNumber     String?
-  trackingUrl        String?
-  dispatchedAt       DateTime?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  order              Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  store              Store             @relation(fields: [storeId], references: [id])
-  shippingProvider   ShippingProvider? @relation(fields: [shippingProviderId], references: [id])
-  items              OrderItem[]
-  evidence           DispatchEvidence?
+  id                    String             @id @default(uuid())
+  orderId               String
+  storeId               String
+  shippingProviderId    String?
+  shippingCost          Decimal            @default(0) @db.Decimal(10, 2)
+  subtotal              Decimal            @default(0) @db.Decimal(10, 2)
+  // Desglose fiscal y comisiones por tienda (Normativa SII)
+  vatRate               Decimal            @default(0.19) @db.Decimal(5, 4)
+  taxableNet            Decimal            @default(0) @db.Decimal(10, 2)
+  vatAmount             Decimal            @default(0) @db.Decimal(10, 2)
+  commissionRateApplied Decimal            @default(0) @db.Decimal(5, 4)
+  commissionCalcBase    String             @default("NET") // "NET" | "GROSS"
+  sellerCommissionNet   Decimal            @default(0) @db.Decimal(10, 2)
+  sellerCommissionVat   Decimal            @default(0) @db.Decimal(10, 2)
+  sellerCommissionGross Decimal            @default(0) @db.Decimal(10, 2)
+  sellerNetPayout       Decimal            @default(0) @db.Decimal(10, 2)
+  settlementStatus      String             @default("HELD_ESCROW") // "HELD_ESCROW" | "AVAILABLE" | "LOCKED_IN_SETTLEMENT" | "SETTLED" | "REFUNDED" | "DISPUTED"
+  buyerDteType          Int?               // 39 (Boleta Afecta), 41 (Boleta Exenta), 33 (Factura Afecta)
+  buyerDteFolio         String?
+  buyerDteUrl           String?
+  withdrawalRequestId   String?
+  sellerRut             String?
+  sellerLegalName       String?
+  status                OrderStatus        @default(PENDING)
+  deliveryStatus        String?            @default("PENDING_DISPATCH")
+  shippingCourier       String?
+  trackingNumber        String?
+  trackingUrl           String?
+  dispatchedAt          DateTime?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  order                 Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  store                 Store              @relation(fields: [storeId], references: [id])
+  shippingProvider      ShippingProvider?  @relation(fields: [shippingProviderId], references: [id])
+  withdrawalRequest     WithdrawalRequest? @relation(fields: [withdrawalRequestId], references: [id], onDelete: SetNull)
+  items                 OrderItem[]
+  evidence              DispatchEvidence?
+  transactions          WalletTransaction[]
+
+  @@index([storeId, settlementStatus])
+  @@index([withdrawalRequestId])
 }
 
 model DispatchEvidence {
@@ -623,35 +667,84 @@ model StoreSetting {
 }
 
 model WalletTransaction {
-  id             String          @id @default(uuid())
-  storeId        String
-  amount         Decimal         @db.Decimal(10, 2)
-  netAmount      Decimal?        @db.Decimal(10, 2)
-  vatAmount      Decimal?        @db.Decimal(10, 2)
-  type           TransactionType
-  paymentMethod  String          @default("WEBPAY")
-  isWithdrawable Boolean         @default(true)
-  reference      String?
-  createdAt      DateTime        @default(now())
-  store          Store           @relation(fields: [storeId], references: [id])
+  id                    String             @id @default(uuid())
+  storeId               String
+  orderId               String?
+  vendorOrderId         String?
+  withdrawalRequestId   String?
+  parentTransactionId   String?
+  amount                Decimal            @db.Decimal(10, 2)
+  netAmount             Decimal?           @db.Decimal(10, 2)
+  vatAmount             Decimal?           @db.Decimal(10, 2)
+  type                  TransactionType
+  direction             String             @default("CREDIT") // "CREDIT" | "DEBIT"
+  bucket                String             @default("ESCROW") // "ESCROW" | "AVAILABLE" | "SETTLED" | "PLATFORM_REVENUE" | "GATEWAY_COST"
+  status                String             @default("POSTED") // "POSTED" | "REVERSED"
+  balanceAfterEscrow    Decimal            @default(0) @db.Decimal(10, 2)
+  balanceAfterAvailable Decimal            @default(0) @db.Decimal(10, 2)
+  paymentMethod         String             @default("WEBPAY")
+  isWithdrawable        Boolean            @default(true)
+  reference             String?
+  idempotencyKey        String?
+  createdByUserId       String?
+  metadata              Json?
+  effectiveAt           DateTime           @default(now())
+  createdAt             DateTime           @default(now())
+  store                 Store              @relation(fields: [storeId], references: [id])
+  order                 Order?             @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  vendorOrder           VendorOrder?       @relation(fields: [vendorOrderId], references: [id], onDelete: SetNull)
+  withdrawalRequest     WithdrawalRequest? @relation(fields: [withdrawalRequestId], references: [id], onDelete: SetNull)
+
+  @@index([storeId, createdAt])
+  @@index([vendorOrderId])
+  @@index([withdrawalRequestId])
+  @@index([idempotencyKey])
 }
 
 enum TransactionType {
   SALE
+  ESCROW_RELEASE
   COMMISSION
   WITHDRAWAL
+  WITHDRAWAL_REVERSAL
   REFUND
+  CHARGEBACK
+  ADJUSTMENT
 }
 
 model WithdrawalRequest {
-  id          String           @id @default(uuid())
-  storeId     String
-  amount      Decimal          @db.Decimal(10, 2)
-  status      WithdrawalStatus @default(PENDING)
-  bankDetails String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  store       Store            @relation(fields: [storeId], references: [id])
+  id                    String              @id @default(uuid())
+  settlementCode        String?
+  storeId               String
+  grossSalesAmount      Decimal             @default(0) @db.Decimal(10, 2)
+  sellerCommissionNet   Decimal             @default(0) @db.Decimal(10, 2)
+  sellerCommissionVat   Decimal             @default(0) @db.Decimal(10, 2)
+  sellerCommissionGross Decimal             @default(0) @db.Decimal(10, 2)
+  adjustmentsAmount     Decimal             @default(0) @db.Decimal(10, 2)
+  amount                Decimal             @db.Decimal(10, 2) // Monto líquido final a transferir a la tienda
+  status                WithdrawalStatus    @default(PENDING)
+  bankDetails           String?
+  bankSnapshot          Json?
+  platformDteType       Int?                // Ej: 33 (Factura Electrónica TapTrade por comisión)
+  platformDteFolio      String?
+  platformDteUrl        String?
+  storeDteType          Int?                // Ej: 33, 34 o 999 (Acta de Rendición de Mandato / DTE respaldo tienda)
+  storeDteFolio         String?
+  storeDteUrl           String?
+  transferReference     String?
+  transferReceiptUrl    String?
+  processedByUserId     String?
+  processedAt           DateTime?
+  rejectionReason       String?
+  notes                 String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  store                 Store               @relation(fields: [storeId], references: [id])
+  vendorOrders          VendorOrder[]
+  transactions          WalletTransaction[]
+
+  @@index([storeId, status])
+  @@index([settlementCode])
 }
 
 enum WithdrawalStatus {
@@ -659,6 +752,7 @@ enum WithdrawalStatus {
   APPROVED
   REJECTED
   COMPLETED
+  FAILED
 }
 
 model SyncBackup {

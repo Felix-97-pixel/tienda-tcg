@@ -239,6 +239,9 @@ export class InitTransactionHandler
         serviceFeeGross: quote.serviceFee.gross,
         serviceFeeNet: quote.serviceFee.net,
         serviceFeeVat: quote.serviceFee.vat,
+        sellerCommissionNet: quote.sellerCommissionTotal.net,
+        sellerCommissionVat: quote.sellerCommissionTotal.vat,
+        sellerCommissionGross: quote.sellerCommissionTotal.gross,
         transbankFeeEstimate: quote.transbankFeeEstimate,
         vatRateSnapshot: quote.vatRate,
         currencyCode,
@@ -247,11 +250,19 @@ export class InitTransactionHandler
         vendorOrders: {
           create: vendorOrdersData.map((v) => {
             const vQuote = quote.vendors.find((vq) => vq.storeId === v.storeId);
+            const fallbackGross = Number(v.subtotal || 0) + Number(v.shippingCost || 0);
             return {
               ...v,
               vatRate: quote.vatRate,
               taxableNet: vQuote?.tax.net ?? 0,
               vatAmount: vQuote?.tax.vat ?? 0,
+              commissionRateApplied: vQuote?.commissionRateApplied ?? 0,
+              commissionCalcBase: vQuote?.commissionCalcBase ?? 'NET',
+              sellerCommissionNet: vQuote?.sellerCommission.net ?? 0,
+              sellerCommissionVat: vQuote?.sellerCommission.vat ?? 0,
+              sellerCommissionGross: vQuote?.sellerCommission.gross ?? 0,
+              sellerNetPayout: vQuote?.sellerNetPayout ?? fallbackGross,
+              settlementStatus: 'HELD_ESCROW',
               sellerRut: vQuote?.sellerRut ?? null,
               sellerLegalName: vQuote?.sellerLegalName ?? null,
             };

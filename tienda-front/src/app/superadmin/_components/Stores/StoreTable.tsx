@@ -18,6 +18,7 @@ import {
   IconUsers,
   IconUser,
   IconLock,
+  IconShieldCheck,
 } from "@/components/ui/Icons";
 import { TargetUserToEdit } from "./EditUserCredentialsModal";
 import SearchableSelect from "@/components/ui/SearchableSelect";
@@ -32,6 +33,7 @@ interface StoreTableProps {
   onManageCompanyUsers: (company: Company) => void;
   onManageStoreUsers: (branch: Branch) => void;
   onEditCredentials?: (user: TargetUserToEdit) => void;
+  onManageCompliance?: (company: Company) => void;
 }
 
 export default function StoreTable({
@@ -44,6 +46,7 @@ export default function StoreTable({
   onManageCompanyUsers,
   onManageStoreUsers,
   onEditCredentials,
+  onManageCompliance,
 }: StoreTableProps) {
   const t = useTranslations("stores_page");
   const [expandedCompanyIds, setExpandedCompanyIds] = useState<Record<string, boolean>>({});
@@ -111,8 +114,31 @@ export default function StoreTable({
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-xs font-mono text-white/70">
-                    {company.rut || <span className="text-white/30 italic">{t("no_rut_assigned")}</span>}
+                  <td className="px-4 py-4 text-xs font-mono text-white/70 space-y-1">
+                    <div>
+                      {company.rut || <span className="text-white/30 italic">{t("no_rut_assigned")}</span>}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${
+                          company.verificationStatus === "SUSPENDED" ||
+                          company.verificationStatus === "BLOCKED"
+                            ? "bg-red/15 text-red border-red/30"
+                            : company.verificationStatus === "PENDING_VERIFICATION" ||
+                              company.verificationStatus === "PENDING_DOCS"
+                            ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                            : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                        }`}
+                      >
+                        {company.verificationStatus || "ENABLED"}
+                      </span>
+                      {company.customCommissionRate !== null &&
+                        company.customCommissionRate !== undefined && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                            Com: {Number(company.customCommissionRate)}%
+                          </span>
+                        )}
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-between gap-2">
@@ -207,6 +233,17 @@ export default function StoreTable({
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {onManageCompliance && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="!p-2 text-xs hover:border-emerald-500/40 hover:text-white"
+                          onClick={() => onManageCompliance(company)}
+                          title={t("compliance_btn_title")}
+                        >
+                          <IconShieldCheck className="w-4 h-4 text-emerald-400" />
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="secondary"

@@ -2,12 +2,13 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { WebpayProvider } from '../../providers/webpay.provider';
+import { FinancialLedgerService } from '../../../tax/financial-ledger.service';
 import { CommitTransactionCommand } from '../impl/commit-transaction.command';
 
 /**
  * Handler: Procesa el comando de confirmar transacción.
- * Confirma la tx con Webpay y ejecuta transacción atómica
- * para actualizar pago, orden y descuento de stock.
+ * Confirma la tx con Webpay y ejecuta transacción atómica e idempotente
+ * para actualizar pago, orden, descuento de stock y registro en el Ledger inmutable.
  */
 @CommandHandler(CommitTransactionCommand)
 export class CommitTransactionHandler
@@ -18,6 +19,7 @@ export class CommitTransactionHandler
   constructor(
     private readonly prisma: PrismaService,
     private readonly webpay: WebpayProvider,
+    private readonly financialLedger: FinancialLedgerService,
   ) {}
 
   async execute(command: CommitTransactionCommand) {
@@ -38,6 +40,22 @@ export class CommitTransactionHandler
 
     if (!payment) {
       throw new NotFoundException('Pago no encontrado para ese token');
+    }
+
+    // Control de idempotencia: si el pago ya fue confirmado previamente, devolver el estado existente
+    if (payment.status === 'AUTHORIZED' && payment.order.status === 'PAID') {
+      return {
+        approved: true,
+        orderId: payment.orderId,
+        buyOrder: payment.order.buyOrder,
+        amount: Number(payment.amount),
+        authCode: payment.authCode,
+        cardLast4: payment.cardLast4,
+        paymentType: payment.paymentType,
+        installments: payment.installments,
+        transactionDate: payment.transactionDate,
+        responseCode: 0,
+      };
     }
 
     const result = await this.webpay.transaction.commit(token);
@@ -130,21 +148,33 @@ export class CommitTransactionHandler
             }
           }
 
-          // SaaS Model & Escrow: Registrar en la Billetera en CUSTODIA (isWithdrawable: false)
-          // El saldo disponible se liberará cuando la tienda ingrese el despacho oficial
-          const baseSubtotal = Number(vendorOrder.subtotal);
-          const totalAbono = baseSubtotal + Number(vendorOrder.shippingCost);
+          // Registrar en el Libro Mayor Inmutable (Ledger) en CUSTODIA (ESCROW) + Comisión Vendedor si aplica
+          const grossSale = Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
+          const sellerCommNet = Number((vendorOrder as any).sellerCommissionNet || 0);
+          const sellerCommVat = Number((vendorOrder as any).sellerCommissionVat || 0);
+          const sellerCommGross = Number((vendorOrder as any).sellerCommissionGross || 0);
+          const sellerNetPayout =
+            Number((vendorOrder as any).sellerNetPayout) > 0
+              ? Number((vendorOrder as any).sellerNetPayout)
+              : Math.max(0, grossSale - sellerCommGross);
 
-          await tx.walletTransaction.create({
-            data: {
+          await this.financialLedger.recordVendorSaleInEscrow(
+            {
               storeId: vendorOrder.storeId,
-              amount: totalAbono,
-              type: 'SALE',
+              orderId: payment.orderId,
+              vendorOrderId: vendorOrder.id,
+              grossSaleAmount: grossSale,
+              taxableNet: Number(vendorOrder.taxableNet || 0),
+              vatAmount: Number(vendorOrder.vatAmount || 0),
+              sellerCommissionNet: sellerCommNet,
+              sellerCommissionVat: sellerCommVat,
+              sellerCommissionGross: sellerCommGross,
+              sellerNetPayout,
               paymentMethod: 'WEBPAY',
-              isWithdrawable: false,
-              reference: `Order: ${vendorOrder.id} (Custodia - Pendiente de Despacho)`,
+              createdByUserId: payment.order.userId || 'WEBPAY_CALLBACK',
             },
-          });
+            tx,
+          );
         }
       }
     });

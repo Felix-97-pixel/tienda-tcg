@@ -7,6 +7,7 @@ import {
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ShippingService } from '../../../shipping/shipping.service';
+import { FinancialLedgerService } from '../../../tax/financial-ledger.service';
 import { DispatchVendorOrderCommand } from '../impl/dispatch-vendor-order.command';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class DispatchVendorOrderHandler
   constructor(
     private readonly prisma: PrismaService,
     private readonly shippingService: ShippingService,
+    private readonly financialLedger: FinancialLedgerService,
   ) {}
 
   async execute(command: DispatchVendorOrderCommand) {
@@ -115,11 +117,18 @@ export class DispatchVendorOrderHandler
       }
     }
 
-    const totalAbono =
+    const grossOrderTotal =
       Number(vendorOrder.subtotal) + Number(vendorOrder.shippingCost);
+    const totalAbono =
+      Number((vendorOrder as any).sellerNetPayout) > 0
+        ? Number((vendorOrder as any).sellerNetPayout)
+        : Math.max(
+            0,
+            grossOrderTotal - Number((vendorOrder as any).sellerCommissionGross || 0),
+          );
 
     // Validación TapTrade Shield (Nivel 2 y 3 >= $20.000 CLP)
-    if (totalAbono >= 20000 && !isLocalPickup) {
+    if (grossOrderTotal >= 20000 && !isLocalPickup) {
       if (!dto.contentPhotoUrl || !dto.packagingPhotoUrl || !dto.packagePhotoUrl) {
         throw new BadRequestException(
           'Para pedidos iguales o superiores a $20.000 CLP es obligatorio registrar las 3 fotografías de evidencia de empaque (Protocolo TapTrade Shield).',
@@ -131,7 +140,7 @@ export class DispatchVendorOrderHandler
       ? `Order: ${vendorOrderId} (Entregado en local / Retiro en Tienda)`
       : `Order: ${vendorOrderId} (Despachado con ${officialCourier} #${cleanTracking})`;
 
-    // 6. Transacción atómica: actualizar orden, liberar custodia en billetera e incrementar balance
+    // 6. Transacción atómica: actualizar orden, insertar asiento inmutable ESCROW_RELEASE y sincronizar balance
     return await this.prisma.$transaction(async (tx) => {
       // A. Actualizar VendorOrder
       const updatedVendorOrder = await tx.vendorOrder.update({
@@ -142,51 +151,27 @@ export class DispatchVendorOrderHandler
           trackingNumber: cleanTracking,
           trackingUrl: generatedTrackingUrl || null,
           dispatchedAt: new Date(),
+          ...(dto.buyerDteType ? { buyerDteType: Number(dto.buyerDteType) } : {}),
+          ...(dto.buyerDteFolio ? { buyerDteFolio: dto.buyerDteFolio.trim() } : {}),
+          ...(dto.buyerDteUrl ? { buyerDteUrl: dto.buyerDteUrl.trim() } : {}),
         },
       });
 
-      // B. Buscar la transacción de venta en custodia (isWithdrawable: false)
-      const heldTx = await tx.walletTransaction.findFirst({
-        where: {
+      // B. Liberar fondos desde Custodia (ESCROW) a Disponible (AVAILABLE) en el Ledger inmutable (sin mutar el asiento SALE original)
+      const releaseResult = await this.financialLedger.releaseVendorOrderFromEscrow(
+        {
           storeId: vendorOrder.storeId,
-          type: 'SALE',
-          isWithdrawable: false,
-          reference: { contains: vendorOrderId },
+          orderId: vendorOrder.orderId,
+          vendorOrderId,
+          releaseReference: dispatchRef,
+          createdByUserId: userId,
+          fallbackAmount: totalAbono,
+          paymentMethod: 'WEBPAY',
         },
-      });
+        tx,
+      );
 
-      if (heldTx) {
-        // Liberar fondos en la transacción existente
-        await tx.walletTransaction.update({
-          where: { id: heldTx.id },
-          data: {
-            isWithdrawable: true,
-            reference: dispatchRef,
-          },
-        });
-      } else {
-        // Si no existía transacción previa retenida, registrarla directamente como disponible
-        await tx.walletTransaction.create({
-          data: {
-            storeId: vendorOrder.storeId,
-            amount: totalAbono,
-            type: 'SALE',
-            paymentMethod: 'WEBPAY',
-            isWithdrawable: true,
-            reference: dispatchRef,
-          },
-        });
-      }
-
-      // C. Incrementar saldo disponible para retiro en la tienda
-      const updatedStore = await tx.store.update({
-        where: { id: vendorOrder.storeId },
-        data: {
-          balance: { increment: totalAbono },
-        },
-      });
-
-      // D. Guardar evidencia fotográfica (TapTrade Shield)
+      // C. Guardar evidencia fotográfica (TapTrade Shield)
       if (dto.contentPhotoUrl && dto.packagingPhotoUrl && dto.packagePhotoUrl) {
         await tx.dispatchEvidence.upsert({
           where: { vendorOrderId },
@@ -211,8 +196,8 @@ export class DispatchVendorOrderHandler
         success: true,
         message: 'Pedido despachado y fondos liberados exitosamente a la billetera',
         vendorOrder: updatedVendorOrder,
-        releasedAmount: totalAbono,
-        newBalance: Number(updatedStore.balance),
+        releasedAmount: releaseResult.releasedAmount,
+        newBalance: releaseResult.newAvailableBalance,
       };
     });
   }

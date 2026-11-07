@@ -6,6 +6,7 @@ import { CheckoutPricingService } from './checkout-pricing.service';
 import { TaxController } from './tax.controller';
 import { AccountingService } from './accounting.service';
 import { AccountingController } from './accounting.controller';
+import { FinancialLedgerService } from './financial-ledger.service';
 
 @Module({
   imports: [PrismaModule],
@@ -15,12 +16,14 @@ import { AccountingController } from './accounting.controller';
     SellerTaxProfileService,
     CheckoutPricingService,
     AccountingService,
+    FinancialLedgerService,
   ],
   exports: [
     PricingService,
     SellerTaxProfileService,
     CheckoutPricingService,
     AccountingService,
+    FinancialLedgerService,
   ],
 })
 export class TaxModule {}
