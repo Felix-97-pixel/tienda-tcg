@@ -140,10 +140,10 @@ export default function SearchableSelect({
         usePortal ? "fixed" : "absolute w-full min-w-full sm:min-w-[200px]"
       } z-50 ${
         !usePortal ? (openUpwards ? "bottom-full mb-1" : "mt-1") : ""
-      } max-h-60 overflow-auto rounded-xl border border-white/10 bg-[#0E121B] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200`}
+      } max-h-60 overflow-auto rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200`}
     >
       {filteredOptions.length === 0 ? (
-        <li className="px-5 py-3 text-sm text-white/40 italic">{noResultsText}</li>
+        <li className="px-5 py-3 text-sm text-[var(--tt-text-muted)] italic">{noResultsText}</li>
       ) : (
         filteredOptions.map((opt) => (
           <li
@@ -159,8 +159,8 @@ export default function SearchableSelect({
               onChange(opt.value);
               setIsOpen(false);
             }}
-            className={`cursor-pointer px-4 py-2.5 hover:bg-white/10 text-sm text-white/90 transition-colors ${
-              value === opt.value ? "bg-red/15 font-bold text-red-light" : ""
+            className={`cursor-pointer px-4 py-2.5 hover:bg-[var(--tt-bg-subtle)] text-sm text-[var(--tt-text-main)] transition-colors ${
+              value === opt.value ? "bg-red/15 font-bold text-red" : ""
             }`}
           >
             {opt.label}
@@ -211,12 +211,12 @@ export default function SearchableSelect({
             }, 150);
           }
         }}
-        className={`w-full rounded-xl border border-white/10 bg-[#080B12] py-2.5 pl-4 pr-10 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-red focus:ring-1 focus:ring-red/30 disabled:opacity-50 ${inputClassName}`}
+        className={`w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] py-2.5 pl-4 pr-10 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none transition focus:border-red focus:ring-1 focus:ring-red/30 disabled:opacity-50 ${inputClassName}`}
       />
       <IconChevronDown
         size={14}
-        className={`absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 transition-transform duration-200 ${
-          isOpen ? "rotate-180 text-white" : ""
+        className={`absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--tt-text-muted)] transition-transform duration-200 ${
+          isOpen ? "rotate-180 text-[var(--tt-text-main)]" : ""
         }`}
       />
       {isOpen && !disabled && (

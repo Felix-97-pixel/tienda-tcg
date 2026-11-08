@@ -373,56 +373,56 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           <IconZap className="w-3.5 h-3.5" /> {t("badge_live")}
         </div>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[var(--tt-text-main)] tracking-tight leading-tight">
           {t("hero_title")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">{t("hero_highlight")}</span>
         </h1>
 
-        <p className="mt-4 text-gray-300 text-base sm:text-lg leading-relaxed">
+        <p className="mt-4 text-[var(--tt-text-muted)] text-base sm:text-lg leading-relaxed">
           {t("hero_description")}
         </p>
       </div>
 
       {/* 2. Visual 3-Step Process (Refactoring UI / Dark Vault Cards) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-        <div className="rounded-2xl bg-[#111522] border border-white/[0.08] p-5 relative overflow-hidden group hover:border-amber-500/30 transition-all">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-base flex items-center justify-center mb-3">
+        <div className="rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-5 relative overflow-hidden group hover:border-amber-500/30 transition-all shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-black text-base flex items-center justify-center mb-3">
             1
           </div>
-          <h3 className="text-base font-bold text-white mb-1">
+          <h3 className="text-base font-bold text-[var(--tt-text-main)] mb-1">
             {t("steps.step1_title")}
           </h3>
-          <p className="text-xs text-gray-400 leading-relaxed">
+          <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">
             {t("steps.step1_desc")}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-[#111522] border border-white/[0.08] p-5 relative overflow-hidden group hover:border-emerald-500/30 transition-all">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-base flex items-center justify-center mb-3">
+        <div className="rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-5 relative overflow-hidden group hover:border-emerald-500/30 transition-all shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-black text-base flex items-center justify-center mb-3">
             2
           </div>
-          <h3 className="text-base font-bold text-white mb-1">
+          <h3 className="text-base font-bold text-[var(--tt-text-main)] mb-1">
             {t("steps.step2_title")}
           </h3>
-          <p className="text-xs text-gray-400 leading-relaxed">
+          <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">
             {t("steps.step2_desc")}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-[#111522] border border-white/[0.08] p-5 relative overflow-hidden group hover:border-blue-500/30 transition-all">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-black text-base flex items-center justify-center mb-3">
+        <div className="rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-5 relative overflow-hidden group hover:border-blue-500/30 transition-all shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 font-black text-base flex items-center justify-center mb-3">
             3
           </div>
-          <h3 className="text-base font-bold text-white mb-1">
+          <h3 className="text-base font-bold text-[var(--tt-text-main)] mb-1">
             {t("steps.step3_title")}
           </h3>
-          <p className="text-xs text-gray-400 leading-relaxed">
+          <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">
             {t("steps.step3_desc")}
           </p>
         </div>
       </div>
 
       {/* 3. Global Buylist Toolbar & Live Search */}
-      <div className="bg-[#111522] border border-white/[0.08] rounded-2xl p-4 sm:p-5 mb-8 shadow-xl space-y-3.5">
+      <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-4 sm:p-5 mb-8 shadow-xl space-y-3.5 transition-colors">
         {/* Row 1: Full-Width Prominent Search Bar */}
         <div className="relative w-full">
           <input
@@ -430,14 +430,14 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t("search_placeholder")}
-            className="w-full h-12 pl-11 pr-10 rounded-xl bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner"
+            className="w-full h-12 pl-11 pr-10 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] text-sm focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner"
           />
-          <IconSearch className="w-4 h-4 text-gray-500 absolute left-4 top-4 pointer-events-none" />
+          <IconSearch className="w-4 h-4 text-[var(--tt-text-muted)] absolute left-4 top-4 pointer-events-none" />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute right-3.5 top-3.5 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white flex items-center justify-center text-xs transition-all"
+              className="absolute right-3.5 top-3.5 w-5 h-5 rounded-full bg-[var(--tt-bg-surface)] hover:opacity-80 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] border border-[var(--tt-border-medium)] flex items-center justify-center text-xs transition-all"
             >
               ✕
             </button>
@@ -445,7 +445,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         </div>
 
         {/* Row 2: Unified 5-Column Filter Toolbar (Equal widths, laser-aligned, no wrapping bugs) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-2.5 pt-3 border-t border-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-2.5 pt-3 border-t border-[var(--tt-border-subtle)]">
           {/* 1. Store filter */}
           <div className="w-full col-span-1 sm:col-span-1 md:col-span-2 lg:col-span-1">
             <SearchableSelect
@@ -453,10 +453,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               value={selectedStoreId}
               onChange={(val) => setSelectedStoreId(val || "ALL")}
               placeholder={t("filters.filter_by_store")}
-              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+              inputClassName={`h-10 !text-xs !bg-[var(--tt-bg-subtle)] font-semibold truncate transition-all ${
                 selectedStoreId !== "ALL"
-                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
-                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+                  ? "!border-amber-500/60 !text-amber-500 ring-1 ring-amber-500/20"
+                  : "!border-[var(--tt-border-medium)] !text-[var(--tt-text-main)] hover:!border-amber-500/40"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
               noResultsText={t("filters.no_store_found")}
             />
@@ -469,10 +469,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               value={selectedGame}
               onChange={(val) => setSelectedGame(val || "ALL")}
               placeholder={t("filters.filter_by_game")}
-              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+              inputClassName={`h-10 !text-xs !bg-[var(--tt-bg-subtle)] font-semibold truncate transition-all ${
                 selectedGame !== "ALL"
-                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
-                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+                  ? "!border-amber-500/60 !text-amber-500 ring-1 ring-amber-500/20"
+                  : "!border-[var(--tt-border-medium)] !text-[var(--tt-text-main)] hover:!border-amber-500/40"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
               noResultsText={t("filters.no_game_found")}
             />
@@ -485,10 +485,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               value={selectedLanguage}
               onChange={(val) => setSelectedLanguage(val || "ALL")}
               placeholder={t("filters.filter_by_language")}
-              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+              inputClassName={`h-10 !text-xs !bg-[var(--tt-bg-subtle)] font-semibold truncate transition-all ${
                 selectedLanguage !== "ALL"
-                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
-                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+                  ? "!border-amber-500/60 !text-amber-500 ring-1 ring-amber-500/20"
+                  : "!border-[var(--tt-border-medium)] !text-[var(--tt-text-main)] hover:!border-amber-500/40"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
               noResultsText={t("filters.no_language_found")}
             />
@@ -501,10 +501,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               value={selectedCondition}
               onChange={(val) => setSelectedCondition(val || "ALL")}
               placeholder={t("filters.filter_by_condition")}
-              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+              inputClassName={`h-10 !text-xs !bg-[var(--tt-bg-subtle)] font-semibold truncate transition-all ${
                 selectedCondition !== "ALL"
-                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
-                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+                  ? "!border-amber-500/60 !text-amber-500 ring-1 ring-amber-500/20"
+                  : "!border-[var(--tt-border-medium)] !text-[var(--tt-text-main)] hover:!border-amber-500/40"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
               noResultsText={t("filters.no_condition_found")}
             />
@@ -517,10 +517,10 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               value={sortBy}
               onChange={(val) => setSortBy((val as any) || "credit-desc")}
               placeholder={t("filters.order_by")}
-              inputClassName={`h-10 !text-xs !bg-[#0A0D14] font-semibold truncate transition-all ${
+              inputClassName={`h-10 !text-xs !bg-[var(--tt-bg-subtle)] font-semibold truncate transition-all ${
                 sortBy !== "credit-desc"
-                  ? "!border-amber-500/60 !text-amber-300 ring-1 ring-amber-500/20"
-                  : "!border-white/10 !text-gray-300 hover:!border-white/20"
+                  ? "!border-amber-500/60 !text-amber-500 ring-1 ring-amber-500/20"
+                  : "!border-[var(--tt-border-medium)] !text-[var(--tt-text-main)] hover:!border-amber-500/40"
               } focus:!border-amber-500/60 focus:!ring-amber-500/20`}
               noResultsText={t("filters.no_option_found")}
             />
@@ -529,20 +529,20 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
         {/* Row 3: Active Filters Summary & Instant Reset */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/5 text-xs text-gray-400">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-[var(--tt-border-subtle)] text-xs text-[var(--tt-text-muted)]">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mr-1 flex items-center gap-1">
-                <IconFilter className="w-3 h-3 text-amber-400" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mr-1 flex items-center gap-1">
+                <IconFilter className="w-3 h-3 text-amber-500" />
                 <span>{t("filters.active_filters")}</span>
               </span>
 
               {searchTerm.trim() && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-white text-[11px]">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-[11px]">
                   <span>"{searchTerm}"</span>
                   <button
                     type="button"
                     onClick={() => setSearchTerm("")}
-                    className="text-gray-400 hover:text-white"
+                    className="text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   >
                     ✕
                   </button>
@@ -550,12 +550,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               )}
 
               {selectedStoreId !== "ALL" && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[11px] font-medium">
                   <span>{storeOptions.find((o) => o.value === selectedStoreId)?.label || selectedStoreId}</span>
                   <button
                     type="button"
                     onClick={() => setSelectedStoreId("ALL")}
-                    className="text-amber-400 hover:text-amber-200"
+                    className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-200"
                   >
                     ✕
                   </button>
@@ -563,12 +563,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               )}
 
               {selectedGame !== "ALL" && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[11px] font-medium">
                   <span>{gameOptions.find((o) => o.value === selectedGame)?.label || selectedGame}</span>
                   <button
                     type="button"
                     onClick={() => setSelectedGame("ALL")}
-                    className="text-amber-400 hover:text-amber-200"
+                    className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-200"
                   >
                     ✕
                   </button>
@@ -576,12 +576,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               )}
 
               {selectedLanguage !== "ALL" && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[11px] font-medium">
                   <span>{languageOptions.find((o) => o.value === selectedLanguage)?.label || selectedLanguage}</span>
                   <button
                     type="button"
                     onClick={() => setSelectedLanguage("ALL")}
-                    className="text-amber-400 hover:text-amber-200"
+                    className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-200"
                   >
                     ✕
                   </button>
@@ -589,12 +589,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               )}
 
               {selectedCondition !== "ALL" && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[11px] font-medium">
                   <span>{conditionOptions.find((o) => o.value === selectedCondition)?.label || selectedCondition}</span>
                   <button
                     type="button"
                     onClick={() => setSelectedCondition("ALL")}
-                    className="text-amber-400 hover:text-amber-200"
+                    className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-200"
                   >
                     ✕
                   </button>
@@ -602,12 +602,12 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               )}
 
               {sortBy !== "credit-desc" && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-[11px]">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-[11px]">
                   <span>{sortOptions.find((o) => o.value === sortBy)?.label || sortBy}</span>
                   <button
                     type="button"
                     onClick={() => setSortBy("credit-desc")}
-                    className="text-gray-400 hover:text-white"
+                    className="text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   >
                     ✕
                   </button>
@@ -618,7 +618,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             <button
               type="button"
               onClick={handleResetAllFilters}
-              className="text-[11px] font-bold text-gray-400 hover:text-amber-400 underline underline-offset-2 transition-colors ml-auto cursor-pointer"
+              className="text-[11px] font-bold text-[var(--tt-text-muted)] hover:text-amber-500 underline underline-offset-2 transition-colors ml-auto cursor-pointer"
             >
               {t("clear_filters")}
             </button>
@@ -628,23 +628,23 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
       {/* 4. Buylist Cards Grid */}
       <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-xl font-black text-white flex items-center gap-2">
+        <h2 className="text-xl font-black text-[var(--tt-text-main)] flex items-center gap-2">
           <span>{t("cards_wanted_title")}</span>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 font-mono">
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30 font-mono font-bold">
             {t("publications_count", { count: filteredItems.length })}
           </span>
         </h2>
       </div>
 
       {filteredItems.length === 0 ? (
-        <div className="text-center py-20 px-4 rounded-3xl bg-[#111522]/40 border border-dashed border-white/10">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+        <div className="text-center py-20 px-4 rounded-3xl bg-[var(--tt-bg-surface)] border border-dashed border-[var(--tt-border-medium)] shadow-sm">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
             <IconSearch className="w-8 h-8 opacity-60" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">
+          <h3 className="text-xl font-bold text-[var(--tt-text-main)] mb-2">
             {t("no_results_title")}
           </h3>
-          <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
+          <p className="text-sm text-[var(--tt-text-muted)] max-w-md mx-auto mb-6">
             {t("no_results_desc")}
           </p>
           <button
@@ -656,7 +656,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               setSelectedLanguage("ALL");
               setSelectedCondition("ALL");
             }}
-            className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all"
+            className="px-5 py-2.5 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] border border-[var(--tt-border-medium)] font-bold text-xs transition-all shadow-sm"
           >
             {t("clear_filters")}
           </button>
@@ -674,32 +674,32 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
             return (
               <div
                 key={item.id}
-                className="group relative rounded-2xl bg-[#111522] border border-white/[0.08] hover:border-amber-500/40 p-4 transition-all duration-300 hover:shadow-[0_4px_30px_rgba(245,158,11,0.12)] flex flex-col justify-between"
+                className="group relative rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-amber-500/40 p-4 transition-all duration-300 hover:shadow-lg flex flex-col justify-between shadow-sm"
               >
                 <div>
                   {/* Store Identity Badge */}
-                  <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-white/[0.06]">
+                  <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-[var(--tt-border-subtle)]">
                     <Link
                       href={`/shop/store/${item.store.subdomain}?tab=buylist`}
                       className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                     >
-                      <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                      <div className="w-6 h-6 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden flex items-center justify-center shrink-0">
                         {item.store.logoUrl ? (
                           <img src={item.store.logoUrl} alt={item.store.name} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-[10px] font-bold text-amber-400">
+                          <span className="text-[10px] font-bold text-amber-500">
                             {item.store.name.slice(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-bold text-gray-300 hover:text-white truncate">
+                      <span className="text-xs font-bold text-[var(--tt-text-main)] hover:text-amber-500 truncate transition-colors">
                         {item.store.name}
                       </span>
                     </Link>
 
                     <Link
                       href={`/shop/store/${item.store.subdomain}?tab=buylist`}
-                      className="text-[11px] text-amber-400 hover:underline shrink-0"
+                      className="text-[11px] font-bold text-amber-500 hover:underline shrink-0"
                     >
                       {t("item_card.view_store_buylist")}
                     </Link>
@@ -708,7 +708,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   {/* Card Content Row */}
                   <div className="flex gap-3.5">
                     {/* Thumbnail */}
-                    <div className="relative w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-[#0A0D14] border border-white/10 group-hover:border-amber-500/30 transition-all">
+                    <div className="relative w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] group-hover:border-amber-500/30 transition-all">
                       <Image
                         src={imgUrl}
                         alt={item.product?.name || "TCG Card"}
@@ -725,49 +725,49 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono border ${cond.className}`}>
                           {cond.label}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white/5 border border-white/10 text-gray-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)]">
                           {langCode}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/20">
                           {t("item_card.looking_for", { count: item.quantityWanted })}
                         </span>
                       </div>
 
-                      <h4 className="font-bold text-white text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-amber-300 transition-colors">
+                      <h4 className="font-bold text-[var(--tt-text-main)] text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-amber-500 transition-colors">
                         {item.product?.name}
                       </h4>
 
-                      <p className="text-xs text-gray-400 truncate mt-1">
+                      <p className="text-xs text-[var(--tt-text-muted)] truncate mt-1">
                         {item.product?.cardDetail?.expansion || item.product?.category?.name || "Single TCG"}
                       </p>
                     </div>
                   </div>
 
                   {/* Dual Price Matrix */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 bg-[#0A0D14]/70 rounded-xl p-2.5 border border-white/5">
+                  <div className="mt-4 grid grid-cols-2 gap-2 bg-[var(--tt-bg-subtle)] rounded-xl p-2.5 border border-[var(--tt-border-subtle)]">
                     <div>
-                      <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                        <IconCash className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-[var(--tt-text-muted)] tracking-wider">
+                        <IconCash className="w-3.5 h-3.5 text-emerald-500" />
                         <span>{t("item_card.cash")}</span>
                       </span>
-                      <span className="text-sm font-extrabold text-white">
+                      <span className="text-sm font-extrabold text-[var(--tt-text-main)]">
                         {formatPrice(cash, currency)}
                       </span>
                     </div>
 
-                    <div className="border-l border-white/10 pl-2.5">
+                    <div className="border-l border-[var(--tt-border-medium)] pl-2.5">
                       <div className="flex items-center gap-1">
-                        <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-400 tracking-wider">
-                          <IconGem className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-500 tracking-wider">
+                          <IconGem className="w-3.5 h-3.5 text-amber-500" />
                           <span>{t("item_card.credit")}</span>
                         </span>
                         {bonusPercent > 0 && (
-                          <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 px-1 rounded">
+                          <span className="text-[9px] font-extrabold text-emerald-500 bg-emerald-500/15 px-1 rounded">
                             +{bonusPercent}%
                           </span>
                         )}
                       </div>
-                      <span className="text-sm font-extrabold text-amber-300">
+                      <span className="text-sm font-extrabold text-amber-500 dark:text-amber-300">
                         {formatPrice(credit, currency)}
                       </span>
                     </div>
@@ -790,7 +790,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
       )}
 
       {/* 5. Direct Store Buylist Directory Banner - High-Converting B2B Section */}
-      <div className="mt-16 relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#141A2D] via-[#0E121B] to-[#0A0D14] border border-white/10 p-8 sm:p-12 shadow-2xl text-center">
+      <div className="mt-16 relative rounded-3xl overflow-hidden bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-8 sm:p-12 shadow-2xl text-center">
         {/* Glow accents */}
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-red-600/15 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-24 right-10 w-80 h-48 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -799,53 +799,53 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
           {/* Eyebrow Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/30 mb-5">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-red-400">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-red-500">
               {t("b2b_banner.badge")}
             </span>
           </div>
 
           {/* Headline */}
-          <h3 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4 leading-tight">
+          <h3 className="text-2xl sm:text-4xl font-black text-[var(--tt-text-main)] tracking-tight mb-4 leading-tight">
             {t("b2b_banner.title_prefix")}{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-500 to-amber-500">
               {t("b2b_banner.title_highlight")}
             </span>
           </h3>
 
           {/* Persuasive Hook Description */}
-          <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-8 max-w-2xl mx-auto font-normal">
+          <p className="text-sm sm:text-base text-[var(--tt-text-muted)] leading-relaxed mb-8 max-w-2xl mx-auto font-normal">
             {t("b2b_banner.description")}
           </p>
 
           {/* Value Highlights */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0 mt-0.5">
-                <IconCoins className="w-4 h-4 text-red-400" />
+            <div className="p-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-red-600/15 border border-red-500/30 flex items-center justify-center text-red-500 shrink-0 mt-0.5">
+                <IconCoins className="w-4 h-4 text-red-500" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">{t("b2b_banner.feature_commission_title")}</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">{t("b2b_banner.feature_commission_desc")}</p>
+                <h4 className="text-xs font-bold text-[var(--tt-text-main)]">{t("b2b_banner.feature_commission_title")}</h4>
+                <p className="text-[11px] text-[var(--tt-text-muted)] mt-0.5">{t("b2b_banner.feature_commission_desc")}</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                <IconZap className="w-4 h-4 text-amber-400" />
+            <div className="p-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
+                <IconZap className="w-4 h-4 text-amber-500" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">{t("b2b_banner.feature_buylist_title")}</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">{t("b2b_banner.feature_buylist_desc")}</p>
+                <h4 className="text-xs font-bold text-[var(--tt-text-main)]">{t("b2b_banner.feature_buylist_title")}</h4>
+                <p className="text-[11px] text-[var(--tt-text-muted)] mt-0.5">{t("b2b_banner.feature_buylist_desc")}</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
-                <IconStore className="w-4 h-4 text-blue-400" />
+            <div className="p-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-500 shrink-0 mt-0.5">
+                <IconStore className="w-4 h-4 text-blue-500" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">{t("b2b_banner.feature_storefront_title")}</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">{t("b2b_banner.feature_storefront_desc")}</p>
+                <h4 className="text-xs font-bold text-[var(--tt-text-main)]">{t("b2b_banner.feature_storefront_title")}</h4>
+                <p className="text-[11px] text-[var(--tt-text-muted)] mt-0.5">{t("b2b_banner.feature_storefront_desc")}</p>
               </div>
             </div>
           </div>
@@ -862,14 +862,14 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
             <Link
               href="/admin/buylist"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 hover:text-white font-semibold text-xs border border-white/10 hover:border-white/20 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] font-semibold text-xs border border-[var(--tt-border-medium)] transition-all"
             >
               <span>{t("b2b_banner.cta_already_seller")}</span>
             </Link>
           </div>
 
           {/* Reassurance Micro-copy */}
-          <p className="text-xs text-gray-400 mt-5 font-mono">
+          <p className="text-xs text-[var(--tt-text-muted)] mt-5 font-mono">
             {t("b2b_banner.reassurance")}
           </p>
         </div>
@@ -878,27 +878,27 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
       {/* 6. Trade Modal */}
       {activeTradeItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-2xl bg-[#111522] border border-white/10 p-6 shadow-2xl text-white">
+          <div className="relative w-full max-w-lg rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-6 shadow-2xl text-[var(--tt-text-main)]">
             <button
               type="button"
               onClick={() => setActiveTradeItem(null)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-all"
             >
               ✕
             </button>
 
             <div className="flex items-center gap-2.5 mb-4">
-              <span className="w-8 h-8 rounded-xl bg-red-600/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
+              <span className="w-8 h-8 rounded-xl bg-red-600/15 border border-red-500/30 text-red-500 flex items-center justify-center shrink-0">
                 <IconRefresh className="w-4 h-4" />
               </span>
-              <h3 className="text-lg font-black text-white">
+              <h3 className="text-lg font-black text-[var(--tt-text-main)]">
                 {t("trade_modal.title", { storeName: activeTradeItem.store.name })}
               </h3>
             </div>
 
             {/* Selected Card Summary */}
-            <div className="flex gap-4 p-3 rounded-xl bg-[#0A0D14] border border-white/5 mb-5">
-              <div className="relative w-16 h-22 shrink-0 rounded-lg overflow-hidden bg-black/40 border border-white/10">
+            <div className="flex gap-4 p-3 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] mb-5">
+              <div className="relative w-16 h-22 shrink-0 rounded-lg overflow-hidden bg-black/40 border border-[var(--tt-border-medium)]">
                 <Image
                   src={activeTradeItem.product?.imageUrl || "/images/products/product-1-bg-1.png"}
                   alt={activeTradeItem.product?.name || "TCG Card"}
@@ -909,17 +909,17 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white text-base truncate">
+                <h4 className="font-bold text-[var(--tt-text-main)] text-base truncate">
                   {activeTradeItem.product?.name}
                 </h4>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">
                   {activeTradeItem.product?.cardDetail?.expansion || t("trade_modal.official_edition")}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 font-bold">
                     {activeTradeItem.condition?.displayName || "Near Mint"}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-[var(--tt-text-muted)]">
                     {t("trade_modal.max_copies", { count: activeTradeItem.quantityWanted })}
                   </span>
                 </div>
@@ -928,7 +928,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
             {/* Quantity Selector */}
             <div className="mb-4">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+              <label className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider block mb-2">
                 {t("trade_modal.quantity_to_sell")}
               </label>
               <div className="flex items-center gap-3">
@@ -936,22 +936,22 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                   type="button"
                   disabled={tradeQuantity <= 1}
                   onClick={() => setTradeQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-40 font-bold text-lg"
+                  className="w-10 h-10 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] disabled:opacity-40 font-bold text-lg text-[var(--tt-text-main)] transition-colors cursor-pointer"
                 >
                   -
                 </button>
-                <span className="text-lg font-black font-mono w-10 text-center">
+                <span className="text-lg font-black font-mono w-10 text-center text-[var(--tt-text-main)]">
                   {tradeQuantity}
                 </span>
                 <button
                   type="button"
                   disabled={tradeQuantity >= activeTradeItem.quantityWanted}
                   onClick={() => setTradeQuantity((q) => Math.min(activeTradeItem.quantityWanted, q + 1))}
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-40 font-bold text-lg"
+                  className="w-10 h-10 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] disabled:opacity-40 font-bold text-lg text-[var(--tt-text-main)] transition-colors cursor-pointer"
                 >
                   +
                 </button>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-[var(--tt-text-muted)]">
                   {t("trade_modal.max_requested", { max: activeTradeItem.quantityWanted })}
                 </span>
               </div>
@@ -959,31 +959,31 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
 
             {/* Payout Options */}
             <div className="mb-6">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+              <label className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider block mb-2">
                 {t("trade_modal.choose_payout")}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setPayoutMethod("credit")}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     payoutMethod === "credit"
                       ? "bg-amber-500/15 border-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                      : "bg-[#0A0D14] border-white/10 hover:border-white/20"
+                      : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-amber-500/40"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
+                    <span className="text-xs font-extrabold text-amber-500 uppercase tracking-wider">
                       {t("trade_modal.store_credit")}
                     </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300">
                       {t("trade_modal.bonus_badge")}
                     </span>
                   </div>
-                  <span className="text-base font-black text-white block mt-1">
+                  <span className="text-base font-black text-[var(--tt-text-main)] block mt-1">
                     {formatPrice(Number(activeTradeItem.creditPrice || 0) * tradeQuantity, currency)}
                   </span>
-                  <span className="text-[11px] text-gray-400 block mt-0.5">
+                  <span className="text-[11px] text-[var(--tt-text-muted)] block mt-0.5">
                     {t("trade_modal.credit_desc", { storeName: activeTradeItem.store.name })}
                   </span>
                 </button>
@@ -991,19 +991,19 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
                 <button
                   type="button"
                   onClick={() => setPayoutMethod("cash")}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     payoutMethod === "cash"
                       ? "bg-emerald-500/15 border-emerald-500/60 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                      : "bg-[#0A0D14] border-white/10 hover:border-white/20"
+                      : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-emerald-500/40"
                   }`}
                 >
-                  <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider block">
+                  <span className="text-xs font-extrabold text-emerald-500 uppercase tracking-wider block">
                     {t("trade_modal.cash")}
                   </span>
-                  <span className="text-base font-black text-white block mt-1">
+                  <span className="text-base font-black text-[var(--tt-text-main)] block mt-1">
                     {formatPrice(Number(activeTradeItem.cashPrice || 0) * tradeQuantity, currency)}
                   </span>
-                  <span className="text-[11px] text-gray-400 block mt-0.5">
+                  <span className="text-[11px] text-[var(--tt-text-muted)] block mt-0.5">
                     {t("trade_modal.cash_desc")}
                   </span>
                 </button>
@@ -1015,7 +1015,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               <button
                 type="button"
                 onClick={handleWhatsAppContact}
-                className="w-full h-11 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20 transition-all active:scale-[0.98]"
+                className="w-full h-11 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20 transition-all active:scale-[0.98] cursor-pointer"
               >
                 <IconWhatsApp className="w-4 h-4" />
                 {t("trade_modal.whatsapp_contact", { storeName: activeTradeItem.store.name })}
@@ -1024,7 +1024,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
               <button
                 type="button"
                 onClick={handleCopyOfferDetails}
-                className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
+                className="w-full h-10 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 {copiedNotification ? t("trade_modal.copied_success") : t("trade_modal.copy_offer")}
               </button>

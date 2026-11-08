@@ -62,10 +62,10 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
   const maxStock = item.stock !== undefined && item.stock !== null ? item.stock : 999;
 
   return (
-    <div className="group relative p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
+    <div className="group relative p-3 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 shadow-sm transition-all">
       <div className="flex items-start gap-3">
         {/* Card Artwork Thumbnail */}
-        <div className="relative w-16 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[#07090E] border border-white/10 shrink-0 p-0.5">
+        <div className="relative w-16 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] shrink-0 p-0.5">
           <Image
             className="w-full h-full object-contain"
             src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"}
@@ -79,13 +79,13 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
         {/* Card Details */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h4 className="text-xs font-bold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug">
+            <h4 className="text-xs font-bold text-[var(--tt-text-main)] group-hover:text-red transition-colors line-clamp-2 leading-snug">
               {item.title}
             </h4>
             <button
               onClick={handleRemoveFromCart}
               aria-label={t("delete_item_aria")}
-              className="text-gray-500 hover:text-red-400 transition-colors p-1 rounded hover:bg-white/5 shrink-0"
+              className="text-[var(--tt-text-muted)] hover:text-red transition-colors p-1 rounded hover:bg-[var(--tt-bg-subtle)] shrink-0"
               title={t("delete_item_aria")}
             >
               <IconTrash className="w-3.5 h-3.5" />
@@ -98,43 +98,43 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
               {conditionCode}
             </span>
             {isFoil && (
-              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-400/15 text-amber-300 border border-amber-400/30">
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-400/15 text-amber-700 dark:text-amber-300 border border-amber-400/30">
                 FOIL
               </span>
             )}
-            <span className="text-[10px] text-gray-400 font-mono">
+            <span className="text-[10px] text-[var(--tt-text-muted)] font-mono">
               {item.language || "EN"}
             </span>
           </div>
 
           {/* Store Name */}
-          <div className="flex items-center gap-1 text-[11px] text-gray-400 mb-2 truncate">
-            <span className="text-gray-500">{t("store_label")}</span>
-            <span className="text-gray-300 font-medium truncate">
+          <div className="flex items-center gap-1 text-[11px] text-[var(--tt-text-muted)] mb-2 truncate">
+            <span>{t("store_label")}</span>
+            <span className="text-[var(--tt-text-main)] font-medium truncate">
               {item.storeName || "TapTrade Store"}
             </span>
           </div>
 
           {/* Bottom Bar: Stepper & Price */}
-          <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/5">
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--tt-border-subtle)]">
             {/* Quantity Stepper */}
-            <div className="flex items-center rounded-lg bg-black/40 border border-white/10 overflow-hidden h-7">
+            <div className="flex items-center rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden h-7">
               <button
                 type="button"
                 onClick={handleDecreaseQuantity}
                 disabled={item.quantity <= 1}
-                className="w-6 h-full flex items-center justify-center text-xs text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                className="w-6 h-full flex items-center justify-center text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 -
               </button>
-              <span className="w-7 text-center text-xs font-mono font-bold text-white">
+              <span className="w-7 text-center text-xs font-mono font-bold text-[var(--tt-text-main)]">
                 {item.quantity}
               </span>
               <button
                 type="button"
                 onClick={handleIncreaseQuantity}
                 disabled={item.quantity >= maxStock}
-                className="w-6 h-full flex items-center justify-center text-xs text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                className="w-6 h-full flex items-center justify-center text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 +
               </button>
@@ -142,10 +142,10 @@ const SingleItem: React.FC<CartItemProps> = ({ item, removeItemFromCart }) => {
 
             {/* Line Price */}
             <div className="text-right">
-              <span className="text-xs font-black font-mono text-white">
+              <span className="text-xs font-black font-mono text-[var(--tt-text-main)]">
                 ${Math.round(lineTotal).toLocaleString("es-CL")}
               </span>
-              <span className="text-[10px] text-gray-500 ml-1">CLP</span>
+              <span className="text-[10px] text-[var(--tt-text-muted)] ml-1">CLP</span>
             </div>
           </div>
         </div>

@@ -188,7 +188,7 @@ const PaymentResultPage = () => {
   const isSuccess = status === "success";
 
   return (
-    <div className="bg-[#07090E] min-h-screen text-white pt-28 md:pt-36 pb-24 relative overflow-hidden">
+    <div className="bg-[var(--tt-bg-canvas)] min-h-screen text-[var(--tt-text-main)] pt-28 md:pt-36 pb-24 relative overflow-hidden transition-colors duration-200">
       {/* Ambient background light */}
       <div
         className={`absolute top-20 left-1/3 w-[600px] h-[350px] blur-[150px] pointer-events-none rounded-full ${
@@ -198,44 +198,48 @@ const PaymentResultPage = () => {
 
       <div className="max-w-[720px] w-full mx-auto px-4 sm:px-6 relative z-10">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
-          <Link href="/shop" className="hover:text-white transition-colors">
+        <div className="flex items-center gap-2 text-xs text-[var(--tt-text-muted)] mb-6 font-medium">
+          <Link href="/shop" className="hover:text-[var(--tt-text-main)] transition-colors">
             {t("back_store_breadcrumb")}
           </Link>
           <span>/</span>
-          <span className="text-white font-semibold">{t("receipt_breadcrumb")}</span>
+          <span className="text-[var(--tt-text-main)] font-semibold">{t("receipt_breadcrumb")}</span>
         </div>
 
         {/* ─── Card resultado ─── */}
-        <div className="bg-[#0E121B] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-3xl overflow-hidden shadow-2xl">
           {/* Header Banner */}
           <div
-            className={`p-8 text-center relative border-b border-white/10 ${
+            className={`p-8 text-center relative border-b border-[var(--tt-border-medium)] ${
               isSuccess
-                ? "bg-gradient-to-b from-emerald-950/60 to-[#0E121B]"
-                : "bg-gradient-to-b from-red-950/60 to-[#0E121B]"
+                ? "bg-gradient-to-b from-emerald-500/10 to-transparent dark:from-emerald-950/60 dark:to-[#0E121B]"
+                : "bg-gradient-to-b from-red-500/10 to-transparent dark:from-red-950/60 dark:to-[#0E121B]"
             }`}
           >
             <div className="flex justify-center mb-4">
               <div
                 className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-xl border ${
                   isSuccess
-                    ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                    : "bg-red-500/15 border-red-500/30 text-red-400"
+                    ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-500 dark:text-emerald-400"
+                    : "bg-red-500/15 border-red-500/30 text-red"
                 }`}
               >
-                {isSuccess ? <IconCheck className="w-8 h-8 text-emerald-400" /> : <IconX className="w-8 h-8 text-red" />}
+                {isSuccess ? <IconCheck className="w-8 h-8 text-emerald-500 dark:text-emerald-400" /> : <IconX className="w-8 h-8 text-red" />}
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border">
-              <span className={isSuccess ? "text-emerald-400" : "text-red-400"}>●</span>
-              <span className={isSuccess ? "text-emerald-300" : "text-red-300"}>
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border ${
+              isSuccess
+                ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-300 border-emerald-500/30"
+                : "bg-red-500/10 text-red border-red-500/30"
+            }`}>
+              <span>●</span>
+              <span>
                 {isSuccess ? t("payment_approved") : t("transaction_failed")}
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
+            <h1 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] tracking-tight mb-2">
               {isSuccess
                 ? t("thank_you_title")
                 : status === "cancelled"
@@ -244,7 +248,7 @@ const PaymentResultPage = () => {
                 ? t("timeout_title")
                 : t("failed_title")}
             </h1>
-            <p className="text-gray-400 text-sm max-w-md mx-auto">
+            <p className="text-[var(--tt-text-muted)] text-sm max-w-md mx-auto">
               {isSuccess
                 ? t("thank_you_desc")
                 : status === "cancelled"
@@ -258,81 +262,81 @@ const PaymentResultPage = () => {
           {/* Detalles de la orden */}
           {order && (
             <div className="p-6 sm:p-8 space-y-6">
-              <h2 className="font-bold text-white text-base flex items-center gap-2">
-                <IconBox className="w-4 h-4 text-red-500" />
+              <h2 className="font-bold text-[var(--tt-text-main)] text-base flex items-center gap-2">
+                <IconBox className="w-4 h-4 text-red" />
                 <span>{t("order_detail_title")}</span>
               </h2>
 
-              <div className="bg-[#07090E] rounded-2xl p-5 space-y-3 text-xs border border-white/5">
+              <div className="bg-[var(--tt-bg-subtle)] rounded-2xl p-5 space-y-3 text-xs border border-[var(--tt-border-subtle)]">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">{t("order_number")}</span>
-                  <span className="font-mono font-bold text-white">{order.buyOrder}</span>
+                  <span className="text-[var(--tt-text-muted)]">{t("order_number")}</span>
+                  <span className="font-mono font-bold text-[var(--tt-text-main)]">{order.buyOrder}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">{t("buyer_name")}</span>
-                  <span className="font-medium text-white">{order.name}</span>
+                  <span className="text-[var(--tt-text-muted)]">{t("buyer_name")}</span>
+                  <span className="font-medium text-[var(--tt-text-main)]">{order.name}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">{t("confirm_email")}</span>
-                  <span className="font-medium text-white">{order.email}</span>
+                  <span className="text-[var(--tt-text-muted)]">{t("confirm_email")}</span>
+                  <span className="font-medium text-[var(--tt-text-main)]">{order.email}</span>
                 </div>
                 {order.serviceFeeGross !== undefined && Number(order.serviceFeeGross) > 0 && (
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-gray-400">{t("service_fee")}</span>
-                    <span className="font-mono font-bold text-white/90">
+                    <span className="text-[var(--tt-text-muted)]">{t("service_fee")}</span>
+                    <span className="font-mono font-bold text-[var(--tt-text-main)]">
                       ${Math.round(Number(order.serviceFeeGross)).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                <div className="flex justify-between items-center pt-2 border-t border-[var(--tt-border-subtle)]">
                   <div>
-                    <span className="text-gray-300 font-semibold block">{t("total_paid")}</span>
-                    <span className="text-[10px] text-gray-400 font-mono">
+                    <span className="text-[var(--tt-text-main)] font-semibold block">{t("total_paid")}</span>
+                    <span className="text-[10px] text-[var(--tt-text-muted)] font-mono">
                       {t("vat_note", { amount: Math.round((parseFloat(order.totalAmount) * 0.19) / 1.19).toLocaleString("es-CL") })}
                     </span>
                   </div>
-                  <span className="font-mono font-black text-white text-base">
+                  <span className="font-mono font-black text-[var(--tt-text-main)] text-base">
                     ${parseFloat(order.totalAmount).toLocaleString("es-CL")} CLP
                   </span>
                 </div>
                 {order.payment?.authCode && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">{t("auth_code")}</span>
-                    <span className="font-mono text-gray-300">{order.payment.authCode}</span>
+                    <span className="text-[var(--tt-text-muted)]">{t("auth_code")}</span>
+                    <span className="font-mono text-[var(--tt-text-muted)]">{order.payment.authCode}</span>
                   </div>
                 )}
                 {order.payment?.cardLast4 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400">{t("card_used")}</span>
-                    <span className="font-mono text-gray-300">•••• {order.payment.cardLast4}</span>
+                    <span className="text-[var(--tt-text-muted)]">{t("card_used")}</span>
+                    <span className="font-mono text-[var(--tt-text-muted)]">•••• {order.payment.cardLast4}</span>
                   </div>
                 )}
               </div>
 
               {/* Items por Tienda */}
               <div className="space-y-3">
-                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-gray-400">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-[var(--tt-text-muted)]">
                   {t("associated_shipments")}
                 </h3>
                 {order.vendorOrders?.map((vo) => (
-                  <div key={vo.id} className="bg-[#07090E] rounded-xl p-4 border border-white/5 space-y-2">
+                  <div key={vo.id} className="bg-[var(--tt-bg-subtle)] rounded-xl p-4 border border-[var(--tt-border-subtle)] space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-white flex items-center gap-1.5">
-                        <IconStore className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <span className="font-bold text-[var(--tt-text-main)] flex items-center gap-1.5">
+                        <IconStore className="w-3.5 h-3.5 text-[var(--tt-text-muted)] shrink-0" />
                         {vo.store.name}
                       </span>
-                      <span className="text-emerald-400 text-[10px] bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                      <span className="text-emerald-500 dark:text-emerald-400 text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                         {t("in_preparation")}
                       </span>
                     </div>
-                    <div className="divide-y divide-white/5 pt-1">
+                    <div className="divide-y divide-[var(--tt-border-subtle)] pt-1">
                       {vo.items.map((item) => (
                         <div key={item.id} className="flex justify-between items-center py-2 text-xs">
                           <div>
-                            <p className="text-white font-medium">{item.productName}</p>
-                            <p className="text-gray-500 font-mono text-[10px]">{t("quantity_label", { count: item.quantity })}</p>
+                            <p className="text-[var(--tt-text-main)] font-medium">{item.productName}</p>
+                            <p className="text-[var(--tt-text-muted)] font-mono text-[10px]">{t("quantity_label", { count: item.quantity })}</p>
                           </div>
-                          <span className="font-mono text-white">
+                          <span className="font-mono text-[var(--tt-text-main)]">
                             ${(parseFloat(item.unitPrice) * item.quantity).toLocaleString("es-CL")} CLP
                           </span>
                         </div>
@@ -345,7 +349,7 @@ const PaymentResultPage = () => {
           )}
 
           {fetchError && orderId && (
-            <div className="p-6 text-xs text-gray-400 text-center">
+            <div className="p-6 text-xs text-[var(--tt-text-muted)] text-center">
               {t("processed_notice")}
             </div>
           )}
@@ -354,7 +358,7 @@ const PaymentResultPage = () => {
           <div className="p-6 sm:p-8 pt-0 flex flex-col sm:flex-row gap-3">
             <Link
               href="/shop"
-              className="flex-1 h-12 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs tracking-wide flex items-center justify-center gap-2 transition-all"
+              className="flex-1 h-12 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-bold text-xs tracking-wide flex items-center justify-center gap-2 transition-all shadow-sm"
             >
               {t("back_catalog_btn")}
             </Link>

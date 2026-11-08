@@ -3,7 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { IconTag } from "@/components/ui/Icons";
+import { IconTag, IconCheck, IconArrowRight } from "@/components/ui/Icons";
 
 const OrderSummary = () => {
   const t = useTranslations("cart");
@@ -15,12 +15,12 @@ const OrderSummary = () => {
 
   return (
     <div className="lg:max-w-[420px] w-full">
-      <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden sticky top-32">
+      <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl shadow-xl overflow-hidden sticky top-32">
         {/* Header */}
-        <div className="border-b border-white/10 py-5 px-6 bg-white/[0.02]">
-          <h3 className="font-extrabold text-lg text-white tracking-tight flex items-center justify-between">
+        <div className="border-b border-[var(--tt-border-subtle)] py-5 px-6 bg-[var(--tt-bg-subtle)]">
+          <h3 className="font-extrabold text-lg text-[var(--tt-text-main)] tracking-tight flex items-center justify-between">
             <span>{t("order_summary_title")}</span>
-            <span className="text-xs font-mono font-medium text-gray-400">
+            <span className="text-xs font-mono font-medium text-[var(--tt-text-muted)]">
               {t("order_summary_cards_count", { count: totalItemCount })}
             </span>
           </h3>
@@ -29,8 +29,8 @@ const OrderSummary = () => {
         <div className="p-6 space-y-4">
           {/* Subtotal */}
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">{t("subtotal_products")}</span>
-            <span className="font-mono font-bold text-white">
+            <span className="text-[var(--tt-text-muted)]">{t("subtotal_products")}</span>
+            <span className="font-mono font-bold text-[var(--tt-text-main)]">
               ${Math.round(totalPrice + totalDiscount).toLocaleString("es-CL")} CLP
             </span>
           </div>
@@ -38,58 +38,55 @@ const OrderSummary = () => {
           {/* Savings */}
           {totalDiscount > 0 && (
             <div className="flex items-center justify-between text-sm py-2 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                <IconTag className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> {t("coupon_discount")}
+              <span className="text-emerald-500 font-semibold flex items-center gap-1.5">
+                <IconTag className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t("coupon_discount")}
               </span>
-              <span className="font-mono font-bold text-emerald-400">
+              <span className="font-mono font-bold text-emerald-500">
                 -${Math.round(totalDiscount).toLocaleString("es-CL")} CLP
               </span>
             </div>
           )}
 
           {/* Delivery Note */}
-          <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/5">
+          <div className="flex items-center justify-between text-xs text-[var(--tt-text-muted)] pt-2 border-t border-[var(--tt-border-subtle)]">
             <span>{t("shipping_calculation")}</span>
-            <span className="text-gray-300 font-medium">{t("quoted_at_checkout")}</span>
+            <span className="text-[var(--tt-text-main)] font-medium">{t("quoted_at_checkout")}</span>
           </div>
 
           {/* Total */}
-          <div className="pt-4 border-t border-white/10 flex items-baseline justify-between">
+          <div className="pt-4 border-t border-[var(--tt-border-subtle)] flex items-baseline justify-between">
             <div>
-              <span className="text-base font-bold text-white block">{t("total")}</span>
-              <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                <svg className="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+              <span className="text-base font-bold text-[var(--tt-text-main)] block">{t("total")}</span>
+              <span className="text-[11px] text-emerald-500 font-medium flex items-center gap-1">
+                <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                 {t("direct_store_prices")}
               </span>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-black font-mono text-white">
+              <span className="text-2xl font-black font-mono text-[var(--tt-text-main)]">
                 ${Math.round(totalPrice).toLocaleString("es-CL")}
               </span>
-              <span className="text-xs text-gray-400 font-sans ml-1">CLP</span>
+              <span className="text-xs text-[var(--tt-text-muted)] font-sans ml-1">CLP</span>
             </div>
           </div>
 
           {/* Checkout CTA Button */}
           <Link
             href="/checkout"
-            className="w-full h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98 mt-2"
+            className="w-full h-12 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 flex items-center justify-center gap-2 transition-all active:scale-98 mt-2 cursor-pointer"
           >
             <span>{t("checkout")}</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+            <IconArrowRight className="w-4 h-4 text-white shrink-0" />
           </Link>
 
           {/* Security Features */}
-          <div className="pt-3 border-t border-white/5 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span className="text-emerald-400 text-sm">✓</span>
+          <div className="pt-3 border-t border-[var(--tt-border-subtle)] space-y-2">
+            <div className="flex items-center gap-2 text-xs text-[var(--tt-text-muted)]">
+              <span className="text-emerald-500 text-sm font-bold">✓</span>
               <span>{t("security_mercado_pago")}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span className="text-emerald-400 text-sm">✓</span>
+            <div className="flex items-center gap-2 text-xs text-[var(--tt-text-muted)]">
+              <span className="text-emerald-500 text-sm font-bold">✓</span>
               <span>{t("security_shipping")}</span>
             </div>
           </div>

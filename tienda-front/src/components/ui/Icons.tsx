@@ -1845,6 +1845,25 @@ export const IconEyeOff: React.FC<IconProps> = ({ className = "w-4 h-4", size, .
   </svg>
 );
 
+export const IconPrinter: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
+  <svg
+    width={size || 24}
+    height={size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <path d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2" />
+    <path d="M17 9V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v4" />
+    <path d="M9 13h6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z" />
+  </svg>
+);
+
 
 
 

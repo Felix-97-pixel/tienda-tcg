@@ -108,8 +108,8 @@ export default function ChileLocationsSelect({
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {/* Selector de Región */}
       <div>
-        <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-          {t("region_label")} <span className="text-red-400">*</span>
+        <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
+          {t("region_label")} <span className="text-red">*</span>
         </label>
         <SearchableSelect
           options={regionOptions}
@@ -122,8 +122,8 @@ export default function ChileLocationsSelect({
 
       {/* Selector de Comuna */}
       <div>
-        <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-          {t("commune_label")} <span className="text-red-400">*</span>
+        <label className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
+          {t("commune_label")} <span className="text-red">*</span>
         </label>
         <SearchableSelect
           options={communeOptions}

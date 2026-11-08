@@ -188,32 +188,32 @@ export default function TcgStoreVariantModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl max-h-[92vh] bg-[#0E121B] border border-white/10 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row text-white animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-4xl max-h-[92vh] bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row text-[var(--tt-text-main)] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer"
+          className="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] flex items-center justify-center transition-all cursor-pointer"
           aria-label={t("close") || "Cerrar"}
         >
-          <IconX className="w-5 h-5 text-white" />
+          <IconX className="w-5 h-5 text-[var(--tt-text-main)]" />
         </button>
 
         {/* ─── Columna Izquierda: Vista y Arte de la Carta ─── */}
-        <div className="md:w-5/12 bg-[#07090E] p-6 sm:p-8 flex flex-col items-center justify-between border-b md:border-b-0 md:border-r border-white/10 shrink-0">
+        <div className="md:w-5/12 bg-[var(--tt-bg-subtle)] p-6 sm:p-8 flex flex-col items-center justify-between border-b md:border-b-0 md:border-r border-[var(--tt-border-medium)] shrink-0">
           <div className="w-full flex items-center justify-between gap-2 mb-4">
-            <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase bg-red-600/15 text-red-400 border border-red-500/30">
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase bg-red-600/15 text-red-600 dark:text-red-400 border border-red-500/30">
               {gameName || "TCG"}
             </span>
-            <span className="text-xs text-gray-400 font-mono">
+            <span className="text-xs text-[var(--tt-text-muted)] font-mono">
               {collectorNum ? `#${collectorNum}` : ""} {rarity ? `• ${rarity}` : ""}
             </span>
           </div>
 
           {/* Arte Grande con Shimmer */}
-          <div className="relative aspect-[2.5/3.5] w-full max-w-[240px] rounded-2xl overflow-hidden card-foil-container bg-black/60 border border-white/10 shadow-2xl my-2">
+          <div className="relative aspect-[2.5/3.5] w-full max-w-[240px] rounded-2xl overflow-hidden card-foil-container bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] shadow-xl my-2">
             <Image
               src={imageUrl}
               alt={cardTitle}
@@ -228,32 +228,32 @@ export default function TcgStoreVariantModal({
 
           {/* Meta Info inferior */}
           <div className="w-full mt-4 text-center">
-            <h3 className="font-extrabold text-base sm:text-lg text-white leading-snug line-clamp-2 mb-1">
+            <h3 className="font-extrabold text-base sm:text-lg text-[var(--tt-text-main)] leading-snug line-clamp-2 mb-1">
               {cardTitle}
             </h3>
-            <p className="text-xs text-gray-400 truncate mb-3">
+            <p className="text-xs text-[var(--tt-text-muted)] truncate mb-3">
               {expansionName}
             </p>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/[0.04] border border-white/10 text-[11px] text-gray-300">
-              <IconStore className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[11px] text-[var(--tt-text-muted)]">
+              <IconStore className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{t("official_showcase")}:</span>
-              <strong className="text-white">{storeName}</strong>
+              <strong className="text-[var(--tt-text-main)]">{storeName}</strong>
             </div>
           </div>
         </div>
 
         {/* ─── Columna Derecha: Variantes de la Tienda ─── */}
         <div className="flex-1 p-5 sm:p-7 flex flex-col overflow-hidden">
-          <div className="pb-4 mb-4 border-b border-white/10 flex items-baseline justify-between">
+          <div className="pb-4 mb-4 border-b border-[var(--tt-border-medium)] flex items-baseline justify-between">
             <div>
-              <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-lg font-black text-[var(--tt-text-main)] tracking-tight flex items-center gap-2">
                 <span>{t("store_variants_title", { store: storeName })}</span>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                   {t("available_count", { count: storeVariants.length })}
                 </span>
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">
                 {t("store_variants_subtitle")}
               </p>
             </div>
@@ -262,10 +262,10 @@ export default function TcgStoreVariantModal({
           {/* Lista de Variantes con Scroll */}
           <div className="flex-1 overflow-y-auto space-y-3 pr-1.5 custom-scrollbar">
             {storeVariants.length === 0 ? (
-              <div className="text-center py-12 px-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
-                <IconBox className="w-8 h-8 text-gray-500 mx-auto" />
-                <h4 className="text-sm font-bold text-white">{t("no_stock_in_store")}</h4>
-                <p className="text-xs text-gray-400 max-w-xs mx-auto">
+              <div className="text-center py-12 px-4 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] space-y-2">
+                <IconBox className="w-8 h-8 text-[var(--tt-text-muted)] mx-auto" />
+                <h4 className="text-sm font-bold text-[var(--tt-text-main)]">{t("no_stock_in_store")}</h4>
+                <p className="text-xs text-[var(--tt-text-muted)] max-w-xs mx-auto">
                   {t("no_stock_in_store_desc", { store: storeName })}
                 </p>
               </div>
@@ -283,8 +283,8 @@ export default function TcgStoreVariantModal({
                     key={variant.id}
                     className={`p-3.5 sm:p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 ${
                       isOutOfStock
-                        ? "bg-white/[0.01] border-white/5 opacity-50"
-                        : "bg-[#111522] border-white/10 hover:border-white/20 shadow-sm"
+                        ? "bg-[var(--tt-bg-surface)] border-[var(--tt-border-subtle)] opacity-50"
+                        : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-red-500/40 shadow-sm"
                     }`}
                   >
                     {/* Atributos: Condición + Idioma + Acabado */}
@@ -299,39 +299,39 @@ export default function TcgStoreVariantModal({
                         </span>
 
                         {/* Idioma */}
-                        <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-white/5 border border-white/10 text-gray-300">
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)]">
                           {variant.langCode}
                         </span>
 
                         {/* Acabado */}
                         {variant.isFoil ? (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400/20 via-pink-400/20 to-cyan-400/20 border border-amber-300/40 text-amber-200 flex items-center gap-1 shadow-sm">
-                            <IconSparkles className="w-3 h-3 text-amber-300 animate-spin-slow" />
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400/20 via-pink-400/20 to-cyan-400/20 border border-amber-300/40 text-amber-800 dark:text-amber-200 flex items-center gap-1 shadow-sm">
+                            <IconSparkles className="w-3 h-3 text-amber-600 dark:text-amber-300 animate-spin-slow" />
                             {t("finish_foil")}
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/5 border border-white/10 text-gray-400">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-muted)]">
                             {t("finish_normal")}
                           </span>
                         )}
                       </div>
 
                       {/* Stock Info */}
-                      <div className="text-xs text-gray-400 flex items-center gap-2">
+                      <div className="text-xs text-[var(--tt-text-muted)] flex items-center gap-2">
                         {isOutOfStock ? (
-                          <span className="text-red-400 font-bold">{t("outOfStock")}</span>
+                          <span className="text-red font-bold">{t("outOfStock")}</span>
                         ) : variant.stock <= 3 ? (
-                          <span className="text-amber-400 font-semibold text-[11px]">
+                          <span className="text-amber-600 dark:text-amber-400 font-semibold text-[11px]">
                             {t("only_stock_left", { count: variant.stock })}
                           </span>
                         ) : (
-                          <span className="text-emerald-400 font-medium text-[11px]">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-medium text-[11px]">
                             ✓ {t("available_count", { count: variant.stock })}
                           </span>
                         )}
 
                         {currentCartQty > 0 && (
-                          <span className="text-[10px] text-gray-500 font-mono">
+                          <span className="text-[10px] text-[var(--tt-text-muted)] font-mono">
                             {t("in_cart_badge", { count: currentCartQty })}
                           </span>
                         )}
@@ -339,34 +339,34 @@ export default function TcgStoreVariantModal({
                     </div>
 
                     {/* Precio y Controles de Carrito */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[var(--tt-border-subtle)]">
                       {/* Precio */}
                       <div className="text-right">
-                        <span className="text-base sm:text-lg font-black font-mono text-white block">
+                        <span className="text-base sm:text-lg font-black font-mono text-[var(--tt-text-main)] block">
                           {formatPrice(variant.priceCLP, currency)}
                         </span>
-                        <span className="text-[10px] text-gray-500 block">{t("store_price")}</span>
+                        <span className="text-[10px] text-[var(--tt-text-muted)] block">{t("store_price")}</span>
                       </div>
 
                       {/* Selector de Cantidad */}
                       {!isOutOfStock && (
-                        <div className="flex items-center rounded-lg bg-[#07090E] border border-white/10 overflow-hidden">
+                        <div className="flex items-center rounded-lg bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] overflow-hidden">
                           <button
                             type="button"
                             onClick={() => handleQtyChange(variant.id, qty - 1, variant.stock)}
                             disabled={qty <= 1}
-                            className="w-7 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="w-7 h-8 flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-subtle)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                           >
                             -
                           </button>
-                          <span className="w-6 text-center text-xs font-mono font-bold text-white">
+                          <span className="w-6 text-center text-xs font-mono font-bold text-[var(--tt-text-main)]">
                             {qty}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleQtyChange(variant.id, qty + 1, variant.stock)}
                             disabled={qty >= variant.stock - currentCartQty}
-                            className="w-7 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="w-7 h-8 flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-subtle)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                           >
                             +
                           </button>
@@ -380,7 +380,7 @@ export default function TcgStoreVariantModal({
                         disabled={isOutOfStock || isMaxReached || isThisAdding}
                         className={`h-9 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer ${
                           isOutOfStock || isMaxReached
-                            ? "bg-white/5 text-gray-500 border border-white/5 cursor-not-allowed"
+                            ? "bg-[var(--tt-bg-surface)] text-[var(--tt-text-muted)] border border-[var(--tt-border-subtle)] cursor-not-allowed"
                             : isThisAdding
                             ? "bg-emerald-600 text-white shadow-emerald-900/30"
                             : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-red-900/25"
@@ -410,15 +410,15 @@ export default function TcgStoreVariantModal({
           </div>
 
           {/* Footer del Modal */}
-          <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between text-xs text-gray-400">
+          <div className="pt-3.5 mt-3.5 border-t border-[var(--tt-border-medium)] flex items-center justify-between text-xs text-[var(--tt-text-muted)]">
             <div className="flex items-center gap-1.5">
-              <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <IconCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{t("combined_shipping_note")}</span>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-300 hover:text-white underline underline-offset-2 cursor-pointer font-medium"
+              className="text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] underline underline-offset-2 cursor-pointer font-medium"
             >
               {t("continue_browsing_store")}
             </button>

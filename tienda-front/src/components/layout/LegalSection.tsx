@@ -16,7 +16,7 @@ const LegalSection: React.FC<LegalSectionProps> = ({
   title,
   num,
   badgeColor = "bg-[#E10E0E]",
-  titleColor = "text-white",
+  titleColor = "text-[var(--tt-text-main)]",
   className = "",
   children
 }) => {
@@ -32,7 +32,7 @@ const LegalSection: React.FC<LegalSectionProps> = ({
           {title}
         </h3>
       )}
-      <div className="text-sm sm:text-[15px] text-gray-300 leading-relaxed">
+      <div className="text-sm sm:text-[15px] text-[var(--tt-text-muted)] leading-relaxed">
         {children}
       </div>
     </section>

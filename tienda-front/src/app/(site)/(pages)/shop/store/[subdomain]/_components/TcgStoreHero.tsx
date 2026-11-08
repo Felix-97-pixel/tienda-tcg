@@ -55,13 +55,13 @@ export default function TcgStoreHero({
       : null;
 
   return (
-    <section className="relative w-full border-b border-white/[0.08] bg-[#0A0D14] overflow-hidden pt-28 md:pt-36 pb-8">
-      {/* Background Atmosphere Layers (Anti-Slop Dark Vault) */}
+    <section className="relative w-full border-b border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)] overflow-hidden pt-28 md:pt-36 pb-8 transition-colors">
+      {/* Background Atmosphere Layers (Anti-Slop Dark/Light Mode Vault) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Subtle radial ambient light */}
         <div className="absolute top-[-20%] left-1/4 w-[550px] h-[350px] bg-red-600/10 blur-[140px] rounded-full"></div>
         {/* Grid pattern texture */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] text-black/[0.03] dark:text-white/[0.04] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       </div>
 
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -71,7 +71,7 @@ export default function TcgStoreHero({
           <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5">
             {/* Store Avatar Logo */}
             <div className="relative group shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/15 p-1 shadow-2xl backdrop-blur-xl overflow-hidden flex items-center justify-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] p-1 shadow-lg shadow-black/5 dark:shadow-2xl overflow-hidden flex items-center justify-center">
                 {store.logoUrl ? (
                   <Image
                     src={store.logoUrl}
@@ -88,7 +88,7 @@ export default function TcgStoreHero({
                 )}
               </div>
               <span 
-                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0A0D14] flex items-center justify-center text-white text-[11px] shadow-md"
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[var(--tt-bg-surface)] flex items-center justify-center text-white text-[11px] shadow-md"
                 title={t("live_commerce_title")}
               >
                 <IconCheck className="w-3.5 h-3.5 stroke-[3]" />
@@ -98,25 +98,25 @@ export default function TcgStoreHero({
             {/* Title & Badges */}
             <div className="flex flex-col gap-1.5">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-red-500/15 text-red-400 border border-red-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
                   {t("official_store_badge")}
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   {t("verified_taptrade")}
                 </span>
                 {totalProducts > 0 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono text-gray-400 bg-white/5 border border-white/10">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono text-[var(--tt-text-muted)] bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)]">
                     {t("active_cards_count", { count: totalProducts })}
                   </span>
                 )}
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[var(--tt-text-main)] tracking-tight">
                 {store.name}
               </h1>
 
-              <p className="text-gray-400 text-sm max-w-xl leading-relaxed line-clamp-2">
+              <p className="text-[var(--tt-text-muted)] text-sm max-w-xl leading-relaxed line-clamp-2">
                 {store.description || t("default_description")}
               </p>
             </div>
@@ -157,7 +157,7 @@ export default function TcgStoreHero({
             {email && (
               <a
                 href={`mailto:${email}`}
-                className="p-2 rounded-xl text-gray-400 bg-white/5 border border-white/10 hover:text-white hover:bg-white/10 transition-all"
+                className="p-2 rounded-xl text-[var(--tt-text-muted)] bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] transition-all"
                 title={t("send_email_title", { email })}
               >
                 <IconMail className="w-4 h-4" />
@@ -167,29 +167,29 @@ export default function TcgStoreHero({
         </div>
 
         {/* Logistics & Store Trust Bar */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-white/[0.06]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-[var(--tt-border-subtle)]">
           {/* 1. Retiro en Tienda ($0) */}
-          <div className="glass-vault rounded-xl p-3 flex items-start gap-3 border border-white/5 hover:border-emerald-500/30 transition-all">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
-              <IconStore className="w-4 h-4 text-emerald-400" />
+          <div className="rounded-xl p-3 flex items-start gap-3 bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] hover:border-emerald-500/40 shadow-sm transition-all">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <IconStore className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                <span className="text-xs font-bold text-[var(--tt-text-main)] uppercase tracking-wider">
                   {t("pickup_title")}
                 </span>
-                <span className="px-1.5 py-0.2 text-[10px] font-extrabold font-mono bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/40">
+                <span className="px-1.5 py-0.2 text-[10px] font-extrabold font-mono bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 rounded border border-emerald-500/40">
                   {t("pickup_free_badge")}
                 </span>
               </div>
-              <p className="text-[12px] text-gray-400 truncate mt-0.5">
+              <p className="text-[12px] text-[var(--tt-text-muted)] truncate mt-0.5">
                 {address ? (
                   mapUrl ? (
                     <a
                       href={mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-300 hover:text-emerald-400 underline underline-offset-2 transition-colors"
+                      className="text-[var(--tt-text-main)] hover:text-emerald-600 dark:hover:text-emerald-400 underline underline-offset-2 transition-colors"
                       title={t("view_map")}
                     >
                       {address}
@@ -201,48 +201,48 @@ export default function TcgStoreHero({
                   t("pickup_coordinated")
                 )}
               </p>
-              <span className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
-                <IconClock className="w-3 h-3 text-gray-500 shrink-0" />
+              <span className="text-[11px] text-[var(--tt-text-muted)] flex items-center gap-1 mt-0.5">
+                <IconClock className="w-3 h-3 text-[var(--tt-text-muted)] shrink-0" />
                 <span>{openingHours}</span>
               </span>
             </div>
           </div>
 
           {/* 2. Chilexpress Despacho */}
-          <div className="glass-vault rounded-xl p-3 flex items-start gap-3 border border-white/5 hover:border-amber-500/30 transition-all">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-              <IconTruck className="w-4 h-4 text-amber-400" />
+          <div className="rounded-xl p-3 flex items-start gap-3 bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] hover:border-amber-500/40 shadow-sm transition-all">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <IconTruck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                <span className="text-xs font-bold text-[var(--tt-text-main)] uppercase tracking-wider">
                   {t("chilexpress_title")}
                 </span>
-                <span className="px-1.5 py-0.2 text-[10px] font-bold bg-amber-500/15 text-amber-300 rounded border border-amber-500/30">
+                <span className="px-1.5 py-0.2 text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 rounded border border-amber-500/30">
                   {t("chilexpress_badge")}
                 </span>
               </div>
-              <p className="text-[12px] text-gray-400 mt-0.5">
+              <p className="text-[12px] text-[var(--tt-text-muted)] mt-0.5">
                 {t("chilexpress_desc")}
               </p>
             </div>
           </div>
 
           {/* 3. Starken Envíos */}
-          <div className="glass-vault rounded-xl p-3 flex items-start gap-3 border border-white/5 hover:border-blue-500/30 transition-all">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
-              <IconBox className="w-4 h-4 text-blue-400" />
+          <div className="rounded-xl p-3 flex items-start gap-3 bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] hover:border-blue-500/40 shadow-sm transition-all">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <IconBox className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                <span className="text-xs font-bold text-[var(--tt-text-main)] uppercase tracking-wider">
                   {t("starken_title")}
                 </span>
-                <span className="px-1.5 py-0.2 text-[10px] font-bold bg-blue-500/15 text-blue-300 rounded border border-blue-500/30">
+                <span className="px-1.5 py-0.2 text-[10px] font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 rounded border border-blue-500/30">
                   {t("starken_badge")}
                 </span>
               </div>
-              <p className="text-[12px] text-gray-400 mt-0.5">
+              <p className="text-[12px] text-[var(--tt-text-muted)] mt-0.5">
                 {t("starken_desc")}
               </p>
             </div>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/components/layout/Breadcrumb";
+import { IconPrinter } from "@/components/ui/Icons";
 
 export interface LegalLink {
   id: string;
@@ -95,19 +96,19 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
   }, [links]);
 
   const getLinkClass = (id: string) => {
-    const baseClass = "transition-all duration-200 block py-2 px-3 rounded-xl font-semibold text-xs border-l-2";
+    const baseClass = "transition-all duration-200 block py-2 px-3 rounded-xl font-semibold text-xs border-l-2 cursor-pointer";
     const isActive = activeId === id;
     
     return isActive
-      ? `${baseClass} text-white bg-[#E10E0E]/15 border-[#E10E0E] shadow-sm font-bold`
-      : `${baseClass} text-gray-400 border-transparent hover:text-white hover:bg-white/5`;
+      ? `${baseClass} text-red-600 dark:text-white bg-red-600/10 border-red-500 shadow-sm font-bold`
+      : `${baseClass} text-[var(--tt-text-muted)] border-transparent hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-subtle)]`;
   };
 
   return (
-    <div className="bg-[#07090E] min-h-screen text-white relative">
+    <div className="bg-[var(--tt-bg-canvas)] min-h-screen text-[var(--tt-text-main)] relative transition-colors duration-200">
       {/* Isolated Background Atmosphere Layer (avoids breaking position: sticky on page content) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-0 left-1/4 w-[650px] h-[650px] bg-[#E10E0E]/5 rounded-full blur-[140px]" />
+        <div className="absolute top-0 left-1/4 w-[650px] h-[650px] bg-red-600/5 rounded-full blur-[140px]" />
         <div className="absolute top-1/2 right-[-10%] w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[140px]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       </div>
@@ -118,10 +119,10 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Mobile Quick Dropdown Sticky Bar */}
-          <div className="lg:hidden sticky top-[110px] z-30 mb-6 p-3 rounded-2xl bg-[#0E121B]/95 backdrop-blur-xl border border-white/10 shadow-xl flex items-center justify-between gap-3">
+          <div className="lg:hidden sticky top-[110px] z-30 mb-6 p-3 rounded-2xl bg-[var(--tt-bg-surface)] backdrop-blur-xl border border-[var(--tt-border-medium)] shadow-xl flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="w-2 h-2 rounded-full bg-[#E10E0E] animate-pulse shrink-0"></span>
-              <span className="text-xs font-bold text-white truncate">
+              <span className="text-xs font-bold text-[var(--tt-text-main)] truncate">
                 {links.find((l) => l.id === activeId)?.label || "Índice de Cláusulas"}
               </span>
             </div>
@@ -134,10 +135,10 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                   setActiveId(e.target.value);
                 }
               }}
-              className="bg-[#111522] border border-white/10 text-xs font-bold text-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-red-500 shrink-0"
+              className="bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-xs font-bold text-[var(--tt-text-main)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-red-500 shrink-0 cursor-pointer"
             >
               {links.map((link) => (
-                <option key={link.id} value={link.id} className="bg-[#0E121B] text-white">
+                <option key={link.id} value={link.id} className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">
                   {link.label}
                 </option>
               ))}
@@ -147,13 +148,13 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
           <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
             
             {/* Quick Navigation Sticky Sidebar (follows scroll all the way down) */}
-            <aside className="w-full lg:w-[320px] shrink-0 sticky top-[130px] self-start bg-[#0E121B]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl shadow-black/50 hidden lg:block z-20">
-              <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-white/10">
-                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+            <aside className="w-full lg:w-[320px] shrink-0 sticky top-[130px] self-start bg-[var(--tt-bg-surface)] backdrop-blur-xl border border-[var(--tt-border-medium)] rounded-2xl p-5 shadow-2xl hidden lg:block z-20">
+              <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[var(--tt-border-subtle)]">
+                <h3 className="font-bold text-[var(--tt-text-main)] text-sm flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#E10E0E] animate-pulse"></span>
                   {navTitle}
                 </h3>
-                <span className="text-[10px] font-mono text-gray-500 uppercase">
+                <span className="text-[10px] font-mono text-[var(--tt-text-muted)] uppercase">
                   {links.length} Cláusulas
                 </span>
               </div>
@@ -169,15 +170,15 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
               </ul>
 
               {/* Sidebar Legal Badges */}
-              <div className="mt-6 pt-5 border-t border-white/10 flex flex-col gap-2.5">
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="text-[10px] font-mono font-bold text-gray-400 block uppercase tracking-wider">
+              <div className="mt-6 pt-5 border-t border-[var(--tt-border-subtle)] flex flex-col gap-2.5">
+                <div className="p-3 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)]">
+                  <span className="text-[10px] font-mono font-bold text-[var(--tt-text-muted)] block uppercase tracking-wider">
                     Titular Legal
                   </span>
-                  <span className="text-xs font-black text-white block mt-0.5">
+                  <span className="text-xs font-black text-[var(--tt-text-main)] block mt-0.5">
                     TAPTRADE SpA
                   </span>
-                  <span className="text-[11px] font-mono text-gray-400 block">
+                  <span className="text-[11px] font-mono text-[var(--tt-text-muted)] block">
                     RUT: 78.531.106-K
                   </span>
                 </div>
@@ -185,24 +186,22 @@ const LegalPageLayout: React.FC<LegalPageLayoutProps> = ({
                 <button
                   type="button"
                   onClick={() => typeof window !== "undefined" && window.print()}
-                  className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] border border-[var(--tt-border-medium)] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                 >
-                  <svg className="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                  </svg>
+                  <IconPrinter className="w-4 h-4 text-[var(--tt-text-muted)]" />
                   Imprimir / Descargar PDF
                 </button>
               </div>
             </aside>
 
             {/* Document Content Article */}
-            <article className="flex-1 bg-[#0E121B]/85 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-10 lg:p-12 w-full shadow-2xl shadow-black/60">
+            <article className="flex-1 bg-[var(--tt-bg-surface)] backdrop-blur-xl border border-[var(--tt-border-medium)] rounded-3xl p-6 sm:p-10 lg:p-12 w-full shadow-2xl">
               {children}
 
               {/* Document Footer */}
-              <div className="border-t border-white/10 pt-6 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <div className="border-t border-[var(--tt-border-subtle)] pt-6 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-xs text-[var(--tt-text-muted)]">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                   <span>{lastUpdated}</span>
                 </div>
                 <Link

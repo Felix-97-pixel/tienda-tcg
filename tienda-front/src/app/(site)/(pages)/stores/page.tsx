@@ -70,45 +70,45 @@ export default function TiendasDirectoryPage() {
   }, [stores, searchTerm]);
 
   return (
-    <main className="min-h-screen bg-[#07090E] text-white pt-28 md:pt-36 pb-20">
+    <main className="min-h-screen bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] pt-28 md:pt-36 pb-20 transition-colors">
       {/* Top Banner Header */}
-      <div className="relative border-b border-white/[0.08] bg-[#0E121B] pb-10 mb-10 overflow-hidden">
+      <div className="relative border-b border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)] pb-10 mb-10 overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-dark via-red to-orange"></div>
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red/15 text-red-light border border-red/30 mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red/15 text-red dark:text-red-light border border-red/30 mb-3">
             <IconStore className="w-3.5 h-3.5 text-red" />
             {t("badge")}
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--tt-text-main)] mb-3">
             {t("title")}
           </h1>
-          <p className="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed">
+          <p className="text-[var(--tt-text-muted)] text-sm sm:text-base max-w-2xl leading-relaxed">
             {t("description")}
           </p>
 
           {/* Search Box */}
           <div className="mt-6 max-w-xl relative">
-            <div className="relative flex items-center bg-[#111522] rounded-xl border border-white/10 hover:border-white/20 focus-within:border-red/60 focus-within:ring-1 focus-within:ring-red/30 transition-all">
-              <IconSearch className="absolute left-3.5 w-4 h-4 text-gray-500 pointer-events-none" />
+            <div className="relative flex items-center bg-[var(--tt-bg-subtle)] rounded-xl border border-[var(--tt-border-medium)] hover:border-red-500/40 focus-within:border-red/60 focus-within:ring-1 focus-within:ring-red/30 transition-all">
+              <IconSearch className="absolute left-3.5 w-4 h-4 text-[var(--tt-text-muted)] pointer-events-none" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={t("search_placeholder")}
-                className="w-full bg-transparent text-white text-xs sm:text-sm pl-10 pr-10 py-3 outline-none placeholder:text-gray-500"
+                className="w-full bg-transparent text-[var(--tt-text-main)] text-xs sm:text-sm pl-10 pr-10 py-3 outline-none placeholder:text-[var(--tt-text-muted)]"
               />
               {searchTerm && (
                 <button
                   type="button"
                   onClick={() => setSearchTerm("")}
-                  className="absolute right-3.5 text-gray-400 hover:text-white"
+                  className="absolute right-3.5 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   title={t("clear_search")}
                 >
                   <IconX className="w-4 h-4" />
                 </button>
               )}
             </div>
-            <span className="text-[11px] text-gray-400 font-mono mt-2 block">
+            <span className="text-[11px] text-[var(--tt-text-muted)] font-mono mt-2 block">
               {t("stores_found", { count: filteredStores.length })}
             </span>
           </div>
@@ -120,32 +120,32 @@ export default function TiendasDirectoryPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="p-6 rounded-2xl bg-[#0E121B] border border-white/10 animate-pulse space-y-4">
+              <div key={i} className="p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] animate-pulse space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-white/5" />
+                  <div className="w-12 h-12 rounded-xl bg-[var(--tt-bg-subtle)]" />
                   <div className="space-y-2 flex-1">
-                    <div className="w-32 h-4 rounded bg-white/5" />
-                    <div className="w-20 h-3 rounded bg-white/5" />
+                    <div className="w-32 h-4 rounded bg-[var(--tt-bg-subtle)]" />
+                    <div className="w-20 h-3 rounded bg-[var(--tt-bg-subtle)]" />
                   </div>
                 </div>
-                <div className="w-full h-12 rounded-xl bg-white/5" />
+                <div className="w-full h-12 rounded-xl bg-[var(--tt-bg-subtle)]" />
               </div>
             ))}
           </div>
         ) : filteredStores.length === 0 ? (
           /* Empty State */
-          <div className="py-20 text-center bg-[#0E121B] border border-white/10 rounded-2xl p-8 max-w-lg mx-auto">
-            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 text-gray-500">
+          <div className="py-20 text-center bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-8 max-w-lg mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[var(--tt-bg-subtle)] flex items-center justify-center mx-auto mb-4 text-[var(--tt-text-muted)]">
               <IconStore className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white mb-1">{t("no_stores_title")}</h3>
-            <p className="text-xs text-gray-400 mb-4">
+            <h3 className="text-base font-bold text-[var(--tt-text-main)] mb-1">{t("no_stores_title")}</h3>
+            <p className="text-xs text-[var(--tt-text-muted)] mb-4">
               {t("no_stores_desc", { term: searchTerm })}
             </p>
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 text-white hover:bg-white/15 transition-all"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--tt-bg-subtle)] text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] transition-all"
             >
               {t("reset_search")}
             </button>
@@ -161,14 +161,14 @@ export default function TiendasDirectoryPage() {
               return (
                 <div
                   key={store.id}
-                  className="p-6 rounded-2xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between group hover:shadow-red/5"
+                  className="p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 shadow-sm shadow-black/5 dark:shadow-xl transition-all flex flex-col justify-between group hover:shadow-red/5"
                 >
                   <div className="space-y-4">
                     {/* Header: Logo & Name */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3.5 min-w-0">
                         {store.logoUrl ? (
-                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-[#07090E] border border-white/10 shrink-0 relative">
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] shrink-0 relative">
                             <Image
                               src={store.logoUrl}
                               alt={store.name}
@@ -178,22 +178,22 @@ export default function TiendasDirectoryPage() {
                             />
                           </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#161b2a] to-[#0c0f18] border border-white/10 flex items-center justify-center font-black text-red text-base shrink-0 shadow-inner">
+                          <div className="w-12 h-12 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center font-black text-red text-base shrink-0">
                             {store.name.slice(0, 2).toUpperCase()}
                           </div>
                         )}
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-base font-bold text-white truncate group-hover:text-red-light transition-colors">
+                            <h3 className="text-base font-bold text-[var(--tt-text-main)] truncate group-hover:text-red transition-colors">
                               {store.name}
                             </h3>
-                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                              <IconShieldCheck className="w-3 h-3 text-emerald-400" />
+                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                              <IconShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                               {t("verified_badge")}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400 flex items-center gap-1.5 truncate mt-0.5">
-                            <IconMapPin className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                          <span className="text-xs text-[var(--tt-text-muted)] flex items-center gap-1.5 truncate mt-0.5">
+                            <IconMapPin className="w-3.5 h-3.5 text-[var(--tt-text-muted)] shrink-0" />
                             <span>{locationText}</span>
                           </span>
                         </div>
@@ -202,16 +202,16 @@ export default function TiendasDirectoryPage() {
 
                     {/* Pickup Address & Schedule */}
                     {store.pickupEnabled && (
-                      <div className="bg-[#07090E] rounded-xl p-3 border border-white/5 space-y-1.5 text-xs">
+                      <div className="bg-[var(--tt-bg-subtle)] rounded-xl p-3 border border-[var(--tt-border-subtle)] space-y-1.5 text-xs">
                         {store.pickupAddress && (
-                          <p className="text-gray-300 font-medium truncate flex items-center gap-1.5">
+                          <p className="text-[var(--tt-text-main)] font-medium truncate flex items-center gap-1.5">
                             <IconStore className="w-3.5 h-3.5 text-red shrink-0" />
                             <span>{store.pickupAddress}</span>
                           </p>
                         )}
                         {store.pickupSchedule && (
-                          <p className="text-[11px] text-gray-400 font-mono truncate flex items-center gap-1.5">
-                            <IconClock className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                          <p className="text-[11px] text-[var(--tt-text-muted)] font-mono truncate flex items-center gap-1.5">
+                            <IconClock className="w-3.5 h-3.5 text-[var(--tt-text-muted)] shrink-0" />
                             <span>{store.pickupSchedule}</span>
                           </p>
                         )}
@@ -220,7 +220,7 @@ export default function TiendasDirectoryPage() {
 
                     {/* Shipping Badges */}
                     <div className="pt-1">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-gray-500 block mb-1.5 font-bold">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--tt-text-muted)] block mb-1.5 font-bold">
                         {t("shipping_pickup_enabled")}
                       </span>
                       <StoreShippingBadges store={store} size="sm" />
@@ -228,9 +228,9 @@ export default function TiendasDirectoryPage() {
                   </div>
 
                   {/* Actions Bottom Bar */}
-                  <div className="pt-6 mt-6 border-t border-white/5 flex items-center justify-between gap-4">
-                    <span className="text-xs text-gray-400 font-mono">
-                      {t("subdomain_label")} <strong className="text-white">{store.subdomain}</strong>
+                  <div className="pt-6 mt-6 border-t border-[var(--tt-border-subtle)] flex items-center justify-between gap-4">
+                    <span className="text-xs text-[var(--tt-text-muted)] font-mono">
+                      {t("subdomain_label")} <strong className="text-[var(--tt-text-main)]">{store.subdomain}</strong>
                     </span>
                     <Link
                       href={`/shop/store/${store.subdomain}`}
@@ -247,15 +247,15 @@ export default function TiendasDirectoryPage() {
         )}
 
         {/* Call to Action for Store Owners */}
-        <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-[#121624] via-[#0E121B] to-[#141829] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-16 p-8 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shadow-md shadow-black/5 dark:shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center md:text-left">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-red-light">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-red dark:text-red-light">
               {t("b2b_badge")}
             </span>
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl font-bold text-[var(--tt-text-main)]">
               {t("b2b_title")}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-400 max-w-xl">
+            <p className="text-xs sm:text-sm text-[var(--tt-text-muted)] max-w-xl">
               {t("b2b_desc")}
             </p>
           </div>

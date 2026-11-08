@@ -60,9 +60,9 @@ const SingleListItem = ({ item }: { item: Product }) => {
   };
 
   return (
-    <div className="group rounded-lg bg-[#1a1d24] shadow-1">
-      <div className="flex">
-        <div className="shadow-list relative overflow-hidden flex items-center justify-center max-w-[270px] w-full sm:min-h-[300px] p-4">
+    <div className="group rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shadow-sm">
+      <div className="flex flex-col sm:flex-row">
+        <div className="shadow-list relative overflow-hidden flex items-center justify-center max-w-[270px] w-full sm:min-h-[300px] p-4 bg-[var(--tt-bg-subtle)] rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none">
           <Image  
             src={item.imgs?.previews?.[0] || item.imageUrl || "/images/products/product-1-bg-1.png"} 
             alt={item.title || item.name || "Product"} 
@@ -76,7 +76,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
           {/* Out of Stock Overlay */}
           {item.stock === 0 && (
-            <div className="absolute inset-0 bg-dark/40 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
               <span className="text-white font-semibold text-lg bg-red px-4 py-1.5 rounded-[5px] shadow-sm">
                 {t("outOfStock")}
               </span>
@@ -90,7 +90,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
               href={`/shop-details/${item.slug || item.id}`}
               onClick={() => handleProductDetails()}
               aria-label={t("view_stores")}
-              className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-white hover:bg-blue"
+              className="flex items-center justify-center w-9 h-9 rounded-lg shadow-sm ease-out duration-200 text-[var(--tt-text-main)] bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:text-white hover:bg-red"
             >
               <IconEye className="w-4 h-4" />
             </Link>
@@ -98,7 +98,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
             <button
               onClick={() => handleItemToWishList()}
               aria-label={t("add_favorite_aria")}
-              className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-white bg-[#1a1d24] hover:text-blue"
+              className="flex items-center justify-center w-9 h-9 rounded-lg shadow-sm ease-out duration-200 text-[var(--tt-text-main)] bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:text-red"
             >
               <IconHeart className="w-4 h-4" />
             </button>
@@ -107,19 +107,19 @@ const SingleListItem = ({ item }: { item: Product }) => {
 
         <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center justify-center sm:justify-between py-5 px-4 sm:px-7.5 lg:pl-11 lg:pr-12">
           <div>
-            <h3 className="font-medium text-white ease-out duration-200 hover:text-blue mb-1.5">
+            <h3 className="font-medium text-[var(--tt-text-main)] ease-out duration-200 hover:text-red mb-1.5">
               <Link href={`/shop-details/${item.slug || item.id}`}> {item.title || item.name} </Link>
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">
               {item.price > 0 ? (
-                <span className="text-white">${item.discountedPrice ?? item.price ?? 0}
+                <span className="text-[var(--tt-text-main)] font-bold">${item.discountedPrice ?? item.price ?? 0}
                 {item.discountedPrice && item.discountedPrice < (item.price ?? 0) && (
-                  <span className="text-gray-4 line-through ml-2">${item.price}</span>
+                  <span className="text-[var(--tt-text-muted)] line-through ml-2">${item.price}</span>
                 )}
-                <span className="text-xs font-normal text-gray-4">USD · CK</span></span>
+                <span className="text-xs font-normal text-[var(--tt-text-muted)]"> CLP</span></span>
               ) : (
-                <span className="text-gray-4 text-sm italic">{t("noPrice")}</span>
+                <span className="text-[var(--tt-text-muted)] text-sm italic">{t("noPrice")}</span>
               )}
             </span>
           </div>
@@ -158,7 +158,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
               />
             </div>
 
-            <p className="text-custom-sm">({item.reviews})</p>
+            <p className="text-custom-sm text-[var(--tt-text-muted)]">({item.reviews})</p>
           </div>
         </div>
       </div>

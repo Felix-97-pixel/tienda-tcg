@@ -10,14 +10,14 @@ const EmptyCart = () => {
 
   return (
     <div className="py-16 px-4 text-center flex flex-col items-center justify-center">
-      <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mb-5 shadow-inner">
-        <IconCard className="w-10 h-10 text-gray-500 opacity-60" />
+      <div className="w-20 h-20 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center mb-5 shadow-inner">
+        <IconCard className="w-10 h-10 text-[var(--tt-text-muted)] opacity-60" />
       </div>
 
-      <h3 className="text-lg font-bold text-white mb-2">
+      <h3 className="text-lg font-bold text-[var(--tt-text-main)] mb-2">
         {t("empty")}
       </h3>
-      <p className="text-xs text-gray-400 mb-6 max-w-xs leading-relaxed">
+      <p className="text-xs text-[var(--tt-text-muted)] mb-6 max-w-xs leading-relaxed">
         {t("emptyDescription")}
       </p>
 

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/useToast";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { IconTrash } from "@/components/ui/Icons";
 
 const SingleItem = ({ item }: { item: any }) => {
   const t = useTranslations("cart");
@@ -43,12 +44,12 @@ const SingleItem = ({ item }: { item: any }) => {
   const isHP = rawCondition.includes("HEAVY") || rawCondition === "HP";
   const conditionCode = isLP ? "LP" : isMP ? "MP" : isHP ? "HP" : "NM";
   const conditionBadgeClass = isLP
-    ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
+    ? "badge-condition-lp"
     : isMP
-    ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+    ? "badge-condition-mp"
     : isHP
-    ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
-    : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+    ? "badge-condition-hp"
+    : "badge-condition-nm";
 
   const isFoil = Boolean(
     item.finish &&
@@ -59,10 +60,10 @@ const SingleItem = ({ item }: { item: any }) => {
   const lineTotal = (item.finalPrice || unitPrice) * item.quantity;
 
   return (
-    <div className="grid grid-cols-12 items-center gap-4 py-4 px-6 border-b border-white/5 last:border-0 hover:bg-white/[0.015] transition-colors">
+    <div className="grid grid-cols-12 items-center gap-4 py-4 px-6 border-b border-[var(--tt-border-subtle)] last:border-0 hover:bg-[var(--tt-bg-subtle)]/40 transition-colors">
       {/* Product Artwork & Info (Col 5) */}
       <div className="col-span-12 sm:col-span-5 flex items-center gap-3.5">
-        <div className="relative w-14 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[#07090E] border border-white/10 shrink-0 p-0.5">
+        <div className="relative w-14 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] shrink-0 p-0.5 shadow-sm">
           <Image
             className="w-full h-full object-contain"
             width={70}
@@ -74,7 +75,7 @@ const SingleItem = ({ item }: { item: any }) => {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-bold text-white hover:text-red-400 transition-colors line-clamp-1">
+          <h4 className="text-sm font-bold text-[var(--tt-text-main)] hover:text-red-500 transition-colors line-clamp-1">
             <Link href={`/shop-details/${item.slug}`}>
               {item.title}
             </Link>
@@ -86,64 +87,64 @@ const SingleItem = ({ item }: { item: any }) => {
               {conditionCode}
             </span>
             {isFoil && (
-              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-400/15 text-amber-300 border border-amber-400/30">
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-400/15 text-amber-500 border border-amber-400/40 font-black">
                 FOIL
               </span>
             )}
-            <span className="text-[10px] text-gray-400 font-mono">
+            <span className="text-[10px] text-[var(--tt-text-muted)] font-mono">
               {item.language || "EN"}
             </span>
           </div>
 
           {/* Store */}
-          <div className="text-[11px] text-gray-400 mt-1 truncate">
-            <span className="text-gray-500">{t("store_label")} </span>
-            <span className="text-gray-300 font-medium">{item.storeName || "TapTrade Store"}</span>
+          <div className="text-[11px] text-[var(--tt-text-muted)] mt-1 truncate">
+            <span>{t("store_label")} </span>
+            <span className="text-[var(--tt-text-main)] font-semibold">{item.storeName || "TapTrade Store"}</span>
           </div>
         </div>
       </div>
 
       {/* Unit Price (Col 2) */}
       <div className="col-span-4 sm:col-span-2 text-left sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden">{t("table_header_unit_price")}:</span>
+        <span className="text-xs text-[var(--tt-text-muted)] block sm:hidden">{t("table_header_unit_price")}:</span>
         {item.discountAmount > 0 ? (
           <div>
-            <span className="text-gray-500 line-through text-[11px] block font-mono">
+            <span className="text-[var(--tt-text-muted)] line-through text-[11px] block font-mono">
               ${Math.round(item.originalPrice).toLocaleString("es-CL")}
             </span>
-            <span className="text-white font-mono font-bold text-sm">
+            <span className="text-[var(--tt-text-main)] font-mono font-bold text-sm">
               ${Math.round(item.finalPrice).toLocaleString("es-CL")} CLP
             </span>
-            <span className="inline-block mt-0.5 text-[9px] font-mono font-bold uppercase text-emerald-400 bg-emerald-400/10 px-1.5 py-0.2 rounded border border-emerald-400/20">
+            <span className="inline-block mt-0.5 text-[9px] font-mono font-bold uppercase text-emerald-500 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">
               Cupón: {item.appliedCouponCode}
             </span>
           </div>
         ) : (
-          <span className="text-sm font-mono font-bold text-white">
-            ${Math.round(unitPrice).toLocaleString("es-CL")} <span className="text-[11px] text-gray-400 font-normal">CLP</span>
+          <span className="text-sm font-mono font-bold text-[var(--tt-text-main)]">
+            ${Math.round(unitPrice).toLocaleString("es-CL")} <span className="text-[11px] text-[var(--tt-text-muted)] font-normal">CLP</span>
           </span>
         )}
       </div>
 
       {/* Quantity Stepper (Col 2) */}
       <div className="col-span-4 sm:col-span-2 flex items-center justify-start sm:justify-center">
-        <div className="flex items-center rounded-xl bg-black/40 border border-white/10 overflow-hidden h-9">
+        <div className="flex items-center rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden h-9 shadow-inner">
           <button
             type="button"
             onClick={handleDecreaseQuantity}
             disabled={item.quantity <= 1}
-            className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-full flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             -
           </button>
-          <span className="w-8 text-center text-xs font-mono font-bold text-white">
+          <span className="w-8 text-center text-xs font-mono font-bold text-[var(--tt-text-main)]">
             {item.quantity}
           </span>
           <button
             type="button"
             onClick={handleIncreaseQuantity}
             disabled={item.quantity >= maxStock}
-            className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-full flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             +
           </button>
@@ -152,11 +153,11 @@ const SingleItem = ({ item }: { item: any }) => {
 
       {/* Subtotal (Col 2) */}
       <div className="col-span-3 sm:col-span-2 text-right">
-        <span className="text-xs text-gray-400 block sm:hidden">{t("table_header_subtotal")}:</span>
-        <span className="text-sm font-black font-mono text-white">
+        <span className="text-xs text-[var(--tt-text-muted)] block sm:hidden">{t("table_header_subtotal")}:</span>
+        <span className="text-sm font-black font-mono text-[var(--tt-text-main)]">
           ${Math.round(lineTotal).toLocaleString("es-CL")}
         </span>
-        <span className="text-[10px] text-gray-500 ml-1">CLP</span>
+        <span className="text-[10px] text-[var(--tt-text-muted)] ml-1">CLP</span>
       </div>
 
       {/* Action (Col 1) */}
@@ -164,13 +165,10 @@ const SingleItem = ({ item }: { item: any }) => {
         <button
           onClick={handleRemoveFromCart}
           aria-label={t("delete_item_aria")}
-          className="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/30 text-gray-400 hover:text-red-400 flex items-center justify-center transition-all"
+          className="w-8 h-8 rounded-lg bg-[var(--tt-bg-subtle)] hover:bg-red-500/15 border border-[var(--tt-border-medium)] hover:border-red-500/30 text-[var(--tt-text-muted)] hover:text-red-500 flex items-center justify-center transition-all cursor-pointer shadow-sm"
           title={t("remove")}
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
+          <IconTrash className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

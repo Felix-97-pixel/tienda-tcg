@@ -60,7 +60,7 @@ export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
   return (
     <div className="w-full">
       {/* Master Mode Switcher Bar */}
-      <div className="border-b border-white/[0.08] bg-[#0E121D]/80 backdrop-blur-md sticky top-[72px] z-30">
+      <div className="border-b border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)]/90 backdrop-blur-md sticky top-[72px] z-30 transition-colors">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 py-3 overflow-x-auto no-scrollbar">
             {/* Tab 1: Catalog */}
@@ -69,8 +69,8 @@ export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
               onClick={() => handleTabChange("catalog")}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all shrink-0 ${
                 activeTab === "catalog"
-                  ? "bg-red-600 text-white shadow-lg shadow-red-600/25"
-                  : "bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/5"
+                  ? "bg-red text-white shadow-lg shadow-red/25"
+                  : "bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] border border-[var(--tt-border-medium)]"
               }`}
             >
               <IconCart className="w-4 h-4 shrink-0" />
@@ -83,18 +83,18 @@ export default function TcgStoreContainer({ store }: TcgStoreContainerProps) {
               onClick={() => handleTabChange("buylist")}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-extrabold text-sm transition-all shrink-0 ${
                 activeTab === "buylist"
-                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-[#0A0D14] shadow-lg shadow-amber-500/25 font-black"
-                  : "bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/5"
+                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white dark:text-[#0A0D14] shadow-lg shadow-amber-500/25 font-black"
+                  : "bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] border border-[var(--tt-border-medium)]"
               }`}
             >
-              <IconCoins className="w-4 h-4 text-amber-950 shrink-0" />
+              <IconCoins className="w-4 h-4 text-amber-950 dark:text-amber-950 shrink-0" />
               <span>{t("buylist_tab")}</span>
               {buylistCount !== null && (
                 <span
                   className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
                     activeTab === "buylist"
-                      ? "bg-[#0A0D14]/80 text-amber-300"
-                      : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      ? "bg-black/30 text-white"
+                      : "bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30"
                   }`}
                 >
                   {buylistCount}

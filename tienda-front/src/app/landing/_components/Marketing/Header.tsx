@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { IconSparkles, IconStore, IconMenu, IconX } from "@/components/ui/Icons";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useTranslations } from "next-intl";
 
 const Header = () => {
@@ -22,7 +23,7 @@ const Header = () => {
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-[#0A0D14]/90 backdrop-blur-xl border-b border-white/[0.08] py-3 shadow-2xl shadow-black/50"
+          ? "bg-[var(--tt-bg-canvas)]/90 backdrop-blur-xl border-b border-[var(--tt-border-medium)] py-3 shadow-xl"
           : "bg-transparent py-4 sm:py-5"
       }`}
     >
@@ -33,54 +34,54 @@ const Header = () => {
             <span className="text-white font-black text-lg font-mono">T</span>
           </div>
           <div className="flex flex-col shrink-0">
-            <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5 whitespace-nowrap">
+            <span className="text-xl font-black tracking-tight text-[var(--tt-text-main)] flex items-center gap-1.5 whitespace-nowrap">
               Tap<span className="text-red">Trade</span>
               <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#E10E0E]/20 text-red border border-red/30 uppercase tracking-widest">
                 TCG
               </span>
             </span>
-            <span className="text-[10px] text-gray-400 font-medium tracking-wider -mt-1 hidden sm:block whitespace-nowrap">
+            <span className="text-[10px] text-[var(--tt-text-muted)] font-medium tracking-wider -mt-1 hidden sm:block whitespace-nowrap">
               {t("tagline")}
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation (Visible from xl: 1280px+ where all 3 blocks fit without clipping) */}
-        <nav className="hidden xl:flex items-center gap-4 2xl:gap-6 bg-white/[0.03] border border-white/[0.08] px-5 py-2 rounded-full backdrop-blur-md shrink-0">
+        <nav className="hidden xl:flex items-center gap-4 2xl:gap-6 bg-[var(--tt-bg-surface)]/80 border border-[var(--tt-border-medium)] px-5 py-2 rounded-full backdrop-blur-md shrink-0 shadow-sm">
           <Link
             href="#marketplace"
-            className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+            className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors whitespace-nowrap"
           >
             {t("marketplace")}
           </Link>
           <Link
             href="#showcase"
-            className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap flex items-center gap-1.5"
+            className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors whitespace-nowrap flex items-center gap-1.5"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#E10E0E] animate-pulse shrink-0"></span>
             {t("platform")}
           </Link>
           <Link
             href="#pos"
-            className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+            className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors whitespace-nowrap"
           >
             {t("pos")}
           </Link>
           <Link
             href="#for-stores"
-            className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+            className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors whitespace-nowrap"
           >
             {t("for_stores")}
           </Link>
           <Link
             href="#pricing"
-            className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+            className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors whitespace-nowrap"
           >
             {t("plans")}
           </Link>
           <Link
             href="#faq"
-            className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+            className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors whitespace-nowrap"
           >
             {t("faq")}
           </Link>
@@ -88,15 +89,17 @@ const Header = () => {
 
         {/* Action Buttons & Hamburger Toggle */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Language Selector visible on Desktop (xl+); below xl lives inside Hamburger Menu */}
-          <div className="hidden xl:block">
+          {/* Language Selector & Theme Toggle on Desktop */}
+          <div className="hidden xl:flex items-center gap-2">
             <LanguageSelector />
+            <ThemeToggle />
           </div>
+
           <Link
             href="/admin/login"
-            className="hidden sm:inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all"
+            className="hidden sm:inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] bg-[var(--tt-bg-surface)] hover:bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] transition-all shadow-sm"
           >
-            <IconStore className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <IconStore className="w-3.5 h-3.5 text-[var(--tt-text-muted)] shrink-0" />
             <span>{t("store_login")}</span>
           </Link>
           <Link
@@ -111,13 +114,13 @@ const Header = () => {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0 transition-all"
+            className="xl:hidden p-2 rounded-xl text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] bg-[var(--tt-bg-surface)] hover:bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] shrink-0 transition-all shadow-sm"
             aria-label={t("open_menu_aria")}
           >
             {mobileMenuOpen ? (
-              <IconX className="w-5 h-5 text-gray-300" />
+              <IconX className="w-5 h-5 text-[var(--tt-text-main)]" />
             ) : (
-              <IconMenu className="w-5 h-5 text-gray-300" />
+              <IconMenu className="w-5 h-5 text-[var(--tt-text-main)]" />
             )}
           </button>
         </div>
@@ -125,23 +128,26 @@ const Header = () => {
 
       {/* Mobile & Tablet Drawer (< xl) */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#0E121B] border-b border-white/10 px-6 py-6 mt-3 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl">
-          <div className="py-2 border-b border-white/10 flex items-center justify-between">
-            <span className="text-xs text-gray-400 font-semibold">{t("language_label")}</span>
-            <LanguageSelector />
+        <div className="xl:hidden bg-[var(--tt-bg-surface)] border-b border-[var(--tt-border-medium)] px-6 py-6 mt-3 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl">
+          <div className="py-2 border-b border-[var(--tt-border-subtle)] flex items-center justify-between gap-4">
+            <span className="text-xs text-[var(--tt-text-muted)] font-semibold">{t("language_label")}</span>
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <ThemeToggle />
+            </div>
           </div>
           <nav className="flex flex-col space-y-3">
             <Link
               href="#marketplace"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1"
             >
               {t("marketplace")}
             </Link>
             <Link
               href="#showcase"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1 flex items-center gap-2"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1 flex items-center gap-2"
             >
               <span className="w-2 h-2 rounded-full bg-[#E10E0E]"></span>
               {t("platform")}
@@ -149,45 +155,45 @@ const Header = () => {
             <Link
               href="#pos"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1"
             >
               {t("pos")}
             </Link>
             <Link
               href="#for-stores"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1"
             >
               {t("for_stores")}
             </Link>
             <Link
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1"
             >
               {t("features")}
             </Link>
             <Link
               href="#pricing"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1"
             >
               {t("plans")}
             </Link>
             <Link
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-semibold text-gray-300 hover:text-white py-1"
+              className="text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1"
             >
               {t("faq")}
             </Link>
           </nav>
           {/* Solo mostrar estos dos botones dentro del menú cuando en la barra superior están ocultos (< sm) */}
-          <div className="sm:hidden pt-4 border-t border-white/10 flex flex-col gap-2.5">
+          <div className="sm:hidden pt-4 border-t border-[var(--tt-border-subtle)] flex flex-col gap-2.5">
             <Link
               href="/admin/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2.5 rounded-xl text-xs font-bold text-white bg-white/5 border border-white/10"
+              className="w-full text-center py-2.5 rounded-xl text-xs font-bold text-[var(--tt-text-main)] bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)]"
             >
               {t("store_login")}
             </Link>

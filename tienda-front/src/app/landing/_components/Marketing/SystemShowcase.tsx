@@ -326,22 +326,22 @@ export default function SystemShowcase() {
   const activeTab = showcaseTabs.find((tab) => tab.id === activeTabId) || showcaseTabs[0];
 
   return (
-    <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
+    <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-[var(--tt-border-subtle)]">
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 mb-4 backdrop-blur-md">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] mb-4 backdrop-blur-md shadow-sm">
           <IconSparkles className="w-3.5 h-3.5 text-[#E10E0E]" />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-300">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
             {t("badge_demo")}
           </span>
         </div>
-        <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+        <h2 className="text-3xl sm:text-5xl font-black text-[var(--tt-text-main)] tracking-tight leading-tight">
           {t("title_prefix")}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E10E0E] via-[#F23030] to-amber-400">
             {t("title_highlight")}
           </span>
         </h2>
-        <p className="text-gray-400 text-sm sm:text-base mt-4 leading-relaxed font-normal">
+        <p className="text-[var(--tt-text-muted)] text-sm sm:text-base mt-4 leading-relaxed font-normal">
           {t("subtitle")}
         </p>
       </div>
@@ -350,7 +350,7 @@ export default function SystemShowcase() {
       <div className="w-full max-w-full mx-auto mb-10 px-2 sm:px-4">
         <div
           style={{ scrollbarColor: "#E10E0E rgba(255,255,255,0.06)", scrollbarWidth: "thin" }}
-          className="w-fit max-w-full mx-auto flex items-center justify-start overflow-x-auto gap-1.5 xl:gap-2 p-2 pb-3 lg:pb-2 rounded-2xl bg-[#090D16]/90 border border-white/10 backdrop-blur-xl shadow-2xl [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-white/[0.06] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:mx-2 [&::-webkit-scrollbar-thumb]:bg-[#E10E0E] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#FF2E2E]"
+          className="w-fit max-w-full mx-auto flex items-center justify-start overflow-x-auto gap-1.5 xl:gap-2 p-2 pb-3 lg:pb-2 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] backdrop-blur-xl shadow-xl [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-white/[0.06] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:mx-2 [&::-webkit-scrollbar-thumb]:bg-[#E10E0E] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#FF2E2E]"
         >
           {showcaseTabs.map((tab) => {
             const isActive = tab.id === activeTabId;
@@ -362,15 +362,15 @@ export default function SystemShowcase() {
                 className={`flex items-center gap-2 py-2 xl:py-2.5 px-3.5 xl:px-4 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 select-none whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-gradient-to-r from-[#E10E0E] to-[#FF2E2E] text-white font-bold shadow-lg shadow-[#E10E0E]/30 border border-white/10"
-                    : "text-gray-400 hover:text-white hover:bg-white/[0.04]"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-subtle)]"
                 }`}
               >
-                {tab.id === "inventory" && <IconBox className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "pos" && <IconPosTerminal className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "buylist" && <IconTag className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "dashboard" && <IconBarChart className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "shield" && <IconShieldCheck className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "accounting" && <IconReceipt className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "inventory" && <IconBox className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[var(--tt-text-muted)]"}`} />}
+                {tab.id === "pos" && <IconPosTerminal className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[var(--tt-text-muted)]"}`} />}
+                {tab.id === "buylist" && <IconTag className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[var(--tt-text-muted)]"}`} />}
+                {tab.id === "dashboard" && <IconBarChart className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[var(--tt-text-muted)]"}`} />}
+                {tab.id === "shield" && <IconShieldCheck className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[var(--tt-text-muted)]"}`} />}
+                {tab.id === "accounting" && <IconReceipt className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[var(--tt-text-muted)]"}`} />}
                 <span>{tab.shortLabel}</span>
               </button>
             );
@@ -451,7 +451,7 @@ export default function SystemShowcase() {
           </div>
 
           {/* Bottom Context Panel with Capabilities & Metrics */}
-          <div className="p-6 sm:p-8 bg-[#0B0E17] border-t border-white/10">
+          <div className="p-6 sm:p-8 bg-[var(--tt-bg-surface)] border-t border-[var(--tt-border-medium)]">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Left Column: Feature Highlights */}
               <div className="lg:col-span-7">
@@ -461,12 +461,12 @@ export default function SystemShowcase() {
                   >
                     {activeTab.badge}
                   </span>
-                  <span className="text-xs text-gray-400 font-mono">• {t("real_admin_view")}</span>
+                  <span className="text-xs text-[var(--tt-text-muted)] font-mono">• {t("real_admin_view")}</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-extrabold text-[var(--tt-text-main)] mb-2 leading-snug">
                   {activeTab.headline}
                 </h3>
-                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
+                <p className="text-[var(--tt-text-muted)] text-xs sm:text-sm leading-relaxed mb-6 font-normal">
                   {activeTab.description}
                 </p>
 
@@ -475,28 +475,28 @@ export default function SystemShowcase() {
                   {activeTab.features.map((feat, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors"
+                      className="p-3 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] hover:border-red-500/40 transition-colors shadow-sm"
                     >
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-1">
-                        <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--tt-text-main)] mb-1">
+                        <IconCheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                         <span>{feat.title}</span>
                       </div>
-                      <p className="text-[11px] text-gray-400 leading-snug">{feat.description}</p>
+                      <p className="text-[11px] text-[var(--tt-text-muted)] leading-snug">{feat.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Right Column: Key Metrics & CTAs */}
-              <div className="lg:col-span-5 flex flex-col justify-between h-full lg:border-l lg:border-white/10 lg:pl-8">
+              <div className="lg:col-span-5 flex flex-col justify-between h-full lg:border-l lg:border-[var(--tt-border-medium)] lg:pl-8">
                 {/* 3 Performance Metrics */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {activeTab.metrics.map((m, idx) => (
-                    <div key={idx} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-center">
-                      <span className="text-base sm:text-lg font-black text-white font-mono block">
+                    <div key={idx} className="p-3 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-center shadow-sm">
+                      <span className="text-base sm:text-lg font-black text-[var(--tt-text-main)] font-mono block">
                         {m.value}
                       </span>
-                      <span className="text-[10px] text-gray-400 leading-tight block mt-1">
+                      <span className="text-[10px] text-[var(--tt-text-muted)] leading-tight block mt-1">
                         {m.label}
                       </span>
                     </div>
@@ -514,7 +514,7 @@ export default function SystemShowcase() {
                   </Link>
                   <Link
                     href="/contact"
-                    className="py-3 px-4 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors text-center"
+                    className="py-3 px-4 rounded-xl text-xs font-bold bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] border border-[var(--tt-border-medium)] transition-colors text-center shadow-sm"
                   >
                     {t("cta_schedule_demo")}
                   </Link>

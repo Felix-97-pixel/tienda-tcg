@@ -17,6 +17,8 @@ import {
   IconSearch,
   IconFilter,
   IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
   IconX,
   IconGrid,
   IconList,
@@ -103,11 +105,11 @@ function TcgDeckbuilderRow({
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[#111522] border border-white/[0.06] hover:border-white/20 transition-all">
+    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 shadow-sm transition-all">
       {/* Artwork thumbnail with hover expansion */}
       <div
         onClick={handleRowClick}
-        className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[#0A0D14] border border-white/10 group cursor-pointer"
+        className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] group cursor-pointer"
       >
         <Image
           src={imageUrl}
@@ -124,7 +126,7 @@ function TcgDeckbuilderRow({
         <button
           type="button"
           onClick={handleRowClick}
-          className="font-bold text-sm text-white hover:text-red-400 truncate block transition-colors text-left w-full cursor-pointer"
+          className="font-bold text-sm text-[var(--tt-text-main)] hover:text-red dark:hover:text-red-400 truncate block transition-colors text-left w-full cursor-pointer"
         >
           {item.title || item.name}
         </button>
@@ -132,16 +134,16 @@ function TcgDeckbuilderRow({
           <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold font-mono ${conditionClass}`}>
             {conditionCode}
           </span>
-          <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-white/5 border border-white/10 text-gray-400">
+          <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)]">
             {languageCode}
           </span>
           {isFoil && (
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30">
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-400/15 border border-amber-400/30">
               FOIL
             </span>
           )}
           {item.cardDetail?.expansion?.name && (
-            <span className="text-[11px] text-gray-400 truncate max-w-[160px]">
+            <span className="text-[11px] text-[var(--tt-text-muted)] truncate max-w-[160px]">
               • {item.cardDetail.expansion.name}
             </span>
           )}
@@ -150,30 +152,30 @@ function TcgDeckbuilderRow({
 
       {/* Price & Stock */}
       <div className="text-right shrink-0">
-        <div className="font-extrabold text-white text-sm sm:text-base font-mono">
+        <div className="font-extrabold text-[var(--tt-text-main)] text-sm sm:text-base font-mono">
           {formatPrice(price, currency)}
         </div>
-        <span className={`text-[10px] font-mono block ${stock > 0 ? "text-gray-400" : "text-red-400"}`}>
+        <span className={`text-[10px] font-mono block ${stock > 0 ? "text-[var(--tt-text-muted)]" : "text-red dark:text-red-400"}`}>
           {stock > 0 ? t("available_count", { count: stock }) : t("outOfStock")}
         </span>
       </div>
 
       {/* Rapid Add Stepper & Button */}
       <div className="flex items-center gap-1.5 shrink-0">
-        <div className="hidden sm:flex items-center rounded-lg bg-black/40 border border-white/10 overflow-hidden">
+        <div className="hidden sm:flex items-center rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden">
           <button
             type="button"
             onClick={() => setQty(Math.max(1, qty - 1))}
-            className="w-7 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10"
+            className="w-7 h-8 flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)]"
             disabled={qty <= 1}
           >
             -
           </button>
-          <span className="w-6 text-center text-xs font-mono font-bold text-white">{qty}</span>
+          <span className="w-6 text-center text-xs font-mono font-bold text-[var(--tt-text-main)]">{qty}</span>
           <button
             type="button"
             onClick={() => setQty(Math.min(stock, qty + 1))}
-            className="w-7 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10"
+            className="w-7 h-8 flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)]"
             disabled={qty >= stock}
           >
             +
@@ -186,7 +188,7 @@ function TcgDeckbuilderRow({
           disabled={isOutOfStock}
           className={`h-9 px-3 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
             isOutOfStock
-              ? "bg-white/5 text-gray-500 cursor-not-allowed border border-white/5"
+              ? "bg-[var(--tt-bg-subtle)] text-[var(--tt-text-muted)] cursor-not-allowed border border-[var(--tt-border-medium)]"
               : isAdding
               ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30"
               : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 active:scale-95"
@@ -390,7 +392,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-colors">
       {/* Top Search & Filter Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6">
         {/* Search Input with Instant Clear (Nielsen Heuristics: Flexibility & Efficiency) */}
@@ -400,14 +402,14 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t("store_search_placeholder")}
-            className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#111522] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-red-500/60 focus:ring-1 focus:ring-red-500/40 transition-all"
+            className="w-full h-11 pl-10 pr-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] text-sm focus:outline-none focus:border-red focus:ring-1 focus:ring-red/40 transition-all"
           />
-          <IconSearch className="absolute left-3.5 top-3.5 text-gray-500 w-4 h-4 pointer-events-none" />
+          <IconSearch className="absolute left-3.5 top-3.5 text-[var(--tt-text-muted)] w-4 h-4 pointer-events-none" />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
+              className="absolute right-3.5 top-3.5 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
               title={t("clear_search")}
             >
               <IconX className="w-4 h-4" />
@@ -421,12 +423,12 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
           <button
             type="button"
             onClick={() => setMobileDrawerOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-3.5 h-11 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-bold hover:bg-white/5 transition-all"
+            className="lg:hidden flex items-center gap-2 px-3.5 h-11 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-bold hover:bg-[var(--tt-bg-subtle)] transition-all"
           >
             <IconFilter className="w-3.5 h-3.5" />
             {t("filters")}
             {activeFiltersCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-red text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFiltersCount}
               </span>
             )}
@@ -437,25 +439,25 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
-              className="h-11 px-3.5 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-red-500 cursor-pointer appearance-none pr-8"
+              className="h-11 px-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-semibold focus:outline-none focus:border-red cursor-pointer appearance-none pr-8"
             >
-              <option value="latest">{t("sort.latest")}</option>
-              <option value="price-asc">{t("sort.price_asc")}</option>
-              <option value="price-desc">{t("sort.price_desc")}</option>
-              <option value="name-asc">{t("sort.name_asc")}</option>
+              <option value="latest" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{t("sort.latest")}</option>
+              <option value="price-asc" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{t("sort.price_asc")}</option>
+              <option value="price-desc" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{t("sort.price_desc")}</option>
+              <option value="name-asc" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{t("sort.name_asc")}</option>
             </select>
-            <IconChevronDown className="absolute right-3 top-4 pointer-events-none text-gray-400 w-3 h-3" />
+            <IconChevronDown className="absolute right-3 top-4 pointer-events-none text-[var(--tt-text-muted)] w-3 h-3" />
           </div>
 
           {/* Dual View Toggle: Grid vs Deckbuilder / Table */}
-          <div className="flex items-center rounded-xl bg-[#111522] border border-white/10 p-0.5">
+          <div className="flex items-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-0.5">
             <button
               type="button"
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-red-600 text-white shadow-sm"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-red text-white shadow-sm"
+                  : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
               }`}
               title={t("view_grid_title")}
             >
@@ -466,8 +468,8 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
               onClick={() => setViewMode("table")}
               className={`p-2 rounded-lg transition-all ${
                 viewMode === "table"
-                  ? "bg-red-600 text-white shadow-sm"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-red text-white shadow-sm"
+                  : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
               }`}
               title={t("view_deckbuilder_title")}
             >
@@ -479,14 +481,14 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
 
       {/* Active Filter Chips Pills (Refactoring UI / Usability Heuristics) */}
       {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-          <span className="text-xs text-gray-400 font-medium mr-1">{t("active_filters")}</span>
+        <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)]">
+          <span className="text-xs text-[var(--tt-text-muted)] font-medium mr-1">{t("active_filters")}</span>
 
           {selectedCategory && (
             <button
               type="button"
               onClick={() => setSelectedCategory(null)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-600 dark:text-red-300 border border-red-500/30 hover:bg-red-500/25 transition-all"
             >
               {selectedCategory}
               <IconX className="w-3 h-3" />
@@ -497,7 +499,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             <button
               type="button"
               onClick={() => setSelectedExpansion(null)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all"
             >
               {selectedExpansion}
               <IconX className="w-3 h-3" />
@@ -508,7 +510,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             <button
               type="button"
               onClick={() => setSelectedCondition(null)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
             >
               {t("condition_prefix", { value: conditionsData.find(c => c.name === selectedCondition || c.id === selectedCondition)?.displayName || selectedCondition })}
               <IconX className="w-3 h-3" />
@@ -519,11 +521,11 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             <button
               type="button"
               onClick={() => setSelectedFinish(null)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
             >
               {selectedFinish === "foil" ? (
                 <span className="inline-flex items-center gap-1">
-                  <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  <IconSparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
                   {t("finish_foil")}
                 </span>
               ) : (
@@ -537,7 +539,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
             <button
               type="button"
               onClick={() => setSelectedLanguage(null)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all"
             >
               {t("language_prefix", { value: languagesData.find(l => l.code === selectedLanguage || l.id === selectedLanguage || l.name === selectedLanguage)?.name || selectedLanguage })}
               <IconX className="w-3 h-3" />
@@ -547,7 +549,7 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
           <button
             type="button"
             onClick={handleClearAll}
-            className="text-xs text-gray-400 hover:text-white underline underline-offset-2 ml-auto"
+            className="text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] underline underline-offset-2 ml-auto"
           >
             {t("clear_all_filters")}
           </button>
@@ -589,13 +591,13 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
               className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
               onClick={() => setMobileDrawerOpen(false)}
             ></div>
-            <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[#0E121B] border-l border-white/10 p-6 overflow-y-auto shadow-2xl">
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
-                <span className="font-bold text-white text-base">{t("filters")}</span>
+            <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[var(--tt-bg-surface)] border-l border-[var(--tt-border-medium)] p-6 overflow-y-auto shadow-2xl">
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-[var(--tt-border-medium)]">
+                <span className="font-bold text-[var(--tt-text-main)] text-base">{t("filters")}</span>
                 <button
                   type="button"
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="p-1 rounded-lg text-gray-400 hover:text-white"
+                  className="p-1 rounded-lg text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 >
                   <IconX className="w-5 h-5" />
                 </button>
@@ -640,31 +642,31 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
               {[...Array(8)].map((_, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl p-4 bg-[#111522] border border-white/5 animate-pulse flex flex-col justify-between aspect-[2.5/4]"
+                  className="rounded-2xl p-4 bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] animate-pulse flex flex-col justify-between aspect-[2.5/4]"
                 >
-                  <div className="w-16 h-4 bg-white/10 rounded mb-2"></div>
-                  <div className="w-full aspect-[2.5/3.5] bg-white/5 rounded-xl my-2"></div>
-                  <div className="w-full h-4 bg-white/10 rounded mt-2"></div>
-                  <div className="w-1/2 h-4 bg-white/10 rounded mt-1"></div>
+                  <div className="w-16 h-4 bg-[var(--tt-bg-subtle)] rounded mb-2"></div>
+                  <div className="w-full aspect-[2.5/3.5] bg-[var(--tt-bg-subtle)] rounded-xl my-2"></div>
+                  <div className="w-full h-4 bg-[var(--tt-bg-subtle)] rounded mt-2"></div>
+                  <div className="w-1/2 h-4 bg-[var(--tt-bg-subtle)] rounded mt-1"></div>
                 </div>
               ))}
             </div>
           ) : sortedProducts.length === 0 ? (
             /* Nielsen UX Heuristic: Meaningful Empty State & Recovery Path */
-            <div className="text-center py-16 px-4 rounded-2xl bg-[#111522]/50 border border-white/5">
-              <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-red-500 mx-auto mb-4">
+            <div className="text-center py-16 px-4 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)]">
+              <div className="w-16 h-16 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center text-red mx-auto mb-4">
                 <IconCard className="w-8 h-8 opacity-80" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">
+              <h3 className="text-lg font-bold text-[var(--tt-text-main)] mb-2">
                 {t("no_cards_found")}
               </h3>
-              <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
+              <p className="text-sm text-[var(--tt-text-muted)] max-w-md mx-auto mb-6">
                 {t("store_no_cards_found_desc", { store: storeName })}
               </p>
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition-all shadow-lg shadow-red-600/20"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red hover:bg-red-dark text-white transition-all shadow-lg shadow-red/20"
               >
                 {t("reset_filters")}
               </button>
@@ -699,25 +701,27 @@ export default function TcgStorefrontView({ storeId, storeName }: TcgStorefrontV
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-10">
+            <div className="flex items-center justify-center gap-3 pt-10">
               <button
                 type="button"
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111522] border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all"
+                aria-label={t("prev_page")}
+                className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--tt-bg-subtle)] transition-all shadow-sm"
               >
-                {t("prev_page")}
+                <IconChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-xs font-mono font-medium text-gray-400 px-3">
+              <span className="text-xs font-mono font-bold text-[var(--tt-text-main)] px-4 py-2 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] shadow-sm">
                 {t("page_info", { current: currentPage, total: totalPages })}
               </span>
               <button
                 type="button"
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111522] border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all"
+                aria-label={t("next_page")}
+                className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--tt-bg-subtle)] transition-all shadow-sm"
               >
-                {t("next_page")}
+                <IconChevronRight className="w-4 h-4" />
               </button>
             </div>
           )}

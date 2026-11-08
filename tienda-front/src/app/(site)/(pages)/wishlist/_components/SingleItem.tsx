@@ -82,12 +82,12 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
     "/images/products/product-1-bg-1.png";
 
   return (
-    <div className="grid grid-cols-12 items-center gap-4 py-4 px-5 sm:px-6 border-b border-white/5 last:border-0 hover:bg-white/[0.015] transition-colors">
+    <div className="grid grid-cols-12 items-center gap-4 py-4 px-5 sm:px-6 border-b border-[var(--tt-border-subtle)] last:border-0 hover:bg-[var(--tt-bg-subtle)] transition-colors">
       {/* Product Artwork & Details (Col 5) */}
       <div className="col-span-12 sm:col-span-5 flex items-center gap-3.5">
         <Link
           href={`/shop-details/${item.slug}`}
-          className="relative w-14 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[#07090E] border border-white/10 shrink-0 p-0.5 group/art transition-transform hover:scale-105"
+          className="relative w-14 aspect-[2.5/3.5] rounded-lg overflow-hidden bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shrink-0 p-0.5 group/art transition-transform hover:scale-105 shadow-sm"
         >
           <Image
             className="w-full h-full object-contain"
@@ -100,7 +100,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
         </Link>
 
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-bold text-white hover:text-red-400 transition-colors line-clamp-1">
+          <h4 className="text-sm font-bold text-[var(--tt-text-main)] hover:text-red transition-colors line-clamp-1">
             <Link href={`/shop-details/${item.slug}`}>
               {title}
             </Link>
@@ -112,18 +112,18 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
               {conditionCode}
             </span>
             {isFoil && (
-              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 border border-amber-400/30">
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-500 dark:text-amber-300 border border-amber-400/30">
                 FOIL
               </span>
             )}
             {item.language && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-gray-400 font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10">
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--tt-text-muted)] font-mono px-1.5 py-0.5 rounded bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)]">
                 <IconLanguageFlag code={item.language} name={item.language} className="w-3.5 h-2.5" />
                 <span>{item.language}</span>
               </span>
             )}
             {cardSet && (
-              <span className="text-[10px] text-gray-400 font-medium truncate max-w-[120px] bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+              <span className="text-[10px] text-[var(--tt-text-muted)] font-medium truncate max-w-[120px] bg-[var(--tt-bg-subtle)] px-1.5 py-0.5 rounded border border-[var(--tt-border-subtle)]">
                 {cardSet}
               </span>
             )}
@@ -133,31 +133,31 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
 
       {/* Juego / Categoría (Col 2) */}
       <div className="col-span-6 sm:col-span-2 text-left sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">{tw("th_game")}:</span>
-        <span className="inline-block text-xs font-medium text-gray-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+        <span className="text-xs text-[var(--tt-text-muted)] block sm:hidden mb-0.5">{tw("th_game")}:</span>
+        <span className="inline-block text-xs font-medium text-[var(--tt-text-muted)] bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] px-2.5 py-1 rounded-lg">
           {categoryName || "TCG"}
         </span>
       </div>
 
       {/* Unit Price (Col 2) */}
       <div className="col-span-6 sm:col-span-2 text-right sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">{tw("th_unit_price")}:</span>
-        <span className="text-sm font-mono font-bold text-white">
+        <span className="text-xs text-[var(--tt-text-muted)] block sm:hidden mb-0.5">{tw("th_unit_price")}:</span>
+        <span className="text-sm font-mono font-bold text-[var(--tt-text-main)]">
           ${Math.round(unitPrice).toLocaleString("es-CL")}{" "}
-          <span className="text-xs text-gray-400 font-normal">CLP</span>
+          <span className="text-xs text-[var(--tt-text-muted)] font-normal">CLP</span>
         </span>
       </div>
 
       {/* Stock Status (Col 2) */}
       <div className="col-span-6 sm:col-span-2 text-left sm:text-center">
-        <span className="text-xs text-gray-400 block sm:hidden mb-0.5">{tw("th_stock")}:</span>
+        <span className="text-xs text-[var(--tt-text-muted)] block sm:hidden mb-0.5">{tw("th_stock")}:</span>
         {isInStock ? (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>{t("inStock")} ({stockCount})</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/25">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-500 dark:text-red-400 border border-red-500/25">
             <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
             <span>{t("outOfStock")}</span>
           </span>
@@ -173,7 +173,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
           title={!isInStock ? t("outOfStock") : isMaxStockReached ? t("maxReached") : t("addToCart")}
           className={`p-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center ${
             !isInStock || isMaxStockReached
-              ? "bg-white/5 cursor-not-allowed text-gray-500 border border-white/5"
+              ? "bg-[var(--tt-bg-subtle)] cursor-not-allowed text-[var(--tt-text-muted)] border border-[var(--tt-border-medium)] opacity-50"
               : "text-white bg-[#E10E0E] hover:bg-[#F23030] shadow-md shadow-[#E10E0E]/20 active:scale-95"
           }`}
         >
@@ -184,7 +184,7 @@ const SingleItem: React.FC<SingleItemProps> = ({ item, onRemove }) => {
           type="button"
           onClick={handleRemoveFromWishlist}
           title={t("remove_from_wishlist")}
-          className="p-2.5 rounded-xl text-gray-400 hover:text-red-400 bg-white/[0.02] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all active:scale-95 flex items-center justify-center"
+          className="p-2.5 rounded-xl text-[var(--tt-text-muted)] hover:text-red-500 bg-[var(--tt-bg-surface)] hover:bg-red-500/10 border border-[var(--tt-border-medium)] hover:border-red-500/30 transition-all active:scale-95 flex items-center justify-center shadow-sm"
         >
           <IconTrash className="w-4 h-4" />
         </button>

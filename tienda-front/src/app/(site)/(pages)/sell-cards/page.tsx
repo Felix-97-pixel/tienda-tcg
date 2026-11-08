@@ -36,7 +36,7 @@ export default async function VenderCartasPage() {
   const { buylistItems, stores } = await getInitialBuylistData();
 
   return (
-    <main className="min-h-screen bg-[#0A0D14] text-white pt-28 md:pt-36 pb-20">
+    <main className="min-h-screen bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] pt-28 md:pt-36 pb-20 transition-colors duration-200">
       <VenderCartasClient initialItems={buylistItems} initialStores={stores} />
     </main>
   );

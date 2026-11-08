@@ -6,25 +6,25 @@ import { useTranslations } from "next-intl";
 const Breadcrumb = ({ title, pages, hidePadding = false, subtitle }: { title: string, pages: string[], hidePadding?: boolean, subtitle?: React.ReactNode }) => {
   const t = useTranslations("common");
   return (
-    <div className={`overflow-hidden shadow-breadcrumb ${hidePadding ? "pt-0" : "pt-[209px] sm:pt-[155px] lg:pt-[95px] xl:pt-[165px]"}`}>
-      <div className="border-t border-white/10">
+    <div className={`overflow-hidden shadow-breadcrumb bg-[var(--tt-bg-canvas)] transition-colors duration-200 ${hidePadding ? "pt-0" : "pt-[209px] sm:pt-[155px] lg:pt-[95px] xl:pt-[165px]"}`}>
+      <div className="border-t border-[var(--tt-border-subtle)]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0 py-5 xl:py-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="font-semibold text-white text-xl sm:text-2xl xl:text-custom-2">
+              <h1 className="font-semibold text-[var(--tt-text-main)] text-xl sm:text-2xl xl:text-custom-2">
                 {title}
               </h1>
-              {subtitle && <div className="mt-2 text-sm text-gray-4">{subtitle}</div>}
+              {subtitle && <div className="mt-2 text-sm text-[var(--tt-text-muted)]">{subtitle}</div>}
             </div>
 
             <ul className="flex items-center gap-2">
-              <li className="text-custom-sm hover:text-blue">
+              <li className="text-custom-sm text-[var(--tt-text-muted)] hover:text-red">
                 <Link href="/">{t("home")} /</Link>
               </li>
 
               {pages.length > 0 &&
                 pages.map((page, key) => (
-                  <li className="text-custom-sm last:text-blue capitalize" key={key}>
+                  <li className="text-custom-sm text-[var(--tt-text-muted)] last:text-red capitalize" key={key}>
                     {page}
                   </li>
                 ))}

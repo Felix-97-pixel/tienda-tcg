@@ -212,37 +212,37 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-colors">
       {/* 1. Value Proposition Callout Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#111624] via-[#141A2D] to-[#111624] border border-amber-500/20 p-6 sm:p-8 mb-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--tt-bg-surface)] border border-amber-500/30 p-6 sm:p-8 mb-8 shadow-xl shadow-black/5 dark:shadow-2xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 blur-[120px] pointer-events-none rounded-full"></div>
         <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-red-600/5 blur-[100px] pointer-events-none rounded-full"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider">
               <IconZap className="w-3.5 h-3.5" /> {tStore("buylist_official_engine")}
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--tt-text-main)] tracking-tight">
               {tStore("buylist_have_cards_title", { storeName: store.name })}
             </h2>
-            <p className="text-sm text-gray-300 leading-relaxed">
+            <p className="text-sm text-[var(--tt-text-muted)] leading-relaxed">
               {tStore("buylist_monetize_desc")}
             </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
-            <div className="bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
-              <span className="text-emerald-400 text-lg font-black block">100%</span>
-              <span className="text-[11px] text-gray-400 font-medium">{tStore("secure_payment_badge")}</span>
+            <div className="bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] rounded-xl p-3 text-center">
+              <span className="text-emerald-600 dark:text-emerald-400 text-lg font-black block">100%</span>
+              <span className="text-[11px] text-[var(--tt-text-muted)] font-medium">{tStore("secure_payment_badge")}</span>
             </div>
-            <div className="bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
-              <span className="text-amber-400 text-lg font-black block">+25%</span>
-              <span className="text-[11px] text-gray-400 font-medium">{tStore("digital_credit_badge")}</span>
+            <div className="bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] rounded-xl p-3 text-center">
+              <span className="text-amber-600 dark:text-amber-400 text-lg font-black block">+25%</span>
+              <span className="text-[11px] text-[var(--tt-text-muted)] font-medium">{tStore("digital_credit_badge")}</span>
             </div>
-            <div className="col-span-2 sm:col-span-1 bg-[#0A0D14]/70 border border-white/5 rounded-xl p-3 text-center">
-              <span className="text-blue-400 text-lg font-black block">{tStore("direct_label")}</span>
-              <span className="text-[11px] text-gray-400 font-medium">{tStore("direct_store_player_badge")}</span>
+            <div className="col-span-2 sm:col-span-1 bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] rounded-xl p-3 text-center">
+              <span className="text-blue-600 dark:text-blue-400 text-lg font-black block">{tStore("direct_label")}</span>
+              <span className="text-[11px] text-[var(--tt-text-muted)] font-medium">{tStore("direct_store_player_badge")}</span>
             </div>
           </div>
         </div>
@@ -256,14 +256,14 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={tStore("search_buylist_placeholder")}
-            className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#111522] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-500/60 transition-all"
+            className="w-full h-11 pl-10 pr-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] text-sm focus:outline-none focus:border-amber-500/60 transition-all"
           />
-          <IconSearch className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-500" />
+          <IconSearch className="w-4 h-4 absolute left-3.5 top-3.5 text-[var(--tt-text-muted)]" />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
+              className="absolute right-3.5 top-3.5 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
             >
               <IconX className="w-4 h-4" />
             </button>
@@ -272,7 +272,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
 
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Condition Pills */}
-          <div className="inline-flex rounded-xl bg-[#111522] border border-white/10 p-1">
+          <div className="inline-flex rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-1">
             {["ALL", "NM", "LP", "MP", "HP", "DMG"].map((c) => (
               <button
                 key={c}
@@ -280,8 +280,8 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 onClick={() => setSelectedCondition(c)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   selectedCondition === c
-                    ? "bg-amber-500 text-[#0A0D14] shadow-sm font-extrabold"
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-amber-500 text-white dark:text-[#0A0D14] shadow-sm font-extrabold"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
               >
                 {c === "ALL" ? tBuylist("filters.quick_all") : c}
@@ -295,16 +295,16 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="h-11 px-3.5 pr-8 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
+                className="h-11 px-3.5 pr-8 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
               >
-                <option value="ALL">{tBuylist("filters.all_languages")}</option>
+                <option value="ALL" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{tBuylist("filters.all_languages")}</option>
                 {uniqueLanguages.map((l) => (
-                  <option key={l.code} value={l.code}>
+                  <option key={l.code} value={l.code} className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">
                     {l.name} ({l.code})
                   </option>
                 ))}
               </select>
-              <IconChevronDown className="w-3 h-3 absolute right-3 top-4 pointer-events-none text-gray-400" />
+              <IconChevronDown className="w-3 h-3 absolute right-3 top-4 pointer-events-none text-[var(--tt-text-muted)]" />
             </div>
           )}
 
@@ -313,13 +313,13 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="h-11 px-3.5 pr-8 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
+              className="h-11 px-3.5 pr-8 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer appearance-none"
             >
-              <option value="credit-desc">{tBuylist("filters.sort_credit")}</option>
-              <option value="cash-desc">{tBuylist("filters.sort_cash")}</option>
-              <option value="name-asc">{tBuylist("filters.sort_name")}</option>
+              <option value="credit-desc" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{tBuylist("filters.sort_credit")}</option>
+              <option value="cash-desc" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{tBuylist("filters.sort_cash")}</option>
+              <option value="name-asc" className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">{tBuylist("filters.sort_name")}</option>
             </select>
-            <IconChevronDown className="w-3 h-3 absolute right-3 top-4 pointer-events-none text-gray-400" />
+            <IconChevronDown className="w-3 h-3 absolute right-3 top-4 pointer-events-none text-[var(--tt-text-muted)]" />
           </div>
         </div>
       </div>
@@ -328,20 +328,20 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-44 rounded-2xl bg-[#111522]/50 animate-pulse border border-white/5"></div>
+            <div key={i} className="h-44 rounded-2xl bg-[var(--tt-bg-surface)] animate-pulse border border-[var(--tt-border-subtle)]"></div>
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="text-center py-16 px-4 rounded-2xl bg-[#111522]/30 border border-dashed border-white/10">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+        <div className="text-center py-16 px-4 rounded-2xl bg-[var(--tt-bg-surface)] border border-dashed border-[var(--tt-border-medium)]">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
             <IconSearch className="w-8 h-8 opacity-60" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-1">
+          <h3 className="text-lg font-bold text-[var(--tt-text-main)] mb-1">
             {searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL"
               ? tStore("no_cards_filtered_title")
               : tStore("no_cards_empty_title")}
           </h3>
-          <p className="text-sm text-gray-400 max-w-md mx-auto mb-4">
+          <p className="text-sm text-[var(--tt-text-muted)] max-w-md mx-auto mb-4">
             {searchTerm || selectedCondition !== "ALL" || selectedLanguage !== "ALL"
               ? tStore("no_cards_filtered_desc")
               : tStore("no_cards_empty_desc", { storeName: store.name })}
@@ -354,7 +354,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 setSelectedCondition("ALL");
                 setSelectedLanguage("ALL");
               }}
-              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all"
+              className="px-4 py-2 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-bold text-xs transition-all"
             >
               {tBuylist("clear_filters")}
             </button>
@@ -373,12 +373,12 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
             return (
               <div
                 key={item.id}
-                className="group relative rounded-2xl bg-[#111522] border border-white/[0.08] hover:border-amber-500/40 p-4 transition-all duration-300 hover:shadow-[0_4px_25px_rgba(245,158,11,0.12)] flex flex-col justify-between"
+                className="group relative rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-amber-500/40 p-4 transition-all duration-300 hover:shadow-lg shadow-black/5 dark:shadow-none flex flex-col justify-between"
               >
                 <div>
                   <div className="flex gap-3.5">
                     {/* Thumbnail */}
-                    <div className="relative w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-[#0A0D14] border border-white/10 group-hover:border-amber-500/30 transition-all">
+                    <div className="relative w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] group-hover:border-amber-500/30 transition-all">
                       <Image
                         src={imgUrl}
                         alt={item.product?.name || "TCG Card"}
@@ -395,51 +395,51 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono border ${cond.className}`}>
                           {cond.label}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white/5 border border-white/10 text-gray-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)]">
                           {langCode}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
                           {tBuylist("item_card.looking_for", { count: item.quantityWanted })}
                         </span>
                       </div>
 
-                      <h4 className="font-bold text-white text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-amber-300 transition-colors">
+                      <h4 className="font-bold text-[var(--tt-text-main)] text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                         {item.product?.name}
                       </h4>
 
-                      <p className="text-xs text-gray-400 truncate mt-1">
+                      <p className="text-xs text-[var(--tt-text-muted)] truncate mt-1">
                         {item.product?.cardDetail?.expansion || item.product?.category?.name || "Single TCG"}
                       </p>
                     </div>
                   </div>
 
                   {/* Pricing Matrix */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 bg-[#0A0D14]/70 rounded-xl p-2.5 border border-white/5">
+                  <div className="mt-4 grid grid-cols-2 gap-2 bg-[var(--tt-bg-subtle)] rounded-xl p-2.5 border border-[var(--tt-border-subtle)]">
                     {/* Cash */}
                     <div>
-                      <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                        <IconCash className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-[var(--tt-text-muted)] tracking-wider">
+                        <IconCash className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>{tBuylist("trade_modal.cash")}</span>
                       </span>
-                      <span className="text-sm font-extrabold text-white">
+                      <span className="text-sm font-extrabold text-[var(--tt-text-main)]">
                         {formatPrice(cash, currency)}
                       </span>
                     </div>
 
                     {/* Credit */}
-                    <div className="border-l border-white/10 pl-2.5">
+                    <div className="border-l border-[var(--tt-border-medium)] pl-2.5">
                       <div className="flex items-center gap-1">
-                        <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-400 tracking-wider">
-                          <IconGem className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">
+                          <IconGem className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                           <span>{tBuylist("trade_modal.store_credit")}</span>
                         </span>
                         {bonusPercent > 0 && (
-                          <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/15 px-1 rounded">
+                          <span className="text-[9px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-500/15 px-1 rounded">
                             +{bonusPercent}%
                           </span>
                         )}
                       </div>
-                      <span className="text-sm font-extrabold text-amber-300">
+                      <span className="text-sm font-extrabold text-amber-700 dark:text-amber-300">
                         {formatPrice(credit, currency)}
                       </span>
                     </div>
@@ -464,28 +464,28 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
       {/* 4. Trade / Offer Modal */}
       {selectedTradeItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-2xl bg-[#111522] border border-white/10 p-6 shadow-2xl text-white">
+          <div className="relative w-full max-w-lg rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-6 shadow-2xl text-[var(--tt-text-main)]">
             {/* Close button */}
             <button
               type="button"
               onClick={() => setSelectedTradeItem(null)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-all"
             >
               <IconX className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <span className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                 <IconHandshake className="w-5 h-5" />
               </span>
-              <h3 className="text-lg font-black text-white">
+              <h3 className="text-lg font-black text-[var(--tt-text-main)]">
                 {tBuylist("trade_modal.title", { storeName: store.name })}
               </h3>
             </div>
 
             {/* Selected Card Summary */}
-            <div className="flex gap-4 p-3 rounded-xl bg-[#0A0D14] border border-white/5 mb-5">
-              <div className="relative w-16 h-22 shrink-0 rounded-lg overflow-hidden bg-black/40 border border-white/10">
+            <div className="flex gap-4 p-3 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] mb-5">
+              <div className="relative w-16 h-22 shrink-0 rounded-lg overflow-hidden bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)]">
                 <Image
                   src={selectedTradeItem.product?.imageUrl || "/images/products/product-1-bg-1.png"}
                   alt={selectedTradeItem.product?.name || "TCG Card"}
@@ -496,17 +496,17 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white text-base truncate">
+                <h4 className="font-bold text-[var(--tt-text-main)] text-base truncate">
                   {selectedTradeItem.product?.name}
                 </h4>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">
                   {selectedTradeItem.product?.cardDetail?.expansion || tStore("official_edition")}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold">
                     {selectedTradeItem.condition?.displayName || "Near Mint"}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-[var(--tt-text-muted)]">
                     {tStore("max_copies", { count: selectedTradeItem.quantityWanted })}
                   </span>
                 </div>
@@ -515,7 +515,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
 
             {/* Quantity Selector */}
             <div className="mb-4">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+              <label className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider block mb-2">
                 {tBuylist("trade_modal.quantity_to_sell")}
               </label>
               <div className="flex items-center gap-3">
@@ -523,22 +523,22 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   type="button"
                   disabled={tradeQuantity <= 1}
                   onClick={() => setTradeQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-40 font-bold text-lg"
+                  className="w-10 h-10 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] disabled:opacity-40 font-bold text-lg"
                 >
                   -
                 </button>
-                <span className="text-lg font-black font-mono w-10 text-center">
+                <span className="text-lg font-black font-mono w-10 text-center text-[var(--tt-text-main)]">
                   {tradeQuantity}
                 </span>
                 <button
                   type="button"
                   disabled={tradeQuantity >= selectedTradeItem.quantityWanted}
                   onClick={() => setTradeQuantity((q) => Math.min(selectedTradeItem.quantityWanted, q + 1))}
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-40 font-bold text-lg"
+                  className="w-10 h-10 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] disabled:opacity-40 font-bold text-lg"
                 >
                   +
                 </button>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-[var(--tt-text-muted)]">
                   {tBuylist("trade_modal.max_requested", { max: selectedTradeItem.quantityWanted })}
                 </span>
               </div>
@@ -546,7 +546,7 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
 
             {/* Payout Choice: Cash vs Store Credit */}
             <div className="mb-6">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+              <label className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider block mb-2">
                 {tBuylist("trade_modal.choose_payout")}
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -557,21 +557,21 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   className={`p-3 rounded-xl border text-left transition-all ${
                     payoutMethod === "credit"
                       ? "bg-amber-500/15 border-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                      : "bg-[#0A0D14] border-white/10 hover:border-white/20"
+                      : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-amber-500/40"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
+                    <span className="text-xs font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                       {tBuylist("trade_modal.store_credit")}
                     </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300">
                       {tBuylist("trade_modal.recommended_badge")}
                     </span>
                   </div>
-                  <span className="text-base font-black text-white block mt-1">
+                  <span className="text-base font-black text-[var(--tt-text-main)] block mt-1">
                     {formatPrice(Number(selectedTradeItem.creditPrice || 0) * tradeQuantity, currency)}
                   </span>
-                  <span className="text-[11px] text-gray-400 block mt-0.5">
+                  <span className="text-[11px] text-[var(--tt-text-muted)] block mt-0.5">
                     {tBuylist("trade_modal.credit_desc", { storeName: store.name })}
                   </span>
                 </button>
@@ -583,16 +583,16 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
                   className={`p-3 rounded-xl border text-left transition-all ${
                     payoutMethod === "cash"
                       ? "bg-emerald-500/15 border-emerald-500/60 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                      : "bg-[#0A0D14] border-white/10 hover:border-white/20"
+                      : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-emerald-500/40"
                   }`}
                 >
-                  <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider block">
+                  <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                     {tBuylist("trade_modal.cash")}
                   </span>
-                  <span className="text-base font-black text-white block mt-1">
+                  <span className="text-base font-black text-[var(--tt-text-main)] block mt-1">
                     {formatPrice(Number(selectedTradeItem.cashPrice || 0) * tradeQuantity, currency)}
                   </span>
-                  <span className="text-[11px] text-gray-400 block mt-0.5">
+                  <span className="text-[11px] text-[var(--tt-text-muted)] block mt-0.5">
                     {tBuylist("trade_modal.cash_desc")}
                   </span>
                 </button>
@@ -613,15 +613,15 @@ export default function TcgStoreBuylistView({ store, initialItems }: TcgStoreBuy
               <button
                 type="button"
                 onClick={handleCopyMessage}
-                className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
+                className="w-full h-10 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-semibold text-xs flex items-center justify-center gap-2 transition-all"
               >
                 {copiedLink ? tBuylist("trade_modal.copied_success") : tBuylist("trade_modal.copy_offer")}
               </button>
             </div>
 
             {storeAddress && (
-              <p className="text-[11px] text-gray-400 text-center mt-4 inline-flex items-center justify-center gap-1.5 w-full">
-                <IconMapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <p className="text-[11px] text-[var(--tt-text-muted)] text-center mt-4 inline-flex items-center justify-center gap-1.5 w-full">
+                <IconMapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>{tBuylist("trade_modal.pickup_available", { address: storeAddress })}</span>
               </p>
             )}

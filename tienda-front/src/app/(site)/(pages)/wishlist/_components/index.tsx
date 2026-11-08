@@ -146,7 +146,7 @@ export const Wishlist = () => {
   };
 
   return (
-    <div className="bg-[#07090E] min-h-screen text-white pt-28 md:pt-36 pb-24 relative overflow-hidden">
+    <div className="bg-[var(--tt-bg-canvas)] min-h-screen text-[var(--tt-text-main)] pt-28 md:pt-36 pb-24 relative overflow-hidden transition-colors duration-200">
       {/* Dynamic Background Atmosphere */}
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
       <div className="absolute top-16 left-1/4 w-[500px] h-[300px] bg-[#E10E0E]/10 blur-[150px] pointer-events-none rounded-full -z-10"></div>
@@ -154,13 +154,13 @@ export const Wishlist = () => {
 
       <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-gray-400 mb-6 font-medium">
-          <Link href="/shop" className="hover:text-white transition-colors flex items-center gap-1">
+        <div className="flex items-center gap-2 text-xs text-[var(--tt-text-muted)] mb-6 font-medium">
+          <Link href="/shop" className="hover:text-[var(--tt-text-main)] transition-colors flex items-center gap-1">
             <span>←</span>
             <span>{t("breadcrumb_catalog")}</span>
           </Link>
           <span>/</span>
-          <span className="text-white font-semibold">{t("breadcrumb_wishlist")}</span>
+          <span className="text-[var(--tt-text-main)] font-semibold">{t("breadcrumb_wishlist")}</span>
         </div>
 
         {wishlistItems.length > 0 ? (
@@ -168,14 +168,14 @@ export const Wishlist = () => {
             {/* Header & Stats Banner */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
-                  <IconHeart className="w-3.5 h-3.5 text-red-400 fill-red-500/30 shrink-0" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-500 dark:text-red-400 border border-red-500/30 mb-2">
+                  <IconHeart className="w-3.5 h-3.5 text-red-500 dark:text-red-400 fill-red-500/30 shrink-0" />
                   <span>{t("cards_saved", { count: totalItemsCount })}</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] tracking-tight">
                   {t("title")}
                 </h1>
-                <p className="text-sm text-gray-400 mt-1 max-w-2xl leading-relaxed">
+                <p className="text-sm text-[var(--tt-text-muted)] mt-1 max-w-2xl leading-relaxed">
                   {t("desc")}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export const Wishlist = () => {
                   disabled={inStockCount === 0}
                   className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all active:scale-95 ${
                     inStockCount === 0
-                      ? "bg-white/5 text-gray-500 border border-white/5 cursor-not-allowed"
+                      ? "bg-[var(--tt-bg-subtle)] text-[var(--tt-text-muted)] border border-[var(--tt-border-medium)] cursor-not-allowed opacity-50"
                       : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-lg shadow-[#E10E0E]/25"
                   }`}
                 >
@@ -199,7 +199,7 @@ export const Wishlist = () => {
                 <button
                   type="button"
                   onClick={handleClearWishlist}
-                  className="px-3.5 py-2.5 rounded-xl text-xs text-gray-400 hover:text-red-400 transition-colors flex items-center gap-1.5 border border-white/5 hover:border-red-500/20 bg-white/[0.02]"
+                  className="px-3.5 py-2.5 rounded-xl text-xs text-[var(--tt-text-muted)] hover:text-red-500 transition-colors flex items-center gap-1.5 border border-[var(--tt-border-medium)] hover:border-red-500/30 bg-[var(--tt-bg-surface)] shadow-sm"
                 >
                   <IconTrash className="w-4 h-4" />
                   <span>{t("clear_list_btn")}</span>
@@ -209,46 +209,46 @@ export const Wishlist = () => {
 
             {/* Quick Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-4 flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300">
-                  <IconCard className="w-5 h-5 text-gray-300" />
+              <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-4 flex items-center gap-3.5 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center text-[var(--tt-text-muted)]">
+                  <IconCard className="w-5 h-5 text-[var(--tt-text-muted)]" />
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-medium">{t("metric_total")}</div>
-                  <div className="text-lg font-black text-white">{totalItemsCount}</div>
+                  <div className="text-xs text-[var(--tt-text-muted)] font-medium">{t("metric_total")}</div>
+                  <div className="text-lg font-black text-[var(--tt-text-main)]">{totalItemsCount}</div>
                 </div>
               </div>
 
-              <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-4 flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-4 flex items-center gap-3.5 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 dark:text-emerald-400">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-medium">{t("metric_in_stock")}</div>
-                  <div className="text-lg font-black text-emerald-400">
+                  <div className="text-xs text-[var(--tt-text-muted)] font-medium">{t("metric_in_stock")}</div>
+                  <div className="text-lg font-black text-emerald-500 dark:text-emerald-400">
                     {t("metric_in_stock_val", { count: inStockCount })}
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-4 flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-400">
-                  <IconSparkles className="w-5 h-5 text-red-400" />
+              <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-4 flex items-center gap-3.5 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 dark:text-red-400">
+                  <IconSparkles className="w-5 h-5 text-red-500 dark:text-red-400" />
                 </div>
                 <div>
-                  <div className="text-xs text-gray-400 font-medium">{t("metric_estimated_val")}</div>
-                  <div className="text-lg font-mono font-bold text-white">
+                  <div className="text-xs text-[var(--tt-text-muted)] font-medium">{t("metric_estimated_val")}</div>
+                  <div className="text-lg font-mono font-bold text-[var(--tt-text-main)]">
                     ${Math.round(totalEstimatedValue).toLocaleString("es-CL")}{" "}
-                    <span className="text-xs text-gray-400 font-normal">CLP</span>
+                    <span className="text-xs text-[var(--tt-text-muted)] font-normal">CLP</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Items Table Container */}
-            <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden mb-8">
+            <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl shadow-xl overflow-hidden mb-8">
               {/* Desktop Column Headers */}
-              <div className="hidden sm:grid grid-cols-12 gap-4 py-4 px-6 border-b border-white/10 bg-white/[0.02] text-xs font-bold uppercase tracking-wider text-gray-400">
+              <div className="hidden sm:grid grid-cols-12 gap-4 py-4 px-6 border-b border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
                 <div className="col-span-5">{t("th_card")}</div>
                 <div className="col-span-2 text-center">{t("th_game")}</div>
                 <div className="col-span-2 text-center">{t("th_unit_price")}</div>
@@ -257,7 +257,7 @@ export const Wishlist = () => {
               </div>
 
               {/* Items Rows */}
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-[var(--tt-border-subtle)]">
                 {wishlistItems.map((item, key) => (
                   <SingleItem
                     item={item}
@@ -270,16 +270,16 @@ export const Wishlist = () => {
           </div>
         ) : (
           /* Empty Vault State */
-          <div className="py-20 md:py-28 text-center flex flex-col items-center justify-center rounded-3xl bg-[#0E121B] border border-white/10 p-8 sm:p-12 shadow-2xl relative overflow-hidden">
-            <div className="w-24 h-24 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-red-500 mb-6 shadow-inner relative group">
+          <div className="py-20 md:py-28 text-center flex flex-col items-center justify-center rounded-3xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+            <div className="w-24 h-24 rounded-3xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center text-red-500 mb-6 shadow-inner relative group">
               <div className="absolute inset-0 bg-red-600/10 rounded-3xl blur-md"></div>
               <IconHeart className="w-12 h-12 relative z-10 text-red-500/80 fill-red-500/20" />
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] mb-2 tracking-tight">
               {t("empty_title")}
             </h2>
-            <p className="text-sm text-gray-400 max-w-lg mb-8 leading-relaxed">
+            <p className="text-sm text-[var(--tt-text-muted)] max-w-lg mb-8 leading-relaxed">
               {t("empty_desc")}
             </p>
 
@@ -292,29 +292,29 @@ export const Wishlist = () => {
             </Link>
 
             {/* Quick Category Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-6 border-t border-white/5 max-w-xl w-full">
-              <span className="text-xs text-gray-500 mr-2">{t("explore_by_game")}</span>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-6 border-t border-[var(--tt-border-subtle)] max-w-xl w-full">
+              <span className="text-xs text-[var(--tt-text-muted)] mr-2">{t("explore_by_game")}</span>
               <Link
                 href="/shop?category=magic"
-                className="text-xs text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] px-3 py-1.5 rounded-lg transition-colors"
               >
                 Magic: The Gathering
               </Link>
               <Link
                 href="/shop?category=pokemon"
-                className="text-xs text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] px-3 py-1.5 rounded-lg transition-colors"
               >
                 Pokémon TCG
               </Link>
               <Link
                 href="/shop?category=one-piece"
-                className="text-xs text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] px-3 py-1.5 rounded-lg transition-colors"
               >
                 One Piece Card Game
               </Link>
               <Link
                 href="/shop?category=yugioh"
-                className="text-xs text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] px-3 py-1.5 rounded-lg transition-colors"
               >
                 Yu-Gi-Oh!
               </Link>

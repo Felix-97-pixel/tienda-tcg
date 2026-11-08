@@ -1,6 +1,8 @@
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale, getTranslations } from "next-intl/server";
+import { ThemeProvider } from "../context/ThemeContext";
 import Header from "@/app/landing/_components/Marketing/Header";
 import Footer from "@/app/landing/_components/Marketing/Footer";
 import "../css/euclid-circular-a-font.css";
@@ -21,18 +23,23 @@ export default async function MarketingLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const cookieStore = await cookies();
+  const savedTheme = cookieStore.get("theme")?.value;
+  const themeClass = savedTheme === "light" ? "light" : "dark";
 
   return (
-    <html lang={locale} suppressHydrationWarning={true} data-scroll-behavior="smooth">
-      <body className="bg-[#07090E] text-white antialiased selection:bg-[#ff3366] selection:text-white">
+    <html lang={locale} className={themeClass} suppressHydrationWarning={true} data-scroll-behavior="smooth">
+      <body className="bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] antialiased selection:bg-[#ff3366] selection:text-white transition-colors duration-200">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow pt-20">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <ThemeProvider>
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-grow pt-20">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

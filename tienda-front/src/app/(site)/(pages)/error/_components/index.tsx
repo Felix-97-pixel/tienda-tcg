@@ -12,9 +12,9 @@ const Error = () => {
   return (
     <>
       <Breadcrumb title={t("breadcrumb_title")} pages={[t("breadcrumb_page")]} />
-      <section className="overflow-hidden py-20 bg-[#222630]">
+      <section className="overflow-hidden py-20 bg-[var(--tt-bg-canvas)] transition-colors duration-200">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
-          <div className="bg-[#1a1d24] rounded-xl shadow-1 px-4 py-10 sm:py-15 lg:py-20 xl:py-25">
+          <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl shadow-xl px-4 py-10 sm:py-15 lg:py-20 xl:py-25">
             <div className="text-center">
               <Image
                 src="/images/404.svg"
@@ -24,11 +24,11 @@ const Error = () => {
                 height={190}
               />
 
-              <h2 className="font-bold text-white text-xl sm:text-2xl mb-3">
+              <h2 className="font-bold text-[var(--tt-text-main)] text-xl sm:text-2xl mb-3">
                 {t("not_found_title")}
               </h2>
 
-              <p className="max-w-[440px] w-full mx-auto mb-7.5 text-gray-4 text-sm leading-relaxed">
+              <p className="max-w-[440px] w-full mx-auto mb-7.5 text-[var(--tt-text-muted)] text-sm leading-relaxed">
                 {t("not_found_desc")}
               </p>
 

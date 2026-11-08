@@ -37,7 +37,7 @@ const StoreProfilePage = async ({ params }: { params: Promise<{ subdomain: strin
   }
 
   return (
-    <main className="bg-[#0A0D14] min-h-screen text-white">
+    <main className="bg-[var(--tt-bg-canvas)] min-h-screen text-[var(--tt-text-main)] transition-colors">
       {/* TCG Store Hero with trust indicators, courier badges, and physical pickup data */}
       <TcgStoreHero store={store} />
 

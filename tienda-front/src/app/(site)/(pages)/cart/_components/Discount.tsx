@@ -11,7 +11,7 @@ import {
 import { API_URL } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import { useTranslations } from "next-intl";
-import { IconTag } from "@/components/ui/Icons";
+import { IconTag, IconX } from "@/components/ui/Icons";
 
 type Feedback = { type: "success" | "error" | "warning"; message: string } | null;
 
@@ -107,10 +107,10 @@ const Discount = () => {
   return (
     <div className="lg:max-w-[670px] w-full">
       <form onSubmit={handleApplyCoupon}>
-        <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden">
-          <div className="border-b border-white/10 py-4 px-6 bg-white/[0.02]">
-            <h3 className="font-bold text-white text-base flex items-center gap-2">
-              <IconTag className="w-4 h-4 text-[#E10E0E]" />
+        <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl shadow-xl overflow-hidden">
+          <div className="border-b border-[var(--tt-border-subtle)] py-4 px-6 bg-[var(--tt-bg-subtle)]">
+            <h3 className="font-bold text-[var(--tt-text-main)] text-base flex items-center gap-2">
+              <IconTag className="w-4 h-4 text-red-500" />
               <span>{t("have_coupon_prompt")}</span>
             </h3>
           </div>
@@ -128,7 +128,7 @@ const Discount = () => {
                     setFeedback(null);
                   }}
                   placeholder={t("coupon_placeholder")}
-                  className="rounded-xl border border-white/10 bg-[#07090E] text-white placeholder-gray-500 w-full py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 text-sm font-mono tracking-wider uppercase transition-all"
+                  className="rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] w-full py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 text-sm font-mono tracking-wider uppercase transition-all shadow-inner"
                 />
               </div>
 
@@ -136,7 +136,7 @@ const Discount = () => {
                 type="submit"
                 id="apply-coupon-btn"
                 disabled={loading || !code}
-                className="h-11 px-6 rounded-xl font-bold text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 border border-white/15 text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 active:scale-95 cursor-pointer"
+                className="h-11 px-6 rounded-xl font-bold text-xs tracking-wider uppercase bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 active:scale-95 cursor-pointer shadow-sm"
               >
                 {loading ? t("validating_coupon") : t("apply_coupon_btn")}
               </button>
@@ -150,19 +150,19 @@ const Discount = () => {
 
             {appliedCoupons.length > 0 && (
               <div className="mt-5 space-y-2">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{t("active_coupons")}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">{t("active_coupons")}</p>
                 {appliedCoupons.map((c) => (
                   <div
                     key={c.code}
                     className="flex items-center justify-between rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-2.5"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 font-mono text-xs font-bold text-emerald-400 border border-emerald-500/30">
+                      <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 font-mono text-xs font-bold text-emerald-500 border border-emerald-500/30">
                         {c.code}
                       </span>
-                      <span className="text-xs text-gray-300">
+                      <span className="text-xs text-[var(--tt-text-main)]">
                         {t("coupon_savings", { percent: c.discountPercent })}{" "}
-                        <strong className="text-emerald-400 font-mono">{formatCLP(savingsFor(c.code))}</strong>
+                        <strong className="text-emerald-500 font-mono font-bold">{formatCLP(savingsFor(c.code))}</strong>
                       </span>
                     </div>
                     <button
@@ -171,12 +171,10 @@ const Discount = () => {
                         dispatch(removeCoupon(c.code));
                         showToast(t("coupon_removed_toast", { code: c.code }), "success");
                       }}
-                      className="text-gray-400 hover:text-red-400 transition-colors p-1"
+                      className="text-[var(--tt-text-muted)] hover:text-red-500 transition-colors p-1 cursor-pointer"
                       aria-label={`Quitar cupón ${c.code}`}
                     >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      <IconX className="h-4 w-4" />
                     </button>
                   </div>
                 ))}

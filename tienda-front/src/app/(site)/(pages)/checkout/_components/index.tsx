@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useTheme } from "@/app/context/ThemeContext";
 import { selectCartItems, selectTotalPrice } from "@/redux/features/cart-slice";
 import { RootState } from "@/redux/store";
 import { formatPrice } from "@/utils/currency";
@@ -39,6 +40,7 @@ type BillingData = {
 
 const CheckoutWebpay = () => {
   const t = useTranslations("checkout");
+  const { isLight } = useTheme();
   const cartItems = useSelector(selectCartItems);
   const total = useSelector(selectTotalPrice);
   const { isAuthenticated } = useSelector((s: RootState) => s.authReducer);
@@ -547,27 +549,43 @@ const CheckoutWebpay = () => {
     );
   }, []);
 
-  // Dark Vault custom Mercado Pago styling (memoized para evitar re-montaje duplicado de iframes)
+  // Custom Mercado Pago styling (memoized para evitar re-montaje duplicado de iframes)
   const mpCustomization = React.useMemo(() => {
     return {
       visual: {
         style: {
-          theme: "dark" as const,
-          customVariables: {
-            formBackgroundColor: "#0E121B",
-            baseColor: "#E10E0E",
-            baseColorFirstVariant: "#F23030",
-            baseColorSecondVariant: "#C8102E",
-            inputBackgroundColor: "#07090E",
-            textPrimaryColor: "#FFFFFF",
-            textSecondaryColor: "#9CA3AF",
-            outlinePrimaryColor: "rgba(255, 255, 255, 0.12)",
-            outlineSecondaryColor: "rgba(255, 255, 255, 0.2)",
-            buttonTextColor: "#FFFFFF",
-            borderRadiusSmall: "8px",
-            borderRadiusMedium: "12px",
-            borderRadiusLarge: "12px",
-          },
+          theme: isLight ? ("default" as const) : ("dark" as const),
+          customVariables: isLight
+            ? {
+                formBackgroundColor: "#FFFFFF",
+                baseColor: "#E10E0E",
+                baseColorFirstVariant: "#F23030",
+                baseColorSecondVariant: "#C8102E",
+                inputBackgroundColor: "#F9FAFB",
+                textPrimaryColor: "#111827",
+                textSecondaryColor: "#6B7280",
+                outlinePrimaryColor: "rgba(0, 0, 0, 0.12)",
+                outlineSecondaryColor: "rgba(0, 0, 0, 0.2)",
+                buttonTextColor: "#FFFFFF",
+                borderRadiusSmall: "8px",
+                borderRadiusMedium: "12px",
+                borderRadiusLarge: "12px",
+              }
+            : {
+                formBackgroundColor: "#0E121B",
+                baseColor: "#E10E0E",
+                baseColorFirstVariant: "#F23030",
+                baseColorSecondVariant: "#C8102E",
+                inputBackgroundColor: "#07090E",
+                textPrimaryColor: "#FFFFFF",
+                textSecondaryColor: "#9CA3AF",
+                outlinePrimaryColor: "rgba(255, 255, 255, 0.12)",
+                outlineSecondaryColor: "rgba(255, 255, 255, 0.2)",
+                buttonTextColor: "#FFFFFF",
+                borderRadiusSmall: "8px",
+                borderRadiusMedium: "12px",
+                borderRadiusLarge: "12px",
+              },
         },
       },
       paymentMethods: {
@@ -576,33 +594,33 @@ const CheckoutWebpay = () => {
         prepaidCard: "all" as const,
       },
     };
-  }, []);
+  }, [isLight]);
 
   return (
-    <div className="bg-[#07090E] min-h-screen text-white pt-24 md:pt-32 pb-24 relative overflow-hidden">
+    <div className="bg-[var(--tt-bg-canvas)] min-h-screen text-[var(--tt-text-main)] pt-24 md:pt-32 pb-24 relative overflow-hidden transition-colors duration-200">
       {/* ─── Modal Bloqueante de Procesamiento de Pago ─── */}
       {loading && (
-        <div className="fixed inset-0 z-[9999] bg-[#07090E]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center space-y-5 relative overflow-hidden">
+        <div className="fixed inset-0 z-[9999] bg-[var(--tt-bg-canvas)]/85 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center space-y-5 relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-dark via-red to-orange" />
 
             <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
               <div className="absolute inset-0 rounded-full bg-red/10 animate-ping opacity-30" />
-              <div className="w-14 h-14 rounded-full border-2 border-white/10 border-t-red animate-spin" />
+              <div className="w-14 h-14 rounded-full border-2 border-[var(--tt-border-medium)] border-t-red animate-spin" />
               <IconShieldCheck className="w-6 h-6 text-red absolute" />
             </div>
 
             <div className="space-y-1">
-              <h4 className="text-lg font-black text-white tracking-tight">{t("processing_payment_title")}</h4>
-              <p className="text-xs text-gray-400">
+              <h4 className="text-lg font-black text-[var(--tt-text-main)] tracking-tight">{t("processing_payment_title")}</h4>
+              <p className="text-xs text-[var(--tt-text-muted)]">
                 {selectedGateway === "WEBPAY"
                   ? t("connecting_transbank")
                   : t("authorizing_mercado_pago")}
               </p>
             </div>
 
-            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium leading-relaxed">
-              <IconLock className="w-4 h-4 text-emerald-400 inline-block mr-1.5 align-middle" /> {t("do_not_close_page")}
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-500 dark:text-amber-300 font-medium leading-relaxed">
+              <IconLock className="w-4 h-4 text-emerald-500 dark:text-emerald-400 inline-block mr-1.5 align-middle" /> {t("do_not_close_page")}
             </div>
           </div>
         </div>
@@ -612,18 +630,18 @@ const CheckoutWebpay = () => {
       <div className="absolute top-20 left-1/3 w-[600px] h-[350px] bg-red-600/10 blur-[150px] pointer-events-none rounded-full"></div>
 
       {/* ─── Encabezado Superior Oficial (Banner Idéntico a Directorio de Tiendas) ─── */}
-      <div className="relative border-b border-white/[0.08] bg-[#0E121B] pb-10 mb-10 overflow-hidden">
+      <div className="relative border-b border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)] pb-10 mb-10 overflow-hidden">
         {/* Línea superior con gradiente oficial */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-dark via-red to-orange" />
 
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           {/* Breadcrumb de navegación */}
-          <div className="flex items-center gap-2 text-xs text-gray-400 mb-4 font-medium">
-            <Link href="/cart" className="hover:text-white transition-colors flex items-center gap-1">
+          <div className="flex items-center gap-2 text-xs text-[var(--tt-text-muted)] mb-4 font-medium">
+            <Link href="/cart" className="hover:text-[var(--tt-text-main)] transition-colors flex items-center gap-1">
               <span>{t("breadcrumb_back_cart")}</span>
             </Link>
             <span>/</span>
-            <span className="text-white font-semibold">{t("breadcrumb_checkout")}</span>
+            <span className="text-[var(--tt-text-main)] font-semibold">{t("breadcrumb_checkout")}</span>
           </div>
 
           {/* Badge superior */}
@@ -633,12 +651,12 @@ const CheckoutWebpay = () => {
           </div>
 
           {/* Título Principal */}
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--tt-text-main)] mb-3">
             {t("title")}
           </h1>
 
           {/* Bajada explicativa */}
-          <p className="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed">
+          <p className="text-[var(--tt-text-muted)] text-sm sm:text-base max-w-2xl leading-relaxed">
             {t("subtitle")}
           </p>
         </div>
@@ -649,25 +667,25 @@ const CheckoutWebpay = () => {
           {/* ─── Columna Izquierda: Datos y Pago ─── */}
           <div className="flex-1 w-full space-y-8">
             {/* 1. Datos de Contacto y Envío */}
-            <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
-              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-white/10">
-                <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-400 font-black text-xs flex items-center justify-center">
+            <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-[var(--tt-border-medium)]">
+                <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-500 font-black text-xs flex items-center justify-center">
                   1
                 </span>
-                <h2 className="text-lg font-bold text-white tracking-tight">
+                <h2 className="text-lg font-bold text-[var(--tt-text-main)] tracking-tight">
                   {t("step_contact_shipping")}
                 </h2>
               </div>
 
               {/* Selector de Direcciones Guardadas si el usuario está autenticado */}
               {isAuthenticated && savedAddresses.length > 0 && (
-                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-red-600/10 via-white/[0.02] to-transparent border border-red-500/20 space-y-3">
+                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-red-600/10 via-transparent to-transparent border border-red-500/20 space-y-3">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="address-selector" className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                      <IconMapPin className="w-4 h-4 text-red-400" />
+                    <label htmlFor="address-selector" className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)] flex items-center gap-2">
+                      <IconMapPin className="w-4 h-4 text-red-500" />
                       <span>{t("saved_address_label")}</span>
                     </label>
-                    <Link href="/my-account?tab=addresses" className="text-[11px] text-gray-400 hover:text-white underline">
+                    <Link href="/my-account?tab=addresses" className="text-[11px] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] underline">
                       {t("manage_addresses")}
                     </Link>
                   </div>
@@ -676,40 +694,40 @@ const CheckoutWebpay = () => {
                     id="address-selector"
                     value={selectedAddressId}
                     onChange={(e) => handleAddressSelectChange(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#07090E] text-white text-sm py-2.5 px-3 outline-none focus:border-red-500/80 transition-all cursor-pointer font-medium"
+                    className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] text-[var(--tt-text-main)] text-sm py-2.5 px-3 outline-none focus:border-red-500/80 transition-all cursor-pointer font-medium"
                   >
                     {savedAddresses.map((addr) => (
-                      <option key={addr.id} value={addr.id} className="bg-[#0B0E14] text-white">
-                        <IconMapPin className="w-3.5 h-3.5 inline mr-1 text-gray-400" /> {addr.alias || "Dirección"} — {addr.address}, {addr.city} ({addr.regionCode}) {addr.isDefault ? "(Predeterminada)" : ""}
+                      <option key={addr.id} value={addr.id} className="bg-[var(--tt-bg-surface)] text-[var(--tt-text-main)]">
+                        <IconMapPin className="w-3.5 h-3.5 inline mr-1 text-[var(--tt-text-muted)]" /> {addr.alias || "Dirección"} — {addr.address}, {addr.city} ({addr.regionCode}) {addr.isDefault ? "(Predeterminada)" : ""}
                       </option>
                     ))}
-                    <option value="custom" className="bg-[#0B0E14] text-amber-400 font-bold">
-                      <IconPencil className="w-3.5 h-3.5 inline mr-1.5 text-gray-400" /> {t("custom_address_option")}
+                    <option value="custom" className="bg-[var(--tt-bg-surface)] text-amber-500 font-bold">
+                      <IconPencil className="w-3.5 h-3.5 inline mr-1.5 text-[var(--tt-text-muted)]" /> {t("custom_address_option")}
                     </option>
                   </select>
 
                   {selectedAddressId !== "custom" && (
-                    <div className="p-3.5 rounded-lg bg-black/40 border border-white/10 text-xs text-gray-300 flex items-start justify-between gap-3">
+                    <div className="p-3.5 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-xs text-[var(--tt-text-muted)] flex items-start justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-white">
+                          <span className="font-semibold text-[var(--tt-text-main)]">
                             {billing.name || "Sin nombre"}
                           </span>
-                          <span className="text-gray-400 font-mono text-[11px]">
+                          <span className="text-[var(--tt-text-muted)] font-mono text-[11px]">
                             ({billing.phone || "Sin teléfono"})
                           </span>
                         </div>
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className="text-[var(--tt-text-muted)] leading-relaxed">
                           {billing.address}, {selectedCommuneName} ({selectedRegionCode})
                         </p>
-                        <p className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-                          <span className="flex items-center gap-1.5"><IconCheck className="w-4 h-4 text-emerald-400" /> {t("address_selected_quoted")}</span>
+                        <p className="text-[10px] text-emerald-500 dark:text-emerald-400 font-medium flex items-center gap-1 mt-1">
+                          <span className="flex items-center gap-1.5"><IconCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> {t("address_selected_quoted")}</span>
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setSelectedAddressId("custom")}
-                        className="text-[11px] text-gray-400 hover:text-white underline shrink-0 whitespace-nowrap"
+                        className="text-[11px] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] underline shrink-0 whitespace-nowrap"
                       >
                         {t("modify_address")}
                       </button>
@@ -724,8 +742,8 @@ const CheckoutWebpay = () => {
                   <>
                     {/* Nombre */}
                     <div>
-                      <label htmlFor="name" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        {t("fullName")} <span className="text-red-400">*</span>
+                      <label htmlFor="name" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
+                        {t("fullName")} <span className="text-red">*</span>
                       </label>
                       <input
                         type="text"
@@ -735,14 +753,14 @@ const CheckoutWebpay = () => {
                         value={billing.name}
                         onChange={handleChange}
                         placeholder={t("fullNamePlaceholder")}
-                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                        className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] placeholder:text-[var(--tt-text-muted)] text-[var(--tt-text-main)] text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all shadow-sm"
                       />
                     </div>
 
                     {/* Email */}
                     <div>
-                      <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        {t("email")} <span className="text-red-400">*</span>
+                      <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
+                        {t("email")} <span className="text-red">*</span>
                       </label>
                       <input
                         type="email"
@@ -752,14 +770,14 @@ const CheckoutWebpay = () => {
                         value={billing.email}
                         onChange={handleChange}
                         placeholder={t("emailPlaceholder")}
-                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                        className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] placeholder:text-[var(--tt-text-muted)] text-[var(--tt-text-main)] text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all shadow-sm"
                       />
                     </div>
 
                     {/* Teléfono */}
                     <div>
-                      <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        {t("phone")} <span className="text-red-400">*</span>
+                      <label htmlFor="phone" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
+                        {t("phone")} <span className="text-red">*</span>
                       </label>
                       <input
                         type="text"
@@ -768,7 +786,7 @@ const CheckoutWebpay = () => {
                         value={billing.phone}
                         onChange={handleChange}
                         placeholder={t("phonePlaceholder")}
-                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all font-mono"
+                        className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] placeholder:text-[var(--tt-text-muted)] text-[var(--tt-text-main)] text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all font-mono shadow-sm"
                       />
                     </div>
 
@@ -787,7 +805,7 @@ const CheckoutWebpay = () => {
 
                     {/* Dirección */}
                     <div>
-                      <label htmlFor="address" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                      <label htmlFor="address" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
                         {t("shippingAddress")}
                       </label>
                       <input
@@ -797,7 +815,7 @@ const CheckoutWebpay = () => {
                         value={billing.address}
                         onChange={handleChange}
                         placeholder={t("addressPlaceholder")}
-                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                        className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] placeholder:text-[var(--tt-text-muted)] text-[var(--tt-text-main)] text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all shadow-sm"
                       />
                     </div>
                   </>
@@ -805,8 +823,8 @@ const CheckoutWebpay = () => {
                   <>
                     {/* Cuando está seleccionada una dirección guardada */}
                     <div>
-                      <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
-                        {t("email_confirmation")} <span className="text-red-400">*</span>
+                      <label htmlFor="email" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
+                        {t("email_confirmation")} <span className="text-red">*</span>
                       </label>
                       <input
                         type="email"
@@ -816,7 +834,7 @@ const CheckoutWebpay = () => {
                         value={billing.email}
                         onChange={handleChange}
                         placeholder={t("emailPlaceholder")}
-                        className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all"
+                        className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] placeholder:text-[var(--tt-text-muted)] text-[var(--tt-text-main)] text-sm py-3 px-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all shadow-sm"
                       />
                     </div>
                   </>
@@ -824,7 +842,7 @@ const CheckoutWebpay = () => {
 
                 {/* Notas */}
                 <div>
-                  <label htmlFor="notes" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-300">
+                  <label htmlFor="notes" className="block mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
                     {t("notes")}
                   </label>
                   <textarea
@@ -834,26 +852,23 @@ const CheckoutWebpay = () => {
                     value={billing.notes}
                     onChange={handleChange}
                     placeholder={t("notesPlaceholder")}
-                    className="w-full rounded-xl border border-white/10 bg-[#07090E] placeholder-gray-500 text-white text-sm p-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all resize-none"
+                    className="w-full rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] placeholder:text-[var(--tt-text-muted)] text-[var(--tt-text-main)] text-sm p-4 outline-none focus:border-red-500/80 focus:ring-2 focus:ring-red-500/20 transition-all resize-none shadow-sm"
                   />
                 </div>
               </div>
             </div>
 
-
-
-
             {/* 2. Selector de Medio de Pago y Formulario Dinámico */}
-            <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
-              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-white/10">
-                <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-400 font-black text-xs flex items-center justify-center">
+            <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="flex items-center gap-3 pb-4 mb-6 border-b border-[var(--tt-border-medium)]">
+                <span className="w-7 h-7 rounded-lg bg-[#E10E0E]/15 border border-[#E10E0E]/30 text-red-500 font-black text-xs flex items-center justify-center">
                   2
                 </span>
                 <div>
-                  <h2 className="text-lg font-bold text-white tracking-tight">
+                  <h2 className="text-lg font-bold text-[var(--tt-text-main)] tracking-tight">
                     {t("step_payment_method")}
                   </h2>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">
                     {t("step_payment_method_desc")}
                   </p>
                 </div>
@@ -864,9 +879,9 @@ const CheckoutWebpay = () => {
                 {/* Opción 1: Transbank Webpay Plus */}
                 <div
                   onClick={() => setSelectedGateway("WEBPAY")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${selectedGateway === "WEBPAY"
-                    ? "bg-gradient-to-b from-[#E10E0E]/10 to-transparent border-red-500/80 shadow-lg shadow-red-950/30 ring-1 ring-red-500/30"
-                    : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm ${selectedGateway === "WEBPAY"
+                    ? "bg-gradient-to-b from-[#E10E0E]/10 to-transparent border-red-500/80 shadow-md ring-1 ring-red-500/30"
+                    : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-red-500/40 opacity-80 hover:opacity-100"
                     }`}
                 >
                   <div>
@@ -876,10 +891,10 @@ const CheckoutWebpay = () => {
                           TBK
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-white leading-tight">
+                          <h4 className="text-sm font-bold text-[var(--tt-text-main)] leading-tight">
                             {t("webpay_tab")}
                           </h4>
-                          <span className="text-[11px] text-gray-400 block font-medium">
+                          <span className="text-[11px] text-[var(--tt-text-muted)] block font-medium">
                             Transbank SpA
                           </span>
                         </div>
@@ -887,7 +902,7 @@ const CheckoutWebpay = () => {
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedGateway === "WEBPAY"
                           ? "border-red-500 bg-red-500"
-                          : "border-white/30"
+                          : "border-[var(--tt-border-medium)]"
                           }`}
                       >
                         {selectedGateway === "WEBPAY" && (
@@ -895,15 +910,15 @@ const CheckoutWebpay = () => {
                         )}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-400 mb-3">
+                    <p className="text-xs text-[var(--tt-text-muted)] mb-3">
                       {t("webpay_subtitle")}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                  <div className="flex items-center justify-between pt-2.5 border-t border-[var(--tt-border-subtle)]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                       {t("tbk_recommended")}
                     </span>
-                    <span className="text-xs font-mono font-bold text-gray-300">
+                    <span className="text-xs font-mono font-bold text-[var(--tt-text-muted)]">
                       {t("commission_rate")}
                     </span>
                   </div>
@@ -912,9 +927,55 @@ const CheckoutWebpay = () => {
                 {/* Opción 2: Mercado Pago */}
                 <div
                   onClick={() => setSelectedGateway("MERCADOPAGO")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none ${selectedGateway === "MERCADOPAGO"
-                    ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-lg shadow-sky-950/30 ring-1 ring-[#009EE3]/30"
-                    : "bg-[#07090E] border-white/10 hover:border-white/25 opacity-75 hover:opacity-100"
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm ${selectedGateway === "MERCADOPAGO"
+                    ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-md ring-1 ring-[#009EE3]/30"
+                    : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-[#009EE3]/40 opacity-80 hover:opacity-100"
+                    }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#009EE3] flex items-center justify-center text-white font-black text-xs shadow-md">
+                          MP
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-[var(--tt-text-main)] leading-tight">
+                            {t("mercadopago_tab")}
+                          </h4>
+                          <span className="text-[11px] text-[var(--tt-text-muted)] block font-medium">
+                            {t("official_gateway_badge")}
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedGateway === "MERCADOPAGO"
+                          ? "border-[#009EE3] bg-[#009EE3]"
+                          : "border-[var(--tt-border-medium)]"
+                          }`}
+                      >
+                        {selectedGateway === "MERCADOPAGO" && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-[var(--tt-text-muted)] mb-3">
+                      {t("mercadopago_subtitle")}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-2.5 border-t border-[var(--tt-border-subtle)]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-sky-500 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
+                      {t("mp_installments")}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-[var(--tt-text-muted)]">
+                      {t("commission_rate")}
+                    </span>
+                  </div>
+                </div>
+                <div
+                  onClick={() => setSelectedGateway("MERCADOPAGO")}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm ${selectedGateway === "MERCADOPAGO"
+                    ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-md ring-1 ring-[#009EE3]/30"
+                    : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-[#009EE3]/40 opacity-80 hover:opacity-100"
                     }`}
                 >
                   <div>
@@ -960,27 +1021,27 @@ const CheckoutWebpay = () => {
 
               {/* Formulario Dinámico Desplegable según Opción Seleccionada */}
               {selectedGateway === "WEBPAY" && (
-                <div className="p-6 rounded-2xl bg-[#07090E] border border-red-500/30 space-y-5 animate-in fade-in duration-300">
+                <div className="p-6 rounded-2xl bg-[var(--tt-bg-subtle)] border border-red-500/30 space-y-5 animate-in fade-in duration-300">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center shrink-0"><IconCreditCard className="w-5 h-5" /></div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">
+                      <h4 className="text-sm font-bold text-[var(--tt-text-main)]">
                         {t("webpay_btn")}
                       </h4>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">
                         {t("webpay_redirect_notice")}
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-300 flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] text-xs text-[var(--tt-text-muted)] flex items-center justify-between shadow-sm">
                     <div>
-                      <span className="text-gray-400 block">{t("total_to_authorize_tbk")}</span>
-                      <span className="text-[10px] text-emerald-400 font-medium">
+                      <span className="text-[var(--tt-text-muted)] block">{t("total_to_authorize_tbk")}</span>
+                      <span className="text-[10px] text-emerald-500 dark:text-emerald-400 font-medium">
                         {t("store_surcharge_zero")}
                       </span>
                     </div>
-                    <span className="font-mono font-black text-white text-base">
+                    <span className="font-mono font-black text-[var(--tt-text-main)] text-base">
                       ${Math.round(finalAmount).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
@@ -1009,29 +1070,29 @@ const CheckoutWebpay = () => {
               )}
 
               {selectedGateway === "MERCADOPAGO" && (
-                <div className="p-6 rounded-2xl bg-[#07090E] border border-[#009EE3]/30 space-y-5 animate-in fade-in duration-300">
+                <div className="p-6 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[#009EE3]/30 space-y-5 animate-in fade-in duration-300">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#009EE3]/15 flex items-center justify-center border border-[#009EE3]/30 text-[#009EE3] shrink-0 font-black text-base">
                       MP
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">
+                      <h4 className="text-sm font-bold text-[var(--tt-text-main)]">
                         {t("mercadopago_btn")}
                       </h4>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">
                         {t("mercadopago_redirect_notice")}
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-300 flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] text-xs text-[var(--tt-text-muted)] flex items-center justify-between shadow-sm">
                     <div>
-                      <span className="text-gray-400 block">{t("total_to_authorize_mp")}</span>
-                      <span className="text-[10px] text-sky-400 font-medium">
+                      <span className="text-[var(--tt-text-muted)] block">{t("total_to_authorize_mp")}</span>
+                      <span className="text-[10px] text-sky-500 dark:text-sky-400 font-medium">
                         {t("store_surcharge_zero")}
                       </span>
                     </div>
-                    <span className="font-mono font-black text-white text-base">
+                    <span className="font-mono font-black text-[var(--tt-text-main)] text-base">
                       ${Math.round(finalAmount).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
@@ -1060,8 +1121,8 @@ const CheckoutWebpay = () => {
                 </div>
               )}
 
-              <div className="flex items-center justify-center gap-2 mt-5 text-xs text-gray-400">
-                <IconShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex items-center justify-center gap-2 mt-5 text-xs text-[var(--tt-text-muted)]">
+                <IconShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
                 <span>
                   {selectedGateway === "WEBPAY"
                     ? t("webpay_official_encrypted")
@@ -1072,8 +1133,8 @@ const CheckoutWebpay = () => {
 
             {/* Error Message */}
             {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium flex items-center gap-2">
-                <IconAlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 text-sm font-medium flex items-center gap-2">
+                <IconAlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -1081,12 +1142,12 @@ const CheckoutWebpay = () => {
 
           {/* ─── Columna Derecha: Resumen de Pedido y Envíos ─── */}
           <div className="w-full lg:max-w-[440px]">
-            <div className="bg-[#0E121B] border border-white/10 rounded-2xl shadow-xl overflow-hidden sticky top-32">
-              <div className="border-b border-white/10 py-5 px-6 bg-white/[0.02] flex items-center justify-between">
-                <h3 className="font-extrabold text-lg text-white tracking-tight">
+            <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl shadow-xl overflow-hidden sticky top-32">
+              <div className="border-b border-[var(--tt-border-medium)] py-5 px-6 bg-[var(--tt-bg-subtle)] flex items-center justify-between">
+                <h3 className="font-extrabold text-lg text-[var(--tt-text-main)] tracking-tight">
                   {t("yourOrder")}
                 </h3>
-                <span className="text-xs font-mono font-medium text-gray-400">
+                <span className="text-xs font-mono font-medium text-[var(--tt-text-muted)]">
                   {t("order_items_count", { count: cartItems.length })}
                 </span>
               </div>
@@ -1094,25 +1155,25 @@ const CheckoutWebpay = () => {
               <div className="p-6 space-y-6">
                 {/* Desglose por tienda */}
                 {Object.entries(itemsByStore).map(([sId, items]) => (
-                  <div key={sId} className="space-y-3 pb-5 border-b border-white/10 last:border-0 last:pb-0">
+                  <div key={sId} className="space-y-3 pb-5 border-b border-[var(--tt-border-subtle)] last:border-0 last:pb-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <IconStore className="w-4 h-4 text-gray-400 shrink-0" />
-                        <span className="text-xs font-bold text-white tracking-wide">
+                        <IconStore className="w-4 h-4 text-[var(--tt-text-muted)] shrink-0" />
+                        <span className="text-xs font-bold text-[var(--tt-text-main)] tracking-wide">
                           {storeNames[sId] || `Tienda (ID: ${sId.slice(0, 8)})`}
                         </span>
                       </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                      <span className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                         {t("store_verified")}
                       </span>
                     </div>
 
                     {/* Cartas de esta tienda */}
-                    <div className="bg-[#07090E] rounded-xl border border-white/5 p-3 space-y-2.5">
+                    <div className="bg-[var(--tt-bg-subtle)] rounded-xl border border-[var(--tt-border-subtle)] p-3 space-y-2.5">
                       {items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="relative w-8 aspect-[2.5/3.5] rounded overflow-hidden bg-black/60 border border-white/10 shrink-0">
+                            <div className="relative w-8 aspect-[2.5/3.5] rounded overflow-hidden bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shrink-0 shadow-sm">
                               <Image
                                 src={item.imgs?.thumbnails?.[0] || item.imgs?.previews?.[0] || "/images/products/product-1-bg-1.png"}
                                 alt={item.title}
@@ -1123,11 +1184,11 @@ const CheckoutWebpay = () => {
                               />
                             </div>
                             <div className="min-w-0">
-                              <p className="text-white font-medium truncate">{item.title}</p>
-                              <p className="text-[11px] text-gray-500 font-mono">Cant: {item.quantity}</p>
+                              <p className="text-[var(--tt-text-main)] font-medium truncate">{item.title}</p>
+                              <p className="text-[11px] text-[var(--tt-text-muted)] font-mono">Cant: {item.quantity}</p>
                             </div>
                           </div>
-                          <span className="font-mono font-bold text-white shrink-0">
+                          <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0">
                             ${Math.round(item.discountedPrice * item.quantity).toLocaleString("es-CL")} CLP
                           </span>
                         </div>
@@ -1137,11 +1198,11 @@ const CheckoutWebpay = () => {
                     {/* Selector de Envío para esta Tienda */}
                     <div className="pt-2">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
                           {t("shipping_method_label")}
                         </span>
                         {isQuotingShipping && (
-                          <span className="text-[10px] text-amber-400 font-bold animate-pulse flex items-center gap-1">
+                          <span className="text-[10px] text-amber-500 dark:text-amber-400 font-bold animate-pulse flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
                             {t("quoting_shipping")}
                           </span>
@@ -1150,27 +1211,27 @@ const CheckoutWebpay = () => {
 
                       {/* Información de cubicaje y origen de la tienda si está cotizada */}
                       {quotedStores[sId] && (
-                        <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 text-[11px] text-white/50 flex items-center justify-between">
-                          <span className="flex items-center gap-1"><IconMapPin className="w-3 h-3 text-gray-400 shrink-0" /> {t("shipping_from")} <strong className="text-white/80">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
-                          <span className="text-[10px] text-white/40">{quotedStores[sId].packageDescription}</span>
+                        <div className="mb-2.5 px-3 py-1.5 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] text-[11px] text-[var(--tt-text-muted)] flex items-center justify-between">
+                          <span className="flex items-center gap-1"><IconMapPin className="w-3 h-3 text-[var(--tt-text-muted)] shrink-0" /> {t("shipping_from")} <strong className="text-[var(--tt-text-main)]">{quotedStores[sId].originCommune} ({quotedStores[sId].originRegion})</strong></span>
+                          <span className="text-[10px] text-[var(--tt-text-muted)]">{quotedStores[sId].packageDescription}</span>
                         </div>
                       )}
 
                       <div className="space-y-2">
                         {isQuotingShipping && !quotedStores[sId] ? (
                           <div className="space-y-2 py-1">
-                            <div className="h-14 rounded-xl bg-white/[0.03] border border-white/5 animate-pulse flex items-center gap-3 px-4">
-                              <div className="w-8 h-8 rounded-lg bg-white/10" />
+                            <div className="h-14 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] animate-pulse flex items-center gap-3 px-4">
+                              <div className="w-8 h-8 rounded-lg bg-black/10 dark:bg-white/10" />
                               <div className="flex-1 space-y-1.5">
-                                <div className="h-3 w-32 bg-white/10 rounded" />
-                                <div className="h-2 w-20 bg-white/5 rounded" />
+                                <div className="h-3 w-32 bg-black/10 dark:bg-white/10 rounded" />
+                                <div className="h-2 w-20 bg-black/5 dark:bg-white/5 rounded" />
                               </div>
                             </div>
-                            <div className="h-14 rounded-xl bg-white/[0.03] border border-white/5 animate-pulse flex items-center gap-3 px-4">
-                              <div className="w-8 h-8 rounded-lg bg-white/10" />
+                            <div className="h-14 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] animate-pulse flex items-center gap-3 px-4">
+                              <div className="w-8 h-8 rounded-lg bg-black/10 dark:bg-white/10" />
                               <div className="flex-1 space-y-1.5">
-                                <div className="h-3 w-28 bg-white/10 rounded" />
-                                <div className="h-2 w-16 bg-white/5 rounded" />
+                                <div className="h-3 w-28 bg-black/10 dark:bg-white/10 rounded" />
+                                <div className="h-2 w-16 bg-black/5 dark:bg-white/5 rounded" />
                               </div>
                             </div>
                           </div>
@@ -1185,9 +1246,9 @@ const CheckoutWebpay = () => {
                             return (
                               <label
                                 key={opt.id || opt.provider}
-                                className={`flex flex-col p-3 rounded-xl border cursor-pointer select-none transition-all ${isSelected
-                                  ? "bg-white/[0.05] border-red-500/60 shadow-md shadow-red/10"
-                                  : "bg-black/20 border-white/5 hover:border-white/15"
+                                className={`flex flex-col p-3 rounded-xl border cursor-pointer select-none transition-all shadow-sm ${isSelected
+                                  ? "bg-red-500/10 border-red-500/60 shadow-md ring-1 ring-red-500/20"
+                                  : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-subtle)] hover:border-[var(--tt-border-medium)]"
                                   }`}
                               >
                                 <div className="flex items-center justify-between">
@@ -1200,15 +1261,15 @@ const CheckoutWebpay = () => {
                                       onChange={() =>
                                         setSelectedProvidersByStore((prev) => ({ ...prev, [sId]: opt }))
                                       }
-                                      className="w-3.5 h-3.5 text-red-500 border-white/20 focus:ring-red-500/30 cursor-pointer"
+                                      className="w-3.5 h-3.5 text-red-500 border-[var(--tt-border-medium)] focus:ring-red-500/30 cursor-pointer"
                                     />
                                     <ShippingBadge name={carrierName} size="sm" />
                                     <div className="flex flex-col">
-                                      <span className="text-xs font-bold text-white leading-tight">
+                                      <span className="text-xs font-bold text-[var(--tt-text-main)] leading-tight">
                                         {opt.name}
                                       </span>
                                       {opt.estimatedDays && (
-                                        <span className="text-[10px] text-emerald-400 font-medium">
+                                        <span className="text-[10px] text-emerald-500 dark:text-emerald-400 font-medium">
                                           ⏱ {opt.estimatedDays}
                                         </span>
                                       )}
@@ -1216,9 +1277,9 @@ const CheckoutWebpay = () => {
                                   </div>
                                   <div className="font-mono font-bold text-xs text-right">
                                     {optPrice === 0 ? (
-                                      <span className="text-emerald-400 font-black">{t("free_shipping")}</span>
+                                      <span className="text-emerald-500 dark:text-emerald-400 font-black">{t("free_shipping")}</span>
                                     ) : (
-                                      <span className="text-white">
+                                      <span className="text-[var(--tt-text-main)]">
                                         ${Math.round(optPrice).toLocaleString("es-CL")} CLP
                                       </span>
                                     )}
@@ -1227,9 +1288,9 @@ const CheckoutWebpay = () => {
 
                                 {/* Si es Retiro en Tienda, mostrar dirección y horarios */}
                                 {opt.provider === "RETIRO_TIENDA" && opt.address && (
-                                  <div className="mt-2 pt-2 border-t border-white/5 text-[11px] text-white/50 pl-6 space-y-0.5">
-                                    <p className="text-white/70 flex items-center gap-1 mt-0.5"><IconMapPin className="w-3 h-3 text-gray-400 shrink-0" /> {opt.address}</p>
-                                    {opt.schedule && <p className="text-[10px] text-white/40 flex items-center gap-1"><IconClock className="w-3 h-3 text-gray-400 shrink-0" /> {opt.schedule}</p>}
+                                  <div className="mt-2 pt-2 border-t border-[var(--tt-border-subtle)] text-[11px] text-[var(--tt-text-muted)] pl-6 space-y-0.5">
+                                    <p className="text-[var(--tt-text-main)] flex items-center gap-1 mt-0.5"><IconMapPin className="w-3 h-3 text-[var(--tt-text-muted)] shrink-0" /> {opt.address}</p>
+                                    {opt.schedule && <p className="text-[10px] text-[var(--tt-text-muted)] flex items-center gap-1"><IconClock className="w-3 h-3 text-[var(--tt-text-muted)] shrink-0" /> {opt.schedule}</p>}
                                   </div>
                                 )}
                               </label>
@@ -1242,89 +1303,89 @@ const CheckoutWebpay = () => {
                 ))}
 
                 {/* Desglose Financiero */}
-                <div className="pt-4 border-t border-white/10 space-y-2.5 text-xs">
+                <div className="pt-4 border-t border-[var(--tt-border-medium)] space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">{t("subtotal_vat")}</span>
-                    <span className="font-mono font-bold text-white">
+                    <span className="text-[var(--tt-text-muted)]">{t("subtotal_vat")}</span>
+                    <span className="font-mono font-bold text-[var(--tt-text-main)]">
                       ${Math.round(total).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">{t("shipping_total_vat")}</span>
-                    <span className="font-mono font-bold text-emerald-400">
+                    <span className="text-[var(--tt-text-muted)]">{t("shipping_total_vat")}</span>
+                    <span className="font-mono font-bold text-emerald-500 dark:text-emerald-400">
                       ${Math.round(totalShippingCost).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
 
                   {/* Comisión de Servicio TapTrade (3% + IVA) */}
-                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white/[0.03] border border-white/5 transition-all">
+                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] transition-all">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-gray-300 font-semibold">
+                        <span className="text-[var(--tt-text-main)] font-semibold">
                           {t("taptrade_fee")}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                        <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-500 dark:text-amber-400">
                           {t("taptrade_fee_badge")}
                         </span>
                       </div>
-                      <span className="text-[10px] text-gray-400 block mt-0.5">
+                      <span className="text-[10px] text-[var(--tt-text-muted)] block mt-0.5">
                         {t("taptrade_fee_desc")}
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-white shrink-0 ml-2">
+                    <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0 ml-2">
                       +${Math.round(detailedFees.taptradeFeeGross).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
 
                   {/* Tarifa de Pasarela de Pago */}
-                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white/[0.03] border border-white/5 transition-all">
+                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] transition-all">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-gray-300 font-semibold">
+                        <span className="text-[var(--tt-text-main)] font-semibold">
                           {t("gateway_cost")}
                         </span>
                         <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
                           selectedGateway === "WEBPAY"
-                            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                            : "bg-sky-500/10 border border-sky-500/20 text-sky-400"
+                            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 dark:text-emerald-400"
+                            : "bg-sky-500/10 border border-sky-500/20 text-sky-500 dark:text-sky-400"
                         }`}>
                           {detailedFees.gatewayLabel} [ {detailedFees.gatewayPercentageText} ]
                         </span>
                       </div>
-                      <span className="text-[10px] text-gray-400 block mt-0.5">
+                      <span className="text-[10px] text-[var(--tt-text-muted)] block mt-0.5">
                         {detailedFees.gatewayDescription}
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-white shrink-0 ml-2">
+                    <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0 ml-2">
                       +${Math.round(detailedFees.gatewayFee).toLocaleString("es-CL")} CLP
                     </span>
                   </div>
 
-                  <div className="pt-3 border-t border-white/10 flex items-baseline justify-between">
+                  <div className="pt-3 border-t border-[var(--tt-border-medium)] flex items-baseline justify-between">
                     <div>
-                      <span className="text-sm font-bold text-white block">{t("final_total")}</span>
-                      <span className="text-[10px] text-emerald-400 font-medium">
+                      <span className="text-sm font-bold text-[var(--tt-text-main)] block">{t("final_total")}</span>
+                      <span className="text-[10px] text-emerald-500 dark:text-emerald-400 font-medium">
                         {t("buyer_protection_note")}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-2xl font-black font-mono text-white">
+                      <span className="text-2xl font-black font-mono text-[var(--tt-text-main)]">
                         ${Math.round(finalAmount).toLocaleString("es-CL")}
                       </span>
-                      <span className="text-xs text-gray-400 font-sans ml-1">CLP</span>
+                      <span className="text-xs text-[var(--tt-text-muted)] font-sans ml-1">CLP</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Trust Badges */}
-                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-400 space-y-1.5">
+                <div className="p-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] text-[11px] text-[var(--tt-text-muted)] space-y-1.5">
                   <div className="flex items-center gap-1.5">
-                    <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <IconCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     <span>{t("badge_dispatch_fast")}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <IconCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <IconCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     <span>{t("badge_buyer_protection")}</span>
                   </div>
                 </div>
