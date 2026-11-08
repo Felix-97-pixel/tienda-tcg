@@ -44,3 +44,11 @@
 - **TIPADO ESTRICTO DE TRADUCCIONES (TYPE-SAFE i18n)**: Todo componente debe compilar sin advertencias de tipado estricto gracias a las definiciones globales de `IntlMessages`.
 - Consultar las directivas detalladas en [`.agents/rules/i18n-standard.md`](file:///c:/Users/felix/Desktop/e-commerce/.agents/rules/i18n-standard.md).
 
+## 8. Soporte Dual de Interfaces: Modo Claro y Modo Oscuro (REGLA ESTRICTA)
+- **SOPORTE DUAL OBLIGATORIO**: Toda nueva pantalla, componente, modal, tabla o formulario DEBE diseñarse y verificarse para funcionar de manera nativa e impecable tanto en **Modo Claro (`.light`)** como en **Modo Oscuro (`.dark`)**.
+- **PROHIBICIÓN DE COLORES HEXADECIMALES FIJOS**: Prohibido usar `bg-[#07090E]`, `bg-[#0E121B]`, `bg-black`, `text-white` o `border-white/10` para estructuras de UI. Es obligatorio consumir variables semánticas (`bg-[var(--tt-bg-canvas)]`, `bg-[var(--tt-bg-surface)]`, `bg-[var(--tt-bg-subtle)]`, `text-[var(--tt-text-main)]`, `text-[var(--tt-text-muted)]`, `border-[var(--tt-border-medium)]`).
+- **PROHIBICIÓN DE DEGRADADOS QUE TRANSICIONEN A BLANCO**: Ningún degradado de texto puede usar colores que desvanezcan hacia blanco, gris claro o amarillo pálido (`to-white`, `to-gray-400`, `via-amber-300`, `to-yellow-500`). El estándar oficial para textos destacados es el patrón de `/contact`: `bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 bg-clip-text text-transparent`.
+- **CONTRASTE EN HOVER Y ELEMENTOS INTERACTIVOS**: Todo botón (`Button.tsx`), enlace y control debe garantizar contraste legible tanto en reposo como en `:hover` y `:active` sin perder visibilidad en fondos claros.
+- Consultar las directivas detalladas en [`.agents/rules/ui-theming-light-dark.md`](file:///c:/Users/felix/Desktop/e-commerce/.agents/rules/ui-theming-light-dark.md).
+
+
