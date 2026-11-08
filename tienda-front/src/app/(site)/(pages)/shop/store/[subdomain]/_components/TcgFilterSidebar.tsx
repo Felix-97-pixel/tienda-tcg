@@ -209,7 +209,7 @@ export default function TcgFilterSidebar({
               <button
                 type="button"
                 onClick={() => onToggleInStockOnly(false)}
-                className={`py-2 px-2 rounded-lg text-xs font-semibold transition-all text-center flex flex-col items-center justify-center gap-0.5 ${!inStockOnly
+                className={`h-9 px-3 rounded-lg text-xs font-semibold transition-all text-center flex items-center justify-center ${!inStockOnly
                     ? "bg-red text-white shadow-md shadow-red/25 font-bold"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
@@ -219,15 +219,12 @@ export default function TcgFilterSidebar({
               <button
                 type="button"
                 onClick={() => onToggleInStockOnly(true)}
-                className={`py-2 px-2 rounded-lg text-xs font-semibold transition-all text-center flex flex-col items-center justify-center gap-0.5 ${inStockOnly
+                className={`h-9 px-3 rounded-lg text-xs font-semibold transition-all text-center flex items-center justify-center ${inStockOnly
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25 font-bold"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
               >
                 <span>{t("filter_stock_only")}</span>
-                <span className="text-[10px] opacity-75 font-mono">
-                  {totalInStockCount !== undefined ? t("cards_count", { count: totalInStockCount }) : t("in_stores")}
-                </span>
               </button>
             </div>
           </div>
