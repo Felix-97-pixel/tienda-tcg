@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { calculateProductPriceCLP } from './tax-calculator';
 
 export interface PriceResolvableItem {
   price: Prisma.Decimal | number;
@@ -13,20 +14,21 @@ export class PricingService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Resuelve el precio unitario BRUTO (IVA incluido) en pesos chilenos (CLP entero).
-   * Regla de negocio:
-   * - Si el producto tiene gameId (TCG como Magic, Pokémon, etc.), el precio en BD es en USD
-   *   y se multiplica por la tasa configurada de la tienda, o la global, o 1.000 por defecto.
-   * - Si no tiene gameId, el precio en BD ya representa CLP.
+   * Resuelve el precio unitario BRUTO (IVA incluido) en pesos chilenos (CLP redondeado a la decena).
+   * Regla de negocio unificada (Ley de Redondeo chilena Nº 20.956):
+   * - Si el producto tiene gameId (TCG como Magic, Pokémon, etc.), el precio en BD es en USD,
+   *   se multiplica por la tasa configurada de la tienda o la global (o 1.000 por defecto)
+   *   y se redondea a la decena más cercana mediante `calculateProductPriceCLP`.
+   * - Si no tiene gameId, el precio en BD ya representa CLP y también se redondea a la decena.
    */
   async resolveUnitGrossCLP(item: PriceResolvableItem): Promise<number> {
     const rawPrice = Number(item.price);
     if (!item.gameId) {
-      return Math.round(rawPrice);
+      return calculateProductPriceCLP(rawPrice, false);
     }
 
     const rate = await this.resolveExchangeRate(item.storeId ?? null, item.gameId);
-    return Math.round(rawPrice * rate);
+    return calculateProductPriceCLP(rawPrice, true, rate);
   }
 
   /**

@@ -4,34 +4,23 @@ import { CreatePosSaleDto } from './dto/create-pos-sale.dto';
 import { OpenShiftDto, CloseShiftDto } from './dto/pos-shift.dto';
 import { SyncOfflineSalesDto } from './dto/sync-offline-sales.dto';
 import { PosBuyOperationDto, PosBuyPayoutMethod } from './dto/pos-buy-operation.dto';
+import {
+  breakdownFromGross,
+  calculateProductPriceCLP,
+  exemptBreakdown,
+  resolveExchangeRateFromLists,
+  roundToCLP,
+} from '../tax/tax-calculator';
 
 @Injectable()
 export class PosService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Obtiene la tasa de cambio aplicable a un juego TCG para la tienda dada:
-   * 1. Revisa si la tienda tiene una tasa propia configurada para ese juego (StoreGameExchangeRate)
-   * 2. Si no, busca la tasa global del juego en pesos chilenos (GlobalGameExchangeRate)
-   * 3. Fallback a 1000 CLP/USD si no hay configuración
-   */
-  private resolveExchangeRate(
-    gameId: string | undefined | null,
-    storeRates: { gameId: string; rate: any }[],
-    globalRates: { gameId: string; rate: any }[],
-  ): number {
-    if (!gameId) return 1000;
-    const storeRate = storeRates.find((r) => r.gameId === gameId);
-    if (storeRate) return Number(storeRate.rate);
-    const globalRate = globalRates.find((r) => r.gameId === gameId);
-    if (globalRate) return Number(globalRate.rate);
-    return 1000;
-  }
-
-  /**
    * Transforma y normaliza un producto para el POS:
-   * Convierte los precios de USD a CLP usando la tasa de cambio vigente de la tienda / juego.
-   * Si no es producto TCG (ej: sellado o accesorios), mantiene su precio en CLP directo.
+   * Convierte los precios de USD a CLP y aplica el redondeo comercial a la decena (Ley Nº 20.956)
+   * usando la función canónica `calculateProductPriceCLP` y `resolveExchangeRateFromLists` de `tax-calculator`.
+   * Garantiza 100% de paridad con Tienda Online (`/shop-details`), Inventario (`/admin/products`) y Checkout.
    */
   private formatProductForPos(
     product: any,
@@ -40,16 +29,16 @@ export class PosService {
   ) {
     const isTcg = Boolean(product.category?.isTcg || product.cardDetail);
     const gameId = product.cardDetail?.gameId;
-    const rate = isTcg ? this.resolveExchangeRate(gameId, storeRates, globalRates) : 1;
+    const rate = isTcg ? resolveExchangeRateFromLists(gameId, storeRates, globalRates) : 1;
 
     const items = (product.items || []).map((item: any) => {
       const rawPrice = Number(item.price || 0);
-      const convertedPrice = isTcg ? Math.round(rawPrice * rate) : Math.round(rawPrice);
+      const convertedPrice = calculateProductPriceCLP(rawPrice, isTcg, rate);
       return {
         ...item,
         rawPriceUsd: isTcg ? rawPrice : undefined,
         exchangeRateApplied: isTcg ? rate : undefined,
-        price: convertedPrice, // Precio normalizado en CLP
+        price: convertedPrice, // Precio normalizado en CLP redondeado a la decena ($10)
       };
     });
 
@@ -300,13 +289,14 @@ export class PosService {
 
       // 3. Crear Orden Maestra y Sub-orden de tienda (0% comisión TapTrade, 0% recargo pasarela, IVA 19% tienda calculado)
       const buyOrder = `POS-${Date.now()}`.slice(0, 26);
-      const totalNum = Math.round(Number(dto.totalAmount));
+      const totalNum = roundToCLP(Number(dto.totalAmount));
       const isVatExempt =
         store.company?.taxClassification === 'VAT_EXEMPT' ||
         store.company?.taxClassification === 'EXENTO_IVA' ||
         store.company?.taxClassification === 'NON_TAXABLE';
-      const taxableNet = isVatExempt ? totalNum : Math.round(totalNum / 1.19);
-      const vatAmount = isVatExempt ? 0 : totalNum - taxableNet;
+      const taxBreakdown = isVatExempt ? exemptBreakdown(totalNum) : breakdownFromGross(totalNum);
+      const taxableNet = taxBreakdown.net;
+      const vatAmount = taxBreakdown.vat;
 
       const order = await tx.order.create({
         data: {
@@ -674,13 +664,14 @@ export class PosService {
           }
 
           // Crear la orden con los metadatos de sincronización offline y desglose tributario F29 (0% comisión TapTrade)
-          const totalRounded = Math.round(totalNum);
+          const totalRounded = roundToCLP(totalNum);
           const isVatExempt =
             store.company?.taxClassification === 'VAT_EXEMPT' ||
             store.company?.taxClassification === 'EXENTO_IVA' ||
             store.company?.taxClassification === 'NON_TAXABLE';
-          const taxableNet = isVatExempt ? totalRounded : Math.round(totalRounded / 1.19);
-          const vatAmount = isVatExempt ? 0 : totalRounded - taxableNet;
+          const taxBreakdown = isVatExempt ? exemptBreakdown(totalRounded) : breakdownFromGross(totalRounded);
+          const taxableNet = taxBreakdown.net;
+          const vatAmount = taxBreakdown.vat;
 
           const order = await tx.order.create({
             data: {

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/Input";
 import { Product } from "@/types/product";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
 import { IconStore, IconCheck, IconTrash, IconAlertTriangle, IconInfo, IconChevronUp, IconChevronDown } from "@/components/ui/Icons";
-import { calculateVatBreakdownCLP } from "@/utils/tcgPrices";
+import { calculateVatBreakdownCLP, resolveGameExchangeRate } from "@/utils/tcgPrices";
 
 export interface InventoryModalProps {
   isOpen: boolean;
@@ -68,18 +68,12 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
           adminFetch("/currencies", {}, activeBranchId).then(r => r.json())
         ]).then(([storeRates, globalRates]) => {
           const global = Array.isArray(globalRates) ? globalRates.find((g: any) => g.gameId === gameId) : null;
-          const store = Array.isArray(storeRates) ? storeRates.find((s: any) => s.gameId === gameId) : null;
-          
           if (global && global.currencyCode && global.currencyCode !== "CLP") {
             setBaseCurrency(global.currencyCode);
           } else {
             setBaseCurrency("USD");
           }
-          if (store && store.rate) {
-            setExchangeRate(Number(store.rate));
-          } else if (global && global.rate) {
-            setExchangeRate(Number(global.rate));
-          }
+          setExchangeRate(resolveGameExchangeRate(gameId, storeRates, globalRates));
         }).catch(err => console.error("Error fetching exchange rates:", err))
           .finally(() => setIsLoadingRates(false));
       } else {

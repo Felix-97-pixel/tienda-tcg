@@ -15,7 +15,7 @@ import Loader from "@/components/ui/Loader";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
 import { IconSparkles, IconBox, IconCard, IconCart, IconCheck, IconChevronDown } from "@/components/ui/Icons";
-import { roundToCLP } from "@/utils/tcgPrices";
+import { calculateItemPriceCLP, roundToCLP } from "@/utils/tcgPrices";
 import { fetchCachedCurrencies } from "@/utils/metadataCache";
 import { useTranslations } from "next-intl";
 
@@ -103,19 +103,7 @@ export default function ShopDetails() {
 
   const getFinalPrice = (item: InventoryItem | any) => {
     const gameId = (product?.cardDetail as any)?.gameId || (product as any)?.gameId;
-    const globalRate = globalRates.find((r: any) => r.gameId === gameId);
-    let exchangeRate = globalRate ? Number(globalRate.rate) : 1000;
-
-    if (gameId && item.store?.gameExchangeRates) {
-      const customRate = item.store.gameExchangeRates.find((r: any) => r.gameId === gameId);
-      if (customRate) {
-        exchangeRate = Number(customRate.rate);
-      }
-    }
-
-    const priceInCLP = Number(item.price) * exchangeRate;
-    // SaaS Model: 0% Comisión por venta. El comprador paga exactamente el precio neto fijado por la tienda.
-    return roundToCLP(priceInCLP);
+    return calculateItemPriceCLP(item, gameId, globalRates);
   };
 
   const handleAddToCart = (item: InventoryItem | any, qty: number) => {

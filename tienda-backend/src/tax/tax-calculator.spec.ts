@@ -4,6 +4,9 @@ import {
   breakdownFromGross,
   breakdownFromNet,
   exemptBreakdown,
+  roundToCLP,
+  resolveExchangeRateFromLists,
+  calculateProductPriceCLP,
   DEFAULT_VAT_RATE,
 } from './tax-calculator';
 
@@ -108,6 +111,42 @@ describe('TaxCalculator (Normativa Tributaria Chilena SII)', () => {
         gross: 5000,
         rate: 0,
       });
+    });
+  });
+
+  describe('roundToCLP y calculateProductPriceCLP (Ley de Redondeo Nº 20.956 - Unificación Tienda / Inventario / POS)', () => {
+    it('debe redondear a la decena más cercana eliminando monedas de $1 y $5 pesos ($11.687 -> $11.690)', () => {
+      expect(roundToCLP(11687)).toBe(11690);
+      expect(roundToCLP(11684)).toBe(11680);
+      expect(roundToCLP(11685)).toBe(11690);
+      expect(roundToCLP(0)).toBe(0);
+      expect(roundToCLP(-50)).toBe(0);
+    });
+
+    it('debe calcular $11.690 CLP y desglose exacto ($9.824 Neto + $1.866 IVA) para carta de 8.99 USD a tasa $1.300 CLP', () => {
+      const finalPriceCLP = calculateProductPriceCLP(8.99, true, 1300);
+      expect(finalPriceCLP).toBe(11690);
+
+      const breakdown = breakdownFromGross(finalPriceCLP);
+      expect(breakdown).toEqual({
+        net: 9824,
+        vat: 1866,
+        gross: 11690,
+        rate: DEFAULT_VAT_RATE,
+      });
+    });
+
+    it('debe resolver jerarquía de tasa de cambio (Tienda -> Global -> Fallback 1000)', () => {
+      const storeRates = [{ gameId: 'mtg', rate: 1300 }];
+      const globalRates = [
+        { gameId: 'mtg', rate: 950 },
+        { gameId: 'pkmn', rate: 1100 },
+      ];
+
+      expect(resolveExchangeRateFromLists('mtg', storeRates, globalRates)).toBe(1300);
+      expect(resolveExchangeRateFromLists('pkmn', storeRates, globalRates)).toBe(1100);
+      expect(resolveExchangeRateFromLists('ygo', storeRates, globalRates)).toBe(1000);
+      expect(resolveExchangeRateFromLists(null, storeRates, globalRates)).toBe(1000);
     });
   });
 });

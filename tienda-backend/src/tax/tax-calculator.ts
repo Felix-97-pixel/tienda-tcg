@@ -6,6 +6,72 @@
 
 export const DEFAULT_VAT_RATE = 0.19;
 
+/**
+ * Paso de redondeo monetario oficial en Chile (Ley de Redondeo Nº 20.956:
+ * eliminación de monedas de $1 y $5 pesos; todo precio comercial se redondea a la decena).
+ */
+export const DEFAULT_CLP_ROUNDING_STEP = 10;
+
+/**
+ * Redondea un monto en CLP según la regla de redondeo comercial chilena (decena más cercana).
+ * Elimina unidades fraccionarias de $1 y $5 pesos (ej: $11.687 -> $11.690 CLP).
+ */
+export function roundToCLP(amount: number, step = DEFAULT_CLP_ROUNDING_STEP): number {
+  const num = Number(amount || 0);
+  if (!num || isNaN(num) || num <= 0) return 0;
+  return Math.round(num / step) * step;
+}
+
+/**
+ * Resuelve la tasa de cambio USD -> CLP desde listas precargadas de tasas de tienda y globales.
+ * Jerarquía:
+ * 1. Tasa personalizada de la tienda (StoreGameExchangeRate)
+ * 2. Tasa global del juego en CLP (GlobalGameExchangeRate)
+ * 3. Fallback (1.000 CLP/USD por defecto)
+ */
+export function resolveExchangeRateFromLists(
+  gameId: string | null | undefined,
+  storeRates?: Array<{ gameId: string; rate: any }>,
+  globalRates?: Array<{ gameId: string; rate: any }>,
+  fallback = 1000,
+): number {
+  if (!gameId) return fallback;
+
+  if (Array.isArray(storeRates)) {
+    const storeMatch = storeRates.find((r) => r.gameId === gameId);
+    if (storeMatch && Number(storeMatch.rate) > 0) {
+      return Number(storeMatch.rate);
+    }
+  }
+
+  if (Array.isArray(globalRates)) {
+    const globalMatch = globalRates.find((r) => r.gameId === gameId);
+    if (globalMatch && Number(globalMatch.rate) > 0) {
+      return Number(globalMatch.rate);
+    }
+  }
+
+  return fallback;
+}
+
+/**
+ * Calcula el Precio de Venta al Público (PVP Bruto con IVA incluido) en CLP
+ * unificado para Tienda Online, Inventario, Checkout y Punto de Venta (POS).
+ * - Si `isTcg` es true, convierte desde USD multiplicando por `exchangeRate` y redondea a la decena.
+ * - Si `isTcg` es false, toma el valor en CLP y lo redondea a la decena.
+ */
+export function calculateProductPriceCLP(
+  rawPrice: number | string,
+  isTcg: boolean,
+  exchangeRate = 1,
+  step = DEFAULT_CLP_ROUNDING_STEP,
+): number {
+  const numericPrice = Number(rawPrice || 0);
+  if (!numericPrice || isNaN(numericPrice) || numericPrice <= 0) return 0;
+  const unroundedClp = isTcg ? numericPrice * exchangeRate : numericPrice;
+  return roundToCLP(unroundedClp, step);
+}
+
 /** Representa la tasa en puntos básicos para prevenir imprecisiones de punto flotante en JS (0.19 -> 1900). */
 const toBasisPoints = (rate: number): number => Math.round(rate * 10_000);
 

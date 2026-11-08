@@ -4,6 +4,8 @@
  * y encola ventas cuando no hay conexión a internet.
  */
 
+import { roundToCLP } from '@/utils/tcgPrices';
+
 const DB_NAME = 'taptrade_pos_db';
 const DB_VERSION = 1;
 
@@ -111,7 +113,14 @@ export async function saveCatalogToLocal(products: LocalProduct[]): Promise<void
 
     catalogStore.clear();
     for (const prod of products) {
-      catalogStore.put(prod);
+      const normalizedProd: LocalProduct = {
+        ...prod,
+        items: (prod.items || []).map((item) => ({
+          ...item,
+          price: roundToCLP(Number(item.price || 0)),
+        })),
+      };
+      catalogStore.put(normalizedProd);
     }
 
     metaStore.put({ key: 'lastCatalogSync', timestamp: Date.now(), total: products.length });
@@ -137,7 +146,14 @@ export async function searchLocalCatalog(query: string): Promise<LocalProduct[]>
     request.onsuccess = (event: any) => {
       const cursor: IDBCursorWithValue = event.target.result;
       if (cursor) {
-        const prod: LocalProduct = cursor.value;
+        const rawProd: LocalProduct = cursor.value;
+        const prod: LocalProduct = {
+          ...rawProd,
+          items: (rawProd.items || []).map((item) => ({
+            ...item,
+            price: roundToCLP(Number(item.price || 0)),
+          })),
+        };
 
         // Si no hay query, retornar primeros 20 con stock
         if (!trimmed) {
@@ -200,7 +216,14 @@ export async function decrementLocalStock(inventoryItemId: string, quantity: num
     request.onsuccess = (event: any) => {
       const cursor: IDBCursorWithValue = event.target.result;
       if (cursor) {
-        const prod: LocalProduct = cursor.value;
+        const rawProd: LocalProduct = cursor.value;
+        const prod: LocalProduct = {
+          ...rawProd,
+          items: (rawProd.items || []).map((item) => ({
+            ...item,
+            price: roundToCLP(Number(item.price || 0)),
+          })),
+        };
         const itemIndex = prod.items.findIndex((i) => i.id === inventoryItemId);
 
         if (itemIndex >= 0) {

@@ -21,6 +21,7 @@ import PosBuyModal from './_components/PosBuyModal';
 import PosShiftModal from './_components/PosShiftModal';
 import PosReceipt, { PosReceiptData } from './_components/PosReceipt';
 import { resolveTradeInValuation } from '@/utils/tradeInPricing';
+import { roundToCLP } from '@/utils/tcgPrices';
 
 /**
  * Emite un sonido 'bip' de escáner usando el Web Audio API del navegador (sin archivos externos).
@@ -422,7 +423,7 @@ export default function AdminPosPage() {
         conditionLabel: inventoryItem.condition?.displayName || inventoryItem.condition?.name,
         languageCode: inventoryItem.language?.code?.toUpperCase(),
         finishLabel: inventoryItem.finish?.name,
-        unitPrice: Number(inventoryItem.price),
+        unitPrice: roundToCLP(Number(inventoryItem.price)),
         quantity: 1,
         maxStock: inventoryItem.stock,
       };
@@ -568,8 +569,8 @@ export default function AdminPosPage() {
   }) => {
     setIsProcessing(true);
 
-    const subtotal = cartItems.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
-    const total = Math.max(0, subtotal - discountAmount);
+    const subtotal = roundToCLP(cartItems.reduce((acc, i) => acc + roundToCLP(i.unitPrice) * i.quantity, 0));
+    const total = roundToCLP(Math.max(0, subtotal - discountAmount));
 
     const saleItemsPayload = cartItems.map((i) => ({
       productId: i.productId,

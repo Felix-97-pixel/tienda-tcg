@@ -8,6 +8,7 @@ import { IconSearch, IconGlobe, IconRepeat, IconX } from '@/components/ui/Icons'
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { resolveTradeInValuation } from '@/utils/tradeInPricing';
+import { roundToCLP } from '@/utils/tcgPrices';
 
 interface PosSearchBarProps {
   searchQuery: string;
@@ -354,7 +355,7 @@ export default function PosSearchBar({
                               item.condition?.displayName || item.condition?.name || 'NM';
                             const languageCode = item.language?.code?.toUpperCase() || 'EN';
                             const finishLabel = item.finish?.name;
-                            const priceNum = Number(item.price);
+                            const priceNum = roundToCLP(Number(item.price));
 
                             return (
                               <div

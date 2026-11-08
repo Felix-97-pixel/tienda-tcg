@@ -6,6 +6,7 @@ import { List, Column } from "@/components/ui/List";
 import { useCurrencies } from "@/app/admin/_components/Currencies/hooks/useCurrencies";
 import CurrencyModal from "@/app/admin/_components/Currencies/CurrencyModal";
 import { IconPencil, IconTrash } from "@/components/ui/Icons";
+import { roundToCLP } from "@/utils/tcgPrices";
 
 export default function AdminCurrencies() {
   const t = useTranslations("admin.currencies_page");
@@ -69,7 +70,7 @@ export default function AdminCurrencies() {
       render: (rate) => {
         const numRate = Number(rate.rate);
         const buyPct = rate.buyPercentage !== undefined && rate.buyPercentage !== null ? Number(rate.buyPercentage) : 50;
-        const cashSample = Math.round(numRate * (buyPct / 100));
+        const cashSample = roundToCLP(numRate * (buyPct / 100));
         return (
           <div>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
@@ -88,7 +89,7 @@ export default function AdminCurrencies() {
       render: (rate) => {
         const numRate = Number(rate.rate);
         const creditPct = rate.creditPercentage !== undefined && rate.creditPercentage !== null ? Number(rate.creditPercentage) : 70;
-        const creditSample = Math.round(numRate * (creditPct / 100));
+        const creditSample = roundToCLP(numRate * (creditPct / 100));
         return (
           <div>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">

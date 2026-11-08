@@ -8,6 +8,7 @@ import { PercentageSlider } from "@/components/ui/PercentageSlider";
 import { IconCash, IconWallet } from "@/components/ui/Icons";
 import { adminFetch } from "@/utils/api";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
+import { roundToCLP } from "@/utils/tcgPrices";
 import { useToast } from "@/hooks/useToast";
 
 interface CurrencyModalProps {
@@ -89,8 +90,8 @@ export default function CurrencyModal({ isOpen, onClose, exchangeRate, globalCur
   const numRate = Number(rate) || 0;
   const numBuyPct = Number(buyPercentage) || 50;
   const numCreditPct = Number(creditPercentage) || 70;
-  const sampleCashCLP = Math.round(numRate * (numBuyPct / 100));
-  const sampleCreditCLP = Math.round(numRate * (numCreditPct / 100));
+  const sampleCashCLP = roundToCLP(numRate * (numBuyPct / 100));
+  const sampleCreditCLP = roundToCLP(numRate * (numCreditPct / 100));
 
   return (
     <Modal

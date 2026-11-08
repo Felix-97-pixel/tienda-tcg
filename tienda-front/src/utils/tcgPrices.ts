@@ -26,19 +26,57 @@ export interface NormalizedVariantDetails {
  * Accounts for store-specific game exchange rates, global rates, or default fallback.
  */
 /**
- * Redondea un monto en CLP según la regla de redondeo comercial chilena (decena más cercana).
- * Elimina monedas fraccionarias de 1 peso (ej: $11.687 -> $11.690 CLP).
+ * Paso de redondeo monetario oficial en Chile (Ley de Redondeo Nº 20.956:
+ * eliminación de monedas de $1 y $5 pesos; todo precio comercial se redondea a la decena).
  */
-export function roundToCLP(amount: number, step: number = 10): number {
-  if (!amount || isNaN(amount)) return 0;
-  return Math.round(amount / step) * step;
+export const DEFAULT_CLP_ROUNDING_STEP = 10;
+
+/**
+ * Redondea un monto en CLP según la regla de redondeo comercial chilena (decena más cercana).
+ * Elimina monedas fraccionarias de $1 y $5 pesos (ej: $11.687 -> $11.690 CLP).
+ */
+export function roundToCLP(amount: number, step: number = DEFAULT_CLP_ROUNDING_STEP): number {
+  const num = Number(amount || 0);
+  if (!num || isNaN(num) || num <= 0) return 0;
+  return Math.round(num / step) * step;
+}
+
+/**
+ * Resuelve la tasa de cambio USD -> CLP aplicable a un juego TCG:
+ * 1. Tasa personalizada de la tienda (StoreGameExchangeRate)
+ * 2. Tasa global del juego en CLP (GlobalGameExchangeRate)
+ * 3. Fallback a 1.000 CLP/USD
+ */
+export function resolveGameExchangeRate(
+  gameId: string | null | undefined,
+  storeRates?: any[],
+  globalRates?: any[],
+  fallback: number = 1000
+): number {
+  if (!gameId) return fallback;
+
+  if (Array.isArray(storeRates)) {
+    const customRate = storeRates.find((r: any) => r.gameId === gameId);
+    if (customRate && Number(customRate.rate) > 0) {
+      return Number(customRate.rate);
+    }
+  }
+
+  if (Array.isArray(globalRates)) {
+    const globalRateObj = globalRates.find((r: any) => r.gameId === gameId);
+    if (globalRateObj && Number(globalRateObj.rate) > 0) {
+      return Number(globalRateObj.rate);
+    }
+  }
+
+  return fallback;
 }
 
 /**
  * Desglosa un precio final con IVA en CLP en su Precio Neto y Débito Fiscal IVA (19%).
  * Mantiene la suma exacta: Neto + IVA = Precio Final sin descuadre alguno.
  */
-export function calculateVatBreakdownCLP(rawPriceCLP: number, step: number = 10) {
+export function calculateVatBreakdownCLP(rawPriceCLP: number, step: number = DEFAULT_CLP_ROUNDING_STEP) {
   const total = roundToCLP(rawPriceCLP, step);
   const net = Math.round(total / 1.19);
   const vat = total - net;
@@ -48,7 +86,8 @@ export function calculateVatBreakdownCLP(rawPriceCLP: number, step: number = 10)
 export function calculateItemPriceCLP(
   item: any,
   gameId?: string,
-  globalRates: any[] = []
+  globalRates: any[] = [],
+  storeRatesOverride?: any[]
 ): number {
   if (!item) return 0;
   const rawPrice = Number(item.discountedPrice ?? item.price ?? 0);
@@ -63,19 +102,8 @@ export function calculateItemPriceCLP(
     item.product?.cardDetail?.gameId;
 
   if (effectiveGameId) {
-    const globalRateObj = Array.isArray(globalRates)
-      ? globalRates.find((r: any) => r.gameId === effectiveGameId)
-      : null;
-    let exchangeRate = globalRateObj ? Number(globalRateObj.rate) : 1000;
-
-    const storeRates = item.store?.gameExchangeRates;
-    if (Array.isArray(storeRates)) {
-      const customRate = storeRates.find((r: any) => r.gameId === effectiveGameId);
-      if (customRate) {
-        exchangeRate = Number(customRate.rate);
-      }
-    }
-
+    const storeRates = storeRatesOverride || item.store?.gameExchangeRates;
+    const exchangeRate = resolveGameExchangeRate(effectiveGameId, storeRates, globalRates);
     return roundToCLP(rawPrice * exchangeRate);
   }
 

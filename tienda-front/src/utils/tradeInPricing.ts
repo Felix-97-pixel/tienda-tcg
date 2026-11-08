@@ -30,8 +30,8 @@ export function resolveTradeInValuation(
     const item = buylistMap.get(product.id)!;
     if (item.cashPrice > 0 || item.creditPrice > 0) {
       return {
-        cashPrice: item.cashPrice,
-        creditPrice: item.creditPrice,
+        cashPrice: roundToCLP(item.cashPrice),
+        creditPrice: roundToCLP(item.creditPrice),
         source: 'BUYLIST',
         conditionId: item.conditionId,
         languageId: item.languageId,
