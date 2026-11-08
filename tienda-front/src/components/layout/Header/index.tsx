@@ -30,29 +30,17 @@ const Header = () => {
   const tNav = useTranslations("nav");
   const tHeader = useTranslations("header");
   const tCommon = useTranslations("common");
-  const allCategoriesLabel = tHeader("all_categories");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>(allCategoriesLabel);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
   const { openCartModal } = useCartModalContext();
 
   const cartItems = useAppSelector((state) => state.cartReducer.items);
   const { user, isAuthenticated } = useAppSelector((state) => state.authReducer);
-  const currency = useAppSelector((state: any) => state.currencyReducer);
   const dispatch = useDispatch();
-  const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    if (typeof window !== "undefined") {
-      const sp = new URLSearchParams(window.location.search);
-      const q = sp.get("search");
-      const cat = sp.get("category");
-      if (q) setSearchQuery(q);
-      if (cat) setSelectedCategory(cat);
-    }
   }, []);
 
   const getMenuTitle = (path: string, fallback: string) => {
@@ -98,26 +86,6 @@ const Header = () => {
     window.addEventListener("scroll", handleStickyMenu);
     return () => window.removeEventListener("scroll", handleStickyMenu);
   }, []);
-
-  useEffect(() => {
-    fetch(`${API_URL}/products/meta/categories`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        const categories = [{ name: allCategoriesLabel }, ...(Array.isArray(data) ? data : [])];
-        setCategoriesData(categories);
-      })
-      .catch((err) => console.error("Error fetching categories:", err));
-  }, [allCategoriesLabel]);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set("search", searchQuery.trim());
-    if (selectedCategory && selectedCategory !== allCategoriesLabel && selectedCategory !== "Todas las categorías") {
-      params.set("category", selectedCategory);
-    }
-    router.push(`/shop?${params.toString()}`);
-  };
 
   return (
     <header
@@ -166,8 +134,8 @@ const Header = () => {
               <IconHeart className="w-5 h-5 group-hover:text-red-400 transition-colors" />
             </Link>
 
-            {/* Language Selector (Desktop/Tablet only; on Mobile lives inside Hamburger Menu) */}
-            <div className="hidden md:block">
+            {/* Language Selector */}
+            <div className="hidden sm:block">
               <LanguageSelector />
             </div>
 
@@ -213,7 +181,7 @@ const Header = () => {
               type="button"
               aria-label={tNav("account_menu.open_menu_aria")}
               onClick={() => setNavigationOpen(!navigationOpen)}
-              className="md:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 transition-all shrink-0"
+              className="md:hidden p-2 rounded-xl text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5 border border-[var(--tt-border-medium)] transition-all shrink-0"
             >
               {navigationOpen ? (
                 <IconX className="w-5 h-5" />
@@ -276,21 +244,10 @@ const Header = () => {
       {/* Mobile Menu Drawer */}
       {navigationOpen && (
         <div className="md:hidden bg-[var(--tt-bg-canvas)] border-t border-[var(--tt-border-medium)] px-4 py-4 space-y-3 shadow-2xl">
-          {/* Mobile Search */}
-          <form onSubmit={handleSearchSubmit}>
-            <div className="flex items-center bg-[var(--tt-bg-surface)] rounded-xl border border-[var(--tt-border-medium)] px-3 py-2.5">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={tHeader("search_placeholder")}
-                className="w-full bg-transparent text-[var(--tt-text-main)] text-xs outline-none"
-              />
-              <button type="submit" className="text-[var(--tt-text-muted)] hover:text-red pl-2" aria-label={tNav("account_menu.search_aria")}>
-                <IconSearch className="w-4 h-4" />
-              </button>
-            </div>
-          </form>
+          {/* Mobile Unified Search with Live Dropdown */}
+          <div className="w-full">
+            <HeaderSearchDropdown />
+          </div>
 
           <nav className="space-y-1.5 pt-1">
             {menuData.map((item, i) => (
@@ -307,11 +264,11 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Wishlist Link for Mobile */}
+            {/* Wishlist Link (Only visible on small phones where top bar hides it) */}
             <Link
               href="/wishlist"
               onClick={() => setNavigationOpen(false)}
-              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5 transition-all sm:hidden"
+              className="sm:hidden flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5 transition-all"
             >
               <span>{tHeader("wishlist")}</span>
               <IconHeart className="w-4 h-4 opacity-70" />
@@ -334,25 +291,25 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Mobile Language Selector inside Hamburger Menu */}
-            <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between px-1">
-              <span className="text-xs text-gray-400 font-medium">{tCommon("language_dual_label")}</span>
+            {/* Language Selector (Only visible on small phones where top bar hides it) */}
+            <div className="sm:hidden pt-3 border-t border-[var(--tt-border-subtle)] flex items-center justify-between px-1">
+              <span className="text-xs text-[var(--tt-text-muted)] font-medium">{tCommon("language_dual_label")}</span>
               <LanguageSelector />
             </div>
 
-            {/* Mobile Theme Toggle */}
-            <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between px-1">
-              <span className="text-xs text-gray-400 font-medium">{tHeader("theme_mode_dark")} / {tHeader("theme_mode_light")}</span>
+            {/* Theme Toggle (Only visible on small phones where top bar hides it) */}
+            <div className="sm:hidden pt-3 border-t border-[var(--tt-border-subtle)] flex items-center justify-between px-1">
+              <span className="text-xs text-[var(--tt-text-muted)] font-medium">{tHeader("theme_mode_dark")} / {tHeader("theme_mode_light")}</span>
               <ThemeToggle className="w-10 h-10" />
             </div>
 
-            {/* Mobile Shipping & Pickup Notice below options */}
-            <div className="pt-3 border-t border-white/[0.06] flex flex-col gap-1.5 px-2 text-[11px] font-mono">
-              <span className="inline-flex items-center gap-1.5 text-emerald-400">
+            {/* Shipping & Pickup Notice */}
+            <div className="pt-3 border-t border-[var(--tt-border-subtle)] flex flex-col gap-1.5 px-2 text-[11px] font-mono">
+              <span className="inline-flex items-center gap-1.5 text-emerald-500">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                 {tHeader("shipping_notice")}
               </span>
-              <span className="text-gray-400 pl-3">{tHeader("pickup_notice")}</span>
+              <span className="text-[var(--tt-text-muted)] pl-3">{tHeader("pickup_notice")}</span>
             </div>
           </nav>
         </div>
