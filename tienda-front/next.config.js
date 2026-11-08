@@ -61,13 +61,33 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/forgot-password',
-        destination: '/recuperar-cuenta',
+        source: '/tiendas',
+        destination: '/stores',
         permanent: true,
       },
       {
-        source: '/reset-password',
-        destination: '/restablecer-contrasena',
+        source: '/vender-cartas',
+        destination: '/sell-cards',
+        permanent: true,
+      },
+      {
+        source: '/terminos-y-condiciones',
+        destination: '/terms-and-conditions',
+        permanent: true,
+      },
+      {
+        source: '/politica-de-privacidad',
+        destination: '/privacy-policy',
+        permanent: true,
+      },
+      {
+        source: '/recuperar-cuenta',
+        destination: '/forgot-password',
+        permanent: true,
+      },
+      {
+        source: '/restablecer-contrasena',
+        destination: '/reset-password',
         permanent: true,
       },
       {

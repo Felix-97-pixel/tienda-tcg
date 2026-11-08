@@ -11,13 +11,13 @@ export const menuData: Menu[] = [
     id: 2,
     title: "Buscar Tiendas",
     newTab: false,
-    path: "/tiendas",
+    path: "/stores",
   },
   {
     id: 3,
     title: "Vender Cartas",
     newTab: false,
-    path: "/vender-cartas",
+    path: "/sell-cards",
   },
   {
     id: 4,

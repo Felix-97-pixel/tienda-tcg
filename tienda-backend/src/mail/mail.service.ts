@@ -208,7 +208,7 @@ export class MailService {
 
   async sendPasswordResetEmail(email: string, name: string, token: string): Promise<void> {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-    const resetLink = `${frontendUrl}/restablecer-contrasena?token=${token}`;
+    const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
     const htmlContent = `
       <!DOCTYPE html>

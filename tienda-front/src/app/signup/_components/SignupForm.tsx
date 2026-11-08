@@ -447,7 +447,7 @@ export default function SignupForm() {
                     <span className="group-hover:text-white transition-colors">
                       {t("terms_accept")}{" "}
                       <Link
-                        href="/terminos-y-condiciones"
+                        href="/terms-and-conditions"
                         target="_blank"
                         className="text-red-light hover:text-white underline font-semibold"
                       >
@@ -455,7 +455,7 @@ export default function SignupForm() {
                       </Link>{" "}
                       {t("terms_middle")}{" "}
                       <Link
-                        href="/politica-de-privacidad"
+                        href="/privacy-policy"
                         target="_blank"
                         className="text-red-light hover:text-white underline font-semibold"
                       >

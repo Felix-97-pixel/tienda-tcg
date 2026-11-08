@@ -91,8 +91,8 @@ const Footer = () => {
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4">{t("legal_support_title")}</h3>
             <ul className="space-y-2.5 text-sm text-gray-400">
-              <li><Link href="/politica-de-privacidad" className="hover:text-white transition-colors">{t("privacy_policy")}</Link></li>
-              <li><Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">{t("terms_conditions")}</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-white transition-colors">{t("privacy_policy")}</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-white transition-colors">{t("terms_conditions")}</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">{t("help_center")}</Link></li>
               <li><Link href="https://wa.me/56950223095" target="_blank" className="hover:text-white transition-colors">{t("whatsapp_support")}</Link></li>
             </ul>

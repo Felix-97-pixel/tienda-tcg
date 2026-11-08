@@ -313,7 +313,7 @@ export default function LoginForm() {
                   {t("password_label")}
                 </label>
                 <Link
-                  href="/recuperar-cuenta"
+                  href="/forgot-password"
                   className="text-xs text-red-light hover:text-white font-semibold transition-colors"
                 >
                   {t("forgot_password")}
@@ -417,11 +417,11 @@ export default function LoginForm() {
           <div className="mt-6 text-center">
             <p className="text-[11px] text-white/40 leading-relaxed">
               {t("terms_prefix")}{" "}
-              <Link href="/terminos-y-condiciones" className="text-white/60 hover:text-white underline">
+              <Link href="/terms-and-conditions" className="text-white/60 hover:text-white underline">
                 {t("terms_link")}
               </Link>{" "}
               {t("terms_middle")}{" "}
-              <Link href="/politica-de-privacidad" className="text-white/60 hover:text-white underline">
+              <Link href="/privacy-policy" className="text-white/60 hover:text-white underline">
                 {t("privacy_link")}
               </Link>
               .

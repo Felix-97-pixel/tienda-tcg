@@ -113,7 +113,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/tiendas" className="hover:text-white transition-colors">
+                <Link href="/stores" className="hover:text-white transition-colors">
                   {t("store_directory")}
                 </Link>
               </li>
@@ -142,12 +142,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">
+                <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
                   {t("terms_conditions")}
                 </Link>
               </li>
               <li>
-                <Link href="/politica-de-privacidad" className="hover:text-white transition-colors">
+                <Link href="/privacy-policy" className="hover:text-white transition-colors">
                   {t("privacy_policy")}
                 </Link>
               </li>

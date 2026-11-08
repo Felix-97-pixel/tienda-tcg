@@ -209,7 +209,7 @@ export default function RestablecerContrasenaForm() {
                 {t("missing_token_desc")}
               </p>
               <Link
-                href="/recuperar-cuenta"
+                href="/forgot-password"
                 className="inline-flex items-center justify-center py-3 px-6 rounded-xl bg-gradient-to-r from-red-dark via-red to-orange text-white font-bold text-sm shadow-lg shadow-red/25 hover:brightness-110 transition-all"
               >
                 {t("request_new_link")}
@@ -242,7 +242,7 @@ export default function RestablecerContrasenaForm() {
                     <p className="text-xs text-red-light leading-relaxed">{error}</p>
                     {error.includes("expirado") || error.includes("inválido") || error.includes("utilizado") ? (
                       <Link
-                        href="/recuperar-cuenta"
+                        href="/forgot-password"
                         className="inline-block mt-2 text-xs text-white underline hover:text-red-light font-semibold"
                       >
                         {t("err_token_expired")}
@@ -396,11 +396,11 @@ export default function RestablecerContrasenaForm() {
         <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
           <p>© {new Date().getFullYear()} TapTrade Marketplace.</p>
           <div className="flex items-center gap-4">
-            <Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">
+            <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
               {tr("terms")}
             </Link>
             <span>•</span>
-            <Link href="/politica-de-privacidad" className="hover:text-white transition-colors">
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">
               {tr("privacy")}
             </Link>
           </div>

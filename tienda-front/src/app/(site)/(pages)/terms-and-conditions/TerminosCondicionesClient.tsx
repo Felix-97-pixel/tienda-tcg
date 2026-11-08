@@ -397,7 +397,7 @@ const TerminosCondicionesClient = () => {
             </p>
             <p>
               <strong className="text-white font-mono">{t("s10.p2_label")}</strong> {t("s10.p2_text")}{" "}
-              <Link href="/politica-de-privacidad" className="text-red-light underline font-bold hover:text-white">
+              <Link href="/privacy-policy" className="text-red-light underline font-bold hover:text-white">
                 {t("s10.privacy_link")}
               </Link>.
             </p>

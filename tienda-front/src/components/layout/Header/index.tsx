@@ -58,9 +58,9 @@ const Header = () => {
     switch (path) {
       case "/shop":
         return tNav("buy");
-      case "/tiendas":
+      case "/stores":
         return tNav("find_stores");
-      case "/vender-cartas":
+      case "/sell-cards":
         return tNav("sell_cards");
       case "/contact":
         return tNav("contact_support");
