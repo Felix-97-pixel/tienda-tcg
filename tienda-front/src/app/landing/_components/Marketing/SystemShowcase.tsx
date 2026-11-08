@@ -347,8 +347,11 @@ export default function SystemShowcase() {
       </div>
 
       {/* Tab Switcher Navigation Bar */}
-      <div className="max-w-4xl mx-auto mb-10 px-2 sm:px-0">
-        <div className="flex items-center justify-start md:justify-center overflow-x-auto no-scrollbar gap-1.5 p-1.5 rounded-2xl bg-[#090D16]/90 border border-white/10 backdrop-blur-xl shadow-2xl">
+      <div className="w-full max-w-full mx-auto mb-10 px-2 sm:px-4">
+        <div
+          style={{ scrollbarColor: "#E10E0E rgba(255,255,255,0.06)", scrollbarWidth: "thin" }}
+          className="w-fit max-w-full mx-auto flex items-center justify-start overflow-x-auto gap-1.5 xl:gap-2 p-2 pb-3 lg:pb-2 rounded-2xl bg-[#090D16]/90 border border-white/10 backdrop-blur-xl shadow-2xl [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-white/[0.06] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:mx-2 [&::-webkit-scrollbar-thumb]:bg-[#E10E0E] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#FF2E2E]"
+        >
           {showcaseTabs.map((tab) => {
             const isActive = tab.id === activeTabId;
             return (
@@ -356,18 +359,18 @@ export default function SystemShowcase() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTabId(tab.id)}
-                className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold transition-all duration-200 select-none whitespace-nowrap shrink-0 ${
+                className={`flex items-center gap-2 py-2 xl:py-2.5 px-3.5 xl:px-4 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 select-none whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-gradient-to-r from-[#E10E0E] to-[#FF2E2E] text-white font-bold shadow-lg shadow-[#E10E0E]/30 border border-white/10"
                     : "text-gray-400 hover:text-white hover:bg-white/[0.04]"
                 }`}
               >
-                {tab.id === "inventory" && <IconBox className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "pos" && <IconPosTerminal className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "buylist" && <IconTag className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "dashboard" && <IconBarChart className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "shield" && <IconShieldCheck className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
-                {tab.id === "accounting" && <IconReceipt className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "inventory" && <IconBox className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "pos" && <IconPosTerminal className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "buylist" && <IconTag className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "dashboard" && <IconBarChart className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "shield" && <IconShieldCheck className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
+                {tab.id === "accounting" && <IconReceipt className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />}
                 <span>{tab.shortLabel}</span>
               </button>
             );
