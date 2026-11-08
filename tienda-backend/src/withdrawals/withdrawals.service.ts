@@ -873,6 +873,8 @@ export class WithdrawalsService {
             name: true,
             email: true,
             origin: true,
+            posPaymentMethod: true,
+            posVoucherRef: true,
             payment: {
               select: {
                 paymentType: true,
@@ -886,14 +888,15 @@ export class WithdrawalsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Excluir ventas de mostrador POS del libro de intermediación marketplace
-    const marketplaceOrders = vendorOrders.filter(
-      (vo) => vo.order?.origin !== 'POS_IN_STORE',
-    );
-
+    // Incluir tanto ventas Online Marketplace como ventas POS Mostrador en el Libro de Ventas F29 de la tienda,
+    // diferenciando su canal (POS tiene 0% comisión por transacción y cobro físico directo en local).
     let totalProductsGross = 0;
     let totalShippingGross = 0;
     let totalGross = 0;
+    let onlineGross = 0;
+    let onlineOrderCount = 0;
+    let posGross = 0;
+    let posOrderCount = 0;
     let totalTaxableNet = 0;
     let totalVatDebit = 0;
     let totalPlatformFeeNet = 0;
@@ -901,32 +904,50 @@ export class WithdrawalsService {
     let totalPlatformFeeGross = 0;
     let totalNetPayoutToStore = 0;
 
-    const detailedOrders = marketplaceOrders.map((vo) => {
+    const isCompanyVatExempt =
+      userStore.company?.taxClassification === 'VAT_EXEMPT' ||
+      userStore.company?.taxClassification === 'EXENTO_IVA' ||
+      userStore.company?.taxClassification === 'NON_TAXABLE';
+
+    const detailedOrders = vendorOrders.map((vo) => {
+      const isPos = vo.order?.origin === 'POS_IN_STORE';
       const productsGross = Math.round(Number(vo.subtotal || 0));
-      const shippingGross = Math.round(Number(vo.shippingCost || 0));
+      const shippingGross = isPos ? 0 : Math.round(Number(vo.shippingCost || 0));
       const orderGross = productsGross + shippingGross;
 
       const net =
         Number(vo.taxableNet) > 0
           ? Math.round(Number(vo.taxableNet))
+          : isCompanyVatExempt
+          ? orderGross
           : Math.round(orderGross / 1.19);
       const vat =
         Number(vo.vatAmount) > 0
           ? Math.round(Number(vo.vatAmount))
+          : isCompanyVatExempt
+          ? 0
           : orderGross - net;
 
-      // Usar la comisión real descontada al vendedor en el snapshot de la sub-orden
-      const sellerFeeNet = Math.round(Number(vo.sellerCommissionNet || 0));
-      const sellerFeeVat = Math.round(Number(vo.sellerCommissionVat || 0));
-      const sellerFeeGross = Math.round(Number(vo.sellerCommissionGross || 0));
-      const sellerNetPayout =
-        Number(vo.sellerNetPayout) > 0
-          ? Math.round(Number(vo.sellerNetPayout))
-          : Math.max(0, orderGross - sellerFeeGross);
+      // En POS la comisión por transacción de TapTrade es $0 (monetizado vía plan SaaS UF)
+      const sellerFeeNet = isPos ? 0 : Math.round(Number(vo.sellerCommissionNet || 0));
+      const sellerFeeVat = isPos ? 0 : Math.round(Number(vo.sellerCommissionVat || 0));
+      const sellerFeeGross = isPos ? 0 : Math.round(Number(vo.sellerCommissionGross || 0));
+      const sellerNetPayout = isPos
+        ? orderGross
+        : Number(vo.sellerNetPayout) > 0
+        ? Math.round(Number(vo.sellerNetPayout))
+        : Math.max(0, orderGross - sellerFeeGross);
 
       totalProductsGross += productsGross;
       totalShippingGross += shippingGross;
       totalGross += orderGross;
+      if (isPos) {
+        posGross += orderGross;
+        posOrderCount += 1;
+      } else {
+        onlineGross += orderGross;
+        onlineOrderCount += 1;
+      }
       totalTaxableNet += net;
       totalVatDebit += vat;
       totalPlatformFeeNet += sellerFeeNet;
@@ -934,9 +955,17 @@ export class WithdrawalsService {
       totalPlatformFeeGross += sellerFeeGross;
       totalNetPayoutToStore += sellerNetPayout;
 
+      const resolvedPaymentMethod = isPos
+        ? `POS_${vo.order?.posPaymentMethod || 'CASH'}`
+        : vo.order?.payment?.paymentType || 'WEBPAY';
+      const resolvedAuthCode = isPos
+        ? vo.order?.posVoucherRef || 'MOSTRADOR'
+        : vo.order?.payment?.authCode || '';
+
       return {
         vendorOrderId: vo.id,
         buyOrder: vo.order?.buyOrder || 'N/A',
+        channel: isPos ? 'POS_MOSTRADOR' : 'ONLINE_MARKETPLACE',
         date: vo.createdAt,
         storeName: vo.store?.name || userStore.name,
         sellerRut: vo.sellerRut || vo.store?.company?.rut || userStore.company?.rut || 'Sin RUT',
@@ -946,12 +975,12 @@ export class WithdrawalsService {
           userStore.company?.legalName ||
           vo.store?.name ||
           userStore.name,
-        buyerName: vo.order?.name || 'Cliente',
+        buyerName: vo.order?.name || (isPos ? 'Cliente Mostrador' : 'Cliente'),
         buyerEmail: vo.order?.email || '',
-        paymentMethod: vo.order?.payment?.paymentType || 'WEBPAY',
-        authCode: vo.order?.payment?.authCode || '',
-        deliveryStatus: vo.deliveryStatus || 'PENDING_DISPATCH',
-        settlementStatus: vo.settlementStatus || 'HELD_ESCROW',
+        paymentMethod: resolvedPaymentMethod,
+        authCode: resolvedAuthCode,
+        deliveryStatus: vo.deliveryStatus || (isPos ? 'DELIVERED' : 'PENDING_DISPATCH'),
+        settlementStatus: isPos ? 'COBRADO_EN_LOCAL' : vo.settlementStatus || 'HELD_ESCROW',
         buyerDteType: vo.buyerDteType,
         buyerDteFolio: vo.buyerDteFolio,
         productsGross,
@@ -984,6 +1013,10 @@ export class WithdrawalsService {
       availableStores: companyStores,
       selectedStoreId: query.storeId || 'ALL',
       orderCount: detailedOrders.length,
+      onlineOrderCount,
+      posOrderCount,
+      onlineGross,
+      posGross,
       productsGross: totalProductsGross,
       shippingGross: totalShippingGross,
       totalGross,
@@ -1015,6 +1048,7 @@ export class WithdrawalsService {
     const headers = [
       'Fecha Venta',
       'Hora',
+      'Canal Venta',
       'Nro Orden TapTrade',
       'Sucursal',
       'RUT Emisor (Tienda)',
@@ -1022,7 +1056,7 @@ export class WithdrawalsService {
       'Cliente Comprador',
       'Email Cliente',
       'Medio de Pago',
-      'Cod. Autorizacion',
+      'Cod. Autorizacion / Voucher',
       'Estado Despacho',
       'Estado Liquidacion',
       'Folio DTE Comprador',
@@ -1051,6 +1085,7 @@ export class WithdrawalsService {
       return [
         escapeCsv(fecha),
         escapeCsv(hora),
+        escapeCsv(o.channel),
         escapeCsv(o.buyOrder),
         escapeCsv(o.storeName),
         escapeCsv(o.sellerRut),
@@ -1077,6 +1112,7 @@ export class WithdrawalsService {
     const totalsRow = [
       escapeCsv('TOTALES PERIODO F29'),
       escapeCsv(summary.periodLabel),
+      escapeCsv(`Online: ${summary.onlineOrderCount} | POS: ${summary.posOrderCount}`),
       escapeCsv(`${summary.orderCount} ordenes`),
       escapeCsv(''),
       escapeCsv(summary.company.rut || ''),

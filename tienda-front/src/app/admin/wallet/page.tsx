@@ -32,6 +32,10 @@ interface TaxSummaryData {
   availableStores: { id: string; name: string }[];
   selectedStoreId: string;
   totalGross: number;
+  onlineGross?: number;
+  onlineOrderCount?: number;
+  posGross?: number;
+  posOrderCount?: number;
   taxableNet: number;
   vatDebit: number;
   platformFeeNet: number;
@@ -778,6 +782,14 @@ export default function StoreWalletPage() {
             </span>
             <p className="text-2xl font-black text-white tracking-tight">
               ${(taxSummary?.totalGross || 0).toLocaleString("es-CL")}
+            </p>
+            <p className="text-[10px] font-mono text-emerald-400/90">
+              {t("kpi_gross_channel_breakdown", {
+                online: (taxSummary?.onlineGross || 0).toLocaleString("es-CL"),
+                onlineCount: taxSummary?.onlineOrderCount || 0,
+                pos: (taxSummary?.posGross || 0).toLocaleString("es-CL"),
+                posCount: taxSummary?.posOrderCount || 0,
+              })}
             </p>
             <p className="text-[11px] text-white/40 leading-snug">{t("kpi_gross_desc")}</p>
           </div>

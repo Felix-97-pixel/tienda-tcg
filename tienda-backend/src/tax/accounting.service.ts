@@ -23,7 +23,11 @@ export class AccountingService {
     const limit = Math.max(1, Math.min(100, Number(filter.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const whereOrder: any = {};
+    // Excluir ventas presenciales de mostrador (POS_IN_STORE): su recaudación es física en el local de la tienda
+    // y no ingresa a la cuenta bancaria central de TapTrade (se monetiza vía suscripción SaaS UF).
+    const whereOrder: any = {
+      origin: 'ONLINE_MARKETPLACE',
+    };
 
     // Filtro por estado (por defecto órdenes pagadas)
     if (filter.status && filter.status !== 'ALL') {

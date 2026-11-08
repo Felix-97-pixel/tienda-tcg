@@ -169,6 +169,7 @@ export class PosService {
 
     const store = await this.prisma.store.findUnique({
       where: { id: storeId },
+      include: { company: true },
     });
     if (!store) {
       throw new NotFoundException('Tienda no encontrada');
@@ -297,9 +298,15 @@ export class PosService {
         }
       }
 
-      // 3. Crear Orden Maestra y Sub-orden de tienda
+      // 3. Crear Orden Maestra y Sub-orden de tienda (0% comisión TapTrade, 0% recargo pasarela, IVA 19% tienda calculado)
       const buyOrder = `POS-${Date.now()}`.slice(0, 26);
-      const totalNum = Number(dto.totalAmount);
+      const totalNum = Math.round(Number(dto.totalAmount));
+      const isVatExempt =
+        store.company?.taxClassification === 'VAT_EXEMPT' ||
+        store.company?.taxClassification === 'EXENTO_IVA' ||
+        store.company?.taxClassification === 'NON_TAXABLE';
+      const taxableNet = isVatExempt ? totalNum : Math.round(totalNum / 1.19);
+      const vatAmount = isVatExempt ? 0 : totalNum - taxableNet;
 
       const order = await tx.order.create({
         data: {
@@ -309,6 +316,15 @@ export class PosService {
           name: dto.customerName || 'Cliente Mostrador',
           phone: dto.customerRut || null,
           totalAmount: totalNum,
+          productsTotal: totalNum,
+          shippingTotal: 0,
+          serviceFeeNet: 0,
+          serviceFeeVat: 0,
+          serviceFeeGross: 0,
+          sellerCommissionNet: 0,
+          sellerCommissionVat: 0,
+          sellerCommissionGross: 0,
+          transbankFeeEstimate: 0,
           currencyCode: 'CLP',
           status: 'PAID',
           origin: 'POS_IN_STORE',
@@ -321,6 +337,17 @@ export class PosService {
               storeId,
               subtotal: totalNum,
               shippingCost: 0,
+              taxableNet,
+              vatAmount,
+              commissionRateApplied: 0,
+              commissionCalcBase: 'NET',
+              sellerCommissionNet: 0,
+              sellerCommissionVat: 0,
+              sellerCommissionGross: 0,
+              sellerNetPayout: totalNum,
+              settlementStatus: 'SETTLED',
+              sellerRut: store.company?.rut || null,
+              sellerLegalName: store.company?.legalName || store.company?.name || store.name,
               status: 'PAID',
               deliveryStatus: 'DELIVERED',
               shippingCourier: 'POS_PRESENCIAL',
@@ -540,7 +567,10 @@ export class PosService {
       return { success: true, processedCount: 0, syncedOrders: [], warnings: [] };
     }
 
-    const store = await this.prisma.store.findUnique({ where: { id: storeId } });
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      include: { company: true },
+    });
     if (!store) throw new NotFoundException('Tienda no encontrada');
 
     let currentShift = await this.prisma.cashShift.findFirst({
@@ -643,7 +673,15 @@ export class PosService {
             }
           }
 
-          // Crear la orden con los metadatos de sincronización offline
+          // Crear la orden con los metadatos de sincronización offline y desglose tributario F29 (0% comisión TapTrade)
+          const totalRounded = Math.round(totalNum);
+          const isVatExempt =
+            store.company?.taxClassification === 'VAT_EXEMPT' ||
+            store.company?.taxClassification === 'EXENTO_IVA' ||
+            store.company?.taxClassification === 'NON_TAXABLE';
+          const taxableNet = isVatExempt ? totalRounded : Math.round(totalRounded / 1.19);
+          const vatAmount = isVatExempt ? 0 : totalRounded - taxableNet;
+
           const order = await tx.order.create({
             data: {
               buyOrder,
@@ -651,7 +689,16 @@ export class PosService {
               email: sale.customerEmail || `pos@${store.subdomain}.taptrade.cl`,
               name: sale.customerName || 'Cliente Mostrador (Offline)',
               phone: sale.customerRut || null,
-              totalAmount: totalNum,
+              totalAmount: totalRounded,
+              productsTotal: totalRounded,
+              shippingTotal: 0,
+              serviceFeeNet: 0,
+              serviceFeeVat: 0,
+              serviceFeeGross: 0,
+              sellerCommissionNet: 0,
+              sellerCommissionVat: 0,
+              sellerCommissionGross: 0,
+              transbankFeeEstimate: 0,
               currencyCode: 'CLP',
               status: 'PAID',
               origin: 'POS_IN_STORE',
@@ -664,8 +711,19 @@ export class PosService {
               vendorOrders: {
                 create: {
                   storeId,
-                  subtotal: totalNum,
+                  subtotal: totalRounded,
                   shippingCost: 0,
+                  taxableNet,
+                  vatAmount,
+                  commissionRateApplied: 0,
+                  commissionCalcBase: 'NET',
+                  sellerCommissionNet: 0,
+                  sellerCommissionVat: 0,
+                  sellerCommissionGross: 0,
+                  sellerNetPayout: totalRounded,
+                  settlementStatus: 'SETTLED',
+                  sellerRut: store.company?.rut || null,
+                  sellerLegalName: store.company?.legalName || store.company?.name || store.name,
                   status: 'PAID',
                   deliveryStatus: 'DELIVERED',
                   shippingCourier: 'POS_PRESENCIAL',

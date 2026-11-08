@@ -673,9 +673,11 @@ Registro canónico de **compras de cartas en efectivo (Trade-In Cash)** realizad
 * **Índices:** `@@index([storeId, createdAt])`, `@@index([cashShiftId])`.
 * **Relaciones:** `store`, `user`, `cashShift`.
 
-> ⚠️ **REGLA FINANCIERA CANÓNICA (NO RETENCIÓN EN BILLETERA):**  
-> Las ventas presenciales procesadas a través del módulo POS son cobradas directamente por el vendedor en su local físico (dinero en efectivo en mano o depósito en la cuenta de su maquinita propia).  
-> **Dichos fondos NO se acreditan a `Store.balance` en la tabla `WalletTransaction` como saldo retirable**, ya que el dinero nunca pasa por la cuenta recaudadora central de TapTrade. Esto evita que una tienda solicite una transferencia de liquidación (`WithdrawalRequest`) por dinero que ya percibió físicamente.
+> ⚠️ **REGLA FINANCIERA, COMERCIAL Y TRIBUTARIA CANÓNICA DEL POS (`POS_IN_STORE`):**  
+> 1. **0% Comisión por Transacción y 0% Recargo de Pasarela:** Las ventas presenciales procesadas a través del módulo POS son cobradas directamente por la tienda en su local físico (Efectivo, Maquinita propia del local, Transferencia o Store Credit). No tienen recargo de pasarela Webpay/MP ni comisión porcentual por venta de TapTrade (`commissionRateApplied = 0`, `sellerCommissionGross = 0`), ya que el uso del POS se monetiza a través de la **Suscripción Mensual SaaS en UF (+ 19% IVA)** y los cobros por **Sucursal Extra (+2.50 UF/mes)** y **Cajero POS Extra (+0.35 UF/mes)**. Esto elimina cualquier incentivo para que la tienda venda por fuera del sistema y garantiza que el stock físico y web permanezcan sincronizados en tiempo real.  
+> 2. **No Retención en Billetera ni Liquidaciones (`settlementStatus = 'SETTLED'`):** Dichos fondos **NO se acreditan a `Store.balance` ni al libro `WalletTransaction`**, y se excluyen de los lotes de liquidación (`WithdrawalRequest`), puesto que el dinero jamás pasa por la cuenta bancaria recaudadora de TapTrade.  
+> 3. **Visibilidad Tributaria F29 para la Tienda (`/admin/wallet`):** Al crearse la orden POS, se calcula y persiste su `taxableNet` (Base Neta Imponible) y `vatAmount` (19% IVA Débito Fiscal propio de la tienda). El Resumen F29 y el Libro de Ventas CSV de la tienda consolidan ambos canales (`ONLINE_MARKETPLACE` y `POS_MOSTRADOR`) claramente diferenciados para el contador de la tienda.  
+> 4. **Aislamiento Contable de TapTrade SpA (`/superadmin/accounting`):** La contabilidad corporativa de TapTrade SpA filtra estrictamente `origin: 'ONLINE_MARKETPLACE'` para que el dinero en efectivo o maquinita de los locales de las tiendas nunca contamine la Recaudación Bancaria Global ni el F29 propio de TapTrade.
 
 ---
 
@@ -683,6 +685,7 @@ Registro canónico de **compras de cartas en efectivo (Trade-In Cash)** realizad
 
 | Fecha | Cambio | Justificación Técnica |
 | :--- | :--- | :--- |
+| **Noviembre 2026** | **Sistema de Intermediación, Comisiones Híbridas, Ledger Inmutable, Liquidaciones por Lotes SII y Regla Tributaria POS** | Se implementó el motor de comisiones híbrido, libro mayor inmutable (`WalletTransaction` append-only), liquidaciones por lote de sub-órdenes (`WithdrawalRequest`) con respaldo DTE/Mandato y comprobante TEF, y la separación contable entre ventas `ONLINE_MARKETPLACE` (recaudadas por TapTrade) y ventas `POS_IN_STORE` (0% comisión por transacción, monetizadas vía SaaS UF, reflejadas en el F29/CSV de la tienda y excluidas de la cartola bancaria de TapTrade). |
 | **Octubre 2026** | **Arquitectura de Punto de Venta (POS) y Turnos de Caja** | Se incorporó el modelo `CashShift`, campos `barcode` y `sku` en `Product`, origen `POS_IN_STORE` en `Order` y flexibilización de `VendorOrder.shippingProviderId`. Se fijó la regla financiera canónica que impide computar ventas presenciales en la billetera de custodia del marketplace. |
 | **Octubre 2026** | **Eliminación de `RETIRO_TIENDA` en `ShippingProvider`** | Se consolidó `Store.pickupEnabled` (`pickupAddress` y `pickupSchedule`) como la **única fuente de verdad** del retiro en local ($0). La tabla `ShippingProvider` queda reservada exclusivamente para couriers de despacho externos (`CHILEXPRESS`, `STARKEN`). |
 | **Octubre 2026** | **Persistencia de Carrito en `localStorage`** | Se implementó sincronización automática en `cart-slice.ts` (`taptrade_cart_v1`) para evitar la pérdida de cartas seleccionadas al refrescar la página. |
