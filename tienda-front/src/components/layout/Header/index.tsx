@@ -13,6 +13,7 @@ import { logout } from "@/redux/features/auth-slice";
 import { useCartModalContext } from "@/app/context/CartSidebarModalContext";
 import { useTranslations } from "next-intl";
 import LanguageSelector from "@/components/ui/LanguageSelector";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import {
   IconSearch,
   IconSparkles,
@@ -195,6 +196,11 @@ const Header = () => {
               <LanguageSelector />
             </div>
 
+            {/* Quick 1-Click Theme Switch (Sun/Moon) */}
+            <div className="hidden sm:block">
+              <ThemeToggle />
+            </div>
+
             {/* Account Dropdown or Login Icon Button */}
             {isMounted && isAuthenticated ? (
               <UserDropdown user={user} />
@@ -357,6 +363,12 @@ const Header = () => {
             <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between px-1">
               <span className="text-xs text-gray-400 font-medium">{tCommon("language_dual_label")}</span>
               <LanguageSelector />
+            </div>
+
+            {/* Mobile Theme Toggle */}
+            <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between px-1">
+              <span className="text-xs text-gray-400 font-medium">{tHeader("theme_mode_dark")} / {tHeader("theme_mode_light")}</span>
+              <ThemeToggle className="w-10 h-10" />
             </div>
 
             {/* Mobile Shipping & Pickup Notice below options */}

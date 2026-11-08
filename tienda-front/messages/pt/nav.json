@@ -42,7 +42,11 @@
     "all_categories": "Todas as categorias",
     "shipping_notice": "Envios 24-48h Express",
     "pickup_notice": "Retirada na Loja $0",
-    "know_taptrade": "Conheça TapTrade"
+    "know_taptrade": "Conheça TapTrade",
+    "theme_light": "Mudar para modo claro",
+    "theme_dark": "Mudar para modo escuro",
+    "theme_mode_light": "Modo Claro",
+    "theme_mode_dark": "Modo Escuro"
   },
   "sidebar": {
     "loading": "Carregando...",

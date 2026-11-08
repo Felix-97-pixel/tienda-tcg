@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 import "../css/euclid-circular-a-font.css";
 import "../css/store-style.css";
 import Header from "@/components/layout/Header";
@@ -32,9 +33,12 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const cookieStore = await cookies();
+  const savedTheme = cookieStore.get("theme")?.value;
+  const themeClass = savedTheme === "light" ? "light" : "dark";
 
   return (
-    <html lang={locale} suppressHydrationWarning={true} data-scroll-behavior="smooth">
+    <html lang={locale} className={themeClass} suppressHydrationWarning={true} data-scroll-behavior="smooth">
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ClientProviders>

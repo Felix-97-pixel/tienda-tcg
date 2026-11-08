@@ -42,7 +42,11 @@
     "all_categories": "All Categories",
     "shipping_notice": "Fast 24-48h Shipping Chilexpress & Starken",
     "pickup_notice": "Free In-Store Pickup $0",
-    "know_taptrade": "About TapTrade"
+    "know_taptrade": "About TapTrade",
+    "theme_light": "Switch to light mode",
+    "theme_dark": "Switch to dark mode",
+    "theme_mode_light": "Light Mode",
+    "theme_mode_dark": "Dark Mode"
   },
   "sidebar": {
     "loading": "Loading...",

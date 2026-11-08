@@ -16,7 +16,37 @@
   --color-dark-2: #f3f4f6;            
   --color-dark-3: #d1d5db;            
   --color-dark-4: #9ca3af;            
-  --color-dark-5: #6b7280;            
+  --color-dark-5: #6b7280;
+
+  /* TapTrade Semantic Theme Tokens: Dark Mode Default */
+  --tt-bg-canvas: #07090E;
+  --tt-bg-subtle: #0A0D14;
+  --tt-bg-surface: #111522;
+  --tt-bg-elevated: #161B2B;
+  --tt-text-main: #FFFFFF;
+  --tt-text-muted: #94A3B8;
+  --tt-border-subtle: rgba(255, 255, 255, 0.08);
+  --tt-border-medium: rgba(255, 255, 255, 0.15);
+  --tt-header-bg: rgba(9, 12, 19, 0.92);
+}
+
+/* TapTrade Semantic Theme Tokens: Light Mode Override */
+html.light {
+  --color-dark-default: #0f172a;
+  --color-dark-2: #1e293b;
+  --color-dark-3: #334155;
+  --color-dark-4: #475569;
+  --color-dark-5: #64748b;
+
+  --tt-bg-canvas: #F8FAFC;
+  --tt-bg-subtle: #F1F5F9;
+  --tt-bg-surface: #FFFFFF;
+  --tt-bg-elevated: #F8FAFC;
+  --tt-text-main: #0F172A;
+  --tt-text-muted: #64748B;
+  --tt-border-subtle: rgba(0, 0, 0, 0.08);
+  --tt-border-medium: rgba(0, 0, 0, 0.15);
+  --tt-header-bg: rgba(255, 255, 255, 0.95);
 }
 
 /* SVG Interceptor to dynamically recolor template hardcoded blue icons to TapTrade Red */
@@ -42,7 +72,9 @@ svg path[stroke="#3c50e0"] {
   }
 
   body {
-    @apply font-euclid-circular-a font-normal text-base text-gray-3 relative z-1 bg-[#07090E];
+    @apply font-euclid-circular-a font-normal text-base relative z-1 transition-colors duration-200;
+    background-color: var(--tt-bg-canvas);
+    color: var(--tt-text-main);
   }
 }
 

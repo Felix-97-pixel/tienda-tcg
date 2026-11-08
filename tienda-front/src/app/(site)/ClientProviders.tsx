@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { ThemeProvider } from "../context/ThemeContext";
 import { ModalProvider } from "../context/QuickViewModalContext";
 import { CartModalProvider } from "../context/CartSidebarModalContext";
 import { ReduxProvider } from "@/redux/provider";
@@ -19,17 +20,19 @@ export default function ClientProviders({ children }: { children: React.ReactNod
 
   return (
     <ReduxProvider>
-      <CartModalProvider>
-        <ModalProvider>
-          <PreviewSliderProvider>
-            {children}
-            <QuickViewModal />
-            <CartSidebarModal />
-            <PreviewSliderModal />
-            <ToastContainer />
-          </PreviewSliderProvider>
-        </ModalProvider>
-      </CartModalProvider>
+      <ThemeProvider>
+        <CartModalProvider>
+          <ModalProvider>
+            <PreviewSliderProvider>
+              {children}
+              <QuickViewModal />
+              <CartSidebarModal />
+              <PreviewSliderModal />
+              <ToastContainer />
+            </PreviewSliderProvider>
+          </ModalProvider>
+        </CartModalProvider>
+      </ThemeProvider>
     </ReduxProvider>
   );
 }

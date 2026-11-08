@@ -42,7 +42,11 @@
     "all_categories": "Todas las categorías",
     "shipping_notice": "Envíos 24-48h Chilexpress & Starken",
     "pickup_notice": "Retiro en Tienda $0",
-    "know_taptrade": "Conoce TapTrade"
+    "know_taptrade": "Conoce TapTrade",
+    "theme_light": "Cambiar a modo claro",
+    "theme_dark": "Cambiar a modo oscuro",
+    "theme_mode_light": "Modo Claro",
+    "theme_mode_dark": "Modo Oscuro"
   },
   "sidebar": {
     "loading": "Cargando...",
