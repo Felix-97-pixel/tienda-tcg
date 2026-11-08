@@ -61,7 +61,7 @@ const CustomSelect = ({ options, value, placeholder = "Todas las categorías", o
       <button
         type="button"
         onClick={toggleDropdown}
-        className="flex items-center justify-between gap-1.5 w-full text-left cursor-pointer text-xs font-semibold py-2.5 pl-3 pr-2 text-white hover:text-white transition-colors select-none rounded-l-xl focus:outline-none"
+        className="flex items-center justify-between gap-1.5 w-full text-left cursor-pointer text-xs font-semibold py-2.5 pl-3 pr-2 text-[var(--tt-text-main)] hover:text-red transition-colors select-none rounded-l-xl focus:outline-none"
         title={currentLabel}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -70,14 +70,14 @@ const CustomSelect = ({ options, value, placeholder = "Todas las categorías", o
           {currentLabel}
         </span>
         <IconChevronDown
-          className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 ${
+          className={`w-3.5 h-3.5 text-[var(--tt-text-muted)] shrink-0 transition-transform duration-200 ${
             isOpen ? "rotate-180 text-red" : ""
           }`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-[calc(100%+6px)] w-[220px] sm:w-[240px] bg-[#0E121B] border border-white/15 rounded-xl shadow-2xl shadow-black/90 py-1.5 z-[100] max-h-72 overflow-y-auto backdrop-blur-xl">
+        <div className="absolute left-0 top-[calc(100%+6px)] w-[220px] sm:w-[240px] bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl shadow-2xl py-1.5 z-[100] max-h-72 overflow-y-auto backdrop-blur-xl">
           {options.map((option, idx) => {
             const isCurrent = currentLabel === option.name;
             return (
@@ -87,8 +87,8 @@ const CustomSelect = ({ options, value, placeholder = "Todas las categorías", o
                 onClick={() => handleOptionClick(option)}
                 className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition-colors ${
                   isCurrent
-                    ? "text-red font-bold bg-white/[0.08]"
-                    : "text-gray-300 hover:text-white hover:bg-white/5"
+                    ? "text-red font-bold bg-red-500/10"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5"
                 }`}
               >
                 <span className="truncate">{option.name}</span>

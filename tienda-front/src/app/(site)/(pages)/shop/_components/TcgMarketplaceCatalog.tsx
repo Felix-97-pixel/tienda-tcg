@@ -83,9 +83,9 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-[#111522] border border-white/[0.06] hover:border-white/20 transition-all">
+    <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] hover:border-red-500/40 shadow-xs transition-all">
       {/* Artwork thumbnail */}
-      <div className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[#0A0D14] border border-white/10 group">
+      <div className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] group">
         <Image
           src={imageUrl}
           alt={item.title || item.name}
@@ -100,7 +100,7 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
       <div className="flex-1 min-w-0">
         <Link
           href={`/shop-details/${item.slug}`}
-          className="font-bold text-sm text-white hover:text-red-400 truncate block transition-colors"
+          className="font-bold text-sm text-[var(--tt-text-main)] hover:text-red-500 truncate block transition-colors"
         >
           {item.title || item.name}
         </Link>
@@ -108,21 +108,21 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
           <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold font-mono ${conditionClass}`}>
             {conditionCode}
           </span>
-          <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-white/5 border border-white/10 text-gray-400">
+          <span className="px-1.5 py-0.2 rounded text-[10px] font-bold font-mono uppercase bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-slate-300">
             {languageCode}
           </span>
           {isFoil && (
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30">
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold text-amber-800 dark:text-amber-200 bg-amber-500/10 dark:bg-amber-400/15 border border-amber-600/40 dark:border-amber-400/30">
               FOIL
             </span>
           )}
           {item.cardDetail?.expansion?.name && (
-            <span className="text-[11px] text-gray-400 truncate max-w-[140px]">
+            <span className="text-[11px] text-[var(--tt-text-muted)] truncate max-w-[140px]">
               • {item.cardDetail.expansion.name}
             </span>
           )}
           {best.storeName && (
-            <span className="text-[11px] text-blue-400 font-medium truncate max-w-[140px]">
+            <span className="text-[11px] text-blue-500 dark:text-blue-400 font-medium truncate max-w-[140px]">
               • {best.storeName}
             </span>
           )}
@@ -131,30 +131,30 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
 
       {/* Price & Stock */}
       <div className="text-right shrink-0">
-        <div className="font-extrabold text-white text-sm sm:text-base font-mono">
+        <div className="font-extrabold text-[var(--tt-text-main)] text-sm sm:text-base font-mono">
           {formatPrice(price, currency)}
         </div>
-        <span className={`text-[10px] font-mono block ${stock > 0 ? "text-gray-400" : "text-red-400"}`}>
+        <span className={`text-[10px] font-mono block ${stock > 0 ? "text-[var(--tt-text-muted)]" : "text-red-500"}`}>
           {stock > 0 ? t("available_count", { count: stock }) : t("outOfStock")}
         </span>
       </div>
 
       {/* Stepper & Add */}
       <div className="flex items-center gap-1.5 shrink-0">
-        <div className="hidden sm:flex items-center rounded-lg bg-black/40 border border-white/10 overflow-hidden">
+        <div className="hidden sm:flex items-center rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden">
           <button
             type="button"
             onClick={() => setQty(Math.max(1, qty - 1))}
-            className="w-7 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10"
+            className="w-7 h-8 flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/10"
             disabled={qty <= 1}
           >
             -
           </button>
-          <span className="w-6 text-center text-xs font-mono font-bold text-white">{qty}</span>
+          <span className="w-6 text-center text-xs font-mono font-bold text-[var(--tt-text-main)]">{qty}</span>
           <button
             type="button"
             onClick={() => setQty(Math.min(stock, qty + 1))}
-            className="w-7 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10"
+            className="w-7 h-8 flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/10"
             disabled={qty >= stock}
           >
             +
@@ -416,42 +416,42 @@ export default function TcgMarketplaceCatalog() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0D14] text-white pt-28 md:pt-36 pb-16">
+    <div className="min-h-screen bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] pt-28 md:pt-36 pb-16 transition-colors duration-200">
       {/* Catalog Header Banner */}
-      <div className="border-b border-white/[0.08] bg-[#0E121B] pb-8 mb-8 relative overflow-hidden">
+      <div className="border-b border-[var(--tt-border-subtle)] bg-[var(--tt-bg-subtle)] pb-8 mb-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500"></div>
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-400 border border-red-500/30 mb-2">
-                <IconZap className="w-3.5 h-3.5 text-red-400 shrink-0" /> {t("marketplace_badge")}
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-500 border border-red-500/30 mb-2">
+                <IconZap className="w-3.5 h-3.5 text-red-500 shrink-0" /> {t("marketplace_badge")}
               </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--tt-text-main)]">
                 {t("catalog_title")}
               </h1>
-              <p className="text-gray-400 text-sm mt-1 max-w-xl">
+              <p className="text-[var(--tt-text-muted)] text-sm mt-1 max-w-xl">
                 {t("catalog_subtitle")}
               </p>
             </div>
 
             {totalCount > 0 && (
-              <div className="glass-vault px-4 py-2.5 rounded-xl border border-white/10 text-right flex items-center gap-4">
+              <div className="glass-vault px-4 py-2.5 rounded-xl border border-[var(--tt-border-medium)] text-right flex items-center gap-4 shadow-sm">
                 {inStockOnly ? (
                   <div>
-                    <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">{t("immediate_stock")}</span>
-                    <span className="text-xl font-black text-emerald-400 font-mono">{t("cards_count", { count: totalCount.toLocaleString("es-CL") })}</span>
+                    <span className="text-[10px] text-emerald-500 uppercase tracking-wider block font-semibold">{t("immediate_stock")}</span>
+                    <span className="text-xl font-black text-emerald-500 font-mono">{t("cards_count", { count: totalCount.toLocaleString("es-CL") })}</span>
                   </div>
                 ) : (
                   <>
                     {totalInStockCount !== undefined && totalInStockCount > 0 && (
-                      <div className="text-right border-r border-white/10 pr-4">
-                        <span className="text-[10px] text-emerald-400 uppercase tracking-wider block font-semibold">{t("immediate_stock")}</span>
-                        <span className="text-lg font-black text-emerald-400 font-mono">{t("cards_count", { count: totalInStockCount.toLocaleString("es-CL") })}</span>
+                      <div className="text-right border-r border-[var(--tt-border-subtle)] pr-4">
+                        <span className="text-[10px] text-emerald-500 uppercase tracking-wider block font-semibold">{t("immediate_stock")}</span>
+                        <span className="text-lg font-black text-emerald-500 font-mono">{t("cards_count", { count: totalInStockCount.toLocaleString("es-CL") })}</span>
                       </div>
                     )}
                     <div>
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wider block">{t("master_catalog")}</span>
-                      <span className="text-lg font-black text-white font-mono">{t("cards_count", { count: totalCount.toLocaleString("es-CL") })}</span>
+                      <span className="text-[10px] text-[var(--tt-text-muted)] uppercase tracking-wider block">{t("master_catalog")}</span>
+                      <span className="text-lg font-black text-[var(--tt-text-main)] font-mono">{t("cards_count", { count: totalCount.toLocaleString("es-CL") })}</span>
                     </div>
                   </>
                 )}
@@ -471,9 +471,9 @@ export default function TcgMarketplaceCatalog() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t("search_placeholder")}
-              className="w-full h-11 pl-10 pr-10 rounded-xl bg-[#111522] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-red-500/60 focus:ring-1 focus:ring-red-500/40 transition-all"
+              className="w-full h-11 pl-10 pr-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] text-sm focus:outline-none focus:border-red-500/60 focus:ring-1 focus:ring-red-500/40 shadow-xs transition-all"
             />
-            <IconSearch className="absolute left-3.5 top-3.5 text-gray-500 w-4 h-4 pointer-events-none" />
+            <IconSearch className="absolute left-3.5 top-3.5 text-[var(--tt-text-muted)] w-4 h-4 pointer-events-none" />
             {searchTerm && (
               <button
                 type="button"
@@ -485,7 +485,7 @@ export default function TcgMarketplaceCatalog() {
                   const qs = p.toString();
                   router.replace(`/shop${qs ? `?${qs}` : ""}`);
                 }}
-                className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white"
+                className="absolute right-3.5 top-3.5 text-[var(--tt-text-muted)] hover:text-red-500"
                 title={t("clear_search")}
               >
                 <IconX className="w-4 h-4" />
@@ -499,7 +499,7 @@ export default function TcgMarketplaceCatalog() {
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-3.5 h-11 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-bold hover:bg-white/5 transition-all"
+              className="lg:hidden flex items-center gap-2 px-3.5 h-11 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-bold hover:border-red-500/40 transition-all shadow-xs"
             >
               <IconFilter className="w-3.5 h-3.5" />
               {t("filters")}
@@ -515,25 +515,25 @@ export default function TcgMarketplaceCatalog() {
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="h-11 px-3.5 rounded-xl bg-[#111522] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-red-500 cursor-pointer appearance-none pr-8"
+                className="h-11 px-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-semibold focus:outline-none focus:border-red-500 cursor-pointer appearance-none pr-8 shadow-xs"
               >
                 <option value="latest">{t("sort.latest")}</option>
                 <option value="price-asc">{t("sort.price_asc")}</option>
                 <option value="price-desc">{t("sort.price_desc")}</option>
                 <option value="name-asc">{t("sort.name_asc")}</option>
               </select>
-              <IconChevronDown className="absolute right-3 top-4 pointer-events-none text-gray-400 w-3 h-3" />
+              <IconChevronDown className="absolute right-3 top-4 pointer-events-none text-[var(--tt-text-muted)] w-3 h-3" />
             </div>
 
             {/* Dual View Toggle */}
-            <div className="flex items-center rounded-xl bg-[#111522] border border-white/10 p-0.5">
+            <div className="flex items-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-0.5 shadow-xs">
               <button
                 type="button"
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-all ${
                   viewMode === "grid"
                     ? "bg-red-600 text-white shadow-sm"
-                    : "text-gray-400 hover:text-white"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
                 title={t("view_grid_title")}
               >
@@ -545,7 +545,7 @@ export default function TcgMarketplaceCatalog() {
                 className={`p-2 rounded-lg transition-all ${
                   viewMode === "table"
                     ? "bg-red-600 text-white shadow-sm"
-                    : "text-gray-400 hover:text-white"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
                 title={t("view_deckbuilder_title")}
               >
@@ -557,8 +557,8 @@ export default function TcgMarketplaceCatalog() {
 
         {/* Active Filter Chips */}
         {activeFiltersCount > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-            <span className="text-xs text-gray-400 font-medium mr-1">{t("active_filters")}</span>
+          <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)]">
+            <span className="text-xs text-[var(--tt-text-muted)] font-medium mr-1">{t("active_filters")}</span>
 
             {selectedCategory && (
               <button
@@ -570,7 +570,7 @@ export default function TcgMarketplaceCatalog() {
                   const qs = p.toString();
                   router.replace(`/shop${qs ? `?${qs}` : ""}`);
                 }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red/15 text-red-light border border-red/30 hover:bg-red/25 transition-all"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red/15 text-red-600 dark:text-red-300 border border-red/30 hover:bg-red/25 transition-all"
               >
                 {selectedCategory}
                 <IconX className="w-3 h-3" />
@@ -587,7 +587,7 @@ export default function TcgMarketplaceCatalog() {
                   const qs = p.toString();
                   router.replace(`/shop${qs ? `?${qs}` : ""}`);
                 }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all"
               >
                 {selectedExpansion}
                 <IconX className="w-3 h-3" />
@@ -598,7 +598,7 @@ export default function TcgMarketplaceCatalog() {
               <button
                 type="button"
                 onClick={() => setSelectedCondition(null)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
               >
                 {t("condition_prefix", { value: conditionsData.find(c => c.name === selectedCondition || c.id === selectedCondition)?.displayName || selectedCondition })}
                 <IconX className="w-3 h-3" />
@@ -609,11 +609,11 @@ export default function TcgMarketplaceCatalog() {
               <button
                 type="button"
                 onClick={() => setSelectedFinish(null)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
               >
                 {selectedFinish === "foil" ? (
                   <span className="inline-flex items-center gap-1">
-                    <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                    <IconSparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-300 shrink-0" />
                     {t("finish_foil")}
                   </span>
                 ) : (
@@ -627,7 +627,7 @@ export default function TcgMarketplaceCatalog() {
               <button
                 type="button"
                 onClick={() => setSelectedLanguage(null)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all"
               >
                 {t("language_prefix", { value: languagesData.find(l => l.code === selectedLanguage || l.id === selectedLanguage || l.name === selectedLanguage)?.name || selectedLanguage })}
                 <IconX className="w-3 h-3" />
@@ -638,7 +638,7 @@ export default function TcgMarketplaceCatalog() {
               <button
                 type="button"
                 onClick={() => handleToggleInStockOnly(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-all"
               >
                 {t("all_catalog_view")}
                 <IconX className="w-3 h-3" />
@@ -648,7 +648,7 @@ export default function TcgMarketplaceCatalog() {
             <button
               type="button"
               onClick={handleClearAll}
-              className="text-xs text-gray-400 hover:text-white underline underline-offset-2 ml-auto"
+              className="text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] underline underline-offset-2 ml-auto"
             >
               {t("clear_all_filters")}
             </button>
@@ -693,13 +693,13 @@ export default function TcgMarketplaceCatalog() {
                 className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
                 onClick={() => setMobileDrawerOpen(false)}
               ></div>
-              <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[#0E121B] border-l border-white/10 p-6 overflow-y-auto shadow-2xl">
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
-                  <span className="font-bold text-white text-base">{t("filters")}</span>
+              <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[var(--tt-bg-surface)] border-l border-[var(--tt-border-medium)] p-6 overflow-y-auto shadow-2xl">
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-[var(--tt-border-subtle)]">
+                  <span className="font-bold text-[var(--tt-text-main)] text-base">{t("filters")}</span>
                   <button
                     type="button"
                     onClick={() => setMobileDrawerOpen(false)}
-                    className="p-1 rounded-lg text-gray-400 hover:text-white"
+                    className="p-1 rounded-lg text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   >
                     <IconX className="w-5 h-5" />
                   </button>
@@ -746,30 +746,30 @@ export default function TcgMarketplaceCatalog() {
                 {[...Array(8)].map((_, idx) => (
                   <div
                     key={idx}
-                    className="rounded-2xl p-4 bg-[#111522] border border-white/5 animate-pulse flex flex-col justify-between aspect-[2.5/4]"
+                    className="rounded-2xl p-4 bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] animate-pulse flex flex-col justify-between aspect-[2.5/4]"
                   >
-                    <div className="w-16 h-4 bg-white/10 rounded mb-2"></div>
-                    <div className="w-full aspect-[2.5/3.5] bg-white/5 rounded-xl my-2"></div>
-                    <div className="w-full h-4 bg-white/10 rounded mt-2"></div>
-                    <div className="w-1/2 h-4 bg-white/10 rounded mt-1"></div>
+                    <div className="w-16 h-4 bg-[var(--tt-bg-subtle)] rounded mb-2"></div>
+                    <div className="w-full aspect-[2.5/3.5] bg-[var(--tt-bg-subtle)] rounded-xl my-2"></div>
+                    <div className="w-full h-4 bg-[var(--tt-bg-subtle)] rounded mt-2"></div>
+                    <div className="w-1/2 h-4 bg-[var(--tt-bg-subtle)] rounded mt-1"></div>
                   </div>
                 ))}
               </div>
             ) : sortedProducts.length === 0 ? (
-              <div className="text-center py-16 px-4 rounded-2xl bg-[#111522]/50 border border-white/5">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-red-500 mx-auto mb-4">
+              <div className="text-center py-16 px-4 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)]">
+                <div className="w-16 h-16 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center text-red mx-auto mb-4">
                   <IconCard className="w-8 h-8 opacity-80" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">
+                <h3 className="text-lg font-bold text-[var(--tt-text-main)] mb-2">
                   {t("no_cards_found")}
                 </h3>
-                <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
+                <p className="text-sm text-[var(--tt-text-muted)] max-w-md mx-auto mb-6">
                   {t("no_cards_found_desc")}
                 </p>
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition-all shadow-lg shadow-red-600/20"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red hover:bg-red-light text-white transition-all shadow-lg shadow-red/20"
                 >
                   {t("reset_filters")}
                 </button>

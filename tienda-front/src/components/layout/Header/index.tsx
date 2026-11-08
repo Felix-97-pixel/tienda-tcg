@@ -122,8 +122,8 @@ const Header = () => {
   return (
     <header
       className={`fixed left-0 top-0 w-full z-[9999] transition-all duration-300 ${stickyMenu
-        ? "bg-[#090C13]/95 backdrop-blur-xl border-b border-white/[0.08] shadow-2xl"
-        : "bg-[#090C13]/90 backdrop-blur-lg border-b border-white/[0.06]"
+        ? "bg-[var(--tt-header-bg)] backdrop-blur-xl border-b border-[var(--tt-border-subtle)] shadow-2xl"
+        : "bg-[var(--tt-header-bg)] backdrop-blur-lg border-b border-[var(--tt-border-subtle)]"
         }`}
     >
       {/* Top micro-gradient indicator */}
@@ -139,7 +139,7 @@ const Header = () => {
                 <span className="text-white font-black text-xl leading-none">T</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-white leading-none">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-[var(--tt-text-main)] leading-none">
                   Tap<span className="text-red">Trade</span>
                 </span>
                 <span className="text-[9px] font-mono tracking-widest text-red-light uppercase font-bold mt-0.5">
@@ -152,8 +152,8 @@ const Header = () => {
           {/* Search Capsule Bar */}
           <div className="hidden md:flex flex-1 max-w-xl mx-2 lg:mx-4">
             <form onSubmit={handleSearchSubmit} className="w-full">
-              <div className="relative flex items-center bg-[#111522] rounded-xl border border-white/10 hover:border-white/20 focus-within:border-red/60 focus-within:ring-1 focus-within:ring-red/30 transition-all">
-                <div className="hidden lg:block shrink-0 border-r border-white/10 text-xs text-gray-300">
+              <div className="relative flex items-center bg-[var(--tt-bg-surface)] rounded-xl border border-[var(--tt-border-medium)] hover:border-red-500/40 focus-within:border-red/60 focus-within:ring-1 focus-within:ring-red/30 transition-all shadow-sm">
+                <div className="hidden lg:block shrink-0 border-r border-[var(--tt-border-subtle)] text-xs text-[var(--tt-text-muted)]">
                   <CustomSelect
                     options={categoriesData}
                     value={selectedCategory}
@@ -166,12 +166,12 @@ const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={tHeader("search_placeholder")}
-                  className="w-full bg-transparent text-white text-xs px-3 py-2.5 outline-none placeholder:text-gray-500 rounded-none"
+                  className="w-full bg-transparent text-[var(--tt-text-main)] text-xs px-3 py-2.5 outline-none placeholder:text-[var(--tt-text-muted)] rounded-none"
                 />
                 <button
                   type="submit"
                   aria-label={tNav("account_menu.search_aria")}
-                  className="px-3.5 py-2.5 text-gray-400 hover:text-white hover:text-red transition-colors shrink-0 rounded-r-xl"
+                  className="px-3.5 py-2.5 text-[var(--tt-text-muted)] hover:text-red transition-colors shrink-0 rounded-r-xl"
                 >
                   <IconSearch className="w-4 h-4" />
                 </button>
@@ -184,11 +184,11 @@ const Header = () => {
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="hidden sm:flex h-10 w-10 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0 items-center justify-center"
+              className="hidden sm:flex h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-red-500 transition-all shadow-sm group shrink-0 items-center justify-center"
               title={tHeader("wishlist")}
               aria-label={tHeader("wishlist")}
             >
-              <IconHeart className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-colors" />
+              <IconHeart className="w-5 h-5 group-hover:text-red-400 transition-colors" />
             </Link>
 
             {/* Language Selector (Desktop/Tablet only; on Mobile lives inside Hamburger Menu) */}
@@ -209,9 +209,9 @@ const Header = () => {
                 href="/login"
                 aria-label={tHeader("login")}
                 title={tHeader("login")}
-                className="h-10 w-10 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0 flex items-center justify-center"
+                className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-red-500 transition-all shadow-sm group shrink-0 flex items-center justify-center"
               >
-                <IconUser className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-colors" />
+                <IconUser className="w-5 h-5 group-hover:text-red-400 transition-colors" />
               </Link>
             )}
 
@@ -221,10 +221,10 @@ const Header = () => {
               onClick={handleOpenCartModal}
               aria-label={tHeader("cart")}
               title={tHeader("cart")}
-              className="relative h-10 w-10 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0 flex items-center justify-center"
+              className="relative h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-red-500 transition-all shadow-sm group shrink-0 flex items-center justify-center"
             >
               <div className="relative">
-                <IconCart className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-colors" />
+                <IconCart className="w-5 h-5 group-hover:text-red-400 transition-colors" />
                 {cartItems.length > 0 && (
                   <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[9px] font-bold font-mono flex items-center justify-center animate-pulse">
                     {cartItems.length > 99 ? "99+" : cartItems.length}
@@ -251,7 +251,7 @@ const Header = () => {
       </div>
 
       {/* Sub Navigation Bar for Desktop & Medium Resolutions */}
-      <div className="hidden md:block bg-[#07090E]/80 border-t border-white/[0.04]">
+      <div className="hidden md:block bg-[var(--tt-bg-subtle)] border-t border-[var(--tt-border-subtle)]">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex flex-col xl:flex-row xl:items-center xl:justify-between py-2 gap-2 xl:gap-4">
             {/* Fila 1: Opciones de la tienda (sin quebrar texto en 2 líneas) */}
@@ -262,11 +262,11 @@ const Header = () => {
                     href={item.path}
                     target={item.newTab ? "_blank" : undefined}
                     rel={item.newTab ? "noopener noreferrer" : undefined}
-                    className="text-xs font-semibold text-gray-300 hover:text-red transition-colors flex items-center gap-1 whitespace-nowrap"
+                    className="text-xs font-semibold text-[var(--tt-text-muted)] hover:text-red transition-colors flex items-center gap-1 whitespace-nowrap"
                   >
                     <span>{getMenuTitle(item.path, item.title)}</span>
                     {item.newTab && (
-                      <IconExternalLink className="w-3 h-3 text-gray-400" />
+                      <IconExternalLink className="w-3 h-3 opacity-60" />
                     )}
                   </Link>
                 </li>
@@ -286,13 +286,13 @@ const Header = () => {
             </ul>
 
             {/* Fila 2 en resoluciones medias / Derecha en XL: Envíos, Soporte y Retiro en Tienda $0 */}
-            <div className="flex items-center justify-center xl:justify-end flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400 font-mono pt-1.5 xl:pt-0 border-t border-white/[0.05] xl:border-t-0">
-              <span className="inline-flex items-center gap-1.5 text-emerald-400 whitespace-nowrap">
+            <div className="flex items-center justify-center xl:justify-end flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--tt-text-muted)] font-mono pt-1.5 xl:pt-0 border-t border-[var(--tt-border-subtle)] xl:border-t-0">
+              <span className="inline-flex items-center gap-1.5 text-emerald-500 whitespace-nowrap font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                 {tHeader("shipping_notice")}
               </span>
-              <span className="text-white/20">•</span>
-              <span className="text-gray-300 whitespace-nowrap">{tHeader("pickup_notice")}</span>
+              <span className="opacity-30">•</span>
+              <span className="text-[var(--tt-text-main)] whitespace-nowrap font-medium">{tHeader("pickup_notice")}</span>
             </div>
           </nav>
         </div>
@@ -300,18 +300,18 @@ const Header = () => {
 
       {/* Mobile Menu Drawer */}
       {navigationOpen && (
-        <div className="md:hidden bg-[#0A0D14] border-t border-white/10 px-4 py-4 space-y-3 shadow-2xl">
+        <div className="md:hidden bg-[var(--tt-bg-canvas)] border-t border-[var(--tt-border-medium)] px-4 py-4 space-y-3 shadow-2xl">
           {/* Mobile Search */}
           <form onSubmit={handleSearchSubmit}>
-            <div className="flex items-center bg-[#111522] rounded-xl border border-white/10 px-3 py-2.5">
+            <div className="flex items-center bg-[var(--tt-bg-surface)] rounded-xl border border-[var(--tt-border-medium)] px-3 py-2.5">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={tHeader("search_placeholder")}
-                className="w-full bg-transparent text-white text-xs outline-none"
+                className="w-full bg-transparent text-[var(--tt-text-main)] text-xs outline-none"
               />
-              <button type="submit" className="text-gray-400 hover:text-white pl-2" aria-label={tNav("account_menu.search_aria")}>
+              <button type="submit" className="text-[var(--tt-text-muted)] hover:text-red pl-2" aria-label={tNav("account_menu.search_aria")}>
                 <IconSearch className="w-4 h-4" />
               </button>
             </div>
@@ -325,10 +325,10 @@ const Header = () => {
                 target={item.newTab ? "_blank" : undefined}
                 rel={item.newTab ? "noopener noreferrer" : undefined}
                 onClick={() => setNavigationOpen(false)}
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5 transition-all"
               >
                 <span>{getMenuTitle(item.path, item.title)}</span>
-                {item.newTab && <IconExternalLink className="w-3.5 h-3.5 text-gray-400" />}
+                {item.newTab && <IconExternalLink className="w-3.5 h-3.5 opacity-60" />}
               </Link>
             ))}
 
@@ -336,10 +336,10 @@ const Header = () => {
             <Link
               href="/wishlist"
               onClick={() => setNavigationOpen(false)}
-              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all sm:hidden"
+              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5 transition-all sm:hidden"
             >
               <span>{tHeader("wishlist")}</span>
-              <IconHeart className="w-4 h-4 text-gray-400" />
+              <IconHeart className="w-4 h-4 opacity-70" />
             </Link>
 
             {/* Mobile Landing Link in red square box */}

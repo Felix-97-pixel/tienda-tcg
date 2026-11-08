@@ -35,7 +35,8 @@ export default function ScrollToTop() {
         <button
           type="button"
           onClick={scrollToTop}
-          className={`items-center justify-center w-11 h-11 rounded-xl bg-[#111522]/90 backdrop-blur-md border border-white/15 hover:border-red-500/60 text-gray-300 hover:text-white hover:bg-gradient-to-br hover:from-[#E10E0E] hover:to-[#B80B0B] shadow-xl shadow-black/60 hover:shadow-red-600/25 transition-all duration-200 group fixed bottom-8 right-8 z-[999] ${
+          aria-label="Volver arriba"
+          className={`items-center justify-center w-11 h-11 rounded-xl bg-[var(--tt-bg-surface)] backdrop-blur-md border border-[var(--tt-border-medium)] hover:border-red-500/60 text-[var(--tt-text-main)] hover:text-white hover:bg-gradient-to-br hover:from-[#E10E0E] hover:to-[#B80B0B] shadow-xl shadow-black/10 dark:shadow-black/60 hover:shadow-red-600/25 transition-all duration-200 group fixed bottom-8 right-8 z-[999] ${
             isVisible ? "flex" : "hidden"
           }`}
         >

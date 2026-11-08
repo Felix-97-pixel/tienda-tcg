@@ -165,15 +165,15 @@ export default function TcgProductCard({
           <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wider font-mono ${conditionClass}`}>
             {conditionCode}
           </span>
-          <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-white/5 border border-white/10 text-gray-400 font-mono">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-slate-300 tracking-wider">
             {languageCode}
           </span>
         </div>
 
         {isFoil && (
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-widest bg-gradient-to-r from-amber-400/20 via-pink-400/20 to-cyan-400/20 border border-amber-300/40 text-amber-200 shadow-sm flex items-center gap-1">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            Foil
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-widest bg-amber-500/10 dark:bg-gradient-to-r dark:from-amber-500/15 dark:via-pink-500/15 dark:to-cyan-500/15 border border-amber-600/40 dark:border-amber-300/40 text-amber-800 dark:text-amber-200 shadow-xs flex items-center gap-1.5">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400 animate-pulse"></span>
+            FOIL
           </span>
         )}
       </div>
@@ -182,7 +182,7 @@ export default function TcgProductCard({
       {onCardClick ? (
         <div
           onClick={() => onCardClick(item)}
-          className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[#08090d] border border-white/5 my-1 cursor-pointer group/art"
+          className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] my-1 cursor-pointer group/art"
         >
           <Image
             src={imageUrl}
@@ -217,7 +217,7 @@ export default function TcgProductCard({
       ) : (
         <Link
           href={`/shop-details/${item.slug}`}
-          className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[#08090d] border border-white/5 my-1 cursor-pointer group/art"
+          className="block relative aspect-[2.5/3.5] w-full max-w-[210px] mx-auto rounded-xl overflow-hidden card-foil-container bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] my-1 cursor-pointer group/art"
         >
           <Image
             src={imageUrl}
@@ -264,7 +264,7 @@ export default function TcgProductCard({
             <button
               type="button"
               onClick={() => onCardClick(item)}
-              className="block text-left w-full text-sm font-semibold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug cursor-pointer"
+              className="block text-left w-full text-sm font-semibold text-[var(--tt-text-main)] group-hover:text-red-500 transition-colors line-clamp-2 leading-snug cursor-pointer"
               title={item.title || item.name}
             >
               {item.title || item.name}
@@ -272,7 +272,7 @@ export default function TcgProductCard({
           ) : (
             <Link
               href={`/shop-details/${item.slug}`}
-              className="block text-sm font-semibold text-white group-hover:text-red-400 transition-colors line-clamp-2 leading-snug"
+              className="block text-sm font-semibold text-[var(--tt-text-main)] group-hover:text-red-500 transition-colors line-clamp-2 leading-snug"
               title={item.title || item.name}
             >
               {item.title || item.name}
@@ -281,18 +281,18 @@ export default function TcgProductCard({
         </div>
 
         {/* Bottom Bar: Price + Stock / Store badges + Action Buttons */}
-        <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2">
+        <div className="mt-3 pt-2.5 border-t border-[var(--tt-border-subtle)] flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <div className="text-base font-bold font-mono text-white tracking-tight">
+            <div className="text-base font-bold font-mono text-[var(--tt-text-main)] tracking-tight">
               {price > 0 ? (
                 formatPrice(price, currency)
               ) : item.marketPrices?.[0]?.price ? (
-                <span className="text-xs text-gray-400 font-normal">
+                <span className="text-xs text-[var(--tt-text-muted)] font-normal">
                   {t("price_ref")}{" "}
-                  <span className="text-gray-200 font-bold font-mono">{formatPrice(Number(item.marketPrices[0].price), currency)}</span>
+                  <span className="text-[var(--tt-text-main)] font-bold font-mono">{formatPrice(Number(item.marketPrices[0].price), currency)}</span>
                 </span>
               ) : (
-                <span className="text-xs text-gray-400 font-normal">{t("outOfStock")}</span>
+                <span className="text-xs text-[var(--tt-text-muted)] font-normal">{t("outOfStock")}</span>
               )}
             </div>
             {!storeId && storeCount > 1 ? (

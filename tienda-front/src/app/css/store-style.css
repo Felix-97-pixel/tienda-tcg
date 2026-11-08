@@ -359,51 +359,80 @@ input[type='search']::-webkit-search-results-decoration {
 /* Condition Badges */
 .badge-condition-nm {
   background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+html.dark .badge-condition-nm {
   color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .badge-condition-lp {
   background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+html.dark .badge-condition-lp {
   color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .badge-condition-mp {
   background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+html.dark .badge-condition-mp {
   color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-color: rgba(245, 158, 11, 0.3);
 }
 
 .badge-condition-hp {
   background: rgba(249, 115, 22, 0.12);
+  color: #c2410c;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+}
+html.dark .badge-condition-hp {
   color: #fb923c;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-color: rgba(249, 115, 22, 0.3);
 }
 
 .badge-condition-dmg {
   background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+html.dark .badge-condition-dmg {
   color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Glassmorphism Surface */
 .glass-vault {
-  background: rgba(17, 21, 31, 0.75);
+  background: var(--tt-bg-surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--tt-border-medium);
 }
 
 .glass-vault-card {
-  background: #11151F;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--tt-bg-surface);
+  border: 1px solid var(--tt-border-subtle);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.05);
 }
 
 .glass-vault-card:hover {
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(239, 68, 68, 0.4);
   transform: translateY(-3px);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15), 0 0 20px -5px rgba(239, 68, 68, 0.15);
+}
+
+html.dark .glass-vault-card {
+  box-shadow: none;
+}
+
+html.dark .glass-vault-card:hover {
   box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(239, 68, 68, 0.15);
 }
 

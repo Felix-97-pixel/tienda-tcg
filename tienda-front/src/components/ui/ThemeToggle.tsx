@@ -27,7 +27,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   if (!mounted) {
     return (
       <div
-        className={`h-10 w-10 rounded-xl bg-[#111522] border border-white/10 shrink-0 ${className}`}
+        className={`h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shrink-0 ${className}`}
         aria-hidden="true"
       />
     );
@@ -41,8 +41,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       title={label}
       className={`h-10 rounded-xl transition-all shadow-sm shrink-0 flex items-center justify-center group ${
         showText
-          ? "w-full justify-between px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white"
-          : "w-10 bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white"
+          ? "w-full justify-between px-3 py-2 bg-[var(--tt-bg-surface)] hover:bg-black/5 dark:hover:bg-white/10 border border-[var(--tt-border-medium)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
+          : "w-10 bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
       } ${className}`}
     >
       {showText && (
@@ -52,7 +52,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       )}
 
       {isLight ? (
-        <IconMoon className="w-5 h-5 text-amber-400 group-hover:rotate-12 transition-transform duration-200" />
+        <IconMoon className="w-5 h-5 text-amber-500 group-hover:rotate-12 transition-transform duration-200" />
       ) : (
         <IconSun className="w-5 h-5 text-amber-300 group-hover:rotate-45 transition-transform duration-200" />
       )}

@@ -16,7 +16,7 @@ const ShopPage = async () => {
 
   return (
     <main>
-      <Suspense fallback={<div className="min-h-screen bg-[#07090E] pt-32 text-center text-white/50 font-mono">{t("loading_catalog")}</div>}>
+      <Suspense fallback={<div className="min-h-screen bg-[var(--tt-bg-canvas)] pt-32 text-center text-[var(--tt-text-muted)] font-mono">{t("loading_catalog")}</div>}>
         <TcgMarketplaceCatalog />
       </Suspense>
     </main>

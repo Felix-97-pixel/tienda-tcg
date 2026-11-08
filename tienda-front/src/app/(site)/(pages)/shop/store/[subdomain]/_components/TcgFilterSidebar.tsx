@@ -168,15 +168,15 @@ export default function TcgFilterSidebar({
   }, [expansions, expansionSearch]);
 
   return (
-    <aside className="w-full bg-[#11151F] border border-white/10 rounded-2xl p-5 shadow-xl">
+    <aside className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-5 shadow-xl transition-colors duration-200">
       {/* Header with Title and Reset */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-5">
+      <div className="flex items-center justify-between pb-4 border-b border-[var(--tt-border-subtle)] mb-5">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-base font-bold text-[var(--tt-text-main)] tracking-tight flex items-center gap-2">
             <IconFilter className="w-4 h-4 text-red shrink-0" />
             {t("filters")}
           </h2>
-          <span className="text-xs text-gray-400 font-mono">
+          <span className="text-xs text-[var(--tt-text-muted)] font-mono">
             {t("cards_found", { count: totalProductsCount })}
           </span>
         </div>
@@ -194,24 +194,24 @@ export default function TcgFilterSidebar({
       <div className="space-y-6">
         {/* Disponibilidad: Todas vs Solo con Stock */}
         {onToggleInStockOnly && (
-          <div className="pb-4 border-b border-white/5">
+          <div className="pb-4 border-b border-[var(--tt-border-subtle)]">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
                 Disponibilidad
               </h3>
               {totalInStockCount !== undefined && (
-                <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+                <span className="text-[10px] font-mono text-emerald-500 font-semibold">
                   {totalInStockCount} con stock
                 </span>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 rounded-xl border border-white/10">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-[var(--tt-bg-subtle)] rounded-xl border border-[var(--tt-border-medium)]">
               <button
                 type="button"
                 onClick={() => onToggleInStockOnly(false)}
                 className={`h-9 px-3 rounded-lg text-xs font-semibold transition-all text-center flex items-center justify-center ${!inStockOnly
                     ? "bg-red text-white shadow-md shadow-red/25 font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
               >
                 <span>{t("filter_tab_all")}</span>
@@ -221,7 +221,7 @@ export default function TcgFilterSidebar({
                 onClick={() => onToggleInStockOnly(true)}
                 className={`h-9 px-3 rounded-lg text-xs font-semibold transition-all text-center flex items-center justify-center ${inStockOnly
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25 font-bold"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/5 dark:hover:bg-white/5"
                   }`}
               >
                 <span>{t("filter_stock_only")}</span>
@@ -234,20 +234,20 @@ export default function TcgFilterSidebar({
         {categories.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
                 {t("category")}
               </h3>
-              <span className="text-[10px] font-mono text-gray-500">
+              <span className="text-[10px] font-mono text-[var(--tt-text-muted)] opacity-75">
                 {t("available_count", { count: categories.length })}
               </span>
             </div>
 
             {/* Segmented Filter: All vs Games vs Accessories */}
-            <div className="flex rounded-lg bg-black/40 border border-white/10 p-0.5 mb-2.5">
+            <div className="flex rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] p-0.5 mb-2.5">
               <button
                 type="button"
                 onClick={() => setCategoryTab("all")}
-                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "all" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
+                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "all" ? "bg-red text-white font-bold shadow-xs" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   }`}
               >
                 {t("filter_tab_all")}
@@ -255,7 +255,7 @@ export default function TcgFilterSidebar({
               <button
                 type="button"
                 onClick={() => setCategoryTab("games")}
-                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "games" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
+                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "games" ? "bg-red text-white font-bold shadow-xs" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   }`}
               >
                 {t("filter_tab_games")}
@@ -263,7 +263,7 @@ export default function TcgFilterSidebar({
               <button
                 type="button"
                 onClick={() => setCategoryTab("accessories")}
-                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "accessories" ? "bg-white/15 text-white" : "text-gray-400 hover:text-white"
+                className={`flex-1 py-1 text-[11px] font-semibold rounded-md transition-all ${categoryTab === "accessories" ? "bg-red text-white font-bold shadow-xs" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                   }`}
               >
                 {t("filter_tab_accessories")}
@@ -278,14 +278,14 @@ export default function TcgFilterSidebar({
                   value={categorySearch}
                   onChange={(e) => setCategorySearch(e.target.value)}
                   placeholder={t("filter_search_category")}
-                  className="w-full h-8 pl-8 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
+                  className="w-full h-8 pl-8 pr-7 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
                 />
-                <IconSearch className="absolute left-2.5 top-2 text-gray-500 w-3.5 h-3.5 pointer-events-none" />
+                <IconSearch className="absolute left-2.5 top-2 text-[var(--tt-text-muted)] w-3.5 h-3.5 pointer-events-none" />
                 {categorySearch && (
                   <button
                     type="button"
                     onClick={() => setCategorySearch("")}
-                    className="absolute right-2 top-2 text-gray-400 hover:text-white"
+                    className="absolute right-2 top-2 text-[var(--tt-text-muted)] hover:text-red-500"
                   >
                     <IconX className="w-3 h-3" />
                   </button>
@@ -296,7 +296,7 @@ export default function TcgFilterSidebar({
             {/* Scrollable Category List */}
             <div className="max-h-48 overflow-y-auto pr-1 space-y-1 custom-scrollbar">
               {filteredCategories.length === 0 ? (
-                <div className="py-3 text-center text-xs text-gray-500">
+                <div className="py-3 text-center text-xs text-[var(--tt-text-muted)]">
                   {t("filter_no_category")}
                 </div>
               ) : (
@@ -308,7 +308,7 @@ export default function TcgFilterSidebar({
                       onClick={() => onSelectCategory(isSelected ? null : (cat.name || cat.id))}
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${isSelected
                           ? "bg-red text-white shadow-md shadow-red/20 border border-red-500 font-bold"
-                          : "bg-white/[0.03] text-gray-300 hover:bg-white/10 hover:text-white border border-white/5"
+                          : "bg-black/5 dark:bg-white/[0.03] text-[var(--tt-text-main)] hover:bg-black/10 dark:hover:bg-white/10 border border-[var(--tt-border-subtle)]"
                         }`}
                     >
                       <span className="truncate">{cat.name}</span>
@@ -329,10 +329,10 @@ export default function TcgFilterSidebar({
         {expansions.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
                 {t("filter_expansion_title")}
               </h3>
-              <span className="text-[10px] font-mono text-gray-500">
+              <span className="text-[10px] font-mono text-[var(--tt-text-muted)] opacity-75">
                 {t("of_count", { current: filteredExpansions.length, total: expansions.length })}
               </span>
             </div>
@@ -344,24 +344,24 @@ export default function TcgFilterSidebar({
                 value={expansionSearch}
                 onChange={(e) => setExpansionSearch(e.target.value)}
                 placeholder={t("filter_search_expansion")}
-                className="w-full h-8 pl-8 pr-7 rounded-lg bg-[#0A0D14] border border-white/10 text-white placeholder-gray-500 text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
+                className="w-full h-8 pl-8 pr-7 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] placeholder-[var(--tt-text-muted)] text-[11px] focus:outline-none focus:border-red-500/60 transition-colors"
               />
-              <IconSearch className="absolute left-2.5 top-2 text-gray-500 w-3.5 h-3.5 pointer-events-none" />
+              <IconSearch className="absolute left-2.5 top-2 text-[var(--tt-text-muted)] w-3.5 h-3.5 pointer-events-none" />
               {expansionSearch && (
                 <button
                   type="button"
                   onClick={() => setExpansionSearch("")}
-                  className="absolute right-2 top-2 text-gray-400 hover:text-white"
+                  className="absolute right-2 top-2 text-[var(--tt-text-muted)] hover:text-red-500"
                 >
                   <IconX className="w-3 h-3" />
                 </button>
               )}
             </div>
 
-            {/* Scrollable Expansion List with Custom Dark Scrollbar */}
+            {/* Scrollable Expansion List with Custom Scrollbar */}
             <div className="max-h-48 overflow-y-auto pr-1 space-y-1 custom-scrollbar">
               {filteredExpansions.length === 0 ? (
-                <div className="py-3 text-center text-xs text-gray-500">
+                <div className="py-3 text-center text-xs text-[var(--tt-text-muted)]">
                   {t("filter_no_expansion")}
                 </div>
               ) : (
@@ -373,12 +373,12 @@ export default function TcgFilterSidebar({
                       key={expName}
                       onClick={() => onSelectExpansion(isSelected ? null : expName)}
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${isSelected
-                          ? "bg-white/15 text-white font-bold border border-white/20"
-                          : "text-gray-400 hover:text-white hover:bg-white/5"
+                          ? "bg-red text-white font-bold shadow-md shadow-red/20 border border-red-500"
+                          : "bg-black/5 dark:bg-white/[0.03] text-[var(--tt-text-main)] hover:bg-black/10 dark:hover:bg-white/10 border border-[var(--tt-border-subtle)]"
                         }`}
                     >
                       <span className="truncate">{expName}</span>
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-red shrink-0"></span>}
+                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span>}
                     </button>
                   );
                 })
@@ -390,10 +390,10 @@ export default function TcgFilterSidebar({
         {/* 3. Condición de la Carta (100% Dinámica desde Base de Datos) */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
               {t("filter_condition_title")}
             </h3>
-            <span className="text-[10px] font-mono text-gray-500">
+            <span className="text-[10px] font-mono text-[var(--tt-text-muted)] opacity-75">
               {t("available_count", { count: formattedConditions.length })}
             </span>
           </div>
@@ -405,8 +405,8 @@ export default function TcgFilterSidebar({
                   key={cond.id || cond.name}
                   onClick={() => onSelectCondition(isSelected ? null : cond.name)}
                   className={`px-2.5 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between border ${isSelected
-                      ? "ring-2 ring-white/50 bg-white/20 text-white font-black shadow-sm"
-                      : `${cond.badgeClass} hover:opacity-80`
+                      ? "ring-2 ring-red/60 bg-red text-white font-black shadow-sm border-red-600"
+                      : `${cond.badgeClass} hover:opacity-85`
                     }`}
                   title={cond.label}
                 >
@@ -420,7 +420,7 @@ export default function TcgFilterSidebar({
 
         {/* 4. Acabado (Foil / Normal) */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2.5">
             {t("filter_finish_title")}
           </h3>
           <div className="grid grid-cols-2 gap-1.5">
@@ -431,11 +431,11 @@ export default function TcgFilterSidebar({
                   key={f.id}
                   onClick={() => onSelectFinish(isSelected ? null : f.id)}
                   className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all border flex items-center justify-center gap-1.5 ${isSelected
-                      ? "bg-white/20 border-white/30 text-white shadow-sm"
-                      : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
+                      ? "bg-red text-white border-red-500 font-bold shadow-sm"
+                      : "bg-black/5 dark:bg-white/5 border-[var(--tt-border-medium)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/10 dark:hover:bg-white/10"
                     }`}
                 >
-                  {f.id === "foil" && <IconSparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />}
+                  {f.id === "foil" && <IconSparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
                   <span>{f.id === "foil" ? t("finish_foil") : t("finish_normal")}</span>
                 </button>
               );
@@ -446,10 +446,10 @@ export default function TcgFilterSidebar({
         {/* 5. Idioma (100% Dinámico desde Base de Datos) */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
               {t("filter_language_title")}
             </h3>
-            <span className="text-[10px] font-mono text-gray-500">
+            <span className="text-[10px] font-mono text-[var(--tt-text-muted)] opacity-75">
               {t("available_count", { count: dbLanguages.length })}
             </span>
           </div>
@@ -463,15 +463,15 @@ export default function TcgFilterSidebar({
                   key={l.id || l.code}
                   onClick={() => onSelectLanguage(isSelected ? null : (l.code || l.name))}
                   className={`px-2.5 py-1.5 rounded-xl text-xs transition-all border flex items-center justify-between gap-1.5 ${isSelected
-                      ? "bg-red/20 border-red text-white font-bold shadow-sm ring-1 ring-red/50"
-                      : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
+                      ? "bg-red/20 border-red text-red-600 dark:text-red-400 font-bold shadow-sm ring-1 ring-red/50"
+                      : "bg-black/5 dark:bg-white/5 border-[var(--tt-border-medium)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-black/10 dark:hover:bg-white/10"
                     }`}
                 >
                   <div className="flex items-center gap-1.5 min-w-0">
                     <IconLanguageFlag code={l.code} name={l.name} className="w-4 h-3 shrink-0" />
                     <span className="truncate text-[11px]">{name}</span>
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0">{code}</span>
+                  <span className="text-[10px] font-mono font-bold text-[var(--tt-text-muted)] shrink-0">{code}</span>
                 </button>
               );
             })}

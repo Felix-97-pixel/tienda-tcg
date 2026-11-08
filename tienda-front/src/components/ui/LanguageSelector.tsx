@@ -107,19 +107,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={t("select_language_aria")}
-        className="h-10 flex items-center gap-1.5 px-3 rounded-xl bg-[#111522] hover:bg-white/[0.08] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-sm"
+        className="h-10 flex items-center gap-1.5 px-2.5 rounded-xl bg-[var(--tt-bg-surface)] hover:border-red-500/40 border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] transition-all text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-sm"
       >
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center">
           {activeLang.flag}
-          {showLabel && (
-            <span className="uppercase tracking-wider text-[11px] font-bold">
-              {activeLang.code}
-            </span>
-          )}
         </div>
         <IconChevronDown
-          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180 text-white" : ""
+          className={`w-3.5 h-3.5 text-[var(--tt-text-muted)] transition-transform duration-200 ${
+            isOpen ? "rotate-180 text-red-500" : ""
           }`}
         />
       </button>
@@ -128,10 +123,10 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         <div
           role="listbox"
           aria-label={t("available_languages_aria")}
-          className="absolute right-0 mt-1.5 w-44 rounded-xl bg-[#0D111A] border border-white/15 shadow-2xl backdrop-blur-xl py-1.5 z-[99999] animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 mt-1.5 w-44 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shadow-2xl backdrop-blur-xl py-1.5 z-[99999] animate-in fade-in zoom-in-95 duration-150"
         >
-          <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/[0.06] mb-1 flex items-center gap-1.5">
-            <IconGlobe className="w-3 h-3 text-gray-400" />
+          <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--tt-text-muted)] border-b border-[var(--tt-border-subtle)] mb-1 flex items-center gap-1.5">
+            <IconGlobe className="w-3 h-3 text-[var(--tt-text-muted)]" />
             <span>{t("language_dual_label")}</span>
           </div>
 
@@ -146,18 +141,18 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 onClick={() => handleSelectLanguage(lang.code)}
                 className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors text-left ${
                   isSelected
-                    ? "bg-red-500/10 text-white font-bold"
-                    : "text-gray-300 hover:bg-white/5 hover:text-white font-medium"
+                    ? "bg-red-500/10 text-red-600 dark:text-white font-bold"
+                    : "text-[var(--tt-text-muted)] hover:bg-black/5 dark:hover:bg-white/5 hover:text-[var(--tt-text-main)] font-medium"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   {lang.flag}
-                  <span className="text-[12px]">{lang.label}</span>
+                  <span className="text-[12px] text-[var(--tt-text-main)]">{lang.label}</span>
                 </div>
                 {isSelected ? (
-                  <IconCheck className="w-3.5 h-3.5 text-red-400" />
+                  <IconCheck className="w-3.5 h-3.5 text-red-500" />
                 ) : (
-                  <span className="text-[10px] uppercase font-mono text-gray-500">
+                  <span className="text-[10px] uppercase font-mono text-[var(--tt-text-muted)]">
                     {lang.code}
                   </span>
                 )}
