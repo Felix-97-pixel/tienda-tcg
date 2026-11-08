@@ -158,12 +158,12 @@ export default function MarketingPage() {
 
           {/* Master Headline */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-[var(--tt-text-main)] max-w-5xl leading-[1.08] mb-6">
-            {t("hero.title_prefix")}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--tt-text-main)] via-[var(--tt-text-muted)] to-gray-500">
+            {t("hero.title_prefix")}{" "}
+            <span className="text-[var(--tt-text-main)]">
               {t("hero.title_highlight1")}
             </span>{" "}
             {t("hero.title_middle")}{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E10E0E] via-[#F23030] to-amber-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-500 to-amber-500">
               {t("hero.title_highlight2")}
             </span>
           </h1>

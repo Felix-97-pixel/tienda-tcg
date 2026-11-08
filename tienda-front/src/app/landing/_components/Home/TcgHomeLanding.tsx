@@ -273,8 +273,8 @@ export default function TcgHomeLanding() {
   });
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-white selection:bg-red-500 selection:text-white">
-      {/* 1. HERO SECTION (Dark Vault Tier) */}
+    <div className="min-h-screen bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] selection:bg-red-500 selection:text-white transition-colors duration-200">
+      {/* 1. HERO SECTION */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
         {/* Ambient Radial Glows */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none"></div>
@@ -285,25 +285,18 @@ export default function TcgHomeLanding() {
             {/* Left Column: Headlines & Search */}
             <div className="lg:col-span-7 text-center lg:text-left">
               {/* Live Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] mb-6 backdrop-blur-md shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                 <span className="w-2 h-2 rounded-full bg-red-500 -ml-4"></span>
-                <span className="text-xs font-semibold tracking-wider uppercase text-gray-300">
+                <span className="text-xs font-semibold tracking-wider uppercase text-[var(--tt-text-muted)]">
                   {t("hero.badge")}
                 </span>
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[var(--tt-text-main)] tracking-tight leading-[1.1] mb-6">
                 {t("hero.title_line1")} <br />
-                <span
-                  className="inline-block pb-1 font-black"
-                  style={{
-                    backgroundImage: "linear-gradient(to right, #EF4444, #F87171, #FBBF24)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
+                <span className="inline-block pb-1 font-black bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">
                   {t("hero.title_highlight")}
                 </span>{" "}
                 <br />
@@ -311,29 +304,29 @@ export default function TcgHomeLanding() {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg text-[var(--tt-text-muted)] max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
                 {t("hero.subtitle_prefix")}{" "}
-                <strong className="text-white">TapTrade Shield</strong>, {t("hero.subtitle_middle")}{" "}
-                <strong className="text-white">Chilexpress</strong> y{" "}
-                <strong className="text-white">Starken</strong>,{" "}
-                <strong className="text-emerald-400">{t("hero.subtitle_suffix")}</strong>
+                <strong className="text-[var(--tt-text-main)]">TapTrade Shield</strong>, {t("hero.subtitle_middle")}{" "}
+                <strong className="text-[var(--tt-text-main)]">Chilexpress</strong> y{" "}
+                <strong className="text-[var(--tt-text-main)]">Starken</strong>,{" "}
+                <strong className="text-emerald-500 dark:text-emerald-400">{t("hero.subtitle_suffix")}</strong>
               </p>
 
               {/* Hero Search Box */}
               <form onSubmit={handleHeroSearch} className="max-w-xl mx-auto lg:mx-0 mb-6">
-                <div className="relative flex items-center bg-[#111522] border border-white/15 rounded-2xl p-1.5 shadow-2xl focus-within:border-red-500/80 focus-within:ring-2 focus-within:ring-red-500/20 transition-all">
+                <div className="relative flex items-center bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-2xl p-1.5 shadow-2xl focus-within:border-red-500/80 focus-within:ring-2 focus-within:ring-red-500/20 transition-all">
                   <input
                     type="text"
                     value={heroSearch}
                     onChange={(e) => setHeroSearch(e.target.value)}
                     placeholder={t("hero.search_placeholder")}
-                    className="w-full min-w-0 bg-transparent border-none text-white placeholder-gray-500 text-xs sm:text-base pl-3.5 sm:pl-4 pr-2.5 py-2.5 focus:outline-none"
+                    className="w-full min-w-0 bg-transparent border-none text-[var(--tt-text-main)] placeholder-[var(--tt-text-subtle)] text-xs sm:text-base pl-3.5 sm:pl-4 pr-2.5 py-2.5 focus:outline-none"
                   />
                   <button
                     type="submit"
                     aria-label={t("hero.search_btn")}
                     title={t("hero.search_btn")}
-                    className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white flex items-center justify-center shadow-lg shadow-[#E10E0E]/30 transition-all shrink-0 active:scale-95"
+                    className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white flex items-center justify-center shadow-lg shadow-[#E10E0E]/30 transition-all shrink-0 active:scale-95 cursor-pointer"
                   >
                     <IconSearch className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
@@ -341,29 +334,29 @@ export default function TcgHomeLanding() {
               </form>
 
               {/* Trending Tags */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs text-gray-400">
-                <span className="font-semibold text-gray-500">{t("hero.trending")}</span>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs text-[var(--tt-text-muted)]">
+                <span className="font-semibold text-[var(--tt-text-subtle)]">{t("hero.trending")}</span>
                 <Link
                   href="/shop?category=Singles+Riftbound"
-                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] hover:border-red-500/50 hover:text-[var(--tt-text-main)] transition-colors"
                 >
                   #Riftbound
                 </Link>
                 <Link
                   href="/shop?search=Ezreal"
-                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] hover:border-red-500/50 hover:text-[var(--tt-text-main)] transition-colors"
                 >
                   #Ezreal Showcase
                 </Link>
                 <Link
                   href="/shop?category=Singles+Magic+The+Gathering"
-                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] hover:border-red-500/50 hover:text-[var(--tt-text-main)] transition-colors"
                 >
                   #MagicMTG
                 </Link>
                 <Link
                   href="/shop?category=Singles+Pokemon"
-                  className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-white transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] hover:border-red-500/50 hover:text-[var(--tt-text-main)] transition-colors"
                 >
                   #PokemonTCG
                 </Link>
@@ -375,17 +368,17 @@ export default function TcgHomeLanding() {
               <div className="relative w-full max-w-sm">
                 <div className="absolute inset-0 bg-gradient-to-tr from-red-600/30 to-amber-500/20 rounded-3xl blur-2xl transform scale-95 opacity-80"></div>
 
-                <div className="relative rounded-3xl bg-[#0D111A] border border-white/15 p-6 shadow-2xl backdrop-blur-xl group">
+                <div className="relative rounded-3xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-6 shadow-2xl backdrop-blur-xl group">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/25 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1.5">
-                      <IconSparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t("hero.showcase_badge")}
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-amber-500 bg-amber-500/10 border border-amber-500/25 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1.5">
+                      <IconSparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" /> {t("hero.showcase_badge")}
                     </span>
-                    <span className="text-xs text-emerald-400 font-mono font-bold bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded">
+                    <span className="text-xs text-emerald-500 dark:text-emerald-400 font-mono font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
                       NM • EN
                     </span>
                   </div>
 
-                  <div className="relative aspect-[2.5/3.5] w-full rounded-2xl overflow-hidden bg-black/60 border border-white/10 mb-4 shadow-inner">
+                  <div className="relative aspect-[2.5/3.5] w-full rounded-2xl overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] mb-4 shadow-inner">
                     <Image
                       src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/83da64e39d838d2fee68c319c03fbff0d4c7035f-744x1039.png"
                       alt="Ezreal - Dashing Alternate Art"
@@ -399,25 +392,25 @@ export default function TcgHomeLanding() {
 
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div>
-                      <span className="text-xs text-gray-400 block font-mono">Singles Riftbound • Spiritforged</span>
-                      <h3 className="text-lg font-black text-white group-hover:text-red-400 transition-colors">
+                      <span className="text-xs text-[var(--tt-text-muted)] block font-mono">Singles Riftbound • Spiritforged</span>
+                      <h3 className="text-lg font-black text-[var(--tt-text-main)] group-hover:text-red-500 transition-colors">
                         Ezreal - Dashing (Alt Art)
                       </h3>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-gray-400 block">{t("hero.best_price")}</span>
-                      <span className="text-2xl font-black text-white font-mono">$500 CLP</span>
+                      <span className="text-xs text-[var(--tt-text-muted)] block">{t("hero.best_price")}</span>
+                      <span className="text-2xl font-black text-[var(--tt-text-main)] font-mono">$500 CLP</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+                  <div className="flex items-center gap-3 pt-3 border-t border-[var(--tt-border-medium)]">
                     <div className="flex items-center gap-1.5 flex-1">
                       <ShippingBadge name="retiro_tienda" size="sm" />
                       <ShippingBadge name="chilexpress" size="sm" />
                     </div>
                     <Link
                       href="/shop-details/ezreal-dashing-alternate-art-666446"
-                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-red-600 text-white font-bold text-xs transition-all shadow"
+                      className="px-4 py-2 rounded-xl bg-[var(--tt-bg-subtle)] hover:bg-red-600 hover:text-white text-[var(--tt-text-main)] border border-[var(--tt-border-medium)] font-bold text-xs transition-all shadow"
                     >
                       {t("hero.view_options")} ↗
                     </Link>
@@ -428,41 +421,41 @@ export default function TcgHomeLanding() {
           </div>
 
           {/* Logistics Trust Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 pt-8 border-t border-white/10">
-            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 pt-8 border-t border-[var(--tt-border-medium)]">
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)]">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <IconStore className="w-5 h-5 text-emerald-400" />
+                <IconStore className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">{t("trust_bar.pickup_title")}</span>
-                <span className="text-[11px] text-gray-400">{t("trust_bar.pickup_desc")}</span>
+                <span className="text-xs font-bold text-[var(--tt-text-main)] block">{t("trust_bar.pickup_title")}</span>
+                <span className="text-[11px] text-[var(--tt-text-muted)]">{t("trust_bar.pickup_desc")}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)]">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                <IconZap className="w-5 h-5 text-amber-400" />
+                <IconZap className="w-5 h-5 text-amber-500" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">{t("trust_bar.shipping_title")}</span>
-                <span className="text-[11px] text-gray-400">{t("trust_bar.shipping_desc")}</span>
+                <span className="text-xs font-bold text-[var(--tt-text-main)] block">{t("trust_bar.shipping_title")}</span>
+                <span className="text-[11px] text-[var(--tt-text-muted)]">{t("trust_bar.shipping_desc")}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)]">
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                <IconShieldCheck className="w-5 h-5 text-blue-400" />
+                <IconShieldCheck className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">{t("trust_bar.stores_title")}</span>
-                <span className="text-[11px] text-gray-400">{t("trust_bar.stores_desc")}</span>
+                <span className="text-xs font-bold text-[var(--tt-text-main)] block">{t("trust_bar.stores_title")}</span>
+                <span className="text-[11px] text-[var(--tt-text-muted)]">{t("trust_bar.stores_desc")}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)]">
               <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
-                <IconCreditCard className="w-5 h-5 text-red-400" />
+                <IconCreditCard className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">{t("trust_bar.payments_title")}</span>
-                <span className="text-[11px] text-gray-400">{t("trust_bar.payments_desc")}</span>
+                <span className="text-xs font-bold text-[var(--tt-text-main)] block">{t("trust_bar.payments_title")}</span>
+                <span className="text-[11px] text-[var(--tt-text-muted)]">{t("trust_bar.payments_desc")}</span>
               </div>
             </div>
           </div>
@@ -470,20 +463,20 @@ export default function TcgHomeLanding() {
       </section>
 
       {/* 2. JUEGOS TCG DESTACADOS (Visual Grid) */}
-      <section className="py-16 border-t border-white/5 bg-[#0A0D14]/50">
+      <section className="py-16 border-t border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)]/50">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-red-500 mb-1 block">
                 {t("games_grid.badge")}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] tracking-tight">
                 {t("games_grid.title")}
               </h2>
             </div>
             <Link
               href="/shop"
-              className="text-xs font-bold text-gray-400 hover:text-white transition-colors flex items-center gap-1.5"
+              className="text-xs font-bold text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors flex items-center gap-1.5"
             >
               {t("games_grid.view_all")} <span>→</span>
             </Link>
@@ -494,7 +487,7 @@ export default function TcgHomeLanding() {
               <Link
                 key={game.id}
                 href={`/shop?category=${encodeURIComponent(game.categoryQuery)}`}
-                className={`group relative p-6 rounded-2xl bg-[#0E121B] border border-white/10 ${game.borderHover} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden`}
+                className={`group relative p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] ${game.borderHover} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden`}
               >
                 <div
                   className={`absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br ${game.accentColor} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`}
@@ -502,7 +495,7 @@ export default function TcgHomeLanding() {
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <span className="p-2.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center">
                       {game.icon}
                     </span>
                     <span
@@ -512,14 +505,14 @@ export default function TcgHomeLanding() {
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-black text-white group-hover:text-red-400 transition-colors mb-1">
+                  <h3 className="text-lg font-black text-[var(--tt-text-main)] group-hover:text-red-500 transition-colors mb-1">
                     {game.displayName}
                   </h3>
-                  <p className="text-xs text-gray-400 mb-4 line-clamp-2">{game.tagline}</p>
+                  <p className="text-xs text-[var(--tt-text-muted)] mb-4 line-clamp-2">{game.tagline}</p>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
-                    <span className="font-mono text-gray-500">{game.cardCount}</span>
-                    <span className="font-bold text-red-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--tt-border-light)] text-xs">
+                    <span className="font-mono text-[var(--tt-text-subtle)]">{game.cardCount}</span>
+                    <span className="font-bold text-red-500 group-hover:translate-x-1 transition-transform flex items-center gap-1">
                       {t("games_grid.explore_cta")} ↗
                     </span>
                   </div>
@@ -531,25 +524,25 @@ export default function TcgHomeLanding() {
       </section>
 
       {/* 3. CARTAS DESTACADAS EN VIVO (Live Marketplace Singles) */}
-      <section className="py-20 border-t border-white/5">
+      <section className="py-20 border-t border-[var(--tt-border-medium)]">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-red-500 mb-1 block">
                 {t("featured_singles.badge")}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] tracking-tight">
                 {t("featured_singles.title")}
               </h2>
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center rounded-xl bg-[#111522] border border-white/10 p-1">
+            <div className="flex items-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-1">
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "all" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "all" ? "bg-[#E10E0E] text-white shadow-sm" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
               >
                 {t("featured_singles.tab_all")}
@@ -557,8 +550,8 @@ export default function TcgHomeLanding() {
               <button
                 type="button"
                 onClick={() => setActiveTab("foil")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "foil" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "foil" ? "bg-[#E10E0E] text-white shadow-sm" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
               >
                 {t("featured_singles.tab_foil")}
@@ -566,8 +559,8 @@ export default function TcgHomeLanding() {
               <button
                 type="button"
                 onClick={() => setActiveTab("riftbound")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "riftbound" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "riftbound" ? "bg-[#E10E0E] text-white shadow-sm" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
               >
                 {t("featured_singles.tab_riftbound")}
@@ -575,8 +568,8 @@ export default function TcgHomeLanding() {
               <button
                 type="button"
                 onClick={() => setActiveTab("magic")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "magic" ? "bg-[#E10E0E] text-white" : "text-gray-400 hover:text-white"
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "magic" ? "bg-[#E10E0E] text-white shadow-sm" : "text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)]"
                 }`}
               >
                 {t("featured_singles.tab_magic")}
@@ -588,11 +581,11 @@ export default function TcgHomeLanding() {
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-[2.5/4] rounded-2xl bg-white/5 animate-pulse border border-white/5"></div>
+                <div key={i} className="aspect-[2.5/4] rounded-2xl bg-[var(--tt-bg-surface)] animate-pulse border border-[var(--tt-border-medium)]"></div>
               ))}
             </div>
           ) : filteredCards.length === 0 ? (
-            <div className="text-center py-12 rounded-2xl bg-[#0E121B] border border-white/5 text-gray-400 text-sm">
+            <div className="text-center py-12 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-muted)] text-sm">
               {t("featured_singles.no_cards")}
             </div>
           ) : (
@@ -607,7 +600,7 @@ export default function TcgHomeLanding() {
           <div className="text-center mt-12">
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-bold text-sm tracking-wide transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[var(--tt-bg-surface)] hover:bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-bold text-sm tracking-wide transition-all hover:scale-105 shadow-sm"
             >
               {t("featured_singles.view_catalog")} →
             </Link>
@@ -616,16 +609,16 @@ export default function TcgHomeLanding() {
       </section>
 
       {/* 4. TIENDAS TCG VERIFICADAS DE CHILE */}
-      <section id="tiendas" className="py-20 border-t border-white/5 bg-[#0A0D14]/50 scroll-mt-24">
+      <section id="tiendas" className="py-20 border-t border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)]/50 scroll-mt-24">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 mb-1 block">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-500 mb-1 block">
               {t("verified_stores.badge")}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+            <h2 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] tracking-tight mb-3">
               {t("verified_stores.title")}
             </h2>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[var(--tt-text-muted)]">
               {t("verified_stores.subtitle")}
             </p>
           </div>
@@ -634,34 +627,34 @@ export default function TcgHomeLanding() {
             {featuredStores.map((store) => (
               <div
                 key={store.id}
-                className="p-6 rounded-2xl bg-[#0E121B] border border-white/10 hover:border-white/20 transition-all shadow-lg flex flex-col justify-between"
+                className="p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/30 transition-all shadow-md flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-[#07090E] border border-white/10 flex items-center justify-center font-black text-red-500 text-lg shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center font-black text-red-500 text-lg shrink-0">
                         {store.name.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-bold text-white">{store.name}</h3>
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded inline-flex items-center gap-1">
-                            <IconCheck className="w-3 h-3 text-emerald-400" /> {t("verified_stores.verified")}
+                          <h3 className="text-base font-bold text-[var(--tt-text-main)]">{store.name}</h3>
+                          <span className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded inline-flex items-center gap-1">
+                            <IconCheck className="w-3 h-3 text-emerald-500" /> {t("verified_stores.verified")}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-400 block">{store.city}</span>
+                        <span className="text-xs text-[var(--tt-text-muted)] block">{store.city}</span>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-300 mb-2 font-mono">
+                  <p className="text-xs text-[var(--tt-text-muted)] mb-2 font-mono">
                     <span className="inline-flex items-center gap-1.5">
-                      <IconMapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.address}
+                      <IconMapPin className="w-3.5 h-3.5 text-[var(--tt-text-subtle)] shrink-0" /> {store.address}
                     </span>
                   </p>
-                  <p className="text-[11px] text-gray-400 mb-4 font-mono">
+                  <p className="text-[11px] text-[var(--tt-text-subtle)] mb-4 font-mono">
                     <span className="inline-flex items-center gap-1.5">
-                      <IconClock className="w-3.5 h-3.5 text-gray-400 shrink-0" /> {store.hours}
+                      <IconClock className="w-3.5 h-3.5 text-[var(--tt-text-subtle)] shrink-0" /> {store.hours}
                     </span>
                   </p>
 
@@ -670,8 +663,8 @@ export default function TcgHomeLanding() {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 font-medium">{store.specialty}</span>
+                <div className="pt-4 border-t border-[var(--tt-border-light)] flex items-center justify-between">
+                  <span className="text-xs text-[var(--tt-text-muted)] font-medium">{store.specialty}</span>
                   <Link
                     href={`/shop/store/${store.subdomain}`}
                     className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all shadow-md shadow-red-600/20"
@@ -686,17 +679,17 @@ export default function TcgHomeLanding() {
       </section>
 
       {/* 5. CALL TO ACTION PARA TIENDAS Y VENDEDORES */}
-      <section className="py-20 border-t border-white/5 relative overflow-hidden">
+      <section className="py-20 border-t border-[var(--tt-border-medium)] relative overflow-hidden">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="rounded-3xl bg-gradient-to-r from-red-950/40 via-[#111522] to-[#0A0D14] border border-red-500/30 p-8 sm:p-12 lg:p-16 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="rounded-3xl bg-gradient-to-r from-red-500/10 via-[var(--tt-bg-surface)] to-[var(--tt-bg-subtle)] border border-red-500/30 p-8 sm:p-12 lg:p-16 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="max-w-2xl text-center lg:text-left">
-              <span className="inline-block text-xs font-mono font-bold uppercase tracking-wider text-red-400 bg-red-500/15 border border-red-500/30 px-3 py-1 rounded-full mb-4">
+              <span className="inline-block text-xs font-mono font-bold uppercase tracking-wider text-red-500 bg-red-500/15 border border-red-500/30 px-3 py-1 rounded-full mb-4">
                 {t("seller_cta.badge")}
               </span>
-              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
+              <h2 className="text-2xl sm:text-4xl font-black text-[var(--tt-text-main)] tracking-tight mb-4">
                 {t("seller_cta.title")}
               </h2>
-              <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+              <p className="text-sm sm:text-base text-[var(--tt-text-muted)] leading-relaxed">
                 {t("seller_cta.desc")}
               </p>
             </div>
@@ -710,7 +703,7 @@ export default function TcgHomeLanding() {
               </Link>
               <Link
                 href="/contact"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-bold text-sm tracking-wide transition-all text-center"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[var(--tt-bg-surface)] hover:bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-bold text-sm tracking-wide transition-all text-center"
               >
                 {t("seller_cta.contact_support_btn")}
               </Link>

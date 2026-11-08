@@ -374,7 +374,7 @@ export default function VenderCartasClient({ initialItems, initialStores }: Vend
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[var(--tt-text-main)] tracking-tight leading-tight">
-          {t("hero_title")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">{t("hero_highlight")}</span>
+          {t("hero_title")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-500 to-amber-500">{t("hero_highlight")}</span>
         </h1>
 
         <p className="mt-4 text-[var(--tt-text-muted)] text-base sm:text-lg leading-relaxed">

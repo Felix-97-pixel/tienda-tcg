@@ -337,7 +337,7 @@ export default function SystemShowcase() {
         </div>
         <h2 className="text-3xl sm:text-5xl font-black text-[var(--tt-text-main)] tracking-tight leading-tight">
           {t("title_prefix")}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E10E0E] via-[#F23030] to-amber-400">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-500 to-amber-500">
             {t("title_highlight")}
           </span>
         </h2>
