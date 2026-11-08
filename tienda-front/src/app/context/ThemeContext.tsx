@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 
 type Theme = "dark" | "light";
 
@@ -22,6 +22,39 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<Theme>("dark");
   const [isMounted, setIsMounted] = useState(false);
 
+  // Instantly toggle theme without triggering 100s of CSS transition calculations across DOM
+  const applyThemeClass = useCallback((newTheme: Theme) => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+
+    // Temporarily disable CSS transitions on the page during the theme flip
+    const css = document.createElement("style");
+    css.appendChild(
+      document.createTextNode(
+        "*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}"
+      )
+    );
+    document.head.appendChild(css);
+
+    if (newTheme === "light") {
+      root.classList.remove("dark");
+      root.classList.add("light");
+    } else {
+      root.classList.remove("light");
+      root.classList.add("dark");
+    }
+
+    // Force style flush and remove the temporary rule on the next frame so hover effects continue working
+    void window.getComputedStyle(root).opacity;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (css.parentNode) {
+          document.head.removeChild(css);
+        }
+      });
+    });
+  }, []);
+
   useEffect(() => {
     setIsMounted(true);
     // Leer tema persistido en cookie o localStorage
@@ -37,45 +70,48 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     setThemeState(initialTheme);
     applyThemeClass(initialTheme);
-  }, []);
+  }, [applyThemeClass]);
 
-  const applyThemeClass = (newTheme: Theme) => {
-    if (typeof document === "undefined") return;
-    const root = document.documentElement;
-    if (newTheme === "light") {
-      root.classList.remove("dark");
-      root.classList.add("light");
-    } else {
-      root.classList.remove("light");
-      root.classList.add("dark");
-    }
-  };
+  const setTheme = useCallback(
+    (newTheme: Theme) => {
+      setThemeState(newTheme);
+      applyThemeClass(newTheme);
+      if (typeof document !== "undefined") {
+        document.cookie = `theme=${newTheme}; path=/; max-age=31536000; SameSite=Lax`;
+        try {
+          localStorage.setItem("taptrade_theme", newTheme);
+        } catch {}
+      }
+    },
+    [applyThemeClass]
+  );
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    applyThemeClass(newTheme);
-    if (typeof document !== "undefined") {
-      document.cookie = `theme=${newTheme}; path=/; max-age=31536000; SameSite=Lax`;
-      try {
-        localStorage.setItem("taptrade_theme", newTheme);
-      } catch {}
-    }
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState((prevTheme) => {
+      const nextTheme: Theme = prevTheme === "dark" ? "light" : "dark";
+      applyThemeClass(nextTheme);
+      if (typeof document !== "undefined") {
+        document.cookie = `theme=${nextTheme}; path=/; max-age=31536000; SameSite=Lax`;
+        try {
+          localStorage.setItem("taptrade_theme", nextTheme);
+        } catch {}
+      }
+      return nextTheme;
+    });
+  }, [applyThemeClass]);
 
-  const toggleTheme = () => {
-    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-  };
+  const value = useMemo(
+    () => ({
+      theme,
+      isLight: isMounted && theme === "light",
+      toggleTheme,
+      setTheme,
+    }),
+    [theme, isMounted, toggleTheme, setTheme]
+  );
 
   return (
-    <ThemeContext.Provider
-      value={{
-        theme,
-        isLight: isMounted && theme === "light",
-        toggleTheme,
-        setTheme,
-      }}
-    >
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

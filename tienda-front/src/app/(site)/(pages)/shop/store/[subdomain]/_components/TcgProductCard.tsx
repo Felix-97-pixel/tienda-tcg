@@ -23,7 +23,7 @@ interface TcgProductCardProps {
   storeId?: string;
 }
 
-export default function TcgProductCard({
+function TcgProductCardComponent({
   item,
   onQuickView,
   onCardClick,
@@ -158,7 +158,7 @@ export default function TcgProductCard({
     "/images/products/product-1-bg-1.png";
 
   return (
-    <article className="glass-vault-card group rounded-2xl p-3 sm:p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-300">
+    <article className="glass-vault-card group rounded-2xl p-3 sm:p-4 flex flex-col justify-between relative overflow-hidden">
       {/* Top Header: Condition Badge + Language + Foil Badge */}
       <div className="flex items-center justify-between gap-1.5 mb-2.5 z-20">
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -384,3 +384,6 @@ export default function TcgProductCard({
     </article>
   );
 }
+
+const TcgProductCard = React.memo(TcgProductCardComponent);
+export default TcgProductCard;

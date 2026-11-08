@@ -29,7 +29,13 @@ import {
 import { getBestAvailableVariant } from "@/utils/tcgPrices";
 import { useTcgMetadata } from "@/hooks/useTcgMetadata";
 
-function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; globalRates?: any[] }) {
+const MarketplaceDeckbuilderRow = React.memo(function MarketplaceDeckbuilderRow({
+  item,
+  globalRates = [],
+}: {
+  item: any;
+  globalRates?: any[];
+}) {
   const t = useTranslations("shop");
   const currency = useAppSelector((state: any) => state.currencyReducer);
 
@@ -86,7 +92,7 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] hover:border-red-500/40 shadow-xs transition-all">
+    <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-subtle)] hover:border-red-500/40 shadow-xs transition-[border-color,box-shadow] duration-200">
       {/* Artwork thumbnail */}
       <div className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] group">
         <Image
@@ -181,7 +187,7 @@ function MarketplaceDeckbuilderRow({ item, globalRates = [] }: { item: any; glob
       </div>
     </div>
   );
-}
+});
 
 export default function TcgMarketplaceCatalog() {
   const t = useTranslations("shop");
@@ -419,7 +425,7 @@ export default function TcgMarketplaceCatalog() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] pt-28 md:pt-36 pb-16 transition-colors duration-200">
+    <div className="min-h-screen bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] pt-28 md:pt-36 pb-16">
       {/* Catalog Header Banner */}
       <div className="border-b border-[var(--tt-border-subtle)] bg-[var(--tt-bg-subtle)] pb-8 mb-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500"></div>

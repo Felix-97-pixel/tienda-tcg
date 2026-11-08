@@ -48,7 +48,7 @@ const FINISHES = [
   { id: "foil", label: "Foil / Holo" },
 ];
 
-export default function TcgFilterSidebar({
+function TcgFilterSidebarComponent({
   categories,
   selectedCategory,
   onSelectCategory,
@@ -481,3 +481,6 @@ export default function TcgFilterSidebar({
     </aside>
   );
 }
+
+const TcgFilterSidebar = React.memo(TcgFilterSidebarComponent);
+export default TcgFilterSidebar;
