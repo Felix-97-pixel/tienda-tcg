@@ -16,7 +16,7 @@ import LanguageSelector from "@/components/ui/LanguageSelector";
 import {
   IconSearch,
   IconSparkles,
-  IconMessageSquare,
+  IconUser,
   IconHeart,
   IconCart,
   IconMenu,
@@ -180,23 +180,14 @@ const Header = () => {
 
           {/* Right Action Widgets */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Support Tooltip / Contact Link */}
-            <Link
-              href="/contact"
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-              title={tHeader("help")}
-            >
-              <IconMessageSquare className="w-4 h-4" />
-              <span>{tHeader("help")}</span>
-            </Link>
-
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="hidden sm:flex p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+              className="hidden sm:flex h-10 w-10 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0 items-center justify-center"
               title={tHeader("wishlist")}
+              aria-label={tHeader("wishlist")}
             >
-              <IconHeart className="w-4.5 h-4.5" />
+              <IconHeart className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-colors" />
             </Link>
 
             {/* Language Selector (Desktop/Tablet only; on Mobile lives inside Hamburger Menu) */}
@@ -204,15 +195,17 @@ const Header = () => {
               <LanguageSelector />
             </div>
 
-            {/* Account Dropdown or Login Link */}
+            {/* Account Dropdown or Login Icon Button */}
             {isMounted && isAuthenticated ? (
               <UserDropdown user={user} />
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all whitespace-nowrap"
+                aria-label={tHeader("login")}
+                title={tHeader("login")}
+                className="h-10 w-10 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0 flex items-center justify-center"
               >
-                {tHeader("login")}
+                <IconUser className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-colors" />
               </Link>
             )}
 
@@ -222,7 +215,7 @@ const Header = () => {
               onClick={handleOpenCartModal}
               aria-label={tHeader("cart")}
               title={tHeader("cart")}
-              className="relative p-2 sm:px-2.5 sm:py-2 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0"
+              className="relative h-10 w-10 rounded-xl bg-[#111522] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all shadow-sm group shrink-0 flex items-center justify-center"
             >
               <div className="relative">
                 <IconCart className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-colors" />

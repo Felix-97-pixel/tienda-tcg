@@ -85,14 +85,14 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className={`flex items-center gap-2 p-1 sm:px-2.5 py-1.5 rounded-xl border transition-all duration-200 ${
+        className={`h-10 flex items-center gap-2 px-2.5 rounded-xl border transition-all duration-200 shadow-sm ${
           isOpen
             ? "bg-white/10 border-red-500/40 text-white shadow-lg shadow-red-500/10"
-            : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-200 hover:text-white"
+            : "bg-[#111522] hover:bg-white/10 border-white/10 hover:border-red-500/40 text-gray-200 hover:text-white"
         }`}
         title={tAccount("title")}
       >
-        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-red-600/40 to-red-500/20 text-red-300 font-bold text-xs flex items-center justify-center border border-red-500/30 shrink-0">
+        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-red-600/40 to-red-500/20 text-red-300 font-bold text-xs flex items-center justify-center border border-red-500/30 shrink-0">
           {initial}
         </div>
         <span className="hidden xl:inline text-xs font-semibold max-w-[100px] truncate">

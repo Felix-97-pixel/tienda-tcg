@@ -107,7 +107,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={t("select_language_aria")}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-all text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-sm"
+        className="h-10 flex items-center gap-1.5 px-3 rounded-xl bg-[#111522] hover:bg-white/[0.08] border border-white/10 hover:border-red-500/40 text-gray-300 hover:text-white transition-all text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-sm"
       >
         <div className="flex items-center gap-1.5">
           {activeLang.flag}

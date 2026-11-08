@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { IconChevronUp } from "@/components/ui/Icons";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,7 +15,7 @@ export default function ScrollToTop() {
   };
 
   useEffect(() => {
-    // Button is displayed after scrolling for 500 pixels
+    // Button is displayed after scrolling for 300 pixels
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
         setIsVisible(true);
@@ -32,18 +33,13 @@ export default function ScrollToTop() {
     <>
       {isVisible && (
         <button
+          type="button"
           onClick={scrollToTop}
-          className={`items-center justify-center w-10 h-10 rounded-[4px] shadow-lg bg-blue ease-out duration-200 hover:bg-blue-dark fixed bottom-8 right-8 z-999 ${
+          className={`items-center justify-center w-11 h-11 rounded-xl bg-[#111522]/90 backdrop-blur-md border border-white/15 hover:border-red-500/60 text-gray-300 hover:text-white hover:bg-gradient-to-br hover:from-[#E10E0E] hover:to-[#B80B0B] shadow-xl shadow-black/60 hover:shadow-red-600/25 transition-all duration-200 group fixed bottom-8 right-8 z-[999] ${
             isVisible ? "flex" : "hidden"
           }`}
         >
-          <svg
-            className="fill-white w-5 h-5"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
-          >
-            <path d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z" />
-          </svg>
+          <IconChevronUp className="w-5 h-5 transition-transform duration-200 group-hover:-translate-y-0.5" />
         </button>
       )}
     </>

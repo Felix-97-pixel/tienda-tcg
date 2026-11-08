@@ -385,22 +385,22 @@ export default function ShopDetails() {
 
                 {/* Quantity Stepper & Add to Cart Button */}
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center rounded-xl bg-black/40 border border-white/10 overflow-hidden h-11 shrink-0">
+                  <div className="flex-1 flex items-center justify-between rounded-xl bg-black/40 border border-white/10 overflow-hidden h-11">
                     <button
                       type="button"
                       onClick={() => setFeaturedQty(Math.max(1, featuredQty - 1))}
-                      className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10"
+                      className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                       disabled={featuredQty <= 1}
                     >
                       -
                     </button>
-                    <span className="w-8 text-center text-sm font-mono font-bold text-white">
+                    <span className="text-center text-sm font-mono font-bold text-white px-2">
                       {featuredQty}
                     </span>
                     <button
                       type="button"
                       onClick={() => setFeaturedQty(Math.min(lowestPriceItem.stock, featuredQty + 1))}
-                      className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10"
+                      className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                       disabled={featuredQty >= lowestPriceItem.stock}
                     >
                       +
@@ -410,21 +410,18 @@ export default function ShopDetails() {
                   <button
                     type="button"
                     onClick={() => handleAddToCart(lowestPriceItem, featuredQty)}
-                    className={`flex-1 h-11 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    aria-label={t("add_to_cart")}
+                    title={t("add_to_cart")}
+                    className={`h-11 px-6 rounded-xl text-sm font-bold transition-all flex items-center justify-center shrink-0 ${
                       addingItemId === lowestPriceItem.id
                         ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30"
                         : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-lg shadow-[#E10E0E]/30 active:scale-98"
                     }`}
                   >
                     {addingItemId === lowestPriceItem.id ? (
-                      <>
-                        <IconCheck className="w-4 h-4" /> {t("added_success")}
-                      </>
+                      <IconCheck className="w-5 h-5" />
                     ) : (
-                      <>
-                        <IconCart className="w-4 h-4" />
-                        {t("add_to_cart")}
-                      </>
+                      <IconCart className="w-5 h-5" />
                     )}
                   </button>
                 </div>
@@ -571,18 +568,18 @@ export default function ShopDetails() {
                             const qty = parseInt(selectEl?.value || "1", 10);
                             handleAddToCart(item, qty);
                           }}
-                          className={`h-10 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                          aria-label={t("add_to_cart")}
+                          title={t("add_to_cart")}
+                          className={`h-10 w-10 rounded-xl text-xs font-bold transition-all flex items-center justify-center shrink-0 ${
                             addingItemId === item.id
                               ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30"
                               : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-md shadow-[#E10E0E]/25 active:scale-95"
                           }`}
                         >
                           {addingItemId === item.id ? (
-                            <>
-                              <IconCheck className="w-3.5 h-3.5" /> {t("added_success")}
-                            </>
+                            <IconCheck className="w-4 h-4" />
                           ) : (
-                            t("buy_now")
+                            <IconCart className="w-4 h-4" />
                           )}
                         </button>
                       </div>
