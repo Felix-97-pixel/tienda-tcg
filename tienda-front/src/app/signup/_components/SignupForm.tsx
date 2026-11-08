@@ -176,15 +176,15 @@ export default function SignupForm() {
         {/* Glow de fondo decorativo */}
         <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
 
-        {/* Language selector in top right */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        {/* Language selector in top right (Desktop only; on Mobile lives in the top bar row) */}
+        <div className="hidden lg:block absolute top-6 right-6 z-20">
           <LanguageSelector />
         </div>
 
         <div className="w-full max-w-[460px] relative z-10">
-          {/* Logo móvil */}
-          <div className="lg:hidden flex items-center justify-between mb-8">
-            <Link href="/" className="inline-flex items-center gap-2.5">
+          {/* Logo móvil y controles superiores sin superposición */}
+          <div className="lg:hidden flex items-center justify-between gap-2 mb-8">
+            <Link href="/" className="inline-flex items-center gap-2.5 shrink-0">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-dark to-orange flex items-center justify-center shadow-lg shadow-red/25">
                 <span className="text-white font-black text-lg leading-none">T</span>
               </div>
@@ -193,12 +193,15 @@ export default function SignupForm() {
               </span>
             </Link>
 
-            <Link
-              href="/"
-              className="text-xs font-medium text-white/70 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10"
-            >
-              {t("back_short")}
-            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <LanguageSelector />
+              <Link
+                href="/"
+                className="text-xs font-medium text-white/70 hover:text-white px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap"
+              >
+                {t("back_short")}
+              </Link>
+            </div>
           </div>
 
           {/* ESTADO 1: REGISTRO EXITOSO */}

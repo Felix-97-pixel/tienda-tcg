@@ -86,32 +86,32 @@ const Header = () => {
           </Link>
         </nav>
 
-        {/* Action Buttons */}
-        <div className="hidden sm:flex items-center gap-2.5 shrink-0">
-          <LanguageSelector />
+        {/* Action Buttons & Hamburger Toggle */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* Language Selector visible on Desktop (lg+); on Mobile/Tablet lives inside Hamburger Menu */}
+          <div className="hidden lg:block">
+            <LanguageSelector />
+          </div>
           <Link
             href="/admin/login"
-            className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all"
+            className="hidden sm:inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all"
           >
             <IconStore className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <span>{t("store_login")}</span>
           </Link>
           <Link
             href="/shop"
-            className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#E10E0E] hover:bg-[#F23030] shadow-md shadow-[#E10E0E]/30 hover:shadow-lg hover:shadow-[#E10E0E]/40 active:scale-95 transition-all"
+            className="hidden sm:inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#E10E0E] hover:bg-[#F23030] shadow-md shadow-[#E10E0E]/30 hover:shadow-lg hover:shadow-[#E10E0E]/40 active:scale-95 transition-all"
           >
             <IconSparkles className="w-3.5 h-3.5 text-white shrink-0" />
             <span>{t("explore_singles")}</span>
           </Link>
-        </div>
 
-        {/* Mobile Controls (Language + Menu Button) */}
-        <div className="flex items-center gap-2 sm:hidden">
-          <LanguageSelector showLabel={false} />
+          {/* Hamburger Button visible on all screens < lg (where Desktop Nav is hidden) */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0"
+            className="lg:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0 transition-all"
             aria-label={t("open_menu_aria")}
           >
             {mobileMenuOpen ? (

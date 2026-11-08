@@ -322,19 +322,19 @@ export default function TcgHomeLanding() {
               {/* Hero Search Box */}
               <form onSubmit={handleHeroSearch} className="max-w-xl mx-auto lg:mx-0 mb-6">
                 <div className="relative flex items-center bg-[#111522] border border-white/15 rounded-2xl p-1.5 shadow-2xl focus-within:border-red-500/80 focus-within:ring-2 focus-within:ring-red-500/20 transition-all">
-                  <div className="pl-4 text-gray-400">
-                    <IconSearch className="w-5 h-5" />
+                  <div className="pl-3 sm:pl-4 text-gray-400 shrink-0">
+                    <IconSearch className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <input
                     type="text"
                     value={heroSearch}
                     onChange={(e) => setHeroSearch(e.target.value)}
                     placeholder={t("hero.search_placeholder")}
-                    className="w-full bg-transparent border-none text-white placeholder-gray-500 text-sm sm:text-base px-3 py-2.5 focus:outline-none"
+                    className="w-full min-w-0 bg-transparent border-none text-white placeholder-gray-500 text-xs sm:text-base px-2.5 sm:px-3 py-2.5 focus:outline-none"
                   />
                   <button
                     type="submit"
-                    className="px-5 py-3 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 transition-all shrink-0 active:scale-95"
+                    className="px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#E10E0E] hover:bg-[#F23030] text-white font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-[#E10E0E]/30 transition-all shrink-0 active:scale-95 whitespace-nowrap"
                   >
                     {t("hero.search_btn")}
                   </button>
