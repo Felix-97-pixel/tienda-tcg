@@ -46,7 +46,13 @@
     "theme_light": "Cambiar a modo claro",
     "theme_dark": "Cambiar a modo oscuro",
     "theme_mode_light": "Modo Claro",
-    "theme_mode_dark": "Modo Oscuro"
+    "theme_mode_dark": "Modo Oscuro",
+    "search_dropdown_title": "Resultados sugeridos",
+    "search_view_all": "Ver todos los resultados en el catálogo",
+    "search_no_results": "No encontramos resultados para \"{query}\"",
+    "search_no_results_hint": "Prueba buscando por nombre, categoría o juego",
+    "search_loading": "Buscando en toda la tienda...",
+    "from_price": "Desde"
   },
   "sidebar": {
     "loading": "Cargando...",

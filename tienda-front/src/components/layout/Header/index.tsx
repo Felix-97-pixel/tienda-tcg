@@ -3,7 +3,7 @@ import { API_URL } from "@/utils/api";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import CustomSelect from "./CustomSelect";
+import HeaderSearchDropdown from "./HeaderSearchDropdown";
 import { menuData } from "./menuData";
 import Dropdown from "./Dropdown";
 import UserDropdown from "./UserDropdown";
@@ -149,34 +149,9 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Search Capsule Bar */}
+          {/* Search Capsule Bar with Predictive Dropdown Search */}
           <div className="hidden md:flex flex-1 max-w-xl mx-2 lg:mx-4">
-            <form onSubmit={handleSearchSubmit} className="w-full">
-              <div className="relative flex items-center bg-[var(--tt-bg-surface)] rounded-xl border border-[var(--tt-border-medium)] hover:border-red-500/40 focus-within:border-red/60 focus-within:ring-1 focus-within:ring-red/30 transition-all shadow-sm">
-                <div className="hidden lg:block shrink-0 border-r border-[var(--tt-border-subtle)] text-xs text-[var(--tt-text-muted)]">
-                  <CustomSelect
-                    options={categoriesData}
-                    value={selectedCategory}
-                    placeholder={allCategoriesLabel}
-                    onChange={(val: any) => setSelectedCategory(val?.name || allCategoriesLabel)}
-                  />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={tHeader("search_placeholder")}
-                  className="w-full bg-transparent text-[var(--tt-text-main)] text-xs px-3 py-2.5 outline-none placeholder:text-[var(--tt-text-muted)] rounded-none"
-                />
-                <button
-                  type="submit"
-                  aria-label={tNav("account_menu.search_aria")}
-                  className="px-3.5 py-2.5 text-[var(--tt-text-muted)] hover:text-red transition-colors shrink-0 rounded-r-xl"
-                >
-                  <IconSearch className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
+            <HeaderSearchDropdown />
           </div>
 
           {/* Right Action Widgets */}

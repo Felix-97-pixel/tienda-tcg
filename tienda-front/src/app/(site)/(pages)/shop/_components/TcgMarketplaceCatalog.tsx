@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import TcgFilterSidebar from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgFilterSidebar";
 import TcgProductCard from "@/app/(site)/(pages)/shop/store/[subdomain]/_components/TcgProductCard";
+import CustomSortDropdown from "./CustomSortDropdown";
 import { formatPrice } from "@/utils/currency";
 import { useAppSelector } from "@/redux/store";
 import { useProductCart } from "@/hooks/useProductCart";
@@ -18,6 +19,8 @@ import {
   IconSearch,
   IconFilter,
   IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
   IconX,
   IconGrid,
   IconList,
@@ -510,20 +513,17 @@ export default function TcgMarketplaceCatalog() {
               )}
             </button>
 
-            {/* Sort Dropdown */}
-            <div className="relative">
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="h-11 px-3.5 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] text-xs font-semibold focus:outline-none focus:border-red-500 cursor-pointer appearance-none pr-8 shadow-xs"
-              >
-                <option value="latest">{t("sort.latest")}</option>
-                <option value="price-asc">{t("sort.price_asc")}</option>
-                <option value="price-desc">{t("sort.price_desc")}</option>
-                <option value="name-asc">{t("sort.name_asc")}</option>
-              </select>
-              <IconChevronDown className="absolute right-3 top-4 pointer-events-none text-[var(--tt-text-muted)] w-3 h-3" />
-            </div>
+            {/* Unified Custom Sort Dropdown */}
+            <CustomSortDropdown
+              value={sortOption}
+              onChange={setSortOption}
+              options={[
+                { value: "latest", label: t("sort.latest") },
+                { value: "price-asc", label: t("sort.price_asc") },
+                { value: "price-desc", label: t("sort.price_desc") },
+                { value: "name-asc", label: t("sort.name_asc") },
+              ]}
+            />
 
             {/* Dual View Toggle */}
             <div className="flex items-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-0.5 shadow-xs">
@@ -795,20 +795,26 @@ export default function TcgMarketplaceCatalog() {
                   type="button"
                   disabled={currentPage <= 1}
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111522] border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all"
+                  aria-label={t("prev_page")}
+                  title={t("prev_page")}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] hover:text-red hover:border-red-500/40 hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-[var(--tt-border-medium)] disabled:hover:text-[var(--tt-text-main)] transition-all shadow-xs"
                 >
-                  {t("prev_page")}
+                  <IconChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-xs font-mono font-medium text-gray-400 px-3">
+
+                <div className="px-4 h-10 flex items-center justify-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-xs font-mono font-bold text-[var(--tt-text-main)] shadow-xs select-none">
                   {t("page_info", { current: currentPage, total: totalPages })}
-                </span>
+                </div>
+
                 <button
                   type="button"
                   disabled={currentPage >= totalPages}
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111522] border border-white/10 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-all"
+                  aria-label={t("next_page")}
+                  title={t("next_page")}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] hover:text-red hover:border-red-500/40 hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-[var(--tt-border-medium)] disabled:hover:text-[var(--tt-text-main)] transition-all shadow-xs"
                 >
-                  {t("next_page")}
+                  <IconChevronRight className="w-4 h-4" />
                 </button>
               </div>
             )}

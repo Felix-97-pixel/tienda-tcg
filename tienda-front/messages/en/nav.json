@@ -46,7 +46,13 @@
     "theme_light": "Switch to light mode",
     "theme_dark": "Switch to dark mode",
     "theme_mode_light": "Light Mode",
-    "theme_mode_dark": "Dark Mode"
+    "theme_mode_dark": "Dark Mode",
+    "search_dropdown_title": "Suggested Results",
+    "search_view_all": "View all results in catalog",
+    "search_no_results": "No products found for \"{query}\"",
+    "search_no_results_hint": "Try searching by name, category, or game",
+    "search_loading": "Searching entire store...",
+    "from_price": "From"
   },
   "sidebar": {
     "loading": "Loading...",
