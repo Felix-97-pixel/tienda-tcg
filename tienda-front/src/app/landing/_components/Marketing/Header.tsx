@@ -45,8 +45,8 @@ const Header = () => {
           </div>
         </Link>
 
-        {/* Desktop Navigation (Protected with shrink-0 and whitespace-nowrap so text never wraps) */}
-        <nav className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-6 bg-white/[0.03] border border-white/[0.08] px-4 xl:px-5 py-2 rounded-full backdrop-blur-md shrink-0">
+        {/* Desktop Navigation (Visible from xl: 1280px+ where all 3 blocks fit without clipping) */}
+        <nav className="hidden xl:flex items-center gap-4 2xl:gap-6 bg-white/[0.03] border border-white/[0.08] px-5 py-2 rounded-full backdrop-blur-md shrink-0">
           <Link
             href="#marketplace"
             className="text-xs font-semibold text-gray-300 hover:text-white transition-colors whitespace-nowrap"
@@ -88,8 +88,8 @@ const Header = () => {
 
         {/* Action Buttons & Hamburger Toggle */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Language Selector visible on Desktop (lg+); on Mobile/Tablet lives inside Hamburger Menu */}
-          <div className="hidden lg:block">
+          {/* Language Selector visible on Desktop (xl+); below xl lives inside Hamburger Menu */}
+          <div className="hidden xl:block">
             <LanguageSelector />
           </div>
           <Link
@@ -107,11 +107,11 @@ const Header = () => {
             <span>{t("explore_singles")}</span>
           </Link>
 
-          {/* Hamburger Button visible on all screens < lg (where Desktop Nav is hidden) */}
+          {/* Hamburger Button visible on all screens < xl (where Desktop Nav is hidden) */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0 transition-all"
+            className="xl:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 border border-white/10 shrink-0 transition-all"
             aria-label={t("open_menu_aria")}
           >
             {mobileMenuOpen ? (
@@ -123,9 +123,9 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile & Tablet Drawer (< xl) */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#0E121B] border-b border-white/10 px-6 py-6 mt-3 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl">
+        <div className="xl:hidden bg-[#0E121B] border-b border-white/10 px-6 py-6 mt-3 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl">
           <div className="py-2 border-b border-white/10 flex items-center justify-between">
             <span className="text-xs text-gray-400 font-semibold">{t("language_label")}</span>
             <LanguageSelector />
@@ -182,7 +182,8 @@ const Header = () => {
               {t("faq")}
             </Link>
           </nav>
-          <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
+          {/* Solo mostrar estos dos botones dentro del menú cuando en la barra superior están ocultos (< sm) */}
+          <div className="sm:hidden pt-4 border-t border-white/10 flex flex-col gap-2.5">
             <Link
               href="/admin/login"
               onClick={() => setMobileMenuOpen(false)}
