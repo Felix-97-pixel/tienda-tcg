@@ -333,4 +333,18 @@ export class ProductsController {
     const targetStoreId = (req.headers['x-store-id'] as string) || req.user?.activeStoreId;
     return this.productsService.addInventoryItem(productId, body, req.user?.userId, targetStoreId);
   }
+
+  /**
+   * Endpoint público para consultar la serie temporal histórica de precios de un producto.
+   * Utilizado en la vista de detalle de carta para renderizar gráficos de cotización.
+   */
+  @Get(':id/price-history')
+  getPriceHistory(
+    @Param('id') id: string,
+    @Query('days') days?: string,
+    @Query('finishId') finishId?: string,
+  ) {
+    const numDays = days ? parseInt(days, 10) : 30;
+    return this.productsService.getPriceHistory(id, numDays, finishId);
+  }
 }

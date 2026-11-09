@@ -33,6 +33,11 @@ export class SyncController {
     return this.syncService.getRiftboundSets();
   }
 
+  @Get('onepiece-sets')
+  async getOnePieceSets() {
+    return this.syncService.getOnePieceSets();
+  }
+
   @Get('status/:game')
   async getStatus(@Param('game') game: string) {
     return this.syncService.getProgress(game);

@@ -1517,6 +1517,43 @@ export const IconTrendingUp: React.FC<IconProps> = ({ className = "w-4 h-4", siz
   </svg>
 );
 
+export const IconTrendingDown: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
+  <svg
+    width={size || 24}
+    height={size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+    <polyline points="17 18 23 18 23 12" />
+  </svg>
+);
+
+export const IconHistory: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
+  <svg
+    width={size || 24}
+    height={size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M12 7v5l4 2" />
+  </svg>
+);
+
 export const IconArrowRight: React.FC<IconProps> = ({ className = "w-4 h-4", size, ...props }) => (
   <svg
     width={size || 24}

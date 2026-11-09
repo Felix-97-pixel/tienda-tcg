@@ -398,7 +398,11 @@
     "riftbound_title": "Sincronización de Riftbound",
     "riftbound_subtitle": "Importa y actualiza el catálogo y precios específicamente para Riftbound.",
     "riftbound_import_desc": "Descarga expansiones desde la base de datos de Riftbound.",
-    "riftbound_prices_desc": "Sincroniza precios de mercado en tiempo real."
+    "riftbound_prices_desc": "Sincroniza precios de mercado en tiempo real.",
+    "onepiece_title": "Sincronización de One Piece",
+    "onepiece_subtitle": "Importa y actualiza el catálogo y precios para One Piece Card Game.",
+    "onepiece_import_desc": "Descarga expansiones y cartas oficiales desde Scrydex.",
+    "onepiece_prices_desc": "Sincroniza precios de mercado oficiales de TCGPlayer."
   },
   "orders": {
     "title": "Órdenes",
@@ -639,6 +643,7 @@
       "magic": "Destino Magic: The Gathering",
       "pokemon": "Destino Pokémon TCG",
       "riftbound": "Destino Riftbound",
+      "onepiece": "Destino One Piece TCG",
       "save": "Guardar Configuración",
       "success": "Configuración guardada correctamente",
       "category_label": "Categoría Destino",
@@ -721,6 +726,7 @@
       "sync_magic": "Magic: The Gathering",
       "sync_pokemon": "Pokémon TCG",
       "sync_riftbound": "Riftbound TCG",
+      "sync_onepiece": "One Piece TCG",
       "sync_backups": "Backups CSV",
       "config_plans": "Planes de Suscripción (SaaS)",
       "config_expansions": "Mapeo de Expansiones",

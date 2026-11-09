@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import { useDispatch } from "react-redux";
@@ -18,6 +19,16 @@ import { IconSparkles, IconBox, IconCard, IconCart, IconCheck, IconChevronDown }
 import { calculateItemPriceCLP, roundToCLP } from "@/utils/tcgPrices";
 import { fetchCachedCurrencies } from "@/utils/metadataCache";
 import { useTranslations } from "next-intl";
+
+const PriceHistoryChart = dynamic(
+  () => import("./PriceHistoryChart"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[240px] rounded-2xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)] p-6 animate-pulse" />
+    ),
+  }
+);
 
 export default function ShopDetails() {
   const t = useTranslations("product_details");
@@ -448,6 +459,13 @@ export default function ShopDetails() {
             )}
           </div>
         </div>
+
+        {/* TCG Market Price History (Gráfico Histórico de Precios de Mercado) */}
+        {Boolean(product.cardDetail || product.isTcg) && (
+          <section className="pt-8">
+            <PriceHistoryChart productId={product.id} productSlug={product.slug} />
+          </section>
+        )}
 
         {/* Multi-Store Marketplace Listings Table */}
         <section id="marketplace-listings" className="pt-6">

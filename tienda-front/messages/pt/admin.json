@@ -398,7 +398,11 @@
     "riftbound_title": "Sincronização de Riftbound",
     "riftbound_subtitle": "Importe e atualize o catálogo e preços especificamente para Riftbound.",
     "riftbound_import_desc": "Baixe expansões do banco de dados de Riftbound.",
-    "riftbound_prices_desc": "Sincronize preços de mercado em tempo real."
+    "riftbound_prices_desc": "Sincronize preços de mercado em tempo real.",
+    "onepiece_title": "Sincronização de One Piece",
+    "onepiece_subtitle": "Importe e atualize catálogo e preços para One Piece Card Game.",
+    "onepiece_import_desc": "Baixe expansões e cartas oficiais do Scrydex.",
+    "onepiece_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer via Scrydex."
   },
   "orders": {
     "title": "Pedidos",
@@ -648,7 +652,8 @@
       "tcg_sync_title": "Sincronização TCG",
       "tcg_sync_desc": "Estas configurações definem para quais categorias os produtos serão automaticamente movidos ao usar a ferramenta de sincronização.",
       "smart_assignment": "Atribuição inteligente",
-      "realtime_update": "Atualização em tempo real"
+      "realtime_update": "Atualização em tempo real",
+      "onepiece": "Destino One Piece TCG"
     }
   },
   "sidebar": {
@@ -696,7 +701,8 @@
       "store_settings": "Configurações da Loja",
       "back_to_hub": "Voltar ao Hub",
       "back_to_shop": "Voltar para a Loja",
-      "logout": "Sair da Conta"
+      "logout": "Sair da Conta",
+      "sync_onepiece": "One Piece TCG"
     },
     "roles": {
       "company_owner": "Proprietário da Empresa",

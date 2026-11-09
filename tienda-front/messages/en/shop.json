@@ -350,7 +350,19 @@
     "default_store_name": "TapTrade Store",
     "added_to_cart_toast": "{qty}x {name} added to cart",
     "default_card_name": "TCG Card",
-    "default_expansion": "General Edition"
+    "default_expansion": "General Edition",
+    "price_history_title": "Market Price History",
+    "price_history_subtitle": "Official reference market trends and valuations (TCGPlayer / Scryfall)",
+    "price_history_7d": "7 days",
+    "price_history_30d": "30 days",
+    "price_history_90d": "90 days",
+    "price_history_all": "All",
+    "price_history_normal": "Normal",
+    "price_history_foil": "Foil",
+    "price_history_spot_price": "Spot Price",
+    "price_history_no_data": "Recording daily price history...",
+    "price_history_no_data_desc": "Daily prices for this card will be recorded automatically with each market sync.",
+    "price_history_change": "Change"
   },
   "wishlist": {
     "title": "Your Wishlist",

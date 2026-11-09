@@ -350,7 +350,19 @@
     "default_store_name": "Tienda TapTrade",
     "added_to_cart_toast": "{qty}x {name} agregado al carrito",
     "default_card_name": "Carta TCG",
-    "default_expansion": "Edición General"
+    "default_expansion": "Edición General",
+    "price_history_title": "Historial de Precios de Mercado",
+    "price_history_subtitle": "Cotizaciones oficiales de referencia y tendencia de mercado (TCGPlayer / Scryfall)",
+    "price_history_7d": "7 días",
+    "price_history_30d": "30 días",
+    "price_history_90d": "90 días",
+    "price_history_all": "Todo",
+    "price_history_normal": "Normal",
+    "price_history_foil": "Foil",
+    "price_history_spot_price": "Precio Spot",
+    "price_history_no_data": "Registrando historial diario...",
+    "price_history_no_data_desc": "Las cotizaciones diarias de esta carta se irán registrando automáticamente con cada actualización de mercado.",
+    "price_history_change": "Variación"
   },
   "wishlist": {
     "title": "Tu Lista de Deseos (Wishlist)",

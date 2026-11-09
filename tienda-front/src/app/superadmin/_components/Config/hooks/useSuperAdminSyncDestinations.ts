@@ -17,6 +17,8 @@ export function useSuperAdminSyncDestinations() {
   const [pokemonGame, setPokemonGame] = useState("");
   const [riftboundDest, setRiftboundDest] = useState("");
   const [riftboundGame, setRiftboundGame] = useState("");
+  const [onepieceDest, setOnepieceDest] = useState("");
+  const [onepieceGame, setOnepieceGame] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -37,6 +39,8 @@ export function useSuperAdminSyncDestinations() {
         const savedPokemonGame = settingsData.pokemon_sync_game_id;
         const savedRiftbound = settingsData.riftbound_sync_destination;
         const savedRiftboundGame = settingsData.riftbound_sync_game_id;
+        const savedOnepiece = settingsData.onepiece_sync_destination;
+        const savedOnepieceGame = settingsData.onepiece_sync_game_id;
 
         setMtgDest(savedMtg || categoriesData.find((c: any) => c.name.toLowerCase().includes("magic"))?.name || "");
         setMtgGame(savedMtgGame || gamesData.find((g: any) => g.name.toLowerCase().includes("magic"))?.id || "");
@@ -46,6 +50,9 @@ export function useSuperAdminSyncDestinations() {
         
         setRiftboundDest(savedRiftbound || categoriesData.find((c: any) => c.name.toLowerCase().includes("riftbound"))?.name || "");
         setRiftboundGame(savedRiftboundGame || gamesData.find((g: any) => g.name.toLowerCase().includes("riftbound"))?.id || "");
+
+        setOnepieceDest(savedOnepiece || categoriesData.find((c: any) => c.name.toLowerCase().includes("one piece") || c.name.toLowerCase().includes("onepiece"))?.name || "");
+        setOnepieceGame(savedOnepieceGame || gamesData.find((g: any) => g.name.toLowerCase().includes("one piece") || g.name.toLowerCase().includes("onepiece"))?.id || "");
       })
       .catch((err) => console.error("Error fetching settings:", err))
       .finally(() => setLoading(false));
@@ -64,6 +71,8 @@ export function useSuperAdminSyncDestinations() {
           pokemon_sync_game_id: pokemonGame,
           riftbound_sync_destination: riftboundDest,
           riftbound_sync_game_id: riftboundGame,
+          onepiece_sync_destination: onepieceDest,
+          onepiece_sync_game_id: onepieceGame,
         }),
         credentials: "include",
       });
@@ -96,6 +105,10 @@ export function useSuperAdminSyncDestinations() {
     setRiftboundDest,
     riftboundGame,
     setRiftboundGame,
+    onepieceDest,
+    setOnepieceDest,
+    onepieceGame,
+    setOnepieceGame,
     loading,
     saving,
     handleSave

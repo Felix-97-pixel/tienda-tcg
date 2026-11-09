@@ -9,6 +9,7 @@ export interface Product {
   slug?: string;
   name: string;
   categoryId: string;
+  isTcg?: boolean;
   brandId?: string;
   storeId?: string | null;
   imageUrl?: string;

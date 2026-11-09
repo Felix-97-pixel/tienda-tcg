@@ -1,9 +1,14 @@
 import { TcgProvider } from './base-tcg.provider';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RiftboundService } from '../riftbound.service';
+import { ScrydexService } from '../scrydex.service';
 
 export class RiftboundProvider extends TcgProvider {
-  constructor(prisma: PrismaService, private readonly riftboundService: RiftboundService) {
+  constructor(
+    prisma: PrismaService,
+    private readonly riftboundService: RiftboundService,
+    private readonly scrydexService: ScrydexService,
+  ) {
     super('Riftbound', prisma);
   }
 
@@ -127,15 +132,13 @@ export class RiftboundProvider extends TcgProvider {
     return { product, externalData: null };
   }
 
-  /** Lógica de precios usando JustTCG (delegado en RiftboundService) */
+  /**
+   * Lógica de actualización de precios para Riftbound usando Scrydex (precios oficiales de TCGPlayer).
+   * Bulk de 250 cartas por consulta (máximo 1 crédito de API por set completo).
+   * Registra automáticamente el historial diario en MarketPriceHistory.
+   */
   async updateGamePrices(expansionName: string) {
-    this.logger.log(`=== [Riftbound] Iniciando actualización vía JustTCG para: "${expansionName}" ===`);
-
-    const apiKey = process.env.JUSTTCG_API_KEY;
-    if (!apiKey) {
-      this.logger.error('[Riftbound] JUSTTCG_API_KEY no configurada en las variables de entorno.');
-      return { updated: 0, errors: 1 };
-    }
+    this.logger.log(`=== [Riftbound] Iniciando actualización de precios vía Scrydex para: "${expansionName}" ===`);
 
     let updatedCount = 0;
 
@@ -145,68 +148,71 @@ export class RiftboundProvider extends TcgProvider {
         where: {
           OR: [
             { id: expansionName },
-            { name: { equals: expansionName, mode: 'insensitive' } }
+            { name: { equals: expansionName, mode: 'insensitive' } },
           ],
-          gameId: await this.getGameId()
-        }
+          gameId: await this.getGameId(),
+        },
       });
 
-      let setSlug = expansion?.externalId;
       const resolvedName = expansion?.name || expansionName;
+      let setId = expansion?.externalId;
 
-      // Si no tenemos el externalId de JustTCG guardado (o tiene el código corto de Riot como "RAD"), buscamos el slug en la API de JustTCG
-      if (!setSlug || !setSlug.includes('-riftbound')) {
-        this.logger.log(`[Riftbound] Buscando set "${resolvedName}" en JustTCG...`);
-        const sets = await this.riftboundService.fetchJustTcgSets(apiKey);
-        let match = sets.find((s: any) => s.name?.toLowerCase() === resolvedName.toLowerCase());
-        
+      // Si no tenemos externalId o es un slug antiguo de JustTCG, buscar código de Scrydex (ej. "RAD", "OGN")
+      if (!setId || setId.includes('-riftbound')) {
+        this.logger.log(`[Riftbound] Buscando set "${resolvedName}" en Scrydex...`);
+        const scrydexSets = await this.scrydexService.fetchSets('riftbound');
+        let match = scrydexSets.find(
+          (s: any) => s.name?.toLowerCase().trim() === resolvedName.toLowerCase().trim() ||
+                      s.id?.toLowerCase().trim() === resolvedName.toLowerCase().trim(),
+        );
+
         if (!match) {
-          match = sets.find((s: any) => 
-            s.name?.toLowerCase().includes(resolvedName.toLowerCase()) || 
-            resolvedName.toLowerCase().includes(s.name?.toLowerCase())
+          match = scrydexSets.find(
+            (s: any) =>
+              s.name?.toLowerCase().includes(resolvedName.toLowerCase()) ||
+              resolvedName.toLowerCase().includes(s.name?.toLowerCase()),
           );
         }
 
         if (!match) {
-          this.logger.warn(`[Riftbound] No se encontró el set "${resolvedName}" en JustTCG.`);
+          this.logger.warn(`[Riftbound] No se encontró el set "${resolvedName}" en Scrydex.`);
           return { updated: 0, errors: 1 };
         }
-        setSlug = match.set_id || match.slug || match.id;
-        
-        // Guardar el externalId para futuras consultas si tenemos el registro
+
+        setId = match.id || match.code;
         if (expansion) {
           await this.prisma.expansion.update({
             where: { id: expansion.id },
-            data: { externalId: setSlug }
+            data: { externalId: setId },
           });
         }
       }
 
-      this.logger.log(`[Riftbound] Set resuelto como: "${setSlug}". Cargando productos locales...`);
+      this.logger.log(`[Riftbound] Set resuelto como: "${setId}". Cargando cartas desde Scrydex...`);
 
       // Pre-cargar acabados
       const gameId = await this.getGameId();
       const [normalFinish, foilFinish] = await Promise.all([
         this.prisma.finish.findFirst({ where: { name: 'Normal', gameId } }),
-        this.prisma.finish.findFirst({ where: { name: 'Foil', gameId } })
+        this.prisma.finish.findFirst({ where: { name: 'Foil', gameId } }),
       ]);
 
-      // 2. Cargar productos locales para match rápido
+      // Cargar productos locales para match rápido
       const localProducts = await this.prisma.product.findMany({
         where: { cardDetail: { expansion: { equals: resolvedName, mode: 'insensitive' } } },
         select: {
           id: true,
           externalId: true,
           name: true,
-          cardDetail: { select: { collectorNum: true, rarity: true, expansion: true } }
-        }
+          cardDetail: { select: { collectorNum: true, rarity: true, expansion: true } },
+        },
       });
 
       const totalRift = localProducts.length;
       this.logger.log(`[Riftbound] ${totalRift} productos encontrados en la BD local.`);
 
-      let offset = 0;
-      const limit = 20;
+      let page = 1;
+      const pageSize = 250;
       let hasMore = true;
       const csvRecords: string[] = ['productId,finishId,price'];
 
@@ -214,156 +220,99 @@ export class RiftboundProvider extends TcgProvider {
       const stripParens = (s: string) => normalizeTitle(s).replace(/\s*\([^)]*\)/g, '').trim();
 
       while (hasMore) {
-        this.logger.log(`[Riftbound] Consultando cartas (Offset: ${offset})...`);
+        this.logger.log(`[Riftbound] Consultando página ${page} de set "${setId}" en Scrydex (Bulk 250)...`);
+        const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('riftbound', setId, page, pageSize);
 
-        // Espera de 8 segundos para rate limiting
-        if (offset > 0) {
-          this.logger.log(`[Riftbound] Esperando 8 segundos para respetar Rate Limit...`);
-          await new Promise(resolve => setTimeout(resolve, 8000));
-        }
-
-        const data = await this.riftboundService.fetchJustTcgCardsPage(apiKey, setSlug, limit, offset);
-        const cards = data?.data || [];
         if (cards.length === 0) break;
 
         for (const card of cards) {
-          const tcgId = card.tcgplayerId ? String(card.tcgplayerId) : null;
-          if (!tcgId || card.number === 'N/A') continue;
+          // Extraer número de coleccionista limpio
+          const cardNum = String(card.number || card.collector_number || '').trim();
+          const cleanNum = cardNum.replace(/\D/g, '');
+          const parsedCardNum = cleanNum ? parseInt(cleanNum, 10).toString() : cardNum;
 
-          // 1. Match directo por externalId
-          let matchLocal = localProducts.find(lp => lp.externalId === tcgId);
+          // 1. Match por número de coleccionista
+          let matchLocal = localProducts.find((lp) => {
+            if (!lp.cardDetail?.collectorNum || !parsedCardNum) return false;
+            const lpNum = lp.cardDetail.collectorNum.trim();
+            const cleanLp = lpNum.replace(/\D/g, '');
+            const parsedLp = cleanLp ? parseInt(cleanLp, 10).toString() : lpNum;
+            return parsedLp === parsedCardNum;
+          });
 
-          // 2. Fallback inteligente: emparejar por número de coleccionista y nombre
+          // 2. Fallback por nombre normalizado
           if (!matchLocal) {
-            const rawNumToken = card.number ? String(card.number).split('/')[0].trim() : '';
-            const isSpecialPromo = /^sp\d+$/i.test(rawNumToken);
-            const isSignatureCard = rawNumToken.includes('*') || card.name?.toLowerCase().includes('signature');
-            const isAltArtCard = (!isSpecialPromo && /[a-zA-Z]$/.test(rawNumToken)) || card.name?.toLowerCase().includes('alternate art');
-            const cleanDigits = rawNumToken.replace(/\D/g, '');
-            const parsedCardNum = isSpecialPromo
-              ? rawNumToken.toUpperCase()
-              : (cleanDigits ? parseInt(cleanDigits, 10).toString() : null);
-
-            matchLocal = localProducts.find(lp => {
-              if (!lp.cardDetail?.collectorNum || !parsedCardNum) return false;
-              const rawLpNum = lp.cardDetail.collectorNum.trim();
-              const lpIsSpecialPromo = /^sp\d+$/i.test(rawLpNum);
-              const cleanLpNum = rawLpNum.replace(/\D/g, '');
-              const parsedLpNum = lpIsSpecialPromo
-                ? rawLpNum.toUpperCase()
-                : (cleanLpNum ? parseInt(cleanLpNum, 10).toString() : null);
-
-              if (parsedLpNum !== parsedCardNum) return false;
-
-              const lpName = normalizeTitle(lp.name);
-              const jcName = normalizeTitle(card.name || '');
-
-              const lpIsSig = lpName.includes('signature');
-              if (isSignatureCard !== lpIsSig) return false;
-
-              const lpIsAlt = lpName.includes('alternate art');
-              if (isAltArtCard !== lpIsAlt) return false;
-
-              const lpBase = stripParens(lp.name);
-              const jcBase = stripParens(card.name || '');
-              const lpFirst = lpBase.split(',')[0].trim();
-              const jcFirst = jcBase.split(',')[0].trim();
-
-              return (
-                lpName === jcName ||
-                jcName.includes(lpName) ||
-                lpName.includes(jcName) ||
-                jcBase.includes(lpBase) ||
-                lpBase.includes(jcBase) ||
-                (lpFirst.length >= 3 && lpFirst === jcFirst)
-              );
+            const cardNameNorm = normalizeTitle(card.name || '');
+            matchLocal = localProducts.find((lp) => {
+              const lpNorm = normalizeTitle(lp.name);
+              return lpNorm === cardNameNorm || stripParens(lp.name) === stripParens(card.name || '');
             });
-
-            // 3. Fallback adicional: por coincidencia de nombre normalizado
-            if (!matchLocal) {
-              const jcNorm = normalizeTitle(card.name || '');
-              matchLocal = localProducts.find(lp => normalizeTitle(lp.name) === jcNorm);
-            }
-
-            // Si se emparejó por fallback y el producto tenía un ID provisorio (rb-...), vincular su externalId oficial
-            if (matchLocal && matchLocal.externalId !== tcgId) {
-              await this.prisma.product.update({
-                where: { id: matchLocal.id },
-                data: { externalId: tcgId }
-              });
-              matchLocal.externalId = tcgId;
-            }
           }
 
           if (!matchLocal) continue;
 
-          // Procesar variantes respetando las reglas físicas de impresión de Riftbound
-          for (const variant of card.variants || []) {
-            const finalPrice = variant.marketPrice || variant.price;
-            // Descartar variantes fantasma con precio nulo o <= 0.01 (como foils de $0.01 que no existen físicamente)
-            if (!finalPrice || finalPrice <= 0.01) continue;
+          // Extraer precios de TCGPlayer de las variantes en Scrydex
+          const normalPrice = this.scrydexService.extractVariantPrice(card, 'normal');
+          const foilPrice = this.scrydexService.extractVariantPrice(card, 'foil');
 
-            if (variant.condition === 'Near Mint') {
-              const isVariantFoil = variant.printing === 'Foil';
-              const cardExp = matchLocal.cardDetail?.expansion || resolvedName;
-              const isProvingGrounds = /proving grounds|ogs/i.test(cardExp);
-              const isBasicRune = /^r0?[1-6]$/i.test(matchLocal.cardDetail?.collectorNum || '');
-              const rarity = (matchLocal.cardDetail?.rarity || '').toLowerCase();
-              const isBoosterSet = !isProvingGrounds && !/promo|bundle/i.test(cardExp);
+          const cardExp = matchLocal.cardDetail?.expansion || resolvedName;
+          const isProvingGrounds = /proving grounds|ogs/i.test(cardExp);
+          const isBasicRune = /^r0?[1-6]$/i.test(matchLocal.cardDetail?.collectorNum || '');
+          const rarity = (matchLocal.cardDetail?.rarity || '').toLowerCase();
+          const isBoosterSet = !isProvingGrounds && !/promo|bundle/i.test(cardExp);
 
-              // 1. Proving Grounds (Starter Box): NUNCA existe en Foil (solo Normal)
-              if (isProvingGrounds && isVariantFoil) continue;
-
-              // 2. Runas básicas (R01..R06): NUNCA existen en Foil (sus versiones Foil son las Showcase R01a..R06a)
-              if (isBasicRune && isVariantFoil) continue;
-
-              // 3. Rares, Epics y Showcases en sobres de expansión: NUNCA existen en Normal (vienen garantizadas en Foil)
-              if (isBoosterSet && !isVariantFoil && ['rare', 'epic', 'showcase'].includes(rarity)) continue;
-
-              const targetFinishId = isVariantFoil ? foilFinish?.id : normalFinish?.id;
-
-              if (targetFinishId) {
-                await this.prisma.marketPrice.upsert({
-                  where: { productId_finishId: { productId: matchLocal.id, finishId: targetFinishId } },
-                  create: { productId: matchLocal.id, finishId: targetFinishId, price: finalPrice },
-                  update: { price: finalPrice }
-                });
-                csvRecords.push(`${matchLocal.id},${targetFinishId},${finalPrice}`);
-              }
+          // Guardar Normal (si físicamente existe y tiene precio)
+          if (normalPrice && normalPrice > 0.01 && normalFinish) {
+            const isFoilOnly = isBoosterSet && ['rare', 'epic', 'showcase'].includes(rarity);
+            if (!isFoilOnly) {
+              await this.saveMarketPrice(matchLocal.id, normalFinish.id, normalPrice);
+              csvRecords.push(`${matchLocal.id},${normalFinish.id},${normalPrice}`);
             }
           }
-          // Incrementar por CARTA única procesada, no por variantes
+
+          // Guardar Foil (si físicamente existe y tiene precio)
+          if (foilPrice && foilPrice > 0.01 && foilFinish) {
+            if (!isProvingGrounds && !isBasicRune) {
+              await this.saveMarketPrice(matchLocal.id, foilFinish.id, foilPrice);
+              csvRecords.push(`${matchLocal.id},${foilFinish.id},${foilPrice}`);
+            }
+          }
+
           updatedCount++;
           this.onProgress?.('riftbound', updatedCount, totalRift, 'price');
         }
-        this.logger.log(`[Riftbound] Lote procesado. Progreso: ${updatedCount}/${totalRift}`);
-        hasMore = data?.meta?.hasMore || false;
-        offset += limit;
+
+        this.logger.log(`[Riftbound] Progreso Scrydex: ${updatedCount}/${totalRift}`);
+        if (cards.length < pageSize) {
+          hasMore = false;
+        } else {
+          page++;
+        }
       }
 
-      // 3. Limpiar variantes que quedaron vacías
+      // Limpiar variantes vacías
       await this.cleanEmptyInventory(expansionName);
 
       // Guardar CSV de respaldo en BD
       if (csvRecords.length > 1) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const fileName = `riftbound_sync_${timestamp}.csv`;
+        const fileName = `riftbound_scrydex_${timestamp}.csv`;
         const csvData = csvRecords.join('\n');
-        
+
         await this.prisma.syncBackup.create({
           data: {
             game: 'riftbound',
             filename: fileName,
-            csvData: csvData
-          }
+            csvData: csvData,
+          },
         });
         this.logger.log(`[Riftbound] Backup CSV guardado en BD: ${fileName}`);
       }
 
-      this.logger.log(`[Riftbound] ¡Actualización completada! ${updatedCount} cartas procesadas.`);
+      this.logger.log(`[Riftbound] ¡Actualización Scrydex completada! ${updatedCount} cartas procesadas.`);
       return { updated: updatedCount, errors: 0 };
     } catch (err: any) {
-      this.logger.error(`[Riftbound] Error en JustTCG: ${err.message}`);
+      this.logger.error(`[Riftbound] Error en Scrydex: ${err.message}`);
       return { updated: updatedCount, errors: 1 };
     }
   }

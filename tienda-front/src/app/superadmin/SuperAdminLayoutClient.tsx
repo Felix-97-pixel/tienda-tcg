@@ -86,6 +86,7 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
         { path: "/superadmin/sync/magic", label: ts("items.sync_magic"), icon: <IconZap className="w-4 h-4" /> },
         { path: "/superadmin/sync/pokemon", label: ts("items.sync_pokemon"), icon: <IconZap className="w-4 h-4" /> },
         { path: "/superadmin/sync/riftbound", label: ts("items.sync_riftbound"), icon: <IconZap className="w-4 h-4" /> },
+        { path: "/superadmin/sync/onepiece", label: ts("items.sync_onepiece"), icon: <IconZap className="w-4 h-4" /> },
         { path: "/superadmin/sync/backups", label: ts("items.sync_backups"), icon: <IconDownload className="w-4 h-4" /> },
       ],
     },

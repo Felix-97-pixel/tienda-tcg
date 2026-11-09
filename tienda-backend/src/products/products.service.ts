@@ -1327,4 +1327,82 @@ export class ProductsService {
     });
   }
 
+  /**
+   * Obtiene la serie temporal de precios históricos de mercado para un producto,
+   * desglosada por acabado (Normal, Foil, etc.), para alimentar los gráficos de evolución.
+   */
+  async getPriceHistory(idOrSlug: string, days: number = 30, finishId?: string) {
+    const product = await this.prisma.product.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageUrl: true,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Producto no encontrado');
+    }
+
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - Math.max(1, Math.min(days, 365)));
+    cutoffDate.setHours(0, 0, 0, 0);
+
+    const marketPrices = await this.prisma.marketPrice.findMany({
+      where: {
+        productId: product.id,
+        ...(finishId ? { finishId } : {}),
+      },
+      include: {
+        finish: { select: { id: true, name: true } },
+        history: {
+          where: { createdAt: { gte: cutoffDate } },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    const series = marketPrices.map((mp) => {
+      const finishName = mp.finish?.name || 'Normal';
+      const currentPrice = Number(mp.price);
+
+      const historyPoints = mp.history.map((h) => ({
+        date: h.createdAt.toISOString().split('T')[0],
+        price: Number(h.price),
+      }));
+
+      if (historyPoints.length === 0 && currentPrice > 0) {
+        historyPoints.push({
+          date: new Date().toISOString().split('T')[0],
+          price: currentPrice,
+        });
+      }
+
+      const firstPrice = historyPoints[0]?.price ?? currentPrice;
+      const changePercent = firstPrice > 0 ? Number((((currentPrice - firstPrice) / firstPrice) * 100).toFixed(2)) : 0;
+
+      return {
+        marketPriceId: mp.id,
+        finishId: mp.finishId,
+        finishName,
+        currentPrice,
+        changePercent,
+        history: historyPoints,
+      };
+    });
+
+    return {
+      productId: product.id,
+      productName: product.name,
+      slug: product.slug,
+      imageUrl: product.imageUrl,
+      days,
+      currency: 'USD',
+      series,
+    };
+  }
 }

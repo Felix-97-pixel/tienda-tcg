@@ -67,7 +67,27 @@ export class PriceUpdaterController {
 
     return {
       message: `La actualización de precios para la expansión '${expansion}' ha comenzado en segundo plano.`,
-      source: 'JustTCG API (Datos Premium NM/Foil)'
+      source: 'Scrydex API / TCGPlayer (Datos de Mercado)'
+    };
+  }
+
+  @Post('sync-onepiece')
+  @HttpCode(200)
+  async syncOnePiecePrices(@Body('expansion') expansion: string) {
+    if (!expansion) {
+      return { error: 'Debes enviar el nombre de la expansión en el cuerpo de la petición' };
+    }
+
+    const exists = await this.syncService.checkExpansionExists(expansion);
+    if (!exists) {
+      return { error: `La expansión '${expansion}' no existe en tu base de datos.` };
+    }
+
+    this.syncService.updatePrices('onepiece', expansion);
+
+    return {
+      message: `La actualización de precios para la expansión de One Piece '${expansion}' ha comenzado en segundo plano.`,
+      source: 'Scrydex API (Bulk 250 - 1 crédito/set)'
     };
   }
 

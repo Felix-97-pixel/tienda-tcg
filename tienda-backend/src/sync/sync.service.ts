@@ -3,9 +3,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RiftboundProvider } from './providers/riftbound.provider';
 import { MagicProvider } from './providers/magic.provider';
 import { PokemonProvider } from './providers/pokemon.provider';
+import { OnePieceProvider } from './providers/onepiece.provider';
 import { MagicService } from './magic.service';
 import { PokemonService } from './pokemon.service';
 import { RiftboundService } from './riftbound.service';
+import { ScrydexService } from './scrydex.service';
 
 @Injectable()
 export class SyncService {
@@ -26,18 +28,24 @@ export class SyncService {
         import: { current: 0, total: 0, active: false },
         price: { current: 0, total: 0, active: false }
       },
+      onepiece: {
+        import: { current: 0, total: 0, active: false },
+        price: { current: 0, total: 0, active: false }
+      },
     };
 
   constructor(
     private prisma: PrismaService,
     private magicService: MagicService,
     private pokemonService: PokemonService,
-    private riftboundService: RiftboundService
+    private riftboundService: RiftboundService,
+    private scrydexService: ScrydexService
   ) {
     this.providers = {
-      riftbound: new RiftboundProvider(this.prisma, this.riftboundService),
+      riftbound: new RiftboundProvider(this.prisma, this.riftboundService, this.scrydexService),
       pokemon: new PokemonProvider(this.prisma, this.pokemonService),
       magic: new MagicProvider(this.prisma, this.magicService),
+      onepiece: new OnePieceProvider(this.prisma, this.scrydexService),
     };
 
     // Inyectamos el callback para reportar progreso
@@ -174,7 +182,7 @@ export class SyncService {
 
   private async resolveProviderKey(game: string): Promise<string> {
     const settings = await this.prisma.globalSetting.findMany({
-      where: { key: { in: ['mtg_sync_destination', 'pokemon_sync_destination', 'riftbound_sync_destination'] } }
+      where: { key: { in: ['mtg_sync_destination', 'pokemon_sync_destination', 'riftbound_sync_destination', 'onepiece_sync_destination'] } }
     });
     const settingsMap = new Map(settings.map(s => [s.key, s.value.toLowerCase()]));
     const gameLower = game.toLowerCase();
@@ -182,10 +190,12 @@ export class SyncService {
     const mtgDest = settingsMap.get('mtg_sync_destination') || 'singles magic the gathering';
     const pkmDest = settingsMap.get('pokemon_sync_destination') || 'singles pokemon';
     const rbDest = settingsMap.get('riftbound_sync_destination') || 'singles riftbound';
+    const opDest = settingsMap.get('onepiece_sync_destination') || 'singles one piece';
 
-    if (gameLower === mtgDest) return 'magic';
-    if (gameLower === pkmDest) return 'pokemon';
-    if (gameLower === rbDest) return 'riftbound';
+    if (gameLower === mtgDest || gameLower.includes('magic')) return 'magic';
+    if (gameLower === pkmDest || gameLower.includes('pokemon')) return 'pokemon';
+    if (gameLower === rbDest || gameLower.includes('riftbound')) return 'riftbound';
+    if (gameLower === opDest || gameLower.includes('one piece') || gameLower === 'onepiece') return 'onepiece';
 
     return this.providers[gameLower] ? gameLower : '';
   }
@@ -217,6 +227,13 @@ export class SyncService {
    */
   async getRiftboundSets() {
     return this.riftboundService.fetchSets();
+  }
+
+  /**
+   * Obtiene la lista de ediciones de One Piece desde ScrydexService
+   */
+  async getOnePieceSets() {
+    return this.scrydexService.fetchSets('onepiece');
   }
   /**
    * Obtiene una vista previa del impacto de sincronización de precios para la tienda

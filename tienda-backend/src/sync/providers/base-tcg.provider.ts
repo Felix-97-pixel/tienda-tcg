@@ -236,6 +236,52 @@ export abstract class TcgProvider {
     this.logger.log(`Se eliminaron ${result.count} variantes sin precio para ${expansionName}.`);
   }
 
+  /**
+   * Guarda o actualiza el precio spot en MarketPrice y registra el snapshot
+   * en MarketPriceHistory (deduplicado automáticamente al día actual).
+   * Este método centralizado asegura que todas las estrategias registren histórico.
+   */
+  protected async saveMarketPrice(productId: string, finishId: string, price: number) {
+    if (!price || price <= 0) return null;
+
+    const mp = await this.prisma.marketPrice.upsert({
+      where: { productId_finishId: { productId, finishId } },
+      create: { productId, finishId, price },
+      update: { price }
+    });
+
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const existingToday = await this.prisma.marketPriceHistory.findFirst({
+        where: {
+          marketPriceId: mp.id,
+          createdAt: { gte: today }
+        }
+      });
+
+      if (existingToday) {
+        await this.prisma.marketPriceHistory.update({
+          where: { id: existingToday.id },
+          data: { price }
+        });
+      } else {
+        await this.prisma.marketPriceHistory.create({
+          data: {
+            marketPriceId: mp.id,
+            price,
+            createdAt: new Date()
+          }
+        });
+      }
+    } catch (histErr: any) {
+      this.logger.warn(`No se pudo registrar historial para producto ${productId}: ${histErr.message}`);
+    }
+
+    return mp;
+  }
+
   private async updateAttributes(productId: string, attributes: string[]) {
     await this.prisma.$executeRaw`
       UPDATE "CardDetail" SET attributes = ${attributes}::text[] WHERE "productId" = ${productId}

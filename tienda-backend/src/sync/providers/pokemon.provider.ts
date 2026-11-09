@@ -176,35 +176,19 @@ export class PokemonProvider extends TcgProvider {
           if (!product) continue;
 
           if (prices.normal?.mid > 0 && normalFinish) {
-            await this.prisma.marketPrice.upsert({
-              where: { productId_finishId: { productId: product.id, finishId: normalFinish.id } },
-              create: { productId: product.id, finishId: normalFinish.id, price: prices.normal.mid },
-              update: { price: prices.normal.mid }
-            });
+            await this.saveMarketPrice(product.id, normalFinish.id, prices.normal.mid);
             csvRecords.push(`${product.id},${normalFinish.id},${prices.normal.mid}`);
           }
           if (prices.holofoil?.mid > 0 && holoFinish) {
-            await this.prisma.marketPrice.upsert({
-              where: { productId_finishId: { productId: product.id, finishId: holoFinish.id } },
-              create: { productId: product.id, finishId: holoFinish.id, price: prices.holofoil.mid },
-              update: { price: prices.holofoil.mid }
-            });
+            await this.saveMarketPrice(product.id, holoFinish.id, prices.holofoil.mid);
             csvRecords.push(`${product.id},${holoFinish.id},${prices.holofoil.mid}`);
           }
           if (prices.reverseHolofoil?.mid > 0 && reverseFinish) {
-            await this.prisma.marketPrice.upsert({
-              where: { productId_finishId: { productId: product.id, finishId: reverseFinish.id } },
-              create: { productId: product.id, finishId: reverseFinish.id, price: prices.reverseHolofoil.mid },
-              update: { price: prices.reverseHolofoil.mid }
-            });
+            await this.saveMarketPrice(product.id, reverseFinish.id, prices.reverseHolofoil.mid);
             csvRecords.push(`${product.id},${reverseFinish.id},${prices.reverseHolofoil.mid}`);
           }
           if (prices.unlimitedHolofoil?.mid > 0 && unlimitedHoloFinish) {
-            await this.prisma.marketPrice.upsert({
-              where: { productId_finishId: { productId: product.id, finishId: unlimitedHoloFinish.id } },
-              create: { productId: product.id, finishId: unlimitedHoloFinish.id, price: prices.unlimitedHolofoil.mid },
-              update: { price: prices.unlimitedHolofoil.mid }
-            });
+            await this.saveMarketPrice(product.id, unlimitedHoloFinish.id, prices.unlimitedHolofoil.mid);
             csvRecords.push(`${product.id},${unlimitedHoloFinish.id},${prices.unlimitedHolofoil.mid}`);
           }
 
