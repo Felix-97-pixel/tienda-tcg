@@ -749,7 +749,9 @@
       "config_locations": "Regiões e Cidades",
       "back_to_shop": "Voltar para a Loja",
       "logout": "Sair da Conta",
-      "badge": "SuperAdmin Global"
+      "badge": "SuperAdmin Global",
+      "sync_lorcana": "Disney Lorcana",
+      "sync_gundam": "Gundam Card Game"
     },
     "header_global_admin": "ADMINISTRAÇÃO GLOBAL",
     "header_general_summary": "RESUMO GERAL",

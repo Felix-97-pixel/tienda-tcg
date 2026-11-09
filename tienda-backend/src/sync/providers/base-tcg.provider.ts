@@ -71,74 +71,117 @@ export abstract class TcgProvider {
       // Pre-cargar todos los finishes de este juego para resolver IDs rápido
       const allFinishes = await this.prisma.finish.findMany({ where: { gameId: gameId } });
       const finishMap = new Map(allFinishes.map(f => [f.name, f.id]));
+      const expansionCache = new Map<string, any>();
 
       let totalProcessed = 0;
       for (const card of externalCards) {
-        const productData = this.mapToProduct(card, categoryId);
-        const expectedVariantNames = this.getExpectedVariants(card);
-
-        let expansionRecord = await this.prisma.expansion.findFirst({
-          where: { name: productData.expansion, gameId: gameId }
-        });
-
-        if (!expansionRecord) {
-          expansionRecord = await this.prisma.expansion.create({
-            data: {
-              name: productData.expansion,
-              gameId: gameId,
-              externalId: setId // setId es usualmente el slug de la API
-            }
-          });
-        } else if (!expansionRecord.externalId && setId) {
-          // Si existía sin externalId (ej. migración), lo actualizamos
-          expansionRecord = await this.prisma.expansion.update({
-            where: { id: expansionRecord.id },
-            data: { externalId: setId }
-          });
-        }
-
-
-        const baseSlug = productData.name
-          .toString()
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .trim()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w\-]+/g, '')
-          .replace(/\-\-+/g, '-');
-
-        // Extraer identificador único limpio (sin prefijo rb- y alfanumérico)
-        const cleanExtId = productData.externalId.replace(/^rb-/, '').replace(/[^a-zA-Z0-9]/g, '');
-        const shortId = cleanExtId.length > 8 ? cleanExtId.slice(-8) : cleanExtId;
-        const cleanNum = productData.number
-          ? `-${productData.number.toString().toLowerCase().replace(/[^a-z0-9]/g, '')}`
-          : '';
-        const setCode = (setId || expansionRecord.externalId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-        const candidateSlug = `${baseSlug}${setCode ? `-${setCode}` : ''}${cleanNum}-${shortId}`;
-
-        // Garantizar unicidad absoluta del slug en la base de datos
-        let finalSlug = candidateSlug;
-        let suffix = 1;
-        while (true) {
-          const existingWithSlug = await this.prisma.product.findUnique({
-            where: { slug: finalSlug },
-            select: { id: true, externalId: true },
-          });
-          if (!existingWithSlug || existingWithSlug.externalId === productData.externalId) {
-            break;
-          }
-          finalSlug = `${candidateSlug}-${suffix++}`;
-        }
-
         try {
+          const productData = this.mapToProduct(card, categoryId);
+          const expectedVariantNames = this.getExpectedVariants(card);
+
+          const targetExpId = productData.expansionExternalId || setId || null;
+          const cacheKey = `${targetExpId || ''}::${productData.expansion}`;
+
+          let expansionRecord = expansionCache.get(cacheKey);
+          if (!expansionRecord) {
+            // 1. Intentar buscar por externalId + gameId (@unique de Prisma)
+            if (targetExpId) {
+              expansionRecord = await this.prisma.expansion.findUnique({
+                where: {
+                  externalId_gameId: {
+                    externalId: targetExpId,
+                    gameId: gameId,
+                  },
+                },
+              });
+            }
+
+            // 2. Si no se encontró por externalId, buscar por nombre
+            if (!expansionRecord) {
+              expansionRecord = await this.prisma.expansion.findFirst({
+                where: { name: productData.expansion, gameId: gameId },
+              });
+            }
+
+            // 3. Si no existe, crear con manejo seguro de concurrencia
+            if (!expansionRecord) {
+              try {
+                expansionRecord = await this.prisma.expansion.create({
+                  data: {
+                    name: productData.expansion,
+                    gameId: gameId,
+                    externalId: targetExpId,
+                  },
+                });
+              } catch (createErr: any) {
+                // Recuperar en caso de colisión de clave única
+                if (targetExpId) {
+                  expansionRecord = await this.prisma.expansion.findUnique({
+                    where: { externalId_gameId: { externalId: targetExpId, gameId } },
+                  });
+                }
+                if (!expansionRecord) {
+                  expansionRecord = await this.prisma.expansion.findFirst({
+                    where: { name: productData.expansion, gameId },
+                  });
+                }
+              }
+            } else if (!expansionRecord.externalId && targetExpId) {
+              try {
+                expansionRecord = await this.prisma.expansion.update({
+                  where: { id: expansionRecord.id },
+                  data: { externalId: targetExpId },
+                });
+              } catch (e) {
+                // Ignorar colisión silenciosamente si otro registro ya tiene el externalId
+              }
+            }
+
+            if (expansionRecord) {
+              expansionCache.set(cacheKey, expansionRecord);
+            }
+          }
+
+          const baseSlug = productData.name
+            .toString()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w\-]+/g, '')
+            .replace(/\-\-+/g, '-');
+
+          // Extraer identificador único limpio (sin prefijo rb- y alfanumérico)
+          const cleanExtId = productData.externalId.replace(/^rb-/, '').replace(/[^a-zA-Z0-9]/g, '');
+          const shortId = cleanExtId.length > 8 ? cleanExtId.slice(-8) : cleanExtId;
+          const cleanNum = productData.number
+            ? `-${productData.number.toString().toLowerCase().replace(/[^a-z0-9]/g, '')}`
+            : '';
+          const setCode = (targetExpId || expansionRecord?.externalId || setId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const candidateSlug = `${baseSlug}${setCode ? `-${setCode}` : ''}${cleanNum}-${shortId}`;
+
+          // Garantizar unicidad absoluta del slug en la base de datos
+          let finalSlug = candidateSlug;
+          let suffix = 1;
+          while (true) {
+            const existingWithSlug = await this.prisma.product.findUnique({
+              where: { slug: finalSlug },
+              select: { id: true, externalId: true },
+            });
+            if (!existingWithSlug || existingWithSlug.externalId === productData.externalId) {
+              break;
+            }
+            finalSlug = `${candidateSlug}-${suffix++}`;
+          }
+
           // 1. Buscar si ya existe por externalId O por (expansión + collectorNum + nombre)
           let existingProduct = await this.prisma.product.findUnique({
             where: { externalId: productData.externalId },
             select: { id: true, externalId: true, slug: true }
           });
 
-          if (!existingProduct && productData.number) {
+          if (!existingProduct && productData.number && expansionRecord) {
             existingProduct = await this.prisma.product.findFirst({
               where: {
                 categoryId,
@@ -164,7 +207,7 @@ export abstract class TcgProvider {
                 cardDetail: {
                   update: {
                     expansion: productData.expansion,
-                    expansionId: expansionRecord.id,
+                    expansionId: expansionRecord?.id,
                     rarity: productData.rarity,
                     collectorNum: productData.number,
                     gameId: gameId,
@@ -186,7 +229,7 @@ export abstract class TcgProvider {
                 cardDetail: {
                   create: {
                     expansion: productData.expansion,
-                    expansionId: expansionRecord.id,
+                    expansionId: expansionRecord?.id,
                     rarity: productData.rarity,
                     collectorNum: productData.number,
                     gameId: gameId,
@@ -200,7 +243,7 @@ export abstract class TcgProvider {
           totalProcessed++;
           this.onProgress?.(this.gameName, totalProcessed, externalCards.length, 'import');
         } catch (cardErr: any) {
-          this.logger.error(`Error importando carta ${productData.name} (${productData.externalId}): ${cardErr.message}`);
+          this.logger.error(`Error importando carta (${card?.id || 'unknown'}): ${cardErr.message}`);
         }
       }
 

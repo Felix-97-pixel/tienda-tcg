@@ -234,9 +234,10 @@ export class ProductsController {
     let adminCatalogStoreId: string | undefined;
     if (isAdminCatalog) {
       const tokenStoreId = await this.getStoreIdFromToken(req);
-      if (tokenStoreId) {
-        adminCatalogStoreId = tokenStoreId;
-      }
+      adminCatalogStoreId = tokenStoreId || storeId;
+      // En modo Catálogo Maestro NUNCA restringimos la búsqueda a que el producto tenga un item en la tienda.
+      // Así se muestran todos los productos globales importados aunque la tienda aún no tenga stock.
+      resolvedStoreId = undefined;
     }
 
     return this.productsService.findAll(pageNumber, limitNumber, category, expansion, attribute, searchName, resolvedStoreId, isPublic, state, isTcgBool, resolvedBuylistStoreId, bState, adminCatalogStoreId, inStockOnlyBool, game);

@@ -51,6 +51,11 @@ export class ScrydexService {
   private readonly logger = new Logger(ScrydexService.name);
   private readonly baseUrl = 'https://api.scrydex.com';
 
+  // Cache en memoria para listas de expansiones (TTL: 24 horas)
+  // Evita gastar créditos de la API cada vez que un usuario abre o recarga el dropdown en el admin.
+  private setsCache = new Map<string, { data: ScrydexSet[]; expiresAt: number }>();
+  private readonly SETS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
+
   private getHeaders(): Record<string, string> {
     const apiKey = process.env.SCRYDEX_API_KEY || process.env.SCRYDEX_SECONDARY_KEY || '';
     const teamId = process.env.SCRYDEX_TEAM_ID || '';
@@ -95,23 +100,40 @@ export class ScrydexService {
   }
 
   /**
-   * Obtiene la lista de expansiones/sets de un juego soportado (pokemon, onepiece, riftbound)
-   * Siempre pide pageSize=250 para traer la mayor cantidad por crédito.
+   * Obtiene la lista de expansiones/sets de un juego soportado (pokemon, onepiece, riftbound, lorcana, gundam).
+   * Almacena en caché en memoria por 24 horas para costar 0 créditos en cada navegación o recarga de dropdowns.
    */
-  async fetchSets(game: string): Promise<ScrydexSet[]> {
+  async fetchSets(game: string, forceRefresh = false): Promise<ScrydexSet[]> {
     const gameKey = game.toLowerCase();
+    const now = Date.now();
+    const cached = this.setsCache.get(gameKey);
+
+    if (!forceRefresh && cached && cached.expiresAt > now) {
+      this.logger.debug(`[Scrydex] Retornando ${cached.data.length} sets de ${gameKey} desde caché (0 créditos consumidos).`);
+      return cached.data;
+    }
+
     try {
+      this.logger.log(`[Scrydex] Consultando lista de expansiones para ${gameKey} a la API externa (1 crédito)...`);
       const res = await this.safeGet<any>(`/${gameKey}/v1/expansions`, { pageSize: 250 });
+      let sets: ScrydexSet[] = [];
       if (Array.isArray(res?.data)) {
-        return res.data;
+        sets = res.data;
+      } else if (Array.isArray(res)) {
+        sets = res;
       }
-      if (Array.isArray(res)) {
-        return res;
+
+      if (sets.length > 0) {
+        this.setsCache.set(gameKey, {
+          data: sets,
+          expiresAt: now + this.SETS_CACHE_TTL_MS,
+        });
       }
-      return [];
+
+      return sets;
     } catch (e: any) {
       this.logger.warn(`No se pudieron obtener los sets de Scrydex para ${gameKey}: ${e.message}`);
-      return [];
+      return cached ? cached.data : [];
     }
   }
 

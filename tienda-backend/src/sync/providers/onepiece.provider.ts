@@ -50,7 +50,7 @@ export class OnePieceProvider extends TcgProvider {
       const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('onepiece', setId, page, pageSize);
       if (cards.length === 0) break;
       allCards = allCards.concat(cards);
-      if (allCards.length >= totalCount || cards.length < pageSize) {
+      if (allCards.length >= totalCount || cards.length === 0) {
         hasMore = false;
       } else {
         page++;
@@ -71,13 +71,23 @@ export class OnePieceProvider extends TcgProvider {
     if (c.card_type || c.type) attrs.push(c.card_type || c.type);
     if (c.attribute) attrs.push(c.attribute);
 
+    const imageUrl =
+      c.images?.[0]?.large ||
+      c.images?.[0]?.medium ||
+      c.images?.[0]?.small ||
+      c.imageUrl ||
+      '';
+
     const expansionName = c.expansion?.name || c.set?.name || c.expansion_id || 'One Piece Set';
+    const expansionExtId = c.expansion?.id || c.set?.id || c.expansion_id || '';
 
     return {
       externalId: c.id,
       name: c.name,
-      image: c.images?.large || c.images?.small || c.imageUrl || '',
+      description: Array.isArray(c.rules) ? c.rules.join('\n') : c.effect || c.description || '',
+      image: imageUrl,
       expansion: expansionName,
+      expansionExternalId: expansionExtId,
       rarity: c.rarity || 'Common',
       number: c.collector_number || c.number || '',
       attributes: attrs,

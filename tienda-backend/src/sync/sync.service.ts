@@ -194,7 +194,14 @@ export class SyncService {
 
   private async resolveProviderKey(game: string): Promise<string> {
     const settings = await this.prisma.globalSetting.findMany({
-      where: { key: { in: ['mtg_sync_destination', 'pokemon_sync_destination', 'riftbound_sync_destination', 'onepiece_sync_destination'] } }
+      where: { key: { in: [
+        'mtg_sync_destination',
+        'pokemon_sync_destination',
+        'riftbound_sync_destination',
+        'onepiece_sync_destination',
+        'lorcana_sync_destination',
+        'gundam_sync_destination'
+      ] } }
     });
     const settingsMap = new Map(settings.map(s => [s.key, s.value.toLowerCase()]));
     const gameLower = game.toLowerCase();
@@ -203,11 +210,15 @@ export class SyncService {
     const pkmDest = settingsMap.get('pokemon_sync_destination') || 'singles pokemon';
     const rbDest = settingsMap.get('riftbound_sync_destination') || 'singles riftbound';
     const opDest = settingsMap.get('onepiece_sync_destination') || 'singles one piece';
+    const lrcDest = settingsMap.get('lorcana_sync_destination') || 'singles lorcana';
+    const gdmDest = settingsMap.get('gundam_sync_destination') || 'singles gundam';
 
     if (gameLower === mtgDest || gameLower.includes('magic')) return 'magic';
     if (gameLower === pkmDest || gameLower.includes('pokemon')) return 'pokemon';
     if (gameLower === rbDest || gameLower.includes('riftbound')) return 'riftbound';
     if (gameLower === opDest || gameLower.includes('one piece') || gameLower === 'onepiece') return 'onepiece';
+    if (gameLower === lrcDest || gameLower.includes('lorcana')) return 'lorcana';
+    if (gameLower === gdmDest || gameLower.includes('gundam')) return 'gundam';
 
     return this.providers[gameLower] ? gameLower : '';
   }

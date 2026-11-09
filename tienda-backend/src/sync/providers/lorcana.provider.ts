@@ -52,7 +52,7 @@ export class LorcanaProvider extends TcgProvider {
       );
       if (cards.length === 0) break;
       allCards.push(...cards);
-      if (cards.length < pageSize || allCards.length >= totalCount) {
+      if (cards.length === 0 || allCards.length >= totalCount) {
         hasMore = false;
       } else {
         page++;
@@ -85,6 +85,7 @@ export class LorcanaProvider extends TcgProvider {
       '';
 
     const expansionName = c.expansion?.name || c.set_name || 'Disney Lorcana';
+    const expansionExtId = c.expansion?.id || c.set_id || '';
 
     return {
       externalId: c.id,
@@ -92,6 +93,7 @@ export class LorcanaProvider extends TcgProvider {
       description: Array.isArray(c.rules) ? c.rules.join('\n') : c.effect || c.description || '',
       image: imageUrl,
       expansion: expansionName,
+      expansionExternalId: expansionExtId,
       rarity: c.rarity || 'Common',
       number: c.collector_number || c.printed_number || c.number || '',
       attributes: attrs,
