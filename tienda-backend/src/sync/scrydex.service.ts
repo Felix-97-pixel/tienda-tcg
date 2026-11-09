@@ -114,23 +114,29 @@ export class ScrydexService {
     }
 
     try {
-      this.logger.log(`[Scrydex] Consultando lista de expansiones para ${gameKey} a la API externa (1 crédito)...`);
-      const res = await this.safeGet<any>(`/${gameKey}/v1/expansions`, { pageSize: 250 });
-      let sets: ScrydexSet[] = [];
-      if (Array.isArray(res?.data)) {
-        sets = res.data;
-      } else if (Array.isArray(res)) {
-        sets = res;
+      this.logger.log(`[Scrydex] Consultando lista de expansiones para ${gameKey} a la API externa...`);
+      let page = 1;
+      let allSets: ScrydexSet[] = [];
+      let totalCount = 0;
+
+      while (true) {
+        const res = await this.safeGet<any>(`/${gameKey}/v1/expansions`, { page, pageSize: 100 });
+        const sets: ScrydexSet[] = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (sets.length === 0) break;
+        allSets = allSets.concat(sets);
+        totalCount = Number(res?.total_count || res?.totalCount || res?.total || allSets.length);
+        if (allSets.length >= totalCount || sets.length === 0) break;
+        page++;
       }
 
-      if (sets.length > 0) {
+      if (allSets.length > 0) {
         this.setsCache.set(gameKey, {
-          data: sets,
+          data: allSets,
           expiresAt: now + this.SETS_CACHE_TTL_MS,
         });
       }
 
-      return sets;
+      return allSets;
     } catch (e: any) {
       this.logger.warn(`No se pudieron obtener los sets de Scrydex para ${gameKey}: ${e.message}`);
       return cached ? cached.data : [];

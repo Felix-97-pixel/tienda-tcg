@@ -53,7 +53,7 @@ export class SyncService {
   ) {
     this.providers = {
       riftbound: new RiftboundProvider(this.prisma, this.riftboundService, this.scrydexService),
-      pokemon: new PokemonProvider(this.prisma, this.pokemonService),
+      pokemon: new PokemonProvider(this.prisma, this.scrydexService),
       magic: new MagicProvider(this.prisma, this.magicService),
       onepiece: new OnePieceProvider(this.prisma, this.scrydexService),
       lorcana: new LorcanaProvider(this.prisma, this.scrydexService),
