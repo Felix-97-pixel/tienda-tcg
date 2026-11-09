@@ -7,6 +7,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import LanguageSelector from "@/components/ui/LanguageSelector";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { useTheme } from "@/app/context/ThemeContext";
 import {
   IconLock,
   IconShieldCheck,
@@ -22,6 +24,7 @@ export default function RestablecerContrasenaForm() {
   const tr = useTranslations("recovery");
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
+  const { isLight } = useTheme();
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -90,7 +93,7 @@ export default function RestablecerContrasenaForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#07090E] text-white">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] transition-colors">
       {/* ============================================================ */}
       {/* COLUMNA IZQUIERDA: SHOWCASE VISUAL ATMOSFÉRICO */}
       {/* ============================================================ */}
@@ -171,41 +174,60 @@ export default function RestablecerContrasenaForm() {
       {/* COLUMNA DERECHA: FORMULARIO */}
       {/* ============================================================ */}
       <div className="w-full lg:w-1/2 xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 min-h-screen relative">
-        {/* Barra superior */}
-        <div className="flex items-center justify-between mb-8 gap-3">
-          <Link href="/" className="lg:hidden flex items-center gap-2">
+        {/* Glow de fondo decorativo */}
+        <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
+
+        {/* Language selector, Theme toggle & Back button in top right (Desktop) */}
+        <div className="hidden lg:flex items-center gap-2.5 absolute top-6 right-6 z-20">
+          <LanguageSelector />
+          <ThemeToggle />
+          <Link
+            href="/login"
+            aria-label={tr("back_to_login")}
+            title={tr("back_to_login")}
+            className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
+          >
+            <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+
+        {/* Logo móvil y controles superiores sin superposición */}
+        <div className="lg:hidden flex items-center justify-between gap-2 mb-8">
+          <Link href="/" className="inline-flex items-center gap-2.5 shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center font-black text-white text-base">
               T
             </div>
-            <span className="font-black text-lg text-white">
+            <span className="font-black text-lg text-[var(--tt-text-main)]">
               Tap<span className="text-red">Trade</span>
             </span>
           </Link>
 
-          <div className="flex items-center gap-2.5 ml-auto">
+          <div className="flex items-center gap-2 shrink-0">
             <LanguageSelector />
+            <ThemeToggle />
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/70 hover:text-white transition-colors group px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10"
+              aria-label={tr("back_to_login")}
+              title={tr("back_to_login")}
+              className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
             >
-              <IconArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              <span>{tr("back_to_login")}</span>
+              <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             </Link>
           </div>
         </div>
 
         {/* Contenedor Central */}
-        <div className="max-w-[460px] w-full mx-auto my-auto py-6">
+        <div className="max-w-[460px] w-full mx-auto my-auto py-6 relative z-10">
           {!token ? (
             /* ========================================================== */
             /* SIN TOKEN EN LA URL */
             /* ========================================================== */
             <div className="text-center py-6">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto mb-5 shadow-lg shadow-amber-500/10">
-                <IconAlertTriangle className="w-7 h-7 text-amber-400" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 mx-auto mb-5 shadow-lg shadow-amber-500/10">
+                <IconAlertTriangle className="w-7 h-7 text-amber-500" />
               </div>
-              <h2 className="text-2xl font-black text-white mb-2">{t("missing_token_title")}</h2>
-              <p className="text-sm text-white/60 mb-6 leading-relaxed">
+              <h2 className="text-2xl font-black text-[var(--tt-text-main)] mb-2">{t("missing_token_title")}</h2>
+              <p className="text-sm text-[var(--tt-text-muted)] mb-6 leading-relaxed">
                 {t("missing_token_desc")}
               </p>
               <Link
@@ -224,10 +246,10 @@ export default function RestablecerContrasenaForm() {
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red/20 via-orange/10 to-transparent border border-red/30 flex items-center justify-center text-red shadow-lg shadow-red/20 mb-5">
                   <IconLock className="w-5 h-5 text-red" />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--tt-text-main)] mb-2">
                   {t("title")}
                 </h2>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <p className="text-sm text-[var(--tt-text-muted)] leading-relaxed">
                   {t("subtitle")}
                 </p>
               </div>
@@ -239,11 +261,11 @@ export default function RestablecerContrasenaForm() {
                     <IconAlertTriangle className="w-4 h-4 text-red" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-red-light leading-relaxed">{error}</p>
+                    <p className="text-xs text-red leading-relaxed">{error}</p>
                     {error.includes("expirado") || error.includes("inválido") || error.includes("utilizado") ? (
                       <Link
                         href="/forgot-password"
-                        className="inline-block mt-2 text-xs text-white underline hover:text-red-light font-semibold"
+                        className="inline-block mt-2 text-xs text-[var(--tt-text-main)] underline hover:text-red font-semibold"
                       >
                         {t("err_token_expired")}
                       </Link>
@@ -256,17 +278,17 @@ export default function RestablecerContrasenaForm() {
                 {/* Nueva Contraseña */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70">
+                    <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
                       {t("new_password_label")}
                     </label>
                     {password && (
-                      <span className="text-[11px] font-semibold text-white/50">
-                        {t("strength_level")} <span className="text-white">{passwordStrength.label}</span>
+                      <span className="text-[11px] font-semibold text-[var(--tt-text-muted)]">
+                        {t("strength_level")} <span className="text-[var(--tt-text-main)]">{passwordStrength.label}</span>
                       </span>
                     )}
                   </div>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <IconLock className="w-4 h-4" />
                     </div>
                     <input
@@ -277,12 +299,12 @@ export default function RestablecerContrasenaForm() {
                       placeholder={t("placeholder_min_length")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all"
+                      className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-11 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors"
                       aria-label={t("toggle_password_aria")}
                     >
                       {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
@@ -292,9 +314,9 @@ export default function RestablecerContrasenaForm() {
                   {/* Barra de progreso de fuerza */}
                   {password && (
                     <div className="mt-2 flex gap-1 h-1">
-                      <div className={`flex-1 rounded-full ${passwordStrength.score >= 1 ? passwordStrength.color : "bg-white/10"} transition-all`} />
-                      <div className={`flex-1 rounded-full ${passwordStrength.score >= 2 ? passwordStrength.color : "bg-white/10"} transition-all`} />
-                      <div className={`flex-1 rounded-full ${passwordStrength.score >= 3 ? passwordStrength.color : "bg-white/10"} transition-all`} />
+                      <div className={`flex-1 rounded-full ${passwordStrength.score >= 1 ? passwordStrength.color : "bg-[var(--tt-border-medium)]"} transition-all`} />
+                      <div className={`flex-1 rounded-full ${passwordStrength.score >= 2 ? passwordStrength.color : "bg-[var(--tt-border-medium)]"} transition-all`} />
+                      <div className={`flex-1 rounded-full ${passwordStrength.score >= 3 ? passwordStrength.color : "bg-[var(--tt-border-medium)]"} transition-all`} />
                     </div>
                   )}
                 </div>
@@ -302,22 +324,22 @@ export default function RestablecerContrasenaForm() {
                 {/* Confirmar Nueva Contraseña */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-white/70">
+                    <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-main)]">
                       {t("confirm_password_label")}
                     </label>
                     {passwordsMatch && (
-                      <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                      <span className="text-[11px] font-semibold text-emerald-500 flex items-center gap-1">
                         {t("passwords_match")}
                       </span>
                     )}
                     {passwordsDontMatch && (
-                      <span className="text-[11px] font-semibold text-red-light flex items-center gap-1">
+                      <span className="text-[11px] font-semibold text-red flex items-center gap-1">
                         {t("passwords_dont_match")}
                       </span>
                     )}
                   </div>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <IconLock className="w-4 h-4" />
                     </div>
                     <input
@@ -327,18 +349,18 @@ export default function RestablecerContrasenaForm() {
                       placeholder={t("placeholder_confirm")}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full bg-[#0E121B] border ${
+                      className={`w-full bg-[var(--tt-bg-surface)] border ${
                         passwordsMatch
                           ? "border-emerald-500/50 focus:border-emerald-500"
                           : passwordsDontMatch
                           ? "border-red/50 focus:border-red"
-                          : "border-white/10 focus:border-red"
-                      } rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-red/20 transition-all`}
+                          : "border-[var(--tt-border-medium)] focus:border-red"
+                      } rounded-xl pl-10 pr-11 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] focus:outline-none focus:ring-2 focus:ring-red/20 transition-all shadow-xs`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors"
                       aria-label={t("toggle_confirm_aria")}
                     >
                       {showConfirmPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
@@ -370,15 +392,15 @@ export default function RestablecerContrasenaForm() {
             /* ESTADO 3: ÉXITO */
             /* ========================================================== */
             <div className="text-center py-6 animate-fadeIn">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-6 shadow-xl shadow-emerald-500/10">
-                <IconCheckCircle className="w-8 h-8 text-emerald-400" />
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+                <IconCheckCircle className="w-8 h-8 text-emerald-500" />
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--tt-text-main)] mb-3">
                 {t("success_title")}
               </h2>
 
-              <p className="text-sm text-white/70 leading-relaxed mb-8 max-w-sm mx-auto">
+              <p className="text-sm text-[var(--tt-text-muted)] leading-relaxed mb-8 max-w-sm mx-auto">
                 {t("success_desc")}
               </p>
 
@@ -393,14 +415,14 @@ export default function RestablecerContrasenaForm() {
         </div>
 
         {/* Footer */}
-        <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
+        <div className="pt-6 border-t border-[var(--tt-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--tt-text-muted)]">
           <p>© {new Date().getFullYear()} TapTrade Marketplace.</p>
           <div className="flex items-center gap-4">
-            <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
+            <Link href="/terms-and-conditions" className="hover:text-[var(--tt-text-main)] transition-colors">
               {tr("terms")}
             </Link>
             <span>•</span>
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">
+            <Link href="/privacy-policy" className="hover:text-[var(--tt-text-main)] transition-colors">
               {tr("privacy")}
             </Link>
           </div>

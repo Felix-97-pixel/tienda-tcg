@@ -7,11 +7,14 @@ import { useTranslations } from "next-intl";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
-import { IconShieldCheck, IconTrendingUp, IconZap } from "@/components/ui/Icons";
+import { IconShieldCheck, IconTrendingUp, IconZap, IconArrowLeft, IconCheckCircle, IconAlertTriangle } from "@/components/ui/Icons";
 import LanguageSelector from "@/components/ui/LanguageSelector";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { useTheme } from "@/app/context/ThemeContext";
 
 export default function SignupForm() {
   const t = useTranslations("register");
+  const { isLight } = useTheme();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,7 +72,7 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#07090E] text-white">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] transition-colors">
       {/* ============================================================ */}
       {/* COLUMNA IZQUIERDA: SHOWCASE VISUAL ATMOSFÉRICO */}
       {/* ============================================================ */}
@@ -105,15 +108,10 @@ export default function SignupForm() {
             </div>
           </Link>
 
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-white/80 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-full border border-white/10 transition-all backdrop-blur-md"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            {t("back_to_shop" as any) || "Volver a la tienda"}
-          </Link>
+          <div className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-mono text-white/80">{t("badge_register")}</span>
+          </div>
         </div>
 
         {/* Centro / Texto Hero */}
@@ -125,7 +123,7 @@ export default function SignupForm() {
 
           <h1 className="text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.15] mb-5">
             {t("hero_join")}{" "}
-            <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-red-light via-red to-orange">
+            <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-500 to-amber-500">
               {t("hero_community")}
             </span>
           </h1>
@@ -176,9 +174,18 @@ export default function SignupForm() {
         {/* Glow de fondo decorativo */}
         <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
 
-        {/* Language selector in top right (Desktop only; on Mobile lives in the top bar row) */}
-        <div className="hidden lg:block absolute top-6 right-6 z-20">
+        {/* Language selector, Theme toggle & Back button in top right (Desktop) */}
+        <div className="hidden lg:flex items-center gap-2.5 absolute top-6 right-6 z-20">
           <LanguageSelector />
+          <ThemeToggle />
+          <Link
+            href="/"
+            aria-label={t("back_to_shop" as any) || "Volver"}
+            title={t("back_to_shop" as any) || "Volver"}
+            className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
+          >
+            <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          </Link>
         </div>
 
         <div className="w-full max-w-[460px] relative z-10">
@@ -188,51 +195,50 @@ export default function SignupForm() {
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-dark to-orange flex items-center justify-center shadow-lg shadow-red/25">
                 <span className="text-white font-black text-lg leading-none">T</span>
               </div>
-              <span className="text-xl font-black tracking-tight text-white">
+              <span className="text-xl font-black tracking-tight text-[var(--tt-text-main)]">
                 Tap<span className="text-red">Trade</span>
               </span>
             </Link>
 
             <div className="flex items-center gap-2 shrink-0">
               <LanguageSelector />
+              <ThemeToggle />
               <Link
                 href="/"
-                className="text-xs font-medium text-white/70 hover:text-white px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap"
+                aria-label={t("back_to_shop" as any) || "Volver"}
+                title={t("back_to_shop" as any) || "Volver"}
+                className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
               >
-                {t("back_short")}
+                <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
               </Link>
             </div>
           </div>
 
           {/* ESTADO 1: REGISTRO EXITOSO */}
           {isRegistered ? (
-            <div className="bg-[#0B0E17] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl text-center">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/20">
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-3xl p-8 sm:p-10 shadow-2xl backdrop-blur-xl text-center">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/20">
+                <IconCheckCircle className="w-8 h-8 text-emerald-500" />
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+              <h2 className="text-2xl sm:text-3xl font-black text-[var(--tt-text-main)] tracking-tight mb-3">
                 {t("success_title")}
               </h2>
 
-              <p className="text-white/70 text-sm leading-relaxed mb-6">
+              <p className="text-[var(--tt-text-muted)] text-sm leading-relaxed mb-6">
                 {t("success_desc")}
                 <br />
-                <span className="font-bold text-white text-base mt-1 inline-block bg-white/5 px-3 py-1 rounded-lg border border-white/10">
+                <span className="font-bold text-[var(--tt-text-main)] text-base mt-1 inline-block bg-[var(--tt-bg-subtle)] px-3 py-1 rounded-lg border border-[var(--tt-border-medium)]">
                   {email}
                 </span>
               </p>
 
-              <div className="bg-red/5 border border-red/20 rounded-2xl p-4 text-left text-xs text-white/80 space-y-2 mb-8">
-                <div className="font-bold text-red-light flex items-center gap-2">
-                  <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
+              <div className="bg-red/5 border border-red/20 rounded-2xl p-4 text-left text-xs text-[var(--tt-text-main)] space-y-2 mb-8">
+                <div className="font-bold text-red flex items-center gap-2">
+                  <IconAlertTriangle className="w-4 h-4 text-red shrink-0" />
                   {t("instructions_title")}
                 </div>
-                <ol className="list-decimal pl-4.5 space-y-1 text-white/70">
+                <ol className="list-decimal pl-4.5 space-y-1 text-[var(--tt-text-muted)]">
                   <li>{t("instruction_1")}</li>
                   <li>{t("instruction_2")}</li>
                   <li>{t("instruction_3")}</li>
@@ -249,7 +255,7 @@ export default function SignupForm() {
 
                 <Link
                   href="/"
-                  className="w-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white font-semibold rounded-xl py-3 px-4 border border-white/10 text-xs transition-all block text-center"
+                  className="w-full bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] font-semibold rounded-xl py-3 px-4 border border-[var(--tt-border-medium)] text-xs transition-all block text-center"
                 >
                   {t("back_to_shop" as any) || "Volver a la tienda"}
                 </Link>
@@ -260,10 +266,10 @@ export default function SignupForm() {
             <div>
               {/* Encabezado del Formulario */}
               <div className="mb-6">
-                <h2 className="text-3xl font-black text-white tracking-tight mb-2">
+                <h2 className="text-3xl font-black text-[var(--tt-text-main)] tracking-tight mb-2">
                   {t("title")}
                 </h2>
-                <p className="text-white/60 text-sm">
+                <p className="text-[var(--tt-text-muted)] text-sm">
                   {t("subtitle")}
                 </p>
               </div>
@@ -275,11 +281,11 @@ export default function SignupForm() {
 
               {/* Separador elegante y sutil sin recuadro */}
               <div className="flex items-center gap-3 my-6">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                <span className="text-[11px] font-medium tracking-wider uppercase text-white/40 select-none shrink-0">
+                <div className="h-px flex-1 bg-[var(--tt-border-medium)]" />
+                <span className="text-[11px] font-medium tracking-wider uppercase text-[var(--tt-text-muted)] select-none shrink-0">
                   {t("or_email")}
                 </span>
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                <div className="h-px flex-1 bg-[var(--tt-border-medium)]" />
               </div>
 
 
@@ -297,11 +303,11 @@ export default function SignupForm() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Nombre Completo */}
                 <div>
-                  <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
+                  <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2">
                     {t("name_label")}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
@@ -316,18 +322,18 @@ export default function SignupForm() {
                       required
                       placeholder={t("name_placeholder")}
                       autoComplete="name"
-                      className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
+                      className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
                     />
                   </div>
                 </div>
 
                 {/* Correo Electrónico */}
                 <div>
-                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
+                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2">
                     {t("email_label")}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <rect x="2" y="4" width="20" height="16" rx="2"/>
                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
@@ -342,18 +348,18 @@ export default function SignupForm() {
                       required
                       placeholder={t("email_placeholder")}
                       autoComplete="email"
-                      className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
+                      className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
                     />
                   </div>
                 </div>
 
                 {/* Contraseña */}
                 <div>
-                  <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
+                  <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2">
                     {t("password_label")}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -368,13 +374,13 @@ export default function SignupForm() {
                       required
                       placeholder={t("password_placeholder")}
                       autoComplete="new-password"
-                      className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
+                      className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-11 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? (t("hide_pwd_aria" as any) || "Ocultar") : (t("show_pwd_aria" as any) || "Ver")}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors"
                     >
                       {showPassword ? (
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -393,11 +399,11 @@ export default function SignupForm() {
 
                 {/* Confirmar Contraseña */}
                 <div>
-                  <label htmlFor="rePassword" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
+                  <label htmlFor="rePassword" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2">
                     {t("confirm_password")}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -412,13 +418,13 @@ export default function SignupForm() {
                       required
                       placeholder={t("confirm_password_placeholder")}
                       autoComplete="new-password"
-                      className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
+                      className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-11 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
                     />
                     <button
                       type="button"
                       onClick={() => setShowRePassword(!showRePassword)}
                       aria-label={showRePassword ? (t("hide_pwd_aria" as any) || "Ocultar") : (t("show_pwd_aria" as any) || "Ver")}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors"
                     >
                       {showRePassword ? (
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -437,19 +443,19 @@ export default function SignupForm() {
 
                 {/* Checkbox Términos y Privacidad (Requerimiento Ley de Protección de Datos) */}
                 <div className="pt-2">
-                  <label className="flex items-start gap-3 text-xs text-white/70 cursor-pointer select-none group leading-relaxed">
+                  <label className="flex items-start gap-3 text-xs text-[var(--tt-text-muted)] cursor-pointer select-none group leading-relaxed">
                     <input
                       type="checkbox"
                       checked={acceptedTerms}
                       onChange={(e) => setAcceptedTerms(e.target.checked)}
-                      className="w-4 h-4 rounded bg-[#0E121B] border-white/20 text-red focus:ring-red/30 focus:ring-offset-0 focus:ring-1 accent-[#F23030] cursor-pointer shrink-0 mt-0.5"
+                      className="w-4 h-4 rounded bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-red focus:ring-red/30 focus:ring-offset-0 focus:ring-1 accent-[#F23030] cursor-pointer shrink-0 mt-0.5"
                     />
-                    <span className="group-hover:text-white transition-colors">
+                    <span className="group-hover:text-[var(--tt-text-main)] transition-colors">
                       {t("terms_accept")}{" "}
                       <Link
                         href="/terms-and-conditions"
                         target="_blank"
-                        className="text-red-light hover:text-white underline font-semibold"
+                        className="text-red hover:underline font-semibold"
                       >
                         {t("terms_link")}
                       </Link>{" "}
@@ -457,7 +463,7 @@ export default function SignupForm() {
                       <Link
                         href="/privacy-policy"
                         target="_blank"
-                        className="text-red-light hover:text-white underline font-semibold"
+                        className="text-red hover:underline font-semibold"
                       >
                         {t("privacy_link")}
                       </Link>{" "}
@@ -471,7 +477,7 @@ export default function SignupForm() {
                   <Turnstile
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                     onSuccess={(token) => setCaptchaToken(token)}
-                    options={{ theme: "dark" }}
+                    options={{ theme: isLight ? "light" : "dark" }}
                   />
                 </div>
 
@@ -496,12 +502,12 @@ export default function SignupForm() {
               </form>
 
               {/* Enlace para Iniciar Sesión */}
-              <div className="mt-8 pt-6 border-t border-white/10 text-center">
-                <p className="text-xs text-white/60">
+              <div className="mt-8 pt-6 border-t border-[var(--tt-border-subtle)] text-center">
+                <p className="text-xs text-[var(--tt-text-muted)]">
                   {t("have_account_prompt")}{" "}
                   <Link
                     href="/login"
-                    className="text-red-light hover:text-white font-bold transition-colors ml-1"
+                    className="text-red hover:underline font-bold transition-colors ml-1"
                   >
                     {t("login_link_here")}
                   </Link>

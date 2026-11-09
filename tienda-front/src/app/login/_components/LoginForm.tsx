@@ -13,12 +13,15 @@ import { API_URL } from "@/utils/api";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import { IconShieldCheck, IconZap, IconSparkles, IconArrowLeft } from "@/components/ui/Icons";
 import LanguageSelector from "@/components/ui/LanguageSelector";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { useTheme } from "@/app/context/ThemeContext";
 
 export default function LoginForm() {
   const t = useTranslations("login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
+  const { isLight } = useTheme();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -95,7 +98,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#07090E] text-white">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] transition-colors">
       {/* ============================================================ */}
       {/* COLUMNA IZQUIERDA: SHOWCASE VISUAL ATMOSFÉRICO */}
       {/* ============================================================ */}
@@ -115,7 +118,7 @@ export default function LoginForm() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#E10E0E20,transparent_60%)]" />
         </div>
 
-        {/* Top: Logo de la plataforma */}
+        {/* Top: Logo de la plataforma e insignia de seguridad */}
         <div className="relative z-10 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center shadow-lg shadow-red/30 group-hover:scale-105 transition-all border border-white/10">
@@ -131,13 +134,10 @@ export default function LoginForm() {
             </div>
           </Link>
 
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-white/80 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-full border border-white/10 transition-all backdrop-blur-md"
-          >
-            <IconArrowLeft className="w-3.5 h-3.5" />
-            {t("back_to_shop")}
-          </Link>
+          <div className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-mono text-white/80">{t("badge_tcg")}</span>
+          </div>
         </div>
 
         {/* Centro / Texto Hero */}
@@ -149,7 +149,7 @@ export default function LoginForm() {
 
           <h1 className="text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.15] mb-5">
             {t("hero_welcome")}{" "}
-            <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-red-light via-red to-orange">
+            <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-500 to-amber-500">
               {t("hero_vault")}
             </span>
           </h1>
@@ -194,15 +194,24 @@ export default function LoginForm() {
       </div>
 
       {/* ============================================================ */}
-      {/* COLUMNA DERECHA: FORMULARIO DE INGRESO (Limpio y Despejado) */}
+      {/* COLUMNA DERECHA: FORMULARIO DE INGRESO (Dual Light/Dark) */}
       {/* ============================================================ */}
       <div className="w-full lg:w-1/2 xl:w-[48%] flex items-center justify-center p-6 sm:p-12 xl:p-16 relative">
         {/* Glow de fondo decorativo */}
         <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
 
-        {/* Language selector in top right (Desktop only; on Mobile lives in the top bar row) */}
-        <div className="hidden lg:block absolute top-6 right-6 z-20">
+        {/* Language selector, Theme toggle & Back button in top right (Desktop) */}
+        <div className="hidden lg:flex items-center gap-2.5 absolute top-6 right-6 z-20">
           <LanguageSelector />
+          <ThemeToggle />
+          <Link
+            href="/"
+            aria-label={t("back_to_shop")}
+            title={t("back_to_shop")}
+            className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
+          >
+            <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          </Link>
         </div>
 
         <div className="w-full max-w-[440px] relative z-10">
@@ -212,28 +221,31 @@ export default function LoginForm() {
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-dark to-orange flex items-center justify-center shadow-lg shadow-red/25">
                 <span className="text-white font-black text-lg leading-none">T</span>
               </div>
-              <span className="text-xl font-black tracking-tight text-white">
+              <span className="text-xl font-black tracking-tight text-[var(--tt-text-main)]">
                 Tap<span className="text-red">Trade</span>
               </span>
             </Link>
 
             <div className="flex items-center gap-2 shrink-0">
               <LanguageSelector />
+              <ThemeToggle />
               <Link
                 href="/"
-                className="text-xs font-medium text-white/70 hover:text-white px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap"
+                aria-label={t("back_to_shop")}
+                title={t("back_to_shop")}
+                className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
               >
-                {t("back_short")}
+                <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
               </Link>
             </div>
           </div>
 
           {/* Encabezado del Formulario */}
           <div className="mb-6">
-            <h2 className="text-3xl font-black text-white tracking-tight mb-2">
+            <h2 className="text-3xl font-black text-[var(--tt-text-main)] tracking-tight mb-2">
               {t("title")}
             </h2>
-            <p className="text-white/60 text-sm">
+            <p className="text-[var(--tt-text-muted)] text-sm">
               {t("subtitle")}
             </p>
           </div>
@@ -245,190 +257,189 @@ export default function LoginForm() {
 
           {/* Separador elegante y sutil sin recuadro */}
           <div className="flex items-center gap-3 my-6">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-            <span className="text-[11px] font-medium tracking-wider uppercase text-white/40 select-none shrink-0">
+            <div className="h-px flex-1 bg-[var(--tt-border-medium)]" />
+            <span className="text-[11px] font-medium tracking-wider uppercase text-[var(--tt-text-muted)] select-none shrink-0">
               {t("or_email")}
             </span>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+            <div className="h-px flex-1 bg-[var(--tt-border-medium)]" />
           </div>
-
 
           {/* Mensaje de Error / Verificación */}
-          {error && (
-            error.toLowerCase().includes("verific") ? (
-              <div className="mb-6 p-4 bg-yellow/10 border border-yellow/30 rounded-2xl text-left text-xs text-yellow-light flex flex-col gap-1.5 leading-relaxed backdrop-blur-md">
-                <div className="font-bold flex items-center gap-2 text-yellow">
-                  <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {t("unverified_title")}
-                </div>
-                <p className="text-white/80">{error}</p>
-                <p className="text-[11px] text-white/50 mt-1">
-                  {t("unverified_help")}
-                </p>
-              </div>
-            ) : (
-              <div className="mb-6 p-3.5 bg-red/10 border border-red/30 rounded-xl text-red-light text-xs font-semibold flex items-center gap-2.5">
-                <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+        {error && (
+          error.toLowerCase().includes("verific") ? (
+            <div className="mb-6 p-4 bg-yellow/10 border border-yellow/30 rounded-2xl text-left text-xs text-yellow-light flex flex-col gap-1.5 leading-relaxed backdrop-blur-md">
+              <div className="font-bold flex items-center gap-2 text-yellow">
+                <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                <span>{error}</span>
+                {t("unverified_title")}
               </div>
-            )
-          )}
-
-          {/* Formulario */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Campo Email */}
-            <div>
-              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                {t("email_label")}
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="2" y="4" width="20" height="16" rx="2"/>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                  </svg>
-                </div>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder={t("email_placeholder")}
-                  autoComplete="email"
-                  className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
-                />
-              </div>
+              <p className="text-white/80">{error}</p>
+              <p className="text-[11px] text-white/50 mt-1">
+                {t("unverified_help")}
+              </p>
             </div>
-
-            {/* Campo Password */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-white/70">
-                  {t("password_label")}
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-red-light hover:text-white font-semibold transition-colors"
-                >
-                  {t("forgot_password")}
-                </Link>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder={t("password_placeholder")}
-                  autoComplete="current-password"
-                  className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-inner"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? t("hide_pwd_aria") : t("show_pwd_aria")}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/40 hover:text-white transition-colors"
-                >
-                  {showPassword ? (
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
+          ) : (
+            <div className="mb-6 p-3.5 bg-red/10 border border-red/30 rounded-xl text-red-light text-xs font-semibold flex items-center gap-2.5">
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
             </div>
+          )
+        )}
 
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center pt-1">
-              <label className="flex items-center gap-2.5 text-xs text-white/70 cursor-pointer select-none group">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0E121B] border-white/20 text-red focus:ring-red/30 focus:ring-offset-0 focus:ring-1 accent-[#F23030] cursor-pointer"
-                />
-                <span className="group-hover:text-white transition-colors">{t("remember_me")}</span>
-              </label>
-            </div>
-
-            {/* Cloudflare Turnstile */}
-            <div className="flex justify-center pt-2 pb-1">
-              <Turnstile
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-                onSuccess={(token) => setCaptchaToken(token)}
-                options={{ theme: "dark" }}
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Campo Email */}
+          <div>
+            <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2">
+              {t("email_label")}
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder={t("email_placeholder")}
+                autoComplete="email"
+                className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
               />
             </div>
+          </div>
 
-            {/* Botón Principal de Submit */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-red-dark via-red to-orange text-white font-bold rounded-xl py-3.5 px-6 hover:brightness-110 active:scale-[0.99] transition-all shadow-lg shadow-red/25 border border-red/30 flex justify-center items-center gap-2 text-sm uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>{t("submitting")}</span>
-                </>
-              ) : (
-                <span>{t("submit_btn")}</span>
-              )}
-            </button>
-          </form>
-
-          {/* Enlace para Crear Cuenta */}
-          <div className="mt-8 pt-6 border-t border-white/10 text-center">
-            <p className="text-xs text-white/60">
-              {t("no_account_prompt")}{" "}
+          {/* Campo Password */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)]">
+                {t("password_label")}
+              </label>
               <Link
-                href="/signup"
-                className="text-red-light hover:text-white font-bold transition-colors ml-1"
+                href="/forgot-password"
+                className="text-xs text-red hover:underline font-semibold transition-colors"
               >
-                {t("register_free")}
+                {t("forgot_password")}
               </Link>
-            </p>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder={t("password_placeholder")}
+                autoComplete="current-password"
+                className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-11 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? t("hide_pwd_aria") : t("show_pwd_aria")}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors"
+              >
+                {showPassword ? (
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Términos y Condiciones */}
-          <div className="mt-6 text-center">
-            <p className="text-[11px] text-white/40 leading-relaxed">
-              {t("terms_prefix")}{" "}
-              <Link href="/terms-and-conditions" className="text-white/60 hover:text-white underline">
-                {t("terms_link")}
-              </Link>{" "}
-              {t("terms_middle")}{" "}
-              <Link href="/privacy-policy" className="text-white/60 hover:text-white underline">
-                {t("privacy_link")}
-              </Link>
-              .
-            </p>
+          {/* Remember Me Checkbox */}
+          <div className="flex items-center pt-1">
+            <label className="flex items-center gap-2.5 text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] cursor-pointer select-none group">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-red focus:ring-red/30 focus:ring-offset-0 focus:ring-1 accent-[#F23030] cursor-pointer"
+              />
+              <span className="group-hover:text-[var(--tt-text-main)] transition-colors">{t("remember_me")}</span>
+            </label>
           </div>
+
+          {/* Cloudflare Turnstile */}
+          <div className="flex justify-center pt-2 pb-1">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+              onSuccess={(token) => setCaptchaToken(token)}
+              options={{ theme: isLight ? "light" : "dark" }}
+            />
+          </div>
+
+          {/* Botón Principal de Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-red-dark via-red to-orange text-white font-bold rounded-xl py-3.5 px-6 hover:brightness-110 active:scale-[0.99] transition-all shadow-lg shadow-red/25 border border-red/30 flex justify-center items-center gap-2 text-sm uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{t("submitting")}</span>
+              </>
+            ) : (
+              <span>{t("submit_btn")}</span>
+            )}
+          </button>
+        </form>
+
+        {/* Enlace para Crear Cuenta */}
+        <div className="mt-8 pt-6 border-t border-[var(--tt-border-subtle)] text-center">
+          <p className="text-xs text-[var(--tt-text-muted)]">
+            {t("no_account_prompt")}{" "}
+            <Link
+              href="/signup"
+              className="text-red hover:underline font-bold transition-colors ml-1"
+            >
+              {t("register_free")}
+            </Link>
+          </p>
+        </div>
+
+        {/* Términos y Condiciones */}
+        <div className="mt-6 text-center">
+          <p className="text-[11px] text-[var(--tt-text-muted)] leading-relaxed">
+            {t("terms_prefix")}{" "}
+            <Link href="/terms-and-conditions" className="text-[var(--tt-text-main)] hover:text-red underline">
+              {t("terms_link")}
+            </Link>{" "}
+            {t("terms_middle")}{" "}
+            <Link href="/privacy-policy" className="text-[var(--tt-text-main)] hover:text-red underline">
+              {t("privacy_link")}
+            </Link>
+            .
+          </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -538,6 +538,15 @@ export const IconFlagPT: React.FC<{ className?: string }> = ({ className = "w-4 
   </svg>
 );
 
+export const IconFlagBR: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
+  <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
+    <path fill="#009c3b" d="M0 0h640v480H0z" />
+    <polygon fill="#ffdf00" points="320,48 576,240 320,432 64,240" />
+    <circle cx="320" cy="240" r="105" fill="#002776" />
+    <path fill="#ffffff" d="M215 240c30-38 120-60 210-25 1 5-4 10-10 10-85-30-170-10-200 15z" />
+  </svg>
+);
+
 export const IconFlagCN: React.FC<{ className?: string }> = ({ className = "w-4 h-3" }) => (
   <svg viewBox="0 0 640 480" className={`${className} rounded-sm overflow-hidden shrink-0 shadow-sm inline-block align-middle`}>
     <path fill="#de2910" d="M0 0h640v480H0z" />
@@ -594,8 +603,8 @@ export const IconLanguageFlag: React.FC<{ code?: string; name?: string; classNam
   if (c === "it" || c === "ita" || n.includes("italian") || n.includes("ital")) {
     return <IconFlagIT className={className} />;
   }
-  if (c === "pt" || c === "por" || n.includes("portug")) {
-    return <IconFlagPT className={className} />;
+  if (c === "pt" || c === "por" || n.includes("portug") || n.includes("braz") || n.includes("brasil")) {
+    return <IconFlagBR className={className} />;
   }
   if (c === "zh_cn" || c === "zh" || c === "chi" || n.includes("chin")) {
     return <IconFlagCN className={className} />;

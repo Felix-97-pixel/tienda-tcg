@@ -9,7 +9,7 @@ import {
   IconCheck,
   IconFlagES,
   IconFlagUK,
-  IconFlagPT,
+  IconFlagBR,
 } from "@/components/ui/Icons";
 
 interface LanguageOption {
@@ -36,7 +36,7 @@ const LANGUAGES: LanguageOption[] = [
     code: "pt",
     label: "Português",
     nativeLabel: "Português",
-    flag: <IconFlagPT className="w-4 h-3 rounded-xs shrink-0" />,
+    flag: <IconFlagBR className="w-4 h-3 rounded-xs shrink-0" />,
   },
 ];
 

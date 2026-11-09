@@ -7,6 +7,8 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { useTranslations } from "next-intl";
 import { API_URL } from "@/utils/api";
 import LanguageSelector from "@/components/ui/LanguageSelector";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { useTheme } from "@/app/context/ThemeContext";
 import {
   IconShieldCheck,
   IconClock,
@@ -19,6 +21,7 @@ import {
 
 export default function RecuperarCuentaForm() {
   const t = useTranslations("recovery");
+  const { isLight } = useTheme();
   const [email, setEmail] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -100,7 +103,7 @@ export default function RecuperarCuentaForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#07090E] text-white">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] transition-colors">
       {/* ============================================================ */}
       {/* COLUMNA IZQUIERDA: SHOWCASE VISUAL ATMOSFÉRICO */}
       {/* ============================================================ */}
@@ -196,32 +199,50 @@ export default function RecuperarCuentaForm() {
       {/* COLUMNA DERECHA: FORMULARIO INTERACTIVO DE RECUPERACIÓN */}
       {/* ============================================================ */}
       <div className="w-full lg:w-1/2 xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 min-h-screen relative">
-        {/* Barra superior de navegación rápida */}
-        <div className="flex items-center justify-between mb-8 gap-3">
-          {/* Logo en versión mobile */}
-          <Link href="/" className="lg:hidden flex items-center gap-2">
+        {/* Glow de fondo decorativo */}
+        <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-red/10 rounded-full blur-[140px] pointer-events-none" />
+
+        {/* Language selector, Theme toggle & Back button in top right (Desktop) */}
+        <div className="hidden lg:flex items-center gap-2.5 absolute top-6 right-6 z-20">
+          <LanguageSelector />
+          <ThemeToggle />
+          <Link
+            href="/login"
+            aria-label={t("back_to_login")}
+            title={t("back_to_login")}
+            className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
+          >
+            <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+
+        {/* Logo móvil y controles superiores sin superposición */}
+        <div className="lg:hidden flex items-center justify-between gap-2 mb-8">
+          <Link href="/" className="inline-flex items-center gap-2.5 shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-dark via-red to-orange flex items-center justify-center font-black text-white text-base">
               T
             </div>
-            <span className="font-black text-lg text-white">
+            <span className="font-black text-lg text-[var(--tt-text-main)]">
               Tap<span className="text-red">Trade</span>
             </span>
           </Link>
 
-          <div className="flex items-center gap-2.5 ml-auto">
+          <div className="flex items-center gap-2 shrink-0">
             <LanguageSelector />
+            <ThemeToggle />
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/70 hover:text-white transition-colors group px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10"
+              aria-label={t("back_to_login")}
+              title={t("back_to_login")}
+              className="h-10 w-10 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/40 text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] flex items-center justify-center transition-all shadow-xs group shrink-0"
             >
-              <IconArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              <span>{t("back_to_login")}</span>
+              <IconArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             </Link>
           </div>
         </div>
 
         {/* Contenedor Central */}
-        <div className="max-w-[460px] w-full mx-auto my-auto py-6">
+        <div className="max-w-[460px] w-full mx-auto my-auto py-6 relative z-10">
           {!isSubmitted ? (
             /* ========================================================== */
             /* ESTADO 1: FORMULARIO DE INGRESO DE CORREO */
@@ -232,10 +253,10 @@ export default function RecuperarCuentaForm() {
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red/20 via-orange/10 to-transparent border border-red/30 flex items-center justify-center text-red shadow-lg shadow-red/20 mb-5">
                   <IconLock className="w-5 h-5 text-red" />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--tt-text-main)] mb-2">
                   {t("title")}
                 </h2>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <p className="text-sm text-[var(--tt-text-muted)] leading-relaxed">
                   {t("subtitle")}
                 </p>
               </div>
@@ -254,11 +275,11 @@ export default function RecuperarCuentaForm() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Campo Email */}
                 <div>
-                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
+                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-2">
                     {t("email_label")}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--tt-text-muted)]">
                       <IconMail className="w-4 h-4" />
                     </div>
                     <input
@@ -269,7 +290,7 @@ export default function RecuperarCuentaForm() {
                       placeholder={t("email_placeholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#0E121B] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all"
+                      className="w-full bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--tt-text-main)] placeholder:text-[var(--tt-text-muted)] focus:outline-none focus:border-red focus:ring-2 focus:ring-red/20 transition-all shadow-xs"
                     />
                   </div>
                 </div>
@@ -280,7 +301,7 @@ export default function RecuperarCuentaForm() {
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                     onSuccess={(token) => setCaptchaToken(token)}
                     onError={() => setError(t("err_captcha_load"))}
-                    options={{ theme: "dark" }}
+                    options={{ theme: isLight ? "light" : "dark" }}
                   />
                 </div>
 
@@ -307,10 +328,10 @@ export default function RecuperarCuentaForm() {
               </form>
 
               {/* Links adicionales */}
-              <div className="mt-8 pt-6 border-t border-white/10 text-center">
-                <p className="text-xs text-white/50">
+              <div className="mt-8 pt-6 border-t border-[var(--tt-border-subtle)] text-center">
+                <p className="text-xs text-[var(--tt-text-muted)]">
                   {t("remember_pwd_prompt")}{" "}
-                  <Link href="/login" className="text-white hover:text-red-light font-bold transition-colors">
+                  <Link href="/login" className="text-red hover:underline font-bold transition-colors">
                     {t("login_here")}
                   </Link>
                 </p>
@@ -326,26 +347,26 @@ export default function RecuperarCuentaForm() {
                 <IconCheckCircle className="w-8 h-8 text-emerald-400" />
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--tt-text-main)] mb-3">
                 {t("success_title")}
               </h2>
 
-              <p className="text-sm text-white/70 leading-relaxed mb-4">
+              <p className="text-sm text-[var(--tt-text-muted)] leading-relaxed mb-4">
                 {t("success_desc")}
               </p>
 
-              <div className="font-mono text-sm font-semibold text-white bg-[#0E121B] border border-white/10 rounded-xl py-3 px-4 mb-6 break-all">
+              <div className="font-mono text-sm font-semibold text-[var(--tt-text-main)] bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] rounded-xl py-3 px-4 mb-6 break-all">
                 {email}
               </div>
 
               {/* Banner Informativo sin emojis */}
-              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-left space-y-2.5 mb-6">
-                <div className="flex items-start gap-2.5 text-xs text-white/80">
-                  <IconClock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] text-left space-y-2.5 mb-6">
+                <div className="flex items-start gap-2.5 text-xs text-[var(--tt-text-main)]">
+                  <IconClock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <span>{t("link_valid_notice")}</span>
                 </div>
-                <div className="flex items-start gap-2.5 text-xs text-white/80">
-                  <IconMail className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2.5 text-xs text-[var(--tt-text-main)]">
+                  <IconMail className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                   <span>{t("spam_notice")}</span>
                 </div>
               </div>
@@ -356,7 +377,7 @@ export default function RecuperarCuentaForm() {
                   type="button"
                   onClick={handleResend}
                   disabled={cooldown > 0 || isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 px-4 rounded-xl bg-[var(--tt-bg-surface)] hover:bg-black/5 dark:hover:bg-white/10 border border-[var(--tt-border-medium)] text-xs font-semibold text-[var(--tt-text-main)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading
                     ? t("resending_btn")
@@ -371,7 +392,7 @@ export default function RecuperarCuentaForm() {
                     setIsSubmitted(false);
                     setError("");
                   }}
-                  className="w-full text-xs text-white/50 hover:text-white py-1 transition-colors"
+                  className="w-full text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] py-1 transition-colors"
                 >
                   {t("try_another_email")}
                 </button>
@@ -392,14 +413,14 @@ export default function RecuperarCuentaForm() {
         {/* ============================================================ */}
         {/* FOOTER INFERIOR DERECHO */}
         {/* ============================================================ */}
-        <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
+        <div className="pt-6 border-t border-[var(--tt-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--tt-text-muted)]">
           <p>© {new Date().getFullYear()} TapTrade Marketplace.</p>
           <div className="flex items-center gap-4">
-            <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
+            <Link href="/terms-and-conditions" className="hover:text-[var(--tt-text-main)] transition-colors">
               {t("terms")}
             </Link>
             <span>•</span>
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">
+            <Link href="/privacy-policy" className="hover:text-[var(--tt-text-main)] transition-colors">
               {t("privacy")}
             </Link>
           </div>
