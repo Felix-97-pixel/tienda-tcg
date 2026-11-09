@@ -4,6 +4,8 @@ import { RiftboundProvider } from './providers/riftbound.provider';
 import { MagicProvider } from './providers/magic.provider';
 import { PokemonProvider } from './providers/pokemon.provider';
 import { OnePieceProvider } from './providers/onepiece.provider';
+import { LorcanaProvider } from './providers/lorcana.provider';
+import { GundamProvider } from './providers/gundam.provider';
 import { MagicService } from './magic.service';
 import { PokemonService } from './pokemon.service';
 import { RiftboundService } from './riftbound.service';
@@ -32,6 +34,14 @@ export class SyncService {
         import: { current: 0, total: 0, active: false },
         price: { current: 0, total: 0, active: false }
       },
+      lorcana: {
+        import: { current: 0, total: 0, active: false },
+        price: { current: 0, total: 0, active: false }
+      },
+      gundam: {
+        import: { current: 0, total: 0, active: false },
+        price: { current: 0, total: 0, active: false }
+      },
     };
 
   constructor(
@@ -46,6 +56,8 @@ export class SyncService {
       pokemon: new PokemonProvider(this.prisma, this.pokemonService),
       magic: new MagicProvider(this.prisma, this.magicService),
       onepiece: new OnePieceProvider(this.prisma, this.scrydexService),
+      lorcana: new LorcanaProvider(this.prisma, this.scrydexService),
+      gundam: new GundamProvider(this.prisma, this.scrydexService),
     };
 
     // Inyectamos el callback para reportar progreso
@@ -234,6 +246,20 @@ export class SyncService {
    */
   async getOnePieceSets() {
     return this.scrydexService.fetchSets('onepiece');
+  }
+
+  /**
+   * Obtiene la lista de ediciones de Disney Lorcana desde ScrydexService
+   */
+  async getLorcanaSets() {
+    return this.scrydexService.fetchSets('lorcana');
+  }
+
+  /**
+   * Obtiene la lista de ediciones de Gundam Card Game desde ScrydexService
+   */
+  async getGundamSets() {
+    return this.scrydexService.fetchSets('gundam');
   }
   /**
    * Obtiene una vista previa del impacto de sincronización de precios para la tienda

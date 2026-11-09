@@ -38,6 +38,16 @@ export class SyncController {
     return this.syncService.getOnePieceSets();
   }
 
+  @Get('lorcana-sets')
+  async getLorcanaSets() {
+    return this.syncService.getLorcanaSets();
+  }
+
+  @Get('gundam-sets')
+  async getGundamSets() {
+    return this.syncService.getGundamSets();
+  }
+
   @Get('status/:game')
   async getStatus(@Param('game') game: string) {
     return this.syncService.getProgress(game);

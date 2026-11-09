@@ -91,6 +91,46 @@ export class PriceUpdaterController {
     };
   }
 
+  @Post('sync-lorcana')
+  @HttpCode(200)
+  async syncLorcanaPrices(@Body('expansion') expansion: string) {
+    if (!expansion) {
+      return { error: 'Debes enviar el nombre de la expansión en el cuerpo de la petición' };
+    }
+
+    const exists = await this.syncService.checkExpansionExists(expansion);
+    if (!exists) {
+      return { error: `La expansión '${expansion}' no existe en tu base de datos.` };
+    }
+
+    this.syncService.updatePrices('lorcana', expansion);
+
+    return {
+      message: `La actualización de precios para Disney Lorcana '${expansion}' ha comenzado en segundo plano.`,
+      source: 'Scrydex API (Bulk 250 - 1 crédito/set)'
+    };
+  }
+
+  @Post('sync-gundam')
+  @HttpCode(200)
+  async syncGundamPrices(@Body('expansion') expansion: string) {
+    if (!expansion) {
+      return { error: 'Debes enviar el nombre de la expansión en el cuerpo de la petición' };
+    }
+
+    const exists = await this.syncService.checkExpansionExists(expansion);
+    if (!exists) {
+      return { error: `La expansión '${expansion}' no existe en tu base de datos.` };
+    }
+
+    this.syncService.updatePrices('gundam', expansion);
+
+    return {
+      message: `La actualización de precios para Gundam Card Game '${expansion}' ha comenzado en segundo plano.`,
+      source: 'Scrydex API (Bulk 250 - 1 crédito/set)'
+    };
+  }
+
   @Get('status/:game')
   async getStatus(@Param('game') game: string) {
     return this.syncService.getProgress(game).price;

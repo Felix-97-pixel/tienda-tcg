@@ -402,7 +402,15 @@
     "onepiece_title": "Sincronização de One Piece",
     "onepiece_subtitle": "Importe e atualize catálogo e preços para One Piece Card Game.",
     "onepiece_import_desc": "Baixe expansões e cartas oficiais do Scrydex.",
-    "onepiece_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer via Scrydex."
+    "onepiece_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer via Scrydex.",
+    "lorcana_title": "Sincronizador Disney Lorcana",
+    "lorcana_subtitle": "Importação de cartas oficiais e atualização de preços TCGPlayer via Scrydex.",
+    "lorcana_import_desc": "Baixe cartas e variantes oficiais de Disney Lorcana do Scrydex.",
+    "lorcana_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer para cartas de Disney Lorcana.",
+    "gundam_title": "Sincronizador Gundam Card Game",
+    "gundam_subtitle": "Importação de cartas oficiais e atualização de preços TCGPlayer via Scrydex.",
+    "gundam_import_desc": "Baixe cartas e variantes oficiais de Gundam Card Game do Scrydex.",
+    "gundam_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer para cartas de Gundam Card Game."
   },
   "orders": {
     "title": "Pedidos",
@@ -653,7 +661,9 @@
       "tcg_sync_desc": "Estas configurações definem para quais categorias os produtos serão automaticamente movidos ao usar a ferramenta de sincronização.",
       "smart_assignment": "Atribuição inteligente",
       "realtime_update": "Atualização em tempo real",
-      "onepiece": "Destino One Piece TCG"
+      "onepiece": "Destino One Piece TCG",
+      "lorcana": "Destino Disney Lorcana",
+      "gundam": "Destino Gundam Card Game"
     }
   },
   "sidebar": {
@@ -702,7 +712,10 @@
       "back_to_hub": "Voltar ao Hub",
       "back_to_shop": "Voltar para a Loja",
       "logout": "Sair da Conta",
-      "sync_onepiece": "One Piece TCG"
+      "sync_onepiece": "One Piece TCG",
+      "config_games": "Jogos (TCG)",
+      "sync_lorcana": "Disney Lorcana",
+      "sync_gundam": "Gundam Card Game"
     },
     "roles": {
       "company_owner": "Proprietário da Empresa",

@@ -402,7 +402,15 @@
     "onepiece_title": "One Piece Card Game Sync",
     "onepiece_subtitle": "Import and update catalog and prices for One Piece Card Game.",
     "onepiece_import_desc": "Download official expansions and cards from Scrydex.",
-    "onepiece_prices_desc": "Sync official TCGPlayer market prices via Scrydex."
+    "onepiece_prices_desc": "Sync official TCGPlayer market prices via Scrydex.",
+    "lorcana_title": "Disney Lorcana Sync",
+    "lorcana_subtitle": "Import official cards and sync TCGPlayer market prices via Scrydex.",
+    "lorcana_import_desc": "Download official Disney Lorcana cards and variants from Scrydex.",
+    "lorcana_prices_desc": "Sync official TCGPlayer market prices for Disney Lorcana cards.",
+    "gundam_title": "Gundam Card Game Sync",
+    "gundam_subtitle": "Import official cards and sync TCGPlayer market prices via Scrydex.",
+    "gundam_import_desc": "Download official Gundam Card Game cards and variants from Scrydex.",
+    "gundam_prices_desc": "Sync official TCGPlayer market prices for Gundam Card Game cards."
   },
   "orders": {
     "title": "Orders",
@@ -653,7 +661,9 @@
       "tcg_sync_desc": "These settings define which categories products will automatically be routed to when using external sync.",
       "smart_assignment": "Smart assignment",
       "realtime_update": "Real-time update",
-      "onepiece": "One Piece TCG Destination"
+      "onepiece": "One Piece TCG Destination",
+      "lorcana": "Disney Lorcana Destination",
+      "gundam": "Gundam Card Game Destination"
     }
   },
   "sidebar": {
@@ -701,7 +711,10 @@
       "store_settings": "Store Settings",
       "back_to_hub": "Back to Hub",
       "back_to_shop": "Back to Store",
-      "logout": "Log Out"
+      "logout": "Log Out",
+      "config_games": "Games (TCG)",
+      "sync_lorcana": "Disney Lorcana",
+      "sync_gundam": "Gundam Card Game"
     },
     "roles": {
       "company_owner": "Company Owner",

@@ -402,7 +402,15 @@
     "onepiece_title": "Sincronización de One Piece",
     "onepiece_subtitle": "Importa y actualiza el catálogo y precios para One Piece Card Game.",
     "onepiece_import_desc": "Descarga expansiones y cartas oficiales desde Scrydex.",
-    "onepiece_prices_desc": "Sincroniza precios de mercado oficiales de TCGPlayer."
+    "onepiece_prices_desc": "Sincroniza precios de mercado oficiales de TCGPlayer.",
+    "lorcana_title": "Sincronizador Disney Lorcana",
+    "lorcana_subtitle": "Importación de cartas oficiales y actualización de precios TCGPlayer mediante Scrydex.",
+    "lorcana_import_desc": "Descarga cartas y variantes oficiales de Disney Lorcana desde Scrydex.",
+    "lorcana_prices_desc": "Actualiza precios de mercado oficiales de TCGPlayer para cartas de Disney Lorcana.",
+    "gundam_title": "Sincronizador Gundam Card Game",
+    "gundam_subtitle": "Importación de cartas oficiales y actualización de precios TCGPlayer mediante Scrydex.",
+    "gundam_import_desc": "Descarga cartas y variantes oficiales de Gundam Card Game desde Scrydex.",
+    "gundam_prices_desc": "Actualiza precios de mercado oficiales de TCGPlayer para cartas de Gundam Card Game."
   },
   "orders": {
     "title": "Órdenes",
@@ -653,7 +661,9 @@
       "tcg_sync_title": "Sincronización TCG",
       "tcg_sync_desc": "Estas configuraciones definen a qué categorías se moverán automáticamente los productos cuando utilices la herramienta de sincronización externa.",
       "smart_assignment": "Asignación inteligente",
-      "realtime_update": "Actualización en tiempo real"
+      "realtime_update": "Actualización en tiempo real",
+      "lorcana": "Destino Disney Lorcana",
+      "gundam": "Destino Gundam Card Game"
     }
   },
   "sidebar": {
@@ -701,7 +711,9 @@
       "store_settings": "Ajustes de Tienda",
       "back_to_hub": "Volver al Hub",
       "back_to_shop": "Volver a la Tienda",
-      "logout": "Cerrar Sesión"
+      "logout": "Cerrar Sesión",
+      "sync_lorcana": "Disney Lorcana",
+      "sync_gundam": "Gundam Card Game"
     },
     "roles": {
       "company_owner": "Propietario de Empresa",
@@ -731,7 +743,7 @@
       "config_plans": "Planes de Suscripción (SaaS)",
       "config_expansions": "Mapeo de Expansiones",
       "config_sync": "Destinos de Sincronización",
-      "config_games": "Juegos Soportados",
+      "config_games": "Juegos (TCG)",
       "config_currencies": "Divisas & Tasas",
       "config_locations": "Regiones y Comunas",
       "back_to_shop": "Volver a la Tienda",

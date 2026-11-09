@@ -27,6 +27,14 @@ export default function AdminSettings() {
     setOnepieceDest,
     onepieceGame,
     setOnepieceGame,
+    lorcanaDest,
+    setLorcanaDest,
+    lorcanaGame,
+    setLorcanaGame,
+    gundamDest,
+    setGundamDest,
+    gundamGame,
+    setGundamGame,
     loading,
     saving,
     handleSave,
@@ -67,7 +75,9 @@ export default function AdminSettings() {
                 { id: "mtg", label: t("destinations.magic"), val: mtgDest, set: setMtgDest, gameVal: mtgGame, setGame: setMtgGame },
                 { id: "pkm", label: t("destinations.pokemon"), val: pokemonDest, set: setPokemonDest, gameVal: pokemonGame, setGame: setPokemonGame },
                 { id: "rfb", label: t("destinations.riftbound"), val: riftboundDest, set: setRiftboundDest, gameVal: riftboundGame, setGame: setRiftboundGame },
-                { id: "opc", label: t("destinations.onepiece"), val: onepieceDest, set: setOnepieceDest, gameVal: onepieceGame, setGame: setOnepieceGame }
+                { id: "opc", label: t("destinations.onepiece"), val: onepieceDest, set: setOnepieceDest, gameVal: onepieceGame, setGame: setOnepieceGame },
+                { id: "lrc", label: t("destinations.lorcana"), val: lorcanaDest, set: setLorcanaDest, gameVal: lorcanaGame, setGame: setLorcanaGame },
+                { id: "gdm", label: t("destinations.gundam"), val: gundamDest, set: setGundamDest, gameVal: gundamGame, setGame: setGundamGame }
               ].map((item) => (
                 <div key={item.id} className="group bg-dark/50 p-4 rounded-xl border border-white/5">
                   <h3 className="text-sm font-black text-white uppercase mb-4 flex items-center gap-2">

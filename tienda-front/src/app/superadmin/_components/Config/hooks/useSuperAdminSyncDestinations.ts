@@ -19,6 +19,10 @@ export function useSuperAdminSyncDestinations() {
   const [riftboundGame, setRiftboundGame] = useState("");
   const [onepieceDest, setOnepieceDest] = useState("");
   const [onepieceGame, setOnepieceGame] = useState("");
+  const [lorcanaDest, setLorcanaDest] = useState("");
+  const [lorcanaGame, setLorcanaGame] = useState("");
+  const [gundamDest, setGundamDest] = useState("");
+  const [gundamGame, setGundamGame] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -41,6 +45,10 @@ export function useSuperAdminSyncDestinations() {
         const savedRiftboundGame = settingsData.riftbound_sync_game_id;
         const savedOnepiece = settingsData.onepiece_sync_destination;
         const savedOnepieceGame = settingsData.onepiece_sync_game_id;
+        const savedLorcana = settingsData.lorcana_sync_destination;
+        const savedLorcanaGame = settingsData.lorcana_sync_game_id;
+        const savedGundam = settingsData.gundam_sync_destination;
+        const savedGundamGame = settingsData.gundam_sync_game_id;
 
         setMtgDest(savedMtg || categoriesData.find((c: any) => c.name.toLowerCase().includes("magic"))?.name || "");
         setMtgGame(savedMtgGame || gamesData.find((g: any) => g.name.toLowerCase().includes("magic"))?.id || "");
@@ -53,6 +61,12 @@ export function useSuperAdminSyncDestinations() {
 
         setOnepieceDest(savedOnepiece || categoriesData.find((c: any) => c.name.toLowerCase().includes("one piece") || c.name.toLowerCase().includes("onepiece"))?.name || "");
         setOnepieceGame(savedOnepieceGame || gamesData.find((g: any) => g.name.toLowerCase().includes("one piece") || g.name.toLowerCase().includes("onepiece"))?.id || "");
+
+        setLorcanaDest(savedLorcana || categoriesData.find((c: any) => c.name.toLowerCase().includes("lorcana"))?.name || "");
+        setLorcanaGame(savedLorcanaGame || gamesData.find((g: any) => g.name.toLowerCase().includes("lorcana"))?.id || "");
+
+        setGundamDest(savedGundam || categoriesData.find((c: any) => c.name.toLowerCase().includes("gundam"))?.name || "");
+        setGundamGame(savedGundamGame || gamesData.find((g: any) => g.name.toLowerCase().includes("gundam"))?.id || "");
       })
       .catch((err) => console.error("Error fetching settings:", err))
       .finally(() => setLoading(false));
@@ -73,6 +87,10 @@ export function useSuperAdminSyncDestinations() {
           riftbound_sync_game_id: riftboundGame,
           onepiece_sync_destination: onepieceDest,
           onepiece_sync_game_id: onepieceGame,
+          lorcana_sync_destination: lorcanaDest,
+          lorcana_sync_game_id: lorcanaGame,
+          gundam_sync_destination: gundamDest,
+          gundam_sync_game_id: gundamGame,
         }),
         credentials: "include",
       });
@@ -109,6 +127,14 @@ export function useSuperAdminSyncDestinations() {
     setOnepieceDest,
     onepieceGame,
     setOnepieceGame,
+    lorcanaDest,
+    setLorcanaDest,
+    lorcanaGame,
+    setLorcanaGame,
+    gundamDest,
+    setGundamDest,
+    gundamGame,
+    setGundamGame,
     loading,
     saving,
     handleSave
