@@ -755,9 +755,7 @@
       "config_locations": "Regions and Communes",
       "back_to_shop": "Back to Store",
       "logout": "Log Out",
-      "badge": "Global SuperAdmin",
-      "sync_lorcana": "Disney Lorcana",
-      "sync_gundam": "Gundam Card Game"
+      "badge": "Global SuperAdmin"
     },
     "header_global_admin": "GLOBAL ADMINISTRATION",
     "header_general_summary": "GENERAL OVERVIEW",
@@ -1587,7 +1585,24 @@
     "col_current_price": "Current Price (USD)",
     "col_market_base": "Market Base (NM)",
     "col_simulated_price": "New Calculated Price",
-    "factor_by_condition_lang": "({percent}% by Condition/Lang)"
+    "factor_by_condition_lang": "({percent}% by Condition/Lang)",
+    "benchmark_source_badge": "Reference Benchmark",
+    "benchmark_source_title": "Which Prices to Use as Base?",
+    "benchmark_usa_badge": "International Market",
+    "benchmark_usa_title": "US Prices (TCGPlayer / MTGJSON)",
+    "benchmark_usa_desc": "Synchronize based on US international market quotes converted to local currency.",
+    "benchmark_local_badge": "Community Market",
+    "benchmark_local_title": "TapTrade Prices (Community / Stores)",
+    "benchmark_local_desc": "Synchronize based on the lowest prices set by stores and users on the platform.",
+    "benchmark_local_warning_title": "Notice about TapTrade Local Market data",
+    "benchmark_local_warning_desc": "The TapTrade local market index is built from active store and user listings. If some cards do not have sufficient local price history yet, the system will automatically fall back to US international quotes (TCGPlayer) to avoid leaving prices at zero.",
+    "benchmark_local_summary_note": "Local market under consolidation: cards without local quotes will use international price as fallback.",
+    "badge_local_price": "TapTrade Local",
+    "badge_fallback_price": "Intl. Fallback",
+    "col_market_base_local": "TapTrade Base",
+    "col_market_base_usa": "TCGPlayer Base",
+    "summary_market_source": "Market Source:",
+    "local_coverage_info": "Local coverage in sample: {count} of {total} cards with community price"
   },
   "profile_page": {
     "title": "My Store",

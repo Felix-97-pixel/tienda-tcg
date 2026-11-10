@@ -1360,8 +1360,8 @@ export class ProductsService {
       include: {
         finish: { select: { id: true, name: true } },
         history: {
-          where: { createdAt: { gte: cutoffDate } },
-          orderBy: { createdAt: 'asc' },
+          where: { date: { gte: cutoffDate } },
+          orderBy: { date: 'asc' },
         },
       },
     });
@@ -1371,14 +1371,18 @@ export class ProductsService {
       const currentPrice = Number(mp.price);
 
       const historyPoints = mp.history.map((h) => ({
-        date: h.createdAt.toISOString().split('T')[0],
+        id: h.id,
+        date: (h.date || h.createdAt).toISOString().split('T')[0],
         price: Number(h.price),
+        createdAt: h.createdAt.toISOString(),
       }));
 
       if (historyPoints.length === 0 && currentPrice > 0) {
         historyPoints.push({
+          id: mp.id,
           date: new Date().toISOString().split('T')[0],
           price: currentPrice,
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -1390,10 +1394,96 @@ export class ProductsService {
         finishId: mp.finishId,
         finishName,
         currentPrice,
+        currency: 'USD',
         changePercent,
         history: historyPoints,
       };
     });
+
+    // 2. Obtener Histórico Propio de los Usuarios de TapTrade (Mercado Local)
+    const localHistories = await this.prisma.localMarketPriceHistory.findMany({
+      where: {
+        productId: product.id,
+        ...(finishId ? { finishId } : {}),
+        date: { gte: cutoffDate },
+      },
+      orderBy: { date: 'asc' },
+      include: {
+        finish: { select: { id: true, name: true } },
+      },
+    });
+
+    const localMap = new Map<string, any[]>();
+    for (const item of localHistories) {
+      const fId = item.finishId || 'default';
+      if (!localMap.has(fId)) localMap.set(fId, []);
+      localMap.get(fId)!.push({
+        id: item.id,
+        date: item.date.toISOString().split('T')[0],
+        lowPrice: Number(item.lowPrice),
+        avgPrice: Number(item.avgPrice),
+        highPrice: Number(item.highPrice),
+        lastSoldPrice: item.lastSoldPrice ? Number(item.lastSoldPrice) : null,
+        activeListings: item.activeListings,
+        totalStock: item.totalStock,
+      });
+    }
+
+    // Si no hay histórico registrado aún pero hay inventario activo hoy de usuarios
+    const currentInventory = await this.prisma.inventoryItem.findMany({
+      where: {
+        productId: product.id,
+        stock: { gt: 0 },
+        isPublished: true,
+      },
+      select: {
+        finishId: true,
+        price: true,
+        storeId: true,
+      },
+    });
+
+    const localSeries = Array.from(localMap.entries()).map(([fId, history]) => {
+      const lastPoint = history[history.length - 1];
+      return {
+        finishId: fId === 'default' ? null : fId,
+        currency: 'CLP',
+        currentLowPrice: lastPoint?.lowPrice ?? 0,
+        currentAvgPrice: lastPoint?.avgPrice ?? 0,
+        lastSoldPrice: lastPoint?.lastSoldPrice ?? null,
+        activeListings: lastPoint?.activeListings ?? 0,
+        history,
+      };
+    });
+
+    if (localSeries.length === 0 && currentInventory.length > 0) {
+      const prices = currentInventory.map((i) => Number(i.price));
+      const min = Math.min(...prices);
+      const avg = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+      const stores = new Set(currentInventory.map((i) => i.storeId)).size;
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      localSeries.push({
+        finishId: null,
+        currency: 'CLP',
+        currentLowPrice: min,
+        currentAvgPrice: avg,
+        lastSoldPrice: null,
+        activeListings: stores,
+        history: [
+          {
+            id: 'spot-today',
+            date: todayStr,
+            lowPrice: min,
+            avgPrice: avg,
+            highPrice: Math.max(...prices),
+            lastSoldPrice: null,
+            activeListings: stores,
+            totalStock: currentInventory.length,
+          },
+        ],
+      });
+    }
 
     return {
       productId: product.id,
@@ -1403,6 +1493,8 @@ export class ProductsService {
       days,
       currency: 'USD',
       series,
+      availableFinishes: series,
+      localSeries,
     };
   }
 }

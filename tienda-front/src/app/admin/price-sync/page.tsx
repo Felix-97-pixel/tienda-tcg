@@ -19,6 +19,8 @@ import {
   IconShieldCheck,
   IconSparkles,
   IconBox,
+  IconGlobe,
+  IconUsers,
 } from "@/components/ui/Icons";
 
 type TargetScope = "ONLY_ZERO_PRICE" | "ONLY_IN_STOCK" | "ALL";
@@ -48,6 +50,7 @@ interface PreviewSample {
   isPublished: boolean;
   currentPrice: number;
   marketBasePrice: number;
+  localBasePrice?: number | null;
   conditionMultiplier: number;
   languageMultiplier: number;
 }
@@ -57,6 +60,7 @@ interface PreviewResponse {
   onlyZeroPriceCount: number;
   onlyInStockCount: number;
   devaluationRulesCount: number;
+  localCoverageCount?: number;
   samples: PreviewSample[];
 }
 
@@ -76,6 +80,7 @@ export default function AdminPriceSyncPage() {
   const [targetScope, setTargetScope] = useState<TargetScope>("ONLY_IN_STOCK");
   const [applyDevaluations, setApplyDevaluations] = useState<boolean>(true);
   const [sourcePriceBasis, setSourcePriceBasis] = useState<"GROSS" | "NET">("GROSS");
+  const [priceBenchmarkSource, setPriceBenchmarkSource] = useState<"USA_MARKET" | "LOCAL_MARKET">("USA_MARKET");
 
   // Estado de vista previa y ejecución
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
@@ -192,13 +197,17 @@ export default function AdminPriceSyncPage() {
   // Calcular precio simulado para una fila de muestra tomando en cuenta Estado + Idioma
   const computeSimulatedPrice = useCallback(
     (sample: PreviewSample) => {
+      const base =
+        priceBenchmarkSource === "LOCAL_MARKET" && sample.localBasePrice && sample.localBasePrice > 0
+          ? sample.localBasePrice
+          : sample.marketBasePrice;
       const condMult = applyDevaluations ? sample.conditionMultiplier : 1.0;
       const langMult = applyDevaluations ? sample.languageMultiplier : 1.0;
       const vatMult = sourcePriceBasis === "NET" ? 1.19 : 1.0;
-      const raw = sample.marketBasePrice * condMult * langMult * vatMult;
+      const raw = base * condMult * langMult * vatMult;
       return Number(Math.max(0.01, raw).toFixed(2));
     },
-    [applyDevaluations, sourcePriceBasis]
+    [applyDevaluations, sourcePriceBasis, priceBenchmarkSource]
   );
 
   // Ejecutar sincronización
@@ -221,6 +230,7 @@ export default function AdminPriceSyncPage() {
           targetScope,
           applyDevaluations,
           sourcePriceBasis,
+          priceBenchmarkSource,
           autoPublish: true,
         }),
       });
@@ -396,6 +406,96 @@ export default function AdminPriceSyncPage() {
             </div>
           </div>
 
+          {/* SELECTOR DE FUENTE DE PRECIOS BASE: INTERNACIONAL VS LOCAL TAPTRADE */}
+          <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
+            <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+              <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
+                <IconGlobe className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">
+                  {t("benchmark_source_badge")}
+                </span>
+                <h2 className="text-base font-bold text-white">
+                  {t("benchmark_source_title")}
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setPriceBenchmarkSource("USA_MARKET")}
+                className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  priceBenchmarkSource === "USA_MARKET"
+                    ? "bg-blue-500/10 border-blue-500/50 text-white shadow-lg ring-1 ring-blue-500/50"
+                    : "bg-[#080B12] border-white/10 text-white/60 hover:text-white hover:border-white/20"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
+                      {t("benchmark_usa_badge")}
+                    </span>
+                    <IconGlobe className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{t("benchmark_usa_title")}</div>
+                  <p className="text-[11px] text-white/40 mt-1 leading-relaxed">
+                    {t("benchmark_usa_desc")}
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPriceBenchmarkSource("LOCAL_MARKET")}
+                className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  priceBenchmarkSource === "LOCAL_MARKET"
+                    ? "bg-emerald-500/10 border-emerald-500/50 text-white shadow-lg ring-1 ring-emerald-500/50"
+                    : "bg-[#080B12] border-white/10 text-white/60 hover:text-white hover:border-white/20"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                      {t("benchmark_local_badge")}
+                    </span>
+                    <IconUsers className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{t("benchmark_local_title")}</div>
+                  <p className="text-[11px] text-white/40 mt-1 leading-relaxed">
+                    {t("benchmark_local_desc")}
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* AVISO DE ADVERTENCIA: DISPONIBILIDAD DE DATOS EN MERCADO PROPIO */}
+            {priceBenchmarkSource === "LOCAL_MARKET" && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-200">
+                <IconAlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-bold text-amber-300 text-xs">
+                      {t("benchmark_local_warning_title")}
+                    </span>
+                    {preview && preview.samples.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] font-mono text-amber-300">
+                        {t("local_coverage_info", {
+                          count: preview.localCoverageCount ?? 0,
+                          total: preview.samples.length,
+                        })}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                    {t("benchmark_local_warning_desc")}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* PASO 2: ALCANCE DE PROTECCIÓN DE PRECIOS */}
           <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
             <div className="flex items-center gap-3 pb-3 border-b border-white/5">
@@ -543,6 +643,14 @@ export default function AdminPriceSyncPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-white/40">{t("summary_market_source")}</span>
+                <span className="font-bold text-white text-right text-xs">
+                  {priceBenchmarkSource === "LOCAL_MARKET"
+                    ? t("benchmark_local_title")
+                    : t("benchmark_usa_title")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-white/40">{t("summary_scope")}</span>
                 <span className="font-bold text-white">
                   {targetScope === "ONLY_IN_STOCK"
@@ -576,6 +684,13 @@ export default function AdminPriceSyncPage() {
               <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-[11px] text-amber-200">
                 <IconAlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <span>{t("full_catalog_warning")}</span>
+              </div>
+            )}
+
+            {priceBenchmarkSource === "LOCAL_MARKET" && (
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-[11px] text-amber-200">
+                <IconAlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <span>{t("benchmark_local_summary_note")}</span>
               </div>
             )}
 
@@ -627,7 +742,11 @@ export default function AdminPriceSyncPage() {
                   <th className="px-5 py-3">{t("col_variant")}</th>
                   <th className="px-5 py-3 text-center">{t("col_stock")}</th>
                   <th className="px-5 py-3 text-right">{t("col_current_price")}</th>
-                  <th className="px-5 py-3 text-right">{t("col_market_base")}</th>
+                  <th className="px-5 py-3 text-right">
+                    {priceBenchmarkSource === "LOCAL_MARKET"
+                      ? t("col_market_base_local")
+                      : t("col_market_base_usa")}
+                  </th>
                   <th className="px-5 py-3 text-right">{t("col_simulated_price")}</th>
                 </tr>
               </thead>
@@ -673,8 +792,32 @@ export default function AdminPriceSyncPage() {
                       <td className="px-5 py-3.5 text-right font-mono text-white/50">
                         ${sample.currentPrice.toFixed(2)} USD
                       </td>
-                      <td className="px-5 py-3.5 text-right font-mono text-white/70">
-                        ${sample.marketBasePrice.toFixed(2)} USD
+                      <td className="px-5 py-3.5 text-right font-mono">
+                        {priceBenchmarkSource === "LOCAL_MARKET" ? (
+                          sample.localBasePrice && sample.localBasePrice > 0 ? (
+                            <div>
+                              <span className="font-bold text-emerald-400">
+                                ${sample.localBasePrice.toLocaleString("es-CL")} CLP
+                              </span>
+                              <span className="block text-[9px] text-emerald-300/70 uppercase">
+                                {t("badge_local_price")}
+                              </span>
+                            </div>
+                          ) : (
+                            <div>
+                              <span className="font-bold text-white/50">
+                                ${sample.marketBasePrice.toFixed(2)} USD
+                              </span>
+                              <span className="block text-[9px] text-amber-400/80 uppercase">
+                                {t("badge_fallback_price")}
+                              </span>
+                            </div>
+                          )
+                        ) : (
+                          <span className="text-white/70">
+                            ${sample.marketBasePrice.toFixed(2)} USD
+                          </span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-right font-mono">
                         <span className="font-black text-emerald-400 text-sm">

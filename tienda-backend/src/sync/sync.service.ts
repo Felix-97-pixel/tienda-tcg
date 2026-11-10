@@ -353,6 +353,10 @@ export class SyncService {
               category: { select: { name: true } },
               cardDetail: { select: { expansion: true, gameId: true } },
               marketPrices: true,
+              localMarketPrices: {
+                orderBy: { date: 'desc' },
+                take: 1,
+              },
             },
           },
           condition: { select: { id: true, name: true, displayName: true } },
@@ -379,6 +383,9 @@ export class SyncService {
           ) || row.product.marketPrices[0];
         if (!mp || Number(mp.price) <= 0) return null;
 
+        const lmp = row.product.localMarketPrices?.[0];
+        const localPrice = lmp ? Number(lmp.lowPrice || lmp.avgPrice) : null;
+
         const gameId = row.product.cardDetail?.gameId || '';
         const condMult = condMap.get(`${row.conditionId}_${gameId}`) ?? 1.0;
         const langMult = langMap.get(`${row.languageId}_${gameId}`) ?? 1.0;
@@ -396,17 +403,23 @@ export class SyncService {
           isPublished: row.isPublished,
           currentPrice: Number(row.price),
           marketBasePrice: Number(mp.price),
+          localBasePrice: localPrice,
           conditionMultiplier: condMult,
           languageMultiplier: langMult,
         };
       })
       .filter(Boolean);
 
+    const localCoverageCount = samples.filter(
+      (s: any) => s.localBasePrice && Number(s.localBasePrice) > 0,
+    ).length;
+
     return {
       totalMatching,
       onlyZeroPriceCount,
       onlyInStockCount,
       devaluationRulesCount: condDevs.length + langDevs.length,
+      localCoverageCount,
       samples,
     };
   }
@@ -427,6 +440,7 @@ export class SyncService {
       marginPercent?: number;
       autoPublish?: boolean;
       sourcePriceBasis?: 'GROSS' | 'NET';
+      priceBenchmarkSource?: 'USA_MARKET' | 'LOCAL_MARKET';
     } = {},
   ) {
     if (!storeId) throw new Error('Store ID is required');
@@ -458,6 +472,7 @@ export class SyncService {
     const marginPercent = Number(options.marginPercent || 0);
     const marginMultiplier = Math.max(0.05, 1 + marginPercent / 100);
     const autoPublish = Boolean(options.autoPublish);
+    const priceBenchmarkSource = options.priceBenchmarkSource || 'USA_MARKET';
     // Normativa SII / Decisión del usuario: Si la fuente es neta, agregar 19% IVA al precio de catálogo
     const vatMultiplier = options.sourcePriceBasis === 'NET' ? 1.19 : 1.0;
 
@@ -468,7 +483,10 @@ export class SyncService {
           price = ROUND(
             GREATEST(
               0.01,
-              m.price
+              (CASE
+                WHEN ${priceBenchmarkSource} = 'LOCAL_MARKET' AND COALESCE(lmp."lowPrice", 0) > 0 THEN lmp."lowPrice"
+                ELSE m.price
+              END)
               * (CASE WHEN ${applyDevaluations} THEN COALESCE(scd.multiplier, 1.0) ELSE 1.0 END)
               * (CASE WHEN ${applyDevaluations} THEN COALESCE(sld.multiplier, 1.0) ELSE 1.0 END)
               * CAST(${marginMultiplier} AS numeric)
@@ -483,6 +501,10 @@ export class SyncService {
           "updatedAt" = NOW()
         FROM "MarketPrice" AS m
         INNER JOIN "Product" AS p ON p.id = d."productId"
+        LEFT JOIN "LocalMarketPriceHistory" AS lmp
+          ON lmp."productId" = d."productId"
+          AND (lmp."finishId" = d."finishId" OR (lmp."finishId" IS NULL AND d."finishId" IS NULL))
+          AND lmp."date" = CURRENT_DATE
         INNER JOIN "Category" AS c ON c.id = p."categoryId"
         LEFT JOIN "CardDetail" AS cd ON cd."productId" = p.id
         LEFT JOIN "StoreConditionDevaluation" AS scd

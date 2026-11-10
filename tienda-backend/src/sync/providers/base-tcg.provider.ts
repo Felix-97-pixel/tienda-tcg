@@ -281,10 +281,10 @@ export abstract class TcgProvider {
 
   /**
    * Guarda o actualiza el precio spot en MarketPrice y registra el snapshot
-   * en MarketPriceHistory (deduplicado automáticamente al día actual).
-   * Este método centralizado asegura que todas las estrategias registren histórico.
+   * en MarketPriceHistory (deduplicado automáticamente al día exacto gracias a @@unique([marketPriceId, date])).
+   * Este método centralizado asegura que todas las estrategias registren histórico sin duplicados.
    */
-  protected async saveMarketPrice(productId: string, finishId: string, price: number) {
+  protected async saveMarketPrice(productId: string, finishId: string, price: number, recordDate?: Date) {
     if (!price || price <= 0) return null;
 
     const mp = await this.prisma.marketPrice.upsert({
@@ -294,35 +294,59 @@ export abstract class TcgProvider {
     });
 
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const targetDate = recordDate ? new Date(recordDate) : new Date();
+      targetDate.setHours(0, 0, 0, 0);
 
-      const existingToday = await this.prisma.marketPriceHistory.findFirst({
+      await this.prisma.marketPriceHistory.upsert({
         where: {
-          marketPriceId: mp.id,
-          createdAt: { gte: today }
-        }
-      });
-
-      if (existingToday) {
-        await this.prisma.marketPriceHistory.update({
-          where: { id: existingToday.id },
-          data: { price }
-        });
-      } else {
-        await this.prisma.marketPriceHistory.create({
-          data: {
+          marketPriceId_date: {
             marketPriceId: mp.id,
-            price,
-            createdAt: new Date()
-          }
-        });
-      }
+            date: targetDate,
+          },
+        },
+        create: {
+          marketPriceId: mp.id,
+          price,
+          date: targetDate,
+        },
+        update: {
+          price,
+        },
+      });
     } catch (histErr: any) {
       this.logger.warn(`No se pudo registrar historial para producto ${productId}: ${histErr.message}`);
     }
 
     return mp;
+  }
+
+  /**
+   * Inserción masiva de snapshots históricos por lotes (Backfill ultrarrápido).
+   * Utiliza skipDuplicates (ON CONFLICT DO NOTHING) para ignorar al instante cualquier fecha que ya exista en BD.
+   */
+  protected async saveMarketPriceHistoryBatch(
+    records: { marketPriceId: string; price: number; date: Date }[]
+  ) {
+    if (!records || records.length === 0) return;
+
+    const normalized = records.map((r) => {
+      const d = new Date(r.date);
+      d.setHours(0, 0, 0, 0);
+      return {
+        marketPriceId: r.marketPriceId,
+        price: r.price,
+        date: d,
+      };
+    });
+
+    const chunkSize = 500;
+    for (let i = 0; i < normalized.length; i += chunkSize) {
+      const chunk = normalized.slice(i, i + chunkSize);
+      await this.prisma.marketPriceHistory.createMany({
+        data: chunk,
+        skipDuplicates: true,
+      });
+    }
   }
 
   private async updateAttributes(productId: string, attributes: string[]) {

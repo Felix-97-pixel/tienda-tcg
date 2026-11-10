@@ -5,10 +5,11 @@ import { MagicService } from './magic.service';
 import { PokemonService } from './pokemon.service';
 import { RiftboundService } from './riftbound.service';
 import { ScrydexService } from './scrydex.service';
+import { LocalPriceIndexService } from './local-price-index.service';
 
 @Module({
-  providers: [SyncService, MagicService, PokemonService, RiftboundService, ScrydexService],
+  providers: [SyncService, MagicService, PokemonService, RiftboundService, ScrydexService, LocalPriceIndexService],
   controllers: [SyncController],
-  exports: [SyncService, MagicService, PokemonService, RiftboundService, ScrydexService]
+  exports: [SyncService, MagicService, PokemonService, RiftboundService, ScrydexService, LocalPriceIndexService]
 })
 export class SyncModule {}

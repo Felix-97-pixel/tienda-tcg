@@ -754,9 +754,7 @@
       "config_locations": "Regiones y Comunas",
       "back_to_shop": "Volver a la Tienda",
       "logout": "Cerrar Sesión",
-      "badge": "SuperAdmin Global",
-      "sync_lorcana": "Disney Lorcana",
-      "sync_gundam": "Gundam Card Game"
+      "badge": "SuperAdmin Global"
     },
     "header_global_admin": "ADMINISTRACIÓN GLOBAL",
     "header_general_summary": "RESUMEN GENERAL",
@@ -1586,7 +1584,24 @@
     "col_current_price": "Precio Actual (USD)",
     "col_market_base": "Mercado Base (NM)",
     "col_simulated_price": "Nuevo Precio Calculado",
-    "factor_by_condition_lang": "({percent}% por Estado/Idioma)"
+    "factor_by_condition_lang": "({percent}% por Estado/Idioma)",
+    "benchmark_source_badge": "Fuente de Referencia",
+    "benchmark_source_title": "¿Qué Precios Usar Como Base?",
+    "benchmark_usa_badge": "Mercado Exterior",
+    "benchmark_usa_title": "Precios EE.UU. (TCGPlayer / MTGJSON)",
+    "benchmark_usa_desc": "Sincroniza tomando las cotizaciones de mercado internacional de EE.UU. convertidas a moneda local.",
+    "benchmark_local_badge": "Mercado Propio",
+    "benchmark_local_title": "Precios TapTrade (Comunidad / Tiendas)",
+    "benchmark_local_desc": "Sincroniza tomando como base los precios fijados por las tiendas y usuarios de la plataforma.",
+    "benchmark_local_warning_title": "Aviso sobre datos del Mercado Local TapTrade",
+    "benchmark_local_warning_desc": "El mercado interno de usuarios de TapTrade se construye con las ofertas reales publicadas por tiendas y usuarios. Si algunas cartas aún no tienen registros de precio local en la plataforma, el sistema utilizará automáticamente la cotización de mercado exterior (TCGPlayer) como respaldo para no dejar precios en cero.",
+    "benchmark_local_summary_note": "Mercado local en consolidación: las cartas sin oferta local usarán el precio internacional como respaldo.",
+    "badge_local_price": "TapTrade Local",
+    "badge_fallback_price": "Respaldo Ext.",
+    "col_market_base_local": "Base TapTrade",
+    "col_market_base_usa": "Base TCGPlayer",
+    "summary_market_source": "Fuente de Mercado:",
+    "local_coverage_info": "Cobertura local en muestra: {count} de {total} cartas con precio de comunidad"
   },
   "profile_page": {
     "title": "Mi Tienda",

@@ -63,9 +63,10 @@ model Product {
   widthCm      Float?
   heightCm     Float?
   lengthCm     Float?
-  items        InventoryItem[]
-  marketPrices MarketPrice[]
-  category     Category        @relation(fields: [categoryId], references: [id])
+  items             InventoryItem[]
+  marketPrices      MarketPrice[]
+  localMarketPrices LocalMarketPriceHistory[]
+  category          Category        @relation(fields: [categoryId], references: [id])
   brand        Brand?          @relation(fields: [brandId], references: [id])
   store        Store?          @relation("StoreCustomProducts", fields: [storeId], references: [id])
   wishlistedBy WishlistItem[]
@@ -179,9 +180,10 @@ model Finish {
   aliases String[]        @default([])
   items   InventoryItem[]
 
-  gameId       String
-  gameRel      Game          @relation(fields: [gameId], references: [id])
-  marketPrices MarketPrice[]
+  gameId            String
+  gameRel           Game          @relation(fields: [gameId], references: [id])
+  marketPrices      MarketPrice[]
+  localMarketPrices LocalMarketPriceHistory[]
 
   @@unique([name, gameId])
 }
@@ -204,12 +206,36 @@ model MarketPriceHistory {
   id            String   @id @default(uuid())
   marketPriceId String
   price         Decimal  @db.Decimal(10, 2)
+  date          DateTime @default(now()) @db.Date
   createdAt     DateTime @default(now())
 
   marketPrice MarketPrice @relation(fields: [marketPriceId], references: [id], onDelete: Cascade)
 
+  @@unique([marketPriceId, date])
   @@index([marketPriceId])
-  @@index([createdAt])
+  @@index([date])
+}
+
+model LocalMarketPriceHistory {
+  id             String   @id @default(uuid())
+  productId      String
+  finishId       String?
+  date           DateTime @default(now()) @db.Date
+  lowPrice       Decimal  @db.Decimal(10, 2)
+  avgPrice       Decimal  @db.Decimal(10, 2)
+  highPrice      Decimal  @db.Decimal(10, 2)
+  lastSoldPrice  Decimal? @db.Decimal(10, 2)
+  activeListings Int      @default(0)
+  totalStock     Int      @default(0)
+  currency       String   @default("CLP")
+  createdAt      DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  finish  Finish? @relation(fields: [finishId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, finishId, date])
+  @@index([productId, date])
+  @@index([date])
 }
 
 model Company {

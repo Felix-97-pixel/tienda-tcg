@@ -8,6 +8,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { LocalPriceIndexService } from './local-price-index.service';
 
 @Controller('sync')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -15,7 +16,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export class SyncController {
   constructor(
     private readonly syncService: SyncService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly localPriceIndexService: LocalPriceIndexService,
   ) { }
 
   @Get('magic-sets')
@@ -197,6 +199,17 @@ export class SyncController {
     return { 
       success: true, 
       message: `Rollback completado: ${restoredCount} precios restaurados al valor anterior, ${deletedCount} precios eliminados (sin historial previo).` 
+    };
+  }
+
+  @Post('local-index/snapshot')
+  @Roles(Role.SUPERADMIN)
+  async triggerLocalIndexSnapshot() {
+    const result = await this.localPriceIndexService.generateDailySnapshot();
+    return {
+      success: true,
+      message: 'Snapshot diario del mercado local TapTrade completado con éxito.',
+      ...result,
     };
   }
 }

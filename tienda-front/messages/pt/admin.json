@@ -756,9 +756,7 @@
       "config_locations": "Regiões e Cidades",
       "back_to_shop": "Voltar para a Loja",
       "logout": "Sair da Conta",
-      "badge": "SuperAdmin Global",
-      "sync_lorcana": "Disney Lorcana",
-      "sync_gundam": "Gundam Card Game"
+      "badge": "SuperAdmin Global"
     },
     "header_global_admin": "ADMINISTRAÇÃO GLOBAL",
     "header_general_summary": "RESUMO GERAL",
@@ -1588,7 +1586,24 @@
     "col_current_price": "Preço Atual (USD)",
     "col_market_base": "Mercado Base (NM)",
     "col_simulated_price": "Novo Preço Calculado",
-    "factor_by_condition_lang": "({percent}% por Estado/Idioma)"
+    "factor_by_condition_lang": "({percent}% por Estado/Idioma)",
+    "benchmark_source_badge": "Fonte de Referência",
+    "benchmark_source_title": "Quais Preços Usar Como Base?",
+    "benchmark_usa_badge": "Mercado Externo",
+    "benchmark_usa_title": "Preços EUA (TCGPlayer / MTGJSON)",
+    "benchmark_usa_desc": "Sincronize tomando as cotações de mercado internacional dos EUA convertidas em moeda local.",
+    "benchmark_local_badge": "Mercado Próprio",
+    "benchmark_local_title": "Preços TapTrade (Comunidade / Lojas)",
+    "benchmark_local_desc": "Sincronize tomando como base os preços mínimos fixados pelas lojas e usuários da plataforma.",
+    "benchmark_local_warning_title": "Aviso sobre dados do Mercado Local TapTrade",
+    "benchmark_local_warning_desc": "O mercado interno de usuários da TapTrade é construído com ofertas reais publicadas por lojas e usuários. Se algumas cartas ainda não tiverem registros de preço local na plataforma, o sistema utilizará automaticamente a cotação internacional (TCGPlayer) como backup para evitar preços zerados.",
+    "benchmark_local_summary_note": "Mercado local em consolidação: cartas sem oferta local usarão o preço internacional como reserva.",
+    "badge_local_price": "TapTrade Local",
+    "badge_fallback_price": "Reserva Ext.",
+    "col_market_base_local": "Base TapTrade",
+    "col_market_base_usa": "Base TCGPlayer",
+    "summary_market_source": "Fonte de Mercado:",
+    "local_coverage_info": "Cobertura local na amostra: {count} de {total} cartas com preço da comunidade"
   },
   "profile_page": {
     "title": "Minha Loja",

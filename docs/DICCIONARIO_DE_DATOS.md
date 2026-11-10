@@ -169,9 +169,26 @@ Reserva temporal de stock mientras el usuario está en la pasarela de pago (Tran
 * **Relaciones:** `inventoryItem`, `order`.
 
 ### `MarketPrice` / `MarketPriceHistory`
-Precios de referencia de mercado global y trazabilidad histórica de precios para cartas y acabados.
+Precios de referencia de mercado global (EE.UU. / APIs externas como TCGplayer y MTGJSON) y trazabilidad histórica de precios para cartas y acabados.
 * `MarketPrice`: `id`, `productId`, `finishId`, `price`, `updatedAt`.
-* `MarketPriceHistory`: `id`, `marketPriceId`, `price`, `createdAt`.
+* `MarketPriceHistory`: `id`, `marketPriceId`, `price`, `date` (`DateTime @db.Date`, clave de deduplicación diaria), `createdAt`. Clave única: `@@unique([marketPriceId, date])`.
+
+### `LocalMarketPriceHistory`
+Índice histórico consolidado de precios del propio marketplace de TapTrade (generado por la actividad real de las tiendas y usuarios en la plataforma).
+* `id` (`String`, UUID, PK)
+* `productId` (`String`, FK -> `Product`)
+* `finishId` (`String?`, FK -> `Finish`)
+* `date` (`DateTime @db.Date`, YYYY-MM-DD): Fecha del snapshot diario.
+* `lowPrice` (`Decimal(10,2)`): Precio más bajo listado con stock disponible por usuarios/tiendas en Chile.
+* `avgPrice` (`Decimal(10,2)`): Promedio ponderado de precios listados en la plataforma.
+* `highPrice` (`Decimal(10,2)`): Precio más alto listado.
+* `lastSoldPrice` (`Decimal(10,2)?`): Último precio al que se concretó una venta real en el marketplace (`OrderItem`).
+* `activeListings` (`Int`): Cantidad de usuarios/tiendas con stock activo hoy.
+* `totalStock` (`Int`): Stock físico total disponible en la plataforma.
+* `currency` (`String`, default: "CLP"): Moneda de transacción del mercado local.
+* `createdAt` (`DateTime`).
+* Clave única: `@@unique([productId, finishId, date])`.
+* **Relaciones:** `product`, `finish`.
 
 ---
 
