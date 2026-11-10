@@ -84,13 +84,9 @@ function SuperAdminLayoutContent({ children }: { children: React.ReactNode }) {
     {
       title: ts("sections.tcg_sync"),
       items: [
-        { path: "/superadmin/sync/magic", label: ts("items.sync_magic"), icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/pokemon", label: ts("items.sync_pokemon"), icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/riftbound", label: ts("items.sync_riftbound"), icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/onepiece", label: ts("items.sync_onepiece"), icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/lorcana", label: ts("items.sync_lorcana"), icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/gundam", label: ts("items.sync_gundam"), icon: <IconZap className="w-4 h-4" /> },
-        { path: "/superadmin/sync/backups", label: ts("items.sync_backups"), icon: <IconDownload className="w-4 h-4" /> },
+        { path: "/superadmin/sync/editions", label: ts("items.sync_editions"), icon: <IconDownload className="w-4 h-4" /> },
+        { path: "/superadmin/sync/prices", label: ts("items.sync_prices"), icon: <IconZap className="w-4 h-4" /> },
+        { path: "/superadmin/sync/backups", label: ts("items.sync_backups"), icon: <IconSliders className="w-4 h-4" /> },
       ],
     },
     {

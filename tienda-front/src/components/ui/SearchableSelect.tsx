@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { IconChevronDown } from "@/components/ui/Icons";
 
@@ -52,14 +52,22 @@ export default function SearchableSelect({
     setMounted(true);
   }, []);
 
-  const safeOptions = Array.isArray(options) ? options : [];
-  const selectedOption = safeOptions.find((o) => o.value === value);
+  const safeOptions = useMemo(() => (Array.isArray(options) ? options : []), [options]);
+  const selectedOption = useMemo(
+    () => safeOptions.find((o) => o.value === value),
+    [safeOptions, value]
+  );
   const displayValue = isOpen ? search : selectedOption ? selectedOption.label : "";
 
-  const filteredOptions = safeOptions.filter((o) =>
-    o.label.toLowerCase().includes(search.toLowerCase()) || 
-    o.value.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredOptions = useMemo(() => {
+    if (!search.trim()) return safeOptions;
+    const lower = search.toLowerCase();
+    return safeOptions.filter(
+      (o) => o.label.toLowerCase().includes(lower) || o.value.toLowerCase().includes(lower)
+    );
+  }, [safeOptions, search]);
+
+  const visibleOptions = useMemo(() => filteredOptions.slice(0, 80), [filteredOptions]);
 
   const updateCoords = () => {
     if (containerRef.current) {
@@ -145,27 +153,34 @@ export default function SearchableSelect({
       {filteredOptions.length === 0 ? (
         <li className="px-5 py-3 text-sm text-[var(--tt-text-muted)] italic">{noResultsText}</li>
       ) : (
-        filteredOptions.map((opt) => (
-          <li
-            key={opt.value}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onChange(opt.value);
-              setIsOpen(false);
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onChange(opt.value);
-              setIsOpen(false);
-            }}
-            className={`cursor-pointer px-4 py-2.5 hover:bg-[var(--tt-bg-subtle)] text-sm text-[var(--tt-text-main)] transition-colors ${
-              value === opt.value ? "bg-red/15 font-bold text-red" : ""
-            }`}
-          >
-            {opt.label}
-          </li>
-        ))
+        <>
+          {visibleOptions.map((opt) => (
+            <li
+              key={opt.value}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              className={`cursor-pointer px-4 py-2.5 hover:bg-[var(--tt-bg-subtle)] text-sm text-[var(--tt-text-main)] transition-colors ${
+                value === opt.value ? "bg-red/15 font-bold text-red" : ""
+              }`}
+            >
+              {opt.label}
+            </li>
+          ))}
+          {filteredOptions.length > 80 && (
+            <li className="px-4 py-2 text-xs text-[var(--tt-text-muted)] text-center border-t border-[var(--tt-border-subtle)] bg-[var(--tt-bg-subtle)]/50">
+              Mostrando 80 de {filteredOptions.length} resultados. Escribe para filtrar más.
+            </li>
+          )}
+        </>
       )}
     </ul>
   );

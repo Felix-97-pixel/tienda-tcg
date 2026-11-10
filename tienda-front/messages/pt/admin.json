@@ -410,7 +410,9 @@
     "gundam_title": "Sincronizador Gundam Card Game",
     "gundam_subtitle": "Importação de cartas oficiais e atualização de preços TCGPlayer via Scrydex.",
     "gundam_import_desc": "Baixe cartas e variantes oficiais de Gundam Card Game do Scrydex.",
-    "gundam_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer para cartas de Gundam Card Game."
+    "gundam_prices_desc": "Sincronize preços oficiais de mercado do TCGPlayer para cartas de Gundam Card Game.",
+    "updating_prices": "Atualizando preços de mercado em segundo plano...",
+    "toast_sync_success": "Sincronização concluída: {count} cartas processadas."
   },
   "orders": {
     "title": "Pedidos",
@@ -740,6 +742,11 @@
       "sync_magic": "Magic: The Gathering",
       "sync_pokemon": "Pokémon TCG",
       "sync_riftbound": "Riftbound TCG",
+      "sync_onepiece": "One Piece TCG",
+      "sync_lorcana": "Disney Lorcana",
+      "sync_gundam": "Gundam Card Game",
+      "sync_editions": "Importar Coleções",
+      "sync_prices": "Importar Preços",
       "sync_backups": "Backups CSV",
       "config_plans": "Planos de Assinatura (SaaS)",
       "config_expansions": "Mapeamento de Coleções",

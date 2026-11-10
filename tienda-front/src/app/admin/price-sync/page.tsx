@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { adminFetch } from "@/utils/api";
 import { useToast } from "@/hooks/useToast";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import MultiSearchableSelect from "@/components/ui/MultiSearchableSelect";
 import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import {
@@ -67,10 +68,11 @@ export default function AdminPriceSyncPage() {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [expansions, setExpansions] = useState<ExpansionOption[]>([]);
   const [loadingExpansions, setLoadingExpansions] = useState(false);
+  const expansionsCache = useRef<Record<string, ExpansionOption[]>>({});
 
-  // Parámetros de sincronización
+  // Parámetros de sincronización (Inicia vacío por requerimiento de usuario)
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
-  const [selectedExpansion, setSelectedExpansion] = useState<string>("ALL");
+  const [selectedExpansions, setSelectedExpansions] = useState<string[]>([]);
   const [targetScope, setTargetScope] = useState<TargetScope>("ONLY_IN_STOCK");
   const [applyDevaluations, setApplyDevaluations] = useState<boolean>(true);
   const [sourcePriceBasis, setSourcePriceBasis] = useState<"GROSS" | "NET">("GROSS");
@@ -79,6 +81,8 @@ export default function AdminPriceSyncPage() {
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
   const [loadingPreview, setLoadingPreview] = useState<boolean>(true);
   const [syncing, setSyncing] = useState<boolean>(false);
+  const [refreshCounter, setRefreshCounter] = useState<number>(0);
+  const refreshPreview = useCallback(() => setRefreshCounter((c) => c + 1), []);
   const [lastSyncResult, setLastSyncResult] = useState<{
     updatedCount: number;
     timestamp: string;
@@ -94,72 +98,88 @@ export default function AdminPriceSyncPage() {
       .catch(() => setCategories([]));
   }, []);
 
-  // 2. Cargar expansiones cuando cambia el juego seleccionado
+  // 2. Cargar expansiones cuando cambia el juego seleccionado (Caché O(1) en memoria)
   useEffect(() => {
     if (!selectedCategory || selectedCategory === "ALL") {
       setExpansions([]);
-      setSelectedExpansion("ALL");
+      setSelectedExpansions([]);
+      return;
+    }
+
+    // Al cambiar de juego, la selección inicia sin nada seleccionado
+    setSelectedExpansions([]);
+
+    if (expansionsCache.current[selectedCategory]) {
+      setExpansions(expansionsCache.current[selectedCategory]);
       return;
     }
 
     setLoadingExpansions(true);
     adminFetch(
-      `/products/meta/expansions?category=${encodeURIComponent(
-        selectedCategory
-      )}`
+      `/products/meta/expansions?category=${encodeURIComponent(selectedCategory)}`
     )
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
-        if (Array.isArray(data)) setExpansions(data);
+        if (Array.isArray(data)) {
+          expansionsCache.current[selectedCategory] = data;
+          setExpansions(data);
+        }
       })
       .catch(() => setExpansions([]))
       .finally(() => setLoadingExpansions(false));
   }, [selectedCategory]);
 
-  // 3. Cargar vista previa cada vez que cambia Juego o Expansión
-  const fetchPreview = useCallback(async () => {
-    setLoadingPreview(true);
-    try {
-      const params = new URLSearchParams();
-      if (selectedCategory && selectedCategory !== "ALL") {
-        params.set("category", selectedCategory);
-      }
-      if (selectedExpansion && selectedExpansion !== "ALL") {
-        params.set("expansion", selectedExpansion);
-      }
-
-      const res = await adminFetch(
-        `/sync/dealer-prices/preview?${params.toString()}`
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setPreview(data);
-      }
-    } catch (e) {
-      console.error("Error cargando vista previa de sincronización:", e);
-    } finally {
-      setLoadingPreview(false);
-    }
-  }, [selectedCategory, selectedExpansion]);
-
+  // 3. Cargar vista previa cada vez que cambia Juego o Expansiones con Debounce de 300ms y AbortController
   useEffect(() => {
-    fetchPreview();
-  }, [fetchPreview]);
+    // Si se eligió un juego específico y no hay ninguna expansión seleccionada, el conteo es 0
+    if (selectedCategory !== "ALL" && selectedExpansions.length === 0) {
+      setPreview({
+        totalMatching: 0,
+        onlyZeroPriceCount: 0,
+        onlyInStockCount: 0,
+        devaluationRulesCount: 0,
+        samples: [],
+      });
+      setLoadingPreview(false);
+      return;
+    }
 
-  // Opciones para el SearchableSelect de expansiones
-  const expansionOptions = useMemo(() => {
-    const base = [
-      {
-        value: "ALL",
-        label: t("all_expansions_label"),
-      },
-    ];
-    const mapped = expansions.map((exp) => ({
-      value: exp.name,
-      label: t("expansion_count_label", { name: exp.name, count: exp.products }),
-    }));
-    return [...base, ...mapped];
-  }, [expansions, t]);
+    setLoadingPreview(true);
+    let isCancelled = false;
+
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams();
+        if (selectedCategory && selectedCategory !== "ALL") {
+          params.set("category", selectedCategory);
+        }
+        if (selectedExpansions.length > 0 && selectedExpansions.length < expansions.length) {
+          params.set("expansions", selectedExpansions.join(","));
+        }
+
+        const res = await adminFetch(
+          `/sync/dealer-prices/preview?${params.toString()}`
+        );
+        if (res.ok && !isCancelled) {
+          const data = await res.json();
+          setPreview(data);
+        }
+      } catch (e: any) {
+        if (!isCancelled) {
+          console.error("Error cargando vista previa de sincronización:", e);
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoadingPreview(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [selectedCategory, selectedExpansions, expansions.length, refreshCounter]);
 
   // Cantidad de cartas que serán afectadas según el alcance elegido
   const affectedCount = useMemo(() => {
@@ -197,7 +217,7 @@ export default function AdminPriceSyncPage() {
         },
         body: JSON.stringify({
           category: selectedCategory,
-          expansion: selectedExpansion,
+          expansions: selectedExpansions,
           targetScope,
           applyDevaluations,
           sourcePriceBasis,
@@ -215,7 +235,7 @@ export default function AdminPriceSyncPage() {
           updatedCount: data.updatedCount,
           timestamp: new Date().toLocaleTimeString("es-CL"),
         });
-        fetchPreview();
+        refreshPreview();
       } else {
         showToast(data.message || t("toast_sync_error"), "error");
       }
@@ -285,7 +305,7 @@ export default function AdminPriceSyncPage() {
                   type="button"
                   onClick={() => {
                     setSelectedCategory("ALL");
-                    setSelectedExpansion("ALL");
+                    setSelectedExpansions([]);
                   }}
                   className={`p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
                     selectedCategory === "ALL"
@@ -312,7 +332,7 @@ export default function AdminPriceSyncPage() {
                       type="button"
                       onClick={() => {
                         setSelectedCategory(cat.name);
-                        setSelectedExpansion("ALL");
+                        setSelectedExpansions([]);
                       }}
                       className={`p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
                         active
@@ -335,27 +355,42 @@ export default function AdminPriceSyncPage() {
               </div>
             </div>
 
-            {/* Selector de Expansión */}
+            {/* Selector de Expansión con Checkboxes Multi-Select */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
-                {t("expansion_label")}
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-white/60">
+                  {t("expansion_label")}
+                </label>
+                {selectedCategory !== "ALL" && expansions.length > 0 && (
+                  <span className="text-[11px] text-white/40">
+                    {selectedExpansions.length === 0
+                      ? "Sin selección (elige al menos una)"
+                      : `${selectedExpansions.length} de ${expansions.length} seleccionadas`}
+                  </span>
+                )}
+              </div>
+
               {selectedCategory === "ALL" ? (
                 <div className="p-3.5 rounded-xl bg-[#080B12] border border-white/10 text-xs text-white/40 flex items-center gap-2.5">
                   <IconBox className="w-4 h-4 text-white/30 shrink-0" />
                   <span>{t("select_game_first_hint")}</span>
                 </div>
               ) : (
-                <SearchableSelect
-                  options={expansionOptions}
-                  value={selectedExpansion}
-                  onChange={(val) => setSelectedExpansion(val || "ALL")}
+                <MultiSearchableSelect
+                  options={expansions.map((exp) => ({
+                    value: exp.name,
+                    label: exp.name,
+                    count: exp.products,
+                  }))}
+                  selectedValues={selectedExpansions}
+                  onChange={setSelectedExpansions}
                   placeholder={
                     loadingExpansions
                       ? t("loading_expansions_placeholder")
-                      : t("search_expansion_placeholder")
+                      : "Seleccionar ediciones a actualizar..."
                   }
-                  disabled={loadingExpansions}
+                  allLabel={t("all_expansions_label")}
+                  disabled={loadingExpansions || expansions.length === 0}
                 />
               )}
             </div>
@@ -498,7 +533,13 @@ export default function AdminPriceSyncPage() {
               <div className="flex items-center justify-between">
                 <span className="text-white/40">{t("summary_expansion")}</span>
                 <span className="font-bold text-emerald-400 text-right truncate max-w-[160px]">
-                  {selectedExpansion === "ALL" ? t("summary_all_editions") : selectedExpansion}
+                  {selectedCategory === "ALL"
+                    ? t("summary_all_editions")
+                    : selectedExpansions.length === 0
+                    ? "Sin selección (0)"
+                    : selectedExpansions.length === expansions.length
+                    ? t("summary_all_editions")
+                    : `${selectedExpansions.length} seleccionadas`}
                 </span>
               </div>
               <div className="flex items-center justify-between">

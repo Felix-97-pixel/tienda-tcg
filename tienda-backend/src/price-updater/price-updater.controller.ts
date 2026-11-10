@@ -131,6 +131,22 @@ export class PriceUpdaterController {
     };
   }
 
+  @Post('sync-batch')
+  @HttpCode(200)
+  async syncBatchPrices(
+    @Body('game') game: string,
+    @Body('expansions') expansions: string[]
+  ) {
+    if (!game) {
+      return { error: 'Debes indicar el juego a actualizar' };
+    }
+    if (!Array.isArray(expansions) || expansions.length === 0) {
+      return { error: 'Debes seleccionar al menos una expansión para actualizar' };
+    }
+
+    return this.syncService.updateBatchPrices(game, expansions);
+  }
+
   @Get('status/:game')
   async getStatus(@Param('game') game: string) {
     return this.syncService.getProgress(game).price;

@@ -8,6 +8,9 @@ import { logout } from "./features/auth-slice";
 export function ReduxProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
+      if ((window as any).__reduxFetchPatched) return;
+      (window as any).__reduxFetchPatched = true;
+
       const originalFetch = window.fetch;
       window.fetch = async (...args) => {
         try {

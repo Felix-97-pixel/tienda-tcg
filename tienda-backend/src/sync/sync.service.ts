@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RiftboundProvider } from './providers/riftbound.provider';
 import { MagicProvider } from './providers/magic.provider';
@@ -278,12 +279,22 @@ export class SyncService {
    */
   async previewDealerPrices(
     storeId: string,
-    filters: { category?: string; expansion?: string },
+    filters: { category?: string; expansion?: string; expansions?: string[] | string },
   ) {
     const categoryFilter =
       filters.category && filters.category !== 'ALL' ? filters.category : null;
-    const expansionFilter =
-      filters.expansion && filters.expansion !== 'ALL' ? filters.expansion : null;
+
+    const rawExpansions: string[] = filters.expansions
+      ? (Array.isArray(filters.expansions)
+          ? filters.expansions
+          : typeof filters.expansions === 'string'
+          ? filters.expansions.split(',').map((s) => s.trim())
+          : [])
+      : filters.expansion && filters.expansion !== 'ALL'
+      ? [filters.expansion]
+      : [];
+
+    const expansionsList = rawExpansions.filter((e) => e && e !== 'ALL');
 
     const productWhere: any = {
       marketPrices: {
@@ -303,9 +314,9 @@ export class SyncService {
       };
     }
 
-    if (expansionFilter) {
+    if (expansionsList.length > 0) {
       productWhere.cardDetail = {
-        expansion: { equals: expansionFilter, mode: 'insensitive' },
+        expansion: { in: expansionsList, mode: 'insensitive' },
       };
     }
 
@@ -410,6 +421,7 @@ export class SyncService {
     options: {
       category?: string;
       expansion?: string;
+      expansions?: string[] | string;
       targetScope?: 'ALL' | 'ONLY_ZERO_PRICE' | 'ONLY_IN_STOCK';
       applyDevaluations?: boolean;
       marginPercent?: number;
@@ -421,8 +433,26 @@ export class SyncService {
 
     const categoryFilter =
       options.category && options.category !== 'ALL' ? options.category : '';
-    const expansionFilter =
-      options.expansion && options.expansion !== 'ALL' ? options.expansion : '';
+
+    const rawExpansions: string[] = options.expansions
+      ? (Array.isArray(options.expansions)
+          ? options.expansions
+          : typeof options.expansions === 'string'
+          ? options.expansions.split(',').map((s) => s.trim())
+          : [])
+      : options.expansion && options.expansion !== 'ALL'
+      ? [options.expansion]
+      : [];
+
+    const expansionsList = rawExpansions
+      .filter((e) => e && e !== 'ALL')
+      .map((e) => e.toLowerCase());
+
+    const expansionCondition =
+      expansionsList.length > 0
+        ? Prisma.sql`AND LOWER(COALESCE(cd.expansion, '')) IN (${Prisma.join(expansionsList)})`
+        : Prisma.empty;
+
     const targetScope = options.targetScope || 'ALL';
     const applyDevaluations = Boolean(options.applyDevaluations);
     const marginPercent = Number(options.marginPercent || 0);
@@ -468,7 +498,7 @@ export class SyncService {
           AND d."storeId" = ${storeId}
           AND m.price > 0
           AND (${categoryFilter} = '' OR LOWER(c.name) = LOWER(${categoryFilter}) OR LOWER(c.slug) = LOWER(${categoryFilter}) OR c.id = ${categoryFilter})
-          AND (${expansionFilter} = '' OR LOWER(COALESCE(cd.expansion, '')) = LOWER(${expansionFilter}))
+          ${expansionCondition}
           AND (
             ${targetScope} = 'ALL'
             OR (${targetScope} = 'ONLY_ZERO_PRICE' AND d.price = 0)
@@ -483,5 +513,38 @@ export class SyncService {
       console.error("Error syncing dealer prices", e);
       throw new Error("Error sincronizando los precios.");
     }
+  }
+
+  /**
+   * Actualiza en segundo plano los precios de mercado para múltiples expansiones de un juego
+   */
+  async updateBatchPrices(game: string, expansions: string[]) {
+    const providerKey = game.toLowerCase();
+    const provider = this.providers[providerKey];
+    if (!provider) throw new Error(`Juego ${game} no soportado.`);
+
+    const validExpansions = (expansions || []).filter((e) => e && e !== 'ALL');
+    if (validExpansions.length === 0) {
+      return { success: false, message: 'No hay expansiones válidas seleccionadas.' };
+    }
+
+    this.setStatus(providerKey, 'price', true);
+
+    (async () => {
+      try {
+        for (const exp of validExpansions) {
+          await provider.updateGamePrices(exp);
+        }
+      } catch (err: any) {
+        console.error(`Error en actualización por lote (${providerKey}):`, err.message);
+      } finally {
+        this.setStatus(providerKey, 'price', false);
+      }
+    })();
+
+    return {
+      message: `Actualización de precios para ${validExpansions.length} expansiones iniciada en segundo plano.`,
+      active: true,
+    };
   }
 }

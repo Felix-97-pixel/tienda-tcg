@@ -70,6 +70,7 @@ export class SyncController {
     @Req() req: any,
     @Query('category') category?: string,
     @Query('expansion') expansion?: string,
+    @Query('expansions') expansions?: string,
   ) {
     const store = await this.prisma.store.findFirst({
       where: { ownerId: req.user.userId },
@@ -77,7 +78,7 @@ export class SyncController {
     if (!store) {
       throw new BadRequestException("No se encontró una tienda para este usuario.");
     }
-    return this.syncService.previewDealerPrices(store.id, { category, expansion });
+    return this.syncService.previewDealerPrices(store.id, { category, expansion, expansions });
   }
 
   @Post('dealer-prices')
@@ -88,6 +89,7 @@ export class SyncController {
     body?: {
       category?: string;
       expansion?: string;
+      expansions?: string[];
       targetScope?: 'ALL' | 'ONLY_ZERO_PRICE' | 'ONLY_IN_STOCK';
       applyDevaluations?: boolean;
       marginPercent?: number;
