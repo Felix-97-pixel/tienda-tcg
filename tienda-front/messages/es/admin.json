@@ -1601,7 +1601,21 @@
     "col_market_base_local": "Base TapTrade",
     "col_market_base_usa": "Base TCGPlayer",
     "summary_market_source": "Fuente de Mercado:",
-    "local_coverage_info": "Cobertura local en muestra: {count} de {total} cartas con precio de comunidad"
+    "local_coverage_info": "Cobertura local en muestra: {count} de {total} cartas con precio de comunidad",
+    "snapshot_date_badge": "Fecha de Cotización",
+    "snapshot_date_title": "Fecha de los Precios a Importar",
+    "snapshot_mode_latest": "Cotización Más Reciente (Hoy / Última Captura)",
+    "snapshot_mode_latest_desc": "Utiliza los precios vigentes más actualizados disponibles en el Catálogo Maestro.",
+    "snapshot_mode_history": "Fecha Histórica Específica",
+    "snapshot_mode_history_desc": "Permite importar los precios que regían en una fecha determinada del histórico.",
+    "snapshot_date_label": "Seleccionar Fecha del Histórico",
+    "snapshot_freshness_badge": "Cotización: {date}",
+    "snapshot_updated_today": "Actualizado hoy",
+    "snapshot_updated_days_ago": "Actualizado hace {days} días ({date})",
+    "snapshot_outdated_warning_title": "Aviso de Antigüedad de Precios",
+    "snapshot_outdated_warning_desc": "Los precios registrados para esta selección tienen más de 2 días de antigüedad (fecha: {date}). Si necesitas cotizaciones al minuto, solicita una actualización al Superadmin antes de sincronizar.",
+    "summary_price_date": "Fecha de Precios:",
+    "col_price_date": "Fecha Cotización"
   },
   "profile_page": {
     "title": "Mi Tienda",

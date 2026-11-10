@@ -1602,7 +1602,21 @@
     "col_market_base_local": "TapTrade Base",
     "col_market_base_usa": "TCGPlayer Base",
     "summary_market_source": "Market Source:",
-    "local_coverage_info": "Local coverage in sample: {count} of {total} cards with community price"
+    "local_coverage_info": "Local coverage in sample: {count} of {total} cards with community price",
+    "snapshot_date_badge": "Quote Date",
+    "snapshot_date_title": "Date of Prices to Import",
+    "snapshot_mode_latest": "Most Recent Quote (Today / Latest Snapshot)",
+    "snapshot_mode_latest_desc": "Uses the most up-to-date active prices available in the Master Catalog.",
+    "snapshot_mode_history": "Specific Historical Date",
+    "snapshot_mode_history_desc": "Allows importing the prices that were active on a specific historical date.",
+    "snapshot_date_label": "Select Historical Date",
+    "snapshot_freshness_badge": "Quote: {date}",
+    "snapshot_updated_today": "Updated today",
+    "snapshot_updated_days_ago": "Updated {days} days ago ({date})",
+    "snapshot_outdated_warning_title": "Price Freshness Warning",
+    "snapshot_outdated_warning_desc": "The prices recorded for this selection are over 2 days old (date: {date}). If you need real-time quotes, request a price update from the Superadmin before syncing.",
+    "summary_price_date": "Price Date:",
+    "col_price_date": "Quote Date"
   },
   "profile_page": {
     "title": "My Store",

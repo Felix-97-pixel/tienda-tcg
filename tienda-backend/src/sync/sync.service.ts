@@ -279,7 +279,13 @@ export class SyncService {
    */
   async previewDealerPrices(
     storeId: string,
-    filters: { category?: string; expansion?: string; expansions?: string[] | string },
+    filters: {
+      category?: string;
+      expansion?: string;
+      expansions?: string[] | string;
+      priceDate?: string;
+      priceBenchmarkSource?: 'USA_MARKET' | 'LOCAL_MARKET';
+    },
   ) {
     const categoryFilter =
       filters.category && filters.category !== 'ALL' ? filters.category : null;
@@ -295,6 +301,9 @@ export class SyncService {
       : [];
 
     const expansionsList = rawExpansions.filter((e) => e && e !== 'ALL');
+    const isHistorical = Boolean(filters.priceDate && filters.priceDate !== 'LATEST');
+    const targetDateObj = isHistorical ? new Date(filters.priceDate!) : null;
+    if (targetDateObj) targetDateObj.setUTCHours(0, 0, 0, 0);
 
     const productWhere: any = {
       marketPrices: {
@@ -332,6 +341,7 @@ export class SyncService {
       condDevs,
       langDevs,
       sampleRows,
+      historyDates,
     ] = await Promise.all([
       this.prisma.inventoryItem.count({ where: baseWhere }),
       this.prisma.inventoryItem.count({
@@ -352,11 +362,16 @@ export class SyncService {
               imageUrl: true,
               category: { select: { name: true } },
               cardDetail: { select: { expansion: true, gameId: true } },
-              marketPrices: true,
-              localMarketPrices: {
-                orderBy: { date: 'desc' },
-                take: 1,
+              marketPrices: {
+                include: {
+                  history: isHistorical && targetDateObj
+                    ? { where: { date: targetDateObj }, take: 1 }
+                    : { orderBy: { date: 'desc' }, take: 1 },
+                },
               },
+              localMarketPrices: isHistorical && targetDateObj
+                ? { where: { date: targetDateObj }, take: 1 }
+                : { orderBy: { date: 'desc' }, take: 1 },
             },
           },
           condition: { select: { id: true, name: true, displayName: true } },
@@ -366,7 +381,17 @@ export class SyncService {
         orderBy: [{ stock: 'desc' }, { updatedAt: 'desc' }],
         take: 10,
       }),
+      this.prisma.marketPriceHistory.findMany({
+        distinct: ['date'],
+        orderBy: { date: 'desc' },
+        take: 14,
+        select: { date: true },
+      }),
     ]);
+
+    const availableDates = historyDates.map(
+      (h) => h.date.toISOString().split('T')[0],
+    );
 
     const condMap = new Map(
       condDevs.map((d) => [`${d.conditionId}_${d.gameId}`, Number(d.multiplier)]),
@@ -375,11 +400,12 @@ export class SyncService {
       langDevs.map((d) => [`${d.languageId}_${d.gameId}`, Number(d.multiplier)]),
     );
 
+    let latestTimestamp = 0;
     const samples = sampleRows
       .map((row) => {
-        const mp =
+        const mp: any =
           row.product.marketPrices.find(
-            (m) => (m.finishId || null) === (row.finishId || null),
+            (m: any) => (m.finishId || null) === (row.finishId || null),
           ) || row.product.marketPrices[0];
         if (!mp || Number(mp.price) <= 0) return null;
 
@@ -389,6 +415,22 @@ export class SyncService {
         const gameId = row.product.cardDetail?.gameId || '';
         const condMult = condMap.get(`${row.conditionId}_${gameId}`) ?? 1.0;
         const langMult = langMap.get(`${row.languageId}_${gameId}`) ?? 1.0;
+
+        const histPrice = isHistorical && mp.history?.[0]?.price
+          ? Number(mp.history[0].price)
+          : null;
+        const marketBasePrice = histPrice ?? Number(mp.price);
+
+        const sampleDate = isHistorical && mp.history?.[0]?.date
+          ? new Date(mp.history[0].date).toISOString().split('T')[0]
+          : mp.updatedAt
+          ? new Date(mp.updatedAt).toISOString().split('T')[0]
+          : null;
+
+        if (mp.updatedAt) {
+          const t = new Date(mp.updatedAt).getTime();
+          if (t > latestTimestamp) latestTimestamp = t;
+        }
 
         return {
           id: row.id,
@@ -402,8 +444,9 @@ export class SyncService {
           stock: row.stock,
           isPublished: row.isPublished,
           currentPrice: Number(row.price),
-          marketBasePrice: Number(mp.price),
+          marketBasePrice,
           localBasePrice: localPrice,
+          priceDate: sampleDate,
           conditionMultiplier: condMult,
           languageMultiplier: langMult,
         };
@@ -414,12 +457,28 @@ export class SyncService {
       (s: any) => s.localBasePrice && Number(s.localBasePrice) > 0,
     ).length;
 
+    const effectiveDate = isHistorical && filters.priceDate
+      ? filters.priceDate
+      : latestTimestamp > 0
+      ? new Date(latestTimestamp).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
+
+    const hoursAgo = latestTimestamp > 0
+      ? Math.max(0, Math.round((Date.now() - latestTimestamp) / (1000 * 60 * 60)))
+      : 0;
+
+    const isDataOutdated = !isHistorical && hoursAgo > 48;
+
     return {
       totalMatching,
       onlyZeroPriceCount,
       onlyInStockCount,
       devaluationRulesCount: condDevs.length + langDevs.length,
       localCoverageCount,
+      effectiveDate,
+      hoursAgo,
+      isDataOutdated,
+      availableDates,
       samples,
     };
   }
@@ -441,6 +500,7 @@ export class SyncService {
       autoPublish?: boolean;
       sourcePriceBasis?: 'GROSS' | 'NET';
       priceBenchmarkSource?: 'USA_MARKET' | 'LOCAL_MARKET';
+      priceDate?: string;
     } = {},
   ) {
     if (!storeId) throw new Error('Store ID is required');
@@ -473,8 +533,15 @@ export class SyncService {
     const marginMultiplier = Math.max(0.05, 1 + marginPercent / 100);
     const autoPublish = Boolean(options.autoPublish);
     const priceBenchmarkSource = options.priceBenchmarkSource || 'USA_MARKET';
+    const isHistorical = Boolean(options.priceDate && options.priceDate !== 'LATEST');
+    const targetDateStr = isHistorical ? options.priceDate! : '1970-01-01';
+
     // Normativa SII / Decisión del usuario: Si la fuente es neta, agregar 19% IVA al precio de catálogo
     const vatMultiplier = options.sourcePriceBasis === 'NET' ? 1.19 : 1.0;
+
+    const lmpDateCondition = isHistorical
+      ? Prisma.sql`AND lmp."date" = CAST(${targetDateStr} AS date)`
+      : Prisma.sql`AND lmp."date" = CURRENT_DATE`;
 
     try {
       const result = await this.prisma.$executeRaw`
@@ -485,6 +552,7 @@ export class SyncService {
               0.01,
               (CASE
                 WHEN ${priceBenchmarkSource} = 'LOCAL_MARKET' AND COALESCE(lmp."lowPrice", 0) > 0 THEN lmp."lowPrice"
+                WHEN ${isHistorical} AND mph.price IS NOT NULL THEN mph.price
                 ELSE m.price
               END)
               * (CASE WHEN ${applyDevaluations} THEN COALESCE(scd.multiplier, 1.0) ELSE 1.0 END)
@@ -501,10 +569,13 @@ export class SyncService {
           "updatedAt" = NOW()
         FROM "MarketPrice" AS m
         INNER JOIN "Product" AS p ON p.id = d."productId"
+        LEFT JOIN "MarketPriceHistory" AS mph
+          ON mph."marketPriceId" = m.id
+          AND mph."date" = CAST(${targetDateStr} AS date)
         LEFT JOIN "LocalMarketPriceHistory" AS lmp
           ON lmp."productId" = d."productId"
           AND (lmp."finishId" = d."finishId" OR (lmp."finishId" IS NULL AND d."finishId" IS NULL))
-          AND lmp."date" = CURRENT_DATE
+          ${lmpDateCondition}
         INNER JOIN "Category" AS c ON c.id = p."categoryId"
         LEFT JOIN "CardDetail" AS cd ON cd."productId" = p.id
         LEFT JOIN "StoreConditionDevaluation" AS scd

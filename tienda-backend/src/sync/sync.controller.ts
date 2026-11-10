@@ -73,6 +73,8 @@ export class SyncController {
     @Query('category') category?: string,
     @Query('expansion') expansion?: string,
     @Query('expansions') expansions?: string,
+    @Query('priceDate') priceDate?: string,
+    @Query('benchmarkSource') benchmarkSource?: 'USA_MARKET' | 'LOCAL_MARKET',
   ) {
     const store = await this.prisma.store.findFirst({
       where: { ownerId: req.user.userId },
@@ -80,7 +82,13 @@ export class SyncController {
     if (!store) {
       throw new BadRequestException("No se encontró una tienda para este usuario.");
     }
-    return this.syncService.previewDealerPrices(store.id, { category, expansion, expansions });
+    return this.syncService.previewDealerPrices(store.id, {
+      category,
+      expansion,
+      expansions,
+      priceDate,
+      priceBenchmarkSource: benchmarkSource,
+    });
   }
 
   @Post('dealer-prices')
@@ -97,6 +105,8 @@ export class SyncController {
       marginPercent?: number;
       autoPublish?: boolean;
       sourcePriceBasis?: 'GROSS' | 'NET';
+      priceBenchmarkSource?: 'USA_MARKET' | 'LOCAL_MARKET';
+      priceDate?: string;
     },
   ) {
     if (req.user.email === 'f.pinto.97@gmail.com') {

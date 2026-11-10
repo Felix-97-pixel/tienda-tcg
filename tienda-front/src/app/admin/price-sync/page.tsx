@@ -21,6 +21,9 @@ import {
   IconBox,
   IconGlobe,
   IconUsers,
+  IconCalendar,
+  IconClock,
+  IconHistory,
 } from "@/components/ui/Icons";
 
 type TargetScope = "ONLY_ZERO_PRICE" | "ONLY_IN_STOCK" | "ALL";
@@ -51,6 +54,7 @@ interface PreviewSample {
   currentPrice: number;
   marketBasePrice: number;
   localBasePrice?: number | null;
+  priceDate?: string | null;
   conditionMultiplier: number;
   languageMultiplier: number;
 }
@@ -61,6 +65,10 @@ interface PreviewResponse {
   onlyInStockCount: number;
   devaluationRulesCount: number;
   localCoverageCount?: number;
+  effectiveDate?: string | null;
+  hoursAgo?: number | null;
+  isDataOutdated?: boolean;
+  availableDates?: string[];
   samples: PreviewSample[];
 }
 
@@ -81,6 +89,8 @@ export default function AdminPriceSyncPage() {
   const [applyDevaluations, setApplyDevaluations] = useState<boolean>(true);
   const [sourcePriceBasis, setSourcePriceBasis] = useState<"GROSS" | "NET">("GROSS");
   const [priceBenchmarkSource, setPriceBenchmarkSource] = useState<"USA_MARKET" | "LOCAL_MARKET">("USA_MARKET");
+  const [priceDateMode, setPriceDateMode] = useState<"LATEST" | "CUSTOM">("LATEST");
+  const [customPriceDate, setCustomPriceDate] = useState<string>("");
 
   // Estado de vista previa y ejecución
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
@@ -162,12 +172,22 @@ export default function AdminPriceSyncPage() {
           params.set("expansions", selectedExpansions.join(","));
         }
 
+        params.set("benchmarkSource", priceBenchmarkSource);
+        if (priceDateMode === "CUSTOM" && customPriceDate) {
+          params.set("priceDate", customPriceDate);
+        } else {
+          params.set("priceDate", "LATEST");
+        }
+
         const res = await adminFetch(
           `/sync/dealer-prices/preview?${params.toString()}`
         );
         if (res.ok && !isCancelled) {
-          const data = await res.json();
+          const data: PreviewResponse = await res.json();
           setPreview(data);
+          if (!customPriceDate && data.availableDates && data.availableDates.length > 0) {
+            setCustomPriceDate(data.availableDates[0]);
+          }
         }
       } catch (e: any) {
         if (!isCancelled) {
@@ -184,7 +204,15 @@ export default function AdminPriceSyncPage() {
       isCancelled = true;
       clearTimeout(timer);
     };
-  }, [selectedCategory, selectedExpansions, expansions.length, refreshCounter]);
+  }, [
+    selectedCategory,
+    selectedExpansions,
+    expansions.length,
+    priceBenchmarkSource,
+    priceDateMode,
+    customPriceDate,
+    refreshCounter,
+  ]);
 
   // Cantidad de cartas que serán afectadas según el alcance elegido
   const affectedCount = useMemo(() => {
@@ -231,6 +259,7 @@ export default function AdminPriceSyncPage() {
           applyDevaluations,
           sourcePriceBasis,
           priceBenchmarkSource,
+          priceDate: priceDateMode === "CUSTOM" && customPriceDate ? customPriceDate : "LATEST",
           autoPublish: true,
         }),
       });
@@ -496,6 +525,141 @@ export default function AdminPriceSyncPage() {
             )}
           </div>
 
+          {/* PASO: FECHA DE LOS PRECIOS A IMPORTAR */}
+          <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 shrink-0">
+                  <IconCalendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-purple-400">
+                    {t("snapshot_date_badge")}
+                  </span>
+                  <h2 className="text-base font-bold text-white">
+                    {t("snapshot_date_title")}
+                  </h2>
+                </div>
+              </div>
+
+              {preview?.effectiveDate && (
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white/80">
+                    {t("snapshot_freshness_badge", { date: preview.effectiveDate })}
+                  </span>
+                  {preview.hoursAgo != null && (
+                    <span
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded ${
+                        preview.hoursAgo < 24
+                          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
+                          : "bg-amber-500/15 text-amber-400 border border-amber-500/25"
+                      }`}
+                    >
+                      {preview.hoursAgo < 24
+                        ? t("snapshot_updated_today")
+                        : t("snapshot_updated_days_ago", {
+                            days: Math.ceil(preview.hoursAgo / 24),
+                            date: preview.effectiveDate,
+                          })}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setPriceDateMode("LATEST")}
+                className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  priceDateMode === "LATEST"
+                    ? "bg-purple-500/10 border-purple-500/50 text-white shadow-lg ring-1 ring-purple-500/50"
+                    : "bg-[#080B12] border-white/10 text-white/60 hover:text-white hover:border-white/20"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                      Recomendado
+                    </span>
+                    <IconClock className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{t("snapshot_mode_latest")}</div>
+                  <p className="text-[11px] text-white/40 mt-1 leading-relaxed">
+                    {t("snapshot_mode_latest_desc")}
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPriceDateMode("CUSTOM")}
+                className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  priceDateMode === "CUSTOM"
+                    ? "bg-purple-500/10 border-purple-500/50 text-white shadow-lg ring-1 ring-purple-500/50"
+                    : "bg-[#080B12] border-white/10 text-white/60 hover:text-white hover:border-white/20"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-white/5 text-white/60">
+                      Histórico
+                    </span>
+                    <IconHistory className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{t("snapshot_mode_history")}</div>
+                  <p className="text-[11px] text-white/40 mt-1 leading-relaxed">
+                    {t("snapshot_mode_history_desc")}
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* Selector de Fecha Específica si se elige modo Histórico */}
+            {priceDateMode === "CUSTOM" && (
+              <div className="pt-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
+                  {t("snapshot_date_label")}
+                </label>
+                {preview?.availableDates && preview.availableDates.length > 0 ? (
+                  <select
+                    value={customPriceDate}
+                    onChange={(e) => setCustomPriceDate(e.target.value)}
+                    className="w-full sm:w-72 bg-[#080B12] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 transition-all font-mono"
+                  >
+                    {preview.availableDates.map((dateStr) => (
+                      <option key={dateStr} value={dateStr} className="bg-[#0E121B] text-white">
+                        Snapshot del {dateStr}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="date"
+                    value={customPriceDate}
+                    onChange={(e) => setCustomPriceDate(e.target.value)}
+                    className="bg-[#080B12] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition-all font-mono"
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Aviso si la data tiene más de 48 horas de antigüedad */}
+            {preview?.isDataOutdated && priceDateMode === "LATEST" && (
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-200">
+                <IconAlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold text-amber-300">
+                    {t("snapshot_outdated_warning_title")}
+                  </p>
+                  <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                    {t("snapshot_outdated_warning_desc", { date: preview.effectiveDate })}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* PASO 2: ALCANCE DE PROTECCIÓN DE PRECIOS */}
           <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
             <div className="flex items-center gap-3 pb-3 border-b border-white/5">
@@ -651,6 +815,14 @@ export default function AdminPriceSyncPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-white/40">{t("summary_price_date")}</span>
+                <span className="font-bold text-purple-300 text-right text-xs font-mono">
+                  {priceDateMode === "LATEST"
+                    ? (preview?.effectiveDate || "Hoy")
+                    : (customPriceDate || "Personalizada")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-white/40">{t("summary_scope")}</span>
                 <span className="font-bold text-white">
                   {targetScope === "ONLY_IN_STOCK"
@@ -747,6 +919,7 @@ export default function AdminPriceSyncPage() {
                       ? t("col_market_base_local")
                       : t("col_market_base_usa")}
                   </th>
+                  <th className="px-5 py-3 text-right">{t("col_price_date")}</th>
                   <th className="px-5 py-3 text-right">{t("col_simulated_price")}</th>
                 </tr>
               </thead>
@@ -818,6 +991,9 @@ export default function AdminPriceSyncPage() {
                             ${sample.marketBasePrice.toFixed(2)} USD
                           </span>
                         )}
+                      </td>
+                      <td className="px-5 py-3.5 text-right font-mono text-[11px] text-white/50">
+                        {sample.priceDate || preview?.effectiveDate || "Hoy"}
                       </td>
                       <td className="px-5 py-3.5 text-right font-mono">
                         <span className="font-black text-emerald-400 text-sm">
