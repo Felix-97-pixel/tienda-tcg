@@ -40,8 +40,8 @@ export default function GundamSyncPage() {
             <SearchableSelect
               options={[
                 { label: t("all_editions_massive"), value: "ALL" },
-                ...sync.sets.map((s) => ({
-                  label: `${s.name} (${s.id.toUpperCase()})`,
+                ...(sync.sets || []).map((s) => ({
+                  label: `${s.name || s.id} (${(s.id || '').toUpperCase()})`,
                   value: s.id,
                 })),
               ]}
