@@ -102,7 +102,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     stock: 0
   });
 
-  const [transferCommission, setTransferCommission] = useState<boolean>(true);
+  // Estado del interruptor: true = La tienda asume la comisión ("réstame esos 3"); false = Trasladar al comprador ("súmale los 3")
+  const [storeAbsorbsCommission, setStoreAbsorbsCommission] = useState<boolean>(true);
 
   const formatPriceVal = (val: number) => {
     if (!val) return "0";
@@ -111,7 +112,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
 
   // Desglose de PVP, IVA, Comisión TapTrade (3% + IVA) y Saldo Líquido Tienda con redondeo a la decena
   const rawBaseCLP = (newVariation.price || 0) * exchangeRate;
-  const storePricing = calculateStorePricingBreakdown(rawBaseCLP, transferCommission, 0.03);
+  const storePricing = calculateStorePricingBreakdown(rawBaseCLP, storeAbsorbsCommission, 0.03);
 
   useEffect(() => {
     if (newVariation.conditionId && newVariation.languageId && product?.items) {
@@ -190,7 +191,8 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     }
 
     try {
-      const finalSavedPrice = transferCommission && newVariation.price > 0 
+      // Si la tienda NO asume la comisión (!storeAbsorbsCommission), se traslada al comprador sumando el 3% al precio base guardado
+      const finalSavedPrice = !storeAbsorbsCommission && newVariation.price > 0 
         ? Number((newVariation.price * 1.03).toFixed(2)) 
         : newVariation.price;
 
@@ -392,19 +394,19 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                       {t("transfer_commission_label")}
                     </span>
                     <span className="text-[11px] text-gray-400 block">
-                      {transferCommission
+                      {storeAbsorbsCommission
                         ? t("transfer_commission_active_hint")
                         : t("transfer_commission_inactive_hint")}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className={`text-xs font-mono font-bold ${transferCommission ? "text-emerald-400" : "text-gray-400"}`}>
-                    {transferCommission ? t("transfer_commission_buyer") : t("transfer_commission_store")}
+                  <span className={`text-xs font-mono font-bold ${storeAbsorbsCommission ? "text-emerald-400" : "text-amber-400"}`}>
+                    {storeAbsorbsCommission ? t("transfer_commission_store") : t("transfer_commission_buyer")}
                   </span>
                   <Switch
-                    checked={transferCommission}
-                    onChange={(e) => setTransferCommission(e.target.checked)}
+                    checked={storeAbsorbsCommission}
+                    onChange={(e) => setStoreAbsorbsCommission(e.target.checked)}
                   />
                 </div>
               </div>
@@ -427,7 +429,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                   <div>
                     <span className="block text-red-400 text-xs mb-1 font-bold">{t("taptrade_fee_short")}</span>
                     <span className="text-red-400 font-bold text-lg">-${formatPriceVal(storePricing.commissionGross)}</span>
-                    <span className="block text-[10px] text-gray-400 font-medium">Factura servicio</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">{t("service_invoice_hint")}</span>
                   </div>
                   <div>
                     <span className="block text-white text-xs mb-1 font-bold">{t("store_net_payout")}</span>
@@ -466,7 +468,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <tbody>
                   {product.items?.map((item: InventoryItem) => {
                     const rawFinal = Number(item.price) * exchangeRate;
-                    const itemPricing = calculateStorePricingBreakdown(rawFinal, false, 0.03);
+                    const itemPricing = calculateStorePricingBreakdown(rawFinal, true, 0.03);
                     return (
                       <tr key={item.id} className="border-b border-stroke hover:bg-white/[0.02] transition-colors">
                         <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
@@ -502,7 +504,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                         </td>
                         <td className="p-3 text-white font-bold font-mono">
                           ${formatPriceVal(itemPricing.storePayout)}
-                          <span className="block text-[10px] text-gray-400 font-normal">A transferir</span>
+                          <span className="block text-[10px] text-gray-400 font-normal">{t("to_transfer_short")}</span>
                         </td>
                         <td className="p-3">
                           <input

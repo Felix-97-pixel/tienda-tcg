@@ -28,7 +28,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [applyDevaluations, setApplyDevaluations] = useState(true);
-  const [transferCommission, setTransferCommission] = useState(true);
+  const [storeAbsorbsCommission, setStoreAbsorbsCommission] = useState(true);
   const [csvPriceBasis, setCsvPriceBasis] = useState<"GROSS" | "NET">("GROSS");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -126,7 +126,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             body: JSON.stringify({
               categoryId: bulkCategory,
               applyDevaluations,
-              transferCommission,
+              transferCommission: !storeAbsorbsCommission,
               items: parsedItems
             }),
           });
@@ -288,10 +288,12 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                   </div>
                   <div>
                     <p className="text-xs font-bold text-white uppercase tracking-wide">
-                      Trasladar Comisión TapTrade (+3%)
+                      {t("transfer_commission_label")}
                     </p>
                     <p className="text-[11px] text-white/45 mt-1 leading-relaxed">
-                      Suma un 3% a los precios de tus cartas para que el comprador asuma la comisión de la plataforma.
+                      {storeAbsorbsCommission
+                        ? t("transfer_commission_active_hint")
+                        : t("transfer_commission_inactive_hint")}
                     </p>
                   </div>
                 </div>
@@ -299,8 +301,8 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                   <input
                     type="checkbox"
                     className="sr-only peer"
-                    checked={transferCommission}
-                    onChange={(e) => setTransferCommission(e.target.checked)}
+                    checked={storeAbsorbsCommission}
+                    onChange={(e) => setStoreAbsorbsCommission(e.target.checked)}
                   />
                   <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                 </div>

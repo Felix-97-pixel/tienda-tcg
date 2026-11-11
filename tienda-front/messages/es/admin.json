@@ -189,6 +189,8 @@
     "transfer_commission_inactive_hint": "Interruptor DESACTIVADO: Se traslada al comprador ('súmale los 3'). El precio al público sube un 3% y se redondea hacia arriba a la decena (ej: 100 -> 103 -> 110 CLP).",
     "transfer_commission_store": "Sí, Asumir en Tienda",
     "transfer_commission_buyer": "No, Sumar al Comprador (+3%)",
+    "service_invoice_hint": "Factura de servicio",
+    "to_transfer_short": "A liquidar",
     "taptrade_fee_with_vat": "Comisión TapTrade (3% + IVA)",
     "taptrade_fee_short": "Comisión (3% + IVA)",
     "store_net_payout": "Líquido para tu Tienda",
@@ -1665,7 +1667,16 @@
     "snapshot_outdated_warning_title": "Aviso de Antigüedad de Precios",
     "snapshot_outdated_warning_desc": "Los precios registrados para esta selección tienen más de 2 días de antigüedad (fecha: {date}). Si necesitas cotizaciones al minuto, solicita una actualización al Superadmin antes de sincronizar.",
     "summary_price_date": "Fecha de Precios:",
-    "col_price_date": "Fecha Cotización"
+    "col_price_date": "Fecha Cotización",
+    "step4_badge": "Paso 4 · Estrategia de Comisión (3%)",
+    "step4_title": "Asumir Comisión TapTrade en Tienda (3%)",
+    "step4_desc_active": "ACTIVADO: Tu tienda absorbe el 3% ('réstame esos 3'). Los precios al público se mantienen en el valor base exacto y el 3% + IVA se descuenta en tu liquidación mensual.",
+    "step4_desc_inactive": "DESACTIVADO: Se traslada al comprador ('súmale los 3'). Se suma un factor +3% a la cotización oficial y se redondea hacia arriba a la decena (ej: 100 -> 103 -> 110 CLP).",
+    "switch_absorb_store": "ABSORBER EN TIENDA",
+    "switch_pass_buyer": "SUMAR AL COMPRADOR (+3%)",
+    "summary_commission_label": "Comisión Plataforma:",
+    "summary_commission_absorbed": "Absorbido en Tienda",
+    "summary_commission_passed": "+3% Sumado al Comprador"
   },
   "profile_page": {
     "title": "Mi Tienda",

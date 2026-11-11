@@ -87,7 +87,7 @@ export default function AdminPriceSyncPage() {
   const [selectedExpansions, setSelectedExpansions] = useState<string[]>([]);
   const [targetScope, setTargetScope] = useState<TargetScope>("ONLY_IN_STOCK");
   const [applyDevaluations, setApplyDevaluations] = useState<boolean>(true);
-  const [transferCommission, setTransferCommission] = useState<boolean>(true);
+  const [storeAbsorbsCommission, setStoreAbsorbsCommission] = useState<boolean>(true);
   const [sourcePriceBasis, setSourcePriceBasis] = useState<"GROSS" | "NET">("GROSS");
   const [priceBenchmarkSource, setPriceBenchmarkSource] = useState<"USA_MARKET" | "LOCAL_MARKET">("USA_MARKET");
   const [priceDateMode, setPriceDateMode] = useState<"LATEST" | "CUSTOM">("LATEST");
@@ -233,11 +233,11 @@ export default function AdminPriceSyncPage() {
       const condMult = applyDevaluations ? sample.conditionMultiplier : 1.0;
       const langMult = applyDevaluations ? sample.languageMultiplier : 1.0;
       const vatMult = sourcePriceBasis === "NET" ? 1.19 : 1.0;
-      const commMult = transferCommission ? 1.03 : 1.0;
+      const commMult = !storeAbsorbsCommission ? 1.03 : 1.0;
       const raw = base * condMult * langMult * vatMult * commMult;
       return Number(Math.max(0.01, raw).toFixed(2));
     },
-    [applyDevaluations, transferCommission, sourcePriceBasis, priceBenchmarkSource]
+    [applyDevaluations, storeAbsorbsCommission, sourcePriceBasis, priceBenchmarkSource]
   );
 
   // Ejecutar sincronización
@@ -259,7 +259,7 @@ export default function AdminPriceSyncPage() {
           expansions: selectedExpansions,
           targetScope,
           applyDevaluations,
-          marginPercent: transferCommission ? 3 : 0,
+          marginPercent: !storeAbsorbsCommission ? 3 : 0,
           sourcePriceBasis,
           priceBenchmarkSource,
           priceDate: priceDateMode === "CUSTOM" && customPriceDate ? customPriceDate : "LATEST",
@@ -787,15 +787,15 @@ export default function AdminPriceSyncPage() {
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-red-400 block">
-                    PASO 4 • ESTRATEGIA DE COMISIÓN (+3%)
+                    {t("step4_badge")}
                   </span>
                   <h2 className="text-base font-bold text-white mt-0.5">
-                    Trasladar Comisión TapTrade (+3% al PVP)
+                    {t("step4_title")}
                   </h2>
                   <p className="text-xs text-white/50 mt-1 leading-relaxed max-w-xl">
-                    {transferCommission
-                      ? "El comprador asume el 3%: se suma un factor +3% a la cotización oficial y se redondea hacia arriba a la decena (ej: 100 -> 103 -> 110 CLP)."
-                      : "La tienda absorbe el 3%: los precios se sincronizan al valor neto exacto y el 3% + IVA se descuenta en tu liquidación mensual."}
+                    {storeAbsorbsCommission
+                      ? t("step4_desc_active")
+                      : t("step4_desc_inactive")}
                   </p>
                 </div>
               </div>
@@ -803,14 +803,14 @@ export default function AdminPriceSyncPage() {
               <div className="flex items-center gap-3 shrink-0">
                 <span
                   className={`text-xs font-black uppercase tracking-wider ${
-                    transferCommission ? "text-emerald-400" : "text-white/40"
+                    storeAbsorbsCommission ? "text-emerald-400" : "text-amber-400"
                   }`}
                 >
-                  {transferCommission ? "SÍ, TRASLADAR (+3%)" : "ABSORBER EN TIENDA"}
+                  {storeAbsorbsCommission ? t("switch_absorb_store") : t("switch_pass_buyer")}
                 </span>
                 <Switch
-                  checked={transferCommission}
-                  onChange={(e) => setTransferCommission(e.target.checked)}
+                  checked={storeAbsorbsCommission}
+                  onChange={(e) => setStoreAbsorbsCommission(e.target.checked)}
                   wrapperClassName="!p-0 !border-0 !bg-transparent shrink-0"
                 />
               </div>
@@ -848,13 +848,13 @@ export default function AdminPriceSyncPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/40">Comisión Plataforma:</span>
+                <span className="text-white/40">{t("summary_commission_label")}</span>
                 <span
                   className={`font-mono font-bold ${
-                    transferCommission ? "text-emerald-400" : "text-white/50"
+                    storeAbsorbsCommission ? "text-emerald-400" : "text-amber-400"
                   }`}
                 >
-                  {transferCommission ? "+3% Trasladado (PVP)" : "Absorbido en Tienda"}
+                  {storeAbsorbsCommission ? t("summary_commission_absorbed") : t("summary_commission_passed")}
                 </span>
               </div>
               <div className="flex items-center justify-between">
