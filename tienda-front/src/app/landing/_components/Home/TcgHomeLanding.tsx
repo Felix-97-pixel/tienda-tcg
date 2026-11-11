@@ -639,7 +639,7 @@ export default function TcgHomeLanding() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredStores.map((store) => (
+            {featuredStores.slice(0, 6).map((store) => (
               <div
                 key={store.id}
                 className="p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] hover:border-red-500/30 transition-all shadow-md flex flex-col justify-between"
@@ -689,6 +689,16 @@ export default function TcgHomeLanding() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* View All Stores Button matching Singles section */}
+          <div className="text-center mt-12">
+            <Link
+              href="/stores"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[var(--tt-bg-surface)] hover:bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-main)] font-bold text-sm tracking-wide transition-all hover:scale-105 shadow-sm"
+            >
+              {t("verified_stores.view_all_stores")} →
+            </Link>
           </div>
         </div>
       </section>

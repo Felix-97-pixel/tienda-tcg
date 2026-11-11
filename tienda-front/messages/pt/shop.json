@@ -580,7 +580,8 @@
       "title": "Lojas Especializadas na TapTrade",
       "subtitle": "Compre com total confiança em lojas físicas com histórico comprovado na comunidade de cartas colecionáveis.",
       "verified": "Verificado",
-      "view_inventory": "Ver Estoque"
+      "view_inventory": "Ver Estoque",
+      "view_all_stores": "Explorar Todas as Lojas"
     },
     "seller_cta": {
       "badge": "Programa de Lojas TapTrade",

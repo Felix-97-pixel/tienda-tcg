@@ -971,52 +971,6 @@ const CheckoutWebpay = () => {
                     </span>
                   </div>
                 </div>
-                <div
-                  onClick={() => setSelectedGateway("MERCADOPAGO")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between select-none shadow-sm ${selectedGateway === "MERCADOPAGO"
-                    ? "bg-gradient-to-b from-[#009EE3]/15 to-transparent border-[#009EE3]/80 shadow-md ring-1 ring-[#009EE3]/30"
-                    : "bg-[var(--tt-bg-subtle)] border-[var(--tt-border-medium)] hover:border-[#009EE3]/40 opacity-80 hover:opacity-100"
-                    }`}
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-3 mb-2.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#009EE3] flex items-center justify-center text-white font-black text-xs shadow-md">
-                          MP
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-white leading-tight">
-                            {t("mercadopago_tab")}
-                          </h4>
-                          <span className="text-[11px] text-gray-400 block font-medium">
-                            {t("official_gateway_badge")}
-                          </span>
-                        </div>
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedGateway === "MERCADOPAGO"
-                          ? "border-[#009EE3] bg-[#009EE3]"
-                          : "border-white/30"
-                          }`}
-                      >
-                        {selectedGateway === "MERCADOPAGO" && (
-                          <div className="w-2 h-2 rounded-full bg-white" />
-                        )}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-400 mb-3">
-                      {t("mercadopago_subtitle")}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-400/10 px-2 py-0.5 rounded border border-sky-400/20">
-                      {t("mp_installments")}
-                    </span>
-                    <span className="text-xs font-mono font-bold text-gray-300">
-                      {t("commission_rate")}
-                    </span>
-                  </div>
-                </div>
               </div>
 
               {/* Formulario Dinámico Desplegable según Opción Seleccionada */}

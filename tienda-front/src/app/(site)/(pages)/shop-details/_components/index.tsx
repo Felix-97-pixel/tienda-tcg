@@ -262,18 +262,38 @@ export default function ShopDetails() {
           </span>
         </div>
 
+        {/* Global Card Header (Full Width matching TCGPlayer) */}
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-600 dark:text-red-400 border border-red-500/30">
+              {gameName}
+            </span>
+            {expansionName && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--tt-bg-surface)] text-[var(--tt-text-muted)] border border-[var(--tt-border-medium)]">
+                {expansionName} {expansionCode ? `(${expansionCode})` : ""}
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[var(--tt-text-main)] tracking-tight">
+            {displayTitle}
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--tt-text-muted)] font-medium mt-1">
+            {expansionName}
+          </p>
+        </div>
+
         {/* 3-Column TCG Hero Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mb-16 items-stretch">
           {/* Col 1: Card Artwork Vault */}
-          <div className="lg:col-span-4 flex flex-col items-center">
-            <div className="w-full max-w-[320px] rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-4 shadow-xl shadow-black/5 dark:shadow-2xl relative group">
+          <div className="lg:col-span-4 flex flex-col items-center h-full">
+            <div className="w-full max-w-[340px] h-full rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-4 shadow-xl shadow-black/5 dark:shadow-2xl relative group flex flex-col justify-between">
               {/* Foil Shimmer Overlay */}
               <div className="relative aspect-[2.5/3.5] w-full rounded-xl overflow-hidden bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] card-foil-container">
                 <Image
                   src={imageSrc}
                   alt={cardName}
                   fill
-                  sizes="(max-width: 640px) 280px, 320px"
+                  sizes="(max-width: 640px) 280px, 340px"
                   className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
                   priority
                   unoptimized={imageSrc.includes("scryfall")}
@@ -283,14 +303,14 @@ export default function ShopDetails() {
 
               {/* Interactive Foil Shader Preview Toggle */}
               <div className="mt-4 flex items-center justify-between text-xs text-[var(--tt-text-muted)] border-t border-[var(--tt-border-subtle)] pt-3">
-                <span className="flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-200/90">
+                <span className="flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-200/90 text-[11px]">
                   <IconSparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-300 shrink-0" />
                   {t("holographic_effect")}
                 </span>
                 <button
                   type="button"
                   onClick={() => setPreviewFoil(!previewFoil)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold font-mono transition-all ${
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold font-mono transition-all cursor-pointer ${
                     previewFoil
                       ? "bg-amber-400/20 text-amber-700 dark:text-amber-300 border border-amber-500/40"
                       : "bg-[var(--tt-bg-subtle)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] border border-[var(--tt-border-medium)]"
@@ -302,231 +322,220 @@ export default function ShopDetails() {
             </div>
           </div>
 
-          {/* Col 2: Card Lore & Attributes */}
-          <div className="lg:col-span-4 flex flex-col gap-4">
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-600/15 text-red-600 dark:text-red-400 border border-red-500/30">
-                  {gameName}
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--tt-bg-surface)] text-[var(--tt-text-muted)] border border-[var(--tt-border-medium)]">
-                  {expansionName}
-                </span>
+          {/* Col 2: Unified Product Details (Matching TCGPlayer) */}
+          <div className="lg:col-span-4 flex flex-col h-full">
+            <div className="w-full h-full rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+              <div>
+                <h3 className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider mb-2">
+                  {t("rules_lore_title")}
+                </h3>
+                <p className="text-sm text-[var(--tt-text-main)] leading-relaxed italic bg-[var(--tt-bg-subtle)] p-3.5 rounded-xl border border-[var(--tt-border-subtle)]">
+                  {product.description || t("no_rules_text")}
+                </p>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--tt-text-main)] tracking-tight">
-                {displayTitle}
-              </h1>
-              <p className="text-xs text-[var(--tt-text-muted)] font-medium mt-1">
-                {expansionName} {expansionCode ? `(${expansionCode})` : ""}
-              </p>
-            </div>
 
-            {/* Rules Text & Lore */}
-            <div className="rounded-xl p-4 bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shadow-sm">
-              <h3 className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider mb-2">
-                {t("rules_lore_title")}
-              </h3>
-              <p className="text-sm text-[var(--tt-text-main)] leading-relaxed italic">
-                {product.description || t("no_rules_text")}
-              </p>
-            </div>
-
-            {/* Technical Specs Grid */}
-            <div className="rounded-xl p-4 bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] shadow-sm">
-              <h3 className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider mb-3">
-                {t("tech_specs_title")}
-              </h3>
-              <dl className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <dt className="text-[var(--tt-text-muted)]">{t("rarity")}</dt>
-                  <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5">{rarity}</dd>
-                </div>
-                <div>
-                  <dt className="text-[var(--tt-text-muted)]">{t("collector_number")}</dt>
-                  <dd className="font-mono font-bold text-[var(--tt-text-main)] mt-0.5">#{collectorNum}</dd>
-                </div>
-                <div>
-                  <dt className="text-[var(--tt-text-muted)]">{t("game")}</dt>
-                  <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5">{gameName}</dd>
-                </div>
-                <div>
-                  <dt className="text-[var(--tt-text-muted)]">{t("official_expansion")}</dt>
-                  <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5 truncate">
-                    {expansionName} {expansionCode ? `(${expansionCode})` : ""}
-                  </dd>
-                </div>
-                {product.cardDetail?.attributes && product.cardDetail.attributes.length > 0 && (
-                  <div className="col-span-2 border-t border-[var(--tt-border-subtle)] pt-2 mt-1">
-                    <dt className="text-[var(--tt-text-muted)] mb-1">Atributos / Dominio</dt>
-                    <dd className="flex flex-wrap gap-1.5">
-                      {product.cardDetail.attributes.map((attr, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 rounded-md bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[11px] font-medium text-[var(--tt-text-main)]"
-                        >
-                          {attr}
-                        </span>
-                      ))}
+              <div className="border-t border-[var(--tt-border-subtle)] pt-4 mt-4">
+                <h3 className="text-xs font-bold text-[var(--tt-text-muted)] uppercase tracking-wider mb-3">
+                  {t("tech_specs_title")}
+                </h3>
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <dt className="text-[var(--tt-text-muted)]">{t("rarity")}</dt>
+                    <dd className="font-bold text-[var(--tt-text-main)] mt-0.5">{rarity}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[var(--tt-text-muted)]">{t("collector_number")}</dt>
+                    <dd className="font-mono font-bold text-[var(--tt-text-main)] mt-0.5">#{collectorNum}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[var(--tt-text-muted)]">{t("game")}</dt>
+                    <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5">{gameName}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[var(--tt-text-muted)]">{t("official_expansion")}</dt>
+                    <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5 truncate">
+                      {expansionName} {expansionCode ? `(${expansionCode})` : ""}
                     </dd>
                   </div>
-                )}
-              </dl>
+                  {product.cardDetail?.attributes && product.cardDetail.attributes.length > 0 && (
+                    <div className="col-span-2 border-t border-[var(--tt-border-subtle)] pt-3 mt-1">
+                      <dt className="text-[var(--tt-text-muted)] mb-1.5 font-medium">Atributos / Dominio</dt>
+                      <dd className="flex flex-wrap gap-1.5">
+                        {product.cardDetail.attributes.map((attr, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2.5 py-0.5 rounded-md bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[11px] font-semibold text-[var(--tt-text-main)]"
+                          >
+                            {attr}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
             </div>
           </div>
 
           {/* Col 3: Featured Buy Box (Best Market Price) */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4 flex flex-col h-full">
             {lowestPriceItem ? (
-              <div className="rounded-2xl bg-[var(--tt-bg-surface)] border-2 border-red-500/30 p-6 shadow-xl shadow-black/5 dark:shadow-2xl relative overflow-hidden">
+              <div className="w-full h-full rounded-2xl bg-[var(--tt-bg-surface)] border-2 border-red-500/30 p-5 sm:p-6 shadow-xl shadow-black/5 dark:shadow-2xl relative overflow-hidden flex flex-col justify-between">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none"></div>
 
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                    {t("best_price_badge")}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {(() => {
-                      const c = getConditionCode(lowestPriceItem);
-                      return (
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold font-mono ${c.badge}`}>
-                          {c.code}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      {t("best_price_badge")}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {(() => {
+                        const c = getConditionCode(lowestPriceItem);
+                        return (
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold font-mono ${c.badge}`}>
+                            {c.code}
+                          </span>
+                        );
+                      })()}
+                      {lowestPriceItem.finish?.name?.toLowerCase().includes("foil") && (
+                        <span className="px-2 py-0.5 rounded text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-400/15 border border-amber-400/30">
+                          {t("foil_finish")}
                         </span>
-                      );
-                    })()}
-                    {lowestPriceItem.finish?.name?.toLowerCase().includes("foil") && (
-                      <span className="px-2 py-0.5 rounded text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-400/15 border border-amber-400/30">
-                        {t("foil_finish")}
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Price Display */}
+                  <div className="mb-4">
+                    <span className="text-xs text-[var(--tt-text-muted)] block">{t("price_per_unit")}</span>
+                    <div className="text-3xl font-black text-[var(--tt-text-main)] font-mono mt-0.5">
+                      ${Math.round(getFinalPrice(lowestPriceItem)).toLocaleString("es-CL")} <span className="text-xs text-[var(--tt-text-muted)] font-sans font-normal">CLP</span>
+                    </div>
+                  </div>
+
+                  {/* Seller Store Info */}
+                  <div className="p-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] mb-4 flex items-center justify-between">
+                    <div className="min-w-0">
+                      <span className="text-[10px] text-[var(--tt-text-muted)] uppercase tracking-wider block">{t("sold_by")}</span>
+                      <Link
+                        href={(lowestPriceItem.store as any)?.subdomain ? `/shop/store/${(lowestPriceItem.store as any).subdomain}` : "#"}
+                        className="text-sm font-bold text-red hover:text-red-dark dark:text-red-400 dark:hover:text-red-300 truncate block transition-colors"
+                      >
+                        {lowestPriceItem.store?.name || t("default_store_name")}
+                      </Link>
+                    </div>
+                    <span className="text-[11px] text-[var(--tt-text-muted)] font-mono shrink-0">
+                      {t("in_stock", { count: lowestPriceItem.stock })}
+                    </span>
+                  </div>
+
+                  {/* Supported Shipping Badges */}
+                  <div className="mb-4">
+                    <span className="text-[11px] text-[var(--tt-text-muted)] uppercase tracking-wider block mb-2 font-medium">
+                      {t("delivery_methods")}
+                    </span>
+                    <StoreShippingBadges store={lowestPriceItem?.store} size="sm" />
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  {/* Quantity Stepper & Add to Cart Button */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 flex items-center justify-between rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden h-11">
+                      <button
+                        type="button"
+                        onClick={() => setFeaturedQty(Math.max(1, featuredQty - 1))}
+                        className="w-10 h-full flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] transition-colors"
+                        disabled={featuredQty <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="text-center text-sm font-mono font-bold text-[var(--tt-text-main)] px-2">
+                        {featuredQty}
                       </span>
-                    )}
-                  </div>
-                </div>
+                      <button
+                        type="button"
+                        onClick={() => setFeaturedQty(Math.min(lowestPriceItem.stock, featuredQty + 1))}
+                        className="w-10 h-full flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] transition-colors"
+                        disabled={featuredQty >= lowestPriceItem.stock}
+                      >
+                        +
+                      </button>
+                    </div>
 
-                {/* Price Display */}
-                <div className="mb-4">
-                  <span className="text-xs text-[var(--tt-text-muted)] block">{t("price_per_unit")}</span>
-                  <div className="text-3xl font-black text-[var(--tt-text-main)] font-mono mt-0.5">
-                    ${Math.round(getFinalPrice(lowestPriceItem)).toLocaleString("es-CL")} <span className="text-xs text-[var(--tt-text-muted)] font-sans font-normal">CLP</span>
+                    <button
+                      type="button"
+                      onClick={() => handleAddToCart(lowestPriceItem, featuredQty)}
+                      aria-label={t("add_to_cart")}
+                      title={t("add_to_cart")}
+                      className={`h-11 px-6 rounded-xl text-sm font-bold transition-all flex items-center justify-center shrink-0 ${
+                        addingItemId === lowestPriceItem.id
+                          ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30"
+                          : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-lg shadow-[#E10E0E]/30 active:scale-98"
+                      }`}
+                    >
+                      {addingItemId === lowestPriceItem.id ? (
+                        <IconCheck className="w-5 h-5" />
+                      ) : (
+                        <IconCart className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
-                </div>
 
-                {/* Seller Store Info */}
-                <div className="p-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] mb-5 flex items-center justify-between">
-                  <div className="min-w-0">
-                    <span className="text-[10px] text-[var(--tt-text-muted)] uppercase tracking-wider block">{t("sold_by")}</span>
+                  {/* Jump to listings button matching Image 1 */}
+                  {items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById("marketplace-listings")?.scrollIntoView({ behavior: "smooth" })}
+                      className="w-full mt-3 py-2 px-3 rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] hover:border-red-500/40 text-xs font-bold text-[var(--tt-text-main)] transition-all flex flex-col items-center justify-center gap-0.5 shadow-sm group cursor-pointer"
+                    >
+                      <span>{t("view_all_listings", { count: items.length, price: Math.round(getFinalPrice(items[0])).toLocaleString("es-CL") })}</span>
+                      <span className="text-[10px] text-[var(--tt-text-muted)] font-normal group-hover:text-red-500 transition-colors">
+                        {t("see_other_options", { count: items.length - 1 })}
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Sell This & Report Problem footer matching Image 1 */}
+                  <div className="flex items-center justify-between border-t border-[var(--tt-border-subtle)] pt-3 mt-3 text-xs text-[var(--tt-text-muted)]">
                     <Link
-                      href={(lowestPriceItem.store as any)?.subdomain ? `/shop/store/${(lowestPriceItem.store as any).subdomain}` : "#"}
-                      className="text-sm font-bold text-red hover:text-red-dark dark:text-red-400 dark:hover:text-red-300 truncate block transition-colors"
+                      href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
+                      className="inline-flex items-center gap-1.5 font-bold text-red-500 hover:text-red-400 transition-colors hover:underline group"
+                      title={t("sell_this_tooltip")}
                     >
-                      {lowestPriceItem.store?.name || t("default_store_name")}
+                      <span>{t("sell_this")}</span>
+                      <IconInfo className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
                     </Link>
-                  </div>
-                  <span className="text-[11px] text-[var(--tt-text-muted)] font-mono shrink-0">
-                    {t("in_stock", { count: lowestPriceItem.stock })}
-                  </span>
-                </div>
 
-                {/* Supported Shipping Badges */}
-                <div className="mb-5">
-                  <span className="text-[11px] text-[var(--tt-text-muted)] uppercase tracking-wider block mb-2 font-medium">
-                    {t("delivery_methods")}
-                  </span>
-                  <StoreShippingBadges store={lowestPriceItem?.store} size="sm" />
-                </div>
-
-                {/* Quantity Stepper & Add to Cart Button */}
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 flex items-center justify-between rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] overflow-hidden h-11">
-                    <button
-                      type="button"
-                      onClick={() => setFeaturedQty(Math.max(1, featuredQty - 1))}
-                      className="w-10 h-full flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] transition-colors"
-                      disabled={featuredQty <= 1}
+                    <a
+                      href={`mailto:soporte@tapmaster.cl?subject=Reportar%20problema%20con%20carta:%20${encodeURIComponent(cardName)}`}
+                      className="inline-flex items-center gap-1.5 hover:text-[var(--tt-text-main)] transition-colors group"
+                      title={t("report_problem_tooltip")}
                     >
-                      -
-                    </button>
-                    <span className="text-center text-sm font-mono font-bold text-[var(--tt-text-main)] px-2">
-                      {featuredQty}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setFeaturedQty(Math.min(lowestPriceItem.stock, featuredQty + 1))}
-                      className="w-10 h-full flex items-center justify-center text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)] transition-colors"
-                      disabled={featuredQty >= lowestPriceItem.stock}
-                    >
-                      +
-                    </button>
+                      <span>{t("report_problem")}</span>
+                      <IconInfo className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    </a>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleAddToCart(lowestPriceItem, featuredQty)}
-                    aria-label={t("add_to_cart")}
-                    title={t("add_to_cart")}
-                    className={`h-11 px-6 rounded-xl text-sm font-bold transition-all flex items-center justify-center shrink-0 ${
-                      addingItemId === lowestPriceItem.id
-                        ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30"
-                        : "bg-[#E10E0E] hover:bg-[#F23030] text-white shadow-lg shadow-[#E10E0E]/30 active:scale-98"
-                    }`}
-                  >
-                    {addingItemId === lowestPriceItem.id ? (
-                      <IconCheck className="w-5 h-5" />
-                    ) : (
-                      <IconCart className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-
-                {/* Jump to listings button matching Image 1 */}
-                {items.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => document.getElementById("marketplace-listings")?.scrollIntoView({ behavior: "smooth" })}
-                    className="w-full mt-4 py-2.5 px-4 rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] hover:border-red-500/40 text-xs font-bold text-[var(--tt-text-main)] transition-all flex flex-col items-center justify-center gap-0.5 shadow-sm group cursor-pointer"
-                  >
-                    <span>{t("view_all_listings", { count: items.length, price: Math.round(getFinalPrice(items[0])).toLocaleString("es-CL") })}</span>
-                    <span className="text-[10px] text-[var(--tt-text-muted)] font-normal group-hover:text-red-500 transition-colors">
-                      {t("see_other_options", { count: items.length - 1 })}
-                    </span>
-                  </button>
-                )}
-
-                {/* Sell This & Report Problem footer matching Image 1 */}
-                <div className="flex items-center justify-between border-t border-[var(--tt-border-subtle)] pt-3.5 mt-4 text-xs text-[var(--tt-text-muted)]">
-                  <Link
-                    href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
-                    className="inline-flex items-center gap-1.5 font-bold text-red-500 hover:text-red-400 transition-colors hover:underline group"
-                    title={t("sell_this_tooltip")}
-                  >
-                    <span>{t("sell_this")}</span>
-                    <IconInfo className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-
-                  <a
-                    href={`mailto:soporte@tapmaster.cl?subject=Reportar%20problema%20con%20carta:%20${encodeURIComponent(cardName)}`}
-                    className="inline-flex items-center gap-1.5 hover:text-[var(--tt-text-main)] transition-colors group"
-                    title={t("report_problem_tooltip")}
-                  >
-                    <span>{t("report_problem")}</span>
-                    <IconInfo className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </a>
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-6 text-center flex flex-col items-center justify-center">
-                <IconBox className="w-10 h-10 text-[var(--tt-text-muted)] mb-3" />
-                <h3 className="font-bold text-[var(--tt-text-main)] text-base mb-1">{t("no_stock_title")}</h3>
-                <p className="text-xs text-[var(--tt-text-muted)] max-w-xs mb-5">
-                  {t("no_stock_desc")}
-                </p>
+              <div className="w-full h-full rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-6 text-center flex flex-col justify-between">
+                <div className="flex flex-col items-center justify-center my-auto">
+                  <IconBox className="w-10 h-10 text-[var(--tt-text-muted)] mb-3" />
+                  <h3 className="font-bold text-[var(--tt-text-main)] text-base mb-1">{t("no_stock_title")}</h3>
+                  <p className="text-xs text-[var(--tt-text-muted)] max-w-xs mb-5">
+                    {t("no_stock_desc")}
+                  </p>
 
-                {/* Call To Action: Sell this card on TapTrade! */}
-                <Link
-                  href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 transition-all active:scale-98"
-                >
-                  <span>{t("sell_this_cta")}</span>
-                  <IconArrowRight className="w-4 h-4" />
-                </Link>
+                  {/* Call To Action: Sell this card on TapTrade! */}
+                  <Link
+                    href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
+                    className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 transition-all active:scale-98"
+                  >
+                    <span>{t("sell_this_cta")}</span>
+                    <IconArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
 
                 <div className="flex items-center justify-between w-full border-t border-[var(--tt-border-subtle)] pt-3.5 mt-5 text-xs text-[var(--tt-text-muted)]">
                   <Link
