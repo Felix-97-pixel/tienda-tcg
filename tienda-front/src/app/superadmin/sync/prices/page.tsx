@@ -280,6 +280,82 @@ export default function SuperAdminSyncPricesPage() {
     }
   };
 
+  // Polling de progreso en vivo para el Scheduler
+  const [schedulerProgress, setSchedulerProgress] = useState<SyncProgress>({ current: 0, total: 0, active: false });
+  const [activeSyncingGame, setActiveSyncingGame] = useState<string | null>(null);
+  const schedulerPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const schedulerPrevActiveRef = useRef<boolean>(false);
+
+  // Iniciar polling del Scheduler para un juego
+  const startSchedulerPolling = useCallback((gameKey: string) => {
+    setActiveSyncingGame(gameKey);
+    if (schedulerPollingRef.current) clearInterval(schedulerPollingRef.current);
+
+    schedulerPollingRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_URL}/sync/status/${gameKey}`);
+        if (res.ok) {
+          const data: SyncProgress = await res.json();
+          setSchedulerProgress(data);
+
+          if (schedulerPrevActiveRef.current && !data.active) {
+            if (schedulerPollingRef.current) clearInterval(schedulerPollingRef.current);
+            showToast(t("toast_sync_success", { count: data.current }), "success");
+            fetchSchedules(); // Auto-recargar tabla sin F5
+            setActiveSyncingGame(null);
+          }
+          schedulerPrevActiveRef.current = data.active;
+        }
+      } catch (err) {
+        console.error("Error en polling de scheduler:", err);
+      }
+    }, 1500);
+  }, [fetchSchedules, showToast, t]);
+
+  // Si al cargar o refrescar schedules hay alguna edición IN_PROGRESS, iniciar polling automático
+  useEffect(() => {
+    if (activeTab !== "scheduler") return;
+    const inProgressItem = schedules.find((s) => s.lastSyncStatus === "IN_PROGRESS");
+    if (inProgressItem && !schedulerProgress.active) {
+      startSchedulerPolling(inProgressItem.gameKey);
+    }
+  }, [schedules, activeTab, schedulerProgress.active, startSchedulerPolling]);
+
+  useEffect(() => {
+    return () => {
+      if (schedulerPollingRef.current) clearInterval(schedulerPollingRef.current);
+    };
+  }, []);
+
+  // Sincronización Inmediata Directa desde la Tabla del Scheduler
+  const handleDirectSyncFromTable = async (gameKey: string, expansionName: string) => {
+    try {
+      showToast(`Iniciando actualización de precios para '${expansionName}'...`, "info");
+      
+      // Actualizar estado visual inmediato
+      setSchedules((prev) =>
+        prev.map((s) =>
+          s.name === expansionName ? { ...s, lastSyncStatus: "IN_PROGRESS" } : s
+        )
+      );
+
+      const res = await fetch(`${API_URL}/price-updater/sync-${gameKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ expansion: expansionName }),
+      });
+
+      if (res.ok) {
+        setSchedulerProgress({ current: 0, total: 0, active: true });
+        schedulerPrevActiveRef.current = true;
+        startSchedulerPolling(gameKey);
+      }
+    } catch {
+      showToast(t("toast_network_error"), "error");
+    }
+  };
+
   // Disparar Chequeo de Pendientes (Catch-Up Manual)
   const handleRunPendingNow = async () => {
     setRunningCatchUp(true);
@@ -298,6 +374,12 @@ export default function SuperAdminSyncPricesPage() {
           "success"
         );
         fetchSchedules();
+        // Iniciar polling si se procesaron ediciones
+        if (data.processed > 0 && selectedGameFilter !== "ALL") {
+          startSchedulerPolling(selectedGameFilter);
+        } else if (data.processed > 0) {
+          startSchedulerPolling("riftbound");
+        }
       }
     } catch {
       showToast(t("toast_network_error"), "error");
@@ -430,6 +512,29 @@ export default function SuperAdminSyncPricesPage() {
       {/* ========================================================================= */}
       {activeTab === "scheduler" && (
         <div className="space-y-6">
+          {/* Barra de Progreso en Vivo del Scheduler */}
+          {schedulerProgress.active && (
+            <div className="p-4 rounded-2xl bg-[#0E121B] border border-red-500/30 shadow-xl shadow-red-500/5">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-black uppercase tracking-wider text-red-500 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                  Sincronización en Tiempo Real
+                </span>
+                <span className="text-xs font-mono font-bold text-white">
+                  {schedulerProgress.current} / {schedulerProgress.total} cartas ({schedulerProgress.total > 0 ? Math.round((schedulerProgress.current / schedulerProgress.total) * 100) : 0}%)
+                </span>
+              </div>
+              <ProgressDisplay
+                progress={schedulerProgress}
+                label={
+                  activeSyncingGame
+                    ? `Actualizando precios de ${activeSyncingGame.toUpperCase()}...`
+                    : t("updating_prices")
+                }
+              />
+            </div>
+          )}
+
           {/* Tarjetas de Métricas de Automatización */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-surface)]">
@@ -510,19 +615,35 @@ export default function SuperAdminSyncPricesPage() {
               </div>
 
               <div className="md:col-span-3">
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[var(--tt-text-muted)] mb-1.5">
                   Frecuencia a Asignar
                 </label>
                 <select
                   value={batchTargetFreq}
                   onChange={(e) => setBatchTargetFreq(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-white/10 bg-[#080B12] text-white text-xs font-bold outline-none focus:border-red-500 transition-colors"
+                  style={{
+                    backgroundColor: batchTargetFreq === "DAILY"
+                      ? "rgba(6, 78, 59, 0.45)"
+                      : batchTargetFreq === "WEEKLY"
+                      ? "rgba(30, 58, 138, 0.45)"
+                      : batchTargetFreq === "MONTHLY"
+                      ? "rgba(120, 53, 15, 0.45)"
+                      : "#080B12",
+                    color: batchTargetFreq === "DAILY"
+                      ? "#34d399"
+                      : batchTargetFreq === "WEEKLY"
+                      ? "#60a5fa"
+                      : batchTargetFreq === "MONTHLY"
+                      ? "#fbbf24"
+                      : "#FFFFFF",
+                  }}
+                  className="w-full px-3 py-2.5 rounded-xl border border-white/10 text-xs font-bold outline-none focus:border-red-500 transition-colors cursor-pointer"
                   disabled={applyingBatch}
                 >
-                  <option value="DAILY" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_daily")}</option>
-                  <option value="WEEKLY" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_weekly")}</option>
-                  <option value="MONTHLY" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_monthly")}</option>
-                  <option value="MANUAL" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_manual")}</option>
+                  <option value="DAILY" style={{ backgroundColor: "#0B0E17", color: "#34d399" }} className="py-1">{t("scheduler.freq_daily")}</option>
+                  <option value="WEEKLY" style={{ backgroundColor: "#0B0E17", color: "#60a5fa" }} className="py-1">{t("scheduler.freq_weekly")}</option>
+                  <option value="MONTHLY" style={{ backgroundColor: "#0B0E17", color: "#fbbf24" }} className="py-1">{t("scheduler.freq_monthly")}</option>
+                  <option value="MANUAL" style={{ backgroundColor: "#0B0E17", color: "#FFFFFF" }} className="py-1">{t("scheduler.freq_manual")}</option>
                 </select>
               </div>
 
@@ -722,20 +843,36 @@ export default function SuperAdminSyncPricesPage() {
                               onChange={(e) =>
                                 handleUpdateSingleFrequency(item.id, item.name, e.target.value)
                               }
+                              style={{
+                                backgroundColor: isDaily
+                                  ? "rgba(6, 78, 59, 0.45)"
+                                  : isWeekly
+                                  ? "rgba(30, 58, 138, 0.45)"
+                                  : isMonthly
+                                  ? "rgba(120, 53, 15, 0.45)"
+                                  : "#080B12",
+                                color: isDaily
+                                  ? "#34d399"
+                                  : isWeekly
+                                  ? "#60a5fa"
+                                  : isMonthly
+                                  ? "#fbbf24"
+                                  : "#d1d5db",
+                              }}
                               className={`px-3 py-1.5 rounded-xl border text-xs font-bold outline-none cursor-pointer transition-colors ${
                                 isDaily
-                                  ? "bg-emerald-950/50 border-emerald-500/40 text-emerald-400"
+                                  ? "border-emerald-500/40"
                                   : isWeekly
-                                  ? "bg-blue-950/50 border-blue-500/40 text-blue-400"
+                                  ? "border-blue-500/40"
                                   : isMonthly
-                                  ? "bg-amber-950/50 border-amber-500/40 text-amber-400"
-                                  : "bg-[#080B12] border-white/15 text-white/70 hover:border-white/30"
+                                  ? "border-amber-500/40"
+                                  : "border-white/20 hover:border-white/40"
                               }`}
                             >
-                              <option value="DAILY" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_daily")}</option>
-                              <option value="WEEKLY" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_weekly")}</option>
-                              <option value="MONTHLY" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_monthly")}</option>
-                              <option value="MANUAL" className="bg-[#0B0E17] text-white py-1">{t("scheduler.freq_manual")}</option>
+                              <option value="DAILY" style={{ backgroundColor: "#0B0E17", color: "#34d399" }} className="py-1">{t("scheduler.freq_daily")}</option>
+                              <option value="WEEKLY" style={{ backgroundColor: "#0B0E17", color: "#60a5fa" }} className="py-1">{t("scheduler.freq_weekly")}</option>
+                              <option value="MONTHLY" style={{ backgroundColor: "#0B0E17", color: "#fbbf24" }} className="py-1">{t("scheduler.freq_monthly")}</option>
+                              <option value="MANUAL" style={{ backgroundColor: "#0B0E17", color: "#d1d5db" }} className="py-1">{t("scheduler.freq_manual")}</option>
                             </select>
                           </td>
 
@@ -790,14 +927,13 @@ export default function SuperAdminSyncPricesPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => {
-                                setSelectedGameId(item.gameKey);
-                                setSelectedExpansions([item.name]);
-                                setActiveTab("manual");
-                              }}
-                              className="text-[11px] py-1 px-2.5 font-bold"
+                              onClick={() => handleDirectSyncFromTable(item.gameKey, item.name)}
+                              disabled={item.lastSyncStatus === "IN_PROGRESS" || schedulerProgress.active}
+                              isLoading={item.lastSyncStatus === "IN_PROGRESS"}
+                              leftIcon={item.lastSyncStatus !== "IN_PROGRESS" ? <IconRefresh className="w-3 h-3 text-red-500" /> : undefined}
+                              className="text-[11px] py-1 px-2.5 font-bold hover:border-red-500 hover:text-white"
                             >
-                              {t("scheduler.sync_now")}
+                              {item.lastSyncStatus === "IN_PROGRESS" ? t("inProgress") : t("scheduler.sync_now")}
                             </Button>
                           </td>
                         </tr>

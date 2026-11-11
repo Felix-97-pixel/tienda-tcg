@@ -1300,8 +1300,12 @@ export class ProductsService {
 
     let finalPrice = Number(price) || 0;
 
+    if (!storeId) {
+      throw new BadRequestException("No se puede crear un inventario físico sin una tienda vendedora asignada. El catálogo global es puramente referencial.");
+    }
+
     // Si la tienda está agregando (storeId != null) y el precio es 0, intentar heredar del maestro
-    if (storeId && finalPrice === 0) {
+    if (finalPrice === 0) {
       const masterPrice = await this.prisma.marketPrice.findFirst({
         where: {
           productId,

@@ -5,20 +5,33 @@ import { useTranslations } from "next-intl";
 import { List, Column } from "@/components/ui/List";
 import { Button } from "@/components/ui/Button";
 import { Product } from "@/types/product";
-import { IconPencil, IconTrash } from "@/components/ui/Icons";
+import { IconPencil, IconTrash, IconTrendingUp } from "@/components/ui/Icons";
 
 export interface ProductTableProps {
   products: Product[];
   loading: boolean;
   onEdit?: (product: Product, item: any) => void;
-  onInventory: (product: Product) => void;
+  onInventory?: (product: Product) => void;
   onDelete?: (product: Product) => void;
+  onViewHistory?: (product: Product) => void;
   page?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  isSuperAdminCatalog?: boolean;
 }
 
-export default function ProductTable({ products, loading, onEdit, onInventory, onDelete, page, totalPages, onPageChange }: ProductTableProps) {
+export default function ProductTable({
+  products,
+  loading,
+  onEdit,
+  onInventory,
+  onDelete,
+  onViewHistory,
+  page,
+  totalPages,
+  onPageChange,
+  isSuperAdminCatalog = false,
+}: ProductTableProps) {
   const t = useTranslations("products");
   const tc = useTranslations("common");
 
@@ -80,6 +93,49 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
         </>
       ),
     },
+    ...(isSuperAdminCatalog
+      ? [
+          {
+            key: "marketPrices",
+            header: "Cotización de Mercado Oficial (USD)",
+            render: (product: Product) => {
+              const prices = product.marketPrices || [];
+              if (prices.length === 0) {
+                return (
+                  <span className="text-xs text-white/40 italic">
+                    Sin cotización sincronizada
+                  </span>
+                );
+              }
+              return (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {prices.map((mp: any) => (
+                    <button
+                      key={mp.id || mp.finishId}
+                      type="button"
+                      onClick={() => onViewHistory?.(product)}
+                      title="Ver Historial de Precios"
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#080B12] border border-white/10 text-xs font-mono font-bold text-emerald-400 ${
+                        onViewHistory
+                          ? "hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                          : ""
+                      }`}
+                    >
+                      <span className="text-[10px] text-white/50 font-sans font-normal uppercase">
+                        {mp.finish?.name || "Normal"}:
+                      </span>
+                      ${Number(mp.price).toFixed(2)}
+                      {onViewHistory && (
+                        <IconTrendingUp className="w-3 h-3 text-emerald-400/70" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
     {
       key: "actions",
       header: t("table.actions"),
@@ -91,7 +147,7 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
 
         return (
           <div className="flex items-center justify-end gap-2">
-            {product.category?.isTcg && (
+            {!isSuperAdminCatalog && onInventory && product.category?.isTcg && (
               <Button 
                 size="sm"
                 onClick={() => onInventory(product)}
@@ -99,30 +155,42 @@ export default function ProductTable({ products, loading, onEdit, onInventory, o
                 {t("table.manage", { count: variationsCount })}
               </Button>
             )}
+
+            {isSuperAdminCatalog && onViewHistory && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="!px-3 !py-2.5 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/40 hover:bg-emerald-500/10"
+                onClick={() => onViewHistory(product)}
+                title="Ver Gráfico de Histórico de Precios"
+              >
+                <IconTrendingUp className="w-4 h-4" />
+              </Button>
+            )}
           
-          {onEdit && (
-            <Button 
-              size="sm"
-              variant="secondary"
-              className="!px-3 !py-2.5 hover:border-red/40 hover:text-red hover:bg-red/5 group"
-              onClick={() => onEdit(product, product.items?.[0])}
-              title={tc("edit")}
-            >
-              <IconPencil className="w-4 h-4 transition-colors" />
-            </Button>
-          )}
-          {onDelete && (
-            <Button 
-              size="sm"
-              variant="danger"
-              className="!px-3 !py-2.5"
-              onClick={() => onDelete(product)}
-              title={tc("delete")}
-            >
-              <IconTrash className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
+            {onEdit && (
+              <Button 
+                size="sm"
+                variant="secondary"
+                className="!px-3 !py-2.5 hover:border-red/40 hover:text-red hover:bg-red/5 group"
+                onClick={() => onEdit(product, product.items?.[0])}
+                title={tc("edit")}
+              >
+                <IconPencil className="w-4 h-4 transition-colors" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button 
+                size="sm"
+                variant="danger"
+                className="!px-3 !py-2.5"
+                onClick={() => onDelete(product)}
+                title={tc("delete")}
+              >
+                <IconTrash className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         );
       },
     },

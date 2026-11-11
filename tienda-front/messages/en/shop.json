@@ -377,7 +377,14 @@
     "avg_daily_sold": "Period Average",
     "volatility_low": "Low Volatility",
     "volatility_med": "Med Volatility",
-    "volatility_high": "High Volatility"
+    "volatility_high": "High Volatility",
+    "sell_this": "Sell this",
+    "sell_this_tooltip": "Sell your copies directly on TapTrade",
+    "sell_this_cta": "Have this card? Sell it on TapTrade",
+    "report_problem": "Report a problem",
+    "report_problem_tooltip": "Let us know if you spot any incorrect information",
+    "view_all_listings": "View {count} other listings (from ${price} CLP)",
+    "price_points_tooltip": "Aggregated metrics based on official market data and platform transactions"
   },
   "wishlist": {
     "title": "Your Wishlist",

@@ -1,7 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useSuperAdminProductsPage } from "@/app/admin/_components/Products/hooks/useSuperAdminProductsPage";
+import { Product } from "@/types/product";
 
 // Componentes Extraídos
 import ProductFilters from "@/app/admin/_components/Products/ProductFilters";
@@ -14,8 +16,15 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { IconSearch, IconAlertTriangle } from "@/components/ui/Icons";
 
+const ProductPriceHistoryModal = dynamic(
+  () => import("@/app/admin/_components/Products/ProductPriceHistoryModal"),
+  { ssr: false }
+);
+
 export default function AdminProducts() {
   const t = useTranslations("products");
+
+  const [historyProduct, setHistoryProduct] = useState<Product | null>(null);
 
   const {
     products, loading, refresh,
@@ -81,15 +90,21 @@ export default function AdminProducts() {
           products={products}
           loading={loading}
           onEdit={openEdit}
-          onInventory={(p) => { setSelectedProduct(p); setIsInventoryOpen(true); }}
           onDelete={confirmDelete}
+          onViewHistory={(p) => setHistoryProduct(p)}
           page={page}
           totalPages={totalPages}
           onPageChange={setPage}
+          isSuperAdminCatalog={true}
         />
       )}
 
       {/* Modales */}
+      <ProductPriceHistoryModal
+        isOpen={!!historyProduct}
+        onClose={() => setHistoryProduct(null)}
+        product={historyProduct}
+      />
       <CreateProductModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}

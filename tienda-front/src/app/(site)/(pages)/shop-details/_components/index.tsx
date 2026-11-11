@@ -15,7 +15,16 @@ import { useToast } from "@/hooks/useToast";
 import Loader from "@/components/ui/Loader";
 import { ShippingBadge } from "@/components/ui/ShippingBadge";
 import StoreShippingBadges from "@/components/ui/StoreShippingBadges";
-import { IconSparkles, IconBox, IconCard, IconCart, IconCheck, IconChevronDown } from "@/components/ui/Icons";
+import {
+  IconSparkles,
+  IconBox,
+  IconCard,
+  IconCart,
+  IconCheck,
+  IconChevronDown,
+  IconInfo,
+  IconArrowRight,
+} from "@/components/ui/Icons";
 import { calculateItemPriceCLP, roundToCLP } from "@/utils/tcgPrices";
 import { fetchCachedCurrencies } from "@/utils/metadataCache";
 import { useTranslations } from "next-intl";
@@ -207,8 +216,18 @@ export default function ShopDetails() {
     (typeof product.category === "object" ? product.category?.name : product.category) ||
     "TCG";
   const expansionName = product.cardDetail?.expansion || t("default_expansion");
+  const expansionCode =
+    (product.cardDetail as any)?.expansionRel?.externalId ||
+    (product.cardDetail as any)?.expansionCode ||
+    (product.cardDetail as any)?.code ||
+    "";
   const rarity = product.cardDetail?.rarity || "Rare";
   const collectorNum = product.cardDetail?.collectorNum || (product.cardDetail as any)?.cardNumber || "N/A";
+  const displayTitle = expansionCode
+    ? `${cardName} - ${expansionName} (${expansionCode})`
+    : expansionName
+    ? `${cardName} - ${expansionName}`
+    : cardName;
 
   const getConditionCode = (item: any) => {
     const raw = (
@@ -295,8 +314,11 @@ export default function ShopDetails() {
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--tt-text-main)] tracking-tight">
-                {cardName}
+                {displayTitle}
               </h1>
+              <p className="text-xs text-[var(--tt-text-muted)] font-medium mt-1">
+                {expansionName} {expansionCode ? `(${expansionCode})` : ""}
+              </p>
             </div>
 
             {/* Rules Text & Lore */}
@@ -329,8 +351,25 @@ export default function ShopDetails() {
                 </div>
                 <div>
                   <dt className="text-[var(--tt-text-muted)]">{t("official_expansion")}</dt>
-                  <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5 truncate">{expansionName}</dd>
+                  <dd className="font-semibold text-[var(--tt-text-main)] mt-0.5 truncate">
+                    {expansionName} {expansionCode ? `(${expansionCode})` : ""}
+                  </dd>
                 </div>
+                {product.cardDetail?.attributes && product.cardDetail.attributes.length > 0 && (
+                  <div className="col-span-2 border-t border-[var(--tt-border-subtle)] pt-2 mt-1">
+                    <dt className="text-[var(--tt-text-muted)] mb-1">Atributos / Dominio</dt>
+                    <dd className="flex flex-wrap gap-1.5">
+                      {product.cardDetail.attributes.map((attr, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded-md bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[11px] font-medium text-[var(--tt-text-main)]"
+                        >
+                          {attr}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                )}
               </dl>
             </div>
           </div>
@@ -437,24 +476,77 @@ export default function ShopDetails() {
                   </button>
                 </div>
 
-                {/* Jump to listings */}
+                {/* Jump to listings button matching Image 1 */}
                 {items.length > 1 && (
                   <button
                     type="button"
                     onClick={() => document.getElementById("marketplace-listings")?.scrollIntoView({ behavior: "smooth" })}
-                    className="w-full mt-4 text-center text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] transition-colors border-t border-[var(--tt-border-subtle)] pt-3"
+                    className="w-full mt-4 py-2.5 px-4 rounded-xl border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-surface)] hover:border-red-500/40 text-xs font-bold text-[var(--tt-text-main)] transition-all flex flex-col items-center justify-center gap-0.5 shadow-sm group cursor-pointer"
                   >
-                    {t("see_other_options", { count: items.length - 1 })}
+                    <span>{t("view_all_listings", { count: items.length, price: Math.round(getFinalPrice(items[0])).toLocaleString("es-CL") })}</span>
+                    <span className="text-[10px] text-[var(--tt-text-muted)] font-normal group-hover:text-red-500 transition-colors">
+                      {t("see_other_options", { count: items.length - 1 })}
+                    </span>
                   </button>
                 )}
+
+                {/* Sell This & Report Problem footer matching Image 1 */}
+                <div className="flex items-center justify-between border-t border-[var(--tt-border-subtle)] pt-3.5 mt-4 text-xs text-[var(--tt-text-muted)]">
+                  <Link
+                    href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
+                    className="inline-flex items-center gap-1.5 font-bold text-red-500 hover:text-red-400 transition-colors hover:underline group"
+                    title={t("sell_this_tooltip")}
+                  >
+                    <span>{t("sell_this")}</span>
+                    <IconInfo className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+
+                  <a
+                    href={`mailto:soporte@tapmaster.cl?subject=Reportar%20problema%20con%20carta:%20${encodeURIComponent(cardName)}`}
+                    className="inline-flex items-center gap-1.5 hover:text-[var(--tt-text-main)] transition-colors group"
+                    title={t("report_problem_tooltip")}
+                  >
+                    <span>{t("report_problem")}</span>
+                    <IconInfo className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </div>
               </div>
             ) : (
-              <div className="rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-8 text-center flex flex-col items-center justify-center">
+              <div className="rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] p-6 text-center flex flex-col items-center justify-center">
                 <IconBox className="w-10 h-10 text-[var(--tt-text-muted)] mb-3" />
                 <h3 className="font-bold text-[var(--tt-text-main)] text-base mb-1">{t("no_stock_title")}</h3>
-                <p className="text-xs text-[var(--tt-text-muted)] max-w-xs">
+                <p className="text-xs text-[var(--tt-text-muted)] max-w-xs mb-5">
                   {t("no_stock_desc")}
                 </p>
+
+                {/* Call To Action: Sell this card on TapTrade! */}
+                <Link
+                  href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
+                  className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 transition-all active:scale-98"
+                >
+                  <span>{t("sell_this_cta")}</span>
+                  <IconArrowRight className="w-4 h-4" />
+                </Link>
+
+                <div className="flex items-center justify-between w-full border-t border-[var(--tt-border-subtle)] pt-3.5 mt-5 text-xs text-[var(--tt-text-muted)]">
+                  <Link
+                    href={`/sell-cards?search=${encodeURIComponent(cardName)}`}
+                    className="inline-flex items-center gap-1.5 font-bold text-red-500 hover:text-red-400 hover:underline transition-colors"
+                    title={t("sell_this_tooltip")}
+                  >
+                    <span>{t("sell_this")}</span>
+                    <IconInfo className="w-3.5 h-3.5 opacity-60" />
+                  </Link>
+
+                  <a
+                    href={`mailto:soporte@tapmaster.cl?subject=Reportar%20problema%20con%20carta:%20${encodeURIComponent(cardName)}`}
+                    className="inline-flex items-center gap-1.5 hover:text-[var(--tt-text-main)] transition-colors"
+                    title={t("report_problem_tooltip")}
+                  >
+                    <span>{t("report_problem")}</span>
+                    <IconInfo className="w-3.5 h-3.5 opacity-60" />
+                  </a>
+                </div>
               </div>
             )}
           </div>

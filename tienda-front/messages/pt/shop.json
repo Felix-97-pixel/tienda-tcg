@@ -377,7 +377,14 @@
     "avg_daily_sold": "Média do Período",
     "volatility_low": "Baixa Volatilidade",
     "volatility_med": "Média Volatilidade",
-    "volatility_high": "Alta Volatilidade"
+    "volatility_high": "Alta Volatilidade",
+    "sell_this": "Vender esta carta",
+    "sell_this_tooltip": "Venda suas cópias diretamente no TapTrade",
+    "sell_this_cta": "Tem esta carta? Venda no TapTrade",
+    "report_problem": "Relatar um problema",
+    "report_problem_tooltip": "Informe-nos se detectar algum dado incorreto nesta carta",
+    "view_all_listings": "Ver {count} outras opções de compra (a partir de ${price} CLP)",
+    "price_points_tooltip": "Métricas agregadas com base em dados oficiais de mercado e transações na plataforma"
   },
   "wishlist": {
     "title": "Sua Lista de Desejos (Wishlist)",

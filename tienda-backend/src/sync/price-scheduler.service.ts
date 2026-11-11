@@ -57,12 +57,14 @@ export class PriceSchedulerService implements OnApplicationBootstrap {
   /**
    * Normaliza el nombre del juego al provider key interno de SyncService
    */
-  mapGameNameToProviderKey(gameName: string): string | null {
-    const norm = (gameName || '').toLowerCase();
+  mapGameNameToProviderKey(gameName: string, gameSlug?: string): string | null {
+    const raw = `${gameName || ''} ${gameSlug || ''}`.toLowerCase();
+    const norm = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
     if (norm.includes('riftbound')) return 'riftbound';
     if (norm.includes('poke')) return 'pokemon';
     if (norm.includes('magic') || norm.includes('mtg')) return 'magic';
-    if (norm.includes('one piece') || norm.includes('onepiece')) return 'onepiece';
+    if (norm.includes('one piece') || norm.includes('onepiece') || norm.includes('one-piece')) return 'onepiece';
     if (norm.includes('lorcana')) return 'lorcana';
     if (norm.includes('gundam')) return 'gundam';
     return null;
@@ -149,7 +151,7 @@ export class PriceSchedulerService implements OnApplicationBootstrap {
       );
 
       for (const exp of pendingList) {
-        const gameKey = this.mapGameNameToProviderKey(exp.gameRel?.name || '');
+        const gameKey = this.mapGameNameToProviderKey(exp.gameRel?.name || '', exp.gameRel?.slug);
         if (!gameKey) {
           this.logger.warn(`[PriceScheduler] No se pudo mapear el juego '${exp.gameRel?.name}' para la edición '${exp.name}'.`);
           continue;
@@ -234,7 +236,7 @@ export class PriceSchedulerService implements OnApplicationBootstrap {
 
     for (const exp of expansions) {
       const gName = exp.gameRel?.name || 'General';
-      const gKey = this.mapGameNameToProviderKey(gName) || 'unknown';
+      const gKey = this.mapGameNameToProviderKey(gName, exp.gameRel?.slug) || 'unknown';
 
       if (gameKeyFilter && gameKeyFilter !== 'ALL' && gKey !== gameKeyFilter.toLowerCase()) {
         continue;
