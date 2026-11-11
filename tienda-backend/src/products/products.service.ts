@@ -104,7 +104,14 @@ export class ProductsService {
     return { published: res.count };
   }
 
-  async bulkUpload(categoryId: string, items: any[], userId: string, applyDevaluations: boolean = true, targetStoreId?: string) {
+  async bulkUpload(
+    categoryId: string,
+    items: any[],
+    userId: string,
+    applyDevaluations: boolean = true,
+    targetStoreId?: string,
+    transferCommission: boolean = false,
+  ) {
     let whereCondition: any = {
       OR: [
         { ownerId: userId },
@@ -384,6 +391,11 @@ export class ProductsService {
               }
             } else {
               finalPrice = Number(basePrice.toFixed(2));
+            }
+
+            // Aplicar factor de traslado de comisión TapTrade (+3%) si la tienda activó el interruptor
+            if (transferCommission && finalPrice > 0) {
+              finalPrice = Number((finalPrice * 1.03).toFixed(2));
             }
 
             if (existingItem) {

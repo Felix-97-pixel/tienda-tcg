@@ -42,6 +42,83 @@ export function roundToCLP(amount: number, step: number = DEFAULT_CLP_ROUNDING_S
 }
 
 /**
+ * Redondea un monto en CLP hacia arriba al siguiente múltiplo (por defecto la decena, Ley Nº 20.956).
+ * Ejemplo: $103 CLP con paso 10 -> $110 CLP.
+ */
+export function roundUpToCLP(amount: number, step: number = DEFAULT_CLP_ROUNDING_STEP): number {
+  const num = Number(amount || 0);
+  if (!num || isNaN(num) || num <= 0) return 0;
+  return Math.ceil(num / step) * step;
+}
+
+export interface StorePricingBreakdown {
+  baseCLP: number;
+  pvp: number;
+  netSale: number;
+  vatSale: number;
+  commissionNet: number;
+  commissionVat: number;
+  commissionGross: number;
+  storePayout: number;
+}
+
+/**
+ * Calcula el desglose transparente de precios y comisiones para la tienda:
+ * - Si storeAbsorbsCommission es true (Interruptor ACTIVADO): La tienda asume la comisión. El PVP se mantiene en el precio base redondeado (ej: 100 CLP) y se le descuenta el 3% + IVA en su liquidación ("réstame esos 3").
+ * - Si storeAbsorbsCommission es false (Interruptor DESACTIVADO): El comprador asume la comisión. Se le suma el 3% al precio base y se redondea hacia arriba a la decena (ej: 100 -> 103 -> 110 CLP) para que la tienda reciba su base limpia ("súmale los 3").
+ * - Retención de TapTrade: 3% neto + IVA (19%) sobre el PVP.
+ * - Saldo líquido para la tienda (Payout): PVP - Comisión bruta TapTrade.
+ */
+export function calculateStorePricingBreakdown(
+  rawPriceCLP: number,
+  storeAbsorbsCommission: boolean = true,
+  commissionRate: number = 0.03
+): StorePricingBreakdown {
+  const base = Math.max(0, Number(rawPriceCLP || 0));
+  if (base === 0) {
+    return {
+      baseCLP: 0,
+      pvp: 0,
+      netSale: 0,
+      vatSale: 0,
+      commissionNet: 0,
+      commissionVat: 0,
+      commissionGross: 0,
+      storePayout: 0,
+    };
+  }
+
+  // Si la tienda asume la comisión: el PVP es el precio base redondeado a la decena ($100).
+  // Si la tienda NO asume la comisión: se traslada al comprador sumándole el 3% y redondeando hacia arriba ($100 -> $103 -> $110).
+  const pvp = storeAbsorbsCommission
+    ? roundToCLP(base)
+    : roundUpToCLP(base * (1 + commissionRate));
+
+  // Venta e IVA del producto
+  const netSale = Math.round(pvp / 1.19);
+  const vatSale = pvp - netSale;
+
+  // Comisión TapTrade (3% neto + 19% IVA)
+  const commissionNet = Math.round(pvp * commissionRate);
+  const commissionVat = Math.round(commissionNet * 0.19);
+  const commissionGross = commissionNet + commissionVat;
+
+  // Abono neto a transferir a la tienda
+  const storePayout = Math.max(0, pvp - commissionGross);
+
+  return {
+    baseCLP: base,
+    pvp,
+    netSale,
+    vatSale,
+    commissionNet,
+    commissionVat,
+    commissionGross,
+    storePayout,
+  };
+}
+
+/**
  * Resuelve la tasa de cambio USD -> CLP aplicable a un juego TCG:
  * 1. Tasa personalizada de la tienda (StoreGameExchangeRate)
  * 2. Tasa global del juego en CLP (GlobalGameExchangeRate)

@@ -61,19 +61,20 @@ describe('CheckoutPricingService (Comisiones Híbridas, Pasarela y Normativa SII
     expect(quote.vendors[0].tax.vat).toBe(2186);
     expect(quote.vendors[0].tax.gross).toBe(13690);
     expect(quote.vendors[0].sellerRut).toBe('76.123.456-7');
+
+    // Tienda con plan 0% comisión (store-1 tiene planCommissionRate: 0):
+    expect(quote.vendors[0].sellerCommission.net).toBe(0);
+    expect(quote.vendors[0].sellerCommission.vat).toBe(0);
+    expect(quote.vendors[0].sellerCommission.gross).toBe(0);
     expect(quote.vendors[0].sellerNetPayout).toBe(13690);
 
-    // Comisión TapTrade (3% neto + IVA):
-    expect(quote.serviceFee.net).toBe(411);
-    expect(quote.serviceFee.vat).toBe(78);
-    expect(quote.serviceFee.gross).toBe(489);
-
-    // Tarifa pasarela (Webpay 2.29% + IVA = 2.7251%):
-    expect(quote.gatewayFee).toBe(397);
-    expect(quote.transbankFeeEstimate).toBe(397);
-    expect(quote.amountToCharge).toBe(14576);
-    expect(quote.baseTotal + quote.serviceFee.gross + quote.gatewayFee).toBe(quote.amountToCharge);
-    expect(quote.totalVatIncluded).toBe(2264);
+    // Al comprador final se le cobra 0% de comisión de servicio y 0 pasarela:
+    expect(quote.serviceFee.net).toBe(0);
+    expect(quote.serviceFee.vat).toBe(0);
+    expect(quote.serviceFee.gross).toBe(0);
+    expect(quote.gatewayFee).toBe(0);
+    expect(quote.amountToCharge).toBe(13690);
+    expect(quote.totalVatIncluded).toBe(2186);
   });
 
   it('debe cuadrar exactamente el carrito del usuario ($270 productos + $3.690 Starken despacho)', async () => {
@@ -88,11 +89,12 @@ describe('CheckoutPricingService (Comisiones Híbridas, Pasarela y Normativa SII
     expect(quote.productsTotal).toBe(270);
     expect(quote.shippingTotal).toBe(3690);
     expect(quote.baseTotal).toBe(3960);
-    expect(quote.serviceFee.net).toBe(119);
-    expect(quote.serviceFee.vat).toBe(23);
-    expect(quote.serviceFee.gross).toBe(142);
-    expect(quote.gatewayFee).toBe(115);
-    expect(quote.amountToCharge).toBe(4217);
+    // El comprador solo paga productos + envío (sin recargos):
+    expect(quote.serviceFee.net).toBe(0);
+    expect(quote.serviceFee.vat).toBe(0);
+    expect(quote.serviceFee.gross).toBe(0);
+    expect(quote.gatewayFee).toBe(0);
+    expect(quote.amountToCharge).toBe(3960);
   });
 
   it('debe calcular exactamente el ejemplo ilustrativo del prompt ($100.000 neto + $19.000 IVA = $119.000 bruto, 10% comisión sobre neto -> $11.900 comisión y $107.100 saldo tienda)', async () => {

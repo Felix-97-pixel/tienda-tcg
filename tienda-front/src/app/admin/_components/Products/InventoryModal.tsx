@@ -9,10 +9,11 @@ import { InventoryItem } from "@/types/inventoryItem";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Switch } from "@/components/ui/Switch";
 import { Product } from "@/types/product";
 import { useActiveBranch } from "@/hooks/useActiveBranch";
-import { IconStore, IconCheck, IconTrash, IconAlertTriangle, IconInfo, IconChevronUp, IconChevronDown } from "@/components/ui/Icons";
-import { calculateVatBreakdownCLP, resolveGameExchangeRate } from "@/utils/tcgPrices";
+import { IconStore, IconCheck, IconTrash, IconAlertTriangle, IconInfo, IconChevronUp, IconChevronDown, IconSliders } from "@/components/ui/Icons";
+import { calculateStorePricingBreakdown, calculateVatBreakdownCLP, resolveGameExchangeRate } from "@/utils/tcgPrices";
 
 export interface InventoryModalProps {
   isOpen: boolean;
@@ -101,14 +102,16 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     stock: 0
   });
 
+  const [transferCommission, setTransferCommission] = useState<boolean>(true);
+
   const formatPriceVal = (val: number) => {
     if (!val) return "0";
     return val.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   };
 
-  // Opción A: PVP final en tienda con IVA incluido y redondeo a la decena (Ley del Redondeo chilena)
-  const rawFinalCLP = (newVariation.price || 0) * exchangeRate;
-  const { net: netPriceCLP, vat: vatPriceCLP, total: finalPriceCLP } = calculateVatBreakdownCLP(rawFinalCLP);
+  // Desglose de PVP, IVA, Comisión TapTrade (3% + IVA) y Saldo Líquido Tienda con redondeo a la decena
+  const rawBaseCLP = (newVariation.price || 0) * exchangeRate;
+  const storePricing = calculateStorePricingBreakdown(rawBaseCLP, transferCommission, 0.03);
 
   useEffect(() => {
     if (newVariation.conditionId && newVariation.languageId && product?.items) {
@@ -187,9 +190,13 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
     }
 
     try {
+      const finalSavedPrice = transferCommission && newVariation.price > 0 
+        ? Number((newVariation.price * 1.03).toFixed(2)) 
+        : newVariation.price;
+
       const res = await adminFetch(`/products/${product!.id}/inventory`, {
         method: "POST",
-        body: JSON.stringify({ ...newVariation, productId: product!.id, isPublished: false }),
+        body: JSON.stringify({ ...newVariation, price: finalSavedPrice, productId: product!.id, isPublished: false }),
       }, activeBranchId);
 
       if (res.ok) {
@@ -364,7 +371,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 </div>
               </div>
 
-              {/* Tasa y Desglose IVA (Opción A) */}
+              {/* Tasa de cambio y Ley del Redondeo */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs mb-3 px-2 gap-2">
                 <div className="text-blue-400 font-bold">
                   {t("current_exchange_rate", { currency: baseCurrency, rate: exchangeRate.toLocaleString("es-CL") })}
@@ -374,27 +381,61 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 </div>
               </div>
 
+              {/* Interruptor de Traslado de Comisión TapTrade (+3%) */}
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.03] border border-white/10 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red/10 border border-red/20 flex items-center justify-center text-red shrink-0">
+                    <IconSliders className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-white block">
+                      {t("transfer_commission_label")}
+                    </span>
+                    <span className="text-[11px] text-gray-400 block">
+                      {transferCommission
+                        ? t("transfer_commission_active_hint")
+                        : t("transfer_commission_inactive_hint")}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className={`text-xs font-mono font-bold ${transferCommission ? "text-emerald-400" : "text-gray-400"}`}>
+                    {transferCommission ? t("transfer_commission_buyer") : t("transfer_commission_store")}
+                  </span>
+                  <Switch
+                    checked={transferCommission}
+                    onChange={(e) => setTransferCommission(e.target.checked)}
+                  />
+                </div>
+              </div>
+
+              {/* Tarjetas Desglose Tributario y Comisiones */}
               <div className="bg-[#1a1d24] rounded-xl p-4 border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-6 text-sm">
-                  <div>
-                    <span className="block text-white/50 text-xs mb-1 font-bold">{t("net_price_clp")}</span>
-                    <span className="text-white font-bold text-lg">${formatPriceVal(netPriceCLP)}</span>
-                    <span className="block text-[10px] text-gray-400 font-medium">{t("hundred_percent_store")}</span>
-                  </div>
-                  <div>
-                    <span className="block text-amber-400 text-xs mb-1 font-bold">{t("vat_19_label")}</span>
-                    <span className="text-amber-400 font-bold text-lg">+${formatPriceVal(vatPriceCLP)}</span>
-                    <span className="block text-[10px] text-gray-400 font-medium">{t("fiscal_debit_f29")}</span>
-                  </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto text-sm">
                   <div>
                     <span className="block text-emerald-400 text-xs mb-1 font-bold">{t("final_store_price")}</span>
                     <span className="text-emerald-400 font-bold text-lg">
-                      ${formatPriceVal(finalPriceCLP)}
+                      ${formatPriceVal(storePricing.pvp)}
                     </span>
                     <span className="block text-[10px] text-emerald-400/80 font-medium">{t("public_pvp_vat")}</span>
                   </div>
+                  <div>
+                    <span className="block text-amber-400 text-xs mb-1 font-bold">{t("vat_19_label")}</span>
+                    <span className="text-amber-400 font-bold text-lg">+${formatPriceVal(storePricing.vatSale)}</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">{t("fiscal_debit_f29")}</span>
+                  </div>
+                  <div>
+                    <span className="block text-red-400 text-xs mb-1 font-bold">{t("taptrade_fee_short")}</span>
+                    <span className="text-red-400 font-bold text-lg">-${formatPriceVal(storePricing.commissionGross)}</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">Factura servicio</span>
+                  </div>
+                  <div>
+                    <span className="block text-white text-xs mb-1 font-bold">{t("store_net_payout")}</span>
+                    <span className="text-white font-bold text-lg">${formatPriceVal(storePricing.storePayout)}</span>
+                    <span className="block text-[10px] text-gray-400 font-medium">{t("store_net_payout_hint")}</span>
+                  </div>
                 </div>
-                <div className="w-full md:w-auto min-w-[120px]">
+                <div className="w-full md:w-auto min-w-[120px] shrink-0">
                   <Button variant="success" onClick={handleAddVariation} fullWidth>
                     {t("inventory.add")}
                   </Button>
@@ -404,7 +445,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
             )}
             </div>
 
-            {/* Tabla de Variaciones Actuales */}
+            {/* Tabla de Variaciones Actuales con Desglose Transparente */}
             <div className="overflow-x-auto rounded-xl border border-stroke">
               <table className="w-full text-left text-sm">
                 <thead>
@@ -413,9 +454,10 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                     <th className="p-3 font-bold text-gray-4">{t("inventory.condition")}</th>
                     <th className="p-3 font-bold text-gray-4">{t("finish_label")}</th>
                     <th className="p-3 font-bold text-gray-4">{t("col_price_currency", { currency: baseCurrency })}</th>
-                    <th className="p-3 font-bold text-gray-4">{t("net_price_clp")}</th>
-                    <th className="p-3 font-bold text-amber-400">{t("vat_19_label")}</th>
                     <th className="p-3 font-bold text-emerald-400">{t("final_store_price")}</th>
+                    <th className="p-3 font-bold text-amber-400">{t("vat_19_label")}</th>
+                    <th className="p-3 font-bold text-red-400">{t("taptrade_fee_short")}</th>
+                    <th className="p-3 font-bold text-white">{t("store_net_payout")}</th>
                     <th className="p-3 font-bold text-gray-4">{t("inventory.stock")}</th>
                     <th className="p-3 font-bold text-gray-4 text-center">{t("col_status")}</th>
                     <th className="p-3 font-bold text-gray-4 text-center">{tc("actions")}</th>
@@ -424,7 +466,7 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                 <tbody>
                   {product.items?.map((item: InventoryItem) => {
                     const rawFinal = Number(item.price) * exchangeRate;
-                    const { net: itemNetCLP, vat: itemVatCLP, total: itemFinalCLP } = calculateVatBreakdownCLP(rawFinal);
+                    const itemPricing = calculateStorePricingBreakdown(rawFinal, false, 0.03);
                     return (
                       <tr key={item.id} className="border-b border-stroke hover:bg-white/[0.02] transition-colors">
                         <td className="p-3 font-medium text-white">{item.language?.name || "N/A"}</td>
@@ -446,17 +488,21 @@ export default function InventoryModal({ isOpen, onClose, product: initialProduc
                             onBlur={(e) => handleUpdateItem(item.id, Number(e.target.value), item.stock, item.isPublished)}
                           />
                         </td>
-                        <td className="p-3 text-white font-medium">
-                          ${formatPriceVal(itemNetCLP)} CLP
-                          <span className="block text-[10px] text-gray-500 font-normal">{t("hundred_percent_store_short")}</span>
+                        <td className="p-3 text-emerald-400 font-bold font-mono">
+                          ${formatPriceVal(itemPricing.pvp)}
+                          <span className="block text-[10px] text-emerald-400/80 font-normal">{t("pvp_with_vat_short")}</span>
                         </td>
-                        <td className="p-3 text-amber-400 text-xs font-semibold">
-                          +${formatPriceVal(itemVatCLP)} CLP
+                        <td className="p-3 text-amber-400 text-xs font-semibold font-mono">
+                          +${formatPriceVal(itemPricing.vatSale)}
                           <span className="block text-[10px] text-amber-400/70 font-normal">{t("debit_f29_short")}</span>
                         </td>
-                        <td className="p-3 text-emerald-400 font-black">
-                          ${formatPriceVal(itemFinalCLP)} CLP
-                          <span className="block text-[10px] text-emerald-400/80 font-normal">{t("pvp_with_vat_short")}</span>
+                        <td className="p-3 text-red-400 text-xs font-semibold font-mono">
+                          -${formatPriceVal(itemPricing.commissionGross)}
+                          <span className="block text-[10px] text-red-400/70 font-normal">3% + IVA</span>
+                        </td>
+                        <td className="p-3 text-white font-bold font-mono">
+                          ${formatPriceVal(itemPricing.storePayout)}
+                          <span className="block text-[10px] text-gray-400 font-normal">A transferir</span>
                         </td>
                         <td className="p-3">
                           <input

@@ -69,6 +69,7 @@ export class ProductsController {
       req.user.userId,
       bulkUploadDto.applyDevaluations !== undefined ? bulkUploadDto.applyDevaluations : true,
       targetStoreId,
+      bulkUploadDto.transferCommission !== undefined ? bulkUploadDto.transferCommission : false,
     );
   }
 

@@ -54,6 +54,10 @@ export class BulkUploadDto {
   @IsBoolean()
   applyDevaluations?: boolean;
 
+  @IsOptional()
+  @IsBoolean()
+  transferCommission?: boolean;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BulkUploadItemDto)

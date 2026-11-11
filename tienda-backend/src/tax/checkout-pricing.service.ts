@@ -50,9 +50,9 @@ export interface CheckoutQuote {
 
 @Injectable()
 export class CheckoutPricingService {
-  // Constantes de tasas oficiales configurables
-  private readonly DEFAULT_TAPTRADE_BUYER_FEE_RATE = 0.03; // 3% neto cargo servicio al comprador
-  private readonly DEFAULT_SELLER_COMMISSION_RATE = 0; // 0% por defecto (o configurable por Plan / Tienda / Categoría / Plataforma)
+  // Constantes de tasas oficiales configurables (Versión 3.0: 0% al comprador, 3% a la tienda)
+  private readonly DEFAULT_TAPTRADE_BUYER_FEE_RATE = 0; // 0% al comprador (solo paga Productos + Despacho)
+  private readonly DEFAULT_SELLER_COMMISSION_RATE = 0.03; // 3% neto a la tienda (deducido de liquidación)
   private readonly DEFAULT_TRANSBANK_CREDIT_RATE = 0.0229; // 2.29% neto crédito (peor caso)
 
   constructor(
@@ -206,17 +206,18 @@ export class CheckoutPricingService {
       rate: vatRate,
     };
 
-    // 2. Costo de Pasarela de Pago: Gross-up para que tiendas y TapTrade reciban sus montos íntegros
+    // 2. Monto final a recaudar en la pasarela: si taptradeBuyerRate es 0, no se recarga pasarela al comprador
+    const hasBuyerSurcharge = taptradeBuyerRate > 0;
     const gatewayNetRate = gateway === 'MERCADOPAGO' ? mercadopagoRate : transbankCreditRate;
     const gatewayGrossRate = gatewayNetRate * (1 + vatRate);
-    const grossUpDenominator = Math.max(0.01, 1 - gatewayGrossRate);
+    const grossUpDenominator = hasBuyerSurcharge ? Math.max(0.01, 1 - gatewayGrossRate) : 1;
 
     // Monto final exacto a recaudar en la pasarela
     const amountToCharge = Math.round((baseTotal + serviceFeeGross) / grossUpDenominator);
 
-    // Costo de procesamiento retenido por la pasarela
+    // Costo de procesamiento retenido por la pasarela (o 0 si no se recarga al comprador)
     const gatewayFee = amountToCharge - (baseTotal + serviceFeeGross);
-    const transbankFeeEstimate = gatewayFee;
+    const transbankFeeEstimate = Math.round(amountToCharge * gatewayGrossRate);
 
     // Consolidación de IVA total incluido en la compra para información al consumidor (tiendas + cargo comprador TapTrade)
     const totalVatIncluded = vendors.reduce((sum, v) => sum + v.tax.vat, 0) + serviceFee.vat;

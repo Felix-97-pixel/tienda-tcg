@@ -2,117 +2,75 @@
 
 **Razón Social:** TAPTRADE SpA  
 **RUT:** 78.531.106-K  
-**Fecha de Actualización:** 3 de Noviembre de 2026  
-**Versión:** 2.2 (Desglose Transparente: Comisión TapTrade 3% + IVA y Costo Pasarela de Pago)
+**Fecha de Actualización:** 11 de Noviembre de 2026  
+**Versión:** 3.0 (Modelo de Comisión al Vendedor con Opción de Traslado +3% y Redondeo a la Decena)
 
 ---
 
 ## 1. Principios Fundamentales del Modelo de Negocio
 
-TapTrade opera bajo un modelo híbrido de **Software como Servicio (SaaS)** para tiendas especializadas en Trading Card Games (TCG) y un **Marketplace Multi-Tienda con Custodia Segura (Escrow)** para compradores coleccionistas.
+TapTrade opera como un **Marketplace Especializado en Trading Card Games (TCG) con Custodia Transitoria (Escrow)** y herramientas de gestión SaaS para comercios y coleccionistas.
 
-1. **Cero Comisión por Venta para las Tiendas (0% Take Rate):**
-   * A diferencia de marketplaces tradicionales que descuentan entre un 8% y un 15% a las tiendas por cada venta, TapTrade **no cobra comisiones porcentuales sobre las ventas de las tiendas**.
-   * La tienda define libremente sus precios en catálogo (los cuales se consideran **brutos con IVA incluido** para consumidores B2C conforme a la normativa del SII) y recibe el **100% neto del valor de sus productos y el 100% de los envíos** cotizados.
-2. **Monetización del Software (SaaS):**
-   * TapTrade monetiza mediante el cobro de suscripciones fijas mensuales en Unidades de Fomento (UF) según la escala de inventario sincronizado de cada tienda.
-3. **Desglose Transparente de Tarifas al Comprador en Checkout:**
-   * En el checkout se desglosan de forma **100% transparente y separada**:
-     1. **Comisión de Plataforma TapTrade (3.00% Neto + IVA 19%):** Servicio de intermediación tecnológica, custodia transitoria y protección al comprador.
-     2. **Costo de Pasarela de Pago:** Tarifa de procesamiento bancario (Transbank Webpay Plus peor caso crédito 2.29% + IVA o Mercado Pago 3.19% + IVA).
-   * Mediante un cálculo de *gross-up* sobre la pasarela, ni la tienda ni TapTrade absorben mermas financieras: la tienda recibe el 100% de su venta, y TapTrade recibe íntegro su 3% neto + IVA.
+1. **Comisión de Plataforma (Take Rate de 3.00% Neto + IVA 19%):**
+   * Por cada venta completada, TapTrade aplica una comisión de intermediación tecnológica del **3.00% neto más IVA (19%)**.
+   * Esta comisión es de cargo de la tienda vendedora y se deduce directamente de la liquidación de fondos (*payout*) en el libro mayor de custodia (*escrow ledger*).
+   * TapTrade emite a la tienda la **Factura de Comisión** correspondiente, permitiendo a la tienda utilizar ese IVA como **Crédito Fiscal** ante el SII.
 
----
+2. **Transparencia Total en el Checkout (0% Recargo Sorpresa al Comprador):**
+   * El comprador final en el Checkout paga exclusivamente:
+     $$\text{Total a Pagar} = \text{Subtotal Productos (IVA incluido)} + \text{Total Despacho (IVA incluido)}$$
+   * Se eliminan por completo las líneas adicionales de sobrecargo de comisión o tarifas bancarias separadas en la boleta del comprador, garantizando una experiencia de compra limpia, moderna y alineada al estándar de la industria.
 
-## 2. Tarifas SaaS para Tiendas Adheridas (Vendedores LGS)
-
-| Plan SaaS | Cuota Base Mensual | Límite Total de Catálogo | Comisión por Venta | Abono a Tienda |
-| :--- | :--- | :--- | :--- | :--- |
-| **Starter** (Pequeña Tienda) | 1.50 UF / mes (+ IVA) | Hasta 1.500 SKUs (Singles, sellados y accesorios) | **0%** | 100% Productos + 100% Envíos |
-| **Store** (Crecimiento) | 3.50 UF / mes (+ IVA) | Hasta 6.000 SKUs (Singles, sellados y accesorios) | **0%** | 100% Productos + 100% Envíos |
-| **Mega Store** (Consolidadas) | 6.50 UF / mes (+ IVA) | Hasta 18.000 SKUs (Singles, sellados y accesorios) | **0%** | 100% Productos + 100% Envíos |
-| **Enterprise** (Grandes Cadenas) | 11.50 UF / mes (+ IVA) | SKUs Ilimitados | **0%** | 100% Productos + 100% Envíos |
-
-### Add-ons y Estructura Operativa:
-* **Holding y Red de Sucursales:** 1 Casa Matriz base incluida. Cada sucursal física o bodega adicional tiene un valor de **+2.50 UF/mes (+ IVA)**.
-* **Cajeros POS Adicionales:** Cada sucursal dispone de personal base (1 Dueño, 1 Contador, 1 Encargado, 1 Cajero). Cada cajero POS adicional: **+0.35 UF/mes (+ IVA)**.
-* **Soporte Técnico Directo e Igualitario:** Sin distinciones ni niveles artificiales de prioridad; todos los comercios acceden al mismo canal directo de soporte técnico vía WhatsApp, chat y correo.
+3. **Interruptor de Estrategia de Comisión para la Tienda:**
+   Cada tienda dispone de un interruptor tanto en la **gestión de inventario**, en la **subida masiva de productos (CSV)** y en la **sincronización de precios de mercado (TCGPlayer / Scryfall)**:
+   * **Opción A ("Trasladar Comisión al Comprador" - Switch ACTIVADO):**
+     La tienda traslada el 3% al precio de venta para que el comprador final asuma el costo de la plataforma. El precio de catálogo se incrementa en +3% y se aplica la **Ley del Redondeo a la Decena (`Math.ceil`)**.
+   * **Opción B ("Absorber Comisión en Tienda" - Switch DESACTIVADO):**
+     La tienda mantiene el precio exacto de mercado o su precio base. El 3% + IVA se deduce íntegramente de su liquidación de pago.
 
 ---
 
-## 3. Desglose Transparente Pagado por el Comprador
+## 2. Matemática del Redondeo y Distribución de Fondos (Ley Nº 20.956)
 
-### 3.1. Conceptos Desglosados en Checkout
-1. **Comisión de Plataforma TapTrade (3.00% Neto + IVA 19%):**
-   * Financia la custodia transitoria de fondos en depósito fiduciario (escrow), la validación de inventario en tiempo real, el soporte al cliente y la infraestructura técnica del checkout unificado.
-   * Se calcula sobre la base imponible total (productos + despacho).
-2. **Costo de Pasarela de Pagos (Webpay Plus Transbank / Mercado Pago):**
-   * Tarifa bancaria oficial de recaudación y procesamiento seguro.
-   * Tasa Transbank Crédito peor caso: **2.29% + IVA** ($2.29 \times 1.19 = 2.7251\%$).
-   * Tasa Mercado Pago: **3.19% + IVA** ($3.19 \times 1.19 = 3.7961\%$).
-3. **Fórmula de Absorción Financiera (Gross-Up):**  
-   Dado que las pasarelas retienen su comisión sobre el **monto total transado en el terminal**, el total a recaudar se calcula para garantizar que el remanente cubra con exactitud el abono a la tienda y la comisión de TapTrade:
-   $$\text{TotalCobrado} = \left\lceil \frac{\text{BaseTienda} + \text{ComisiónBrutaTapTrade}}{1 - \text{TasaPasarela}} \right\rceil$$
-   $$\text{CostoPasarela} = \text{TotalCobrado} - (\text{BaseTienda} + \text{ComisiónBrutaTapTrade})$$
+En Chile rige la **Ley del Redondeo (Ley Nº 20.956)** que eliminó las monedas de $1 y $5 pesos. Todo precio comercial al consumidor final se redondea a la **decena más cercana (múltiplo de $10)**.
 
----
+### Caso Práctico 1: Tienda con Interruptor ACTIVADO (Traslado de Comisión)
+- **Precio Base Tienda:** $100 CLP (o su conversión desde USD).
+- **Recargo de Comisión (3%):** $\$100 \times 1.03 = \$103\text{ CLP}$.
+- **Redondeo hacia arriba a la Decena:** $\text{Math.ceil}(103 / 10) \times 10 = \mathbf{\$110\text{ CLP}}$.
+- **PVP Publicado al Público:** **$110 CLP** (con IVA 19% incluido).
 
-## 4. Algoritmo Exacto en Backend (`CheckoutPricingService`)
-
-```typescript
-// 1. Monto base consolidado (Productos con IVA incluido + Envíos con IVA incluido)
-const baseTotal = productsTotal + shippingTotal;
-
-// 2. Comisión propia de TapTrade (3% neto + IVA 19%)
-const serviceFeeNet = Math.round(baseTotal * 0.03);
-const serviceFeeVat = Math.round(serviceFeeNet * 0.19);
-const serviceFeeGross = serviceFeeNet + serviceFeeVat;
-
-// 3. Tasa de pasarela con IVA (Webpay crédito peor caso 2.29% + IVA = 2.7251%)
-const gatewayGrossRate = 0.0229 * 1.19; // 0.027251
-
-// 4. Monto total recaudado en terminal de pago
-const amountToCharge = Math.round((baseTotal + serviceFeeGross) / (1 - gatewayGrossRate));
-
-// 5. Costo financiero de la pasarela pagado transparentemente por el comprador
-const gatewayFee = amountToCharge - (baseTotal + serviceFeeGross);
-
-// Invariante contable estricta:
-// amountToCharge === baseTotal + serviceFeeGross + gatewayFee
-```
+#### ¿Cómo se reparten los $110 CLP cuando el cliente compra?
+1. **Comisión TapTrade SpA (3% neto + IVA):**
+   - Comisión neta (3%): $\text{Math.round}(110 \times 0.03) = \mathbf{\$3\text{ CLP}}$.
+   - IVA Débito Fiscal TapTrade (19%): $\text{Math.round}(3 \times 0.19) = \mathbf{\$1\text{ CLP}}$.
+   - **Total Comisión Retenida por TapTrade:** $\$3 + \$1 = \mathbf{\$4\text{ CLP}}$.
+   *(TapTrade factura a la tienda $4 CLP con $1 de Crédito Fiscal).*
+2. **Abono Líquido a la Tienda (Payout):**
+   $$\text{Abono a Tienda} = \text{PVP } (\$110) - \text{Comisión TapTrade } (\$4) = \mathbf{\$106\text{ CLP}}$$
+   *(La tienda quería $100 y gracias al redondeo recibe $106 limpios, superando su margen base).*
+3. **Tratamiento de IVA de la Venta para la Tienda:**
+   - Venta neta tienda: $\text{Math.round}(110 / 1.19) = \mathbf{\$92\text{ CLP}}$.
+   - Débito Fiscal IVA F29 de la tienda: $\$110 - \$92 = \mathbf{\$18\text{ CLP}}$.
+   - Crédito Fiscal de la factura TapTrade: $\mathbf{\$1\text{ CLP}}$.
+   - IVA neto a pagar por la tienda al SII: $\$18 - \$1 = \mathbf{\$17\text{ CLP}}$.
 
 ---
 
-## 5. Ejemplo Práctico de Liquidación y Cobro
-
-### Ejemplo A: Carrito de $3.960 CLP ($270 productos + $3.690 despacho Starken)
-* **Subtotal Productos:** $270 CLP.
-* **Total Envíos Consolidados:** $3.690 CLP.
-* **Monto Base:** $3.960 CLP.
-* **Comisión TapTrade (3% + IVA):**
-  * Neto: $\text{round}(3.960 \times 0.03) = \mathbf{\$119\text{ CLP}}$.
-  * IVA Débito (19%): $\text{round}(119 \times 0.19) = \mathbf{\$23\text{ CLP}}$.
-  * Total Comisión TapTrade (Boleta de servicios): $\mathbf{\$142\text{ CLP}}$.
-* **Costo Pasarela Webpay Plus (2.29% + IVA):**
-  * $\text{Total} = \text{round}\left(\frac{3.960 + 142}{1 - 0.027251}\right) = \text{round}(4.102 / 0.972749) = \mathbf{\$4.217\text{ CLP}}$.
-  * $\text{Costo Pasarela} = 4.217 - 4.102 = \mathbf{\$115\text{ CLP}}$.
-* **Total Final a Pagar:** **$4.217 CLP**.
-
-#### Cuadratura de Fondos:
-* **Abono Tienda:** **$3.960 CLP** (100% íntegro).
-* **Ingreso Propio TapTrade:** **$142 CLP** ($119 neto utilidad + $23 IVA débito fiscal F29).
-* **Descuento Transbank en Terminal:** $4.217 \times 0.027251 = \mathbf{\$115\text{ CLP}}$ ($97 neto costo financiero + $18 IVA crédito fiscal).
-* **F29 al Fisco:** Débito $23 - Crédito $18 = **$5 al SII**. Margen neto TapTrade: **$119 CLP** (exactamente 3% de la venta).
+### Caso Práctico 2: Tienda con Interruptor DESACTIVADO (Absorción de Comisión)
+- **Precio Base Tienda:** $100 CLP.
+- **PVP Publicado al Público:** **$100 CLP** (redondeado).
+- **Comisión TapTrade Retenida:** $4 CLP ($3 neto + $1 IVA).
+- **Abono Líquido a la Tienda (Payout):** $\$100 - \$4 = \mathbf{\$96\text{ CLP}}$.
 
 ---
 
-## 6. Estructura Legal y Tributaria ante el Servicio de Impuestos Internos (SII)
+## 3. Matriz de Puntos de Control en el Software
 
-### 6.1. Mandato Mercantil de Recaudación (DL 825)
-* TapTrade **no es revendedora** de los productos de las tiendas. Actúa exclusivamente como **mandataria de cobro y recaudación por cuenta de terceros**.
-* Los dineros ingresados a la cuenta bancaria de TapTrade por concepto de productos y despachos constituyen un **pasivo de custodia transitoria** (fondos ajenos) y no forman parte de los ingresos brutos ni de la base imponible del IVA de TapTrade.
-
-### 6.2. Emisión de Documentos Tributarios Electrónicos (DTEs)
-1. **La Tienda Vendedora** es la única obligada tributaria ante el SII a emitir la **Boleta Electrónica de Ventas y Servicios** o **Factura Electrónica** al comprador final por el 100% de los productos y envíos transados.
-2. **TapTrade SpA** emite la respectiva **Boleta o Factura Electrónica de Servicios** al comprador por el monto correspondiente a la comisión de servicio e intermediación ($142 CLP en el ejemplo).
-3. **Liquidación de Mandato:** Al momento de liberar los fondos a la tienda tras el despacho, TapTrade genera un comprobante de liquidación mercantil donde se acredita la rendición de cuentas del mandato.
+| Módulo | Componente | Comportamiento del Interruptor |
+| :--- | :--- | :--- |
+| **Gestión de Inventario** | `InventoryModal.tsx` | Permite alternar entre PVP con recargo +3% o absorción, mostrando en vivo: PVP, IVA F29, Comisión TapTrade y Líquido a Transferir. |
+| **Subida Masiva CSV** | `BulkUploadModal.tsx` | Permite subir lotes de cartas aplicando automáticamente el +3% con redondeo a decena a los precios importados. |
+| **Sincronización de Precios** | `/admin/price-sync` | Permite sincronizar contra TCGPlayer / Scryfall aplicando el factor +3% y redondeo a la decena en vivo. |
+| **Checkout del Comprador** | `checkout/_components/index.tsx` | Total = Subtotal Productos + Despacho. 0% comisiones sorpresas cobradas al comprador. |
+| **Motor de Pagos Backend** | `CheckoutPricingService` | Cotiza `amountToCharge = productsTotal + shippingTotal`. Registra en `vendorOrder.sellerCommissionGross` la comisión retenida a cada tienda. |

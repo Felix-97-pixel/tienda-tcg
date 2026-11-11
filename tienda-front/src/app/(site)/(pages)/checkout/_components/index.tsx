@@ -1272,49 +1272,52 @@ const CheckoutWebpay = () => {
                     </span>
                   </div>
 
-                  {/* Comisión de Servicio TapTrade (3% + IVA) */}
-                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] transition-all">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[var(--tt-text-main)] font-semibold">
-                          {t("taptrade_fee")}
-                        </span>
-                        <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-500 dark:text-amber-400">
-                          {t("taptrade_fee_badge")}
+                  {/* Si existieran tarifas adicionales configuradas se muestran aquí, de lo contrario el comprador solo paga Productos + Envío */}
+                  {detailedFees.taptradeFeeGross > 0 && (
+                    <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] transition-all">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[var(--tt-text-main)] font-semibold">
+                            {t("taptrade_fee")}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-500 dark:text-amber-400">
+                            {t("taptrade_fee_badge")}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-[var(--tt-text-muted)] block mt-0.5">
+                          {t("taptrade_fee_desc")}
                         </span>
                       </div>
-                      <span className="text-[10px] text-[var(--tt-text-muted)] block mt-0.5">
-                        {t("taptrade_fee_desc")}
+                      <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0 ml-2">
+                        +${Math.round(detailedFees.taptradeFeeGross).toLocaleString("es-CL")} CLP
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0 ml-2">
-                      +${Math.round(detailedFees.taptradeFeeGross).toLocaleString("es-CL")} CLP
-                    </span>
-                  </div>
+                  )}
 
-                  {/* Tarifa de Pasarela de Pago */}
-                  <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] transition-all">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[var(--tt-text-main)] font-semibold">
-                          {t("gateway_cost")}
-                        </span>
-                        <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
-                          selectedGateway === "WEBPAY"
-                            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 dark:text-emerald-400"
-                            : "bg-sky-500/10 border border-sky-500/20 text-sky-500 dark:text-sky-400"
-                        }`}>
-                          {detailedFees.gatewayLabel} [ {detailedFees.gatewayPercentageText} ]
+                  {detailedFees.gatewayFee > 0 && (
+                    <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-subtle)] transition-all">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[var(--tt-text-main)] font-semibold">
+                            {t("gateway_cost")}
+                          </span>
+                          <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
+                            selectedGateway === "WEBPAY"
+                              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 dark:text-emerald-400"
+                              : "bg-sky-500/10 border border-sky-500/20 text-sky-500 dark:text-sky-400"
+                          }`}>
+                            {detailedFees.gatewayLabel} [ {detailedFees.gatewayPercentageText} ]
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-[var(--tt-text-muted)] block mt-0.5">
+                          {detailedFees.gatewayDescription}
                         </span>
                       </div>
-                      <span className="text-[10px] text-[var(--tt-text-muted)] block mt-0.5">
-                        {detailedFees.gatewayDescription}
+                      <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0 ml-2">
+                        +${Math.round(detailedFees.gatewayFee).toLocaleString("es-CL")} CLP
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-[var(--tt-text-main)] shrink-0 ml-2">
-                      +${Math.round(detailedFees.gatewayFee).toLocaleString("es-CL")} CLP
-                    </span>
-                  </div>
+                  )}
 
                   <div className="pt-3 border-t border-[var(--tt-border-medium)] flex items-baseline justify-between">
                     <div>

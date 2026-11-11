@@ -10,6 +10,8 @@
  *    el 100% íntegro de sus fondos sin mermas financieras.
  */
 
+import { roundToCLP } from './tcgPrices';
+
 export type PaymentGatewayType = 'MERCADOPAGO' | 'WEBPAY' | 'DEFAULT';
 
 export const VAT_RATE = 0.19;
@@ -96,33 +98,23 @@ export function calculateDetailedFees(
     };
   }
 
-  // 1. Comisión TapTrade: 3% neto + IVA (19%)
-  const taptradeFeeNet = Math.round(baseAmount * TAPTRADE_COMMISSION_NET);
-  const taptradeFeeVat = Math.round(taptradeFeeNet * VAT_RATE);
-  const taptradeFeeGross = taptradeFeeNet + taptradeFeeVat;
-
-  // 2. Tarifa de procesamiento pasarela (Gross-up sobre Base + TapTrade Gross)
+  // En la nueva política de TapTrade: el comprador final paga exclusivamente el subtotal de productos + envíos redondeado a la decena.
+  // La comisión de la plataforma (3% + IVA) es de cargo de la tienda y se deduce de su liquidación (payout).
+  const roundedFinal = roundToCLP(baseAmount);
   const gwConfig = GATEWAY_CONFIGS[gateway] || GATEWAY_CONFIGS.DEFAULT;
-  const gatewayGrossRate = gwConfig.netRate * (1 + VAT_RATE);
-
-  const grossUpDenominator = Math.max(0.01, 1 - gatewayGrossRate);
-  const finalAmount = Math.round((baseAmount + taptradeFeeGross) / grossUpDenominator);
-  const gatewayFee = finalAmount - (baseAmount + taptradeFeeGross);
-
-  const pctString = `${(gwConfig.netRate * 100).toFixed(2)}% + IVA`;
 
   return {
-    baseAmount,
-    taptradeFeeNet,
-    taptradeFeeVat,
-    taptradeFeeGross,
-    gatewayFee,
-    gatewayGrossRate,
+    baseAmount: roundedFinal,
+    taptradeFeeNet: 0,
+    taptradeFeeVat: 0,
+    taptradeFeeGross: 0,
+    gatewayFee: 0,
+    gatewayGrossRate: 0,
     gatewayName: gateway,
     gatewayLabel: gwConfig.label,
-    gatewayPercentageText: pctString,
+    gatewayPercentageText: '0%',
     gatewayDescription: gwConfig.description,
-    finalAmount,
+    finalAmount: roundedFinal,
   };
 }
 

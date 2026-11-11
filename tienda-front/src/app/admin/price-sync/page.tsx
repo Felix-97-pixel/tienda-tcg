@@ -87,6 +87,7 @@ export default function AdminPriceSyncPage() {
   const [selectedExpansions, setSelectedExpansions] = useState<string[]>([]);
   const [targetScope, setTargetScope] = useState<TargetScope>("ONLY_IN_STOCK");
   const [applyDevaluations, setApplyDevaluations] = useState<boolean>(true);
+  const [transferCommission, setTransferCommission] = useState<boolean>(true);
   const [sourcePriceBasis, setSourcePriceBasis] = useState<"GROSS" | "NET">("GROSS");
   const [priceBenchmarkSource, setPriceBenchmarkSource] = useState<"USA_MARKET" | "LOCAL_MARKET">("USA_MARKET");
   const [priceDateMode, setPriceDateMode] = useState<"LATEST" | "CUSTOM">("LATEST");
@@ -222,7 +223,7 @@ export default function AdminPriceSyncPage() {
     return preview.totalMatching;
   }, [preview, targetScope]);
 
-  // Calcular precio simulado para una fila de muestra tomando en cuenta Estado + Idioma
+  // Calcular precio simulado para una fila de muestra tomando en cuenta Estado + Idioma y Comisión (+3%)
   const computeSimulatedPrice = useCallback(
     (sample: PreviewSample) => {
       const base =
@@ -232,10 +233,11 @@ export default function AdminPriceSyncPage() {
       const condMult = applyDevaluations ? sample.conditionMultiplier : 1.0;
       const langMult = applyDevaluations ? sample.languageMultiplier : 1.0;
       const vatMult = sourcePriceBasis === "NET" ? 1.19 : 1.0;
-      const raw = base * condMult * langMult * vatMult;
+      const commMult = transferCommission ? 1.03 : 1.0;
+      const raw = base * condMult * langMult * vatMult * commMult;
       return Number(Math.max(0.01, raw).toFixed(2));
     },
-    [applyDevaluations, sourcePriceBasis, priceBenchmarkSource]
+    [applyDevaluations, transferCommission, sourcePriceBasis, priceBenchmarkSource]
   );
 
   // Ejecutar sincronización
@@ -257,6 +259,7 @@ export default function AdminPriceSyncPage() {
           expansions: selectedExpansions,
           targetScope,
           applyDevaluations,
+          marginPercent: transferCommission ? 3 : 0,
           sourcePriceBasis,
           priceBenchmarkSource,
           priceDate: priceDateMode === "CUSTOM" && customPriceDate ? customPriceDate : "LATEST",
@@ -775,6 +778,44 @@ export default function AdminPriceSyncPage() {
               </div>
             </div>
           </div>
+          {/* PASO 4: INTERRUPTOR DE TRASLADO DE COMISIÓN TAPTRADE (+3%) */}
+          <div className="bg-[#0E121B] border border-white/10 rounded-2xl p-6 shadow-xl">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red shrink-0 mt-0.5">
+                  <IconSliders className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-red-400 block">
+                    PASO 4 • ESTRATEGIA DE COMISIÓN (+3%)
+                  </span>
+                  <h2 className="text-base font-bold text-white mt-0.5">
+                    Trasladar Comisión TapTrade (+3% al PVP)
+                  </h2>
+                  <p className="text-xs text-white/50 mt-1 leading-relaxed max-w-xl">
+                    {transferCommission
+                      ? "El comprador asume el 3%: se suma un factor +3% a la cotización oficial y se redondea hacia arriba a la decena (ej: 100 -> 103 -> 110 CLP)."
+                      : "La tienda absorbe el 3%: los precios se sincronizan al valor neto exacto y el 3% + IVA se descuenta en tu liquidación mensual."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <span
+                  className={`text-xs font-black uppercase tracking-wider ${
+                    transferCommission ? "text-emerald-400" : "text-white/40"
+                  }`}
+                >
+                  {transferCommission ? "SÍ, TRASLADAR (+3%)" : "ABSORBER EN TIENDA"}
+                </span>
+                <Switch
+                  checked={transferCommission}
+                  onChange={(e) => setTransferCommission(e.target.checked)}
+                  wrapperClassName="!p-0 !border-0 !bg-transparent shrink-0"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* COLUMNA DERECHA (1/3): RESUMEN DE IMPACTO Y BOTÓN DE EJECUCIÓN */}
@@ -804,6 +845,16 @@ export default function AdminPriceSyncPage() {
                     : selectedExpansions.length === expansions.length
                     ? t("summary_all_editions")
                     : `${selectedExpansions.length} seleccionadas`}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/40">Comisión Plataforma:</span>
+                <span
+                  className={`font-mono font-bold ${
+                    transferCommission ? "text-emerald-400" : "text-white/50"
+                  }`}
+                >
+                  {transferCommission ? "+3% Trasladado (PVP)" : "Absorbido en Tienda"}
                 </span>
               </div>
               <div className="flex items-center justify-between">

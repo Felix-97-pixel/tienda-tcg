@@ -28,6 +28,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [applyDevaluations, setApplyDevaluations] = useState(true);
+  const [transferCommission, setTransferCommission] = useState(true);
   const [csvPriceBasis, setCsvPriceBasis] = useState<"GROSS" | "NET">("GROSS");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -125,6 +126,7 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
             body: JSON.stringify({
               categoryId: bulkCategory,
               applyDevaluations,
+              transferCommission,
               items: parsedItems
             }),
           });
@@ -276,6 +278,31 @@ export default function BulkUploadModal({ isOpen, onClose, categories, onSuccess
                     onChange={(e) => setApplyDevaluations(e.target.checked)}
                   />
                   <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red"></div>
+                </div>
+              </label>
+
+              <label className="flex items-center justify-between gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 cursor-pointer hover:border-white/20 transition-all mt-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                    <IconSliders className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase tracking-wide">
+                      Trasladar Comisión TapTrade (+3%)
+                    </p>
+                    <p className="text-[11px] text-white/45 mt-1 leading-relaxed">
+                      Suma un 3% a los precios de tus cartas para que el comprador asuma la comisión de la plataforma.
+                    </p>
+                  </div>
+                </div>
+                <div className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={transferCommission}
+                    onChange={(e) => setTransferCommission(e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                 </div>
               </label>
             </div>
