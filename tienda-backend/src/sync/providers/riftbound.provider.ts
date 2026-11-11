@@ -212,35 +212,57 @@ export class RiftboundProvider extends TcgProvider {
       this.logger.log(`[Riftbound] ${totalRift} productos encontrados en la BD local.`);
 
       let page = 1;
-      const pageSize = 250;
+      const pageSize = 50;
       let hasMore = true;
+      let accumulatedCards = 0;
       const csvRecords: string[] = ['productId,finishId,price'];
 
       const normalizeTitle = (s: string) => s.toLowerCase().replace(/\s*-\s*/g, ', ').replace(/\s+/g, ' ').trim();
       const stripParens = (s: string) => normalizeTitle(s).replace(/\s*\([^)]*\)/g, '').trim();
 
       while (hasMore) {
-        this.logger.log(`[Riftbound] Consultando página ${page} de set "${setId}" en Scrydex (Bulk 250)...`);
+        this.logger.log(`[Riftbound] Consultando página ${page} de set "${setId}" en Scrydex...`);
         const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('riftbound', setId, page, pageSize);
 
-        if (cards.length === 0) break;
+        if (!cards || cards.length === 0) break;
+        accumulatedCards += cards.length;
 
         for (const card of cards) {
-          // Extraer número de coleccionista limpio
-          const cardNum = String(card.number || card.collector_number || '').trim();
-          const cleanNum = cardNum.replace(/\D/g, '');
-          const parsedCardNum = cleanNum ? parseInt(cleanNum, 10).toString() : cardNum;
+          // Extraer IDs oficiales de TCGPlayer de las variantes de Scrydex
+          const tcgProductIds: string[] = [];
+          if (Array.isArray(card.variants)) {
+            for (const v of card.variants) {
+              if (Array.isArray(v.marketplaces)) {
+                for (const m of v.marketplaces) {
+                  if (m.name === 'tcgplayer' && m.product_id) {
+                    tcgProductIds.push(String(m.product_id).trim());
+                  }
+                }
+              }
+            }
+          }
 
-          // 1. Match por número de coleccionista
-          let matchLocal = localProducts.find((lp) => {
-            if (!lp.cardDetail?.collectorNum || !parsedCardNum) return false;
-            const lpNum = lp.cardDetail.collectorNum.trim();
-            const cleanLp = lpNum.replace(/\D/g, '');
-            const parsedLp = cleanLp ? parseInt(cleanLp, 10).toString() : lpNum;
-            return parsedLp === parsedCardNum;
-          });
+          let matchLocal: any = null;
 
-          // 2. Fallback por nombre normalizado
+          // 1. Prioridad Máxima: Match exacto por TCGPlayer Product ID (externalId importado previamente)
+          if (tcgProductIds.length > 0) {
+            matchLocal = localProducts.find((lp) => lp.externalId && tcgProductIds.includes(String(lp.externalId).trim()));
+          }
+
+          // 2. Prioridad 2: Match por número de coleccionista exacto (conservando sufijos como '7a') y nombre
+          if (!matchLocal) {
+            const cardNum = String(card.number || card.collector_number || '').trim().toLowerCase();
+            const cardNameNorm = normalizeTitle(card.name || '');
+
+            matchLocal = localProducts.find((lp) => {
+              if (!lp.cardDetail?.collectorNum) return false;
+              const lpNum = lp.cardDetail.collectorNum.trim().toLowerCase();
+              const lpNorm = normalizeTitle(lp.name);
+              return lpNum === cardNum && (lpNorm === cardNameNorm || stripParens(lp.name) === stripParens(card.name || ''));
+            });
+          }
+
+          // 3. Fallback: Match por nombre normalizado
           if (!matchLocal) {
             const cardNameNorm = normalizeTitle(card.name || '');
             matchLocal = localProducts.find((lp) => {
@@ -282,8 +304,8 @@ export class RiftboundProvider extends TcgProvider {
           this.onProgress?.('riftbound', updatedCount, totalRift, 'price');
         }
 
-        this.logger.log(`[Riftbound] Progreso Scrydex: ${updatedCount}/${totalRift}`);
-        if (cards.length < pageSize) {
+        this.logger.log(`[Riftbound] Progreso Scrydex: ${updatedCount}/${totalRift} (Procesadas ${accumulatedCards}/${totalCount} cartas remotas)`);
+        if (accumulatedCards >= totalCount || cards.length === 0) {
           hasMore = false;
         } else {
           page++;

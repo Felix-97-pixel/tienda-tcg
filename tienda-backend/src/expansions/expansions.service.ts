@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { MagicService } from '../sync/magic.service';
 import { PokemonService } from '../sync/pokemon.service';
 import { RiftboundService } from '../sync/riftbound.service';
+import { ScrydexService } from '../sync/scrydex.service';
 
 @Injectable()
 export class ExpansionsService {
@@ -10,13 +11,14 @@ export class ExpansionsService {
     private readonly prisma: PrismaService,
     private readonly magicService: MagicService,
     private readonly pokemonService: PokemonService,
-    private readonly riftboundService: RiftboundService
+    private readonly riftboundService: RiftboundService,
+    private readonly scrydexService: ScrydexService
   ) {}
 
   /**
    * Resuelve cualquier alias o nombre completo de juego hacia su clave canónica y filtro para Prisma.
    */
-  private resolveGame(game: string): { key: 'magic' | 'pokemon' | 'riftbound'; gameCondition: any } {
+  private resolveGame(game: string): { key: 'magic' | 'pokemon' | 'riftbound' | 'lorcana' | 'onepiece' | 'gundam'; gameCondition: any } {
     const g = (game || '').toLowerCase().trim();
     if (g.includes('magic') || g === 'mtg') {
       return {
@@ -47,6 +49,40 @@ export class ExpansionsService {
           OR: [
             { name: { contains: 'riftbound', mode: 'insensitive' } },
             { slug: { contains: 'riftbound', mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+    if (g.includes('lorcana')) {
+      return {
+        key: 'lorcana',
+        gameCondition: {
+          OR: [
+            { name: { contains: 'lorcana', mode: 'insensitive' } },
+            { slug: { contains: 'lorcana', mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+    if (g.includes('piece') || g === 'op' || g.includes('onepiece')) {
+      return {
+        key: 'onepiece',
+        gameCondition: {
+          OR: [
+            { name: { contains: 'one piece', mode: 'insensitive' } },
+            { slug: { contains: 'one-piece', mode: 'insensitive' } },
+            { slug: { contains: 'onepiece', mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+    if (g.includes('gundam')) {
+      return {
+        key: 'gundam',
+        gameCondition: {
+          OR: [
+            { name: { contains: 'gundam', mode: 'insensitive' } },
+            { slug: { contains: 'gundam', mode: 'insensitive' } },
           ],
         },
       };
@@ -123,7 +159,7 @@ export class ExpansionsService {
 
   async getRemoteSets(game: string) {
     const resolved = this.resolveGame(game);
-    let sets = [];
+    let sets: { id: string; name: string; releaseDate?: string }[] = [];
 
     if (resolved.key === 'magic') {
       const scryfallSets = await this.magicService.fetchScryfallSets();
@@ -132,21 +168,12 @@ export class ExpansionsService {
         name: s.name,
         releaseDate: s.released_at
       }));
-    } else if (resolved.key === 'pokemon') {
-      const pokemonSets = await this.pokemonService.fetchSets();
-      sets = pokemonSets.map(s => ({
-        id: s.id,
+    } else if (['pokemon', 'riftbound', 'lorcana', 'onepiece', 'gundam'].includes(resolved.key)) {
+      const scrydexSets = await this.scrydexService.fetchSets(resolved.key);
+      sets = scrydexSets.map(s => ({
+        id: s.id || s.code,
         name: s.name,
         releaseDate: s.releaseDate
-      }));
-    } else if (resolved.key === 'riftbound') {
-      const apiKey = process.env.JUSTTCG_API_KEY;
-      if (!apiKey) throw new Error('JUSTTCG_API_KEY not configured');
-      const justTcgSets = await this.riftboundService.fetchJustTcgSets(apiKey);
-      sets = justTcgSets.map(s => ({
-        id: s.set_id || s.slug || s.id,
-        name: s.name,
-        releaseDate: s.release_date
       }));
     }
 

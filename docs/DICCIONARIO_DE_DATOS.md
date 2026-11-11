@@ -81,6 +81,12 @@ Ediciones o colecciones de cartas asociadas a un juego.
 * `name` (`String`): Nombre de la expansión (ej: "Dominaria United").
 * `releaseDate` (`DateTime?`): Fecha oficial de lanzamiento.
 * `imageUrl` (`String?`): Icono de la colección.
+* `isAutoSyncEnabled` (`Boolean`, default: `false`): Determina si la edición tiene activa la sincronización programada automática.
+* `syncFrequency` (`String`, default: `"MANUAL"`): Frecuencia de sincronización de precios (`DAILY`, `WEEKLY`, `MONTHLY`, `MANUAL`).
+* `lastPriceSyncAt` (`DateTime?`): Fecha y hora del último ciclo de sincronización ejecutado.
+* `nextPriceSyncAt` (`DateTime?`): Próxima fecha calculada para la sincronización automática.
+* `lastSyncStatus` (`String?`): Estado del último ciclo (`SUCCESS`, `ERROR`, `IN_PROGRESS`).
+* `lastSyncError` (`String?`): Detalle del error en caso de fallo.
 * `gameId` (`String`, FK -> `Game`): Juego al que pertenece.
 * **Índices:** `@@unique([externalId, gameId])`.
 * **Relaciones:** `gameRel`, `cardDetails`.

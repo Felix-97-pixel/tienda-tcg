@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --tt-bg-canvas: #07090E;
+  --tt-bg-surface: #0E121B;
+  --tt-bg-subtle: #080B12;
+  --tt-bg-elevated: #151926;
+  --tt-text-main: #FFFFFF;
+  --tt-text-muted: rgba(255, 255, 255, 0.6);
+  --tt-border-subtle: rgba(255, 255, 255, 0.06);
+  --tt-border-medium: rgba(255, 255, 255, 0.12);
+  --tt-border-strong: rgba(255, 255, 255, 0.2);
+}
+
 @layer base {
   html {
     @apply scroll-smooth;

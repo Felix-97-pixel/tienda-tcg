@@ -198,14 +198,16 @@ export class PokemonProvider extends TcgProvider {
       ]);
 
       let page = 1;
-      const pageSize = 250;
+      const pageSize = 50;
       let hasMore = true;
+      let accumulatedCards = 0;
       let updatedCount = 0;
       const csvRecords: string[] = ['productId,finishId,price'];
 
       while (hasMore) {
         const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('pokemon', setId, page, pageSize);
-        if (cards.length === 0) break;
+        if (!cards || cards.length === 0) break;
+        accumulatedCards += cards.length;
 
         for (const card of cards) {
           const product = await this.prisma.product.findUnique({
@@ -239,7 +241,7 @@ export class PokemonProvider extends TcgProvider {
         }
 
         this.onProgress?.('pokemon', updatedCount, totalCount, 'price');
-        if (cards.length === 0 || updatedCount >= totalCount) {
+        if (accumulatedCards >= totalCount || cards.length === 0) {
           hasMore = false;
         } else {
           page++;

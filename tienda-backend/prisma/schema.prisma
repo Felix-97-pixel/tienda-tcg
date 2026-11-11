@@ -124,6 +124,14 @@ model Expansion {
   releaseDate DateTime?
   imageUrl    String?
 
+  // Programación y sincronización automática de precios
+  isAutoSyncEnabled Boolean   @default(false)
+  syncFrequency     String    @default("MANUAL") // "DAILY", "WEEKLY", "MONTHLY", "MANUAL"
+  lastPriceSyncAt   DateTime?
+  nextPriceSyncAt   DateTime?
+  lastSyncStatus    String?   // "SUCCESS", "ERROR", "IN_PROGRESS"
+  lastSyncError     String?
+
   gameId  String
   gameRel Game   @relation(fields: [gameId], references: [id])
 

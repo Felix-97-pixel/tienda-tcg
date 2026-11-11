@@ -362,7 +362,22 @@
     "price_history_spot_price": "Precio Spot",
     "price_history_no_data": "Registrando historial diario...",
     "price_history_no_data_desc": "Las cotizaciones diarias de esta carta se irán registrando automáticamente con cada actualización de mercado.",
-    "price_history_change": "Variación"
+    "price_history_change": "Variación",
+    "comparison_prices_title": "Precios Comparativos (Near Mint)",
+    "comparison_prices_subtitle": "Cotizaciones oficiales para acabados y variantes alternativas",
+    "price_points_title": "Puntos de Precio & Métricas",
+    "market_price": "Precio de Mercado",
+    "most_recent_sale": "Última Venta Real",
+    "listed_median": "Mediana Listada",
+    "current_quantity": "Cantidad Disponible",
+    "current_sellers": "Vendedores Activos",
+    "snapshot_title": "Resumen del Período ({days} Días)",
+    "low_sale_price": "Precio Mínimo",
+    "high_sale_price": "Precio Máximo",
+    "avg_daily_sold": "Promedio Rango",
+    "volatility_low": "Baja Volatilidad",
+    "volatility_med": "Media Volatilidad",
+    "volatility_high": "Alta Volatilidad"
   },
   "wishlist": {
     "title": "Tu Lista de Deseos (Wishlist)",

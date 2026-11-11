@@ -182,13 +182,14 @@ export class GundamProvider extends TcgProvider {
       ]);
 
       let page = 1;
-      const pageSize = 250;
+      const pageSize = 50;
       let hasMore = true;
+      let accumulatedCards = 0;
       let updatedCount = 0;
       const csvRecords: string[] = ['productId,finishId,price'];
 
       while (hasMore) {
-        this.logger.log(`[Gundam] Consultando página ${page} de "${setId}" en Scrydex (Bulk 250)...`);
+        this.logger.log(`[Gundam] Consultando página ${page} de "${setId}" en Scrydex...`);
         const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices(
           'gundam',
           setId,
@@ -196,7 +197,8 @@ export class GundamProvider extends TcgProvider {
           pageSize
         );
 
-        if (cards.length === 0) break;
+        if (!cards || cards.length === 0) break;
+        accumulatedCards += cards.length;
 
         for (const card of cards) {
           const product = await this.prisma.product.findUnique({
@@ -225,9 +227,9 @@ export class GundamProvider extends TcgProvider {
         }
 
         this.onProgress?.('gundam', updatedCount, totalCount, 'price');
-        this.logger.log(`[Gundam] Página ${page} procesada (${updatedCount}/${totalCount} cartas actualizadas).`);
+        this.logger.log(`[Gundam] Página ${page} procesada (${updatedCount}/${totalCount} cartas actualizadas, ${accumulatedCards}/${totalCount} remotas).`);
 
-        if (cards.length < pageSize) {
+        if (accumulatedCards >= totalCount || cards.length === 0) {
           hasMore = false;
         } else {
           page++;

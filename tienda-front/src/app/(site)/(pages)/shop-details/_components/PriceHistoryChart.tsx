@@ -146,7 +146,8 @@ export default function PriceHistoryChart({ productId }: PriceHistoryChartProps)
     for (const pt of usaPoints) {
       const dStr = (pt.date || pt.createdAt || "").split("T")[0];
       if (!dStr) continue;
-      const d = new Date(pt.date || pt.createdAt);
+      const [year, month, day] = dStr.split("-").map(Number);
+      const d = new Date(year, month - 1, day);
       const formattedDate = d.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
@@ -166,7 +167,8 @@ export default function PriceHistoryChart({ productId }: PriceHistoryChartProps)
     for (const pt of localPoints) {
       const dStr = (pt.date || "").split("T")[0];
       if (!dStr) continue;
-      const d = new Date(pt.date);
+      const [year, month, day] = dStr.split("-").map(Number);
+      const d = new Date(year, month - 1, day);
       const formattedDate = d.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",

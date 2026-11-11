@@ -362,7 +362,22 @@
     "price_history_spot_price": "Spot Price",
     "price_history_no_data": "Recording daily price history...",
     "price_history_no_data_desc": "Daily prices for this card will be recorded automatically with each market sync.",
-    "price_history_change": "Change"
+    "price_history_change": "Change",
+    "comparison_prices_title": "Near Mint Comparison Prices",
+    "comparison_prices_subtitle": "Market prices for alternative printings and conditions",
+    "price_points_title": "Price Points & Metrics",
+    "market_price": "Market Price",
+    "most_recent_sale": "Most Recent Sale",
+    "listed_median": "Listed Median",
+    "current_quantity": "Current Quantity",
+    "current_sellers": "Current Sellers",
+    "snapshot_title": "{days} Days Snapshot",
+    "low_sale_price": "Low Sale Price",
+    "high_sale_price": "High Sale Price",
+    "avg_daily_sold": "Period Average",
+    "volatility_low": "Low Volatility",
+    "volatility_med": "Med Volatility",
+    "volatility_high": "High Volatility"
   },
   "wishlist": {
     "title": "Your Wishlist",

@@ -180,16 +180,18 @@ export class OnePieceProvider extends TcgProvider {
       ]);
 
       let page = 1;
-      const pageSize = 250;
+      const pageSize = 50;
       let hasMore = true;
+      let accumulatedCards = 0;
       let updatedCount = 0;
       const csvRecords: string[] = ['productId,finishId,price'];
 
       while (hasMore) {
-        this.logger.log(`[One Piece] Consultando página ${page} de "${setId}" en Scrydex (Bulk 250)...`);
+        this.logger.log(`[One Piece] Consultando página ${page} de "${setId}" en Scrydex...`);
         const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('onepiece', setId, page, pageSize);
 
-        if (cards.length === 0) break;
+        if (!cards || cards.length === 0) break;
+        accumulatedCards += cards.length;
 
         for (const card of cards) {
           const product = await this.prisma.product.findUnique({
@@ -216,9 +218,9 @@ export class OnePieceProvider extends TcgProvider {
         }
 
         this.onProgress?.('onepiece', updatedCount, totalCount, 'price');
-        this.logger.log(`[One Piece] Página ${page} procesada (${updatedCount}/${totalCount} cartas actualizadas).`);
+        this.logger.log(`[One Piece] Página ${page} procesada (${updatedCount}/${totalCount} cartas actualizadas, ${accumulatedCards}/${totalCount} remotas).`);
 
-        if (cards.length < pageSize) {
+        if (accumulatedCards >= totalCount || cards.length === 0) {
           hasMore = false;
         } else {
           page++;

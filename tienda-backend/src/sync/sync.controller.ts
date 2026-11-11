@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Param, Query, Req, BadRequestException, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
+import { Controller, Post, Patch, Body, UseGuards, Get, Param, Query, Req, BadRequestException, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { SyncService } from './sync.service';
@@ -6,9 +6,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { Permission } from '../auth/constants/permissions.enum';
 import { PrismaService } from '../prisma/prisma.service';
 import { LocalPriceIndexService } from './local-price-index.service';
+import { PriceSchedulerService } from './price-scheduler.service';
 
 @Controller('sync')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -18,6 +21,7 @@ export class SyncController {
     private readonly syncService: SyncService,
     private readonly prisma: PrismaService,
     private readonly localPriceIndexService: LocalPriceIndexService,
+    private readonly priceSchedulerService: PriceSchedulerService,
   ) { }
 
   @Get('magic-sets')
@@ -221,5 +225,40 @@ export class SyncController {
       message: 'Snapshot diario del mercado local TapTrade completado con éxito.',
       ...result,
     };
+  }
+
+  // --- PROGRAMACIÓN AUTOMATIZADA DE PRECIOS POR EDICIÓN (SCHEDULER) ---
+
+  @Get('schedules')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.GLOBAL_PRICE_SYNC)
+  async getSchedules(@Query('game') game?: string) {
+    return this.priceSchedulerService.getSchedulesList(game);
+  }
+
+  @Patch('schedules/:id')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.GLOBAL_PRICE_SYNC)
+  async updateSchedule(
+    @Param('id') id: string,
+    @Body() body: { frequency: string; isEnabled?: boolean }
+  ) {
+    return this.priceSchedulerService.updateExpansionSchedule(id, body.frequency, body.isEnabled);
+  }
+
+  @Post('schedules/batch')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.GLOBAL_PRICE_SYNC)
+  async updateBatchSchedules(
+    @Body() body: { expansionIds: string[]; frequency: string; isEnabled?: boolean }
+  ) {
+    return this.priceSchedulerService.updateBatchSchedules(body.expansionIds, body.frequency, body.isEnabled);
+  }
+
+  @Post('schedules/run-pending')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.GLOBAL_PRICE_SYNC)
+  async runPendingSchedules() {
+    return this.priceSchedulerService.checkAndRunPendingSyncs('MANUAL_SUPERADMIN');
   }
 }
