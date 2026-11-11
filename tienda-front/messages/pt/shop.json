@@ -531,31 +531,16 @@
       "games": {
         "riftbound_tag": "O novo fenômeno competitivo",
         "riftbound_badge": "Tendência",
-        "riftbound_count": "Singles & Foils",
         "pokemon_tag": "Scarlet & Violet, 151 e Coleções Raras",
         "pokemon_badge": "Popular",
-        "pokemon_count": "Singles & Boosters",
         "magic_tag": "Commander, Modern, Standard e Collector Boosters",
         "magic_badge": "Clássico",
-        "magic_count": "Singles de Edição",
         "onepiece_tag": "Luffy, Shanks, OP-07 e cartas Manga Raras",
         "onepiece_badge": "Alta Demanda",
-        "onepiece_count": "Líderes & Singles",
-        "yugioh_tag": "Quarter Century Secret Rares e Pacotes Selados",
-        "yugioh_badge": "Aniversário",
-        "yugioh_count": "Singles & Estrutura",
         "lorcana_tag": "The First Chapter, Inklands e Cartas Encantadas",
         "lorcana_badge": "Expansão",
-        "lorcana_count": "Singles & Troves",
         "gundam_tag": "Mobile Suit Gundam, Cartas Paralelas e Decks",
-        "gundam_badge": "Novo",
-        "gundam_count": "Singles & Decks",
-        "digimon_tag": "BT Sets, Cartas Alt Art e Decks de Evolução",
-        "digimon_badge": "Em breve",
-        "digimon_count": "Singles & Boosters",
-        "accesorios_tag": "Shields Dragon Shield, Pastas 9-pocket e Dados",
-        "accesorios_badge": "Proteção",
-        "accesorios_count": "Shields & Pastas"
+        "gundam_badge": "Novo"
       }
     },
     "featured_singles": {

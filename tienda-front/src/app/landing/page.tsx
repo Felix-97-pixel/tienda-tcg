@@ -131,36 +131,56 @@ export default function MarketingPage() {
       name: "Pokémon TCG",
       logo: "/images/games/pokemon.png",
       href: "/shop?category=Singles%20Pokemon",
+      isSoon: false,
       invertInLight: false,
     },
     {
       name: "Magic: The Gathering",
       logo: "/images/games/magic.png",
       href: "/shop?category=Singles%20Magic%20The%20Gathering",
+      isSoon: false,
       invertInLight: true,
     },
     {
       name: "Disney Lorcana",
       logo: "/images/games/lorcana.png",
       href: "/shop?category=Singles%20Lorcana",
+      isSoon: false,
       invertInLight: false,
     },
     {
       name: "One Piece Card Game",
       logo: "/images/games/onepiece.png",
       href: "/shop?category=Singles%20One%20Piece",
+      isSoon: false,
       invertInLight: false,
     },
     {
       name: "Gundam Card Game",
       logo: "/images/games/gundam.png",
       href: "/shop?category=Singles%20Gundam",
+      isSoon: false,
       invertInLight: true,
     },
     {
       name: "Riftbound TCG",
       logo: "/images/games/riftbound.png",
       href: "/shop?category=Singles%20Riftbound",
+      isSoon: false,
+      invertInLight: false,
+    },
+    {
+      name: "Yu-Gi-Oh!",
+      logo: "/images/games/yugioh.png",
+      href: "#",
+      isSoon: true,
+      invertInLight: false,
+    },
+    {
+      name: "Digimon Card Game",
+      logo: "/images/games/digimon.png",
+      href: "#",
+      isSoon: true,
       invertInLight: false,
     },
   ];
@@ -403,15 +423,22 @@ export default function MarketingPage() {
           </p>
         </div>
 
-        {/* 3x2 Grid (3 on top, 3 on bottom) with enlarged flat logos */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-12 md:gap-16 items-center justify-items-center max-w-5xl mx-auto py-4">
+        {/* 3-3-2 Grid (3 on row 1, 3 on row 2, 2 centered on row 3) with enlarged flat logos */}
+        <div className="flex flex-wrap justify-center items-center gap-y-10 sm:gap-y-12 gap-x-6 sm:gap-x-12 max-w-5xl mx-auto py-4">
           {tcgGames.map((game) => (
             <Link
               key={game.name}
               href={game.href}
-              className="group relative flex flex-col items-center justify-center py-4 px-3 w-full max-w-[240px] transition-all duration-300 cursor-pointer"
+              className="group relative flex flex-col items-center justify-center py-4 px-3 w-[calc(50%-1rem)] sm:w-[calc(33.333%-2rem)] max-w-[240px] transition-all duration-300 cursor-pointer shrink-0"
               title={game.name}
             >
+              {/* Soon Badge */}
+              {game.isSoon && (
+                <span className="absolute top-0 right-1 sm:right-3 px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-rose-500/15 dark:bg-rose-500/25 text-rose-600 dark:text-rose-400 border border-rose-500/30 dark:border-rose-500/40 shadow-sm z-20">
+                  {t("games.soon")}
+                </span>
+              )}
+
               {/* Original Logo (Large, full authentic color, crisp contrast in both themes) */}
               <div className="relative h-16 sm:h-20 w-full flex items-center justify-center">
                 <Image
