@@ -127,12 +127,42 @@ export default function MarketingPage() {
       : vaultCards.filter((c) => c.gameCategory === vaultCategory);
 
   const tcgGames = [
-    { name: "Magic: The Gathering", publisher: "Wizards of the Coast", badge: "Scryfall Sync", color: "from-blue-600/20 to-indigo-600/10 border-blue-500/30 text-blue-400" },
-    { name: "Pokémon TCG", publisher: "The Pokémon Company", badge: "API Oficial", color: "from-amber-500/20 to-yellow-600/10 border-amber-500/30 text-amber-300" },
-    { name: "Yu-Gi-Oh!", publisher: "Konami", badge: "Catálogo Global", color: "from-purple-600/20 to-pink-600/10 border-purple-500/30 text-purple-400" },
-    { name: "Riftbound TCG", publisher: "Riftbound Games", badge: "Riftcodex Sync", color: "from-cyan-500/20 to-blue-600/10 border-cyan-500/30 text-cyan-300" },
-    { name: "One Piece Card Game", publisher: "Bandai Carddass", badge: "Alta Demanda", color: "from-red-600/20 to-rose-600/10 border-red-500/30 text-red-400" },
-    { name: "Mitos y Leyendas", publisher: "Fenix / Klu", badge: "Chile Tradición", color: "from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-300" },
+    {
+      name: "Pokémon TCG",
+      logo: "/images/games/pokemon.png",
+      href: "/shop?category=Singles%20Pokemon",
+      invertInLight: false,
+    },
+    {
+      name: "Magic: The Gathering",
+      logo: "/images/games/magic.png",
+      href: "/shop?category=Singles%20Magic%20The%20Gathering",
+      invertInLight: true,
+    },
+    {
+      name: "Disney Lorcana",
+      logo: "/images/games/lorcana.png",
+      href: "/shop?category=Singles%20Lorcana",
+      invertInLight: false,
+    },
+    {
+      name: "One Piece Card Game",
+      logo: "/images/games/onepiece.png",
+      href: "/shop?category=Singles%20One%20Piece",
+      invertInLight: false,
+    },
+    {
+      name: "Gundam Card Game",
+      logo: "/images/games/gundam.png",
+      href: "/shop?category=Singles%20Gundam",
+      invertInLight: true,
+    },
+    {
+      name: "Riftbound TCG",
+      logo: "/images/games/riftbound.png",
+      href: "/shop?category=Singles%20Riftbound",
+      invertInLight: false,
+    },
   ];
 
   return (
@@ -359,9 +389,9 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* TCG GAMES SHOWCASE */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[var(--tt-border-subtle)]">
-        <div className="text-center mb-10">
+      {/* TCG GAMES SHOWCASE - Flat Logo Bar */}
+      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[var(--tt-border-subtle)]">
+        <div className="text-center mb-8">
           <span className="text-xs font-bold uppercase tracking-widest text-[#E10E0E] block mb-2">
             {t("games.badge")}
           </span>
@@ -373,20 +403,34 @@ export default function MarketingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        {/* 3x2 Grid (3 on top, 3 on bottom) with enlarged flat logos */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-12 md:gap-16 items-center justify-items-center max-w-5xl mx-auto py-4">
           {tcgGames.map((game) => (
-            <div
+            <Link
               key={game.name}
-              className={`p-4 rounded-2xl bg-gradient-to-b ${game.color} bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] transition-all hover:scale-[1.03] flex flex-col justify-between shadow-sm`}
+              href={game.href}
+              className="group relative flex flex-col items-center justify-center py-4 px-3 w-full max-w-[240px] transition-all duration-300 cursor-pointer"
+              title={game.name}
             >
-              <div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider block opacity-75">
-                  {game.badge}
-                </span>
-                <h4 className="text-sm font-extrabold text-[var(--tt-text-main)] mt-1 leading-tight">{game.name}</h4>
+              {/* Original Logo (Large, full authentic color, crisp contrast in both themes) */}
+              <div className="relative h-16 sm:h-20 w-full flex items-center justify-center">
+                <Image
+                  src={game.logo}
+                  alt={game.name}
+                  width={220}
+                  height={75}
+                  className={`max-h-12 sm:max-h-16 w-auto max-w-[150px] sm:max-w-[200px] object-contain transition-all duration-300 opacity-90 group-hover:opacity-100 group-hover:scale-110 drop-shadow-sm ${
+                    game.invertInLight ? "filter invert dark:invert-0" : ""
+                  }`}
+                  unoptimized={true}
+                />
               </div>
-              <span className="text-[10px] text-[var(--tt-text-muted)] mt-3 block">{game.publisher}</span>
-            </div>
+
+              {/* Glowing Accent Underline on hover */}
+              <div className="h-[2.5px] rounded-full mt-3 transition-all duration-300 w-0 group-hover:w-20 sm:group-hover:w-24 bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 group-hover:shadow-[0_0_12px_rgba(239,68,68,0.7)] opacity-0 group-hover:opacity-100" />
+
+              <span className="sr-only">{game.name}</span>
+            </Link>
           ))}
         </div>
       </section>

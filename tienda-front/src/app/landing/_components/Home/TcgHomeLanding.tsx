@@ -75,19 +75,6 @@ export default function TcgHomeLanding() {
 
   const TCG_GAMES = [
     {
-      id: "riftbound",
-      name: "Singles Riftbound",
-      displayName: "Riftbound TCG",
-      tagline: t("games_grid.games.riftbound_tag"),
-      categoryQuery: "Singles Riftbound",
-      accentColor: "from-amber-500/20 to-red-500/10",
-      borderHover: "hover:border-red-500/50",
-      badge: t("games_grid.games.riftbound_badge"),
-      badgeClass: "bg-red-500/20 text-red-400 border-red-500/30",
-      icon: <IconFlame className="w-6 h-6 text-red-400" />,
-      cardCount: t("games_grid.games.riftbound_count"),
-    },
-    {
       id: "pokemon",
       name: "Singles Pokemon",
       displayName: "Pokémon TCG",
@@ -96,9 +83,9 @@ export default function TcgHomeLanding() {
       accentColor: "from-yellow-500/20 to-amber-500/10",
       borderHover: "hover:border-yellow-500/50",
       badge: t("games_grid.games.pokemon_badge"),
-      badgeClass: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-      icon: <IconSparkles className="w-6 h-6 text-yellow-400" />,
-      cardCount: t("games_grid.games.pokemon_count"),
+      badgeClass: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
+      logo: "/images/games/pokemon.png",
+      invertInLight: false,
     },
     {
       id: "magic",
@@ -109,9 +96,9 @@ export default function TcgHomeLanding() {
       accentColor: "from-purple-500/20 to-indigo-500/10",
       borderHover: "hover:border-purple-500/50",
       badge: t("games_grid.games.magic_badge"),
-      badgeClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-      icon: <IconCard className="w-6 h-6 text-purple-400" />,
-      cardCount: t("games_grid.games.magic_count"),
+      badgeClass: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30",
+      logo: "/images/games/magic.png",
+      invertInLight: true,
     },
     {
       id: "onepiece",
@@ -119,38 +106,51 @@ export default function TcgHomeLanding() {
       displayName: "One Piece TCG",
       tagline: t("games_grid.games.onepiece_tag"),
       categoryQuery: "Singles One Piece",
-      accentColor: "from-blue-500/20 to-cyan-500/10",
-      borderHover: "hover:border-blue-500/50",
+      accentColor: "from-rose-500/20 to-red-500/10",
+      borderHover: "hover:border-rose-500/50",
       badge: t("games_grid.games.onepiece_badge"),
-      badgeClass: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      icon: <IconZap className="w-6 h-6 text-blue-400" />,
-      cardCount: t("games_grid.games.onepiece_count"),
+      badgeClass: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30",
+      logo: "/images/games/onepiece.png",
+      invertInLight: false,
     },
     {
-      id: "yugioh",
-      name: "Yu-Gi-Oh!",
-      displayName: "Yu-Gi-Oh! TCG",
-      tagline: t("games_grid.games.yugioh_tag"),
-      categoryQuery: "Singles Yu-Gi-Oh",
-      accentColor: "from-orange-500/20 to-yellow-500/10",
-      borderHover: "hover:border-orange-500/50",
-      badge: t("games_grid.games.yugioh_badge"),
-      badgeClass: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-      icon: <IconEye className="w-6 h-6 text-orange-400" />,
-      cardCount: t("games_grid.games.yugioh_count"),
+      id: "lorcana",
+      name: "Disney Lorcana",
+      displayName: "Disney Lorcana",
+      tagline: t("games_grid.games.lorcana_tag"),
+      categoryQuery: "Singles Lorcana",
+      accentColor: "from-purple-500/20 to-violet-500/10",
+      borderHover: "hover:border-purple-500/50",
+      badge: t("games_grid.games.lorcana_badge"),
+      badgeClass: "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30",
+      logo: "/images/games/lorcana.png",
+      invertInLight: false,
     },
     {
-      id: "accesorios",
-      name: "Accesorios",
-      displayName: "Accesorios & Sellado",
-      tagline: t("games_grid.games.accesorios_tag"),
-      categoryQuery: "Accesorios",
-      accentColor: "from-emerald-500/20 to-teal-500/10",
-      borderHover: "hover:border-emerald-500/50",
-      badge: t("games_grid.games.accesorios_badge"),
-      badgeClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-      icon: <IconBox className="w-6 h-6 text-emerald-400" />,
-      cardCount: t("games_grid.games.accesorios_count"),
+      id: "gundam",
+      name: "Gundam Card Game",
+      displayName: "Gundam Card Game",
+      tagline: t("games_grid.games.gundam_tag"),
+      categoryQuery: "Singles Gundam",
+      accentColor: "from-cyan-500/20 to-sky-500/10",
+      borderHover: "hover:border-cyan-500/50",
+      badge: t("games_grid.games.gundam_badge"),
+      badgeClass: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30",
+      logo: "/images/games/gundam.png",
+      invertInLight: true,
+    },
+    {
+      id: "riftbound",
+      name: "Singles Riftbound",
+      displayName: "Riftbound TCG",
+      tagline: t("games_grid.games.riftbound_tag"),
+      categoryQuery: "Singles Riftbound",
+      accentColor: "from-amber-500/20 to-red-500/10",
+      borderHover: "hover:border-red-500/50",
+      badge: t("games_grid.games.riftbound_badge"),
+      badgeClass: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
+      logo: "/images/games/riftbound.png",
+      invertInLight: false,
     },
   ];
 
@@ -482,40 +482,55 @@ export default function TcgHomeLanding() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {TCG_GAMES.map((game) => (
               <Link
                 key={game.id}
                 href={`/shop?category=${encodeURIComponent(game.categoryQuery)}`}
-                className={`group relative p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] ${game.borderHover} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden`}
+                className={`group relative p-6 rounded-2xl bg-[var(--tt-bg-surface)] border border-[var(--tt-border-medium)] ${game.borderHover} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden flex flex-col justify-between`}
               >
+                {/* Ambient Glow */}
                 <div
-                  className={`absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br ${game.accentColor} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`}
-                ></div>
+                  className={`absolute -right-12 -bottom-12 w-48 h-48 bg-gradient-to-br ${game.accentColor} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500 opacity-60 group-hover:opacity-100 pointer-events-none`}
+                />
 
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="p-2.5 rounded-xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center">
-                      {game.icon}
-                    </span>
+                  {/* Card Header: Official Logo on Left, Badge on Right */}
+                  <div className="flex items-center justify-between gap-3 mb-5">
+                    <div className="relative h-10 w-32 flex items-center justify-start">
+                      <Image
+                        src={game.logo}
+                        alt={game.displayName}
+                        width={140}
+                        height={44}
+                        className={`max-h-9 w-auto max-w-[125px] object-contain object-left transition-transform duration-300 group-hover:scale-105 drop-shadow-sm ${
+                          game.invertInLight ? "filter invert dark:invert-0" : ""
+                        }`}
+                        unoptimized={true}
+                      />
+                    </div>
+
                     <span
-                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${game.badgeClass}`}
+                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border shrink-0 ${game.badgeClass}`}
                     >
                       {game.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-black text-[var(--tt-text-main)] group-hover:text-red-500 transition-colors mb-1">
+                  {/* Title & Tagline */}
+                  <h3 className="text-lg font-black text-[var(--tt-text-main)] group-hover:text-red-500 transition-colors mb-1 leading-snug">
                     {game.displayName}
                   </h3>
-                  <p className="text-xs text-[var(--tt-text-muted)] mb-4 line-clamp-2">{game.tagline}</p>
+                  <p className="text-xs text-[var(--tt-text-muted)] mb-5 line-clamp-2 leading-relaxed">
+                    {game.tagline}
+                  </p>
+                </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-[var(--tt-border-light)] text-xs">
-                    <span className="font-mono text-[var(--tt-text-subtle)]">{game.cardCount}</span>
-                    <span className="font-bold text-red-500 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                      {t("games_grid.explore_cta")} ↗
-                    </span>
-                  </div>
+                {/* Card Footer: Explorar */}
+                <div className="relative z-10 flex items-center justify-end pt-3.5 border-t border-[var(--tt-border-subtle)] text-xs">
+                  <span className="font-bold text-red-500 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-mono text-[11px]">
+                    {t("games_grid.explore_cta")} ↗
+                  </span>
                 </div>
               </Link>
             ))}

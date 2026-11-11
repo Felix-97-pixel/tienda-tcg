@@ -79,23 +79,23 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/shop?category=Singles%20Yu-Gi-Oh!" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
-                  Yu-Gi-Oh!
-                </Link>
-              </li>
-              <li>
                 <Link href="/shop?category=Singles%20One%20Piece" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
                   One Piece Card Game
                 </Link>
               </li>
               <li>
-                <Link href="/shop?category=Singles%20Riftbound" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
-                  Riftbound TCG
+                <Link href="/shop?category=Singles%20Lorcana" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
+                  Disney Lorcana
                 </Link>
               </li>
               <li>
-                <Link href="/shop?category=Singles%20Mitos%20y%20Leyendas" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
-                  Mitos y Leyendas
+                <Link href="/shop?category=Singles%20Gundam" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
+                  Gundam Card Game
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop?category=Singles%20Riftbound" className="hover:text-[var(--tt-text-main)] hover:text-red transition-colors">
+                  Riftbound TCG
                 </Link>
               </li>
             </ul>

@@ -405,7 +405,8 @@
       "games": {
         "badge": "Compatibilidade Universal",
         "title": "Suporte nativo aos Trading Card Games mais populares",
-        "subtitle": "Catálogos sincronizados diretamente com as APIs globais garantindo dados precisos de cartas, coleções e raridades."
+        "subtitle": "Catálogos sincronizados diretamente com as APIs globais garantindo dados precisos de cartas, coleções e raridades.",
+        "soon": "Em breve"
       },
       "audience": {
         "badge": "Sob Medida Para Você",

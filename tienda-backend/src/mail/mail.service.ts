@@ -167,7 +167,7 @@ export class MailService {
           </div>
           <div class="content">
             <h1>¡Bienvenido a TapTrade, ${name || 'Coleccionista'}!</h1>
-            <p>Gracias por unirte al marketplace de cartas coleccionables y preventas más grande de Chile. Ya sea que busques singles o sellados de <strong>Pokémon, Magic: The Gathering, Yu-Gi-Oh!, Mitos y Leyendas u One Piece</strong>, tu bóveda está lista.</p>
+            <p>Gracias por unirte al marketplace de cartas coleccionables y preventas más grande de Chile. Ya sea que busques singles o sellados de <strong>Pokémon, Magic: The Gathering, One Piece, Disney Lorcana, Gundam o Riftbound</strong>, tu bóveda está lista.</p>
             <p>Para activar tu cuenta y comenzar a explorar el catálogo con total seguridad, haz clic en el siguiente botón:</p>
             
             <div class="btn-container">
