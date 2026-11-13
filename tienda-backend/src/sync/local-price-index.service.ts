@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -12,10 +12,54 @@ export interface CardPriceHistoryPoint {
 }
 
 @Injectable()
-export class LocalPriceIndexService {
+export class LocalPriceIndexService implements OnApplicationBootstrap {
   private readonly logger = new Logger(LocalPriceIndexService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Resiliencia y Catch-Up: Al arrancar el backend (ej: en localhost o tras suspender la BD),
+   * se verifica tras 20 segundos si ya existe el snapshot consolidado del día de hoy.
+   * Si no existe (porque el servidor estuvo apagado a las 00:00), se genera automáticamente.
+   */
+  async onApplicationBootstrap(): Promise<void> {
+    this.logger.log('LocalPriceIndexService inicializado. Programando verificación Catch-Up del mercado local en 20 segundos...');
+    setTimeout(() => {
+      this.checkAndRunCatchUp('BOOTSTRAP_STARTUP').catch((err) => {
+        this.logger.error(`Error en Catch-Up de mercado local al arranque: ${err.message}`, err.stack);
+      });
+    }, 20000);
+  }
+
+  /**
+   * Verifica si el snapshot de hoy está pendiente y lo ejecuta de forma segura e idempotente.
+   */
+  async checkAndRunCatchUp(triggerReason: string = 'BOOTSTRAP'): Promise<void> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    try {
+      const existingTodayCount = await this.prisma.localMarketPriceHistory.count({
+        where: { date: today },
+      });
+
+      if (existingTodayCount === 0) {
+        this.logger.log(
+          `[LocalPriceIndex Catch-Up (${triggerReason})] No se encontró snapshot para hoy (${today.toISOString().split('T')[0]}). Generando automáticamente...`,
+        );
+        const result = await this.generateDailySnapshot();
+        this.logger.log(
+          `[LocalPriceIndex Catch-Up (${triggerReason})] Snapshot generado exitosamente: ${result.created} registros.`,
+        );
+      } else {
+        this.logger.log(
+          `[LocalPriceIndex Catch-Up (${triggerReason})] Snapshot de hoy ya registrado (${existingTodayCount} registros). Mercado local al día.`,
+        );
+      }
+    } catch (e: any) {
+      this.logger.error(`[LocalPriceIndex Catch-Up] Error al verificar snapshot pendiente: ${e.message}`);
+    }
+  }
 
   /**
    * Cron nocturno (00:00 cada día): genera el snapshot consolidado automático.

@@ -217,7 +217,8 @@ export class SyncController {
   }
 
   @Post('local-index/snapshot')
-  @Roles(Role.SUPERADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.GLOBAL_PRICE_SYNC)
   async triggerLocalIndexSnapshot() {
     const result = await this.localPriceIndexService.generateDailySnapshot();
     return {
