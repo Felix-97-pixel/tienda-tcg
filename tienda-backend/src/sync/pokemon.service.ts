@@ -1,70 +1,69 @@
 import { Injectable, Logger } from '@nestjs/common';
-import axios from 'axios';
+import { ScrydexService } from './scrydex.service';
 
 @Injectable()
 export class PokemonService {
   private readonly logger = new Logger(PokemonService.name);
-  private readonly baseUrl = 'https://api.pokemontcg.io/v2';
 
-  private getHeaders(): Record<string, string> {
-    const headers: Record<string, string> = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': 'application/json',
-    };
-    const apiKey = process.env.POKEMONTCG_API_KEY || process.env.POKEMON_API_KEY;
-    if (apiKey) {
-      headers['X-Api-Key'] = apiKey;
-    }
-    return headers;
-  }
+  constructor(private readonly scrydexService: ScrydexService) {}
 
   /**
-   * Helper con 1 reintento para peticiones a PokemonTCG API
+   * Obtiene la lista completa de ediciones de Pokémon delegando en Scrydex
    */
-  private async safeGet(url: string, retries = 1): Promise<any> {
+  async fetchSets(): Promise<any[]> {
     try {
-      return await axios.get(url, { headers: this.getHeaders(), timeout: 15000 });
+      const sets = await this.scrydexService.fetchSets('pokemon');
+      return sets
+        .filter((s) => !s.id?.startsWith('tcgp-') && (!s.language || s.language === 'English' || s.language_code === 'EN'))
+        .map((s) => ({
+          id: s.id,
+          name: s.name || s.id,
+          code: s.code || '',
+          releaseDate: s.release_date || (s as any).releaseDate,
+          total: s.total,
+          images: {
+            logo: (s as any).logo || s.images?.logo,
+            symbol: (s as any).symbol || s.images?.symbol,
+          },
+        }))
+        .sort((a, b) =>
+          new Date(b.releaseDate || 0).getTime() - new Date(a.releaseDate || 0).getTime()
+        );
     } catch (error: any) {
-      const status = error.response?.status;
-      if (retries > 0 && (!status || status >= 500 || status === 429)) {
-        await new Promise(res => setTimeout(res, 1500));
-        return this.safeGet(url, retries - 1);
-      }
-      throw error;
+      this.logger.error(`Error al consultar sets de Pokémon en Scrydex: ${error.message}`);
+      return [];
     }
   }
 
   /**
-   * Obtiene todas las cartas impresas de una edición (Set ID) realizando el paginado automático.
+   * Obtiene los metadatos de un Set Pokémon buscando por su nombre exacto o id en Scrydex
+   */
+  async fetchSetByName(expansionName: string): Promise<any> {
+    try {
+      return await this.scrydexService.fetchSetByName('pokemon', expansionName);
+    } catch (error: any) {
+      this.logger.error(`Error al buscar set "${expansionName}" en Scrydex: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Obtiene todas las cartas de una edición delegando en Scrydex
    */
   async fetchCardsBySet(setId: string): Promise<any[]> {
-    const allCards = [];
     let page = 1;
     const pageSize = 250;
+    let allCards: any[] = [];
     let hasMore = true;
 
     while (hasMore) {
-      try {
-        const url = `${this.baseUrl}/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}`;
-        const response = await this.safeGet(url);
-        const data = response.data;
-
-        if (data.data && data.data.length > 0) {
-          allCards.push(...data.data);
-          if (data.data.length < pageSize) {
-            hasMore = false;
-          } else {
-            page++;
-          }
-        } else {
-          hasMore = false;
-        }
-
-        // Delay preventivo para rate limiting
-        await new Promise((resolve) => setTimeout(resolve, 80));
-      } catch (error: any) {
-        this.logger.error(`Error al consultar cartas del set ${setId} en PokemonTCG API: ${error.message}`);
-        throw new Error(`PokemonTCG API Error: ${error.message}`);
+      const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('pokemon', setId, page, pageSize);
+      if (!cards || cards.length === 0) break;
+      allCards = allCards.concat(cards);
+      if (allCards.length >= totalCount || cards.length === 0) {
+        hasMore = false;
+      } else {
+        page++;
       }
     }
 
@@ -72,52 +71,9 @@ export class PokemonService {
   }
 
   /**
-   * Obtiene los metadatos de un Set Pokémon buscando por su nombre exacto.
-   */
-  async fetchSetByName(expansionName: string): Promise<any> {
-    try {
-      const url = `${this.baseUrl}/sets?q=name:"${encodeURIComponent(expansionName)}"`;
-      const response = await this.safeGet(url);
-      const sets = response.data?.data;
-      return sets && sets.length > 0 ? sets[0] : null;
-    } catch (error: any) {
-      this.logger.error(`Error al buscar el set "${expansionName}" en PokemonTCG API: ${error.message}`);
-      throw new Error(`PokemonTCG API Error: ${error.message}`);
-    }
-  }
-
-  /**
-   * Obtiene una página específica de cartas de un set con selección de campos (id, tcgplayer)
-   * optimizando drásticamente la transferencia de datos para actualizaciones de precios.
+   * Obtiene página de cartas con precios delegando en Scrydex
    */
   async fetchCardsPageWithPrices(setId: string, page: number, pageSize: number): Promise<{ cards: any[]; totalCount: number }> {
-    try {
-      const url = `${this.baseUrl}/cards?q=set.id:${setId}&page=${page}&pageSize=${pageSize}&select=id,tcgplayer`;
-      const response = await this.safeGet(url);
-      const data = response.data;
-      return {
-        cards: data?.data ?? [],
-        totalCount: data?.totalCount || 0
-      };
-    } catch (error: any) {
-      this.logger.error(`Error al consultar precios del set ${setId} (pág. ${page}): ${error.message}`);
-      throw new Error(`PokemonTCG API Error: ${error.message}`);
-    }
-  }
-
-  /**
-   * Obtiene la lista completa de ediciones de Pokémon desde la API de forma cronológica.
-   */
-  async fetchSets(): Promise<any[]> {
-    try {
-      const response = await this.safeGet(`${this.baseUrl}/sets`);
-      const data = response.data?.data || [];
-      return data.sort((a: any, b: any) =>
-        new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
-      );
-    } catch (error: any) {
-      this.logger.error(`Error al consultar sets de Pokémon: ${error.message}`);
-      return [];
-    }
+    return this.scrydexService.fetchCardsPageWithPrices('pokemon', setId, page, pageSize);
   }
 }
