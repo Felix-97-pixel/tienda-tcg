@@ -363,7 +363,7 @@
       },
       {
         "q": "¿Cómo funciona TapTrade Shield y cómo protege a mi tienda de reclamos fraudulentos?",
-        "a": "Para compras iguales o superiores a $20.000 CLP, la tienda registra 3 fotos obligatorias de empaque: cartas sobre comanda, protección rígida y sobre sellado con la etiqueta del courier sobre el cierre. Al comprador se le exige video continuo de unboxing sin cortes para abrir cualquier disputa. Este blindaje bilateral elimina reclamos falsos de paquetes vacíos o cartas cambiadas, liberando tus fondos en custodia automáticamente al validar el envío."
+        "a": "Para compras iguales o superiores a $10.000 CLP, la tienda registra 3 fotos obligatorias de empaque: cartas sobre comanda, protección rígida y sobre sellado con la etiqueta del courier sobre el cierre. Al comprador se le exige video continuo de unboxing sin cortes para abrir cualquier disputa. Este blindaje bilateral elimina reclamos falsos de paquetes vacíos o cartas cambiadas, liberando tus fondos en custodia automáticamente al validar el envío."
       },
       {
         "q": "¿Cómo se factura la suscripción SaaS mensual y cómo impacta el IVA en mi F29?",
@@ -474,7 +474,7 @@
         "mock_hw": "Sin hardware propietario. Funciona en Windows, Mac, Linux, iPad o Android.",
         "bento_shield_badge": "Protocolo Antifraude TapTrade Shield",
         "bento_shield_title": "Blindaje en Despachos & Custodia Escrow",
-        "bento_shield_desc": "Protege a tu tienda contra reclamos de cartas cambiadas o paquetes vacíos. En órdenes sobre $20.000 CLP se registran 3 fotos de empaque (cartas, protección física y sello del courier) con compresión WebP en cliente. El comprador debe registrar su video de unboxing sin cortes para abrir reclamos, y tus fondos en custodia se liberan al despachar.",
+        "bento_shield_desc": "Protege a tu tienda contra reclamos de cartas cambiadas o paquetes vacíos. En órdenes sobre $10.000 CLP se registran 3 fotos de empaque (cartas, protección física y sello del courier) con compresión WebP en cliente. El comprador debe registrar su video de unboxing sin cortes para abrir reclamos, y tus fondos en custodia se liberan al despachar.",
         "bento_shield_p1": "✓ 3 Fotos de empaque",
         "bento_shield_p2": "✓ Unboxing continuo obligatorio",
         "bento_shield_p3": "✓ Custodia Escrow atómica",

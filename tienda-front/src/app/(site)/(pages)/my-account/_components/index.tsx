@@ -34,6 +34,8 @@ import {
   IconLoader,
   IconChevronDown,
   IconChevronUp,
+  IconChevronLeft,
+  IconChevronRight,
   IconX,
 } from "@/components/ui/Icons";
 import CarrierTimeline from "@/components/ui/CarrierTimeline";
@@ -161,6 +163,19 @@ const MyAccount = () => {
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [loadingCredits, setLoadingCredits] = useState(true);
   const [copiedTracking, setCopiedTracking] = useState<string | null>(null);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const ORDERS_PER_PAGE = 5;
+
+  // Filtrado estricto: En la vista de comprador sólo se listan compras efectivas (PAID / REFUNDED)
+  const visibleOrders = orders.filter((o) => o.status === "PAID" || o.status === "REFUNDED");
+  const totalOrderPages = Math.max(1, Math.ceil(visibleOrders.length / ORDERS_PER_PAGE));
+  const paginatedOrders = visibleOrders.slice((ordersPage - 1) * ORDERS_PER_PAGE, ordersPage * ORDERS_PER_PAGE);
+
+  useEffect(() => {
+    if (ordersPage > totalOrderPages) {
+      setOrdersPage(1);
+    }
+  }, [ordersPage, totalOrderPages]);
 
   // Estado para visualización interactiva de la línea de tiempo oficial
   const [trackingDataMap, setTrackingDataMap] = useState<Record<string, any>>({});
@@ -655,9 +670,9 @@ const MyAccount = () => {
                       {t("orders_subtitle")}
                     </p>
                   </div>
-                  {orders.length > 0 && (
+                  {visibleOrders.length > 0 && (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-muted)] font-mono">
-                      {orders.length} {orders.length === 1 ? t("order_single") : t("order_plural")}
+                      {visibleOrders.length} {visibleOrders.length === 1 ? t("order_single") : t("order_plural")}
                     </span>
                   )}
                 </div>
@@ -667,7 +682,7 @@ const MyAccount = () => {
                     <div className="w-8 h-8 rounded-full border-2 border-red border-t-transparent animate-spin" />
                     <p className="text-xs text-[var(--tt-text-muted)]">{t("loading_orders")}</p>
                   </div>
-                ) : orders.length === 0 ? (
+                ) : visibleOrders.length === 0 ? (
                   <div className="py-16 px-4 text-center space-y-4">
                     <div className="w-16 h-16 rounded-2xl bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-center justify-center text-[var(--tt-text-muted)] mx-auto shadow-inner">
                       <IconBox className="w-8 h-8 text-[var(--tt-text-subtle)]" />
@@ -688,7 +703,7 @@ const MyAccount = () => {
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    {orders.map((order) => {
+                    {paginatedOrders.map((order) => {
                       const stStyle = STATUS_MAP_STYLES[order.status];
                       const st = stStyle
                         ? { label: t(stStyle.key as any), cls: stStyle.cls, dot: stStyle.dot }
@@ -847,6 +862,26 @@ const MyAccount = () => {
                                         </div>
                                       </div>
 
+                                      {/* Banner Protocolo Unboxing TapTrade Shield */}
+                                      <div className="w-full p-3 rounded-lg bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] flex items-start gap-3">
+                                        <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
+                                          <IconShieldCheck className="w-4 h-4" />
+                                        </div>
+                                        <div className="space-y-1 text-left">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                              {t("unboxing_badge")}
+                                            </span>
+                                            <span className="font-bold text-[11px] text-[var(--tt-text-main)]">
+                                              {t("unboxing_banner_title")}
+                                            </span>
+                                          </div>
+                                          <p className="text-[11px] text-[var(--tt-text-muted)] leading-relaxed">
+                                            {t("unboxing_banner_desc")}
+                                          </p>
+                                        </div>
+                                      </div>
+
                                       {/* Línea de tiempo oficial desplegada para el cliente */}
                                       {trackingDataMap[vo.id] && (
                                         <div className="w-full pt-3 border-t border-emerald-500/20 animate-fadeIn">
@@ -917,6 +952,72 @@ const MyAccount = () => {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* Paginador de Pedidos */}
+                {totalOrderPages > 1 && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[var(--tt-border-medium)]">
+                    <p className="text-xs text-[var(--tt-text-muted)] font-medium">
+                      {t("pagination_showing_orders", {
+                        from: (ordersPage - 1) * ORDERS_PER_PAGE + 1,
+                        to: Math.min(ordersPage * ORDERS_PER_PAGE, visibleOrders.length),
+                        total: visibleOrders.length,
+                      })}
+                    </p>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrdersPage((p) => Math.max(1, p - 1));
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        disabled={ordersPage === 1}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        aria-label={t("pagination_prev")}
+                      >
+                        <IconChevronLeft className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{t("pagination_prev")}</span>
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalOrderPages }, (_, i) => i + 1).map((pageNum) => {
+                          const isActive = pageNum === ordersPage;
+                          return (
+                            <button
+                              key={pageNum}
+                              type="button"
+                              onClick={() => {
+                                setOrdersPage(pageNum);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                isActive
+                                  ? "bg-red text-white shadow-sm shadow-red/30"
+                                  : "bg-[var(--tt-bg-subtle)] border border-[var(--tt-border-medium)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text-main)] hover:bg-[var(--tt-bg-canvas)]"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrdersPage((p) => Math.min(totalOrderPages, p + 1));
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        disabled={ordersPage === totalOrderPages}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--tt-border-medium)] bg-[var(--tt-bg-subtle)] hover:bg-[var(--tt-bg-canvas)] text-[var(--tt-text-main)] text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        aria-label={t("pagination_next")}
+                      >
+                        <span className="hidden sm:inline">{t("pagination_next")}</span>
+                        <IconChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

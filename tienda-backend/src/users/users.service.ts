@@ -243,7 +243,10 @@ export class UsersService {
 
   async getUserOrders(userId: string) {
     return this.prisma.order.findMany({
-      where: { userId },
+      where: {
+        userId,
+        status: { in: ['PAID', 'REFUNDED'] },
+      },
       orderBy: { createdAt: 'desc' },
       include: {
         vendorOrders: {

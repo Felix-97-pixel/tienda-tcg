@@ -127,11 +127,11 @@ export class DispatchVendorOrderHandler
             grossOrderTotal - Number((vendorOrder as any).sellerCommissionGross || 0),
           );
 
-    // Validación TapTrade Shield (Nivel 2 y 3 >= $20.000 CLP)
-    if (grossOrderTotal >= 20000 && !isLocalPickup) {
+    // Validación TapTrade Shield (Nivel 2 y 3 >= $10.000 CLP)
+    if (grossOrderTotal >= 10000 && !isLocalPickup) {
       if (!dto.contentPhotoUrl || !dto.packagingPhotoUrl || !dto.packagePhotoUrl) {
         throw new BadRequestException(
-          'Para pedidos iguales o superiores a $20.000 CLP es obligatorio registrar las 3 fotografías de evidencia de empaque (Protocolo TapTrade Shield).',
+          'Para pedidos iguales o superiores a $10.000 CLP es obligatorio registrar las 3 fotografías de evidencia de empaque (Protocolo TapTrade Shield).',
         );
       }
     }

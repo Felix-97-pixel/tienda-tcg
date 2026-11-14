@@ -327,7 +327,7 @@ export default function DispatchModal({
 
   const totalOrderGross =
     Number(vendorOrder.subtotal || 0) + Number(vendorOrder.shippingCost || 0);
-  const isShieldRequired = totalOrderGross >= 20000 && !isLocalPickup;
+  const isShieldRequired = totalOrderGross >= 10000 && !isLocalPickup;
   const isPhotosComplete = !!(contentPhotoUrl && packagingPhotoUrl && packagePhotoUrl);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -349,7 +349,7 @@ export default function DispatchModal({
 
     // Validación TapTrade Shield (Nivel 2/3)
     if (isShieldRequired && !isPhotosComplete) {
-      setError("Para pedidos superiores a $20.000 CLP es obligatorio cargar las 3 fotografías de respaldo.");
+      setError("Para pedidos iguales o superiores a $10.000 CLP es obligatorio cargar las 3 fotografías de respaldo.");
       return;
     }
 
