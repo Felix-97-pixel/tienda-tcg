@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MagicService } from '../sync/magic.service';
-import { PokemonService } from '../sync/pokemon.service';
-import { RiftboundService } from '../sync/riftbound.service';
 import { ScrydexService } from '../sync/scrydex.service';
 
 @Injectable()
@@ -10,8 +8,6 @@ export class ExpansionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly magicService: MagicService,
-    private readonly pokemonService: PokemonService,
-    private readonly riftboundService: RiftboundService,
     private readonly scrydexService: ScrydexService
   ) {}
 

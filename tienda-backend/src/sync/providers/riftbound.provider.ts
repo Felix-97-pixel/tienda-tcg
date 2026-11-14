@@ -1,12 +1,10 @@
 import { TcgProvider } from './base-tcg.provider';
 import { PrismaService } from '../../prisma/prisma.service';
-import { RiftboundService } from '../riftbound.service';
 import { ScrydexService } from '../scrydex.service';
 
 export class RiftboundProvider extends TcgProvider {
   constructor(
     prisma: PrismaService,
-    private readonly riftboundService: RiftboundService,
     private readonly scrydexService: ScrydexService,
   ) {
     super('Riftbound', prisma);
@@ -61,28 +59,76 @@ export class RiftboundProvider extends TcgProvider {
     return ['Normal', 'Foil'];
   }
 
-  /** Obtener cartas de Riftcodex delegando en RiftboundService */
+  /** Obtener cartas de Riftbound delegando en ScrydexService */
   async fetchExternalSet(setId: string): Promise<any[]> {
-    return this.riftboundService.fetchCardsBySet(setId);
+    let page = 1;
+    const pageSize = 250;
+    let allCards: any[] = [];
+    let hasMore = true;
+
+    while (hasMore) {
+      const { cards, totalCount } = await this.scrydexService.fetchCardsPageWithPrices('riftbound', setId, page, pageSize);
+      if (!cards || cards.length === 0) break;
+      allCards = allCards.concat(cards);
+      if (allCards.length >= totalCount || cards.length === 0) {
+        hasMore = false;
+      } else {
+        page++;
+      }
+    }
+
+    return allCards;
   }
 
-  async fetchAllSets(): Promise<{id: string, name: string}[]> {
-    const sets = await this.riftboundService.fetchSets();
-    return sets.map(s => ({ id: s.id, name: s.name }));
+  async fetchAllSets(): Promise<{ id: string; name: string }[]> {
+    const sets = await this.scrydexService.fetchSets('riftbound');
+    return sets.map((s) => ({ id: s.id, name: s.name || s.id }));
   }
 
-  /** Mapear campos de Riftcodex a nuestro Producto */
+  /** Mapear campos de Scrydex a nuestro Producto */
   mapToProduct(c: any, categoryId: string) {
+    const attrs: string[] = [];
+    if (Array.isArray(c.domains)) attrs.push(...c.domains);
+    else if (c.domain) attrs.push(c.domain);
+    else if (Array.isArray(c.classification?.domain)) attrs.push(...c.classification.domain);
+    if (c.type) attrs.push(c.type);
+    if (Array.isArray(c.subtypes)) attrs.push(...c.subtypes);
+
+    const imageUrl =
+      c.images?.[0]?.large ||
+      c.images?.[0]?.medium ||
+      c.images?.[0]?.small ||
+      c.imageUrl ||
+      c.media?.image_url ||
+      '';
+
+    const expansionName = c.expansion?.name || c.set?.label || c.set?.name || 'Riftbound';
+    const expansionExtId = c.expansion?.id || c.set?.id || '';
+
+    // TCGPlayer product ID si existe en variants, o fallback al id de Scrydex
+    let tcgId: string | null = null;
+    if (Array.isArray(c.variants)) {
+      for (const v of c.variants) {
+        const pId = v.marketplaces?.find((m: any) => m.name === 'tcgplayer')?.product_id;
+        if (pId) {
+          tcgId = String(pId);
+          break;
+        }
+      }
+    }
+    const extId = tcgId ? String(tcgId) : c.tcgplayer_id ? String(c.tcgplayer_id) : c.id;
+
     return {
-      externalId: c.tcgplayer_id ? String(c.tcgplayer_id) : `rb-${c.id}`,
+      externalId: extId,
       name: c.name,
-      description: c.text?.plain || c.text?.rich || c.effect || c.description || c.flavor_text || c.rules_text || '',
-      image: c.media?.image_url || '',
-      expansion: c.set?.label || 'Riftbound',
-      rarity: c.classification?.rarity || c.rarity || 'Common',
-      number: String(c.collector_number || ''),
-      attributes: Array.isArray(c.classification?.domain) ? c.classification.domain : [],
-      categoryId: categoryId
+      description: Array.isArray(c.rules) ? c.rules.join('\n') : (c.text?.plain || c.effect || c.description || c.flavor_text || ''),
+      image: imageUrl,
+      expansion: expansionName,
+      expansionExternalId: expansionExtId,
+      rarity: c.rarity || c.classification?.rarity || 'Common',
+      number: String(c.number || c.collector_number || ''),
+      attributes: attrs,
+      categoryId: categoryId,
     };
   }
 

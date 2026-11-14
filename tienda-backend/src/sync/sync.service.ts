@@ -8,8 +8,6 @@ import { OnePieceProvider } from './providers/onepiece.provider';
 import { LorcanaProvider } from './providers/lorcana.provider';
 import { GundamProvider } from './providers/gundam.provider';
 import { MagicService } from './magic.service';
-import { PokemonService } from './pokemon.service';
-import { RiftboundService } from './riftbound.service';
 import { ScrydexService } from './scrydex.service';
 
 @Injectable()
@@ -48,12 +46,10 @@ export class SyncService {
   constructor(
     private prisma: PrismaService,
     private magicService: MagicService,
-    private pokemonService: PokemonService,
-    private riftboundService: RiftboundService,
     private scrydexService: ScrydexService
   ) {
     this.providers = {
-      riftbound: new RiftboundProvider(this.prisma, this.riftboundService, this.scrydexService),
+      riftbound: new RiftboundProvider(this.prisma, this.scrydexService),
       pokemon: new PokemonProvider(this.prisma, this.scrydexService),
       magic: new MagicProvider(this.prisma, this.magicService),
       onepiece: new OnePieceProvider(this.prisma, this.scrydexService),
@@ -240,17 +236,33 @@ export class SyncService {
   }
 
   /**
-   * Obtiene la lista de ediciones de Pokemon desde PokemonService (pokemontcg.io)
+   * Obtiene la lista de ediciones de Pokemon desde ScrydexService
    */
   async getPokemonSets() {
-    return this.pokemonService.fetchSets();
+    const sets = await this.scrydexService.fetchSets('pokemon');
+    return sets
+      .filter((s) => !s.id?.startsWith('tcgp-') && (!s.language || s.language === 'English' || s.language_code === 'EN'))
+      .map((s) => ({
+        id: s.id,
+        name: s.name || s.id,
+        code: s.code || '',
+        releaseDate: s.release_date || (s as any).releaseDate,
+        total: s.total,
+        images: {
+          logo: (s as any).logo || s.images?.logo,
+          symbol: (s as any).symbol || s.images?.symbol,
+        },
+      }))
+      .sort((a, b) =>
+        new Date(b.releaseDate || 0).getTime() - new Date(a.releaseDate || 0).getTime()
+      );
   }
 
   /**
-   * Obtiene la lista de ediciones de Riftbound desde RiftboundService (Riftcodex)
+   * Obtiene la lista de ediciones de Riftbound desde ScrydexService
    */
   async getRiftboundSets() {
-    return this.riftboundService.fetchSets();
+    return this.scrydexService.fetchSets('riftbound');
   }
 
   /**
